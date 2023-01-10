@@ -1,0 +1,34 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Ricgraph - Research in context graph
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Rik D.T.
+    family-names: Janssen
+    orcid: 'https://orcid.org/0000-0001-9510-0802'
+    affiliation: Utrecht University
+identifiers:
+  - type: doi
+    value: '[to follow]'
+abstract: >-
+  Ricgraph (Research in context graph) is a graph
+  with nodes (sometimes called vertices) and edges
+  (sometimes called links) to represent objects and
+  their relations. It can be used to store,
+  manipulate and read metadata of any object that has
+  a relation to another object, as long as every
+  object can be "represented" by at least a *name*
+  and a *value*. In Ricgraph, one node represents one
+  object, and an edge represents the relation between
+  two objects. Metadata of an object are stored as
+  "properties" in a node, i.e. as information
+  associated with a node.
+license: MIT
+commit: commit id
+version: '0.8'
+date-released: '2023-01-10'

@@ -1,0 +1,8 @@
+numpy
+pandas
+py2neo
+pyalex
+requests
+ratelimit
+xmltodict
+Sickle
