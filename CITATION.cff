@@ -13,8 +13,12 @@ authors:
     orcid: 'https://orcid.org/0000-0001-9510-0802'
     affiliation: Utrecht University
 identifiers:
-  - type: doi
-    value: '10.5281/zenodo.7524169'
+  - description: 'This is the DOI for the latest version of Ricgraph'
+    type: doi
+    value: '10.5281/zenodo.7524314'
+  - description: 'This is the DOI for v0.8 of Ricgraph'
+    type: doi
+    value: '10.5281/zenodo.7524315'
 abstract: >-
   Ricgraph (Research in context graph) is a graph
   with nodes (sometimes called vertices) and edges
@@ -29,6 +33,5 @@ abstract: >-
   "properties" in a node, i.e. as information
   associated with a node.
 license: MIT
-commit: commit id
-version: '0.8'
+version: 'v0.8'
 date-released: '2023-01-11'
