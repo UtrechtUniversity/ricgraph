@@ -35,6 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
+# Update January 11, 2023.
 #
 # ########################################################################
 
@@ -76,35 +77,34 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
     for software_package in harvest[0]['software']:
         package_name = software_package['brand_name']
         package_url = 'https://research-software-directory.org/software/' + software_package['slug']
-        release = software_package['release']
-        package_doi_type = ''
-        # Take the first DOI in the list as the correct one.
-        # If there is no 'real' DOI,take the concept DOI if present
-        if release is not None:
-            release_content = release['release_content']
-            if len(release_content) != 0:
-                # DOIs are sorted on date, most recent first. Not sure what is 'correct' if there are DOIs
-                # from the same date. Just take the first.
-                first_doi_date = release_content[0]
-                package_doi = first_doi_date['doi']
-            else:
-                if software_package['concept_doi'] is not None:
-                    package_doi = software_package['concept_doi']
-                    package_doi_type = 'concept DOI'
-                else:
-                    continue
+
+        # RSD has several DOIs: 'Concept DOI' and 'Version DOI'. The Concept DOI always
+        # represents the most recent version, and the Version DOI is specific to a version.
+        # We prefer the Concept DOI, and if not present, take the first DOI in the list
+        # as the correct one.
+        if software_package['concept_doi'] is not None:
+            package_doi = software_package['concept_doi']
+            package_doi_type = 'concept DOI'
         else:
-            if software_package['concept_doi'] is not None:
-                package_doi = software_package['concept_doi']
-                package_doi_type = 'concept DOI'
-            else:
+            release = software_package['release']
+            if release is None:
                 continue
+
+            release_content = release['release_content']
+            if len(release_content) == 0:
+                continue
+
+            # DOIs are sorted on date, most recent first. Not sure what is 'correct' if there are DOIs
+            # from the same date. Just take the first.
+            first_doi_date = release_content[0]
+            package_doi = first_doi_date['doi']
+            package_doi_type = 'version DOI'
 
         # The following results in names and ORCIDs of contributors.
         # In case there are no names, the software will be added anyway to Ricgraph.
         contributor = pandas.json_normalize(software_package, 'contributor')
 
-        if package_doi_type != '':
+        if package_doi_type == 'version DOI':
             package_name = package_name + ' (' + package_doi_type + ')'
 
         contributor.fillna(value=numpy.nan, inplace=True)
