@@ -244,7 +244,7 @@ except KeyError:
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()
-# rcg.empty_ricgraph()        # use this only if you need to empty the graph
+# rcg.empty_ricgraph()       # use this only if you need to empty the graph
 
 rsd_data = harvest_and_parse_software(headers=RSD_HEADERS,
                                       url=FULL_RSD_URL,
