@@ -7,6 +7,7 @@ ricgraph.ini
 *.csv
 *.xml
 .idea
+!neo4j_config/*.json
 
 # ###########################
 # Default .gitignore from GitHub on January 4, 2022.

@@ -14,7 +14,7 @@ authors:
     affiliation: Utrecht University
 identifiers:
   - type: doi
-    value: '[to follow]'
+    value: '10.5281/zenodo.7524169'
 abstract: >-
   Ricgraph (Research in context graph) is a graph
   with nodes (sometimes called vertices) and edges
@@ -31,4 +31,4 @@ abstract: >-
 license: MIT
 commit: commit id
 version: '0.8'
-date-released: '2023-01-10'
+date-released: '2023-01-11'
