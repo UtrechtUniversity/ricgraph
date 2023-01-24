@@ -19,6 +19,9 @@ identifiers:
   - description: 'This is the DOI for v0.8 of Ricgraph'
     type: doi
     value: '10.5281/zenodo.7524315'
+  - description: 'This is the DOI for v0.9 of Ricgraph'
+    type: doi
+    value: '10.5281/zenodo.7565225'
 abstract: >-
   Ricgraph (Research in context graph) is a graph
   with nodes (sometimes called vertices) and edges
@@ -33,5 +36,5 @@ abstract: >-
   "properties" in a node, i.e. as information
   associated with a node.
 license: MIT
-version: 'v0.8'
-date-released: '2023-01-11'
+version: 'v0.9'
+date-released: '2023-01-24'
