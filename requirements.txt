@@ -1,3 +1,5 @@
+flask
+markupsafe
 numpy
 pandas
 py2neo

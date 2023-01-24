@@ -122,9 +122,8 @@ Some of Ricgraph's features are:
 * Ricgraph can store any number of properties in a node.
   It has function calls to
   create, read (find), update and delete (CRUD) nodes and to connect two nodes.
-* Ricgraph does not have an end user web interface yet. This is future work.
-  The graph can be explored using Bloom,
-  see [Execute queries and visualize the result using Bloom](docs/ricgraph_neo4j_bloom_use.md).
+* To query, visualize and explore the graph, 
+  see [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
 
 ## How can you use Ricgraph?
 
@@ -136,7 +135,8 @@ Some of Ricgraph's features are:
 * Or [do a harvest for Utrecht University datasets and
   software](docs/ricgraph_programming_examples.md#harvest-of-utrecht-university-datasets-and-software).
   You will observe that the information from two sources is neatly combined into one graph.
-* [Execute queries and visualize the result using Bloom](docs/ricgraph_neo4j_bloom_use.md).
+* To query, visualize and explore the graph,
+  see [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
 * Of course, there is [future work to do](docs/ricgraph_future_work.md). Please let me know
   if you'd like to help.
 

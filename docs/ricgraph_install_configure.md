@@ -23,7 +23,7 @@ To be able to use Ricgraph, you need to:
 * Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file).
 * Start writing code, or start reusing code,
   see [Ricgraph programming examples](ricgraph_programming_examples.md).
-* [Execute queries and visualize the result using Bloom](ricgraph_neo4j_bloom_use.md).
+* [Execute queries and visualize the results](ricgraph_query_visualize.md).
 
 [Return to main README.md file](../README.md).
 
@@ -50,7 +50,7 @@ To be able to use Ricgraph, you need to:
 
 Now we need to find the port number which Neo4j Desktop is using:
 
-* [Start Neo4j Desktop](ricgraph_neo4j_bloom_use.md#start-neo4j-desktop).
+* [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
 * Click on the words "Graph DBMS". At the right a new screen appears.
   Look at the tab "Details". Note the port number next to "Bolt port" (the default
   value is 7687).
@@ -59,7 +59,7 @@ Now we need to find the port number which Neo4j Desktop is using:
 
 ### Install Bloom configuration
 
-* [Start Neo4j Desktop](ricgraph_neo4j_bloom_use.md#start-neo4j-desktop).
+* [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
 * Click on the icon
   <img src="images/neo4j1.jpg" height="20"/>
   on the left side of Neo4j Desktop.

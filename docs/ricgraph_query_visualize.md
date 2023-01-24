@@ -1,4 +1,12 @@
-## Start Neo4j and use Bloom
+## Query and visualize Ricgraph
+
+To query and visualize Ricgraph nodes and edges, there are several possibilities:
+* First you have to [start Neo4j Desktop](#start-neo4j-desktop).
+* Then you can query and visualize using:
+  * Ricgraph_explorer, read [How to use Ricgraph explorer](#How-to-use-ricgraph-explorer).
+  * Bloom, read [How to use Bloom](#How-to-use-bloom).
+  * Other methods for querying and visualization are 
+    [Future work](ricgraph_future_work.md).
 
 [Return to main README.md file](../README.md).
 
@@ -15,6 +23,30 @@
   while creating your database. Click "Save". 
 * Now, next to the text "Graph DBMS" a green icon appears with
   the text "ACTIVE". Your graph database engine is active and ready for use.
+
+### How to use Ricgraph explorer
+
+Ricgraph explorer is a web based explorer for Ricgraph. You can use it to search for nodes
+based on the node properties *name*, *category* and/or *value*. Ricgraph explorer will
+present a simple form where you can enter one or more of these values. 
+As result, all objects related to your search value(s) will be returned in the form
+of a table.
+Also, if you have searched for a *person*, all of its identifiers will be returned.
+You can go to other nodes by clicking on a value in the *value* column. By doing this, 
+you are traversing the graph.
+
+#### Execute queries
+
+To use Ricgraph explorer, follow these steps:
+* [Start Neo4j Desktop](#Start-neo4j-desktop).
+* Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
+  It will tell you which weblink and port to use, probably
+  http://127.0.0.1:3030. Open a webbrowser and go to that link.
+* In the search form, enter one or more values in the *name*, *category* and/or *value* fields.
+* Click on "Search".
+* The result, that is, all objects related to your search value(s),
+  will be presented in a table. You can go to other nodes
+  by clicking a value in the *value* column.
 
 ### How to use Bloom
 
