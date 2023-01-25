@@ -1,40 +1,54 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
 cff-version: 1.2.0
-title: Ricgraph - Research in context graph
-message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
+title: "Ricgraph - Research in context graph"
+message: "If you use Ricgraph, please cite it."
 type: software
+version: "0.9"
+date-released: "2023-01-24"
 authors:
-  - given-names: Rik D.T.
+  - given-names: "Rik D.T."
     family-names: Janssen
-    orcid: 'https://orcid.org/0000-0001-9510-0802'
-    affiliation: Utrecht University
+    orcid: "https://orcid.org/0000-0001-9510-0802"
+    affiliation: "Utrecht University"
 identifiers:
-  - description: 'This is the DOI for the latest version of Ricgraph'
+  - description: "Ricgraph concept DOI (latest version)"
     type: doi
-    value: '10.5281/zenodo.7524314'
-  - description: 'This is the DOI for v0.8 of Ricgraph'
+    value: "10.5281/zenodo.7524314"
+  - description: "Ricgraph DOI v0.8"
     type: doi
-    value: '10.5281/zenodo.7524315'
-  - description: 'This is the DOI for v0.9 of Ricgraph'
+    value: "10.5281/zenodo.7524315"
+  - description: "Ricgraph DOI v0.9"
     type: doi
-    value: '10.5281/zenodo.7565240'
+    value: "10.5281/zenodo.7565240"
 abstract: >-
-  Ricgraph (Research in context graph) is a graph
-  with nodes (sometimes called vertices) and edges
-  (sometimes called links) to represent objects and
-  their relations. It can be used to store,
-  manipulate and read metadata of any object that has
-  a relation to another object, as long as every
-  object can be "represented" by at least a *name*
-  and a *value*. In Ricgraph, one node represents one
-  object, and an edge represents the relation between
-  two objects. Metadata of an object are stored as
-  "properties" in a node, i.e. as information
-  associated with a node.
+  "Ricgraph (Research in context graph) is a graph
+  (https://en.wikipedia.org/wiki/Graph_theory) with nodes (sometimes called
+  vertices) and edges (sometimes called links) to represent objects and their
+  relations. It can be used to store, manipulate and read metadata of any
+  object that has a relation to another object, as long as every object can be
+  'represented' by at least a 'name' and a 'value'. In Ricgraph, one node
+  represents one object, and an edge represents the relation between two
+  objects. It is written in Python and uses Neo4j as graph database engine
+  (https://en.wikipedia.org/wiki/Graph_database).
+
+  Metadata of an object are stored as 'properties' in a node, i.e. as
+  information associated with a node. For example, a node may store two
+  properties, 'name = PET' and 'value = cat'. Another node may store 'name =
+  FULL_NAME' and 'value = John Doe'. Then the edge between those two nodes
+  means that the person with FULL_NAME John Doe has a PET which is a cat.
+
+  The philosophy of Ricgraph is that it stores metadata, not the objects the
+  metadata refer to. To access an object, a node has a link to that object in
+  the system it was obtained from. The objective is to get metadata from
+  objects from a source system in a process called 'harvesting'. All
+  information harvested from several source systems will be combined into one
+  graph. Modification of metadata of an object is done in the source system the
+  object was harvested from, and then reharvesting of that source system."
+keywords:
+  - ricgraph
+  - "research in context graph"
+  - graph
+  - "graph database"
+  - "Utrecht University"
 license: MIT
-version: 'v0.9'
-date-released: '2023-01-24'
+repository-code: "https://github.com/UtrechtUniversity/ricgraph"
+url: "https://github.com/UtrechtUniversity/ricgraph"
