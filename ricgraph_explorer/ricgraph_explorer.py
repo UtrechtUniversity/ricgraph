@@ -36,11 +36,13 @@
 # not for production use. That means, this code has not been hardened for
 # "the outside world". Be careful if you expose it to the outside world.
 # Original version Rik D.T. Janssen, January 2023.
+# Extended Rik D.T. Janssen, February 2023.
 #
 # ########################################################################
 
 import urllib.parse
-from py2neo import Node
+from typing import Union
+from py2neo import Node, NodeMatch
 from flask import Flask, request, url_for
 from markupsafe import escape
 import ricgraph as rcg
@@ -72,13 +74,20 @@ footer += '</div>'
 # The html search form.
 search_form = '<form method="post">'
 search_form += '<p>This is Ricgraph explorer.'
-search_form += '<p>Type something to search (this is an exact match, '
-search_form += 'case sensitive search, using AND if you use multiple fields):'
+search_form += '<p>Type something to search (this is an case-sensitive, exact match '
+search_form += 'search, using AND if you use multiple fields):'
 search_form += '<br><label>name:</label><input type=text name=search_name>'
 search_form += '<br><label>category:</label><input type=text name=search_category>'
 search_form += '<br><label>value:</label><input type=text name=search_value>'
 search_form += '<br><br><label></label><input type=submit value=search>'
 search_form += '</form>'
+
+searchcontains_form = '<form method="post">'
+searchcontains_form += '<p>This is Ricgraph explorer.'
+searchcontains_form += '<p>Type something to search (this is a case-insensitive, inexact match):'
+searchcontains_form += '<br><label>value:</label><input type=text name=search_value>'
+searchcontains_form += '<br><br><label></label><input type=submit value=search>'
+searchcontains_form += '</form>'
 
 
 # ##############################################################################
@@ -94,7 +103,13 @@ def index_html() -> str:
 
     html = stylesheet
     html += '<p>This is Ricgraph explorer. You can use it to explore Ricgraph.'
-    html += '<br><a href=' + url_for('search') + '>' + 'Start here' + '</a>.'
+    html += '<ul>'
+    html += '<li><a href=' + url_for('search') + '>' + 'Do a case-sensitive, '
+    html += 'exact match search on fields '
+    html += '<em>name</em>, <em>category</em> and/or <em>value</em>' + '</a>;'
+    html += '<li><a href=' + url_for('searchcontains') + '>' + 'Do a search on '
+    html += 'field <em>value</em> containing a string' + '</a>.'
+    html += '</ul>'
     html += footer
     return html
 
@@ -132,33 +147,82 @@ def search(id_value=None) -> str:
     return html
 
 
+@ricgraph_explorer.route('/searchcontains/', methods=['GET', 'POST'])
+def searchcontains() -> str:
+    """Ricgraph explorer entry, the search on a substring page,
+    when you access '/searchcontains'.
+    This page will present a search page, where you can search
+    on the 'value' field of a node.
+
+    :return: html to be rendered.
+    """
+    global stylesheet, footer, searchcontains_form
+
+    html = stylesheet
+    if request.method == 'POST':
+        search_value = request.form['search_value']
+        html += find_nodes_in_ricgraph(value=escape(search_value),
+                                       use_contain_phrase=True)
+    else:
+        html += searchcontains_form
+
+    html += footer
+    return html
+
+
 # ##############################################################################
 # This is where the work is done.
 # ##############################################################################
-def find_nodes_in_ricgraph(name: str, category: str, value: str) -> str:
+def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
+                           use_contain_phrase: bool = False) -> str:
     """Find all nodes conforming to a query
     in Ricgraph and generate html for the result page.
 
     :param name: name of the nodes to find.
     :param category: category of the nodes to find.
     :param value: value of the nodes to find.
+    :param use_contain_phrase: determines either case-sensitive & exact match,
+      or case-insensitive & inexact match.
     :return: html to be rendered.
     """
     graph = rcg.open_ricgraph()         # Should probably be done in a Session
     if graph is None:
         return 'Ricgraph could not be opened.'
 
-    result = rcg.read_all_nodes(name=name, category=category, value=value)
+    if name == '' and category == '' and value == '':
+        html = '<p>Please enter a value in the search field.'
+        html += '<br><a href=' + url_for('index_html') + '>' + 'Try again' + '</a>.'
+        return html
+
+    if use_contain_phrase:
+        if len(value) < 3:
+            html = '<p>Please use at least three characters for your search string.'
+            html += '<br><a href=' + url_for('index_html') + '>' + 'Try again' + '</a>.'
+            return html
+
+        result = rcg.read_all_nodes_containing(value=value)
+    else:
+        result = rcg.read_all_nodes(name=name, category=category, value=value)
+
     if len(result) == 0:
         html = '<p>Ricgraph explorer could not find anything.'
-        html += '<br><a href=' + url_for('search') + '>' + 'Try again' + '</a>.'
+        html += '<br><a href=' + url_for('index_html') + '>' + 'Try again' + '</a>.'
         return html
 
     html = '<p>You searched for:<ul>'
-    html += '<li>name: "' + str(name) + '"'
-    html += '<li>category: "' + str(category) + '"'
+    if not use_contain_phrase:
+        html += '<li>name: "' + str(name) + '"'
+        html += '<li>category: "' + str(category) + '"'
+
     html += '<li>value: "' + str(value) + '"'
     html += '</ul>'
+
+    if use_contain_phrase:
+        header = '<p>Choose one node to continue:'
+        html += get_html_table_from_nodes(nodes=result,
+                                          header_html=header)
+        return html
+
     if len(result) > MAX_RESULTS:
         html += '<p>There are ' + str(len(result)) + ' results, showing first '
         html += str(MAX_RESULTS) + '.<br>'
@@ -210,7 +274,7 @@ def find_nodes_in_ricgraph(name: str, category: str, value: str) -> str:
     return html
 
 
-def get_html_table_from_nodes(nodes: list, header_html: str = '') -> str:
+def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None], header_html: str = '') -> str:
     """Create a html table for all nodes in the list.
 
     :param nodes: the nodes to create a table from.

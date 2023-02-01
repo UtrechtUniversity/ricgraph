@@ -360,6 +360,36 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union
     return all_nodes
 
 
+# Note the similarity with read_all_nodes().
+# I only implemented this for property 'value'.
+def read_all_nodes_containing(value: str = '') -> Union[NodeMatch, None]:
+    """Read a number of nodes which property 'value' contains a certain value.
+
+    :param value: 'value' field of node.
+    :return: NodeMatch object, which is a kind of list of nodes read, or None if nothing found
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nread_all_nodes_containing(): Error: graph has not been initialized or opened.\n\n')
+        return None
+
+    lvalue = str(value)
+
+    if lvalue == 'nan':
+        return None
+    if lvalue == '':
+        return None
+
+    node_properties = {}
+    if lvalue != '':
+        node_properties['value'] = lvalue
+
+    nodes_in_graph = NodeMatch(_graph)
+    all_nodes = nodes_in_graph.where('toLower(_.value) CONTAINS toLower("' + lvalue + '")')
+    return all_nodes
+
+
 def update_node(name: str, category: str, value: str,
                 **other_properties: dict) -> Node:
     """Update a node.
