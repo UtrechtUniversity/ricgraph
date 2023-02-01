@@ -61,6 +61,9 @@ stylesheet += 'table, th, td {outline: 1px solid black;}'
 stylesheet += 'th {background: #a6a6a6; text-align:left;}'
 stylesheet += 'label {display:inline-block; width:5em}'
 stylesheet += 'input {width:25em; margin:2px}'
+# For table sorting.
+stylesheet += 'table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse)'
+stylesheet += ':not(.sorttable_nosort):after{content:" \u25B4 \u25BE"}'
 stylesheet += '</style>'
 
 # The html page footer.
@@ -70,6 +73,10 @@ footer += 'For more information about Ricgraph, see '
 footer += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
 footer += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
 footer += '</div>'
+# For table sorting. sorttable.js is copied from https://www.kryogenix.org/code/browser/sorttable
+# on February 1, 2023. At that link, you'll find a how-to. It is licensed under X11-MIT.
+# It is renamed to ricgraph_sorttable.js since it has a small modification.
+footer += '<script src="/static/ricgraph_sorttable.js"></script>'
 
 # The html search form.
 search_form = '<form method="post">'
@@ -303,7 +310,7 @@ def get_html_for_tablestart() -> str:
 
     :return: html to be rendered.
     """
-    html = '<table>'
+    html = '<table class="sortable">'
     return html
 
 
@@ -315,11 +322,11 @@ def get_html_for_tableheader() -> str:
     html = '<tr>'
     html += '<th>name</th>'
     html += '<th>category</th>'
-    html += '<th>value</th>'
+    html += '<th class=sorttable_alpha">value</th>'
     html += '<th>comment</th>'
-    html += '<th>url_main</th>'
-    html += '<th>url_other</th>'
-    html += '<th>_history</th>'
+    html += '<th class="sorttable_nosort">url_main</th>'
+    html += '<th class="sorttable_nosort">url_other</th>'
+    html += '<th class="sorttable_nosort">_history</th>'
     html += '</tr>'
     return html
 
@@ -329,13 +336,19 @@ def get_html_for_tablerow(node: Node) -> str:
 
     :return: html to be rendered.
     """
-    html = '<tr>'
+    html = '<tr class="item">'
     html += '<td>' + node['name'] + '</td>'
     html += '<td>' + node['category'] + '</td>'
     html += '<td><a href=' + url_for('search') + urllib.parse.quote(node['value']) + '>'
     html += node['value'] + '</a></td>'
     if node['comment'] == '':
-        html += '<td></td>'
+        # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
+        # for easier browsing.
+        html += '<td><ul>'
+        if node['name'] == 'person-root':
+            for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
+                html += '<li>' + full_name_node['value'] + '</li>'
+        html += '</ul></td>'
     else:
         html += '<td width=30%>' + node['comment'] + '</td>'
 
