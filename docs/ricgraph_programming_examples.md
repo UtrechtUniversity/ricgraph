@@ -96,11 +96,30 @@ to create, read, update and delete (CRUD) nodes. "Read" is used as term for "Fin
 ```python
 import ricgraph as rcg
 
-rcg.create_node()  # create a node
-rcg.read_node()  # read (find) a node and return one
-rcg.read_all_nodes()  # read (find) nodes and return all nodes found
-rcg.update_node()  # update the values in a node
-rcg.delete_node()  # delete a node
+rcg.create_node()       # create a node
+rcg.read_node()         # read (find) a node and return one
+rcg.read_all_nodes()    # read (find) nodes and return all nodes found
+rcg.update_node()       # update the values in a node
+rcg.delete_node()       # delete a node
+```
+
+### Function calls to get neighbors of nodes
+
+There are several function calls
+to get neighbors of nodes. For a more extensive description how to use these,
+see the code comments in file *ricgraph.py* in directory [ricgraph](../ricgraph)
+or the code examples in file *ricgraph_explorer.py* in directory
+[ricgraph_explorer](../ricgraph_explorer).
+
+```python
+import ricgraph as rcg
+
+rcg.get_personroot_node()            # get a 'person-root' node starting from any 'person' node
+rcg.get_all_personroot_nodes()       # get all 'person-root' nodes (there should be only one)
+rcg.get_all_neighbor_nodes()         # get all neighbor nodes connected to a node. 
+                                     # it is possible to restrict to nodes having
+                                     # a certain property 'name' or 'category'
+rcg.get_all_neighbor_nodes_person()  # get all neighbor nodes connected to a 'person' node
 ```
 
 ### Return to main README.md file

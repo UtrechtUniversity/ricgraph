@@ -30,6 +30,7 @@
 #
 # This file is the main file for Ricgraph.
 # Original version Rik D.T. Janssen, December 2022.
+# Updated Rik D.T. Janssen, February 2023.
 #
 # ########################################################################
 
@@ -138,8 +139,14 @@ def empty_ricgraph() -> None:
         print('Ricgraph has not been emptied, exiting...\n')
         exit(1)
 
+    # Sometimes the following statement fails if there are many nodes, see e.g.
+    # https://stackoverflow.com/questions/23310114/how-to-reset-clear-delete-neo4j-database.
+    # If this happens, delete all Neo4j Desktop files and run the AppImage again to fully
+    # start over again.
+    # Apparently, the community edition of Neo4j does not have a
+    # "CREATE OR REPLACE DATABASE customers" command.
     print('Deleting all nodes and edges in Ricgraph...\n')
-    _graph.delete_all()
+    _graph.delete_all()                     # Equivalent to "MATCH (a) DETACH DELETE a".
 
     # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
     # Don't use the call from py2neo, since it generates a B-tree index and that does not seem to exist
@@ -303,7 +310,7 @@ def create_node(name: str, category: str, value: str,
     return node
 
 
-def read_node(name: str, value: str) -> Union[Node, None]:
+def read_node(name: str = '', value: str = '') -> Node:
     """Read a node based on name and value.
     Since all nodes are supposed to be unique, return the first one found.
 
@@ -311,20 +318,11 @@ def read_node(name: str, value: str) -> Union[Node, None]:
     :param value: idem.
     :return: the node read, or None if no node was found.
     """
-    global _graph
-
-    lname = str(name)
-    lvalue = str(value)
-
-    if lname == '' or lvalue == '' or lname == 'nan' or lvalue == 'nan':
-        return None
-
-    nodes_in_graph = NodeMatcher(_graph)
-    first_node = nodes_in_graph.match('RCGNode', _key=create_ricgraph_key(name=lname, value=lvalue)).first()
+    first_node = read_all_nodes(name=name, value=value).first()
     return first_node
 
 
-def read_all_nodes(name: str, category: str, value: str) -> Union[NodeMatch, None]:
+def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union[NodeMatch, None]:
     """Read a number of nodes based on name, category or value.
     Any of these parameters can be specified.
 
@@ -334,6 +332,10 @@ def read_all_nodes(name: str, category: str, value: str) -> Union[NodeMatch, Non
     :return: NodeMatch object, which is a kind of list of nodes read, or None if nothing found
     """
     global _graph
+
+    if _graph is None:
+        print('\nread_all_nodes(): Error: graph has not been initialized or opened.\n\n')
+        return None
 
     lname = str(name)
     lcategory = str(category)
@@ -368,8 +370,6 @@ def update_node(name: str, category: str, value: str,
     :param other_properties: a dictionary of all the other properties.
     :return: the node created, or None if this was not possible
     """
-    global _graph
-
     node = create_node(name=name, category=category, value=value, **other_properties)
     return node
 
@@ -381,6 +381,10 @@ def delete_node(name: str, value: str) -> None:
     :param value: idem.
     """
     global _graph
+
+    if _graph is None:
+        print('\ndelete_node(): Error: graph has not been initialized or opened.\n\n')
+        return
 
     lname = str(name)
     lvalue = str(value)
@@ -432,12 +436,12 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
     person_root_left_node = None
     person_root_right_node = None
     if left_node['category'] == 'person':
-        for edge in _graph.match((left_node,), r_type='LINKS_TO'):
+        for edge in get_edges(left_node):
             if edge.end_node['name'] == 'person-root':
                 person_root_left_node = edge.end_node
 
     if right_node['category'] == 'person':
-        for edge in _graph.match((right_node,), r_type='LINKS_TO'):
+        for edge in get_edges(right_node):
             if edge.end_node['name'] == 'person-root':
                 person_root_right_node = edge.end_node
 
@@ -481,9 +485,9 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
     #     Connect one node to the person-root node of the other and vice versa.
     #
     # Case 1
-    for edge_from_left_node in _graph.match((left_node,), r_type='LINKS_TO'):
+    for edge_from_left_node in get_edges(left_node):
         person_root_left = edge_from_left_node.end_node
-        for edge_from_right_node in _graph.match((right_node,), r_type='LINKS_TO'):
+        for edge_from_right_node in get_edges(right_node):
             person_root_right = edge_from_right_node.end_node
             if person_root_left == person_root_right:
                 # Link via the common person-root node
@@ -713,6 +717,198 @@ def print_node_values(node: Node) -> None:
 
 
 # ##############################################################################
+# Neighbor node and edge functions.
+# These start with "get_", not with "read_" as some above.
+# The difference is that "get_" functions work in constant time (starting from
+# a node) while the "read_" functions read (aka search, find) the whole graph.
+# ##############################################################################
+def get_edges(node: Node) -> RelationshipMatch:
+    """Get the edges attached to a node.
+
+    :param node: the node.
+    :return: the edges.
+    """
+    global _graph
+
+    edges_connected_to_node = _graph.match((node,), r_type='LINKS_TO')
+    return edges_connected_to_node
+
+
+# For the reason why there could be more than one 'person-root' node, see the
+# extensive comments in function connect_two_nodes().
+def get_personroot_node(node: Node) -> Union[Node, None]:
+    """Get the 'person-root' node for a 'person' node.
+    If 'node' is already a 'person-root' node, return 'node'.
+    If there is more than one person-root node (which should not happen),
+    return the first.
+
+    :param node: the node.
+    :return: the person-root node.
+    """
+    personroot_nodes = get_all_personroot_nodes(node)
+    if len(personroot_nodes) == 0:
+        return None
+    else:
+        return personroot_nodes[0]
+
+
+# For the reason why there could be more than one 'person-root' node, see the
+# extensive comments in function connect_two_nodes().
+def get_all_personroot_nodes(node: Node) -> list:
+    """Get the 'person-root' node(s) for a 'person' node.
+    If 'node' is already a 'person-root' node, return 'node'.
+    If there is more than one person-root node (which should not happen),
+    all will be returned in a list.
+
+    :param node: the node.
+    :return: a list of all the person-root nodes found.
+    """
+    if node is None:
+        return []
+
+    if node['category'] != 'person':
+        return []
+
+    personroot_nodes = []
+    if node['name'] == 'person-root':
+        personroot_nodes.append(node)
+        return personroot_nodes
+
+    edges = get_edges(node)
+    if len(edges) == 0:
+        print('get_personroot_node(): warning, "person" node with _key "' + node['_key'] + '"')
+        print('  has 0 neighbors, that should not happen, continuing...')
+        return []
+
+    for edge in edges:
+        next_node = edge.end_node
+        if node == next_node:
+            continue
+        if next_node['name'] == 'person-root':
+            personroot_nodes.append(next_node)
+            continue
+
+    return personroot_nodes
+
+
+def get_all_neighbor_nodes(node: Node,
+                           name_want: Union[str, list] = '',
+                           name_dontwant: Union[str, list] = '',
+                           category_want: Union[str, list] = '',
+                           category_dontwant: Union[str, list] = '') -> list:
+    """Get all the neighbors of 'node' in a list.
+    You can restrict the nodes returned by specifying one or more of the
+    other parameters. If more than one is specified, the result is an AND.
+
+    :param node: the node we need neighbors from.
+    :param name_want: either a string which indicates that we only want neighbor
+      nodes where the property 'name' is equal to 'name_want'
+      (e.g. 'ORCID'),
+      or a list containing several node names, indicating
+      that we want all neighbor nodes where the property 'name' equals
+      one of the names in the list 'name_want'
+      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    :param name_dontwant: similar, but for property 'name' and nodes we don't want.
+      If empty (empty string), all nodes are 'wanted'.
+    :param category_want: similar to 'name_want', but now for the property 'category'.
+    :param category_dontwant: similar, but for property 'category' and nodes we don't want.
+    :return: the list of neighboring nodes satisfying all these criteria.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nget_personroot_node(): Error: graph has not been initialized or opened.\n\n')
+        return []
+
+    if node is None:
+        return []
+
+    edges = get_edges(node)
+    if len(edges) == 0:
+        return []
+
+    # If 'name_want' etc. are strings, convert them to lists.
+    if type(name_want) == str:
+        if name_want == '':
+            name_want_list = []
+        else:
+            name_want_list = [name_want]
+    else:
+        name_want_list = name_want
+
+    if type(name_dontwant) == str:
+        if name_dontwant == '':
+            name_dontwant_list = []
+        else:
+            name_dontwant_list = [name_dontwant]
+    else:
+        name_dontwant_list = name_dontwant
+
+    if type(category_want) == str:
+        if category_want == '':
+            category_want_list = []
+        else:
+            category_want_list = [category_want]
+    else:
+        category_want_list = category_want
+
+    if type(category_dontwant) == str:
+        if category_dontwant == '':
+            category_dontwant_list = []
+        else:
+            category_dontwant_list = [category_dontwant]
+    else:
+        category_dontwant_list = category_dontwant
+
+    neighbor_nodes = []
+    for edge in edges:
+        next_node = edge.end_node
+        if node == next_node:
+            continue
+        if next_node['name'] in name_dontwant_list:
+            continue
+        if next_node['category'] in category_dontwant_list:
+            continue
+        if len(name_want) == 0 and len(category_want) == 0:
+            neighbor_nodes.append(next_node)
+            continue
+        if next_node['name'] in name_want_list \
+           and next_node['category'] in category_want_list:
+            neighbor_nodes.append(next_node)
+            continue
+        if next_node['name'] in name_want_list and len(category_want_list) == 0:
+            neighbor_nodes.append(next_node)
+            continue
+        if len(name_want_list) == 0 and next_node['category'] in category_want_list:
+            neighbor_nodes.append(next_node)
+            continue
+        # Any other next_node we do not want.
+
+    return neighbor_nodes
+
+
+def get_all_neighbor_nodes_person(node: Node) -> list:
+    """Get all the 'person' neighbor nodes connected to 'node',
+    also including 'node'.
+
+    :param node: the node.
+    :return: all person nodes connected to 'node'.
+    """
+    if node is None:
+        return []
+
+    personroot = get_personroot_node(node)
+    if personroot is None:
+        return []
+
+    neighbor_nodes = get_all_neighbor_nodes(personroot, category_want='person')
+    neighbor_nodes.append(personroot)
+
+    return neighbor_nodes
+
+
+# ##############################################################################
 # Utility functions
 # ##############################################################################
 
@@ -726,7 +922,7 @@ def harvest_json(url: str, headers: dict, max_recs_to_harvest: int = 0, chunksiz
     :return: list of records in json format, or empty list if nothing found.
     """
     if chunksize > 0:
-        if 0 < max_recs_to_harvest and max_recs_to_harvest <= chunksize:
+        if 0 < max_recs_to_harvest <= chunksize:
             chunksize = max_recs_to_harvest
         # Adapt url to include chunk size
         url = url + '&size=' + str(chunksize)

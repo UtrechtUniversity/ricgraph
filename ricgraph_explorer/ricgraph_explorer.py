@@ -40,8 +40,7 @@
 # ########################################################################
 
 import urllib.parse
-from typing import Union
-from py2neo import Graph, Node
+from py2neo import Node
 from flask import Flask, request, url_for
 from markupsafe import escape
 import ricgraph as rcg
@@ -136,35 +135,6 @@ def search(id_value=None) -> str:
 # ##############################################################################
 # This is where the work is done.
 # ##############################################################################
-def find_person_root_node(graph: Graph, node: Node) -> Union[Node, None]:
-    """Find the 'person-root' node of a 'person' node.
-
-    :param graph: the graph.
-    :param node: a 'person' node.
-    :return: the person-root node of 'node', or None if nothing found.
-    """
-    if graph is None or node is None:
-        return None
-    if node['category'] != 'person':
-        return None
-
-    person_root_node = None
-    if node['name'] == 'person-root':
-        # This is the person-root node.
-        person_root_node = node
-    else:
-        for edge in graph.match((node,), r_type='LINKS_TO'):
-            # We have to find the person-root node first.
-            next_node = edge.end_node
-            if node == next_node:
-                continue
-            if next_node['name'] == 'person-root':
-                person_root_node = next_node
-                break
-
-    return person_root_node
-
-
 def find_nodes_in_ricgraph(name: str, category: str, value: str) -> str:
     """Find all nodes conforming to a query
     in Ricgraph and generate html for the result page.
@@ -205,80 +175,57 @@ def find_nodes_in_ricgraph(name: str, category: str, value: str) -> str:
         html += get_html_for_tablerow(node=node)
         html += get_html_for_tableend()
         if node['category'] == 'person':
-            # If the node is a person node, show all person records connected
-            # to its person-root node (i.e. ORCID, ISNI, etc).
-            html += find_person_neighbors_from_node(graph=graph, node=node)
-
-            person_root_node = find_person_root_node(graph=graph, node=node)
-            if person_root_node is None:
+            personroot_nodes = rcg.get_all_personroot_nodes(node)
+            if len(personroot_nodes) == 0:
                 html += '<p>No person-root node found, this should not happen.'
                 return html
-            else:
+            elif len(personroot_nodes) == 1:
+                header = '<p>This is a <em>person</em> node, '
+                header += 'these are all IDs of its <em>person-root</em> node:'
+                neighbor_nodes = rcg.get_all_neighbor_nodes_person(node)
+                html += get_html_table_from_nodes(nodes=neighbor_nodes,
+                                                  header_html=header)
+
                 header = '<p>These are all the neighbors of this <em>person-root</em> node '
-                header += '(including <em>person</em> nodes):'
-                html += find_all_neighbors_from_node(graph=graph,
-                                                     node=person_root_node,
-                                                     header_html=header)
+                header += '(without <em>person</em> nodes):'
+                neighbor_nodes = rcg.get_all_neighbor_nodes(personroot_nodes[0],
+                                                            category_dontwant='person')
+                html += get_html_table_from_nodes(nodes=neighbor_nodes,
+                                                  header_html=header)
+            else:
+                # More than one person-root node, that should not happen but it did.
+                header = '<p>There is more than one <em>person-root</em> node '
+                header += 'for the node we have found. '
+                header += 'This should not happen, but it did, and that is probably caused '
+                header += 'by a mislabeling in a source system we harvested. '
+                header += 'Choose one <em>person-root</em> node to continue:'
+                html += get_html_table_from_nodes(nodes=personroot_nodes,
+                                                  header_html=header)
+                break
         else:
             header = '<p>These are the neighbors of this node:'
-            html += find_all_neighbors_from_node(graph=graph,
-                                                 node=node,
-                                                 header_html=header)
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node)
+            html += get_html_table_from_nodes(nodes=neighbor_nodes,
+                                              header_html=header)
     return html
 
 
-def find_person_neighbors_from_node(graph: Graph, node: Node) -> str:
-    """Find the person neighbors of a node.
+def get_html_table_from_nodes(nodes: list, header_html: str = '') -> str:
+    """Create a html table for all nodes in the list.
 
-    :param graph: the graph.
-    :param node: neighbors of this node.
-    :return: html to be rendered.
-    """
-    if graph is None or node is None:
-        return 'No person neighbors found.'
-
-    person_root_node = find_person_root_node(graph=graph, node=node)
-    if person_root_node is None:
-        html = '<p>Nothing found, this should not happen.'
-    else:
-        header = '<p>This is a <em>person</em> node, '
-        header += 'these are all IDs of its <em>person-root</em> node:'
-        html = find_all_neighbors_from_node(graph=graph,
-                                            node=person_root_node,
-                                            header_html=header,
-                                            category='person')
-
-    return html
-
-
-def find_all_neighbors_from_node(graph: Graph, node: Node,
-                                 header_html: str = '', category: str = '') -> str:
-    """Find all neighbors of a node (including person neighbors).
-
-    :param graph: the graph.
-    :param node: neighbors of this node.
+    :param nodes: the nodes to create a table from.
     :param header_html: the html to show above the table.
-    :param category: only return nodes of this category (default: return all nodes).
     :return: html to be rendered.
     """
-    if graph is None or node is None:
-        return 'No neighbors found.'
+    if len(nodes) == 0:
+        return '<p>No neighbors found.'
 
     html = header_html
     html += get_html_for_tablestart()
     html += get_html_for_tableheader()
-    if category != '' and node['category'] == category:
-        # Also get the current node.
-        html += get_html_for_tablerow(node=node)
 
-    for edge in graph.match((node,), r_type='LINKS_TO'):
-        next_node = edge.end_node
-        if node == next_node:
-            continue
-        if category != '':
-            if next_node['category'] != category:
-                continue
-        html += get_html_for_tablerow(node=next_node)
+    for nb_node in nodes:
+        html += get_html_for_tablerow(node=nb_node)
 
     html += get_html_for_tableend()
     return html

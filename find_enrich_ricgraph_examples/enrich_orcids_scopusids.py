@@ -42,6 +42,7 @@
 # OpenAlex and Scopus.
 #
 # Original version Rik D.T. Janssen, December 2022.
+# Updated Rik D.T. Janssen, February 2023.
 #
 # ########################################################################
 
@@ -121,7 +122,7 @@ def get_missing_personal_ids(we_have_id: str, we_want_id: str) -> dict:
               + ' or ' + we_want_id + '.')
         return personal_ids
 
-    nodes = rcg.read_all_nodes(name=we_have_id, category='', value='')
+    nodes = rcg.read_all_nodes(name=we_have_id)
     if nodes is None:
         return personal_ids
 
@@ -136,16 +137,19 @@ def get_missing_personal_ids(we_have_id: str, we_want_id: str) -> dict:
         if count % 1000 == 0:
             print('\n', end='', flush=True)
 
-        list_of_edges_from_node = graph.match((node,), r_type='LINKS_TO')
+        # list_of_edges_from_node = graph.match((node,), r_type='LINKS_TO')
+        list_of_edges_from_node = rcg.get_edges(node)
         number_of_edges = len(list_of_edges_from_node)
         if number_of_edges != 1:
             # This personal ID node has been assigned to zero or more than
             # one node, that should not happen, skip.
             continue
 
-        person_root_node = list_of_edges_from_node.first().end_node
+        # person_root_node = list_of_edges_from_node.first().end_node
+        person_root_node = rcg.get_personroot_node(node)
         we_want_id_found = False
-        for edge in graph.match((person_root_node,), r_type='LINKS_TO'):
+        # for edge in graph.match((person_root_node,), r_type='LINKS_TO'):
+        for edge in rcg.get_edges(person_root_node):
             next_node = edge.end_node
             if next_node['name'] == we_want_id:
                 # This 'we_have_id' node already has a 'we_want_id' node,
