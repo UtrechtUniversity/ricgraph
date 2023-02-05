@@ -95,6 +95,7 @@ import json
 import urllib.request
 from urllib.error import HTTPError
 from typing import Union
+from functools import lru_cache, wraps
 import configparser
 from py2neo import *
 from py2neo.matching import *
@@ -103,7 +104,57 @@ import pandas
 
 LINKS_TO = Relationship.type('LINKS_TO')
 RICGRAPH_INI_FILE = '../ricgraph.ini'
+
+# Cache size for read_node() function (in number of elements in cache). This
+# cannot be read from the config file since it will be read too late.
+CACHE_SIZE_READ_NODE = 8000
+
 global _graph
+
+
+# Values will only be stored in the cache if the function does not return None
+# Used is the property that the standard @lru_cache doesn't do caching when
+# an exception is raised within the wrapped function.
+# This code is taken from
+# https://stackoverflow.com/questions/71175293/make-built-in-lru-cache-skip-caching-when-function-returns-none.
+# For extensive documentation of @lru_cache see
+# https://docs.python.org/3/library/functools.html#functools.lru_cache.
+def ricgraph_lru_cache(maxsize: int = 128, typed: bool = False):
+    """This decorator is an LRU cache. It is similar to @lru_cache, with the
+    difference that this function does not store values in the cache when
+    the function returns None.
+
+    :param maxsize: maximum size of the cache.
+    :param typed: if True, function arguments of different types will be cached separately.
+    :return: object.
+    """
+    class FunctionReturnsNoneException(Exception):
+        pass
+
+    def decorator(func):
+        @lru_cache(maxsize=maxsize, typed=typed)
+        def raise_exception_wrapper(*args, **kwargs):
+            value = func(*args, **kwargs)
+            if value is None:
+                raise FunctionReturnsNoneException
+            return value
+
+        @wraps(func)
+        def handle_exception_wrapper(*args, **kwargs):
+            try:
+                return raise_exception_wrapper(*args, **kwargs)
+            except FunctionReturnsNoneException:
+                return None
+
+        handle_exception_wrapper.cache_info = raise_exception_wrapper.cache_info
+        handle_exception_wrapper.cache_clear = raise_exception_wrapper.cache_clear
+        return handle_exception_wrapper
+
+    if callable(maxsize):
+        user_function, maxsize = maxsize, 128
+        return decorator(user_function)
+
+    return decorator
 
 
 def open_ricgraph() -> Graph:
@@ -310,12 +361,14 @@ def create_node(name: str, category: str, value: str,
     return node
 
 
+@ricgraph_lru_cache(maxsize=CACHE_SIZE_READ_NODE)
 def read_node(name: str = '', value: str = '') -> Node:
     """Read a node based on name and value.
-    Since all nodes are supposed to be unique, return the first one found.
+    Since all nodes are supposed to be unique if both are
+    specified, return the first one found.
 
     :param name: 'name' field of node.
-    :param value: idem.
+    :param value: 'value' field of node.
     :return: the node read, or None if no node was found.
     """
     first_node = read_all_nodes(name=name, value=value).first()
@@ -346,6 +399,13 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union
     if lname == '' and lcategory == '' and lvalue == '':
         return None
 
+    # Use NodeMatch for more advanced node matching.
+    nodes_in_graph = NodeMatcher(_graph)
+    if lname != '' and lcategory == '' and lvalue != '':
+        # I assume this is faster than querying on both property 'name' and 'value'.
+        all_nodes = nodes_in_graph.match('RCGNode', _key=create_ricgraph_key(name=lname, value=lvalue))
+        return all_nodes
+
     node_properties = {}
     if lname != '':
         node_properties['name'] = lname
@@ -354,8 +414,6 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union
     if lvalue != '':
         node_properties['value'] = lvalue
 
-    # Use NodeMatch for more advanced node matching
-    nodes_in_graph = NodeMatcher(_graph)
     all_nodes = nodes_in_graph.match('RCGNode', **node_properties)
     return all_nodes
 
@@ -375,15 +433,10 @@ def read_all_nodes_containing(value: str = '') -> Union[NodeMatch, None]:
         return None
 
     lvalue = str(value)
-
     if lvalue == 'nan':
         return None
     if lvalue == '':
         return None
-
-    node_properties = {}
-    if lvalue != '':
-        node_properties['value'] = lvalue
 
     nodes_in_graph = NodeMatch(_graph)
     all_nodes = nodes_in_graph.where('toLower(_.value) CONTAINS toLower("' + lvalue + '")')
@@ -601,6 +654,8 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: pandas.DataFrame) ->
     :param left_and_right_nodepairs: the node pairs in a DataFrame.
     :return: None.
     """
+    # read_node.cache_clear()           # Optional, we don't need this for now.
+    print('\nCache used at start of function: ' + str(read_node.cache_info()) + '.')
     print('There are ' + str(len(left_and_right_nodepairs)) + ' rows, creating nodes and edges for row: 0  ', end='')
     count = 0
     columns = left_and_right_nodepairs.columns
@@ -624,6 +679,7 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: pandas.DataFrame) ->
                                   name2=row.name2, category2=row.category2, value2=row.value2,
                                   **node_properties)
     print(count, '\n', end='', flush=True)
+    print('Cache used at end of function: ' + str(read_node.cache_info()) + '.')
     return
 
 
@@ -1079,7 +1135,7 @@ def read_json_from_file(filename: str) -> list:
 
 
 def read_dataframe_from_csv(filename: str, columns: dict = None,
-                            nr_rows: int = None, datatype=None) -> pandas.DataFrame:
+                            nr_rows: int = None, datatype = None) -> pandas.DataFrame:
     """Reads a datastructure (DataFrame) from file
 
     :param filename: csv file to read.
