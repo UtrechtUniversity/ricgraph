@@ -35,6 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
+# Updated Rik D.T. Janssen, February 2023.
 #
 # ########################################################################
 
@@ -44,8 +45,6 @@ import re
 import pandas
 import numpy
 from datetime import datetime
-import urllib
-from urllib.parse import urlparse
 from typing import Union
 import configparser
 import ricgraph as rcg
@@ -66,52 +65,58 @@ global PURE_URL
 # ######################################################
 # Parameters for harvesting persons from pure
 # ######################################################
-PURE_ENDPOINT_PERSONS = 'persons/active'
-PURE_READ_PERSONS_HARVEST_FROM_FILE = False
+PURE_PERSONS_ENDPOINT = 'persons'
+PURE_PERSONS_HARVEST_FROM_FILE = False
 PURE_PERSONS_HARVEST_FILENAME = 'pure_persons_harvest.json'
 PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-PURE_FIELDS_PERSONS = [
-    # ('fields', '*'),      # all fields
-    # 'fields' may be improved by only listing the fields actually used, that'll save harvest time
-    ('fields', 'uuid,name.*,ids.*,staffOrganisationAssociations.period.*,\
-                           staffOrganisationAssociations.organisationalUnit.*,orcid'),
-    ('navigationLink', 'true')
-]
-
+PURE_PERSONS_FIELDS = {'fields': ['uuid',
+                                  'name.*',
+                                  'ids.*',
+                                  'staffOrganisationAssociations.period.*',
+                                  'staffOrganisationAssociations.organisationalUnit.*',
+                                  'orcid'
+                                  ],
+                       'employmentStatus': 'ACTIVE'
+                       }
 
 # ######################################################
 # Parameters for harvesting organizations from pure
 # ######################################################
-PURE_ENDPOINT_ORGANIZATIONS = 'organisational-units'
-PURE_READ_ORGANIZATIONS_HARVEST_FROM_FILE = False
+PURE_ORGANIZATIONS_ENDPOINT = 'organisational-units'
+PURE_ORGANIZATIONS_HARVEST_FROM_FILE = False
 PURE_ORGANIZATIONS_HARVEST_FILENAME = 'pure_organizations_harvest.json'
 PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.csv'
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-PURE_FIELDS_ORGANIZATIONS = [
-    # ('fields', '*'),      # all fields
-    ('fields', 'uuid,period.*,name.*,type.*,ids.*,parents.*'),
-    ('navigationLink', 'true')
-]
-
+PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
+                                        'period.*',
+                                        'name.*',
+                                        'type.*',
+                                        'ids.*',
+                                        'parents.*'
+                                        ]
+                             }
 
 # ######################################################
 # Parameters for harvesting research outputs from pure
 # ######################################################
-PURE_ENDPOINT_RESOUT = 'research-outputs'
-PURE_READ_RESOUT_HARVEST_FROM_FILE = False
+PURE_RESOUT_ENDPOINT = 'research-outputs'
+PURE_RESOUT_HARVEST_FROM_FILE = False
 PURE_RESOUT_HARVEST_FILENAME = 'pure_resout_harvest.json'
 PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
-# number = 20000 results in resout from December 2022 to approx. April 2020 for UU Pure.
-PURE_RESOUT_MAX_RECS_TO_HARVEST = 20000                  # 0 = all records
-PURE_FIELDS_RESOUT = [
-    # ('fields', '*'),      # all fields
-    # 'fields' may be improved by only listing the fields actually used, that'll save harvest time
-    ('fields', 'uuid,title.*,confidential,type.*,workflow.*,publicationStatuses.*,\
-    personAssociations.*,electronicVersions.*'),
-    ('order', '-publicationYear'),      # most recent publication year first
-    ('navigationLink', 'true')
-]
+PURE_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
+# This number is the max recs to harvest per year, not total
+PURE_RESOUT_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+PURE_RESOUT_FIELDS = {'fields': ['uuid',
+                                 'title.*',
+                                 'confidential',
+                                 'type.*',
+                                 'workflow.*',
+                                 'publicationStatuses.*',
+                                 'personAssociations.*',
+                                 'electronicVersions.*'
+                                 ]
+                      }
 
 
 # ######################################################
@@ -421,7 +426,7 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
             # There must be a title, otherwise skip
             continue
         if 'confidential' in harvest_item:
-            if harvest_item['confidential'] == 'true':
+            if harvest_item['confidential']:
                 # Skip the confidential ones
                 continue
         if 'type' not in harvest_item:
@@ -435,9 +440,16 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
             # Skip if no workflow
             continue
         if 'publicationStatuses' in harvest_item:
-            # This item is a list, pick the first element for simplicity
-            if harvest_item['publicationStatuses'][0]['publicationStatus']['term']['text'][0]['value'] != 'Published':
-                # Only 'Published' resouts
+            # We need a current status.
+            published_found = False
+            for pub_item in harvest_item['publicationStatuses']:
+                if pub_item['current']:
+                    if pub_item['publicationStatus']['term']['text'][0]['value'] == 'Published':
+                        # Only 'Published' resouts
+                        published_found = True
+                        break
+
+            if not published_found:
                 continue
         else:
             # Skip if no publicationStatuses
@@ -497,15 +509,15 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
 # Harvesting and parsing
 # ######################################################
 
-def harvest_and_parse_pure_data(mode: str, headers: dict,
-                                endpoint: str, fields: list,
+def harvest_and_parse_pure_data(mode: str, endpoint: str,
+                                headers: dict, body: dict,
                                 harvest_filename: str) -> Union[pandas.DataFrame, None]:
     """Harvest and parse data from Pure.
 
     :param mode: 'persons', 'organizations' or 'research outputs', to indicate what to harvest.
-    :param headers: headers for Pure.
     :param endpoint: endpoint Pure.
-    :param fields: Pure fields to harvest.
+    :param headers: headers for Pure.
+    :param body: the body of a POST request, or '' for a GET request.
     :param harvest_filename: filename to write harvest results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
@@ -524,14 +536,14 @@ def harvest_and_parse_pure_data(mode: str, headers: dict,
         return None
 
     print('Harvesting ' + mode + ' from Pure...')
-    if (mode == 'persons' and not PURE_READ_PERSONS_HARVEST_FROM_FILE) \
-       or (mode == 'organizations' and not PURE_READ_ORGANIZATIONS_HARVEST_FROM_FILE) \
-       or (mode == 'research outputs' and not PURE_READ_RESOUT_HARVEST_FROM_FILE):
-        # Encode uncommon url parameters to something with a '%' in it.
-        url_parameters = urllib.parse.urlencode(fields, doseq=True)
-        full_url = PURE_URL + '/' + PURE_API_VERSION + '/' + endpoint + '?' + url_parameters
+    if (mode == 'persons' and not PURE_PERSONS_HARVEST_FROM_FILE) \
+       or (mode == 'organizations' and not PURE_ORGANIZATIONS_HARVEST_FROM_FILE) \
+       or (mode == 'research outputs' and not PURE_RESOUT_HARVEST_FROM_FILE):
+        url = PURE_URL + '/' + PURE_API_VERSION + '/' + endpoint
         retval = rcg.harvest_json_and_write_to_file(filename=harvest_filename,
-                                                    url=full_url, headers=headers,
+                                                    url=url,
+                                                    headers=headers,
+                                                    body=body,
                                                     max_recs_to_harvest=max_recs_to_harvest,
                                                     chunksize=PURE_CHUNKSIZE)
         if len(retval) == 0:
@@ -715,9 +727,9 @@ rcg.open_ricgraph()
 if True:
     rcg.empty_ricgraph()
     parse_persons = harvest_and_parse_pure_data(mode='persons',
+                                                endpoint=PURE_PERSONS_ENDPOINT,
                                                 headers=PURE_HEADERS,
-                                                endpoint=PURE_ENDPOINT_PERSONS,
-                                                fields=PURE_FIELDS_PERSONS,
+                                                body=PURE_PERSONS_FIELDS,
                                                 harvest_filename=PURE_PERSONS_HARVEST_FILENAME)
     if parse_persons is None:
         print('There are no persons from Pure to harvest.\n')
@@ -729,9 +741,9 @@ if True:
 # if False:
 if True:
     parse_organizations = harvest_and_parse_pure_data(mode='organizations',
+                                                      endpoint=PURE_ORGANIZATIONS_ENDPOINT,
                                                       headers=PURE_HEADERS,
-                                                      endpoint=PURE_ENDPOINT_ORGANIZATIONS,
-                                                      fields=PURE_FIELDS_ORGANIZATIONS,
+                                                      body=PURE_ORGANIZATIONS_FIELDS,
                                                       harvest_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME)
     if parse_organizations is None:
         print('There are no organizations from Pure to harvest.\n')
@@ -742,15 +754,25 @@ if True:
 
 # if False:
 if True:
-    parse_resout = harvest_and_parse_pure_data(mode='research outputs',
-                                               headers=PURE_HEADERS,
-                                               endpoint=PURE_ENDPOINT_RESOUT,
-                                               fields=PURE_FIELDS_RESOUT,
-                                               harvest_filename=PURE_RESOUT_HARVEST_FILENAME)
-    if parse_resout is None:
-        print('There are no research outputs from Pure to harvest.\n')
-    else:
-        rcg.write_dataframe_to_csv(PURE_RESOUT_DATA_FILENAME, parse_resout)
-        parsed_resout_to_ricgraph(parse_resout)
+    for year in PURE_RESOUT_YEARS:
+        print('Harvesting research outputs from Pure for year ' + year + '.')
+        harvest_filename_year = PURE_RESOUT_HARVEST_FILENAME.split('.')[0] \
+                                + '-' + year + '.' \
+                                + PURE_RESOUT_HARVEST_FILENAME.split('.')[1]
+        data_filename_year = PURE_RESOUT_DATA_FILENAME.split('.')[0] \
+                                + '-' + year + '.' \
+                                + PURE_RESOUT_DATA_FILENAME.split('.')[1]
+        PURE_RESOUT_FIELDS['publishedBeforeDate'] = year + '-12-31'
+        PURE_RESOUT_FIELDS['publishedAfterDate'] = year + '-01-01'
+        parse_resout = harvest_and_parse_pure_data(mode='research outputs',
+                                                   endpoint=PURE_RESOUT_ENDPOINT,
+                                                   headers=PURE_HEADERS,
+                                                   body=PURE_RESOUT_FIELDS,
+                                                   harvest_filename=harvest_filename_year)
+        if parse_resout is None:
+            print('There are no research outputs from Pure to harvest.\n')
+        else:
+            rcg.write_dataframe_to_csv(data_filename_year, parse_resout)
+            parsed_resout_to_ricgraph(parse_resout)
 
 rcg.close_ricgraph()

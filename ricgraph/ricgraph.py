@@ -92,11 +92,11 @@ from datetime import datetime
 import csv
 import uuid
 import json
-import urllib.request
-from urllib.error import HTTPError
 from typing import Union
 from functools import lru_cache, wraps
 import configparser
+
+import requests
 from py2neo import *
 from py2neo.matching import *
 import numpy
@@ -107,7 +107,7 @@ RICGRAPH_INI_FILE = '../ricgraph.ini'
 
 # Cache size for read_node() function (in number of elements in cache). This
 # cannot be read from the config file since it will be read too late.
-CACHE_SIZE_READ_NODE = 8000
+CACHE_SIZE_READ_NODE = 15000
 
 global _graph
 
@@ -998,51 +998,53 @@ def get_all_neighbor_nodes_person(node: Node) -> list:
 # Utility functions
 # ##############################################################################
 
-def harvest_json(url: str, headers: dict, max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
+def harvest_json(url: str, headers: dict, body: dict = '', max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
     """Harvest json data from a file.
 
     :param url: URL to harvest.
     :param headers: headers required.
+    :param body: the body of a POST request, or '' for a GET request.
     :param max_recs_to_harvest: maximum records to harvest.
     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
     :return: list of records in json format, or empty list if nothing found.
     """
-    if chunksize > 0:
-        if 0 < max_recs_to_harvest <= chunksize:
-            chunksize = max_recs_to_harvest
-        # Adapt url to include chunk size
-        url = url + '&size=' + str(chunksize)
-    else:
-        chunksize = 1
+    print('Harvesting json data from ' + url + '.')
+    print('Getting data...')
 
     all_records = 9999999999                # a large number
     if max_recs_to_harvest == 0:
         max_recs_to_harvest = all_records
+    if chunksize == 0:
+        chunksize = 1
+    if body == '':
+        # GET http request
+        print('harvest_json(): this is a GET request, not implemented yet.')
+        exit(1)
 
-    print('Harvesting json data from ' + url + '.')
-    print('Getting data...')
+    # Now we have a POST http request.
+    body['size'] = chunksize
     json_data = []
     count = 0
-    more_records = True
     first_time = True
-    while more_records:
-        if count >= max_recs_to_harvest:
-            break
+    while count <= max_recs_to_harvest:
+        if max_recs_to_harvest - count <= chunksize:
+            # We have to harvest the last few (< chunksize).
+            body['size'] = max_recs_to_harvest - count
 
-        chunk_json_data = {}
-        try:
-            request = urllib.request.Request(url=url, headers=headers)
-            response = urllib.request.urlopen(request, timeout=30)
-            body = response.read().decode('utf-8')
-            chunk_json_data = json.loads(body)
-        except urllib.error.HTTPError:
+        body['offset'] = count
+        response = requests.post(url=url, headers=headers, json=body)
+        if response.status_code != requests.codes.ok:
             print('harvest_json(): error during harvest, possibly '
-                  + 'a missing API-key or mixed up harvest URL?')
+                  + 'a missing API-key or mixed up POST body?')
             exit(1)
 
+        chunk_json_data = response.json()
         if 'items' not in chunk_json_data:
             print('harvest_json(): Error: malformed json, "items" is missing.')
             return []
+
+        if len(chunk_json_data['items']) == 0:
+            break
 
         if first_time:
             if 'count' in chunk_json_data:
@@ -1061,28 +1063,17 @@ def harvest_json(url: str, headers: dict, max_recs_to_harvest: int = 0, chunksiz
 
         json_items = chunk_json_data['items']
         json_data += json_items
-
-        if 'navigationLinks' in chunk_json_data:
-            more_records = False
-            for link in chunk_json_data['navigationLinks']:
-                if link['ref'] == 'next':
-                    url = link['href']
-                    more_records = True
-        else:
-            more_records = False
-
-        if count % 500 == 0:
-            print(count, ' ', end='', flush=True)
+        print(count, ' ', end='', flush=True)
         if count % 10000 == 0:
             if count != 0:
                 print('\n', end='', flush=True)
         count += chunksize
 
-    print(count, ' Done.\n', end='', flush=True)
+    print(' Done.\n', end='', flush=True)
     return json_data
 
 
-def harvest_json_and_write_to_file(filename: str, url: str, headers: dict,
+def harvest_json_and_write_to_file(filename: str, url: str, headers: dict, body: dict,
                                    max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
     """Harvest json data and write the data found to a file.
     This data is a list of records in json format. If no records are harvested, nothing is written.
@@ -1090,12 +1081,14 @@ def harvest_json_and_write_to_file(filename: str, url: str, headers: dict,
     :param filename: filename of the file to use for writing.
     :param url: URL to harvest.
     :param headers: headers required.
+    :param body: the body of a POST request, or '' for a GET request.
     :param max_recs_to_harvest: maximum records to harvest.
     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
     :return: list of records in json format, or empty list if nothing found.
     """
     json_data = harvest_json(url=url,
                              headers=headers,
+                             body=body,
                              max_recs_to_harvest=max_recs_to_harvest,
                              chunksize=chunksize)
     if len(json_data) == 0:
@@ -1135,7 +1128,7 @@ def read_json_from_file(filename: str) -> list:
 
 
 def read_dataframe_from_csv(filename: str, columns: dict = None,
-                            nr_rows: int = None, datatype = None) -> pandas.DataFrame:
+                            nr_rows: int = None, datatype=None) -> pandas.DataFrame:
     """Reads a datastructure (DataFrame) from file
 
     :param filename: csv file to read.
