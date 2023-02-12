@@ -59,8 +59,11 @@ stylesheet += 'p, ul, table {font-family:arial; font-size:90%;}'
 stylesheet += 'ul {padding-left:2em; margin:0px}'
 stylesheet += 'table, th, td {outline: 1px solid black;}'
 stylesheet += 'th {background: #a6a6a6; text-align:left;}'
-stylesheet += 'label {display:inline-block; width:5em}'
-stylesheet += 'input {width:25em; margin:2px}'
+stylesheet += '.searchform label {display:inline-block; width:5em}'
+stylesheet += '.searchform input {width:25em; margin:2px}'
+stylesheet += '.facetedform label {}'
+stylesheet += '.facetedform input {}'
+stylesheet += '.facetedform {font-family:arial; font-size:90%;}'
 # For table sorting.
 stylesheet += 'table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse)'
 stylesheet += ':not(.sorttable_nosort):after{content:" \u25B4 \u25BE"}'
@@ -79,7 +82,7 @@ footer += '</div>'
 footer += '<script src="/static/ricgraph_sorttable.js"></script>'
 
 # The html search form.
-search_form = '<form method="post">'
+search_form = '<div class="searchform"><form method="post">'
 search_form += '<p>This is Ricgraph explorer.'
 search_form += '<p>Type something to search (this is an case-sensitive, exact match '
 search_form += 'search, using AND if you use multiple fields):'
@@ -87,14 +90,14 @@ search_form += '<br><label>name:</label><input type=text name=search_name>'
 search_form += '<br><label>category:</label><input type=text name=search_category>'
 search_form += '<br><label>value:</label><input type=text name=search_value>'
 search_form += '<br><br><label></label><input type=submit value=search>'
-search_form += '</form>'
+search_form += '</form></div>'
 
-searchcontains_form = '<form method="post">'
+searchcontains_form = '<div class="searchform"><form method="post">'
 searchcontains_form += '<p>This is Ricgraph explorer.'
 searchcontains_form += '<p>Type something to search (this is a case-insensitive, inexact match):'
 searchcontains_form += '<br><label>value:</label><input type=text name=search_value>'
 searchcontains_form += '<br><br><label></label><input type=submit value=search>'
-searchcontains_form += '</form>'
+searchcontains_form += '</form></div>'
 
 
 # ##############################################################################
@@ -140,9 +143,13 @@ def search(id_value=None) -> str:
         search_name = request.form['search_name']
         search_category = request.form['search_category']
         search_value = request.form['search_value']
+        name_want = request.form.getlist('name')
+        category_want = request.form.getlist('category')
         html += find_nodes_in_ricgraph(name=escape(search_name),
                                        category=escape(search_category),
-                                       value=escape(search_value))
+                                       value=escape(search_value),
+                                       name_want=name_want,
+                                       category_want=category_want)
     else:
         if id_value is None:
             html += search_form
@@ -180,8 +187,79 @@ def searchcontains() -> str:
 # ##############################################################################
 # This is where the work is done.
 # ##############################################################################
+def faceted_search_in_ricgraph(nodes: list,
+                               name: str = '', category: str = '', value: str = '') -> str:
+    """Do a faceted search in Ricgraph.
+    The facets will be constructed based on 'name' and 'category'.
+    Facets chosen will be catched in function search().
+    If there is only one facet, it will not be shown.
+
+    :param nodes: the nodes to construct the facets from.
+    :param name: name of the nodes to find.
+    :param category: category of the nodes to find.
+    :param value: value of the nodes to find.
+    :return: html to be rendered.
+    """
+    if len(nodes) == 0:
+        return ''
+
+    name_histogram = {}
+    category_histogram = {}
+    for node in nodes:
+        if node['name'] not in name_histogram:
+            name_histogram[node['name']] = 1
+        else:
+            name_histogram[node['name']] += 1
+
+        if node['category'] not in category_histogram:
+            category_histogram[node['category']] = 1
+        else:
+            category_histogram[node['category']] += 1
+
+    if len(name_histogram) <= 1 and len(category_histogram) <= 1:
+        # Faceted search does not make sense, don't show facets.
+        return ''
+
+    faceted_form = '<div class="facetedform"><form method="post" action="/search">'
+    if len(name_histogram) == 1:
+        # Get the first (and only) element in the dict, we pass it as hidden field to search().
+        name_key = str(list(name_histogram.keys())[0])
+        faceted_form += '<input type="hidden" name="name" value="' + name_key + '">'
+    else:
+        faceted_form += '<fieldset><legend>Select for faceted search on "name"</legend>'
+        # Sort a dict on value:
+        # https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
+        for bucket in sorted(name_histogram, key=name_histogram.get, reverse=True):
+            name_label = bucket + '&nbsp;<em>(' + str(name_histogram[bucket]) + ')</em>&emsp;'
+            faceted_form += '<input type="checkbox" name ="name" value="' + bucket + '" checked>'
+            faceted_form += '<label>' + name_label + ' </label>'
+        faceted_form += '</fieldset>'
+
+    if len(category_histogram) == 1:
+        # Get the first (and only) element in the dict, we pass it as hidden field to search().
+        category_key = str(list(category_histogram.keys())[0])
+        faceted_form += '<input type="hidden" name="category" value="' + category_key + '">'
+    else:
+        faceted_form += '<fieldset><legend>Select for faceted search on "category":</legend>'
+        for bucket in sorted(category_histogram, key=category_histogram.get, reverse=True):
+            category_label = bucket + '&nbsp;<em>(' + str(category_histogram[bucket]) + ')</em>&emsp;'
+            faceted_form += '<input type="checkbox" name ="category" value="' + bucket + '" checked>'
+            faceted_form += '<label>' + category_label + '</label>'
+        faceted_form += '</fieldset><br>'
+
+    # Send name, category and value as hidden field to search().
+    faceted_form += '<input type="hidden" name="search_name" value="' + str(name) + '">'
+    faceted_form += '<input type="hidden" name="search_category" value="' + str(category) + '">'
+    faceted_form += '<input type="hidden" name="search_value" value="' + str(value) + '">'
+    faceted_form += '<label></label><input type=submit value="Do the faceted search">'
+    faceted_form += '</form></div>'
+    html = faceted_form
+    return html
+
+
 def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
-                           use_contain_phrase: bool = False) -> str:
+                           use_contain_phrase: bool = False,
+                           name_want: list = None, category_want: list = None) -> str:
     """Find all nodes conforming to a query
     in Ricgraph and generate html for the result page.
 
@@ -190,6 +268,15 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
     :param value: value of the nodes to find.
     :param use_contain_phrase: determines either case-sensitive & exact match,
       or case-insensitive & inexact match.
+    :param name_want: either a string which indicates that we only want neighbor
+      nodes where the property 'name' is equal to 'name_want'
+      (e.g. 'ORCID'),
+      or a list containing several node names, indicating
+      that we want all neighbor nodes where the property 'name' equals
+      one of the names in the list 'name_want'
+      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    :param category_want: similar to 'name_want', but now for the property 'category'.
     :return: html to be rendered.
     """
     graph = rcg.open_ricgraph()         # Should probably be done in a Session
@@ -200,6 +287,11 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
         html = '<p>Please enter a value in the search field.'
         html += '<br><a href=' + url_for('index_html') + '>' + 'Try again' + '</a>.'
         return html
+
+    if name_want is None:
+        name_want = []
+    if category_want is None:
+        category_want = []
 
     if use_contain_phrase:
         if len(value) < 3:
@@ -222,12 +314,16 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
         html += '<li>category: "' + str(category) + '"'
 
     html += '<li>value: "' + str(value) + '"'
+    if len(name_want) > 0:
+        html += '<li>name_want: "' + str(name_want) + '"'
+    if len(category_want) > 0:
+        html += '<li>category_want: "' + str(category_want) + '"'
+
     html += '</ul>'
 
     if use_contain_phrase:
         header = '<p>Choose one node to continue:'
-        html += get_html_table_from_nodes(nodes=result,
-                                          header_html=header)
+        html += get_html_table_from_nodes(nodes=result, header_html=header)
         return html
 
     if len(result) > MAX_RESULTS:
@@ -260,11 +356,18 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
                 header = '<p>These are all the neighbors of this <em>person-root</em> node '
                 header += '(without <em>person</em> nodes):'
                 neighbor_nodes = rcg.get_all_neighbor_nodes(personroot_nodes[0],
+                                                            name_want=name_want,
+                                                            category_want=category_want,
                                                             category_dontwant='person')
+
                 html += get_html_table_from_nodes(nodes=neighbor_nodes,
                                                   header_html=header)
+                html += faceted_search_in_ricgraph(nodes=neighbor_nodes,
+                                                   name=name,
+                                                   category=category,
+                                                   value=value)
             else:
-                # More than one person-root node, that should not happen but it did.
+                # More than one person-root node, that should not happen, but it did.
                 header = '<p>There is more than one <em>person-root</em> node '
                 header += 'for the node we have found. '
                 header += 'This should not happen, but it did, and that is probably caused '
@@ -275,9 +378,15 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
                 break
         else:
             header = '<p>These are the neighbors of this node:'
-            neighbor_nodes = rcg.get_all_neighbor_nodes(node)
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node,
+                                                        name_want=name_want,
+                                                        category_want=category_want)
             html += get_html_table_from_nodes(nodes=neighbor_nodes,
                                               header_html=header)
+            html += faceted_search_in_ricgraph(nodes=neighbor_nodes,
+                                               name=name,
+                                               category=category,
+                                               value=value)
     return html
 
 
@@ -294,9 +403,8 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None], header_html: 
     html = header_html
     html += get_html_for_tablestart()
     html += get_html_for_tableheader()
-
-    for nb_node in nodes:
-        html += get_html_for_tablerow(node=nb_node)
+    for node in nodes:
+        html += get_html_for_tablerow(node=node)
 
     html += get_html_for_tableend()
     return html
