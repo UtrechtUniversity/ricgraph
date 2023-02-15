@@ -31,14 +31,28 @@
 # This file is Ricgraph explorer, a web based tool to access nodes in
 # Ricgraph.
 # The purpose is to illustrate how web based access using Flask can be done.
-# To keep it simple, everything has been done in this file. It can be improved
-# in many ways, but I didn't do that, since it is meant for research purposes,
+# To keep it simple, everything has been done in this file.
+# Please note that this code is meant for research purposes,
 # not for production use. That means, this code has not been hardened for
 # "the outside world". Be careful if you expose it to the outside world.
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February 2023.
 #
 # ########################################################################
+#
+# For table sorting. Ricgraph explorer uses sorttable.js.
+# It is copied from https://www.kryogenix.org/code/browser/sorttable
+# on February 1, 2023. At that link, you'll find a how-to. It is licensed under X11-MIT.
+# It is renamed to ricgraph_sorttable.js since it has a small modification
+# related to case-insensitive sorting. The script is included in html_body_end.
+#
+# ##############################################################################
+#
+# Ricgraph explorer uses W3.CSS, a modern, responsive, mobile first CSS framework.
+# See https://www.w3schools.com/w3css/default.asp.
+#
+# ##############################################################################
+
 
 import urllib.parse
 from typing import Union
@@ -50,54 +64,112 @@ import ricgraph as rcg
 ricgraph_explorer = Flask(__name__)
 
 # When we do a query, we return at most this number of nodes.
-MAX_RESULTS = 75
+MAX_RESULTS = 50
+
+# The style for the buttons, note the space before and after the text.
+button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
+# A button with a black line around it.
+button_style_border = button_style + ' w3-border rj-border-black '
 
 # The html stylesheet.
 stylesheet = '<style>'
-stylesheet += '.footer {font-size:85%;}'
-stylesheet += 'p, ul, table {font-family:arial; font-size:90%;}'
+stylesheet += '.w3-container {padding: 16px;}'
+stylesheet += '.w3-check {width:15px;height: 15px;position: relative; top:3px;}'
+# Define UU colors. We do not need to define "black" and "white" (they do exist).
+# See https://www.uu.nl/organisatie/huisstijl/huisstijlelementen/kleur.
+stylesheet += '.uu-yellow, .uu-hover-yellow:hover '
+stylesheet += '{color: #000!important; background-color: #ffcd00!important;}'
+stylesheet += '.uu-red, .uu-hover-red:hover '
+stylesheet += '{color: #000!important; background-color: #c00a35!important;}'
+stylesheet += '.rj-gray, .rj-hover-gray:hover '
+stylesheet += '{color: #000!important; background-color: #cecece!important;}'
+stylesheet += '.rj-border-black, .rj-hover-border-black:hover {border-color: #000!important;}'
+stylesheet += 'body {background-color:white;}'
+stylesheet += 'body, h1, h2, h3, h4, h5, h6 {font-family: "Open Sans", sans-serif;}'
 stylesheet += 'ul {padding-left:2em; margin:0px}'
-stylesheet += 'table, th, td {outline: 1px solid black;}'
-stylesheet += 'th {background: #a6a6a6; text-align:left;}'
-stylesheet += '.searchform label {display:inline-block; width:5em}'
-stylesheet += '.searchform input {width:25em; margin:2px}'
-stylesheet += '.facetedform label {}'
-stylesheet += '.facetedform input {}'
-stylesheet += '.facetedform {font-family:arial; font-size:90%;}'
-# For table sorting.
+stylesheet += 'table {font-size:85%;}'
+stylesheet += 'table, th, td {border-collapse:collapse; border: 1px solid black}'
+stylesheet += 'th {text-align:left;}'
+stylesheet += '.facetedform {font-size:90%;}'
+# For table sorting. \u00a0 is a non-breaking space.
 stylesheet += 'table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse)'
-stylesheet += ':not(.sorttable_nosort):after{content:" \u25B4 \u25BE"}'
+stylesheet += ':not(.sorttable_nosort):after{content:"\u00a0\u25b4\u00a0\u25be"}'
 stylesheet += '</style>'
 
+# The html preamble
+html_preamble = '<meta name="viewport" content="width=device-width, initial-scale=1">'
+html_preamble += '<link rel="stylesheet" href="/static/w3pro.css">'
+html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">'
+
+# The html page header.
+page_header = '<header class="w3-container uu-yellow">'
+page_header += '<div class="w3-bar uu-yellow">'
+page_header += '<div class="w3-bar-item w3-mobile" style="width:20%">'
+page_header += '<a href="/" style="text-decoration:none">'
+page_header += '<img src="/static/uu_logo_small.png" width="30" height="30">&nbsp;Ricgraph explorer</a>'
+page_header += '</div>'
+page_header += '<a href="/" class="w3-bar-item' + button_style_border + '">Home</a>'
+page_header += '<a href="/search" class="w3-bar-item' + button_style_border + '">Exact match search</a>'
+page_header += '<a href="/searchcontains" class="w3-bar-item' + button_style_border + '">String search</a>'
+page_header += '</div>'
+page_header += '</header>'
+
 # The html page footer.
-footer = '<div class="footer"><br><hr>'
-footer += 'Disclaimer: Ricgraph explorer is recommended for research use, not for production use. '
-footer += 'For more information about Ricgraph, see '
-footer += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
-footer += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
-footer += '</div>'
-# For table sorting. sorttable.js is copied from https://www.kryogenix.org/code/browser/sorttable
-# on February 1, 2023. At that link, you'll find a how-to. It is licensed under X11-MIT.
-# It is renamed to ricgraph_sorttable.js since it has a small modification.
-footer += '<script src="/static/ricgraph_sorttable.js"></script>'
+page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
+page_footer += 'Disclaimer: Ricgraph explorer is recommended for research use, not for production use. '
+page_footer += 'For more information about Ricgraph, see '
+page_footer += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
+page_footer += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
+page_footer += '</footer>'
 
-# The html search form.
-search_form = '<div class="searchform"><form method="post">'
-search_form += '<p>This is Ricgraph explorer.'
-search_form += '<p>Type something to search (this is an case-sensitive, exact match '
-search_form += 'search, using AND if you use multiple fields):'
-search_form += '<br><label>name:</label><input type=text name=search_name>'
-search_form += '<br><label>category:</label><input type=text name=search_category>'
-search_form += '<br><label>value:</label><input type=text name=search_value>'
-search_form += '<br><br><label></label><input type=submit value=search>'
-search_form += '</form></div>'
+# The first part of the html page, up to stylesheet and page_header.
+html_body_start = '<!DOCTYPE html>'
+html_body_start += '<html>'
+html_body_start += html_preamble
+html_body_start += '<title>Ricgraph explorer</title>'
+html_body_start += '<body>'
+html_body_start += stylesheet
+html_body_start += page_header
 
-searchcontains_form = '<div class="searchform"><form method="post">'
-searchcontains_form += '<p>This is Ricgraph explorer.'
-searchcontains_form += '<p>Type something to search (this is a case-insensitive, inexact match):'
-searchcontains_form += '<br><label>value:</label><input type=text name=search_value>'
-searchcontains_form += '<br><br><label></label><input type=submit value=search>'
-searchcontains_form += '</form></div>'
+# The last part of the html page, from page_footer to script inclusion.
+html_body_end = page_footer
+html_body_end += '<script src="/static/ricgraph_sorttable.js"></script>'
+html_body_end += '</body>'
+html_body_end += '</html>'
+
+# The html search form for an exact match search (on /search).
+search_form = '<section class="w3-container">'
+search_form += '<div class="w3-card-4">'
+search_form += '<div class="w3-container uu-yellow">'
+search_form += '<h3>Type something to search</h3>'
+search_form += 'This is an case-sensitive, exact match search, using AND if you use multiple fields:'
+search_form += '</div>'
+search_form += '<div class="w3-container">'
+search_form += '<form method="post">'
+search_form += '<label>name:</label><input class="w3-input w3-border" type=text name=search_name>'
+search_form += '<br><label>category:</label><input class="w3-input w3-border" type=text name=search_category>'
+search_form += '<br><label>value:</label><input class="w3-input w3-border" type=text name=search_value>'
+search_form += '<br><input class="w3-input' + button_style + '" type=submit value=search>'
+search_form += '</form>'
+search_form += '</div>'
+search_form += '</div>'
+search_form += '</section>'
+
+# The html search form for a search on a string (on /searchcontains).
+searchcontains_form = '<section class="w3-container">'
+searchcontains_form += '<div class="w3-card-4">'
+searchcontains_form += '<div class="w3-container uu-yellow">'
+searchcontains_form += '<h3>Type something to search</h3>'
+searchcontains_form += 'This is a case-insensitive, inexact match:'
+searchcontains_form += '</div>'
+searchcontains_form += '<div class="w3-container">'
+searchcontains_form += '<form method="post">'
+searchcontains_form += '<label>value:</label><input class="w3-input w3-border" type=text name=search_value>'
+searchcontains_form += '<br><input class="w3-input' + button_style + '" type=submit value=search>'
+searchcontains_form += '</form>'
+searchcontains_form += '</div>'
+searchcontains_form += '</div>'
+searchcontains_form += '</section>'
 
 
 # ##############################################################################
@@ -109,18 +181,20 @@ def index_html() -> str:
 
     :return: html to be rendered.
     """
-    global stylesheet, footer
+    global html_body_start, html_body_end
 
-    html = stylesheet
-    html += '<p>This is Ricgraph explorer. You can use it to explore Ricgraph.'
+    html = html_body_start
+    html += get_html_for_cardstart()
+    html += 'This is Ricgraph explorer. You can use it to explore Ricgraph.'
     html += '<ul>'
     html += '<li><a href=' + url_for('search') + '>' + 'Do a case-sensitive, '
     html += 'exact match search on fields '
-    html += '<em>name</em>, <em>category</em> and/or <em>value</em>' + '</a>;'
+    html += '<i>name</i>, <i>category</i> and/or <i>value</i>' + '</a>;'
     html += '<li><a href=' + url_for('searchcontains') + '>' + 'Do a search on '
-    html += 'field <em>value</em> containing a string' + '</a>.'
+    html += 'field <i>value</i> containing a string' + '</a>.'
     html += '</ul>'
-    html += footer
+    html += get_html_for_cardend()
+    html += html_body_end
     return html
 
 
@@ -136,9 +210,9 @@ def search(id_value=None) -> str:
     :param id_value: value to search for in the 'value' field.
     :return: html to be rendered.
     """
-    global stylesheet, footer, search_form
+    global html_body_start, html_body_end, search_form
 
-    html = stylesheet
+    html = html_body_start
     if request.method == 'POST':
         search_name = request.form['search_name']
         search_category = request.form['search_category']
@@ -157,7 +231,7 @@ def search(id_value=None) -> str:
             html += find_nodes_in_ricgraph(name='',
                                            category='',
                                            value=escape(id_value))
-    html += footer
+    html += html_body_end
     return html
 
 
@@ -170,9 +244,9 @@ def searchcontains() -> str:
 
     :return: html to be rendered.
     """
-    global stylesheet, footer, searchcontains_form
+    global html_body_start, html_body_end, searchcontains_form
 
-    html = stylesheet
+    html = html_body_start
     if request.method == 'POST':
         search_value = request.form['search_value']
         html += find_nodes_in_ricgraph(value=escape(search_value),
@@ -180,7 +254,7 @@ def searchcontains() -> str:
     else:
         html += searchcontains_form
 
-    html += footer
+    html += html_body_end
     return html
 
 
@@ -189,7 +263,7 @@ def searchcontains() -> str:
 # ##############################################################################
 def faceted_navigation_in_ricgraph(nodes: list,
                                    name: str = '', category: str = '', value: str = '') -> str:
-    """Do faceted navigation in Ricgraph.
+    """Do facet navigation in Ricgraph.
     The facets will be constructed based on 'name' and 'category'.
     Facets chosen will be "catched" in function search().
     If there is only one facet (for either one or both), it will not be shown.
@@ -198,7 +272,8 @@ def faceted_navigation_in_ricgraph(nodes: list,
     :param name: name of the nodes to find.
     :param category: category of the nodes to find.
     :param value: value of the nodes to find.
-    :return: html to be rendered.
+    :return: html to be rendered, or empty string ('') if faceted navigation is
+      not useful because there is only one facet.
     """
     if len(nodes) == 0:
         return ''
@@ -217,42 +292,58 @@ def faceted_navigation_in_ricgraph(nodes: list,
             category_histogram[node['category']] += 1
 
     if len(name_histogram) <= 1 and len(category_histogram) <= 1:
-        # Faceted navigation does not make sense, don't show facets.
+        # We have only one facet, so don't show the facet panel.
         return ''
 
-    faceted_form = '<div class="facetedform"><form method="post" action="/search">'
+    faceted_form = get_html_for_cardstart()
+    faceted_form += '<div class="facetedform">'
+    faceted_form += '<form method="post" action="/search">'
     if len(name_histogram) == 1:
-        # Get the first (and only) element in the dict, we pass it as hidden field to search().
+        # Get the first (and only) element in the dict, pass it as hidden field to search().
         name_key = str(list(name_histogram.keys())[0])
         faceted_form += '<input type="hidden" name="faceted_name" value="' + name_key + '">'
     else:
-        faceted_form += '<fieldset><legend>Select for faceted navigation on "name"</legend>'
+        faceted_form += '<div class="w3-card-4">'
+        faceted_form += '<div class="w3-container uu-yellow">'
+        faceted_form += '<b>Faceted navigation on "name"</b>'
+        faceted_form += '</div>'
+        faceted_form += '<div class="w3-container">'
         # Sort a dict on value:
         # https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
         for bucket in sorted(name_histogram, key=name_histogram.get, reverse=True):
-            name_label = bucket + '&nbsp;<em>(' + str(name_histogram[bucket]) + ')</em>&emsp;'
-            faceted_form += '<input type="checkbox" name ="faceted_name" value="' + bucket + '" checked>'
-            faceted_form += '<label>' + name_label + ' </label>'
-        faceted_form += '</fieldset>'
+            name_label = bucket + '&nbsp;<i>(' + str(name_histogram[bucket]) + ')</i>'
+            faceted_form += '<input class="w3-check" type="checkbox" name="faceted_name" value="'
+            faceted_form += bucket + '" checked>'
+            faceted_form += '<label>&nbsp;' + name_label + '</label><br>'
+        faceted_form += '</div>'
+        faceted_form += '</div></br>'
 
     if len(category_histogram) == 1:
-        # Get the first (and only) element in the dict, we pass it as hidden field to search().
+        # Get the first (and only) element in the dict, pass it as hidden field to search().
         category_key = str(list(category_histogram.keys())[0])
         faceted_form += '<input type="hidden" name="faceted_category" value="' + category_key + '">'
     else:
-        faceted_form += '<fieldset><legend>Select for faceted navigation on "category":</legend>'
+        faceted_form += '<div class="w3-card-4">'
+        faceted_form += '<div class="w3-container uu-yellow">'
+        faceted_form += '<b>Faceted navigation on "category"</b>'
+        faceted_form += '</div>'
+        faceted_form += '<div class="w3-container">'
         for bucket in sorted(category_histogram, key=category_histogram.get, reverse=True):
-            category_label = bucket + '&nbsp;<em>(' + str(category_histogram[bucket]) + ')</em>&emsp;'
-            faceted_form += '<input type="checkbox" name ="faceted_category" value="' + bucket + '" checked>'
-            faceted_form += '<label>' + category_label + '</label>'
-        faceted_form += '</fieldset><br>'
+            category_label = bucket + '&nbsp;<i>(' + str(category_histogram[bucket]) + ')</i>'
+            faceted_form += '<input class="w3-check" type="checkbox" name="faceted_category" value="'
+            faceted_form += bucket + '" checked>'
+            faceted_form += '<label>&nbsp;' + category_label + '</label><br>'
+        faceted_form += '</div>'
+        faceted_form += '</div></br>'
 
-    # Send name, category and value as hidden field to search().
+    # Send name, category and value as hidden fields to search().
     faceted_form += '<input type="hidden" name="search_name" value="' + str(name) + '">'
     faceted_form += '<input type="hidden" name="search_category" value="' + str(category) + '">'
     faceted_form += '<input type="hidden" name="search_value" value="' + str(value) + '">'
-    faceted_form += '<label></label><input type=submit value="Do the faceted navigation">'
-    faceted_form += '</form></div>'
+    faceted_form += '<input class="w3-input' + button_style + '" type=submit value="Do the faceted navigation">'
+    faceted_form += '</form>'
+    faceted_form += '</div>'
+    faceted_form += get_html_for_cardend()
     html = faceted_form
     return html
 
@@ -284,8 +375,10 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
         return 'Ricgraph could not be opened.'
 
     if name == '' and category == '' and value == '':
-        html = '<p>Please enter a value in the search field.'
-        html += '<br><a href=' + url_for('index_html') + '>' + 'Try again' + '</a>.'
+        html = get_html_for_cardstart()
+        html += 'The search field should have a value.'
+        html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += get_html_for_cardend()
         return html
 
     if name_want is None:
@@ -295,8 +388,10 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
 
     if use_contain_phrase:
         if len(value) < 3:
-            html = '<p>Please use at least three characters for your search string.'
-            html += '<br><a href=' + url_for('index_html') + '>' + 'Try again' + '</a>.'
+            html = get_html_for_cardstart()
+            html += 'The search string should be at least three characters.'
+            html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += get_html_for_cardend()
             return html
 
         result = rcg.read_all_nodes_containing(value=value)
@@ -304,109 +399,132 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
         result = rcg.read_all_nodes(name=name, category=category, value=value)
 
     if len(result) == 0:
-        html = '<p>Ricgraph explorer could not find anything.'
-        html += '<br><a href=' + url_for('index_html') + '>' + 'Try again' + '</a>.'
+        html = get_html_for_cardstart()
+        html += 'Ricgraph explorer could not find anything.'
+        html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += get_html_for_cardend()
         return html
 
-    html = '<p>You searched for:<ul>'
+    html = get_html_for_cardstart()
+    html += 'You searched for:<ul>'
     if not use_contain_phrase:
-        html += '<li>name: "' + str(name) + '"'
-        html += '<li>category: "' + str(category) + '"'
+        html += '<li>name: <i>"' + str(name) + '"</i>'
+        html += '<li>category: <i>"' + str(category) + '"</i>'
 
-    html += '<li>value: "' + str(value) + '"'
+    html += '<li>value: <i>"' + str(value) + '"</i>'
     if len(name_want) > 0:
-        html += '<li>name_want: "' + str(name_want) + '"'
+        html += '<li>name_want: <i>"' + str(name_want) + '"</i>'
     if len(category_want) > 0:
-        html += '<li>category_want: "' + str(category_want) + '"'
-
+        html += '<li>category_want: <i>"' + str(category_want) + '"</i>'
     html += '</ul>'
+    html += get_html_for_cardend()
 
     if use_contain_phrase:
-        header = '<p>Choose one node to continue:'
-        html += get_html_table_from_nodes(nodes=result, header_html=header)
+        table_header = 'Choose one node to continue:'
+        html += get_html_table_from_nodes(nodes=result, table_header=table_header)
         return html
 
     if len(result) > MAX_RESULTS:
-        html += '<p>There are ' + str(len(result)) + ' results, showing first '
+        html += get_html_for_cardstart()
+        html += 'There are ' + str(len(result)) + ' results, showing first '
         html += str(MAX_RESULTS) + '.<br>'
+        html += get_html_for_cardend()
     count = 0
+    # Loop over the nodes found.
     for node in result:
-        # Loop over the nodes found.
         count += 1
         if count > MAX_RESULTS:
             break
 
-        html += '<br><p>Ricgraph explorer found node:'
-        html += get_html_for_tablestart()
-        html += get_html_for_tableheader()
-        html += get_html_for_tablerow(node=node)
-        html += get_html_for_tableend()
+        html += get_html_for_cardline()
+        html += get_html_table_from_nodes(nodes=[node],
+                                          table_header='Ricgraph explorer found node:')
         if node['category'] == 'person':
             personroot_nodes = rcg.get_all_personroot_nodes(node)
             if len(personroot_nodes) == 0:
-                html += '<p>No person-root node found, this should not happen.'
+                html += get_html_for_cardstart()
+                html += 'No person-root node found, this should not happen.'
+                html += get_html_for_cardend()
                 return html
             elif len(personroot_nodes) == 1:
-                header = '<p>This is a <em>person</em> node, '
-                header += 'these are all IDs of its <em>person-root</em> node:'
+                table_header = 'This is a <i>person</i> node, '
+                table_header += 'these are all IDs of its <i>person-root</i> node:'
                 neighbor_nodes = rcg.get_all_neighbor_nodes_person(node)
                 html += get_html_table_from_nodes(nodes=neighbor_nodes,
-                                                  header_html=header)
+                                                  table_header=table_header)
 
-                header = '<p>These are all the neighbors of this <em>person-root</em> node '
-                header += '(without <em>person</em> nodes):'
-                neighbor_nodes = rcg.get_all_neighbor_nodes(personroot_nodes[0],
-                                                            name_want=name_want,
-                                                            category_want=category_want,
-                                                            category_dontwant='person')
-
-                html += get_html_table_from_nodes(nodes=neighbor_nodes,
-                                                  header_html=header)
-                html += faceted_navigation_in_ricgraph(nodes=neighbor_nodes,
-                                                       name=name,
-                                                       category=category,
-                                                       value=value)
+                table_header = 'These are all the neighbors of this <i>person-root</i> node '
+                table_header += '(without <i>person</i> nodes):'
+                node_to_find_neighbors = personroot_nodes[0]
+                category_dontwant = 'person'
+                # And now fall through.
             else:
                 # More than one person-root node, that should not happen, but it did.
-                header = '<p>There is more than one <em>person-root</em> node '
-                header += 'for the node we have found. '
-                header += 'This should not happen, but it did, and that is probably caused '
-                header += 'by a mislabeling in a source system we harvested. '
-                header += 'Choose one <em>person-root</em> node to continue:'
+                table_header = 'There is more than one <i>person-root</i> node '
+                table_header += 'for the node found. '
+                table_header += 'This should not happen, but it did, and that may have been '
+                table_header += 'caused by a mislabeling in a source system we harvested. '
+                table_header += 'Choose one <i>person-root</i> node to continue:'
                 html += get_html_table_from_nodes(nodes=personroot_nodes,
-                                                  header_html=header)
-                break
+                                                  table_header=table_header)
+                return html
         else:
-            header = '<p>These are the neighbors of this node:'
-            neighbor_nodes = rcg.get_all_neighbor_nodes(node,
-                                                        name_want=name_want,
-                                                        category_want=category_want)
-            html += get_html_table_from_nodes(nodes=neighbor_nodes,
-                                              header_html=header)
-            html += faceted_navigation_in_ricgraph(nodes=neighbor_nodes,
-                                                   name=name,
-                                                   category=category,
-                                                   value=value)
+            table_header = 'These are the neighbors of this node:'
+            node_to_find_neighbors = node
+            category_dontwant = ''
+
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=node_to_find_neighbors,
+                                                    name_want=name_want,
+                                                    category_want=category_want,
+                                                    category_dontwant=category_dontwant)
+        faceted_html = faceted_navigation_in_ricgraph(nodes=neighbor_nodes,
+                                                      name=name,
+                                                      category=category,
+                                                      value=value)
+        if faceted_html == '':
+            table_header += '<br>[Facet panel not shown because there is only one facet to show.]'
+
+        table_html = get_html_table_from_nodes(nodes=neighbor_nodes,
+                                               table_header=table_header)
+        if faceted_html == '':
+            # Faceted navigation not useful, don't show the panel.
+            html += table_html
+        else:
+            # Divide space between facet panel and table.
+            html += '<div class="w3-row-padding w3-stretch" >'
+            html += '<div class="w3-col" style="width:300px" >'
+            html += faceted_html
+            html += '</div>'
+            html += '<div class="w3-rest" >'
+            html += table_html
+            html += '</div>'
+            html += '</div>'
+
     return html
 
 
-def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None], header_html: str = '') -> str:
+def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None], table_header: str = '') -> str:
     """Create a html table for all nodes in the list.
 
     :param nodes: the nodes to create a table from.
-    :param header_html: the html to show above the table.
+    :param table_header: the html to show above the table.
     :return: html to be rendered.
     """
     if len(nodes) == 0:
-        return '<p>No neighbors found.'
+        html = get_html_for_cardstart()
+        html += 'No neighbors found.'
+        html += get_html_for_cardend()
+        return html
 
-    html = header_html
+    html = get_html_for_cardstart()
+    html += table_header
     html += get_html_for_tablestart()
     html += get_html_for_tableheader()
     for node in nodes:
         html += get_html_for_tablerow(node=node)
 
     html += get_html_for_tableend()
+    html += get_html_for_cardend()
     return html
 
 
@@ -418,7 +536,7 @@ def get_html_for_tablestart() -> str:
 
     :return: html to be rendered.
     """
-    html = '<table class="sortable">'
+    html = '<table class="sortable w3-table">'
     return html
 
 
@@ -427,7 +545,7 @@ def get_html_for_tableheader() -> str:
 
     :return: html to be rendered.
     """
-    html = '<tr>'
+    html = '<tr class="uu-yellow">'
     html += '<th>name</th>'
     html += '<th>category</th>'
     html += '<th class=sorttable_alpha">value</th>'
@@ -491,13 +609,55 @@ def get_html_for_tableend() -> str:
     return html
 
 
+# ##############################################################################
+# The HTML for the W3CSS cards is generated here.
+# ##############################################################################
+def get_html_for_cardstart() -> str:
+    """Get the html required for the start of a W3.CSS 'card'.
+    W3.CSS is a modern, responsive, mobile first CSS framework.
+
+    :return: html to be rendered.
+    """
+    html = '<section class="w3-container">'
+    html += '<div class="w3-card-4">'
+    html += '<div class="w3-container w3-responsive">'
+    return html
+
+
+def get_html_for_cardend() -> str:
+    """Get the html required for the end of a W3.CSS 'card'.
+    W3.CSS is a modern, responsive, mobile first CSS framework.
+
+    :return: html to be rendered.
+    """
+    html = '</div>'
+    html += '</div>'
+    html += '</section>'
+    return html
+
+
+def get_html_for_cardline() -> str:
+    """Get the html required for a yellow line. It is a W3.CSS 'card'
+    filled with the color 'yellow'.
+
+    :return: html to be rendered.
+    """
+    html = '<section class="w3-container">'
+    html += '<div class="w3-card-4">'
+    # Adjust the height of the line is padding-top + padding-bottom.
+    html += '<div class="w3-container uu-yellow" style="padding-top:3px; padding-bottom:3px">'
+    html += '</div>'
+    html += '</div>'
+    html += '</section>'
+    return html
+
+
 # ############################################
 # ################### main ###################
 # ############################################
 if __name__ == "__main__":
     # For normal use:
     ricgraph_explorer.run(port=3030)
-
 
     # For debug purposes:
     # ricgraph_explorer.run(debug=True, port=3030)
