@@ -100,6 +100,13 @@ rsd_url = https://research-software-directory.org
 rsd_organization = utrecht-university
 
 
+[UU_staff_pages_harvesting]
+# With the following settings you will harvest Utrecht University 
+# staff pages.
+# The URL to the API of the UU staff pages (without quotes):
+uustaff_url = 
+
+
 [OpenAlex_harvesting]
 # OpenAlex is a "fully open catalog of the global research system",
 # https://docs.openalex.org.

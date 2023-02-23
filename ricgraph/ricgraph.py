@@ -246,12 +246,18 @@ def create_well_known_url(name: str, value: str) -> str:
 
     if name == 'DOI':
         return 'https://doi.org/' + value
+    elif name == 'GITHUB':
+        return 'https://www.github.com/' + value
     elif name == 'ISNI':
         return 'https://isni.org/isni/' + value
+    elif name == 'LINKEDIN':
+        return 'https://www.linkedin.com/in/' + value
     elif name == 'ORCID':
         return 'https://orcid.org/' + value
     elif name == 'SCOPUS_AUTHOR_ID':
         return 'https://www.scopus.com/authid/detail.uri?authorId=' + value
+    elif name == 'TWITTER':
+        return 'https://www.twitter.com/' + value
     else:
         return ''
 
@@ -455,6 +461,48 @@ def update_node(name: str, category: str, value: str,
     """
     node = create_node(name=name, category=category, value=value, **other_properties)
     return node
+
+
+# Note the similarity with create_nodepairs_and_edges_df().
+def update_nodes_df(nodes: pandas.DataFrame) -> None:
+    """Update the values in a node, but only if values have been changed.
+    This is done for all the nodes passed in the DataFrame.
+
+    The column names specify the property in a node (i.e. 'name', 'category', 'value').
+    The row value of that column specify the property value of that property.
+
+    :param nodes: the nodes in a DataFrame.
+    :return: None.
+    """
+    nodes_clean = nodes.copy(deep=True)
+    # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
+    nodes_clean.replace('', numpy.nan, inplace=True)
+    nodes_clean.dropna(axis=0, how='all', inplace=True)
+    nodes_clean.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+
+    print('\nCache used at start of function: ' + str(read_node.cache_info()) + '.')
+    print('There are ' + str(len(nodes_clean)) + ' nodes, updating node: 0  ', end='')
+    count = 0
+    columns = nodes_clean.columns
+    for row in nodes_clean.itertuples():
+        count += 1
+        if count % 250 == 0:
+            print(count, ' ', end='', flush=True)
+        if count % 10000 == 0:
+            print('\n', end='', flush=True)
+
+        node_properties = {}
+        for prop_name in ALLOWED_RICGRAPH_PROPERTIES:
+            for other_name in columns:
+                if prop_name == other_name:
+                    node_properties[prop_name] = getattr(row, other_name)
+
+        update_node(name=row.name, category=row.category, value=row.value,
+                    **node_properties)
+
+    print(count, '\n', end='', flush=True)
+    print('Cache used at end of function: ' + str(read_node.cache_info()) + '.')
+    return
 
 
 def delete_node(name: str, value: str) -> None:
