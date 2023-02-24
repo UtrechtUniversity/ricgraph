@@ -35,6 +35,12 @@ Also, if you have searched for a *person*, all of its identifiers will be return
 You can go to other nodes by clicking on a value in the *value* column. By doing this, 
 you are traversing the graph.
 
+Ricgraph explorer also offers 
+[Faceted navigation](https://en.wikipedia.org/wiki/Faceted_search). 
+That means, if a query results in a table with e.g. *journal articles*, *datasets*,
+and *software*, you can narrow down on one or more of these categories by 
+checking or unchecking their corresponding checkbox.
+
 #### Execute queries
 
 To use Ricgraph explorer, follow these steps:

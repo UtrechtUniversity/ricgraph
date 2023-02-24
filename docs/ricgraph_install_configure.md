@@ -18,8 +18,9 @@ To be able to use Ricgraph, you need to:
 
 * [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
 * [Install the Bloom configuration](#install-bloom-configuration).
-* Download this Ricgraph repository and install the Python requirements using file *requirements.txt*.
-  This will also install [Py2neo](#Py2neo) and [PyAlex](#PyAlex).
+* [Download this Ricgraph repository](#download-ricgraph).
+* [Use a Python virtual environment](#use-a-python-virtual-environment).
+* [Install the Python requirements](#install-the-python-requirements).
 * Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file).
 * Start writing code, or start reusing code,
   see [Ricgraph programming examples](ricgraph_programming_examples.md).
@@ -87,7 +88,50 @@ Now we need to find the port number which Neo4j Desktop is using:
   to go back to the main screen of Bloom.
 * Ready.
 
-### Py2neo
+### Download Ricgraph
+
+You can choose two types of downloads for Ricgraph: 
+* The latest released version. Go to the 
+  [Release page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/releases),
+choose the most recent version, download either the *zip* or *tar.gz* version.
+* The "cutting edge" version. Go to the 
+  [GitHub page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/),
+  click the green button "Code", choose tab "Local", choose "Download zip".
+
+### Use a Python virtual environment
+
+To be able to use Ricgraph, you will need a Python virtual environment. 
+Virtual environments are a kind of lightweight Python environments, 
+each with their own independent set of Python packages installed 
+in their site directories. A virtual environment is created on top of 
+an existing Python installation.
+There are two ways of doing this:
+* Using Python's venv module. 
+  [Read this primer to learn how to do 
+  this](https://realpython.com/python-virtual-environments-a-primer/).
+* Use a Python
+  [Integrated development
+  environment (IDE)](https://en.wikipedia.org/wiki/Integrated_development_environment),
+  such as [PyCharm](https://www.jetbrains.com/pycharm).
+  An IDE will automatically generate a virtual environment, and any time you 
+  use the IDE, it will "transfer" you to that virtual environment.
+  It is also more easy to execute and debug your scripts.
+
+### Install the Python requirements
+
+Ricgraph is dependent on a number of Python modules,
+such as [Py2neo](#Py2neo) and [PyAlex](#PyAlex).
+They are listed in the file *requirements.txt*.
+You can install these in different ways:
+
+* If you use a virtual environment, in the virtual environment, type
+  `pip install -r requirements.txt`.
+* If you use a Python IDE (see previous paragraph), depending on the IDE, 
+  single or double click on
+  file *requirements.txt*. Somewhere, there will appear a button or text 
+  with something like "Install requirements". Click on it.
+
+#### Py2neo
 
 Ricgraph uses [Py2neo](https://py2neo.org). Py2neo is (according to its author) "a client library
 and toolkit for working with Neo4j from within
@@ -96,7 +140,7 @@ The library supports both Bolt and HTTP and provides a high level
 API, an OGM, admin tools, an interactive console, a
 Cypher lexer for Pygments, and many other bells and whistles."
 
-### PyAlex
+#### PyAlex
 
 Ricgraph uses [PyAlex](https://github.com/J535D165/pyalex).
 PyAlex is a Python library for [OpenAlex](https://openalex.org/).
