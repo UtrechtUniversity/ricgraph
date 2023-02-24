@@ -720,12 +720,16 @@ except KeyError:
 print('\nPreparing graph...')
 rcg.open_ricgraph()
 
+# Empty Ricgraph, choose one of the following.
+# rcg.empty_ricgraph(answer='yes')
+# rcg.empty_ricgraph(answer='no')
+rcg.empty_ricgraph()
+
 # You can use 'True' or 'False' depending on your needs to harvest persons/organizations/research outputs.
 # This might be handy if you are testing your parsing.
 
 # if False:
 if True:
-    rcg.empty_ricgraph()
     parse_persons = harvest_and_parse_pure_data(mode='persons',
                                                 endpoint=PURE_PERSONS_ENDPOINT,
                                                 headers=PURE_HEADERS,

@@ -248,7 +248,11 @@ except KeyError:
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()
-# rcg.empty_ricgraph()
+
+# Empty Ricgraph, choose one of the following.
+# rcg.empty_ricgraph(answer='yes')
+# rcg.empty_ricgraph(answer='no')
+rcg.empty_ricgraph()
 
 rsd_data = harvest_and_parse_software(headers=RSD_HEADERS,
                                       url=FULL_RSD_URL,

@@ -180,15 +180,38 @@ def close_ricgraph() -> None:
     return
 
 
-def empty_ricgraph() -> None:
+def empty_ricgraph(answer: str = '') -> None:
     """Empty Ricgraph and create new indexes. Side effect: indexes are deleted and created.
+
+    :param answer: prefilled answer to the question whether the user wants to empty Ricgraph.
+      'yes': Ricgraph will be emptied, no questions asked;
+      'no': Ricgraph will not be emptied, no questions asked;
+      any other answer: the user will be asked whether to empty Ricgraph.
+    :return: None.
     """
     global _graph
 
-    user_input = input('Do you really want to empty Ricgraph (yes/no)? ')
-    if user_input.lower() != 'yes':
-        print('Ricgraph has not been emptied, exiting...\n')
-        exit(1)
+    if answer == 'yes':
+        print('Emptying Ricgraph: Ricgraph will be emptied.\n')
+        # Fall through.
+    elif answer == 'no':
+        print('Emptying Ricgraph: Ricgraph will not be emptied.\n')
+        return
+    else:
+        print('Do you want to empty Ricgraph? You have the following options:')
+        print('- "yes": Ricgraph will be emptied.')
+        print('- "no": Ricgraph will not be emptied.')
+        print('- any other answer: Ricgraph will not be emptied, execution of this script will abort.')
+        user_input = input('Please make a choice: ')
+        if user_input.lower() == 'yes':
+            print('\nRicgraph will be emptied.\n')
+            # Fall through.
+        elif user_input.lower() == 'no':
+            print('\nRicgraph has not been emptied.\n')
+            return
+        else:
+            print('\nRicgraph has not been emptied, exiting.\n')
+            exit(1)
 
     # Sometimes the following statement fails if there are many nodes, see e.g.
     # https://stackoverflow.com/questions/23310114/how-to-reset-clear-delete-neo4j-database.

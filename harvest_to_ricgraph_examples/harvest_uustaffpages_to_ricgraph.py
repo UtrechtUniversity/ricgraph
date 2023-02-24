@@ -386,6 +386,10 @@ except KeyError:
     exit(1)
 
 rcg.open_ricgraph()
+
+# Empty Ricgraph, choose one of the following.
+# rcg.empty_ricgraph(answer='yes')
+# rcg.empty_ricgraph(answer='no')
 rcg.empty_ricgraph()
 
 parse_uustaff = harvest_and_parse_uustaffpages_data(url=UUSTAFF_URL,

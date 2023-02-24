@@ -415,7 +415,11 @@ except KeyError:
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()
-# rcg.empty_ricgraph()        # use this only if you need to empty the graph
+
+# Empty Ricgraph, choose one of the following.
+# rcg.empty_ricgraph(answer='yes')
+# rcg.empty_ricgraph(answer='no')
+rcg.empty_ricgraph()
 
 parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
                                                        headers=YODA_HEADERS,
