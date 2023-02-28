@@ -1,4 +1,6 @@
-# Ricgraph - Research in context graph
+<img src="docs/images/ricgraph_logo.jpg" height="30"> 
+
+# Ricgraph - Research in context graph 
 
 ## What is Ricgraph?
 

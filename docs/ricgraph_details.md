@@ -50,6 +50,27 @@ In the right figure, there are three *person-root* nodes, representing three dif
 (other nodes with person identifiers are not shown for readability).
 All these persons have contributed to the same research output, identified by *DOI*.
 
+### Properties of nodes in Ricgraph
+
+All nodes in Ricgraph have the following properties:
+
+* `name`: name of the node, e.g. ISNI, ORCID, DOI, FULL_NAME, SCOPUS_AUTHOR_ID, etc.;
+* `category`: category of the node,
+  e.g. person, person-root, book, journal article, dataset, software, etc.;
+* `value`: value of the node;
+* `_key`: key value of the node, not to be modified by the user;
+* `_history`: list of history events of the node, not to be modified by the user.
+
+Additional properties for nodes can be added by changing an entry in the
+[Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
+In the default configuration, the following properties are included:
+
+* `comment`: comment for a node;
+* `url_main`: main URL for a node, pointing to e.g. the corresponding ISNI, ORCID or DOI
+  record on the web;
+* `url_other`: other URL for a node, pointing to e.g. the originating record in the source system;
+* `history_event`: an event to be added to `_history list`.
+
 ### Return to main README.md file
 
 [Return to main README.md file](../README.md).

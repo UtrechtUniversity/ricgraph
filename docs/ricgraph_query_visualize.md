@@ -12,16 +12,16 @@ To query and visualize Ricgraph nodes and edges, there are several possibilities
 
 ### Start Neo4j Desktop
 
-* Click on the downloaded AppImage. It will be called something
+1. Click on the downloaded AppImage. It will be called something
   like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
-* At the top right there is a text "No active DBMS".
-* Move your mouse to the text "Graph DBMS". When you hoover it, a button
+1. At the top right there is a text "No active DBMS".
+1. Move your mouse to the text "Graph DBMS". When you hoover it, a button
   will appear with the text "Start". Click it.
-* Wait until the Neo4j graph database engine has started.
+1. Wait until the Neo4j graph database engine has started.
   It may ask for a password that has
   been changed. Enter the password you have used
   while creating your database. Click "Save". 
-* Now, next to the text "Graph DBMS" a green icon appears with
+1. Now, next to the text "Graph DBMS" a green icon appears with
   the text "ACTIVE". Your graph database engine is active and ready for use.
 
 ### How to use Ricgraph explorer
@@ -44,11 +44,17 @@ checking or unchecking their corresponding checkbox.
 #### Execute queries
 
 To use Ricgraph explorer, follow these steps:
-* [Start Neo4j Desktop](#Start-neo4j-desktop).
-* Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
+1. [Start Neo4j Desktop](#Start-neo4j-desktop).
+1. Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
   It will tell you which weblink and port to use, probably
   http://127.0.0.1:3030. Open a webbrowser and go to that link.
-* In the search form, enter one or more values in the *name*, *category* and/or *value* fields.
+
+To use it:
+* There are two search forms, choose one:
+  * a case-sensitive, exact match search on fields 
+  *name*, *category* and/or *value* fields; 
+  * a search on field *value* containing a string.
+* In the search form, enter one or more values in the fields available. 
 * Click on "Search".
 * The result, that is, all objects related to your search value(s),
   will be presented in a table. You can go to other nodes
@@ -69,11 +75,11 @@ Below are some examples for a quick start.
 
 #### Open Bloom
 
-* [Start Neo4j Desktop](#Start-neo4j-desktop).
-* Click on the icon
+1. [Start Neo4j Desktop](#Start-neo4j-desktop).
+1. Click on the icon
   <img src="images/neo4j1.jpg" height="20"/>
   on the left side of Neo4j Desktop.
-* Click on "Neo4j Bloom". A new window appears.
+1. Click on "Neo4j Bloom". A new window appears.
 
 #### Execute queries
 
@@ -123,14 +129,14 @@ The following are some examples of actions while clicking on a node:
 Nodes can be visualized in different ways, by changing e.g. their
 size or color. This can be changed as follows:
 
-* On the right side of the Bloom window, there is
+1. On the right side of the Bloom window, there is
   an icon <img src="images/neo4j3.jpg" height="20"/>. Click it
   (Neo4j has [extensive documentation how to use
   it](https://neo4j.com/docs/bloom-user-guide/current/bloom-visual-tour/perspective-drawer)).
-* A new window appears. It shows the default settings for the display
+1. A new window appears. It shows the default settings for the display
   of nodes. You can change the color, size, the property to
   show on the node, and the icon.
-* In the tab "Rule-based" you can add your own rules.
+1. In the tab "Rule-based" you can add your own rules.
 
 The [Ricgraph Bloom configuration file](ricgraph_install_configure.md#install-bloom-configuration)
 contains a few rules based on the value of properties.

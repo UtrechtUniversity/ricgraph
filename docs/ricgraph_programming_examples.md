@@ -20,6 +20,19 @@ They can be used out of the box since they don't need an
 [API](https://en.wikipedia.org/wiki/API) key.
 You will observe that the information from these two sources is neatly combined in one graph.
 
+### Harvest of Pure
+
+A script for harvesting persons, organizations and research outputs from Pure is provided
+with the script *harvest_pure_to_ricgraph.py*. You need an API key to be able to do this, 
+enter it in the
+[Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
+Note that there is a lot of data in Pure, so your harvest may take a long time. You may
+reduce this by adjusting parameters at the start of the script. Look in the sections
+"Parameters for harvesting persons/organizations/research outputs from pure".
+E.g., for research outputs you can adjust
+the years to harvest with the parameter *PURE_RESOUT_YEARS* and the maximum number of
+records to harvest with *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
+
 ### General program structure of a Python program using Ricgraph
 
 ```python

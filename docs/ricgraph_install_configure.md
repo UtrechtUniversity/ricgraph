@@ -14,79 +14,94 @@ They have several products:
   to explore the graph using
   [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
 
-To be able to use Ricgraph, you need to:
+The easiest method for using Ricgraph is by using a virtual machine (VM) such as
+[VirtualBox](https://www.virtualbox.org). A VM of size 25GB with 4GB memory will work.
+Of course, this depends on the (size of the) sources you plan to harvest and the 
+capabilities of your computer. The more, the better. The author has developed Ricgraph with 
+Python 3.11, but there are reports that Ricgraph will work with Python 3.6.9.
+Next, you will need to:
 
-* [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
-* [Install the Bloom configuration](#install-bloom-configuration).
-* [Download this Ricgraph repository](#download-ricgraph).
-* [Use a Python virtual environment](#use-a-python-virtual-environment).
-* [Install the Python requirements](#install-the-python-requirements).
-* Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file).
-* Start writing code, or start reusing code,
+1. [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
+1. [Install the Bloom configuration](#install-bloom-configuration).
+1. [Download this Ricgraph repository](#download-ricgraph).
+1. [Use a Python virtual environment](#use-a-python-virtual-environment).
+1. [Install the Python requirements](#install-the-python-requirements).
+1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file).
+1. Start writing code, or start reusing code,
   see [Ricgraph programming examples](ricgraph_programming_examples.md).
-* [Execute queries and visualize the results](ricgraph_query_visualize.md).
+1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
 
 [Return to main README.md file](../README.md).
 
 ### Install Neo4j Desktop
 
-* Download [Neo4j Desktop](https://neo4j.com/download-center/#desktop) for your
+1. Download [Neo4j Desktop](https://neo4j.com/download-center/#desktop) for your
   operating system. For linux it is an [AppImage](https://en.wikipedia.org/wiki/AppImage),
   so it can be installed and used without root permissions. You will be asked to fill in a form before
   you can download. In the following screen you will be given a "Neo4j Desktop Activation Key". Save it.
-* The downloaded file is called something
+1. The downloaded file is called something
   like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
   Make it executable using "chmod 755 \[filename\]". Then click on it.
-* Accept the license, and then enter your activation key in the right part of the screen. Click "Activate".
-* Move your mouse to "Example Project" in the left column.
+1. Accept the license, and then enter your activation key in the right part of the screen. Click "Activate".
+   You might have to wait a while before you can continue to the next step.
+1. Move your mouse to "Example Project" in the left column.
   A red trash can icon appears. Click it to remove the Example
   Project database "Movie DBMS". Confirm.
-* The text "No projects found" will appear. Create a project by clicking the button "+ New Project".
-* The text "Project" appears with the text "Add a DBMS to get started". Click on the "+ Add" button
+1. The text "No projects found" will appear. Create a project by clicking the button "+ New Project".
+1. The text "Project" appears with the text "Add a DBMS to get started". Click on the "+ Add" button
   next to it and select "Local DBMS". Leave the name as it is ("Graph DBMS") and fill in a password. Choose
   an easy to type and short one
   since the DBMS will only be accessible from your own machine. Click "Create".
-* Exit Neo4j Desktop using the "File" menu and select "Quit".
-* Ready.
+   Also, insert the password in field *neo4j_password* in 
+   the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
+1. Exit Neo4j Desktop using the "File" menu and select "Quit". If your database was active
+   a message similar to "Your DBMS [name] is running, are you sure you want to quit" appears,
+   choose "Stop DBMS, then quit".
+1. Ready.
 
 Now we need to find the port number which Neo4j Desktop is using:
 
-* [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
-* Click on the words "Graph DBMS". At the right a new screen appears.
+1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
+1. Click on the words "Graph DBMS". At the right a new screen appears.
   Look at the tab "Details". Note the port number next to "Bolt port" (the default
   value is 7687).
-  You need to put it in the [Ricgraph initialization file](#Ricgraph-initialization-file).
-* Ready.
+   Insert this port number in field *neo4j_port* in
+   the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
+1. Ready.
 
 ### Install Bloom configuration
 
-* [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
-* Click on the icon
+1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
+1. Click on the icon
   <img src="images/neo4j1.jpg" height="20"/>
   on the left side of Neo4j Desktop.
-* Click on "Neo4j Bloom". A new window appears.
-* In this window, click on the icon
+1. Click on "Neo4j Bloom". A new window appears.
+1. In this window, click on the icon
   <img src="images/neo4j2.jpg" height="20"/>
   at the top left. A Bloom "Perspective" slides out
   (Neo4j has an
   [extensive description how to
   use it](https://neo4j.com/docs/bloom-user-guide/current/bloom-visual-tour/perspective-drawer)).
-* Click on "neo4j > Untitled Perspective 1".
-* A new window appears.
+1. Click on "neo4j > Untitled Perspective 1".
+1. A new window appears.
   Right of the words "Untitled Perspective 1" there are three vertical dots. Click on it.
   Click on "Delete". The perspective "Untitled Perspective 1" is removed.
-* In the same window, right of the word "Perspectives" click on the word "Import".
+1. In the same window, right of the word "Perspectives" click on the word "Import".
   A file open window appears. Go to directory
   [neo4j_config](../neo4j_config) that is part of Ricgraph and
   select file *ricgraph_bloom_config.json*. Click "Open".
   The perspective "ricgraph_bloom_config" is loaded.
-* Click on the small left arrow at the left of the word "Perspectives".
-* Note that the text "neo4j > Untitled Perspective 1"
+1. Click on the text "ricgraph_bloom_config".
+1. Note that the text "neo4j > Untitled Perspective 1"
   has been changed in "neo4j > ricgraph_bloom_config".
-* Click on the icon
+1. A few centimeters below "neo4j > ricgraph_bloom_config", just below the text "Add category",
+  click on the oval "RCGNode". At the right, a new window will appear.
+1. In this window, below the word "Labels", check if an oval box with the text "RCGNode" is
+  shown. If not, click on "Add labels", click on "RCGNode".
+1. Click on the icon
   <img src="images/neo4j2.jpg" height="20"/>
   to go back to the main screen of Bloom.
-* Ready.
+1. Ready.
 
 ### Download Ricgraph
 
@@ -156,27 +171,13 @@ You need to copy this file to *ricgraph.ini* and modify it by including a passwo
 a port number for Neo4j Desktop, and API keys or email addresses for other systems you plan to use.
 Optionally, you can extend Ricgraph by adding new
 [properties of nodes](#Properties-of-nodes-in-Ricgraph).
+Before you can do this, [download Ricgraph](#download-ricgraph).
 
-### Properties of nodes in Ricgraph
-
-All nodes in Ricgraph have the following properties:
-
-* `name`: name of the node, e.g. ISNI, ORCID, DOI, FULL_NAME, SCOPUS_AUTHOR_ID, etc.;
-* `category`: category of the node,
-  e.g. person, person-root, book, journal article, dataset, software, etc.;
-* `value`: value of the node;
-* `_key`: key value of the node, not to be modified by the user;
-* `_history`: list of history events of the node, not to be modified by the user.
-
-Additional properties for nodes can be added by changing an entry in the
-[Ricgraph initialization file](#Ricgraph-initialization-file).
-In the default configuration, the following properties are included:
-
-* `comment`: comment for a node;
-* `url_main`: main URL for a node, pointing to e.g. the corresponding ISNI, ORCID or DOI
-  record on the web;
-* `url_other`: other URL for a node, pointing to e.g. the originating record in the source system;
-* `history_event`: an event to be added to `_history list`.
+### Using Ricgraph
+Before you can do anything with Ricgraph, you need to harvest sources,
+see [Ricgraph programming examples](ricgraph_programming_examples.md).
+After you have harvested sources, you can execute queries and visualize the results,
+see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
 
 ### Return to main README.md file
 
