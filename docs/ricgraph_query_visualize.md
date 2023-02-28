@@ -77,8 +77,8 @@ Below are some examples for a quick start.
 
 1. [Start Neo4j Desktop](#Start-neo4j-desktop).
 1. Click on the icon
-  <img src="images/neo4j1.jpg" height="20">
-  on the left side of Neo4j Desktop.
+   <img src="images/neo4j1.jpg" height="20">
+   on the left side of Neo4j Desktop.
 1. Click on "Neo4j Bloom". A new window appears.
 
 #### Execute queries

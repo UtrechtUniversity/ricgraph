@@ -24,9 +24,11 @@ You will observe that the information from these two sources is neatly combined 
 
 A script for harvesting persons, organizations and research outputs from Pure is provided
 with the script *harvest_pure_to_ricgraph.py*. You need an API key to be able to do this, 
-enter it in the
+enter it as value to field *pure_api_key* in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
-Note that there is a lot of data in Pure, so your harvest may take a long time. You may
+Also, you need to specify the url to Pure in the field *pure_url*.
+
+There is a lot of data in Pure, so your harvest may take a long time. You may
 reduce this by adjusting parameters at the start of the script. Look in the sections
 "Parameters for harvesting persons/organizations/research outputs from pure".
 E.g., for research outputs you can adjust
