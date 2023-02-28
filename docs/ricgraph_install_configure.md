@@ -17,9 +17,10 @@ They have several products:
 The easiest method for using Ricgraph is by using a virtual machine (VM) such as
 [VirtualBox](https://www.virtualbox.org). A VM of size 25GB with 4GB memory will work.
 Of course, this depends on the (size of the) sources you plan to harvest and the 
-capabilities of your computer. The more, the better. The author has developed Ricgraph with 
-Python 3.11, but there are reports that Ricgraph will work with Python 3.6.9.
-Next, you will need to:
+capabilities of your computer. The more, the better. The author uses a VM of 35GB with
+8GB memory and 3 vCPUs on an 11th gen Intel i7 mobile processor. Ricgraph has been
+developed with Python 3.11, but there are reports that Ricgraph will work with Python 3.6.9.
+Other things you need to do:
 
 1. [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
 1. [Install the Bloom configuration](#install-bloom-configuration).
@@ -72,12 +73,10 @@ Now we need to find the port number which Neo4j Desktop is using:
 ### Install Bloom configuration
 
 1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
-1. Click on the icon
-  <img src="images/neo4j1.jpg" height="20"/>
-  on the left side of Neo4j Desktop.
+1. Click on the icon <img src="images/neo4j1.jpg" height="20"/>
+   on the left side of Neo4j Desktop.
 1. Click on "Neo4j Bloom". A new window appears.
-1. In this window, click on the icon
-  <img src="images/neo4j2.jpg" height="20"/>
+1. In this window, click on the icon <img src="images/neo4j2.jpg" height="20"/>
   at the top left. A Bloom "Perspective" slides out
   (Neo4j has an
   [extensive description how to
