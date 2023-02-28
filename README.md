@@ -14,7 +14,7 @@ as long as every object can be "represented" by at least a *name* and a *value*.
 In Ricgraph, one node represents one object, and an edge represents the
 relation between two objects.
 It is written in Python and uses [Neo4j](https://neo4j.com)
-as [graph database engine](https://en.wikipedia.org/wiki/Graph_database). 
+as [graph database engine](https://en.wikipedia.org/wiki/Graph_database).  
 
 Metadata of an object are stored as "properties"
 in a node, i.e. as information associated with a node.
