@@ -29,7 +29,7 @@ The following figure shows two examples (click the figure to enlarge).
 
 | a person with a few identifiers               | a person with a lot of identifiers            |
 |-----------------------------------------------|-----------------------------------------------|
-| <img src="images/rcg-ids1.jpg" height="130"/> | <img src="images/rcg-ids2.jpg" height="200"/> |
+| <img src="images/rcg-ids1.jpg" height="130"> | <img src="images/rcg-ids2.jpg" height="200"> |
 
 A person can have any number of identifiers.
 The person in the left figure has one *ORCID*, one *ISNI* and one *FULL_NAME*.

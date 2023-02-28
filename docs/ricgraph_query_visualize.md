@@ -77,7 +77,7 @@ Below are some examples for a quick start.
 
 1. [Start Neo4j Desktop](#Start-neo4j-desktop).
 1. Click on the icon
-  <img src="images/neo4j1.jpg" height="20"/>
+  <img src="images/neo4j1.jpg" height="20">
   on the left side of Neo4j Desktop.
 1. Click on "Neo4j Bloom". A new window appears.
 
@@ -130,7 +130,7 @@ Nodes can be visualized in different ways, by changing e.g. their
 size or color. This can be changed as follows:
 
 1. On the right side of the Bloom window, there is
-  an icon <img src="images/neo4j3.jpg" height="20"/>. Click it
+  an icon <img src="images/neo4j3.jpg" height="20">. Click it
   (Neo4j has [extensive documentation how to use
   it](https://neo4j.com/docs/bloom-user-guide/current/bloom-visual-tour/perspective-drawer)).
 1. A new window appears. It shows the default settings for the display

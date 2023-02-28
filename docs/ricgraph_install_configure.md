@@ -73,10 +73,10 @@ Now we need to find the port number which Neo4j Desktop is using:
 ### Install Bloom configuration
 
 1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
-1. Click on the icon <img src="images/neo4j1.jpg" height="20"/>
+1. Click on the icon <img src="images/neo4j1.jpg" height="20">
    on the left side of Neo4j Desktop.
 1. Click on "Neo4j Bloom". A new window appears.
-1. In this window, click on the icon <img src="images/neo4j2.jpg" height="20"/>
+1. In this window, click on the icon <img src="images/neo4j2.jpg" height="20">
   at the top left. A Bloom "Perspective" slides out
   (Neo4j has an
   [extensive description how to
@@ -97,8 +97,7 @@ Now we need to find the port number which Neo4j Desktop is using:
   click on the oval "RCGNode". At the right, a new window will appear.
 1. In this window, below the word "Labels", check if an oval box with the text "RCGNode" is
   shown. If not, click on "Add labels", click on "RCGNode".
-1. Click on the icon
-  <img src="images/neo4j2.jpg" height="20"/>
+1. Click on the icon <img src="images/neo4j2.jpg" height="20">
   to go back to the main screen of Bloom.
 1. Ready.
 
