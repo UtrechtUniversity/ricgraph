@@ -104,9 +104,10 @@ html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?
 # The html page header.
 page_header = '<header class="w3-container uu-yellow">'
 page_header += '<div class="w3-bar uu-yellow">'
-page_header += '<div class="w3-bar-item w3-mobile" style="width:20%">'
+page_header += '<div class="w3-bar-item w3-mobile" style="width:25%">'
 page_header += '<a href="/" style="text-decoration:none">'
-page_header += '<img src="/static/uu_logo_small.png" width="30" height="30">&nbsp;Ricgraph explorer</a>'
+page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right: 3em">'
+page_header += '<img src="/static/ricgraph_logo.png" height="30">&nbsp;explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item' + button_style_border + '">Home</a>'
 page_header += '<a href="/search" class="w3-bar-item' + button_style_border + '">Exact match search</a>'
