@@ -112,26 +112,26 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
         if 'NameShort' in harvest_item:
             parse_line = {}
             parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
-            parse_line['FULL_NAME'] = harvest_item['NameShort']
+            parse_line['FULL_NAME'] = str(harvest_item['NameShort'])
             parse_chunk.append(parse_line)
         if 'Employee_Url' in harvest_item:
             parse_line = {}
             parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
             path = pathlib.PurePath(harvest_item['Employee_Url'])
-            parse_line['UUSTAFF_PAGE'] = path.name
-            parse_line['UUSTAFF_PAGE_URL'] = harvest_item['Employee_Url']
+            parse_line['UUSTAFF_PAGE'] = str(path.name)
+            parse_line['UUSTAFF_PAGE_URL'] = str(harvest_item['Employee_Url'])
             parse_chunk.append(parse_line)
         if 'Email' in harvest_item:
             parse_line = {}
             parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
-            parse_line['EMAIL'] = harvest_item['Email']
+            parse_line['EMAIL'] = str(harvest_item['Email'])
             parse_chunk.append(parse_line)
         if 'PhotoUrl' in harvest_item:
             parse_line = {}
             parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
             # 'PhotoUrl' is a substring of a weblink, this confuses things. Replace with an UUID.
             parse_line['UUPHOTO'] = str(uuid.uuid4())
-            parse_line['UUPHOTO_URL'] = UUSTAFF_URL + harvest_item['PhotoUrl']
+            parse_line['UUPHOTO_URL'] = UUSTAFF_URL + str(harvest_item['PhotoUrl'])
             parse_chunk.append(parse_line)
         if 'LinksSocialMedia' in harvest_item:
             for links in harvest_item['LinksSocialMedia']:
@@ -140,10 +140,10 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
                         continue
                     parse_line = {}
                     parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
-                    name_identifier = links['Name'].lower()
-                    value_identifier = links['Url']
+                    name_identifier = str(links['Name'].lower())
+                    value_identifier = str(links['Url'])
                     path = pathlib.PurePath(value_identifier)
-                    path_name = path.name
+                    path_name = str(path.name)
                     if 'orcid' in name_identifier:
                         parse_line['ORCID'] = path_name
                     elif 'linkedin' in name_identifier or 'linked-in' in name_identifier:
@@ -166,7 +166,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
                        or stafforg['Level1'] == 'Universiteit Utrecht':
                         continue
                     else:
-                        org_name = stafforg['Level1']
+                        org_name = str(stafforg['Level1'])
                         break
 
             if org_name != '':
@@ -212,6 +212,12 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
         # 'fullresult=true' or '=false' only differ in 'Guid' field value.
         faculty_url = url + '/Public/GetEmployeesOrganogram?f=' + str(faculty_nr) + '&l=EN&fullresult=true'
         faculty_response = requests.get(faculty_url)
+        if faculty_response.status_code != requests.codes.ok:
+            print('harvest_json_uustaffpages(): error during harvest faculties.')
+            print('Status code: ' + str(response.status_code))
+            print('Url: ' + response.url)
+            print('Error: ' + response.text)
+            exit(1)
         faculty_page = faculty_response.json()
         if 'Employees' not in faculty_page:
             # Empty faculty.
@@ -233,6 +239,12 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
                 break
             employee_url = url + '/Public/getEmployeeData?page=' + employee_id
             employee_response = requests.get(employee_url)
+            if employee_response.status_code != requests.codes.ok:
+                print('harvest_json_uustaffpages(): error during harvest employees.')
+                print('Status code: ' + str(response.status_code))
+                print('Url: ' + response.url)
+                print('Error: ' + response.text)
+                exit(1)
             employee_page = employee_response.json()
 
             if 'Employee' in employee_page:
