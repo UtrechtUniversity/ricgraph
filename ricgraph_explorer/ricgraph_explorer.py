@@ -66,6 +66,9 @@ ricgraph_explorer = Flask(__name__)
 # When we do a query, we return at most this number of nodes.
 MAX_RESULTS = 50
 
+# If we render a table, we return at most this number of rows in that table.
+MAX_ROWS_IN_TABLE = 250
+
 # The style for the buttons, note the space before and after the text.
 button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 # A button with a black line around it.
@@ -519,9 +522,16 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None], table_header:
 
     html = get_html_for_cardstart()
     html += table_header
+    if len(nodes) > MAX_ROWS_IN_TABLE:
+        html += '<br>There are ' + str(len(nodes)) + ' rows in this table, showing first '
+        html += str(MAX_ROWS_IN_TABLE) + '.<br>'
     html += get_html_for_tablestart()
     html += get_html_for_tableheader()
+    count = 0
     for node in nodes:
+        count += 1
+        if count > MAX_ROWS_IN_TABLE:
+            break
         html += get_html_for_tablerow(node=node)
 
     html += get_html_for_tableend()
