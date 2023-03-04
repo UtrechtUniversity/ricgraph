@@ -48,6 +48,16 @@
 allowed_ricgraph_properties = comment,url_main,url_other,history_event
 
 
+[Organization]
+# Information about your organization.
+# The name of your organization (without quotes):
+organization_name = 
+# ROR is a global open persistent identifier for research organizations.
+# Find yours on https://ror.org. 
+# The ROR of your organization (without quotes and without 'https://ror.org/'):
+organization_ror = 
+
+
 [Neo4j]
 # Ricgraph uses Neo4j as graph database, https://neo4j.com.
 # They have several products. Their free products are:
@@ -110,6 +120,8 @@ uustaff_url =
 [OpenAlex_harvesting]
 # OpenAlex is a "fully open catalog of the global research system",
 # https://docs.openalex.org.
+# The URL to the API of OpenAlex (without quotes):
+openalex_url = https://api.openalex.org
 # They don't require authentication, you can join a "polite pool" which offers
 # faster and consistent response times:
 # https://docs.openalex.org/api#authentication.

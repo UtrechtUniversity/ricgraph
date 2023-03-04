@@ -275,8 +275,12 @@ def create_well_known_url(name: str, value: str) -> str:
         return 'https://isni.org/isni/' + value
     elif name == 'LINKEDIN':
         return 'https://www.linkedin.com/in/' + value
+    elif name == 'OPENALEX':
+        return 'https://openalex.org/' + value
     elif name == 'ORCID':
         return 'https://orcid.org/' + value
+    elif name == 'ROR':
+        return 'https://ror.org/' + value
     elif name == 'SCOPUS_AUTHOR_ID':
         return 'https://www.scopus.com/authid/detail.uri?authorId=' + value
     elif name == 'TWITTER':
@@ -1069,12 +1073,21 @@ def get_all_neighbor_nodes_person(node: Node) -> list:
 # Utility functions
 # ##############################################################################
 
-def harvest_json(url: str, headers: dict, body: dict = '', max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
+# #####
+# Note:
+# This function was written using the JSON harvested by the following python files:
+# - GET: harvest_openalex_to_ricgraph.py.
+# - POST: harvest_pure_to_ricgraph.py.
+
+# Possibly for other harvests some changes should be made. Please also test the result
+# with the above mentioned files, and add the filename of the new harvest script.
+# #####
+def harvest_json(url: str, headers: dict, body: dict = [], max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
     """Harvest json data from a file.
 
     :param url: URL to harvest.
     :param headers: headers required.
-    :param body: the body of a POST request, or '' for a GET request.
+    :param body: the body of a POST request, or [] for a GET request.
     :param max_recs_to_harvest: maximum records to harvest.
     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
     :return: list of records in json format, or empty list if nothing found.
@@ -1087,64 +1100,105 @@ def harvest_json(url: str, headers: dict, body: dict = '', max_recs_to_harvest: 
         max_recs_to_harvest = all_records
     if chunksize == 0:
         chunksize = 1
-    if body == '':
+    if body == []:
         # GET http request
-        print('harvest_json(): this is a GET request, not implemented yet.')
+        request_type = 'get'
+        url += '&per_page=' + str(chunksize)
+    else:
+        # POST http request
+        request_type = 'post'
+        body['size'] = chunksize
+
+    # Do a first harvest to determine the number of records to harvest.
+    if request_type == 'get':
+        response = requests.get(url=url, headers=headers)
+    else:
+        response = requests.post(url=url, headers=headers, json=body)
+
+    if response.status_code != requests.codes.ok:
+        print('harvest_json(): error during harvest, possibly '
+              + 'a missing API-key or mixed up POST body?')
+        print('Status code: ' + str(response.status_code))
+        print('Url: ' + response.url)
+        print('Error: ' + response.text)
         exit(1)
 
-    # Now we have a POST http request.
-    body['size'] = chunksize
-    json_data = []
-    count = 0
-    first_time = True
-    while count <= max_recs_to_harvest:
-        if max_recs_to_harvest - count <= chunksize:
-            # We have to harvest the last few (< chunksize).
-            body['size'] = max_recs_to_harvest - count
+    chunk_json_data = response.json()
+    total_records = 0
+    if request_type == 'get':
+        if 'meta' in chunk_json_data:
+            if 'count' in chunk_json_data['meta']:
+                total_records = chunk_json_data['meta']['count']
+    else:
+        if 'count' in chunk_json_data:
+            total_records = chunk_json_data['count']
 
-        body['offset'] = count
-        response = requests.post(url=url, headers=headers, json=body)
+    if total_records == 0:
+        print('harvest_json(): Warning: malformed json, "count" is missing.')
+
+    if max_recs_to_harvest == all_records:
+        print('There are ' + str(total_records)
+              + ' records, harvesting in chunks of ' + str(chunksize)
+              + ' items.')
+    else:
+        print('There are ' + str(total_records)
+              + ' records, harvesting in chunks of ' + str(chunksize)
+              + ', at most ' + str(max_recs_to_harvest) + ' items.')
+
+    print('Harvesting record: ', end='', flush=True)
+
+    json_data = []
+    records_harvested = 0
+    page_nr = 1
+    # And now start the real harvesting.
+    while records_harvested <= max_recs_to_harvest:
+        if request_type == 'get':
+            url_page = url + '&page=' + str(page_nr)
+            response = requests.get(url=url_page, headers=headers)
+        else:
+            if max_recs_to_harvest - records_harvested <= chunksize:
+                # We have to harvest the last few (< chunksize).
+                body['size'] = max_recs_to_harvest - records_harvested
+            body['offset'] = records_harvested
+            response = requests.post(url=url, headers=headers, json=body)
+
         if response.status_code != requests.codes.ok:
             print('harvest_json(): error during harvest, possibly '
                   + 'a missing API-key or mixed up POST body?')
+            print('Status code: ' + str(response.status_code))
+            print('Url: ' + response.url)
+            print('Error: ' + response.text)
             exit(1)
 
         chunk_json_data = response.json()
-        if 'items' not in chunk_json_data:
-            print('harvest_json(): Error: malformed json, "items" is missing.')
-            return []
+        if request_type == 'get':
+            if 'results' not in chunk_json_data:
+                print('harvest_json(): Error: malformed json, "results" is missing.')
+                return []
+            if len(chunk_json_data['results']) == 0:
+                break
+            json_items = chunk_json_data['results']
+        else:
+            if 'items' not in chunk_json_data:
+                print('harvest_json(): Error: malformed json, "items" is missing.')
+                return []
+            if len(chunk_json_data['items']) == 0:
+                break
+            json_items = chunk_json_data['items']
 
-        if len(chunk_json_data['items']) == 0:
-            break
-
-        if first_time:
-            if 'count' in chunk_json_data:
-                if max_recs_to_harvest == all_records:
-                    print('There are ' + str(chunk_json_data['count'])
-                          + ' records, harvesting in chunks of ' + str(chunksize)
-                          + ' items.')
-                else:
-                    print('There are ' + str(chunk_json_data['count'])
-                          + ' records, harvesting in chunks of ' + str(chunksize)
-                          + ', at most ' + str(max_recs_to_harvest) + ' items.')
-                print('Harvesting record: ', end='', flush=True)
-            else:
-                print('harvest_json(): Warning: malformed json, "count" is missing.')
-            first_time = False
-
-        json_items = chunk_json_data['items']
         json_data += json_items
-        print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            if count != 0:
+        print(records_harvested, ' ', end='', flush=True)
+        if page_nr % 20 == 0:
+            if page_nr != 0:
                 print('\n', end='', flush=True)
-        count += chunksize
+        records_harvested += chunksize
+        page_nr += 1
 
     print(' Done.\n', end='', flush=True)
     return json_data
 
 
-def harvest_json_and_write_to_file(filename: str, url: str, headers: dict, body: dict,
+def harvest_json_and_write_to_file(filename: str, url: str, headers: dict, body: dict = [],
                                    max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
     """Harvest json data and write the data found to a file.
     This data is a list of records in json format. If no records are harvested, nothing is written.
