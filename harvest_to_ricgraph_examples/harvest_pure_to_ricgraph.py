@@ -191,9 +191,9 @@ def lookup_resout_type_pure(type_uri: str) -> str:
     :param type_uri: The TYPE_URI string from Pure.
     :return: The result, in a few words.
     """
-    if type(type_uri) == '':
+    if type_uri == '':
         print('lookup_resout_type_pure(): research output has no type.')
-        return 'Pure research output has no type'
+        return 'empty'
 
     pure_prefix = '/dk/atira/pure/researchoutput/researchoutputtypes'
     if type_uri.startswith(pure_prefix):
@@ -232,7 +232,7 @@ def lookup_resout_type_pure(type_uri: str) -> str:
         return 'other contribution'
     else:
         print('lookup_resout_type_pure(): unknown pure output type: "' + end + '".')
-        return 'unknown Pure output type: ' + end
+        return 'unknown'
 
 
 # ######################################################
@@ -764,8 +764,8 @@ if True:
                                 + '-' + year + '.' \
                                 + PURE_RESOUT_HARVEST_FILENAME.split('.')[1]
         data_filename_year = PURE_RESOUT_DATA_FILENAME.split('.')[0] \
-                                + '-' + year + '.' \
-                                + PURE_RESOUT_DATA_FILENAME.split('.')[1]
+                             + '-' + year + '.' \
+                             + PURE_RESOUT_DATA_FILENAME.split('.')[1]
         PURE_RESOUT_FIELDS['publishedBeforeDate'] = year + '-12-31'
         PURE_RESOUT_FIELDS['publishedAfterDate'] = year + '-01-01'
         parse_resout = harvest_and_parse_pure_data(mode='research outputs',
