@@ -583,6 +583,10 @@ def get_or_create_person_root_node(person_node: Node) -> Union[Node, None]:
             print('get_or_create_person_root_node(): not anticipated: person_node "'
                   + person_node['_key'] + '" has more than one person-root nodes.')
             return None
+        if len(person_root_nodes) == 0:
+            print('get_or_create_person_root_node(): not anticipated: person_node "'
+                  + person_node['_key'] + '" has zero person-root nodes.')
+            return None
         person_root = person_root_nodes[0]
     return person_root
 
