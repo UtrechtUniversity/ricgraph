@@ -34,7 +34,7 @@
 # You have to set some parameters in ricgraph.ini.
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
-# Original version Rik D.T. Janssen, February 2023.
+# Original version Rik D.T. Janssen, March 2023.
 #
 # ########################################################################
 
@@ -62,27 +62,32 @@ UUSTAFF_DATA_FILENAME = 'uustaff_data.csv'
 UUSTAFF_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # We can harvest many fields from the UU staff pages. For now,
 # we only need a few.
-UUSTAFF_FIELDS_TO_HARVEST = [#'ContactDetails',
-                           'Email',
-                           #'Faculties',        # Here 'Positions' is used.
-                           #'FocusAreas',
-                           'Id',
-                           #'Images',
-                           #'KeyPublications',
-                           #'LastUpdate',
-                           #'Links',
-                           'LinksSocialMedia',
-                           #'Name',
-                           'NameShort',
-                           'Organisation',
-                           'PhotoUrl',
-                           'Positions',
-                           #'Prizes',
-                           #'Profile',
-                           #'Projects',
-                           #'ProjectsCompleted',
-                           #'Publications'
-                           ]
+UUSTAFF_FIELDS_TO_HARVEST = [
+                             # 'ContactDetails',
+                             'Email',
+                             # 'Faculties',        # Here 'Positions' is used.
+                             # 'FocusAreas',
+                             'Id',
+                             # 'Images',
+                             # 'KeyPublications',
+                             # 'LastUpdate',
+                             # 'Links',
+                             'LinksSocialMedia',
+                             # 'Name',
+                             'NameShort',
+                             'Organisation',
+                             'PhotoUrl',
+                             'Positions',
+                             # 'Prizes',
+                             # 'Profile',
+                             # 'Projects',
+                             # 'ProjectsCompleted',
+                             # 'Publications'
+                             ]
+
+UUSTAFF_FACULTY_ENDPOINT = '/Public/GetEmployeesOrganogram?f='
+UUSTAFF_EMPLOYEE_ENDPOINT = '/Public/getEmployeeData?page='
+UUSTAFF_SOLISID_ENDPOINT = '/RestApi/getmedewerkers?selectie=solisid:'
 
 
 # ######################################################
@@ -129,7 +134,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
         if 'PhotoUrl' in harvest_item:
             parse_line = {}
             parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
-            # 'PhotoUrl' is a substring of a weblink, this confuses things. Replace with an UUID.
+            # 'PhotoUrl' is a substring of a weblink, this confuses things. Replace with a UUID.
             parse_line['UUPHOTO'] = str(uuid.uuid4())
             parse_line['UUPHOTO_URL'] = UUSTAFF_URL + str(harvest_item['PhotoUrl'])
             parse_chunk.append(parse_line)
@@ -210,13 +215,13 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
         print('[faculty nr ' + str(faculty_nr) + ']')
         # 'l-EN' ensures that phone numbers are preceeded with "+31".
         # 'fullresult=true' or '=false' only differ in 'Guid' field value.
-        faculty_url = url + '/Public/GetEmployeesOrganogram?f=' + str(faculty_nr) + '&l=EN&fullresult=true'
+        faculty_url = url + UUSTAFF_FACULTY_ENDPOINT + str(faculty_nr) + '&l=EN&fullresult=true'
         faculty_response = requests.get(faculty_url)
         if faculty_response.status_code != requests.codes.ok:
             print('harvest_json_uustaffpages(): error during harvest faculties.')
-            print('Status code: ' + str(response.status_code))
-            print('Url: ' + response.url)
-            print('Error: ' + response.text)
+            print('Status code: ' + str(faculty_response.status_code))
+            print('Url: ' + faculty_response.url)
+            print('Error: ' + faculty_response.text)
             exit(1)
         faculty_page = faculty_response.json()
         if 'Employees' not in faculty_page:
@@ -237,13 +242,13 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
         for employee_id in employees_of_faculty:
             if count >= max_recs_to_harvest:
                 break
-            employee_url = url + '/Public/getEmployeeData?page=' + employee_id
+            employee_url = url + UUSTAFF_EMPLOYEE_ENDPOINT + employee_id
             employee_response = requests.get(employee_url)
             if employee_response.status_code != requests.codes.ok:
                 print('harvest_json_uustaffpages(): error during harvest employees.')
-                print('Status code: ' + str(response.status_code))
-                print('Url: ' + response.url)
-                print('Error: ' + response.text)
+                print('Status code: ' + str(employee_response.status_code))
+                print('Url: ' + employee_response.url)
+                print('Error: ' + employee_response.text)
                 exit(1)
             employee_page = employee_response.json()
 
@@ -382,6 +387,53 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     return
 
 
+def connect_pure_with_uustaffpages_to_ricgraph(url: str) -> None:
+    print('Connecting Pure with persons from UU staff pages in Ricgraph...')
+    nodes_with_solisid = rcg.read_all_nodes(name='EMPLOYEE_ID')
+    print('There are ' + str(len(nodes_with_solisid)) + ' SolisID records, parsing record: 0  ', end='')
+    count = 0
+    for node in nodes_with_solisid:
+        count += 1
+        if count % 100 == 0:
+            print(count, ' ', end='', flush=True)
+        if count % 2000 == 0:
+            print('\n', end='', flush=True)
+
+        solis_id = node['value']
+        solis_url = url + UUSTAFF_SOLISID_ENDPOINT + solis_id
+        response = requests.get(solis_url)
+        if response.status_code != requests.codes.ok:
+            print('connect_pure_with_uustaffpages_to_ricgraph(): error during harvest solisID.')
+            print('Status code: ' + str(response.status_code))
+            print('Url: ' + response.url)
+            print('Error: ' + response.text)
+            exit(1)
+        page = response.json()
+        if len(page) == 0:
+            continue
+        if 'UrlEN' in page[0]:
+            uustaff_page_url = str(page[0]['UrlEN'])
+        elif 'UrlNL' in page:
+            uustaff_page_url = str(page[0]['UrlNL'])
+        else:
+            # Link to staff page not present, continue.
+            continue
+
+        path = pathlib.PurePath(uustaff_page_url)
+        uustaff_page = str(path.name)
+        # Does not make sense to add a 'history_event' since the two nodes already
+        # exist and are not modified. So the 'history_event' will not be registered.
+        rcg.create_two_nodes_and_edge(name1='EMPLOYEE_ID',
+                                      category1='person',
+                                      value1=node['value'],
+                                      name2='UUSTAFF_PAGE',
+                                      category2='person',
+                                      value2=uustaff_page)
+
+    print('\nDone.\n')
+    return
+
+
 # ############################################
 # ################### main ###################
 # ############################################
@@ -410,10 +462,12 @@ if parse_uustaff is None:
     print('There are no UU staff data to harvest.\n')
 else:
     rcg.write_dataframe_to_csv(UUSTAFF_DATA_FILENAME, parse_uustaff)
-    parsed_uustaff_persons_to_ricgraph(parse_uustaff)
 
     # Harvesting from UU staff pages could be improved by better
     # parsing for UU sub organisations and UU research output.
     # For inspiration see harvest_pure_to_ricgraph.py.
+    parsed_uustaff_persons_to_ricgraph(parse_uustaff)
+
+    connect_pure_with_uustaffpages_to_ricgraph(url=UUSTAFF_URL)
 
 rcg.close_ricgraph()
