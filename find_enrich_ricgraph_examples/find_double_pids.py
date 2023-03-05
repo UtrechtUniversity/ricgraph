@@ -69,9 +69,10 @@ for pid_type in ('DAI', 'EMPLOYEE_ID', 'ISNI', 'ORCID', 'SCOPUS_AUTHOR_ID'):
                 personroot_node = rcg.get_personroot_node(next_node)
                 fullname_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
                                                             name_want='FULL_NAME')
-                res = fullname_nodes[0]['value']
-                if res == '':
+                if len(fullname_nodes) == 0:
                     res = '[no FULL_NAME found]'
+                else:
+                    res = fullname_nodes[0]['value']
                 print('- name: ' + next_node['name'] + ', value: ' + next_node['value']
                       + '. This node\n  is connected to a node with FULL_NAME: ' + res + '.')
 
