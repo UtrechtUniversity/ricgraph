@@ -565,6 +565,10 @@ def get_or_create_person_root_node(person_node: Node) -> Union[Node, None]:
     :param person_node: the node.
     :return: the 'person-root' node, or None on error.
     """
+    if person_node is None:
+        print('get_or_create_person_root_node(): Error: node is None.')
+        return
+
     if person_node['name'] == 'person-root' or person_node['category'] != 'person':
         print('get_or_create_person_root_node(): wrong node "name" or "category".')
         return None
@@ -579,14 +583,17 @@ def get_or_create_person_root_node(person_node: Node) -> Union[Node, None]:
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
     else:
         person_root_nodes = get_all_personroot_nodes(node=person_node)
-        if len(person_root_nodes) > 1:
-            print('get_or_create_person_root_node(): not anticipated: person_node "'
-                  + person_node['_key'] + '" has more than one person-root nodes.')
-            return None
-        if len(person_root_nodes) == 0:
+        if person_root_nodes is None or len(person_root_nodes) == 0:
             print('get_or_create_person_root_node(): not anticipated: person_node "'
                   + person_node['_key'] + '" has zero person-root nodes.')
             return None
+        if len(person_root_nodes) > 1:
+            print('get_or_create_person_root_node(): not anticipated: person_node "'
+                  + person_node['_key'] + '" has more than one person-root nodes, i.e. ')
+            for node in person_root_nodes:
+                print('"' + node['_key'] + '" ', end='')
+            print('\nReturn the first.')
+            # And fall through.
         person_root = person_root_nodes[0]
     return person_root
 
@@ -599,6 +606,10 @@ def connect_person_and_non_person_node(person_node: Node,
     :param non_person_node: the right node, being of a different category than 'person'.
     :return: None.
     """
+    if person_node is None or non_person_node is None:
+        print('connect_persons_and_non_person_node(): Error: (one of the) nodes is None.')
+        return
+
     if person_node['category'] != 'person' or non_person_node['category'] == 'person':
         print('connect_person_and_non_person_node(): (one of the) nodes have wrong category.')
         return
@@ -609,6 +620,8 @@ def connect_person_and_non_person_node(person_node: Node,
         return
 
     person_root = get_or_create_person_root_node(person_node=person_node)
+    if person_root is None:
+        return
     edge1 = LINKS_TO(non_person_node, person_root)
     edge2 = LINKS_TO(person_root, non_person_node)
     _graph.merge(edge1 | edge2, 'RCGNode', '_key')
@@ -675,6 +688,8 @@ def merge_two_person_root_nodes(left_person_root_node: Node,
     what_happened = timestamp + '-' + format(count, '02d') + ': '
     for edge_from_right_node in get_edges(right_person_root_node):
         right_node = edge_from_right_node.end_node
+        if right_node is None:
+            continue
         if right_node == right_person_root_node:
             continue
 
@@ -706,6 +721,10 @@ def connect_person_and_person_node(left_node: Node,
     :param right_node: the right node.
     :return: None.
     """
+    if left_node is None or right_node is None:
+        print('connect_person_and_person_node(): (one of the) nodes is None.')
+        return
+
     if left_node['category'] != 'person' or right_node['category'] != 'person':
         print('connect_person_and_person_node(): (one of the) nodes have wrong category.')
         return
@@ -720,6 +739,8 @@ def connect_person_and_person_node(left_node: Node,
     if nr_edges_left_node == 0 and nr_edges_right_node == 0:
         # None of the nodes have a 'person-root' node, create one and connect.
         person_root = get_or_create_person_root_node(person_node=left_node)
+        if person_root is None:
+            return
         edge1 = LINKS_TO(right_node, person_root)
         edge2 = LINKS_TO(person_root, right_node)
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
@@ -727,6 +748,8 @@ def connect_person_and_person_node(left_node: Node,
     if nr_edges_left_node > 0 and nr_edges_right_node == 0:
         # 'left_node' already has a 'person-root' node.
         person_root = get_or_create_person_root_node(person_node=left_node)
+        if person_root is None:
+            return
         edge1 = LINKS_TO(right_node, person_root)
         edge2 = LINKS_TO(person_root, right_node)
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
@@ -735,6 +758,8 @@ def connect_person_and_person_node(left_node: Node,
     if nr_edges_left_node == 0 and nr_edges_right_node > 0:
         # 'right_node' already has a 'person-root' node.
         person_root = get_or_create_person_root_node(right_node)
+        if person_root is None:
+            return
         edge1 = LINKS_TO(left_node, person_root)
         edge2 = LINKS_TO(person_root, left_node)
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
