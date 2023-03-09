@@ -232,5 +232,5 @@ see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
 
 ### Return to main README.md file
 
-[Return to main README.md file](../README.md). 
+[Return to main README.md file](../README.md).
 
