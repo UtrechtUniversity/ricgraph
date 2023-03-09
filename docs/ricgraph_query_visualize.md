@@ -49,7 +49,7 @@ To use Ricgraph explorer, follow these steps:
 1. [Start Neo4j Desktop](#Start-neo4j-desktop).
 1. Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
    It will tell you which weblink and port to use, probably
-   http://127.0.0.1:3030. Open a webbrowser and go to that link.
+   http://127.0.0.1:3030. Open a web browser and go to that link.
 
 To use it:
 

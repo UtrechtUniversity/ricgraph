@@ -423,12 +423,10 @@ def connect_pure_with_uustaffpages_to_ricgraph(url: str) -> None:
         uustaff_page = str(path.name)
         # Does not make sense to add a 'history_event' since the two nodes already
         # exist and are not modified. So the 'history_event' will not be registered.
-        rcg.create_two_nodes_and_edge(name1='EMPLOYEE_ID',
-                                      category1='person',
-                                      value1=node['value'],
-                                      name2='UUSTAFF_PAGE',
-                                      category2='person',
-                                      value2=uustaff_page)
+        rcg.merge_personroots_of_two_nodes(name1='EMPLOYEE_ID',
+                                           value1=node['value'],
+                                           name2='UUSTAFF_PAGE',
+                                           value2=uustaff_page)
 
     print('\nDone.\n')
     return
