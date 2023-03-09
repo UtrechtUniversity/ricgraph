@@ -44,7 +44,7 @@ Other things you need to do:
    like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
    Make it executable using "chmod 755 \[filename\]". Then click on it.
 1. Accept the license, and then enter your activation key in the right part of the screen. Click "Activate".
-   You might have to wait a while before you can continue to the next step.
+   You might have to wait awhile before you can continue to the next step.
 1. Move your mouse to "Example Project" in the left column.
    A red trash can icon appears. Click it to remove the Example
    Project database "Movie DBMS". Confirm.
@@ -130,7 +130,7 @@ There are two ways of doing this:
   such as [PyCharm](https://www.jetbrains.com/pycharm).
   An IDE will automatically generate a virtual environment, and any time you
   use the IDE, it will "transfer" you to that virtual environment.
-  It is also more easy to execute and debug your scripts.
+  It is also helps to execute and debug your scripts.
 
 ### Install the Python requirements
 
@@ -142,7 +142,7 @@ You can install these in different ways:
 * If you use a virtual environment, in the virtual environment, type
   `pip install -r requirements.txt`.
 * If you use a Python IDE (see previous paragraph), depending on the IDE,
-  single or double click on
+  single or double-click on
   file *requirements.txt*. Somewhere, there will appear a button or text
   with something like "Install requirements". Click on it.
 
@@ -170,8 +170,58 @@ Ricgraph requires an initialization file. A sample file is included as *ricgraph
 You need to copy this file to *ricgraph.ini* and modify it by including a password and
 a port number for Neo4j Desktop, and API keys or email addresses for other systems you plan to use.
 Optionally, you can extend Ricgraph by adding new
-[properties of nodes](#Properties-of-nodes-in-Ricgraph).
+[properties of nodes](ricgraph_details.md#Properties-of-nodes-in-Ricgraph).
 Before you can do this, [download Ricgraph](#download-ricgraph).
+
+#### RICGRAPH_NODEADD_MODE
+There is a parameter *RICGRAPH_NODEADD_MODE* in the initialization file 
+which influences how nodes are added to Ricgraph. Suppose we harvest a source system
+and that results in the following table:
+
+| FULL_NAME | ORCID               |
+|-----------|---------------------|
+| Name-1    | 0000-0001-1111-1111 |
+| Name-2    | 0000-0001-1111-2222 |
+| Name-3    | 0000-0001-1111-2222 |
+| Name-4    | 0000-0001-1111-3333 |
+
+*Name-2* and *Name-3* have the same ORCID. This may be correct, e.g. if *Name-2* is a name variant
+of *Name-3*, e.g. *John Doe* vs *J. Doe*, but it also may not be correct, e.g. if 
+*Name-2* is *John* and *Name-3* is *Peter* (possibly caused by a typing mistake in a
+source system). There is no way for Ricgraph to know which of these two options it is.
+
+RICGRAPH_NODEADD_MODE can be either *strict* or *lenient*:
+* *strict* (default setting): only add nodes to Ricgraph which conform to the model
+  described in the [Implementation details](ricgraph_details.md). 
+  In the example above, *ORCID* *0000-0001-1111-2222* will not be inserted.
+* *lenient*: add every node.
+  In the example above, *ORCID* *0000-0001-1111-2222* will be inserted.
+
+This will have the following consequences: 
+* *strict*: since *ORCID* *0000-0001-1111-2222* 
+  will not be inserted, a research output from a person with
+  that *ORCID* may not be inserted in Ricgraph. Or the research output will be inserted,
+  but it might not be linked to the person with this *ORCID*.
+* *lenient*: as has been described [Implementation details](ricgraph_details.md), *person-root*
+  "represents" a person. Person identifiers (such as *ORCID*) 
+  and research outputs are connected to the
+  *person-root* node of a person. 
+  That means that the *person-root* node is connected to everything a person has contributed to. 
+ 
+  In the example above, *ORCID* *0000-0001-1111-2222* 
+  is inserted. That means that the *person-root*s of the two persons 
+  *Name-2* or *Name-3* are "merged" and
+  that all research outputs of *Name-2* and *Name-3* will be connected to one *person-root* node.
+  After this has been done, there is no way to know which research output belongs to
+  *Name-2* or *Name-3*. 
+ 
+  As said, that is oke if *Name-2* and *Name-3* are name variants,
+  but not oke if they are different names.
+  (Side note: if you want to capture spelling variants, you may want to use a fuzzy string match library
+  such as [TheFuzz](https://github.com/seatgeek/thefuzz).)
+
+*Lenient* is advisable if the sources you harvest from do not contain errors. However, the author
+of Ricgraph has noticed that this does not occur often, therefore the default is *strict*.
 
 ### Using Ricgraph
 

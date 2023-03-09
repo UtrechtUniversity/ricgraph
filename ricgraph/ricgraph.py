@@ -558,44 +558,53 @@ def delete_node(name: str, value: str) -> None:
     return
 
 
-def get_or_create_person_root_node(person_node: Node) -> Union[Node, None]:
+def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
     """Get a 'person-root' node for a given 'person' node, if that node has
     a 'person-root'. If not, create the 'person-root' node.
 
     :param person_node: the node.
     :return: the 'person-root' node, or None on error.
     """
+    global _graph
+
     if person_node is None:
-        print('get_or_create_person_root_node(): Error: node is None.')
+        print('get_or_create_personroot_node(): Error: node is None.')
         return
 
-    if person_node['name'] == 'person-root' or person_node['category'] != 'person':
-        print('get_or_create_person_root_node(): wrong node "name" or "category".')
+    if person_node['category'] != 'person':
+        print('get_or_create_personroot_node(): node category is not person.')
         return None
+
+    if person_node['name'] == 'person-root':
+        return person_node
 
     nr_edges = len(get_edges(node=person_node))
     if nr_edges == 0:
         # Create the 'person-root' node with a unique value.
         value = str(uuid.uuid4())
-        person_root = create_node(name='person-root', category='person', value=value)
-        edge1 = LINKS_TO(person_node, person_root)
-        edge2 = LINKS_TO(person_root, person_node)
+        personroot = create_node(name='person-root', category='person', value=value)
+        edge1 = LINKS_TO(person_node, personroot)
+        edge2 = LINKS_TO(personroot, person_node)
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
-    else:
-        person_root_nodes = get_all_personroot_nodes(node=person_node)
-        if person_root_nodes is None or len(person_root_nodes) == 0:
-            print('get_or_create_person_root_node(): not anticipated: person_node "'
-                  + person_node['_key'] + '" has zero person-root nodes.')
-            return None
-        if len(person_root_nodes) > 1:
-            print('get_or_create_person_root_node(): not anticipated: person_node "'
-                  + person_node['_key'] + '" has more than one person-root nodes, i.e. ')
-            for node in person_root_nodes:
-                print('"' + node['_key'] + '" ', end='')
-            print('\nReturn the first.')
-            # And fall through.
-        person_root = person_root_nodes[0]
-    return person_root
+        return personroot
+
+    personroot_nodes = get_all_personroot_nodes(node=person_node)
+    if personroot_nodes is None or len(personroot_nodes) == 0:
+        # Should have been caught above.
+        print('get_or_create_personroot_node(): not anticipated: person_node "'
+              + person_node['_key'] + '" has zero person-root nodes.')
+        return None
+
+    if len(personroot_nodes) > 1:
+        print('get_or_create_personroot_node(): not anticipated: person_node "'
+              + person_node['_key'] + '" has more than one person-root nodes: ')
+        for node in personroot_nodes:
+            print('"' + node['_key'] + '" ', end='')
+        print('\nReturn the first.')
+        # And fall through.
+
+    personroot = personroot_nodes[0]
+    return personroot
 
 
 def connect_person_and_non_person_node(person_node: Node,
@@ -606,6 +615,8 @@ def connect_person_and_non_person_node(person_node: Node,
     :param non_person_node: the right node, being of a different category than 'person'.
     :return: None.
     """
+    global _graph
+
     if person_node is None or non_person_node is None:
         print('connect_persons_and_non_person_node(): Error: (one of the) nodes is None.')
         return
@@ -615,32 +626,38 @@ def connect_person_and_non_person_node(person_node: Node,
         return
 
     if person_node['name'] == 'person-root':
-        print('connect_person_and_non_person_node(): not anticipated: person_node '
-              + 'is a "person-root" node.')
-        return
+        personroot = person_node
+    else:
+        personroot = get_or_create_personroot_node(person_node=person_node)
+        if personroot is None:
+            return
 
-    person_root = get_or_create_person_root_node(person_node=person_node)
-    if person_root is None:
-        return
-    edge1 = LINKS_TO(non_person_node, person_root)
-    edge2 = LINKS_TO(person_root, non_person_node)
+    edge1 = LINKS_TO(non_person_node, personroot)
+    edge2 = LINKS_TO(personroot, non_person_node)
     _graph.merge(edge1 | edge2, 'RCGNode', '_key')
     return
 
 
-def merge_two_person_root_nodes(left_person_root_node: Node,
-                                right_person_root_node: Node) -> None:
+def merge_two_personroot_nodes(left_personroot_node: Node, right_personroot_node: Node) -> None:
     """Merge two 'person-root' nodes. Or do nothing if they are the same.
 
-    :param left_person_root_node: the left person-root node.
-    :param right_person_root_node: the right person-root node.
+    :param left_personroot_node: the left person-root node.
+    :param right_personroot_node: the right person-root node.
     :return: None.
     """
-    if left_person_root_node is None or right_person_root_node is None:
-        print('merge_two_person_root_nodes(): Error: (one of the) nodes is None.')
+    global _graph
+
+    if left_personroot_node is None or right_personroot_node is None:
+        print('merge_two_personroot_nodes(): Error: (one of the) nodes is None.')
         return
 
-    if left_person_root_node == right_person_root_node:
+    if left_personroot_node['name'] != 'person-root' \
+       or right_personroot_node['name'] != 'person-root':
+        print('merge_two_personroot_nodes(): not anticipated: (one of the) nodes '
+              + 'are not "person-root".')
+        return
+
+    if left_personroot_node == right_personroot_node:
         # They are already connected, we are done.
         return
 
@@ -656,71 +673,102 @@ def merge_two_person_root_nodes(left_person_root_node: Node,
     #     Now a subsequent harvest results in ORCID and EMAIL of the same person. Then there
     #     are two different person-roots which need to be merged.
     # Both can happen, but we cannot know if it is either (1) or (2).
-    # I choose (2), because Ricgraph has been developed for harvesting multiple systems.
-    # (1) is more likely to happen if you only harvest one system.
 
     now = datetime.now()
     timestamp = now.strftime('%Y%m%d-%H%M%S')
     count = 0
     what_happened = timestamp + '-' + format(count, '02d') + ': '
     what_happened += 'Merged person-root node "'
-    what_happened += right_person_root_node['_key'] + '" to this person-root node '
+    what_happened += right_personroot_node['_key'] + '" to this person-root node '
     what_happened += 'and then deleted it. This was the history of the deleted node:'
-    left_person_root_node['_history'].append(what_happened)
-    for history in right_person_root_node['_history']:
+    left_personroot_node['_history'].append(what_happened)
+    for history in right_personroot_node['_history']:
         count += 1
         what_happened = timestamp + '-' + format(count, '02d') + ': '
         what_happened += history
-        left_person_root_node['_history'].append(what_happened)
+        left_personroot_node['_history'].append(what_happened)
 
     count += 1
     what_happened = timestamp + '-' + format(count, '02d') + ': '
     what_happened += 'End of history of the deleted node.'
-    left_person_root_node['_history'].append(what_happened)
+    left_personroot_node['_history'].append(what_happened)
 
     count += 1
     what_happened = timestamp + '-' + format(count, '02d') + ': '
     what_happened += 'These were the neighbors of the deleted node, '
     what_happened += 'now merged with the neighbors of this node:'
-    left_person_root_node['_history'].append(what_happened)
+    left_personroot_node['_history'].append(what_happened)
 
     count += 1
     what_happened = timestamp + '-' + format(count, '02d') + ': '
-    for edge_from_right_node in get_edges(right_person_root_node):
+    for edge_from_right_node in get_edges(right_personroot_node):
         right_node = edge_from_right_node.end_node
         if right_node is None:
             continue
-        if right_node == right_person_root_node:
+        if right_node == right_personroot_node:
             continue
 
         what_happened += '"' + str(right_node['_key']) + '" '
-        edge_delete1 = LINKS_TO(right_person_root_node, right_node)
-        edge_delete2 = LINKS_TO(right_node, right_person_root_node)
-        edge_create1 = LINKS_TO(left_person_root_node, right_node)
-        edge_create2 = LINKS_TO(right_node, left_person_root_node)
-        # This also deletes 'right_person_root_node'.
+        edge_delete1 = LINKS_TO(right_personroot_node, right_node)
+        edge_delete2 = LINKS_TO(right_node, right_personroot_node)
+        edge_create1 = LINKS_TO(left_personroot_node, right_node)
+        edge_create2 = LINKS_TO(right_node, left_personroot_node)
+        # This also deletes 'right_personroot_node'.
         _graph.delete(edge_delete1)
         _graph.delete(edge_delete2)
         _graph.merge(edge_create1 | edge_create2, 'RCGNode', '_key')
 
     what_happened += '.'
-    left_person_root_node['_history'].append(what_happened)
+    left_personroot_node['_history'].append(what_happened)
 
     count += 1
     what_happened = timestamp + '-' + format(count, '02d') + ': '
     what_happened += 'End of list of neighbors of the deleted node.'
-    left_person_root_node['_history'].append(what_happened)
-    _graph.push(left_person_root_node)
+    left_personroot_node['_history'].append(what_happened)
+    _graph.push(left_personroot_node)
+    return
 
 
-def connect_person_and_person_node(left_node: Node,
-                                   right_node: Node) -> None:
+def merge_personroots_of_two_nodes(name1: str, value1: str,
+                                   name2: str, value2: str) -> None:
+
+    """Merge two 'person-root' nodes, by specifying one of its neighbors.
+    Or do nothing if their person-roots are already the same node.
+
+    :param name1: 'name' field of left node.
+    :param value1: 'value' field of left node.
+    :param name2: 'name' field of right node.
+    :param value2: 'value' field of right node.
+    :return: None.
+    """
+    left_node = read_node(name=name1, value=value1)
+    right_node = read_node(name=name2, value=value2)
+    if left_node is None or right_node is None:
+        return
+
+    left_personroot_node = get_or_create_personroot_node(person_node=left_node)
+    right_personroot_node = get_or_create_personroot_node(person_node=right_node)
+    if left_personroot_node is None or right_personroot_node is None:
+        return
+
+    if left_personroot_node == right_personroot_node:
+        # They are already connected, we are done.
+        return
+
+    merge_two_personroot_nodes(left_personroot_node=left_personroot_node,
+                               right_personroot_node=right_personroot_node)
+    return
+
+
+def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
     """Connect two person nodes.
 
     :param left_node: the left node.
     :param right_node: the right node.
     :return: None.
     """
+    global _graph
+
     if left_node is None or right_node is None:
         print('connect_person_and_person_node(): (one of the) nodes is None.')
         return
@@ -738,37 +786,71 @@ def connect_person_and_person_node(left_node: Node,
     nr_edges_right_node = len(get_edges(node=right_node))
     if nr_edges_left_node == 0 and nr_edges_right_node == 0:
         # None of the nodes have a 'person-root' node, create one and connect.
-        person_root = get_or_create_person_root_node(person_node=left_node)
-        if person_root is None:
+        personroot = get_or_create_personroot_node(person_node=left_node)
+        if personroot is None:
             return
-        edge1 = LINKS_TO(right_node, person_root)
-        edge2 = LINKS_TO(person_root, right_node)
+        edge1 = LINKS_TO(right_node, personroot)
+        edge2 = LINKS_TO(personroot, right_node)
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
 
     if nr_edges_left_node > 0 and nr_edges_right_node == 0:
         # 'left_node' already has a 'person-root' node.
-        person_root = get_or_create_person_root_node(person_node=left_node)
-        if person_root is None:
+        personroot = get_or_create_personroot_node(person_node=left_node)
+        if personroot is None:
             return
-        edge1 = LINKS_TO(right_node, person_root)
-        edge2 = LINKS_TO(person_root, right_node)
+        edge1 = LINKS_TO(right_node, personroot)
+        edge2 = LINKS_TO(personroot, right_node)
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
         return
 
     if nr_edges_left_node == 0 and nr_edges_right_node > 0:
         # 'right_node' already has a 'person-root' node.
-        person_root = get_or_create_person_root_node(right_node)
-        if person_root is None:
+        personroot = get_or_create_personroot_node(person_node=right_node)
+        if personroot is None:
             return
-        edge1 = LINKS_TO(left_node, person_root)
-        edge2 = LINKS_TO(person_root, left_node)
+        edge1 = LINKS_TO(left_node, personroot)
+        edge2 = LINKS_TO(personroot, left_node)
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
         return
 
-    left_person_root_node = get_or_create_person_root_node(person_node=left_node)
-    right_person_root_node = get_or_create_person_root_node(person_node=right_node)
-    merge_two_person_root_nodes(left_person_root_node=left_person_root_node,
-                                right_person_root_node=right_person_root_node)
+    left_personroot_node = get_or_create_personroot_node(person_node=left_node)
+    right_personroot_node = get_or_create_personroot_node(person_node=right_node)
+    if left_personroot_node is None or right_personroot_node is None:
+        return
+
+    if left_personroot_node == right_personroot_node:
+        # Already connected, nothing to do.
+        return
+
+    # Only continue depending on RICGRAPH_NODEADD_MODE.
+    if RICGRAPH_NODEADD_MODE == 'strict':
+        # For more explantion, see file docs/ricgraph_install_configure.md,
+        # section RICGRAPH_NODEADD_MODE.
+        return
+
+    # Connect crosswise.
+    edge1 = LINKS_TO(left_node, right_personroot_node)
+    edge2 = LINKS_TO(right_personroot_node, left_node)
+    edge3 = LINKS_TO(right_node, left_personroot_node)
+    edge4 = LINKS_TO(left_personroot_node, right_node)
+    _graph.merge(edge1 | edge2 | edge3 | edge4, 'RCGNode', '_key')
+
+    now = datetime.now()
+    timestamp = now.strftime('%Y%m%d-%H%M%S')
+    message = 'The node pair "'
+    message += left_node['_key'] + '" and "' + right_node['_key']
+    message += '" caused this node to have more than one neighbor. '
+    message += 'These are its person-root nodes: "'
+    message += left_personroot_node['_key'] + '" and "'
+    message += right_personroot_node['_key'] + '". '
+    message += 'This might be caused by a mislabeling in a harvested system.'
+    timestamped_message = timestamp + ': ' + message
+
+    print('\nconnect_person_and_person_node(): ' + message)
+    left_node['_history'].append(timestamped_message)
+    right_node['_history'].append(timestamped_message)
+    _graph.push(left_node)
+    _graph.push(right_node)
     return
 
 
@@ -785,6 +867,9 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
     :return: None.
     """
     global _graph
+
+    if left_node is None or right_node is None:
+        return
 
     if left_node['category'] != 'person' and right_node['category'] != 'person':
         # This is not a person to person link, link directly
@@ -980,6 +1065,19 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame, history_e
             # dropna(how='any'): drop row if one or more row values contain NaN
             identifiers.dropna(axis=0, how='any', inplace=True)
             identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+
+            if RICGRAPH_NODEADD_MODE == 'strict':
+                # Remove rows which have a cell value that occurs more than once.
+                # E.g. if we have a DataFrame:
+                # FULL_NAME     ORCID
+                # Name1         10
+                # Name2         11
+                # Name3         11
+                # then we remove both rows with ORCID 11.
+                # For more explantion, see file docs/ricgraph_install_configure.md,
+                # section RICGRAPH_NODEADD_MODE.
+                identifiers.drop_duplicates(subset=column1, keep=False, inplace=True, ignore_index=True)
+                identifiers.drop_duplicates(subset=column2, keep=False, inplace=True, ignore_index=True)
 
             create_nodepairs_and_edges_params(name1=column1, category1='person', value1=identifiers[column1],
                                               name2=column2, category2='person', value2=identifiers[column2],
@@ -1450,6 +1548,21 @@ config.read(RICGRAPH_INI_FILE)
 try:
     ALLOWED_RICGRAPH_PROPERTIES = tuple(config['Ricgraph']['allowed_ricgraph_properties'].split(','))
 
+    # For more explantion, see file docs/ricgraph_install_configure.md,
+    # section RICGRAPH_NODEADD_MODE.
+    RICGRAPH_NODEADD_MODE = config['Ricgraph']['ricgraph_nodeadd_mode']
+
+    if RICGRAPH_NODEADD_MODE != 'strict' and RICGRAPH_NODEADD_MODE != 'lenient':
+        print('Ricgraph initialization: error, unknown value "' + RICGRAPH_NODEADD_MODE
+              + '" for RICGRAPH_NODEADD_MODE, exiting.')
+        exit(1)
+    else:
+        print('Ricgraph is using "' + RICGRAPH_NODEADD_MODE + '" for RICGRAPH_NODEADD_MODE.')
+except KeyError:
+    print('Ricgraph initialization: error, required Ricgraph key values not found in Ricgraph ini file, exiting.')
+    exit(1)
+
+try:
     NEO4J_HOSTNAME = config['Neo4j']['neo4j_hostname']
     NEO4J_USER = config['Neo4j']['neo4j_user']
     NEO4J_PASSWORD = config['Neo4j']['neo4j_password']
@@ -1457,7 +1570,7 @@ try:
     NEO4J_PORT = config['Neo4j']['neo4j_port']
     NEO4J_URL = '{scheme}://{hostname}:{port}'.format(scheme=NEO4J_SCHEME, hostname=NEO4J_HOSTNAME, port=NEO4J_PORT)
 except KeyError:
-    print('Ricgraph initialization: error, required key values not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, required Neo4j key values not found in Ricgraph ini file, exiting.')
     exit(1)
 
 # Make sure DataFrames are printed with all columns on full width

@@ -46,6 +46,13 @@
 # Additional properties for nodes, make sure 'history_event' is last.
 # Don't use spaces or quotes in this entry.
 allowed_ricgraph_properties = comment,url_main,url_other,history_event
+# Ricgraph has two modes to add nodes.
+# Your choice will influence the way nodes are added to Ricgraph.
+# For an explanation how this works, see
+# file docs/ricgraph_install_configure.md, section RICGRAPH_NODEADD_MODE.
+# Possible values: strict, lenient. Choose one of these, don't use quotes.
+#ricgraph_nodeadd_mode = lenient
+ricgraph_nodeadd_mode = strict
 
 
 [Organization]
