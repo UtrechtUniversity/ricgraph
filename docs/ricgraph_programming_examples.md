@@ -35,6 +35,40 @@ E.g., for research outputs you can adjust
 the years to harvest with the parameter *PURE_RESOUT_YEARS* and the maximum number of
 records to harvest with *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
 
+### Harvest of Utrecht University staff pages
+
+There is also a script for harvesting
+the [Utrecht University staff pages](https://www.uu.nl/medewerkers), 
+*harvest_uustaffpages_to_ricgraph.py*.
+This script needs the parameter *uustaff_url* to be set in the
+[Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
+
+### Harvest of OpenAlex
+
+There is also a script for harvesting 
+the [OpenAlex](https://openalex.org), *harvest_openalex_to_ricgraph.py*. 
+It harvests OpenAlex Works, and by harvesting these
+Works, it also harvests OpenAlex Authors.
+This script needs the parameters *organization_name*, *organization_ror* 
+and *openalex_polite_pool_email* to be set in the
+[Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
+
+There is a lot of data in OpenAlex, so your harvest may take a long time. You may
+reduce this by adjusting parameters at the start of the script. Look in the section
+"Parameters for harvesting persons and research outputs from OpenAlex":
+*OPENALEX_RESOUT_YEARS* and *OPENALEX_MAX_RECS_TO_HARVEST*.
+
+### Order of running the harvesting scripts
+The order of running the harvesting scripts does not really matter. The author harvests
+only records for Utrecht University and uses this order:
+1. *harvest_pure_to_ricgraph.py* (since it has a lot of data which is mostly correct);
+1. *harvest_yoda_datacite_to_ricgraph.py* (not too much data, so harvest is fast, but it 
+   contains several data entry errors);
+1. *harvest_rsd_to_ricgraph.py* (not too much data);
+1. *harvest_uustaffpages_to_ricgraph.py*;
+1. *harvest_openalex_to_ricgraph.py* (a lot of data from a [number of 
+   sources](https://docs.openalex.org/additional-help/faq#where-does-your-data-come-from)). 
+
 ### General program structure of a Python program using Ricgraph
 
 ```python
