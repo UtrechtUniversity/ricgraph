@@ -353,8 +353,15 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     timestamp = now.strftime("%Y%m%d-%H%M%S")
     history_event = 'Source: Harvest Yoda-datacite at ' + timestamp + '.'
 
-    person_identifiers = parsed_content[['FULL_NAME', 'DIGITAL_AUTHOR_ID',
-                                         'ORCID', 'SCOPUS_AUTHOR_ID',
+    # The order of the columns in the DataFrame below is not random.
+    # A good choice is to have in the first two columns:
+    # a. the identifier that appears the most in the system we harvest.
+    # b. the identifier(s) that is already present in Ricgraph from previous harvests,
+    #    since new identifiers from this harvest will be  linked to an already existing
+    #    person-root.
+    # If you have 2 of type (b), use these as the first 2 columns.
+    person_identifiers = parsed_content[['ORCID', 'SCOPUS_AUTHOR_ID',
+                                         'FULL_NAME', 'DIGITAL_AUTHOR_ID',
                                          'ISNI', 'RESEARCHER_ID']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)

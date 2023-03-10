@@ -286,7 +286,14 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     timestamp = now.strftime("%Y%m%d-%H%M%S")
     history_event = 'Source: Harvest OpenAlex persons at ' + timestamp + '.'
 
-    person_identifiers = parsed_content[['OPENALEX', 'FULL_NAME', 'ORCID']].copy(deep=True)
+    # The order of the columns in the DataFrame below is not random.
+    # A good choice is to have in the first two columns:
+    # a. the identifier that appears the most in the system we harvest.
+    # b. the identifier(s) that is already present in Ricgraph from previous harvests,
+    #    since new identifiers from this harvest will be  linked to an already existing
+    #    person-root.
+    # If you have 2 of type (b), use these as the first 2 columns.
+    person_identifiers = parsed_content[['OPENALEX', 'ORCID', 'FULL_NAME']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -327,7 +334,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     timestamp = now.strftime("%Y%m%d-%H%M%S")
     history_event = 'Source: Harvest OpenAlex research outputs at ' + timestamp + '.'
 
-    resout = parsed_content[['OPENALEX', 'TITLE', 'TYPE', 'DOI']].copy(deep=True)
+    resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'TYPE']].copy(deep=True)
     resout.dropna(axis=0, how='all', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     resout['value1'] = resout['DOI'].copy(deep=True)

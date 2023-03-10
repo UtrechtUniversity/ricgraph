@@ -713,7 +713,12 @@ def merge_two_personroot_nodes(left_personroot_node: Node, right_personroot_node
         edge_delete2 = LINKS_TO(right_node, right_personroot_node)
         edge_create1 = LINKS_TO(left_personroot_node, right_node)
         edge_create2 = LINKS_TO(right_node, left_personroot_node)
-        # This also deletes 'right_personroot_node'.
+        # _graph.delete() also deletes 'right_personroot_node'.
+        # TODO: There seems to be a bug here. It does not only delete 'right_personroot_node', but sometimes it also
+        #   deletes other nodes which have more than one edge, such as an 'organization' node connected to multiple
+        #   person-root nodes (including right_personroot_node).
+        #   The problem is that _graph.separate() does not seem to work, which seems to be the 'best' function
+        #   since it only deletes edges. Use with caution (or don't use).
         _graph.delete(edge_delete1)
         _graph.delete(edge_delete2)
         _graph.merge(edge_create1 | edge_create2, 'RCGNode', '_key')
@@ -779,7 +784,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
 
     if left_node['name'] == 'person-root' or right_node['name'] == 'person-root':
         print('connect_person_and_person_node(): not anticipated: (one of the) person_nodes '
-              + 'are "person-root" node.')
+              + 'are "person-root" nodes.')
         return
 
     nr_edges_left_node = len(get_edges(node=left_node))
@@ -792,6 +797,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         edge1 = LINKS_TO(right_node, personroot)
         edge2 = LINKS_TO(personroot, right_node)
         _graph.merge(edge1 | edge2, 'RCGNode', '_key')
+        return
 
     if nr_edges_left_node > 0 and nr_edges_right_node == 0:
         # 'left_node' already has a 'person-root' node.

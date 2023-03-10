@@ -59,7 +59,8 @@ UUSTAFF_MAX_FACULTY_NR = 25
 UUSTAFF_HARVEST_FROM_FILE = False
 UUSTAFF_HARVEST_FILENAME = 'uustaff_harvest.json'
 UUSTAFF_DATA_FILENAME = 'uustaff_data.csv'
-UUSTAFF_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+#UUSTAFF_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+UUSTAFF_MAX_RECS_TO_HARVEST = 10                  # 0 = all records
 # We can harvest many fields from the UU staff pages. For now,
 # we only need a few.
 UUSTAFF_FIELDS_TO_HARVEST = [
@@ -331,9 +332,16 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     timestamp = now.strftime('%Y%m%d-%H%M%S')
     history_event = 'Source: Harvest UU staff pages persons at ' + timestamp + '.'
 
-    person_identifiers = parsed_content[['UUSTAFF_ID', 'FULL_NAME',
+    # The order of the columns in the DataFrame below is not random.
+    # A good choice is to have in the first two columns:
+    # a. the identifier that appears the most in the system we harvest.
+    # b. the identifier(s) that is already present in Ricgraph from previous harvests,
+    #    since new identifiers from this harvest will be  linked to an already existing
+    #    person-root.
+    # If you have 2 of type (b), use these as the first 2 columns.
+    person_identifiers = parsed_content[['UUSTAFF_ID', 'ORCID', 'FULL_NAME',
                                          'EMAIL', 'UUSTAFF_PAGE', 'UUPHOTO',
-                                         'ORCID', 'TWITTER', 'LINKEDIN',
+                                         'TWITTER', 'LINKEDIN',
                                          'GITHUB']].copy(deep=True)
     person_identifiers.rename(columns={'UUSTAFF_ID': 'UUStaffId-pers'}, inplace=True)
     # dropna(how='all'): drop row if all row values contain NaN

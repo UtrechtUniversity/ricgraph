@@ -215,8 +215,8 @@ This will have the following consequences:
   After this has been done, there is no way to know which research output belongs to
   *Name-2* or *Name-3*. 
  
-  As said, that is oke if *Name-2* and *Name-3* are name variants,
-  but not oke if they are different names.
+  As said, that is fine if *Name-2* and *Name-3* are name variants,
+  but not fine if they are different names.
   (Side note: if you want to capture spelling variants, you may want to use a fuzzy string match library
   such as [TheFuzz](https://github.com/seatgeek/thefuzz).)
 

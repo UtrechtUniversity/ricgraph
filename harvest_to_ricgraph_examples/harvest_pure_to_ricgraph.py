@@ -579,8 +579,11 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     timestamp = now.strftime("%Y%m%d-%H%M%S")
     history_event = 'Source: Harvest Pure persons at ' + timestamp + '.'
 
-    person_identifiers = parsed_content[['UUID', 'FULL_NAME', 'DIGITAL_AUTHOR_ID',
+    # Since Pure is the first system we harvest, the order of the columns in
+    # this DataFrame does not really matter.
+    person_identifiers = parsed_content[['UUID', 'FULL_NAME',
                                          'ORCID', 'SCOPUS_AUTHOR_ID', 'EMPLOYEE_ID',
+                                         'DIGITAL_AUTHOR_ID',
                                          'ISNI', 'RESEARCHER_ID']].copy(deep=True)
     person_identifiers.rename(columns={'UUID': 'PureUUid-pers'}, inplace=True)
     # dropna(how='all'): drop row if all row values contain NaN
