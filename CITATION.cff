@@ -25,7 +25,7 @@ identifiers:
   - description: "Ricgraph DOI v1.1"
     type: doi
     value: "10.5281/zenodo.7644239"
-  - description: "Ricgraph DOI v1.2"
+  - description: "Ricgraph DOI v1.3"
     type: doi
     value: "10.5281/zenodo.7717299"
 abstract: >-
