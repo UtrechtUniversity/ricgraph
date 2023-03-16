@@ -389,8 +389,9 @@ except KeyError:
 
 try:
     # The OpenAlex 'polite pool' has much faster and more consistent response times.
-    # See https://docs.openalex.org/api#the-polite-pool.
-    # They have rate limits, but they are high: https://docs.openalex.org/api#rate-limits.
+    # See https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication#the-polite-pool.
+    # They have rate limits, but they are high:
+    # https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication.
     OPENALEX_URL = config['OpenAlex_harvesting']['openalex_url']
     email = config['OpenAlex_harvesting']['openalex_polite_pool_email']
     if OPENALEX_URL == '' or email == '':
