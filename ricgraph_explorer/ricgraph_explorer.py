@@ -107,7 +107,7 @@ html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?
 # The html page header.
 page_header = '<header class="w3-container uu-yellow">'
 page_header += '<div class="w3-bar uu-yellow">'
-page_header += '<div class="w3-bar-item w3-mobile" style="width:25%">'
+page_header += '<div class="w3-bar-item w3-mobile" style="padding-left: 0em; padding-right: 4em">'
 page_header += '<a href="/" style="text-decoration:none">'
 page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right: 3em">'
 page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right: 0.5em">explorer</a>'
@@ -561,8 +561,10 @@ def get_html_for_tableheader() -> str:
     html += '<th>category</th>'
     html += '<th class=sorttable_alpha">value</th>'
     html += '<th>comment</th>'
+    html += '<th>year</th>'
     html += '<th class="sorttable_nosort">url_main</th>'
     html += '<th class="sorttable_nosort">url_other</th>'
+    html += '<th class="sorttable_nosort">_source</th>'
     html += '<th class="sorttable_nosort">_history</th>'
     html += '</tr>'
     return html
@@ -589,6 +591,11 @@ def get_html_for_tablerow(node: Node) -> str:
     else:
         html += '<td width=30%>' + node['comment'] + '</td>'
 
+    if node['year'] == '':
+        html += '<td></td>'
+    else:
+        html += '<td>' + node['year'] + '</td>'
+
     if node['url_main'] == '':
         html += '<td></td>'
     else:
@@ -598,6 +605,14 @@ def get_html_for_tablerow(node: Node) -> str:
         html += '<td></td>'
     else:
         html += '<td><a href=' + node['url_other'] + ' target="_blank"> url_other link </a></td>'
+
+    if node['_source'] == '':
+        html += '<td></td>'
+    else:
+        html += '<td><ul>'
+        for source in node['_source']:
+            html += '<li>' + source
+        html += '</ul></td>'
 
     if node['_history'] == '':
         html += '<td></td>'

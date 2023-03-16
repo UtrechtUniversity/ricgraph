@@ -439,11 +439,15 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
         else:
             # Skip if no workflow
             continue
+        publication_year = ''
         if 'publicationStatuses' in harvest_item:
             # We need a current status.
             published_found = False
             for pub_item in harvest_item['publicationStatuses']:
                 if pub_item['current']:
+                    if 'publicationDate' in pub_item:
+                        if 'year' in pub_item['publicationDate']:
+                            publication_year = pub_item['publicationDate']['year']
                     if pub_item['publicationStatus']['term']['text'][0]['value'] == 'Published':
                         # Only 'Published' resouts
                         published_found = True
@@ -491,6 +495,7 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                 parse_line['RESOUT_UUID'] = str(harvest_item['uuid'])
                 parse_line['DOI'] = doi
                 parse_line['TITLE'] = str(harvest_item['title']['value'])
+                parse_line['YEAR'] = str(publication_year)
                 parse_line['TYPE'] = lookup_resout_type_pure(str(harvest_item['type']['uri']))
                 parse_line['PERSON_UUID'] = author_uuid
                 parse_chunk.append(parse_line)
@@ -592,7 +597,8 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     print('The following persons from Pure will be inserted in Ricgraph:')
     print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers, history_event=history_event)
+    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
+                                   source_event='Pure', history_event=history_event)
 
     organizations = parsed_content[['UUID', 'ORG_UUID']].copy(deep=True)
     organizations.dropna(axis=0, how='all', inplace=True)
@@ -606,10 +612,11 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                 'category1': 'person',
                                 'name2': 'PureUUid-org',
                                 'category2': 'organization',
+                                'source_event2': 'Pure',
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)
     organizations = organizations[['name1', 'category1', 'value1', 'url_main1',
-                                   'name2', 'category2', 'value2', 'history_event2']]
+                                   'name2', 'category2', 'value2', 'source_event2', 'history_event2']]
 
     print('The following organizations from persons from Pure will be inserted in Ricgraph:')
     print(organizations)
@@ -640,13 +647,17 @@ def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                   'PARENT_UUID': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'PureUUid-org',
                                 'category1': 'organization',
+                                'source_event1': 'Pure',
                                 'history_event1': history_event,
                                 'name2': 'PureUUid-org',
                                 'category2': 'organization',
+                                'source_event2': 'Pure',
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)
-    organizations = organizations[['name1', 'category1', 'value1', 'history_event1', 'comment1', 'url_main1',
-                                   'name2', 'category2', 'value2', 'history_event2']]
+    organizations = organizations[['name1', 'category1', 'value1', 'comment1', 'url_main1',
+                                   'source_event1', 'history_event1',
+                                   'name2', 'category2', 'value2',
+                                   'source_event2', 'history_event2']]
 
     print('The following organizations from Pure will be inserted in Ricgraph:')
     print(organizations)
@@ -666,7 +677,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     timestamp = now.strftime("%Y%m%d-%H%M%S")
     history_event = 'Source: Harvest Pure research outputs at ' + timestamp + '.'
 
-    resout = parsed_content[['RESOUT_UUID', 'TITLE', 'TYPE', 'DOI', 'PERSON_UUID']].copy(deep=True)
+    resout = parsed_content[['RESOUT_UUID', 'TITLE', 'YEAR', 'TYPE', 'DOI', 'PERSON_UUID']].copy(deep=True)
     resout.dropna(axis=0, how='all', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
@@ -688,12 +699,15 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     resout.rename(columns={'TYPE': 'category1',
                            'TITLE': 'comment1',
+                           'YEAR': 'year1',
                            'PERSON_UUID': 'value2'}, inplace=True)
-    new_resout_columns = {'history_event1': history_event,
+    new_resout_columns = {'source_event1': 'Pure',
+                          'history_event1': history_event,
                           'name2': 'PureUUid-pers',
                           'category2': 'person'}
     resout = resout.assign(**new_resout_columns)
-    resout = resout[['name1', 'category1', 'value1', 'history_event1', 'comment1', 'url_main1', 'url_other1',
+    resout = resout[['name1', 'category1', 'value1', 'comment1', 'year1', 'url_main1', 'url_other1',
+                     'source_event1', 'history_event1',
                      'name2', 'category2', 'value2']]
 
     print('The following research outputs from Pure will be inserted in Ricgraph:')
@@ -715,6 +729,10 @@ config.read(rcg.RICGRAPH_INI_FILE)
 try:
     PURE_URL = config['Pure_harvesting']['pure_url']
     PURE_API_KEY = config['Pure_harvesting']['pure_api_key']
+    if PURE_URL == '' or PURE_API_KEY == '':
+        print('Ricgraph initialization: error, PURE_URL or PURE_API_KEY empty in Ricgraph ini file, exiting.')
+        exit(1)
+
     PURE_HEADERS['api-key'] = PURE_API_KEY
 except KeyError:
     print('Error, Pure URL or Pure API key not found in Ricgraph ini file, exiting.')

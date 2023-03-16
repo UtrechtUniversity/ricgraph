@@ -59,6 +59,8 @@ All nodes in Ricgraph have the following properties:
   e.g. person, person-root, book, journal article, dataset, software, etc.;
 * `value`: value of the node;
 * `_key`: key value of the node, not to be modified by the user;
+* `_source`: sorted list of sources a record has been
+  harvested from, not to be modified by the user.
 * `_history`: list of history events of the node, not to be modified by the user.
 
 Additional properties for nodes can be added by changing an entry in the
@@ -66,10 +68,12 @@ Additional properties for nodes can be added by changing an entry in the
 In the default configuration, the following properties are included:
 
 * `comment`: comment for a node;
+* `year`: year of a research output;
 * `url_main`: main URL for a node, pointing to e.g. the corresponding ISNI, ORCID or DOI
   record on the web;
 * `url_other`: other URL for a node, pointing to e.g. the originating record in the source system;
-* `history_event`: an event to be added to `_history list`.
+* `source_event`: an event to be added to `_source`.
+* `history_event`: an event to be added to `_history`.
 
 ### Return to main README.md file
 

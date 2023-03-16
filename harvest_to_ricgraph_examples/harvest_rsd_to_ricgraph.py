@@ -55,7 +55,8 @@ RSD_HARVEST_FILENAME = 'rsd_harvest.json'
 RSD_DATA_FILENAME = 'rsd_data.csv'
 RSD_ENDPOINT = 'api/v1/organisation'
 RSD_FIELDS = 'software(brand_name,slug,concept_doi,' \
-             + 'release(mention(doi,doi_registration_date)),contributor(family_names,given_names,orcid))' \
+             + 'release(mention(doi,doi_registration_date,publication_year)),' \
+             + 'contributor(family_names,given_names,orcid))' \
              + '&software.release.mention.order=doi_registration_date.desc'
 RSD_HEADERS = {
     'User-Agent': 'Harvesting from RSD'
@@ -104,6 +105,17 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
             package_doi = first_doi_date['doi']
             package_doi_type = 'version DOI'
 
+        # Get year of most recent DOI, we assume that is the publication year of the software package.
+        publication_year_most_recent_doi = ''
+        if 'release' in software_package:
+            release = software_package['release']
+            if release is not None:
+                if 'mention' in release:
+                    mention = release['mention']
+                    if len(mention) != 0:
+                        if 'publication_year' in mention[0]:
+                            publication_year_most_recent_doi = str(mention[0]['publication_year'])
+
         # The following results in names and ORCIDs of contributors.
         # In case there are no names, the software will be added anyway to Ricgraph.
         contributor = pandas.json_normalize(software_package, 'contributor')
@@ -113,6 +125,7 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
 
         contributor.fillna(value=numpy.nan, inplace=True)
         contributor['FULL_NAME'] = contributor['family_names'] + ', ' + contributor['given_names']
+        contributor.insert(0, 'package_year', publication_year_most_recent_doi)
         contributor.insert(0, 'package_name', package_name)
         contributor.insert(0, 'package_url', package_url)
         contributor.insert(0, 'package_doi', str(package_doi).lower())
@@ -202,25 +215,31 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     print('The following persons from Research Software Directory will be inserted in Ricgraph:')
     print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers, history_event=history_event)
+    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
+                                   source_event='Research Software Directory', history_event=history_event)
 
     software = parsed_content.copy(deep=True)
     software.dropna(axis=0, how='all', inplace=True)
     software.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     software.rename(columns={'package_doi': 'value1',
                              'package_name': 'comment1',
+                             'package_year': 'year1',
                              'package_url': 'url_other1',
                              'orcid': 'value2'}, inplace=True)
     new_software_columns = {'name1': 'DOI',
                             'category1': 'software',
+                            'source_event1': 'Research Software Directory',
                             'history_event1': history_event,
                             'name2': 'ORCID',
                             'category2': 'person',
+                            'source_event2': 'Research Software Directory',
                             'history_event2': history_event,
                             }
     software = software.assign(**new_software_columns)
-    software = software[['name1', 'category1', 'value1', 'history_event1', 'comment1', 'url_other1',
-                         'name2', 'category2', 'value2', 'history_event2']]
+    software = software[['name1', 'category1', 'value1', 'comment1', 'year1', 'url_other1',
+                         'source_event1', 'history_event1',
+                         'name2', 'category2', 'value2',
+                         'source_event2', 'history_event2']]
 
     print('The following software outputs from Research Software Directory will be inserted in Ricgraph:')
     print(software)
@@ -241,6 +260,10 @@ config.read(rcg.RICGRAPH_INI_FILE)
 try:
     RSD_URL = config['RSD_harvesting']['rsd_url']
     RSD_ORGANIZATION = config['RSD_harvesting']['rsd_organization']
+    if RSD_URL == '' or RSD_ORGANIZATION == '':
+        print('Ricgraph initialization: error, RSD_URL or RSD_ORGANIZATION empty in Ricgraph ini file, exiting.')
+        exit(1)
+
     FULL_RSD_URL = RSD_URL + '/' + RSD_ENDPOINT + '?slug=eq.' + RSD_ORGANIZATION + '&select=' + RSD_FIELDS
 except KeyError:
     print('Error, RSD URL or RSD organization not found in Ricgraph ini file, exiting.')

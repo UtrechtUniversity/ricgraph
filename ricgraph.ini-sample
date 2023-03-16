@@ -42,10 +42,12 @@
 # value: value of the node
 # _key: key value of the node, not to be modified by the user
 # _history: list of history events of the node, not to be modified by the user
+# _source: sorted list of sources a record has been harvested from, 
+#	   not to be modified by the user
 #
 # Additional properties for nodes, make sure 'history_event' is last.
-# Don't use spaces or quotes in this entry.
-allowed_ricgraph_properties = comment,url_main,url_other,history_event
+# Don't use spaces, quotes or new lines in this entry.
+allowed_ricgraph_properties = comment,url_main,url_other,year,source_event,history_event
 # Ricgraph has two modes to add nodes.
 # Your choice will influence the way nodes are added to Ricgraph.
 # For an explanation how this works, see

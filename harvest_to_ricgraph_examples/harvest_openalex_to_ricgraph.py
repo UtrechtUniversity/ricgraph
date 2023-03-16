@@ -220,6 +220,10 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
             parse_line['OPENALEX'] = openalex_id
             parse_line['DOI'] = str(rewrite_openalex_doi(harvest_item['doi']))
             parse_line['TITLE'] = str(harvest_item['title'])
+            if 'publication_year' in harvest_item:
+                parse_line['YEAR'] = str(harvest_item['publication_year'])
+            else:
+                parse_line['YEAR'] = ''
             if harvest_item['type'] is None:
                 parse_line['TYPE'] = str(lookup_resout_type_openalex(''))
             else:
@@ -300,7 +304,9 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     print('The following persons from OpenAlex will be inserted in Ricgraph:')
     print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers, history_event=history_event)
+    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
+                                   source_event='OpenAlex',
+                                   history_event=history_event)
 
     organizations = parsed_content[['OPENALEX', 'ROR']].copy(deep=True)
     organizations.dropna(axis=0, how='all', inplace=True)
@@ -311,10 +317,12 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                 'name2': 'ROR',
                                 'category2': 'organization',
                                 'comment2': ORGANIZATION_NAME,
+                                'source_event2': 'OpenAlex',
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)
     organizations = organizations[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2', 'comment2', 'history_event2']]
+                                   'name2', 'category2', 'value2', 'comment2',
+                                   'source_event2', 'history_event2']]
 
     print('The following organizations from persons from OpenAlex will be inserted in Ricgraph:')
     print(organizations)
@@ -334,19 +342,22 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     timestamp = now.strftime("%Y%m%d-%H%M%S")
     history_event = 'Source: Harvest OpenAlex research outputs at ' + timestamp + '.'
 
-    resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'TYPE']].copy(deep=True)
+    resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
     resout.dropna(axis=0, how='all', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     resout['value1'] = resout['DOI'].copy(deep=True)
     resout.rename(columns={'TYPE': 'category1',
                            'TITLE': 'comment1',
+                           'YEAR': 'year1',
                            'OPENALEX': 'value2'}, inplace=True)
     new_resout_columns = {'name1': 'DOI',
+                          'source_event1': 'OpenAlex',
                           'history_event1': history_event,
                           'name2': 'OPENALEX',
                           'category2': 'person'}
     resout = resout.assign(**new_resout_columns)
-    resout = resout[['name1', 'category1', 'value1', 'history_event1', 'comment1',
+    resout = resout[['name1', 'category1', 'value1', 'comment1', 'year1',
+                     'source_event1', 'history_event1', 'comment1',
                      'name2', 'category2', 'value2']]
 
     print('The following research outputs from OpenAlex will be inserted in Ricgraph:')
@@ -368,6 +379,10 @@ config.read(rcg.RICGRAPH_INI_FILE)
 try:
     ORGANIZATION_NAME = config['Organization']['organization_name']
     ORGANIZATION_ROR = config['Organization']['organization_ror']
+    if ORGANIZATION_NAME == '' or ORGANIZATION_ROR == '':
+        print('Ricgraph initialization: error, ORGANIZATION_NAME or ORGANIZATION_ROR '
+              + 'empty in Ricgraph ini file, exiting.')
+        exit(1)
 except KeyError:
     print('Error, organization name or ROR not found in Ricgraph ini file, exiting.')
     exit(1)
@@ -378,8 +393,8 @@ try:
     # They have rate limits, but they are high: https://docs.openalex.org/api#rate-limits.
     OPENALEX_URL = config['OpenAlex_harvesting']['openalex_url']
     email = config['OpenAlex_harvesting']['openalex_polite_pool_email']
-    if email == '':
-        print('Error, insert an email address in the Ricgraph ini file for OpenAlex, exiting.')
+    if OPENALEX_URL == '' or email == '':
+        print('Ricgraph initialization: error, OPENALEX_URL or email empty in Ricgraph ini file, exiting.')
         exit(1)
     OPENALEX_HEADERS['User-Agent'] = 'mailto:' + email
 except KeyError:

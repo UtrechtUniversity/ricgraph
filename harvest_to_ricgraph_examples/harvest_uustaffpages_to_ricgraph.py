@@ -350,15 +350,18 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     print('The following persons from UU staff pages will be inserted in Ricgraph:')
     print(person_identifiers)
     rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
+                                   source_event='UU staff pages',
                                    history_event=history_event)
 
     # Add weblinks (by using 'url_main') to nodes we have inserted above.
     nodes_to_update = parsed_content[['UUSTAFF_PAGE', 'UUSTAFF_PAGE_URL']].copy(deep=True)
     nodes_to_update.rename(columns={'UUSTAFF_PAGE': 'value',
                                     'UUSTAFF_PAGE_URL': 'url_main'}, inplace=True)
-    nodes_to_update_columns = {'name': 'UUSTAFF_PAGE', 'category': 'person'}
+    nodes_to_update_columns = {'name': 'UUSTAFF_PAGE',
+                               'category': 'person',
+                               'source_event': 'UU staff pages'}
     nodes_to_update = nodes_to_update.assign(**nodes_to_update_columns)
-    nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main']]
+    nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main', 'source_event']]
     print('\nThe following nodes will be updated in Ricgraph:')
     print(nodes_to_update)
     rcg.update_nodes_df(nodes_to_update)
@@ -367,9 +370,11 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     nodes_to_update = parsed_content[['UUPHOTO', 'UUPHOTO_URL']].copy(deep=True)
     nodes_to_update.rename(columns={'UUPHOTO': 'value',
                                     'UUPHOTO_URL': 'url_main'}, inplace=True)
-    nodes_to_update_columns = {'name': 'UUPHOTO', 'category': 'person'}
+    nodes_to_update_columns = {'name': 'UUPHOTO',
+                               'category': 'person',
+                               'source_event': 'UU staff pages'}
     nodes_to_update = nodes_to_update.assign(**nodes_to_update_columns)
-    nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main']]
+    nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main', 'source_event']]
     print('\nThe following nodes will be updated in Ricgraph:')
     print(nodes_to_update)
     rcg.update_nodes_df(nodes_to_update)
@@ -383,10 +388,11 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                 'category1': 'person',
                                 'name2': 'UUStaffId-org',
                                 'category2': 'organization',
+                                'source_event2': 'UU staff pages',
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)
     organizations = organizations[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2', 'history_event2']]
+                                   'name2', 'category2', 'value2', 'source_event2', 'history_event2']]
     print('The following organizations from UU staff pages will be inserted in Ricgraph:')
     print(organizations)
     rcg.create_nodepairs_and_edges_df(organizations)
@@ -401,9 +407,9 @@ def connect_pure_with_uustaffpages_to_ricgraph(url: str) -> None:
     count = 0
     for node in nodes_with_solisid:
         count += 1
-        if count % 100 == 0:
+        if count % 50 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 2000 == 0:
+        if count % 1000 == 0:
             print('\n', end='', flush=True)
 
         solis_id = node['value']
@@ -450,6 +456,10 @@ config = configparser.ConfigParser()
 config.read(rcg.RICGRAPH_INI_FILE)
 try:
     UUSTAFF_URL = config['UU_staff_pages_harvesting']['uustaff_url']
+    if UUSTAFF_URL == '':
+        print('Ricgraph initialization: error, UUSTAFF_URL empty in Ricgraph ini file, exiting.')
+        exit(1)
+
 except KeyError:
     print('Error, UU staff pages URL not found in Ricgraph ini file, exiting.')
     exit(1)
@@ -465,14 +475,15 @@ parse_uustaff = harvest_and_parse_uustaffpages_data(url=UUSTAFF_URL,
                                                     harvest_filename=UUSTAFF_HARVEST_FILENAME)
 if parse_uustaff is None:
     print('There are no UU staff data to harvest.\n')
-else:
-    rcg.write_dataframe_to_csv(UUSTAFF_DATA_FILENAME, parse_uustaff)
+    exit(0)
 
-    # Harvesting from UU staff pages could be improved by better
-    # parsing for UU sub organisations and UU research output.
-    # For inspiration see harvest_pure_to_ricgraph.py.
-    parsed_uustaff_persons_to_ricgraph(parse_uustaff)
+rcg.write_dataframe_to_csv(UUSTAFF_DATA_FILENAME, parse_uustaff)
 
-    connect_pure_with_uustaffpages_to_ricgraph(url=UUSTAFF_URL)
+# Harvesting from UU staff pages could be improved by better
+# parsing for UU sub organisations and UU research output.
+# For inspiration see harvest_pure_to_ricgraph.py.
+parsed_uustaff_persons_to_ricgraph(parse_uustaff)
+
+connect_pure_with_uustaffpages_to_ricgraph(url=UUSTAFF_URL)
 
 rcg.close_ricgraph()

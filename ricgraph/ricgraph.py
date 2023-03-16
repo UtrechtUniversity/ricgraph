@@ -71,6 +71,9 @@ All nodes have the following properties:
 
 - _history: list of history events of the node, not to be modified by the user.
 
+- _source: sorted list of sources a record has been harvested from,
+  not to be modified by the user
+
 Additional properties for nodes can be added by changing an entry in the initialization file.
 In the default configuration of Ricgraph, the following properties are included:
 
@@ -80,6 +83,10 @@ In the default configuration of Ricgraph, the following properties are included:
   record on the web.
 
 - url_other: other URL for a node, pointing to e.g. the originating record in a source system.
+
+- year: year of a research output.
+
+- source_event: an event to be added to the _source list.
 
 - history_event: an event to be added to the _history list.
 """
@@ -346,9 +353,16 @@ def create_node(name: str, category: str, value: str,
         if node_properties['url_main'] == '' and url != '':
             node_properties['url_main'] = url
 
+        if node_properties['source_event'] == '':
+            source = []
+        else:
+            source = [node_properties['source_event']]
+        node_properties['source_event'] = ''
+
         history = [timestamp + ': Created. ' + node_properties['history_event']]
         node_properties['history_event'] = ''
-        new_node = Node('RCGNode', _key=create_ricgraph_key(name=lname, value=lvalue), _history=history,
+        new_node = Node('RCGNode', _key=create_ricgraph_key(name=lname, value=lvalue),
+                        _source=source, _history=history,
                         name=lname, category=lcategory, value=lvalue, **node_properties)
         _graph.create(new_node)
         return new_node
@@ -368,11 +382,11 @@ def create_node(name: str, category: str, value: str,
             other_value_str = str(other_value)
             if prop_name == other_name:
                 if old_val != other_value_str:
-                    if prop_name != 'history_event':
-                        # Do not enter (changes to) property history_event in _history
+                    if prop_name != 'history_event' and prop_name != 'source_event':
+                        # Do not enter (changes to) property history_event or source_event in _history
                         history_line += create_history_line(field_name=prop_name,
                                                             old_value=node[prop_name], new_value=other_value_str)
-                    # Note: for now all properties will have string value
+                    # Note: for now all properties (except _source and _history) will have string value
                     node[prop_name] = other_value_str
                 break
 
@@ -381,13 +395,22 @@ def create_node(name: str, category: str, value: str,
         history_line += create_history_line(field_name='url_main', old_value=node['url_main'], new_value=url)
         node['url_main'] = url
 
+    if node['source_event'] != '':
+        if node['source_event'] not in node['_source']:
+            old_list = node['_source'].copy()
+            node['_source'].append(node['source_event'])
+            node['_source'].sort()
+            history_line += create_history_line(field_name='_source',
+                                                old_value=str(old_list), new_value=str(node['_source']))
+    node['source_event'] = ''
+
     if history_line == '':
         # No changes, clear property history_event
         node['history_event'] = ''
         return node
 
+    node['_history'].append(timestamp + ': Updated. ' + history_line)
     node['history_event'] = ''
-    node['_history'].append(timestamp + ': Updated. ' + history_line + node['history_event'])
     # The push() only works after a graph has been created, merge() does not update
     _graph.push(node)
 
@@ -1045,12 +1068,14 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
     return
 
 
-def unify_personal_identifiers(personal_identifiers: pandas.DataFrame, history_event: Union[dict, str]) -> None:
+def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
+                               source_event: Union[dict, str], history_event: Union[dict, str]) -> None:
     """Unify a collection of personal identifiers (e.g. ORCID, ISNI, etc).
     That means that every column is unified to every other column.
     The identifiers are specified as columns in a DataFrame.
 
     :param personal_identifiers: DataFrame containing personal identifiers.
+    :param source_event: a event to add to the _source list.
     :param history_event: a history event to add.
     :return: None.
     """
@@ -1087,6 +1112,7 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame, history_e
 
             create_nodepairs_and_edges_params(name1=column1, category1='person', value1=identifiers[column1],
                                               name2=column2, category2='person', value2=identifiers[column2],
+                                              source_event1=source_event, source_event2=source_event,
                                               history_event1=history_event, history_event2=history_event)
     return
 
@@ -1104,6 +1130,9 @@ def print_node_values(node: Node) -> None:
     print('value:    ' + node['value'])
     for prop_name in ALLOWED_RICGRAPH_PROPERTIES:
         print(prop_name + ': ' + node[prop_name])
+    print('source:')
+    for source in node['_source']:
+        print('- ' + source)
     print('history:')
     for history in node['_history']:
         print('- ' + history)
@@ -1553,14 +1582,16 @@ config = configparser.ConfigParser()
 config.read(RICGRAPH_INI_FILE)
 try:
     ALLOWED_RICGRAPH_PROPERTIES = tuple(config['Ricgraph']['allowed_ricgraph_properties'].split(','))
+    if len(ALLOWED_RICGRAPH_PROPERTIES) == 0:
+        print('Ricgraph initialization: error, ALLOWED_RICGRAPH_PROPERTIES is empty in Ricgraph ini file, exiting.')
+        exit(1)
 
     # For more explantion, see file docs/ricgraph_install_configure.md,
     # section RICGRAPH_NODEADD_MODE.
     RICGRAPH_NODEADD_MODE = config['Ricgraph']['ricgraph_nodeadd_mode']
-
     if RICGRAPH_NODEADD_MODE != 'strict' and RICGRAPH_NODEADD_MODE != 'lenient':
         print('Ricgraph initialization: error, unknown value "' + RICGRAPH_NODEADD_MODE
-              + '" for RICGRAPH_NODEADD_MODE, exiting.')
+              + '" for RICGRAPH_NODEADD_MODE in Ricgraph ini file, exiting.')
         exit(1)
     else:
         print('Ricgraph is using "' + RICGRAPH_NODEADD_MODE + '" for RICGRAPH_NODEADD_MODE.')
@@ -1574,6 +1605,10 @@ try:
     NEO4J_PASSWORD = config['Neo4j']['neo4j_password']
     NEO4J_SCHEME = config['Neo4j']['neo4j_scheme']
     NEO4J_PORT = config['Neo4j']['neo4j_port']
+    if NEO4J_HOSTNAME == '' or NEO4J_USER == '' or NEO4J_PASSWORD == '' \
+       or NEO4J_SCHEME == '' or NEO4J_PORT == '':
+        print('Ricgraph initialization: error, one or more of NEO4J parameters not specified in Ricgraph ini file.')
+        exit(1)
     NEO4J_URL = '{scheme}://{hostname}:{port}'.format(scheme=NEO4J_SCHEME, hostname=NEO4J_HOSTNAME, port=NEO4J_PORT)
 except KeyError:
     print('Ricgraph initialization: error, required Neo4j key values not found in Ricgraph ini file, exiting.')

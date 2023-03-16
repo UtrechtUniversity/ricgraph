@@ -253,7 +253,7 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
     yoda_data = datacite_data[['DOI', 'contributorName', 'DAI',
                                'ORCID', 'Author identifier (Scopus)',
                                'ISNI', 'ResearcherID (Web of Science)',
-                               'titles', 'DOI_TYPE'
+                               'titles', 'DOI_TYPE', 'publicationYear'
                                ]].copy(deep=True)
     # This does not seem to work:
     # yoda_data.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -369,16 +369,23 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     print('The following persons from Yoda will be inserted in Ricgraph:')
     print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers, history_event=history_event)
+    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
+                                   source_event='Yoda-DataCite', history_event=history_event)
 
     print('The following datasets (DOIs) from Yoda will be inserted in Ricgraph:')
     print(parsed_content)
     print('\nAdding DOIs and ORCIDs...')
-    rcg.create_nodepairs_and_edges_params(name1='DOI', category1=parsed_content['DOI_TYPE'],
+    rcg.create_nodepairs_and_edges_params(name1='DOI',
+                                          category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
-                                          comment1=parsed_content['TITLE'], history_event1=history_event,
+                                          comment1=parsed_content['TITLE'],
+                                          year1=parsed_content['publicationYear'],
+                                          source_event1='Yoda-DataCite',
+                                          history_event1=history_event,
                                           name2='ORCID', category2='person',
                                           value2=parsed_content['ORCID'])
+    # Don't need to add a source_event to the following calls, since we have already inserted
+    # each source above, here we are connecting them.
     print('\nAdding DOIs and DIGITAL_AUTHOR_IDs...')
     rcg.create_nodepairs_and_edges_params(name1='DOI', category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
@@ -415,6 +422,10 @@ config.read(rcg.RICGRAPH_INI_FILE)
 try:
     YODA_URL = config['Yoda_harvesting']['yoda_url']
     YODA_SET = config['Yoda_harvesting']['yoda_set']
+    if YODA_URL == '' or YODA_SET == '':
+        print('Ricgraph initialization: error, YODA_URL or YODA_SET empty in Ricgraph ini file, exiting.')
+        exit(1)
+
     YODA_HEADERS['set'] = YODA_SET
 except KeyError:
     print('Error, Yoda URL or Yoda set not found in Ricgraph ini file, exiting.')
