@@ -357,7 +357,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                           'category2': 'person'}
     resout = resout.assign(**new_resout_columns)
     resout = resout[['name1', 'category1', 'value1', 'comment1', 'year1',
-                     'source_event1', 'history_event1', 'comment1',
+                     'source_event1', 'history_event1',
                      'name2', 'category2', 'value2']]
 
     print('The following research outputs from OpenAlex will be inserted in Ricgraph:')
