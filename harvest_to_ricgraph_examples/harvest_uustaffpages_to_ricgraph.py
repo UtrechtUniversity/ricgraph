@@ -60,8 +60,7 @@ UUSTAFF_HARVEST_FROM_FILE = False
 UUSTAFF_HARVEST_FILENAME = 'uustaff_harvest.json'
 UUSTAFF_DATA_FILENAME = 'uustaff_data.csv'
 UUSTAFF_CONNECT_FILENAME = 'uustaff_connect.csv'
-# UUSTAFF_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-UUSTAFF_MAX_RECS_TO_HARVEST = 20                  # 0 = all records
+UUSTAFF_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # We can harvest many fields from the UU staff pages. For now,
 # we only need a few.
 UUSTAFF_FIELDS_TO_HARVEST = [
