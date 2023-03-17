@@ -59,7 +59,9 @@ UUSTAFF_MAX_FACULTY_NR = 25
 UUSTAFF_HARVEST_FROM_FILE = False
 UUSTAFF_HARVEST_FILENAME = 'uustaff_harvest.json'
 UUSTAFF_DATA_FILENAME = 'uustaff_data.csv'
-UUSTAFF_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+UUSTAFF_CONNECT_FILENAME = 'uustaff_connect.csv'
+# UUSTAFF_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+UUSTAFF_MAX_RECS_TO_HARVEST = 20                  # 0 = all records
 # We can harvest many fields from the UU staff pages. For now,
 # we only need a few.
 UUSTAFF_FIELDS_TO_HARVEST = [
@@ -400,10 +402,19 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     return
 
 
-def connect_pure_with_uustaffpages_to_ricgraph(url: str) -> None:
-    print('Connecting Pure with persons from UU staff pages in Ricgraph...')
+def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
+    """Connect Pure with the UU staff pages.
+    Get SolisID from Ricgraph and harvest the corresponding data from the
+    UU staff pages.
+
+    :param url: url to the UU staff pages.
+    :return: the DataFrame harvested, or None if nothing harvested.
+    """
+    print('Connect Pure SolisIDs with corresponding persons from UU staff pages...')
     nodes_with_solisid = rcg.read_all_nodes(name='EMPLOYEE_ID')
     print('There are ' + str(len(nodes_with_solisid)) + ' SolisID records, parsing record: 0  ', end='')
+    parse_result = pandas.DataFrame()
+    parse_chunk = []                # list of dictionaries
     count = 0
     for node in nodes_with_solisid:
         count += 1
@@ -416,7 +427,7 @@ def connect_pure_with_uustaffpages_to_ricgraph(url: str) -> None:
         solis_url = url + UUSTAFF_SOLISID_ENDPOINT + solis_id
         response = requests.get(solis_url)
         if response.status_code != requests.codes.ok:
-            print('connect_pure_with_uustaffpages_to_ricgraph(): error during harvest solisID.')
+            print('connect_pure_with_uustaffpages(): error during harvest solisID.')
             print('Status code: ' + str(response.status_code))
             print('Url: ' + response.url)
             print('Error: ' + response.text)
@@ -433,15 +444,46 @@ def connect_pure_with_uustaffpages_to_ricgraph(url: str) -> None:
             continue
 
         path = pathlib.PurePath(uustaff_page_url)
-        uustaff_page = str(path.name)
+        parse_line = {}
+        parse_line['EMPLOYEE_ID'] = str(node['value'])
+        parse_line['UUSTAFF_ID'] = str(path.name)
+        parse_chunk.append(parse_line)
+
+    print(count, '\n', end='', flush=True)
+    print('Done.\n')
+
+    parse_chunk_df = pandas.DataFrame(parse_chunk)
+    parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    parse_result.dropna(axis=0, how='all', inplace=True)
+    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    return parse_result
+
+
+def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
+    """Insert the parsed Pure SolisIDs and UU staff data in Ricgraph.
+
+    :param parsed_content: The records to insert in Ricgraph, if not present yet.
+    :return: None.
+    """
+    print('Insert Pure SolisIDs and corresponding persons from UU staff pages in Ricgraph...')
+    print('There are ' + str(len(parsed_content)) + ' records, parsing record: 0  ', end='')
+    count = 0
+    for row in parsed_content.itertuples():
+        count += 1
+        if count % 100 == 0:
+            print(count, ' ', end='', flush=True)
+        if count % 2000 == 0:
+            print('\n', end='', flush=True)
+
         # Does not make sense to add a 'history_event' since the two nodes already
         # exist and are not modified. So the 'history_event' will not be registered.
         rcg.merge_personroots_of_two_nodes(name1='EMPLOYEE_ID',
-                                           value1=node['value'],
+                                           value1=row.EMPLOYEE_ID,
                                            name2='UUSTAFF_PAGE',
-                                           value2=uustaff_page)
+                                           value2=row.UUSTAFF_ID)
 
-    print('\nDone.\n')
+    print(count, '\n', end='', flush=True)
+    print('Done.\n')
     return
 
 
@@ -470,19 +512,33 @@ rcg.open_ricgraph()
 # rcg.empty_ricgraph(answer='no')
 rcg.empty_ricgraph()
 
-parse_uustaff = harvest_and_parse_uustaffpages_data(url=UUSTAFF_URL,
-                                                    harvest_filename=UUSTAFF_HARVEST_FILENAME)
-if parse_uustaff is None:
-    print('There are no UU staff data to harvest.\n')
-    exit(0)
+# You can use 'True' or 'False' depending on your needs to harvest.
+# This might be handy if you are testing your parsing.
 
-rcg.write_dataframe_to_csv(UUSTAFF_DATA_FILENAME, parse_uustaff)
+# if False:
+if True:
+    parse_uustaff = harvest_and_parse_uustaffpages_data(url=UUSTAFF_URL,
+                                                        harvest_filename=UUSTAFF_HARVEST_FILENAME)
+    if parse_uustaff is None:
+        print('There are no UU staff data to harvest.\n')
+        exit(0)
 
-# Harvesting from UU staff pages could be improved by better
-# parsing for UU sub organisations and UU research output.
-# For inspiration see harvest_pure_to_ricgraph.py.
-parsed_uustaff_persons_to_ricgraph(parse_uustaff)
+    rcg.write_dataframe_to_csv(UUSTAFF_DATA_FILENAME, parse_uustaff)
 
-connect_pure_with_uustaffpages_to_ricgraph(url=UUSTAFF_URL)
+    # Harvesting from UU staff pages could be improved by better
+    # parsing for UU sub organisations and UU research output.
+    # For inspiration see harvest_pure_to_ricgraph.py.
+    parsed_uustaff_persons_to_ricgraph(parse_uustaff)
+
+
+# if False:
+if True:
+    parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL)
+    if parsed_results is None:
+        print('There are no Pure SolisIDs to connect to UU staff pages.\n')
+    else:
+        rcg.write_dataframe_to_csv(UUSTAFF_CONNECT_FILENAME, parsed_results)
+        parsed_pure_uustaffpages_to_ricgraph(parsed_results)
+
 
 rcg.close_ricgraph()
