@@ -380,11 +380,12 @@ try:
     ORGANIZATION_NAME = config['Organization']['organization_name']
     ORGANIZATION_ROR = config['Organization']['organization_ror']
     if ORGANIZATION_NAME == '' or ORGANIZATION_ROR == '':
-        print('Ricgraph initialization: error, ORGANIZATION_NAME or ORGANIZATION_ROR '
+        print('Ricgraph initialization: error, organization_name or organization_ror '
               + 'empty in Ricgraph ini file, exiting.')
         exit(1)
 except KeyError:
-    print('Error, organization name or ROR not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, organization_name or organization_ror '
+          + 'not found in Ricgraph ini file, exiting.')
     exit(1)
 
 try:
@@ -395,11 +396,13 @@ try:
     OPENALEX_URL = config['OpenAlex_harvesting']['openalex_url']
     email = config['OpenAlex_harvesting']['openalex_polite_pool_email']
     if OPENALEX_URL == '' or email == '':
-        print('Ricgraph initialization: error, OPENALEX_URL or email empty in Ricgraph ini file, exiting.')
+        print('Ricgraph initialization: error, openalex_url or openalex_polite_pool_email '
+              + 'empty in Ricgraph ini file, exiting.')
         exit(1)
     OPENALEX_HEADERS['User-Agent'] = 'mailto:' + email
 except KeyError:
-    print('Error, OpenAlex URL or email address not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, openalex_url or openalex_polite_pool_email '
+          + 'not found in Ricgraph ini file, exiting.')
     exit(1)
 
 print('\nPreparing graph...')

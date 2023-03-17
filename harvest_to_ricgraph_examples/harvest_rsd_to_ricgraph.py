@@ -261,12 +261,12 @@ try:
     RSD_URL = config['RSD_harvesting']['rsd_url']
     RSD_ORGANIZATION = config['RSD_harvesting']['rsd_organization']
     if RSD_URL == '' or RSD_ORGANIZATION == '':
-        print('Ricgraph initialization: error, RSD_URL or RSD_ORGANIZATION empty in Ricgraph ini file, exiting.')
+        print('Ricgraph initialization: error, rsd_url or rsd_organization empty in Ricgraph ini file, exiting.')
         exit(1)
 
     FULL_RSD_URL = RSD_URL + '/' + RSD_ENDPOINT + '?slug=eq.' + RSD_ORGANIZATION + '&select=' + RSD_FIELDS
 except KeyError:
-    print('Error, RSD URL or RSD organization not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, rsd_url or rsd_organization not found in Ricgraph ini file, exiting.')
     exit(1)
 
 print('\nPreparing graph...')

@@ -730,12 +730,12 @@ try:
     PURE_URL = config['Pure_harvesting']['pure_url']
     PURE_API_KEY = config['Pure_harvesting']['pure_api_key']
     if PURE_URL == '' or PURE_API_KEY == '':
-        print('Ricgraph initialization: error, PURE_URL or PURE_API_KEY empty in Ricgraph ini file, exiting.')
+        print('Ricgraph initialization: error, pure_url or pure_api_key empty in Ricgraph ini file, exiting.')
         exit(1)
 
     PURE_HEADERS['api-key'] = PURE_API_KEY
 except KeyError:
-    print('Error, Pure URL or Pure API key not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, pure_url or pure_api_key not found in Ricgraph ini file, exiting.')
     exit(1)
 
 print('\nPreparing graph...')

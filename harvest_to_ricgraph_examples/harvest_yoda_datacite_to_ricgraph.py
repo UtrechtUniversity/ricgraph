@@ -423,12 +423,12 @@ try:
     YODA_URL = config['Yoda_harvesting']['yoda_url']
     YODA_SET = config['Yoda_harvesting']['yoda_set']
     if YODA_URL == '' or YODA_SET == '':
-        print('Ricgraph initialization: error, YODA_URL or YODA_SET empty in Ricgraph ini file, exiting.')
+        print('Ricgraph initialization: error, yoda_url or yoda_set empty in Ricgraph ini file, exiting.')
         exit(1)
 
     YODA_HEADERS['set'] = YODA_SET
 except KeyError:
-    print('Error, Yoda URL or Yoda set not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, yoda_url or yoda_set not found in Ricgraph ini file, exiting.')
     exit(1)
 
 print('\nPreparing graph...')

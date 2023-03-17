@@ -1583,7 +1583,7 @@ config.read(RICGRAPH_INI_FILE)
 try:
     ALLOWED_RICGRAPH_PROPERTIES = tuple(config['Ricgraph']['allowed_ricgraph_properties'].split(','))
     if len(ALLOWED_RICGRAPH_PROPERTIES) == 0:
-        print('Ricgraph initialization: error, ALLOWED_RICGRAPH_PROPERTIES is empty in Ricgraph ini file, exiting.')
+        print('Ricgraph initialization: error, allowed_ricgraph_properties is empty in Ricgraph ini file, exiting.')
         exit(1)
 
     # For more explantion, see file docs/ricgraph_install_configure.md,
@@ -1591,12 +1591,12 @@ try:
     RICGRAPH_NODEADD_MODE = config['Ricgraph']['ricgraph_nodeadd_mode']
     if RICGRAPH_NODEADD_MODE != 'strict' and RICGRAPH_NODEADD_MODE != 'lenient':
         print('Ricgraph initialization: error, unknown value "' + RICGRAPH_NODEADD_MODE
-              + '" for RICGRAPH_NODEADD_MODE in Ricgraph ini file, exiting.')
+              + '" for ricgraph_nodeadd_mode in Ricgraph ini file, exiting.')
         exit(1)
     else:
-        print('Ricgraph is using "' + RICGRAPH_NODEADD_MODE + '" for RICGRAPH_NODEADD_MODE.')
+        print('Ricgraph is using "' + RICGRAPH_NODEADD_MODE + '" for ricgraph_nodeadd_mode.')
 except KeyError:
-    print('Ricgraph initialization: error, required Ricgraph key values not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, allowed_ricgraph_properties not found in Ricgraph ini file, exiting.')
     exit(1)
 
 try:
@@ -1607,11 +1607,13 @@ try:
     NEO4J_PORT = config['Neo4j']['neo4j_port']
     if NEO4J_HOSTNAME == '' or NEO4J_USER == '' or NEO4J_PASSWORD == '' \
        or NEO4J_SCHEME == '' or NEO4J_PORT == '':
-        print('Ricgraph initialization: error, one or more of NEO4J parameters not specified in Ricgraph ini file.')
+        print('Ricgraph initialization: error, one or more of Neo4j parameters '
+              + 'empty in Ricgraph ini file, exiting.')
         exit(1)
     NEO4J_URL = '{scheme}://{hostname}:{port}'.format(scheme=NEO4J_SCHEME, hostname=NEO4J_HOSTNAME, port=NEO4J_PORT)
 except KeyError:
-    print('Ricgraph initialization: error, required Neo4j key values not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, one or more of Neo4j parameters '
+          + 'not found in Ricgraph ini file, exiting.')
     exit(1)
 
 # Make sure DataFrames are printed with all columns on full width

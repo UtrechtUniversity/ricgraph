@@ -65,9 +65,28 @@ only records for Utrecht University and uses this order:
 1. *harvest_yoda_datacite_to_ricgraph.py* (not too much data, so harvest is fast, but it 
    contains several data entry errors);
 1. *harvest_rsd_to_ricgraph.py* (not too much data);
-1. *harvest_uustaffpages_to_ricgraph.py*;
 1. *harvest_openalex_to_ricgraph.py* (a lot of data from a [number of 
-   sources](https://docs.openalex.org/additional-help/faq#where-does-your-data-come-from)). 
+   sources](https://docs.openalex.org/additional-help/faq#where-does-your-data-come-from)); 
+1. *harvest_uustaffpages_to_ricgraph.py*.
+
+### How to make your own harvesting scripts
+You can make your own harvesting script of your favorite source. The easiest way to
+do so is to take one of the harvesting scripts as an example. 
+For example, if you use the script *harvest_pure_to_ricgraph.py*, you'll recognize the
+three parts:
+1. Code for harvesting. This is done with `harvest_json_and_write_to_file()` which also writes
+   the harvested json data to a file. It gets data from a source.
+1. Code for parsing. This is done with `parse_pure_persons()`, `parse_pure_organizations()` and 
+   `parse_pure_resout()` for persons, organizations and research outputs from Pure.
+   It does data processing to get harvested results
+   in a "useful" shape for inserting nodes and 
+   edges in Ricgraph.
+1. Code for inserting the parsed results in Ricgraph. This is done with
+   `parsed_persons_to_ricgraph()`, `parsed_organizations_to_ricgraph()` and
+   `parsed_resout_to_ricgraph()`. 
+   It inserts the nodes and edges in Ricgraph.
+
+You can adapt each of these parts as suits the source you would like to harvest.
 
 ### General program structure of a Python program using Ricgraph
 

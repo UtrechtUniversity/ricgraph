@@ -457,11 +457,10 @@ config.read(rcg.RICGRAPH_INI_FILE)
 try:
     UUSTAFF_URL = config['UU_staff_pages_harvesting']['uustaff_url']
     if UUSTAFF_URL == '':
-        print('Ricgraph initialization: error, UUSTAFF_URL empty in Ricgraph ini file, exiting.')
+        print('Ricgraph initialization: error, uustaff_url empty in Ricgraph ini file, exiting.')
         exit(1)
-
 except KeyError:
-    print('Error, UU staff pages URL not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, uustaff_url not found in Ricgraph ini file, exiting.')
     exit(1)
 
 rcg.open_ricgraph()
