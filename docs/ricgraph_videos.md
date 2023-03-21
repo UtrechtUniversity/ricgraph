@@ -45,32 +45,34 @@ We see that one person has three (slightly) different FULL_NAMEs.
 
 ### Video Find outputs and organizations from a person
 In the [video Find outputs and organizations from 
-a person](ricgraph_find_outputs_and_organizations_from_person.mp4),
+a person](video/ricgraph_find_outputs_and_organizations_from_person.mp4),
 we first look up all nodes in Ricgraph that are connected to
 one person, i.e. all publications, software, datasets and organizations the person has contributed to. 
 Then we zoom in on the 
 chair/subunit this person is a member of, and expand it to show his colleagues in the same chair/subunit.
 
 ### Video Traverse Utrecht University organizations
-In the [video Traverse Utrecht University organizations](ricgraph_traverse_uu_organizations.mp4)
+In the [video Traverse Utrecht University 
+organizations](video/ricgraph_traverse_uu_organizations.mp4)
 we perform a top-down search in Ricgraph starting with the Pure ID of Utrecht University. 
 Then we expand this node to show all its faculties. 
 Next, we expand one faculty to show the people and
 suborganizations that link to this faculty.
 
 ### Video Find output common to two persons
-The [video Find output common to two persons](ricgraph_find_output_common_to_2_persons.mp4)
+The [video Find output common to two persons](video/ricgraph_find_output_common_to_2_persons.mp4)
 demonstrates how insights can be obtained by harvesting several source systems. It shows the
 relation between two individuals. First we find two persons using their last name. 
 Then we let Ricgraph find the
 shortest path between the two nodes. It finds one node, representing a publication. 
 This means that both people have worked together on this publication.
+<video src="video/ricgraph_find_output_common_to_2_persons.mp4">A video</video>
 
 ### Video Ricgraph explorer
 As mentioned, the above videos demonstrate how the graph looks representing the information
 in Ricgraph. This can be used to understand how nodes connect to each other.
 However, for an end user this may not very useful, since it might be complicated to understand.
-The [video Ricgraph explorer](to_be_done.mp4)
+The [video Ricgraph explorer](video/to_be_done.mp4)
 shows how a more user centric interface may look like. We look
 up a specific person with his last name and find all publications, software, datasets and organizations 
 that this person has contributed to.
