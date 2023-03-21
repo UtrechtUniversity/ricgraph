@@ -66,8 +66,6 @@ relation between two individuals. First we find two persons using their last nam
 Then we let Ricgraph find the
 shortest path between the two nodes. It finds one node, representing a publication. 
 This means that both people have worked together on this publication.
-<video src="videos/ricgraph_find_output_common_to_2_persons.mp4">A video</video>
-<video src="https://github.com/UtrechtUniversity/ricgraph/blob/master/docs/videos/ricgraph_find_output_common_to_2_persons.mp4">A video of two</video>
 
 ### Video Ricgraph explorer
 As mentioned, the above videos demonstrate how the graph looks representing the information
