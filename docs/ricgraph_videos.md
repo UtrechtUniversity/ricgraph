@@ -27,7 +27,7 @@ In the videos, you will observe nodes of several colors and sizes:
 [Return to main README.md file](../README.md).
 
 ### Video Start with ORCID to find software
-The [video Start with ORCID to find software](videos/ricgraph_find_software_from_orcid.mp4)
+The [video Start with ORCID to find software](https://user-images.githubusercontent.com/121875841/226639991-28f279c4-17f8-49ab-8420-1676d3db2b74.mp4)
 first finds the ORCID of a specific person. The ORCID is expanded to show its 
 [*person-root* node, a node which "represents" a person](ricgraph_details.md#person-root-node-in-ricgraph).
 Subsequently, from this node, we find three software packages from the Research
