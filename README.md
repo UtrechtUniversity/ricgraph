@@ -60,6 +60,8 @@ again one step (edge) away.
 In the remainder of this text, Ricgraph is described in the use case of
 showing people, organizations and research outputs in relation to each other
 in a university context.
+You can also look at 
+the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md).
 
 ### Example
 
@@ -131,6 +133,7 @@ Some of Ricgraph's features are:
 
 * Read more about [Ricgraph details](docs/ricgraph_details.md),
   such as example graphs, person identifiers and the *person-root* node.
+* Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md).
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
 * Write code, or start reusing code,
   see the [Ricgraph programming examples](docs/ricgraph_programming_examples.md).

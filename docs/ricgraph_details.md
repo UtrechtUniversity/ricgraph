@@ -50,6 +50,10 @@ In the right figure, there are three *person-root* nodes, representing three dif
 (other nodes with person identifiers are not shown for readability).
 All these persons have contributed to the same research output, identified by *DOI*.
 
+### Videos of Ricgraph
+To see a demonstration of Ricgraph, you can look at 
+the [videos we have made to demonstrate Ricgraph](ricgraph_videos.md).
+
 ### Properties of nodes in Ricgraph
 
 All nodes in Ricgraph have the following properties:
