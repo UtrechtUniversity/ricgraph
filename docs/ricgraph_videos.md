@@ -27,7 +27,8 @@ In the videos, you will observe nodes of several colors and sizes:
 [Return to main README.md file](../README.md).
 
 ### Video Start with ORCID to find software
-The [video Start with ORCID to find software](videos/ricgraph_find_software_from_orcid.mp4)
+The [video Start with ORCID to find 
+software](https://user-images.githubusercontent.com/121875841/226639991-28f279c4-17f8-49ab-8420-1676d3db2b74.mp4)
 first finds the ORCID of a specific person. The ORCID is expanded to show its 
 [*person-root* node, a node which "represents" a person](ricgraph_details.md#person-root-node-in-ricgraph).
 Subsequently, from this node, we find three software packages from the Research
@@ -35,7 +36,7 @@ Software Directory, and we follow the link to the source system a node was harve
 
 ### Video Find persons who contributed to a publication
 In the [video Find persons who contributed to a 
-publication](videos/ricgraph_find_persons_who_contributed_to_output.mp4)
+publication](https://user-images.githubusercontent.com/121875841/226640530-7dc59d48-4050-4390-bf2c-5e5b53849f71.mp4)
 we find people that have contributed to a specific publication. 
 We copy and paste a DOI from a website. Then
 Ricgraph shows all *person-root* nodes that it has found. From the contributors who work for Utrecht
@@ -45,7 +46,7 @@ We see that one person has three (slightly) different FULL_NAMEs.
 
 ### Video Find outputs and organizations from a person
 In the [video Find outputs and organizations from 
-a person](videos/ricgraph_find_outputs_and_organizations_from_person.mp4),
+a person](https://user-images.githubusercontent.com/121875841/226640670-0ca613b3-8a3e-4790-aa2d-41684e335159.mp4),
 we first look up all nodes in Ricgraph that are connected to
 one person, i.e. all publications, software, datasets and organizations the person has contributed to. 
 Then we zoom in on the 
@@ -53,14 +54,15 @@ chair/subunit this person is a member of, and expand it to show his colleagues i
 
 ### Video Traverse Utrecht University organizations
 In the [video Traverse Utrecht University 
-organizations](videos/ricgraph_traverse_uu_organizations.mp4)
+organizations](https://user-images.githubusercontent.com/121875841/226640771-ff5c0648-02d6-4428-8093-bf145c2ef238.mp4)
 we perform a top-down search in Ricgraph starting with the Pure ID of Utrecht University. 
 Then we expand this node to show all its faculties. 
 Next, we expand one faculty to show the people and
 suborganizations that link to this faculty.
 
 ### Video Find output common to two persons
-The [video Find output common to two persons](videos/ricgraph_find_output_common_to_2_persons.mp4)
+The [video Find output common to two 
+persons](https://user-images.githubusercontent.com/121875841/226640906-7446aed6-c428-445b-b733-86b65aa7a070.mp4)
 demonstrates how insights can be obtained by harvesting several source systems. It shows the
 relation between two individuals. First we find two persons using their last name. 
 Then we let Ricgraph find the
