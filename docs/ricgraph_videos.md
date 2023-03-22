@@ -42,7 +42,7 @@ Software Directory, and we follow the link to the source system a node was harve
 https://user-images.githubusercontent.com/121875841/226640530-7dc59d48-4050-4390-bf2c-5e5b53849f71.mp4
 
 In this [video Find persons who contributed to a 
-publication (1m23s)](https://user-images.githubusercontent.com/121875841/226640530-7dc59d48-4050-4390-bf2c-5e5b53849f71.mp4)
+publication (1m23s) (click to download)](videos/ricgraph_find_persons_who_contributed_to_output.mp4)
 we find people that have contributed to a specific publication. 
 We copy and paste a DOI from a website. Then
 Ricgraph shows all *person-root* nodes that it has found. From the contributors who work for Utrecht
@@ -54,7 +54,7 @@ We see that one person has three (slightly) different FULL_NAMEs.
 https://user-images.githubusercontent.com/121875841/226640670-0ca613b3-8a3e-4790-aa2d-41684e335159.mp4
 
 In this [video Find outputs and organizations from 
-a person (1m10s)](https://user-images.githubusercontent.com/121875841/226640670-0ca613b3-8a3e-4790-aa2d-41684e335159.mp4),
+a person (1m10s) (click to download)](videos/ricgraph_find_outputs_and_organizations-from_person.mp4),
 we first look up all nodes in Ricgraph that are connected to
 one person, i.e. all publications, software, datasets and organizations the person has contributed to. 
 Then we zoom in on the 
@@ -64,7 +64,7 @@ chair/subunit this person is a member of, and expand it to show his colleagues i
 https://user-images.githubusercontent.com/121875841/226640771-ff5c0648-02d6-4428-8093-bf145c2ef238.mp4
 
 In this [video Traverse Utrecht University 
-organizations (1m12s)](https://user-images.githubusercontent.com/121875841/226640771-ff5c0648-02d6-4428-8093-bf145c2ef238.mp4)
+organizations (1m12s) (click to download)](videos/ricgraph_traverse_uu_organizations.mp4)
 we perform a top-down search in Ricgraph starting with the Pure ID of Utrecht University. 
 Then we expand this node to show all its faculties. 
 Next, we expand one faculty to show the people and
@@ -74,7 +74,7 @@ suborganizations that link to this faculty.
 https://user-images.githubusercontent.com/121875841/226640906-7446aed6-c428-445b-b733-86b65aa7a070.mp4
 
 This [video Find output common to two 
-persons (1m5s)](https://user-images.githubusercontent.com/121875841/226640906-7446aed6-c428-445b-b733-86b65aa7a070.mp4)
+persons (1m5s) (click to download)](videos/ricgraph_find_output_common_to_2_persons.mp4)
 demonstrates how insights can be obtained by harvesting several source systems. It shows the
 relation between two individuals. First we find two persons using their last name. 
 Then we let Ricgraph find the
@@ -86,7 +86,7 @@ As mentioned, the videos in the previous sections
 demonstrate how the graph looks representing the information
 in Ricgraph. This can be used to understand how nodes connect to each other.
 However, for an end user this may not very useful, since it might be complicated to understand.
-The [video Ricgraph explorer](videos/to_be_done.mp4)
+The [video Ricgraph explorer (length) (click to download)](videos/to_be_done.mp4)
 shows how a more user centric interface may look like. We look
 up a specific person with his last name and find all publications, software, datasets and organizations 
 that this person has contributed to.
