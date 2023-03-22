@@ -43,6 +43,7 @@ Ricgraph shows all *person-root* nodes that it has found. From the contributors 
 University, we can also see their full names (for non Utrecht University contributors, this information
 has not been harvested, so it cannot be shown). 
 We see that one person has three (slightly) different FULL_NAMEs.
+https://user-images.githubusercontent.com/121875841/226640530-7dc59d48-4050-4390-bf2c-5e5b53849f71.mp4
 
 ### Video Find outputs and organizations from a person
 In the [video Find outputs and organizations from 
