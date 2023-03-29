@@ -85,13 +85,31 @@ This means that both people have worked together on this publication.
 
 ### Video Ricgraph explorer
 As mentioned, the videos in the previous sections 
-demonstrate how the graph looks representing the information
+show how the graph looks like that represents the information
 in Ricgraph. This can be used to understand how nodes connect to each other.
-However, for an end user this may not very useful, since it might be complicated to understand.
-The [video Ricgraph explorer (length) (click to download)](videos/to_be_done.mp4)
-shows how a more user-centric interface may look like. We look
-up a specific person with his last name and find all publications, software, datasets and organizations 
-that this person has contributed to.
+However, for an end user it might be complicated to use the correct
+search queries. Also, expanding nodes may result in a lot of nodes, so the user might
+get confused what there is to be learned. That is why we have made 
+[Ricgraph explorer](ricgraph_query_visualize.md#how-to-use-ricgraph-explorer).
+
+
+
+The [video Ricgraph explorer (length) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
+shows how a more user-centric interface may look like. 
+In this video, we look
+up a specific person with his last name. As can be observed, there are three *FULL_NAME*
+nodes
+for this person, each with a different spelling, from four different sources we have
+harvested. 
+If we click on one of them, we observe that we have found a lot of information about
+this person. 
+
+The first table shows the node used for the search.
+The second table displays the IDs of the person found, connected to the *person-root*
+node, and the third table shows all other nodes connected to the *person-root* node.
+This includes research outputs like publications, data sets and software, as well as
+the (sub)organization this person works. We can sort columns and we can use 
+faceted navigation (i.e. filter on *name* or *category* nodes).
 
 ### Epilogue
 Intrigued by the possibilities? Do you have a specific use case you would like to see? 
