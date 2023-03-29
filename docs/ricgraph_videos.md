@@ -94,7 +94,7 @@ search queries. Also, expanding nodes may result in a lot of nodes, so the user 
 get confused what there is to be learned. That is why we have made 
 [Ricgraph explorer](ricgraph_query_visualize.md#how-to-use-ricgraph-explorer).
 
-The [video Ricgraph explorer (length) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
+The [video Ricgraph explorer (2m20s) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
 shows how a more user-centric interface may look like. 
 In this video, we look
 up a specific person with his last name. As can be observed, there are three *FULL_NAME*
@@ -108,7 +108,7 @@ The first table shows the node used for the search.
 The second table displays the IDs of the person found, connected to the *person-root*
 node, and the third table shows all other nodes connected to the *person-root* node.
 This includes research outputs like publications, data sets and software, as well as
-the (sub)organization this person works. We can sort columns and we can use 
+the (sub)organization this person works. We can sort columns, and we can use 
 faceted navigation (i.e. filter on *name* or *category* nodes).
 
 ### Epilogue
