@@ -32,6 +32,10 @@ Other things you need to do:
    see [Ricgraph programming examples](ricgraph_programming_examples.md).
 1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
 
+Other things you might want to do:
+1. [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph).
+1. [Restore a Neo4j Desktop database dump of Ricgraph](#restore-a-neo4j-desktop-database-dump-of-ricgraph).
+
 [Return to main README.md file](../README.md).
 
 ### Install Neo4j Desktop
@@ -224,11 +228,43 @@ This will have the following consequences:
 of Ricgraph has noticed that this does not occur often, therefore the default is *strict*.
 
 ### Using Ricgraph
-
 Before you can do anything with Ricgraph, you need to harvest sources,
 see [Ricgraph programming examples](ricgraph_programming_examples.md).
 After you have harvested sources, you can execute queries and visualize the results,
 see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
+
+### Create a Neo4j Desktop database dump of Ricgraph
+To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
+1. Start Neo4j Desktop if it is not running, or
+   stop the graph database if it is running.
+1. Hoover over the name of your graph database (probably "Graph DBMS"),
+   and click on the three horizontal dots at the right.
+1. Select "Dump".
+1. Your graph database will be dumped. This may take a while. When it
+   is ready, a message appears.
+1. Ready.
+
+### Restore a Neo4j Desktop database dump of Ricgraph
+To restore a 
+[Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph), 
+follow these steps:
+1. Start Neo4j Desktop if it is not running, or 
+   stop the graph database if it is running.
+1. Click on the button "Add" on the right side of "Project" and select "File".
+1. Select the file "neo4j.dump" from a previous Neo4j Desktop database dump.
+   This file will be added to the "File" section a little down the "Project" window.
+1. Hoover over this file and click on the three horizontal dots at the right.
+1. Select "Create new DBMS from dump".
+1. Give it a name, e.g. "Graph DBMS from import file".
+1. When asked, enter the password you have specified in 
+   the [Ricgraph initialization file](#ricgraph-initialization-file)
+   (this saves you from entering a new password in that file).
+1. A new local graph database is being created. This may take a while.
+1. Hoover over the newly created graph database and click "Start" to run it.
+1. Once it is active, [install the Bloom configuration](#install-bloom-configuration).
+1. Now you are ready to explore the data 
+   using [Bloom](ricgraph_query_visualize.md#how-to-use-bloom)
+   or [Ricgraph explorer](ricgraph_query_visualize.md#how-to-use-ricgraph-explorer).
 
 ### Return to main README.md file
 
