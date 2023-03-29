@@ -84,6 +84,8 @@ shortest path between the two nodes. It finds one node, representing a publicati
 This means that both people have worked together on this publication.
 
 ### Video Ricgraph explorer
+https://user-images.githubusercontent.com/121875841/228465992-993dc8ec-0bd9-4985-b2d9-3200f50d558b.mp4
+
 As mentioned, the videos in the previous sections 
 show how the graph looks like that represents the information
 in Ricgraph. This can be used to understand how nodes connect to each other.
@@ -91,8 +93,6 @@ However, for an end user it might be complicated to use the correct
 search queries. Also, expanding nodes may result in a lot of nodes, so the user might
 get confused what there is to be learned. That is why we have made 
 [Ricgraph explorer](ricgraph_query_visualize.md#how-to-use-ricgraph-explorer).
-
-
 
 The [video Ricgraph explorer (length) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
 shows how a more user-centric interface may look like. 
