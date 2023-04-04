@@ -58,7 +58,10 @@ To be able to access neo4j from python, py2neo is used (https://py2neo.org).
 Ricgraph can be extended for other brands of graph databases
 by changing minor bits of the code.
 
-All nodes have the following properties:
+All nodes have the properties in RICGRAPH_PROPERTIES_STANDARD and
+RICGRAPH_PROPERTIES_HIDDEN (see ricgraph.ini):
+
+In RICGRAPH_PROPERTIES_STANDARD:
 
 - name: name of the node, e.g. ISNI, ORCID, DOI, etc.
 
@@ -67,14 +70,17 @@ All nodes have the following properties:
 
 - value: value of the node.
 
-- _key: key value of the node, not to be modified by the user.
+In RICGRAPH_PROPERTIES_HIDDEN:
 
-- _history: list of history events of the node, not to be modified by the user.
+- _key: key value of the node, not to be modified by the user.
 
 - _source: sorted list of sources a record has been harvested from,
   not to be modified by the user
 
-Additional properties for nodes can be added by changing an entry in the initialization file.
+- _history: list of history events of the node, not to be modified by the user.
+
+Additional properties for nodes can be added by changing entry RICGRAPH_PROPERTIES_ADDITIONAL
+in ricgraph.ini (make sure 'history_event' is last).
 In the default configuration of Ricgraph, the following properties are included:
 
 - comment: comment for a node, can be anything that is thought to be useful.
@@ -91,8 +97,6 @@ In the default configuration of Ricgraph, the following properties are included:
 - history_event: an event to be added to the _history list.
 """
 
-# Additional properties for nodes are in ALLOWED_RICGRAPH_PROPERTIES
-# (make sure 'history_event' is last) which is read in __main__
 
 import os.path
 from datetime import datetime
@@ -172,7 +176,16 @@ def open_ricgraph() -> Graph:
     global _graph
 
     print('Opening ricgraph...\n')
-    _graph = Graph(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD))
+    try:
+        _graph = Graph(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD))
+    except:
+        print('open_ricgraph(): Error opening neo4j graph database using these parameters:')
+        print('NEO4J_URL: ' + NEO4J_URL)
+        print('NEO4J_USER: ' + NEO4J_USER)
+        print('NEO4J_PASSWORD: ' + NEO4J_PASSWORD)
+        print('\nAre these parameters correct and did you start neo4j?')
+        print('Exiting.')
+        exit(1)
     return _graph
 
 
@@ -342,7 +355,7 @@ def create_node(name: str, category: str, value: str,
     node = read_node(name=lname, value=lvalue)
     if node is None:
         # Create from CRUD
-        for prop_name in ALLOWED_RICGRAPH_PROPERTIES:
+        for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
             node_properties[prop_name] = ''
             for other_name, other_value in other_properties.items():
                 if prop_name == other_name:
@@ -375,7 +388,7 @@ def create_node(name: str, category: str, value: str,
         history_line += create_history_line(field_name='category', old_value=node['category'], new_value=lcategory)
         node['category'] = lcategory
 
-    for prop_name in ALLOWED_RICGRAPH_PROPERTIES:
+    for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
         old_val = str(node[prop_name])
         # Note: if a property is not present in other_properties, its value does not change
         for other_name, other_value in other_properties.items():
@@ -542,7 +555,7 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
             print('\n', end='', flush=True)
 
         node_properties = {}
-        for prop_name in ALLOWED_RICGRAPH_PROPERTIES:
+        for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
             for other_name in columns:
                 if prop_name == other_name:
                     node_properties[prop_name] = getattr(row, other_name)
@@ -853,7 +866,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
 
     # Only continue depending on RICGRAPH_NODEADD_MODE.
     if RICGRAPH_NODEADD_MODE == 'strict':
-        # For more explantion, see file docs/ricgraph_install_configure.md,
+        # For more explanation, see file docs/ricgraph_install_configure.md,
         # section RICGRAPH_NODEADD_MODE.
         return
 
@@ -928,7 +941,7 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
 def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
                               name2: str, category2: str, value2: str,
                               **other_properties: Union[dict, str]) -> None:
-    """Create two nodes (if they do not exist) and two directe/d edges between those two nodes.
+    """Create two nodes (if they do not exist) and two directed edges between those two nodes.
     The nodes are specified by the properties passed.
     All 'left' nodes end with '1', all right nodes end with '2'.
 
@@ -945,7 +958,7 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
     """
     node_properties1 = {}
     node_properties2 = {}
-    for prop_name in ALLOWED_RICGRAPH_PROPERTIES:
+    for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
         for other_name, other_value in other_properties.items():
             if prop_name + '1' == other_name:
                 node_properties1.update({prop_name: other_value})
@@ -986,7 +999,7 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: pandas.DataFrame) ->
             print('\n', end='', flush=True)
 
         node_properties = {}
-        for prop_name in ALLOWED_RICGRAPH_PROPERTIES:
+        for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
             for other_name in columns:
                 if prop_name + '1' == other_name:
                     node_properties[prop_name + '1'] = getattr(row, other_name)
@@ -1030,7 +1043,7 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
     left_and_right_nodepairs.rename(columns={value1.name: 'value1'}, inplace=True)
 
     # This makes programming more efficient
-    ext_allowed_rgi_properties = ALLOWED_RICGRAPH_PROPERTIES + ('name', 'category', 'value')
+    allowed_properties = RICGRAPH_PROPERTIES_ADDITIONAL + RICGRAPH_PROPERTIES_STANDARD
     ext_other_properties = other_properties.copy()
     ext_other_properties['name1'] = name1
     ext_other_properties['name2'] = name2
@@ -1039,7 +1052,7 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
     # 'value1' has been included above
     ext_other_properties['value2'] = value2
 
-    for prop_name in ext_allowed_rgi_properties:
+    for prop_name in allowed_properties:
         for other_name in ext_other_properties:
             other_value = ext_other_properties[other_name]
             if prop_name + '1' == other_name:
@@ -1075,7 +1088,7 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
     The identifiers are specified as columns in a DataFrame.
 
     :param personal_identifiers: DataFrame containing personal identifiers.
-    :param source_event: a event to add to the _source list.
+    :param source_event: an event to add to the _source list.
     :param history_event: a history event to add.
     :return: None.
     """
@@ -1105,7 +1118,7 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
                 # Name2         11
                 # Name3         11
                 # then we remove both rows with ORCID 11.
-                # For more explantion, see file docs/ricgraph_install_configure.md,
+                # For more explanation, see file docs/ricgraph_install_configure.md,
                 # section RICGRAPH_NODEADD_MODE.
                 identifiers.drop_duplicates(subset=column1, keep=False, inplace=True, ignore_index=True)
                 identifiers.drop_duplicates(subset=column2, keep=False, inplace=True, ignore_index=True)
@@ -1128,7 +1141,7 @@ def print_node_values(node: Node) -> None:
     print('name:     ' + node['name'])
     print('category: ' + node['category'])
     print('value:    ' + node['value'])
-    for prop_name in ALLOWED_RICGRAPH_PROPERTIES:
+    for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
         print(prop_name + ': ' + node[prop_name])
     print('source:')
     for source in node['_source']:
@@ -1581,12 +1594,30 @@ if not os.path.exists(RICGRAPH_INI_FILE):
 config = configparser.ConfigParser()
 config.read(RICGRAPH_INI_FILE)
 try:
-    ALLOWED_RICGRAPH_PROPERTIES = tuple(config['Ricgraph']['allowed_ricgraph_properties'].split(','))
-    if len(ALLOWED_RICGRAPH_PROPERTIES) == 0:
-        print('Ricgraph initialization: error, allowed_ricgraph_properties is empty in Ricgraph ini file, exiting.')
+    RICGRAPH_PROPERTIES_STANDARD = tuple(config['Ricgraph']['ricgraph_properties_standard'].split(','))
+    RICGRAPH_PROPERTIES_HIDDEN = tuple(config['Ricgraph']['ricgraph_properties_hidden'].split(','))
+    RICGRAPH_PROPERTIES_ADDITIONAL = tuple(config['Ricgraph']['ricgraph_properties_additional'].split(','))
+    if len(RICGRAPH_PROPERTIES_STANDARD) == 0 \
+       or len(RICGRAPH_PROPERTIES_HIDDEN) == 0 \
+       or len(RICGRAPH_PROPERTIES_ADDITIONAL) == 0:
+        print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
+        print('  ricgraph_properties_hidden and/or ricgraph_properties_additional')
+        print('  is empty in Ricgraph ini file, exiting.')
+        print('Note, in Ricgraph v1.5, file "ricgraph.ini" has changed,')
+        print('   you might want to update it based on "ricgraph.ini-sample".')
         exit(1)
 
-    # For more explantion, see file docs/ricgraph_install_configure.md,
+    if RICGRAPH_PROPERTIES_STANDARD[0] == '' \
+       or RICGRAPH_PROPERTIES_HIDDEN[0] == '' \
+       or RICGRAPH_PROPERTIES_ADDITIONAL[0] == '':
+        print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
+        print('  ricgraph_properties_hidden and/or ricgraph_properties_additional')
+        print('  is empty in Ricgraph ini file, exiting.')
+        print('Note, in Ricgraph v1.5, file "ricgraph.ini" has changed,')
+        print('   you might want to update it based on "ricgraph.ini-sample".')
+        exit(1)
+
+    # For more explanation, see file docs/ricgraph_install_configure.md,
     # section RICGRAPH_NODEADD_MODE.
     RICGRAPH_NODEADD_MODE = config['Ricgraph']['ricgraph_nodeadd_mode']
     if RICGRAPH_NODEADD_MODE != 'strict' and RICGRAPH_NODEADD_MODE != 'lenient':
@@ -1596,7 +1627,11 @@ try:
     else:
         print('Ricgraph is using "' + RICGRAPH_NODEADD_MODE + '" for ricgraph_nodeadd_mode.')
 except KeyError:
-    print('Ricgraph initialization: error, allowed_ricgraph_properties not found in Ricgraph ini file, exiting.')
+    print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
+    print('  ricgraph_properties_hidden and/or ricgraph_properties_additional and/or ricgraph_nodeadd_mode')
+    print('  not found in Ricgraph ini file, exiting.')
+    print('Note, in Ricgraph v1.5, file "ricgraph.ini" has changed,')
+    print('   you might want to update it based on "ricgraph.ini-sample".')
     exit(1)
 
 try:

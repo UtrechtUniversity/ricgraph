@@ -30,24 +30,35 @@
 #
 # This file is the initialization file for Ricgraph. 
 # Original version December 2022.
+# Updated April 2023.
 #
 # ########################################################################
 
 
 [Ricgraph]
+# ###############################################################
 # All nodes have the following standard properties:
 # name: name of the node, e.g. ISNI, ORCID, DOI, etc.
 # category: category of the node, e.g. person, person-root, book, 
 #	    journal article, dataset, etc.
 # value: value of the node
 # _key: key value of the node, not to be modified by the user
-# _history: list of history events of the node, not to be modified by the user
 # _source: sorted list of sources a record has been harvested from, 
 #	   not to be modified by the user
+# _history: list of history events of the node, not to be modified by the user
 #
+# Do not change these two entries. Don't use spaces, quotes or new lines.
+ricgraph_properties_standard = name,category,value
+ricgraph_properties_hidden = _key,_source,_history
+# ###############################################################
+
+# ###############################################################
 # Additional properties for nodes, make sure 'history_event' is last.
 # Don't use spaces, quotes or new lines in this entry.
-allowed_ricgraph_properties = comment,url_main,url_other,year,source_event,history_event
+ricgraph_properties_additional = comment,url_main,url_other,year,source_event,history_event
+# ###############################################################
+
+# ###############################################################
 # Ricgraph has two modes to add nodes.
 # Your choice will influence the way nodes are added to Ricgraph.
 # For an explanation how this works, see
@@ -55,9 +66,11 @@ allowed_ricgraph_properties = comment,url_main,url_other,year,source_event,histo
 # Possible values: strict, lenient. Choose one of these, don't use quotes.
 #ricgraph_nodeadd_mode = lenient
 ricgraph_nodeadd_mode = strict
+# ###############################################################
 
 
 [Organization]
+# ###############################################################
 # Information about your organization.
 # The name of your organization (without quotes):
 organization_name = 
@@ -65,9 +78,11 @@ organization_name =
 # Find yours on https://ror.org. 
 # The ROR of your organization (without quotes and without 'https://ror.org/'):
 organization_ror = 
+# ###############################################################
 
 
 [Neo4j]
+# ###############################################################
 # Ricgraph uses Neo4j as graph database, https://neo4j.com.
 # They have several products. Their free products are:
 # - Neo4j Desktop (https://neo4j.com/download-center/#desktop).
@@ -79,7 +94,9 @@ organization_ror =
 neo4j_hostname = localhost
 neo4j_user = neo4j
 neo4j_password = 
+# ###############################################################
 
+# ###############################################################
 # Choose either the parameters for Neo4j Desktop or Neo4j Community Edition. 
 # ### These parameters are for Neo4j Desktop ###
 # Neo4j desktop may tell you which port to use, default is 7687.
@@ -87,20 +104,24 @@ neo4j_scheme = bolt
 neo4j_port = 
 # ### End of parameters for Neo4j Desktop ###
 # ### These parameters are for Neo4j Community Edition ###
-# neo4j_scheme = neo4j
-# neo4j_port = 
+#neo4j_scheme = neo4j
+#neo4j_port = 
 # ### End of parameters for Neo4j Community Edition ###
+# ###############################################################
 
 
 [Pure_harvesting]
+# ###############################################################
 # The URL to Pure (without quotes):
 pure_url = 
 # You can obtain a Pure API key from your local Pure admin.
 # Your Pure API key (without quotes):
 pure_api_key = 
+# ###############################################################
 
 
 [Yoda_harvesting]
+# ###############################################################
 # With the following settings you will harvest Utrecht University datasets 
 # from Yoda, Utrecht University's data repository. 
 # They will be harvested from DataCite.
@@ -108,25 +129,31 @@ pure_api_key =
 yoda_url = https://oai.datacite.org/oai
 # The set to harvest (without quotes):
 yoda_set = delft.uu
+# ###############################################################
 
  
 [RSD_harvesting]
+# ###############################################################
 # With the following settings you will harvest Utrecht University software
 # from the Research Software Directory.
 # The URL to the Research Software Directory harvest (without quotes):
 rsd_url = https://research-software-directory.org
 # The organization to harvest (without quotes):
 rsd_organization = utrecht-university
+# ###############################################################
 
 
 [UU_staff_pages_harvesting]
+# ###############################################################
 # With the following settings you will harvest Utrecht University 
 # staff pages.
 # The URL to the API of the UU staff pages (without quotes):
 uustaff_url = 
+# ###############################################################
 
 
 [OpenAlex_harvesting]
+# ###############################################################
 # OpenAlex is a "fully open catalog of the global research system",
 # https://docs.openalex.org.
 # The URL to the API of OpenAlex (without quotes):
@@ -136,9 +163,13 @@ openalex_url = https://api.openalex.org
 # https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication#the-polite-pool
 # Your email address (without quotes):
 openalex_polite_pool_email = 
+# For OpenAlex, you also need to set parameters in the
+# [Organization] section of this file.
+# ###############################################################
 
 
 [Scopus_harvesting]
+# ###############################################################
 # You can obtain a Scopus API key from the Elsevier Developer Portal, 
 # "Request an API key", https://dev.elsevier.com.
 # This key will only give you "on campus" access to the Elsevier API.
@@ -150,4 +181,5 @@ scopus_api_key =
 # https://service.elsevier.com/app/home/supporthub/dataasaservice.
 # Your Scopus Institutional Token (without quotes):
 scopus_institutional_token = 
+# ###############################################################
 
