@@ -33,7 +33,7 @@ identifiers:
     value: "10.5281/zenodo.7780744"
   - description: "Ricgraph DOI v1.5"
     type: doi
-    value: "10.5281/zenodo.XXXXXX"
+    value: "10.5281/zenodo.7798848"
 abstract: >-
   Ricgraph (Research in context graph) is a graph
   (https://en.wikipedia.org/wiki/Graph_theory) with nodes (sometimes called
