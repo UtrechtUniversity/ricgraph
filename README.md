@@ -32,6 +32,14 @@ Modification of metadata of an object is
 done in the source system the object was
 harvested from, and then reharvesting of that source system.
 
+To learn more about Ricgraph, 
+[read why Ricgraph has been developed](#why-ricgraph), including
+[an example](#example). This is followed
+[by a description how Ricgraph can be used](#what-can-ricgraph-do). There is also
+[a section with next steps you might want to take](#next-steps).
+You can also look at
+the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md).
+
 ## Why Ricgraph?
 
 Ricgraph has been developed because a university had a need to be able to show
@@ -60,8 +68,6 @@ again one step (edge) away.
 In the remainder of this text, Ricgraph is described in the use case of
 showing people, organizations and research outputs in relation to each other
 in a university context.
-You can also look at 
-the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md).
 
 ### Example
 
@@ -129,11 +135,12 @@ Some of Ricgraph's features are:
 * To query, visualize and explore the graph, 
   see [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
 
-## How can you use Ricgraph?
+## Next steps
 
 * Read more about [Ricgraph details](docs/ricgraph_details.md),
   such as example graphs, person identifiers and the *person-root* node.
 * Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md).
+* You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
 * Write code, or start reusing code,
   see the [Ricgraph programming examples](docs/ricgraph_programming_examples.md).
