@@ -5,6 +5,8 @@ from various sources and
 combine them into one data structure. This section will give a short
 explanation of some of these approaches and how they compare to Ricgraph.
 
+[Return to main README.md file](../README.md).
+
 ### General overview
 
 | name                                                                           | data structure               | how does it obtain data?                                                                                        | fields (entities) in system                                                                                        | maturity                           |
@@ -16,7 +18,7 @@ explanation of some of these approaches and how they compare to Ricgraph.
 | [Lens](https://www.lens.org)                                                   | relational                   | harvesting of many sources, e.g. Microsoft Academic, Crossref, ORCID, Pubmed, EPO, USPTO, ...                   | research outputs, people, publishers, patents, organizations                                                       | mature                             | 
 | [OpenAire graph](https://graph.openaire.eu)                                    | graph                        | harvesting of institutional, data, and software repositories, and many other (ca 70.000 sources)                | research outputs, people, organizations, funders, funding streams, projects, communities                           | mature                             | 
 | [OpenAlex](https://openalex.org)                                               | NoSQL (unstructured)         | harvesting of many sources, e.g. Microsoft Academic, Crossref, ORCID, ROR, Pubmed, Internet Archive, ...        | research outputs, people, organizations, publishers, concepts, geo info                                            | mature                             | 
-| [Research.fi](https://research.fi/en)                                          | asp.net, probably relational | harvesting of Finnish institutional repositories and funder systems                                             | publications, people (beta), projects, research data, funding calls, infrastructures, organizations                | mature                             | 
+| [Research.fi](https://research.fi/en/)                                         | asp.net, probably relational | harvesting of Finnish institutional repositories and funder systems                                             | publications, people (beta), projects, research data, funding calls, infrastructures, organizations                | mature                             | 
 
 All of these systems only store metadata, they do not store objects (e.g. pdfs, data files, software, etc).
 Often they store the link to the object.
@@ -28,14 +30,17 @@ That also means that it will not be easy to extend these to your own needs (see 
 since one will need large computer facilities to host these systems 
 and the data they contain.
 
-Ricgraph follows a different approach: one makes a selection of sources to harvest that are 
-important to a user or organization. 
-This can be done by creating harvest scripts, and harvesting
-only that information that is relevant for a certain purpose. One of the example harvest
-scripts harvests the Utrecht University staff pages, which cannot be harvested by other organizations
+Ricgraph follows a different approach: by selecting sources to harvest that are 
+important to a user or organization, one is able to create a system that perfectly suits 
+a certain information need of that person or organization. 
+In creating harvest scripts, it is possible to harvest
+only that information that is relevant for a certain purpose. 
+For example, one of the example harvest
+scripts harvests the Utrecht University staff pages. 
+These pages cannot be harvested by other organizations
 due to the privileges required. Also, it is possible to harvest a source that is internal
 to an organization. 
-Ricgraph can be installed on any internal or external system according to your needs,
+Ricgraph can be installed on any internal or external accessible system according to your needs,
 so the data in Ricgraph is only accessible for persons of a certain organization,
 or for anyone.
 
