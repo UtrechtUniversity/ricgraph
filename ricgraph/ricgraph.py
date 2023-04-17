@@ -113,6 +113,15 @@ from py2neo.matching import *
 import numpy
 import pandas
 
+
+__author__ = 'Rik D.T. Janssen'
+__copyright__ = 'Copyright (c) 2023 Rik D.T. Janssen'
+__email__ = ''
+__license__ = 'MIT License'
+__package__ = 'Ricgraph'
+__version__ = ''
+
+
 LINKS_TO = Relationship.type('LINKS_TO')
 RICGRAPH_INI_FILE = '../ricgraph.ini'
 
@@ -175,7 +184,7 @@ def open_ricgraph() -> Graph:
     """
     global _graph
 
-    print('Opening ricgraph...\n')
+    print('Opening ricgraph.\n')
     try:
         _graph = Graph(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD))
     except:
@@ -194,7 +203,7 @@ def close_ricgraph() -> None:
     """
     global _graph
 
-    print('Closing ricgraph...\n')
+    print('Closing ricgraph.\n')
     # Seems to be done automatically, so no actual call.
     # In this way it is nicely symmetrical to open_ricgraph().
     return
@@ -299,6 +308,8 @@ def create_well_known_url(name: str, value: str) -> str:
         return 'https://openalex.org/' + value
     elif name == 'ORCID':
         return 'https://orcid.org/' + value
+    elif name == 'RESEARCHER_ID':
+        return 'https://www.webofscience.com/wos/author/record/' + value
     elif name == 'ROR':
         return 'https://ror.org/' + value
     elif name == 'SCOPUS_AUTHOR_ID':
@@ -1583,6 +1594,54 @@ def write_dataframe_to_csv(filename: str, df: pandas.DataFrame) -> None:
     return
 
 
+def print_commandline_arguments(argument_list: list) -> None:
+    """Print the script name and all command line arguments.
+
+    :param argument_list: the argument list.
+    :return: None.
+    """
+    if len(argument_list) == 0:
+        print('print_commandline_arguments(): Error, empty argument_list passed, exiting.')
+        exit(1)
+
+    print('\nScript name: ' + argument_list[0])
+    if len(argument_list) == 1:
+        print('Command line arguments: [none]')
+    else:
+        print('Command line arguments: '
+              + ' '.join([str(arg) for arg in argument_list[1:]])
+              + '\n')
+    return
+
+
+def get_commandline_argument(argument: str, argument_list: list) -> str:
+    """Get the value of a command line argument
+
+    :param argument: the command line argument name.
+    :param argument_list: the argument list.
+    :return: the value that belongs to 'argument'.
+    """
+    length = len(argument_list)
+    if length == 0:
+        print('get_commandline_argument(): Error, empty argument_list passed, exiting.')
+        exit(1)
+
+    if str(argument) == '':
+        # No argument passed.
+        return ''
+
+    if length == 1:
+        # The argument list contains the script name only.
+        return ''
+
+    for i in range(1, length - 1):
+        if str(argument_list[i]) == str(argument):
+            if i + 1 <= length:
+                # Only get the next index if we are still in the array bounds.
+                return str(argument_list[i + 1])
+    return ''
+
+
 # ############################################
 # ################### main ###################
 # ############################################
@@ -1602,9 +1661,7 @@ try:
        or len(RICGRAPH_PROPERTIES_ADDITIONAL) == 0:
         print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
         print('  ricgraph_properties_hidden and/or ricgraph_properties_additional')
-        print('  is empty in Ricgraph ini file, exiting.')
-        print('Note, in Ricgraph v1.5, file "ricgraph.ini" has changed,')
-        print('   you might want to update it based on "ricgraph.ini-sample".')
+        print('  are empty in Ricgraph ini file, exiting.')
         exit(1)
 
     if RICGRAPH_PROPERTIES_STANDARD[0] == '' \
@@ -1612,9 +1669,7 @@ try:
        or RICGRAPH_PROPERTIES_ADDITIONAL[0] == '':
         print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
         print('  ricgraph_properties_hidden and/or ricgraph_properties_additional')
-        print('  is empty in Ricgraph ini file, exiting.')
-        print('Note, in Ricgraph v1.5, file "ricgraph.ini" has changed,')
-        print('   you might want to update it based on "ricgraph.ini-sample".')
+        print('  are empty in Ricgraph ini file, exiting.')
         exit(1)
 
     # For more explanation, see file docs/ricgraph_install_configure.md,
@@ -1630,8 +1685,6 @@ except KeyError:
     print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
     print('  ricgraph_properties_hidden and/or ricgraph_properties_additional and/or ricgraph_nodeadd_mode')
     print('  not found in Ricgraph ini file, exiting.')
-    print('Note, in Ricgraph v1.5, file "ricgraph.ini" has changed,')
-    print('   you might want to update it based on "ricgraph.ini-sample".')
     exit(1)
 
 try:

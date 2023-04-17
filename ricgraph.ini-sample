@@ -29,8 +29,23 @@
 # ########################################################################
 #
 # This file is the initialization file for Ricgraph. 
-# Original version December 2022.
-# Updated April 2023.
+# Original version Rik D.T. Janssen, December 2022.
+# Updated Rik D.T. Janssen, April 2023.
+#
+# ########################################################################
+# 
+# What is 'organization abbreviation'?
+# This is a string of a few letters, which can be passed to some harvest
+# scripts to determine for which organisation such a script will harvest
+# data.  Examples are UU, UMCU, DUT, EUR, etc, see below.
+#
+# You will see this in keys such as 'organization_name_UU' or
+# 'organization_name_UMCU'. The general format is 'key_XXXX,' with 'XXXX' 
+# the 'organization abbreviation'.
+# If your organization abbreviation is not in this file, feel free to add. 
+# You can take any (short) string and pass it to a harvest script. You only
+# need to insert key and value for the organization(s) you are planning
+# to harvest.
 #
 # ########################################################################
 
@@ -72,12 +87,31 @@ ricgraph_nodeadd_mode = strict
 [Organization]
 # ###############################################################
 # Information about your organization.
+# Add your own 'organization abbreviation' if it is not present.
+# Format: organization_name_XXXX with 'XXXX' the organization abbreviation.
+# You only need key and value for the organization(s) you are planning
+# to harvest.
 # The name of your organization (without quotes):
-organization_name = 
+organization_name_UU = Utrecht University
+organization_name_UMCU = University Medical Center Utrecht
+organization_name_DUT = Delft University of Technology
+organization_name_EUR = Erasmus University Rotterdam
+organization_name_EUT = Eindhoven University of Technology
+organization_name_UG = University of Groningen
+organization_name_VU = Vrije Universiteit Amsterdam
+#
 # ROR is a global open persistent identifier for research organizations.
 # Find yours on https://ror.org. 
+# Add your own 'organization abbreviation' if it is not present. You only 
+# need key and value for the organization(s) you are planning to harvest.
 # The ROR of your organization (without quotes and without 'https://ror.org/'):
-organization_ror = 
+organization_ror_UU = 
+organization_ror_UMCU = 
+organization_ror_DUT = 
+organization_ror_EUR = 
+organization_ror_EUT = 
+organization_ror_UG = 
+organization_ror_VU = 
 # ###############################################################
 
 
@@ -93,7 +127,7 @@ organization_ror =
 # Graph database parameters:
 neo4j_hostname = localhost
 neo4j_user = neo4j
-neo4j_password = 
+neo4j_password =
 # ###############################################################
 
 # ###############################################################
@@ -105,18 +139,38 @@ neo4j_port =
 # ### End of parameters for Neo4j Desktop ###
 # ### These parameters are for Neo4j Community Edition ###
 #neo4j_scheme = neo4j
-#neo4j_port = 
+#neo4j_port = 7687
 # ### End of parameters for Neo4j Community Edition ###
 # ###############################################################
 
 
 [Pure_harvesting]
 # ###############################################################
-# The URL to Pure (without quotes):
-pure_url = 
+# The URL to Pure portal.
+# Add your own 'organization abbreviation' if it is not present.
+# Format: pure_url_XXXX with 'XXXX' the organization abbreviation.
+# You only need key and value for the organization(s) you are planning
+# to harvest.
+# Your URL to Pure portal (without quotes):
+pure_url_UU = 
+pure_url_UMCU =
+pure_url_DUT =
+pure_url_EUR =
+pure_url_EUT =
+pure_url_UG =
+pure_url_VU =
+#
 # You can obtain a Pure API key from your local Pure admin.
+# Add your own 'organization abbreviation' if it is not present. You only 
+# need key and value for the organization(s) you are planning to harvest.
 # Your Pure API key (without quotes):
-pure_api_key = 
+pure_api_key_UU = 
+pure_api_key_UMCU =
+pure_api_key_DUT =
+pure_api_key_EUR =
+pure_api_key_EUT =
+pure_api_key_UG =
+pure_api_key_VU =
 # ###############################################################
 
 
@@ -127,6 +181,7 @@ pure_api_key =
 # They will be harvested from DataCite.
 # The URL to Yoda Datacite harvest (without quotes):
 yoda_url = https://oai.datacite.org/oai
+#
 # The set to harvest (without quotes):
 yoda_set = delft.uu
 # ###############################################################
@@ -134,12 +189,23 @@ yoda_set = delft.uu
  
 [RSD_harvesting]
 # ###############################################################
-# With the following settings you will harvest Utrecht University software
+# With the following settings you will harvest software
 # from the Research Software Directory.
 # The URL to the Research Software Directory harvest (without quotes):
 rsd_url = https://research-software-directory.org
+#
+# Add your own 'organization abbreviation' if it is not present.
+# Format: rsd_organization_XXXX with 'XXXX' the organization abbreviation.
+# You only need key and value for the organization(s) you are planning
+# to harvest.
 # The organization to harvest (without quotes):
-rsd_organization = utrecht-university
+rsd_organization_UU = utrecht-university
+rsd_organization_UMCU = university-medical-center-utrecht
+rsd_organization_DUT = delft-university-of-technology
+rsd_organization_EUR = erasmus-university-rotterdam
+rsd_organization_EUT = eindhoven-university-of-technology
+rsd_organization_UG = university-of-groningen
+rsd_organization_VU = vu-university-amsterdam
 # ###############################################################
 
 
@@ -158,11 +224,13 @@ uustaff_url =
 # https://docs.openalex.org.
 # The URL to the API of OpenAlex (without quotes):
 openalex_url = https://api.openalex.org
-# They don't require authentication, you can join a "polite pool" which offers
-# faster and consistent response times:
+#
+# OpenAlex doesn't require authentication, you can join a "polite pool" 
+# which offers faster and consistent response times, see
 # https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication#the-polite-pool
 # Your email address (without quotes):
 openalex_polite_pool_email = 
+#
 # For OpenAlex, you also need to set parameters in the
 # [Organization] section of this file.
 # ###############################################################
@@ -175,6 +243,7 @@ openalex_polite_pool_email =
 # This key will only give you "on campus" access to the Elsevier API.
 # Your Scopus API key (without quotes):
 scopus_api_key = 
+#
 # If you need off campus access (e.g. from home), you'll need a
 # "Scopus Institutional Token". You can request this from Elsevier using the
 # email contact button on 

@@ -35,11 +35,31 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, March 2023.
+# Updated Rik D.T. Janssen, April 2023.
+#
+# ########################################################################
+#
+# Usage
+# harvest_openalex_to_ricgraph.py [options]
+#
+# Options:
+#   --empty_ricgraph <yes|no>
+#           'yes': Ricgraph will be emptied before harvesting.
+#           'no': Ricgraph will not be emptied before harvesting.
+#           If this option is not present, the script will prompt the user
+#           what to do.
+#   --organization <organization abbreviation>
+#           Harvest data from organization <organization abbreviation>.
+#           The organization abbreviations are specified in the Ricgraph ini
+#           file.
+#           If this option is not present, the script will prompt the user
+#           what to do.
 #
 # ########################################################################
 
 
 import os.path
+import sys
 import re
 import pandas
 from datetime import datetime
@@ -61,6 +81,7 @@ OPENALEX_HEADERS = {'Accept': 'application/json'
 global OPENALEX_URL
 global ORGANIZATION_ROR
 global ORGANIZATION_NAME
+global HARVEST_SOURCE
 
 # ######################################################
 # Parameters for harvesting persons and research outputs from OpenAlex
@@ -127,7 +148,7 @@ def lookup_resout_type_openalex(type_uri: str) -> str:
     elif end.startswith('other') or end.startswith('report'):
         return 'other contribution'
     else:
-        print('lookup_resout_type_openalex(): unknown OpenAlex output type: "' + end + '".')
+        print('lookup_resout_type_openalex(): unknown ' + HARVEST_SOURCE + ' output type: "' + end + '".')
         return 'unknown'
 
 
@@ -218,16 +239,16 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
 
             parse_line = {}
             parse_line['OPENALEX'] = openalex_id
-            parse_line['DOI'] = str(rewrite_openalex_doi(harvest_item['doi']))
+            parse_line['DOI'] = str(rewrite_openalex_doi(doi=harvest_item['doi']))
             parse_line['TITLE'] = str(harvest_item['title'])
             if 'publication_year' in harvest_item:
                 parse_line['YEAR'] = str(harvest_item['publication_year'])
             else:
                 parse_line['YEAR'] = ''
             if harvest_item['type'] is None:
-                parse_line['TYPE'] = str(lookup_resout_type_openalex(''))
+                parse_line['TYPE'] = str(lookup_resout_type_openalex(type_uri=''))
             else:
-                parse_line['TYPE'] = str(lookup_resout_type_openalex(harvest_item['type']))
+                parse_line['TYPE'] = str(lookup_resout_type_openalex(type_uri=harvest_item['type']))
             parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
@@ -254,8 +275,7 @@ def harvest_and_parse_openalex(harvest_year: str,
     :param harvest_filename: filename to write harvest results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-
-    print('Harvesting persons and research outputs from OpenAlex...')
+    print('Harvesting persons and research outputs from ' + HARVEST_SOURCE + '...')
     if not OPENALEX_HARVEST_FROM_FILE:
         url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT + '?filter=institutions.ror:' + ORGANIZATION_ROR
         url += ',publication_year:' + harvest_year + '&select=' + OPENALEX_FIELDS
@@ -270,7 +290,7 @@ def harvest_and_parse_openalex(harvest_year: str,
 
     harvest_data = rcg.read_json_from_file(filename=harvest_filename)
     parse = parse_openalex(harvest=harvest_data)
-    print('The harvested persons and research outputs from OpenAlex are:')
+    print('The harvested persons and research outputs from ' + HARVEST_SOURCE + ' are:')
     print(parse)
     return parse
 
@@ -285,10 +305,10 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting persons from OpenAlex in Ricgraph...')
+    print('Inserting persons from ' + HARVEST_SOURCE + ' in Ricgraph...')
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d-%H%M%S")
-    history_event = 'Source: Harvest OpenAlex persons at ' + timestamp + '.'
+    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' persons at ' + timestamp + '.'
 
     # The order of the columns in the DataFrame below is not random.
     # A good choice is to have in the first two columns:
@@ -302,10 +322,10 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('The following persons from OpenAlex will be inserted in Ricgraph:')
+    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(person_identifiers)
     rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event='OpenAlex',
+                                   source_event=HARVEST_SOURCE,
                                    history_event=history_event)
 
     organizations = parsed_content[['OPENALEX', 'ROR']].copy(deep=True)
@@ -317,16 +337,16 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                 'name2': 'ROR',
                                 'category2': 'organization',
                                 'comment2': ORGANIZATION_NAME,
-                                'source_event2': 'OpenAlex',
+                                'source_event2': HARVEST_SOURCE,
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)
     organizations = organizations[['name1', 'category1', 'value1',
                                    'name2', 'category2', 'value2', 'comment2',
                                    'source_event2', 'history_event2']]
 
-    print('The following organizations from persons from OpenAlex will be inserted in Ricgraph:')
+    print('The following organizations from persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(organizations)
-    rcg.create_nodepairs_and_edges_df(organizations)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
     print('\nDone.\n')
     return
 
@@ -337,10 +357,10 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting research outputs from OpenAlex in Ricgraph...')
+    print('Inserting research outputs from ' + HARVEST_SOURCE + ' in Ricgraph...')
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d-%H%M%S")
-    history_event = 'Source: Harvest OpenAlex research outputs at ' + timestamp + '.'
+    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' research outputs at ' + timestamp + '.'
 
     resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
     resout.dropna(axis=0, how='all', inplace=True)
@@ -351,7 +371,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                            'YEAR': 'year1',
                            'OPENALEX': 'value2'}, inplace=True)
     new_resout_columns = {'name1': 'DOI',
-                          'source_event1': 'OpenAlex',
+                          'source_event1': HARVEST_SOURCE,
                           'history_event1': history_event,
                           'name2': 'OPENALEX',
                           'category2': 'person'}
@@ -360,9 +380,9 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                      'source_event1', 'history_event1',
                      'name2', 'category2', 'value2']]
 
-    print('The following research outputs from OpenAlex will be inserted in Ricgraph:')
+    print('The following research outputs from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(resout)
-    rcg.create_nodepairs_and_edges_df(resout)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
     print('\nDone.\n')
     return
 
@@ -374,19 +394,39 @@ if not os.path.exists(rcg.RICGRAPH_INI_FILE):
     print('Error, Ricgraph ini file "' + rcg.RICGRAPH_INI_FILE + '" not found, exiting.')
     exit(1)
 
+rcg.print_commandline_arguments(argument_list=sys.argv)
+
+organization = rcg.get_commandline_argument(argument='--organization',
+                                            argument_list=sys.argv)
+if organization == '':
+    print('You need to specify an organization abbreviation. This script will be run for that organization.')
+    print('The organization abbreviation you enter will determine which parameters will be read from')
+    print('the Ricgraph ini file. If you make a typo, you can run this script again.')
+    print('If you enter an empty value, this script will exit.')
+    organization = input('For what organization do you want to run this script? ')
+    if organization == '':
+        print('Exiting.\n')
+        exit(1)
+
 config = configparser.ConfigParser()
 config.read(rcg.RICGRAPH_INI_FILE)
+org_name = 'organization_name_' + organization
+org_ror = 'organization_ror_' + organization
 try:
-    ORGANIZATION_NAME = config['Organization']['organization_name']
-    ORGANIZATION_ROR = config['Organization']['organization_ror']
+    ORGANIZATION_NAME = config['Organization'][org_name]
+    ORGANIZATION_ROR = config['Organization'][org_ror]
     if ORGANIZATION_NAME == '' or ORGANIZATION_ROR == '':
-        print('Ricgraph initialization: error, organization_name or organization_ror '
-              + 'empty in Ricgraph ini file, exiting.')
+        print('\nRicgraph initialization: error, "'
+              + org_name + '" or "' + org_ror
+              + '" empty in Ricgraph ini file, exiting.')
         exit(1)
 except KeyError:
-    print('Ricgraph initialization: error, organization_name or organization_ror '
-          + 'not found in Ricgraph ini file, exiting.')
+    print('\nRicgraph initialization: error, "'
+          + org_name + '" or "' + org_ror
+          + '" not found in Ricgraph ini file, exiting.')
     exit(1)
+
+HARVEST_SOURCE = 'OpenAlex-' + organization
 
 try:
     # The OpenAlex 'polite pool' has much faster and more consistent response times.
@@ -396,40 +436,46 @@ try:
     OPENALEX_URL = config['OpenAlex_harvesting']['openalex_url']
     email = config['OpenAlex_harvesting']['openalex_polite_pool_email']
     if OPENALEX_URL == '' or email == '':
-        print('Ricgraph initialization: error, openalex_url or openalex_polite_pool_email '
+        print('\nRicgraph initialization: error, openalex_url or openalex_polite_pool_email '
               + 'empty in Ricgraph ini file, exiting.')
         exit(1)
     OPENALEX_HEADERS['User-Agent'] = 'mailto:' + email
 except KeyError:
-    print('Ricgraph initialization: error, openalex_url or openalex_polite_pool_email '
+    print('\nRicgraph initialization: error, openalex_url or openalex_polite_pool_email '
           + 'not found in Ricgraph ini file, exiting.')
     exit(1)
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()
 
-# Empty Ricgraph, choose one of the following.
-# rcg.empty_ricgraph(answer='yes')
-# rcg.empty_ricgraph(answer='no')
-rcg.empty_ricgraph()
+empty_graph = rcg.get_commandline_argument(argument='--empty_ricgraph',
+                                           argument_list=sys.argv)
+if empty_graph == '':
+    # Empty Ricgraph, choose one of the following.
+    # rcg.empty_ricgraph(answer='yes')
+    # rcg.empty_ricgraph(answer='no')
+    rcg.empty_ricgraph()
+else:
+    rcg.empty_ricgraph(answer=empty_graph)
 
 for year in OPENALEX_RESOUT_YEARS:
-    print('Harvesting persons and research outputs from OpenAlex for year ' + year + '.')
-    harvest_filename_year = OPENALEX_HARVEST_FILENAME.split('.')[0] \
-                            + '-' + year + '.' \
-                            + OPENALEX_HARVEST_FILENAME.split('.')[1]
-    data_filename_year = OPENALEX_DATA_FILENAME.split('.')[0] \
-                         + '-' + year + '.' \
-                         + OPENALEX_DATA_FILENAME.split('.')[1]
+    print('Harvesting persons and research outputs from ' + HARVEST_SOURCE + ' for year ' + year + '.')
+    harvest_file_year = OPENALEX_HARVEST_FILENAME.split('.')[0] \
+                        + '-' + year + '-' + organization + '.' \
+                        + OPENALEX_HARVEST_FILENAME.split('.')[1]
+    data_file_year = OPENALEX_DATA_FILENAME.split('.')[0] \
+                     + '-' + year + '-' + organization + '.' \
+                     + OPENALEX_DATA_FILENAME.split('.')[1]
     parse_persons_resout = harvest_and_parse_openalex(harvest_year=year,
                                                       headers=OPENALEX_HEADERS,
-                                                      harvest_filename=harvest_filename_year)
+                                                      harvest_filename=harvest_file_year)
 
-    if parse_persons_resout is None:
-        print('There are no persons or research outputs from OpenAlex to harvest.\n')
+    if parse_persons_resout is None or parse_persons_resout.empty:
+        print('There are no persons or research outputs from ' + HARVEST_SOURCE + ' to harvest.\n')
     else:
-        rcg.write_dataframe_to_csv(data_filename_year, parse_persons_resout)
-        parsed_persons_to_ricgraph(parse_persons_resout)
-        parsed_resout_to_ricgraph(parse_persons_resout)
+        rcg.write_dataframe_to_csv(filename=data_file_year,
+                                   df=parse_persons_resout)
+        parsed_persons_to_ricgraph(parsed_content=parse_persons_resout)
+        parsed_resout_to_ricgraph(parsed_content=parse_persons_resout)
 
 rcg.close_ricgraph()

@@ -35,12 +35,31 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Update January 11, 2023.
+# Updated Rik D.T. Janssen, April, 2023.
+#
+# ########################################################################
+#
+# Usage
+# harvest_rsd_to_ricgraph.py [options]
+#
+# Options:
+#   --empty_ricgraph <yes|no>
+#           'yes': Ricgraph will be emptied before harvesting.
+#           'no': Ricgraph will not be emptied before harvesting.
+#           If this option is not present, the script will prompt the user
+#           what to do.
+#   --organization <organization abbreviation>
+#           Harvest data from organization <organization abbreviation>.
+#           The organization abbreviations are specified in the Ricgraph ini
+#           file.
+#           If this option is not present, the script will prompt the user
+#           what to do.
 #
 # ########################################################################
 
 
 import os.path
+import sys
 from datetime import datetime
 import json
 import pandas
@@ -62,6 +81,7 @@ RSD_HEADERS = {
     'User-Agent': 'Harvesting from RSD'
 }
 global FULL_RSD_URL
+global HARVEST_SOURCE
 
 
 # ######################################################
@@ -164,7 +184,8 @@ def rsd_harvest_json_and_write_to_file(filename: str, url: str, headers: dict) -
     if len(json_data) == 0:
         return []
 
-    rcg.write_json_to_file(json_data=json_data, filename=filename)
+    rcg.write_json_to_file(json_data=json_data,
+                           filename=filename)
     return json_data
 
 
@@ -176,7 +197,7 @@ def harvest_and_parse_software(headers: dict, url: str, harvest_filename: str) -
     :param harvest_filename: filename to write harvest results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-    print('Harvesting software from Research Software Directory...')
+    print('Harvesting software packages from ' + HARVEST_SOURCE + '...')
     retval = rsd_harvest_json_and_write_to_file(filename=harvest_filename,
                                                 url=url,
                                                 headers=headers)
@@ -187,7 +208,7 @@ def harvest_and_parse_software(headers: dict, url: str, harvest_filename: str) -
     harvest_data = rcg.read_json_from_file(filename=harvest_filename)
     parse = parse_rsd_software(harvest=harvest_data)
 
-    print('The harvested software is:')
+    print('The harvested software packages are:')
     print(parse)
     return parse
 
@@ -202,10 +223,10 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting software from Research Software Directory in Ricgraph...')
+    print('Inserting software packages from ' + HARVEST_SOURCE + ' in Ricgraph...')
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d-%H%M%S")
-    history_event = 'Source: Harvest Research Software Directory at ' + timestamp + '.'
+    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' at ' + timestamp + '.'
 
     person_identifiers = parsed_content[['orcid', 'FULL_NAME']].copy(deep=True)
     person_identifiers.rename(columns={'orcid': 'ORCID'}, inplace=True)
@@ -213,10 +234,11 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('The following persons from Research Software Directory will be inserted in Ricgraph:')
+    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(person_identifiers)
     rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event='Research Software Directory', history_event=history_event)
+                                   source_event=HARVEST_SOURCE,
+                                   history_event=history_event)
 
     software = parsed_content.copy(deep=True)
     software.dropna(axis=0, how='all', inplace=True)
@@ -228,22 +250,21 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                              'orcid': 'value2'}, inplace=True)
     new_software_columns = {'name1': 'DOI',
                             'category1': 'software',
-                            'source_event1': 'Research Software Directory',
+                            'source_event1': HARVEST_SOURCE,
                             'history_event1': history_event,
                             'name2': 'ORCID',
                             'category2': 'person',
-                            'source_event2': 'Research Software Directory',
-                            'history_event2': history_event,
-                            }
+                            'source_event2': HARVEST_SOURCE,
+                            'history_event2': history_event}
     software = software.assign(**new_software_columns)
     software = software[['name1', 'category1', 'value1', 'comment1', 'year1', 'url_other1',
                          'source_event1', 'history_event1',
                          'name2', 'category2', 'value2',
                          'source_event2', 'history_event2']]
 
-    print('The following software outputs from Research Software Directory will be inserted in Ricgraph:')
+    print('The following software packages from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(software)
-    rcg.create_nodepairs_and_edges_df(software)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=software)
     print('\nDone.\n')
     return
 
@@ -255,35 +276,69 @@ if not os.path.exists(rcg.RICGRAPH_INI_FILE):
     print('Error, Ricgraph ini file "' + rcg.RICGRAPH_INI_FILE + '" not found, exiting.')
     exit(1)
 
+rcg.print_commandline_arguments(argument_list=sys.argv)
+
+organization = rcg.get_commandline_argument(argument='--organization',
+                                            argument_list=sys.argv)
+if organization == '':
+    print('You need to specify an organization abbreviation. This script will be run for that organization.')
+    print('The organization abbreviation you enter will determine which parameters will be read from')
+    print('the Ricgraph ini file. If you make a typo, you can run this script again.')
+    print('If you enter an empty value, this script will exit.')
+    organization = input('For what organization do you want to run this script? ')
+    if organization == '':
+        print('Exiting.\n')
+        exit(1)
+
 config = configparser.ConfigParser()
 config.read(rcg.RICGRAPH_INI_FILE)
+rsd_url = 'rsd_url'
+rsd_organization = 'rsd_organization_' + organization
 try:
-    RSD_URL = config['RSD_harvesting']['rsd_url']
-    RSD_ORGANIZATION = config['RSD_harvesting']['rsd_organization']
+    RSD_URL = config['RSD_harvesting'][rsd_url]
+    RSD_ORGANIZATION = config['RSD_harvesting'][rsd_organization]
     if RSD_URL == '' or RSD_ORGANIZATION == '':
-        print('Ricgraph initialization: error, rsd_url or rsd_organization empty in Ricgraph ini file, exiting.')
+        print('\nRicgraph initialization: error, "'
+              + rsd_url + '" or "' + rsd_organization
+              + '" empty in Ricgraph ini file, exiting.')
         exit(1)
 
     FULL_RSD_URL = RSD_URL + '/' + RSD_ENDPOINT + '?slug=eq.' + RSD_ORGANIZATION + '&select=' + RSD_FIELDS
 except KeyError:
-    print('Ricgraph initialization: error, rsd_url or rsd_organization not found in Ricgraph ini file, exiting.')
+    print('\nRicgraph initialization: error, "'
+          + rsd_url + '" or "' + rsd_organization
+          + '" not found in Ricgraph ini file, exiting.')
     exit(1)
+
+HARVEST_SOURCE = 'Research Software Directory-' + organization
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()
 
-# Empty Ricgraph, choose one of the following.
-# rcg.empty_ricgraph(answer='yes')
-# rcg.empty_ricgraph(answer='no')
-rcg.empty_ricgraph()
+empty_graph = rcg.get_commandline_argument(argument='--empty_ricgraph',
+                                           argument_list=sys.argv)
+if empty_graph == '':
+    # Empty Ricgraph, choose one of the following.
+    # rcg.empty_ricgraph(answer='yes')
+    # rcg.empty_ricgraph(answer='no')
+    rcg.empty_ricgraph()
+else:
+    rcg.empty_ricgraph(answer=empty_graph)
 
+harvest_file = RSD_HARVEST_FILENAME.split('.')[0] \
+               + '-' + organization + '.' \
+               + RSD_HARVEST_FILENAME.split('.')[1]
+data_file = RSD_DATA_FILENAME.split('.')[0] \
+            + '-' + organization + '.' \
+            + RSD_DATA_FILENAME.split('.')[1]
 rsd_data = harvest_and_parse_software(headers=RSD_HEADERS,
                                       url=FULL_RSD_URL,
-                                      harvest_filename=RSD_HARVEST_FILENAME)
-if rsd_data is None:
-    print('There is no software from Research Software Directory to harvest.\n')
+                                      harvest_filename=harvest_file)
+if rsd_data is None or rsd_data.empty:
+    print('There are no software packages from ' + HARVEST_SOURCE + ' to harvest.\n')
 else:
-    rcg.write_dataframe_to_csv(RSD_DATA_FILENAME, rsd_data)
-    parsed_software_to_ricgraph(rsd_data)
+    rcg.write_dataframe_to_csv(filename=data_file,
+                               df=rsd_data)
+    parsed_software_to_ricgraph(parsed_content=rsd_data)
 
 rcg.close_ricgraph()

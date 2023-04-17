@@ -35,11 +35,25 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
+# Updated Rik D.T. Janssen, April, 2023.
+#
+# ########################################################################
+#
+# Usage
+# harvest_yoda_datacite_to_ricgraph.py [options]
+#
+# Options:
+#   --empty_ricgraph <yes|no>
+#           'yes': Ricgraph will be emptied before harvesting.
+#           'no': Ricgraph will not be emptied before harvesting.
+#           If this option is not present, the script will prompt the user
+#           what to do.
 #
 # ########################################################################
 
 
 import os.path
+import sys
 from datetime import datetime
 import pandas
 import xmltodict
@@ -61,7 +75,7 @@ global YODA_URL
 
 def lookup_resout_type_datacite(type_uri: str) -> str:
     """Convert the Yoda datacite output type to an 'easier' output type.
-    Please have a look at lookup_resoutp_type_pure() in
+    Please have a look at lookup_resout_type_pure() in
     file harvest_pure_to_ricgraph.py to see which types can be recognized.
     This makes sure you will have the same types when harvesting from different sources.
 
@@ -70,17 +84,19 @@ def lookup_resout_type_datacite(type_uri: str) -> str:
     """
     if type(type_uri) == '':
         print('lookup_resout_type_datacite(): Yoda datacite research output has no type.')
-        return 'Yoda datacite research output has no type'
+        return 'empty'
 
-    if type_uri == 'Research Data':
-        return 'dataset'
-    elif type_uri == 'Computer code':
+    if type_uri == 'Computer code':
         return 'software'
+    elif type_uri == 'Method Description':
+        return 'method description'
+    elif type_uri == 'Research Data':
+        return 'dataset'
     elif type_uri == 'Other Document':
         return 'other contribution'
     else:
         print('lookup_resout_type_datacite(): unknown Yoda datacite output type: "' + type_uri + '".')
-        return 'unknown yoda datacite output type: ' + type_uri
+        return 'unknown'
 
 
 # ######################################################
@@ -167,8 +183,8 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
         #
         # end of: This code was originally written to parse all elements.
 
-        if item_in_full_record == 'creators' or \
-           item_in_full_record == 'contributors':
+        if item_in_full_record == 'creators' \
+           or item_in_full_record == 'contributors':
             # This is done below
             continue
         if item_in_full_record != 'fundingReferences':
@@ -245,7 +261,7 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
 
     datacite_data = pandas.DataFrame(rowdict)
     datacite_data['DOI_TYPE'] = datacite_data[['resourceType']].apply(
-        lambda row: lookup_resout_type_datacite(row['resourceType']), axis=1)
+        lambda row: lookup_resout_type_datacite(type_uri=row['resourceType']), axis=1)
     datacite_data['DOI'] = datacite_data['DOI'].str.lower()
     datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='', inplace=True)
     datacite_data['ISNI'].replace(regex=r'[ ]*', value='', inplace=True)
@@ -328,7 +344,9 @@ def harvest_and_parse_yoda_datacite_data(url: str, headers: dict, harvest_filena
     :param harvest_filename: filename to write harvest results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-    harvest_xml_and_write_to_file(url=url, headers=headers, harvest_filename=harvest_filename)
+    harvest_xml_and_write_to_file(url=url,
+                                  headers=headers,
+                                  harvest_filename=harvest_filename)
     with open(harvest_filename) as fd:
         doc = xmltodict.parse(fd.read())
 
@@ -370,7 +388,8 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     print('The following persons from Yoda will be inserted in Ricgraph:')
     print(person_identifiers)
     rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event='Yoda-DataCite', history_event=history_event)
+                                   source_event='Yoda-DataCite',
+                                   history_event=history_event)
 
     print('The following datasets (DOIs) from Yoda will be inserted in Ricgraph:')
     print(parsed_content)
@@ -382,29 +401,38 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                           year1=parsed_content['publicationYear'],
                                           source_event1='Yoda-DataCite',
                                           history_event1=history_event,
-                                          name2='ORCID', category2='person',
+                                          name2='ORCID',
+                                          category2='person',
                                           value2=parsed_content['ORCID'])
     # Don't need to add a source_event to the following calls, since we have already inserted
     # each source above, here we are connecting them.
     print('\nAdding DOIs and DIGITAL_AUTHOR_IDs...')
-    rcg.create_nodepairs_and_edges_params(name1='DOI', category1=parsed_content['DOI_TYPE'],
+    rcg.create_nodepairs_and_edges_params(name1='DOI',
+                                          category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
-                                          name2='DIGITAL_AUTHOR_ID', category2='person',
+                                          name2='DIGITAL_AUTHOR_ID',
+                                          category2='person',
                                           value2=parsed_content['DIGITAL_AUTHOR_ID'])
     print('\nAdding DOIs and SCOPUS_AUTHOR_IDs...')
-    rcg.create_nodepairs_and_edges_params(name1='DOI', category1=parsed_content['DOI_TYPE'],
+    rcg.create_nodepairs_and_edges_params(name1='DOI',
+                                          category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
-                                          name2='SCOPUS_AUTHOR_ID', category2='person',
+                                          name2='SCOPUS_AUTHOR_ID',
+                                          category2='person',
                                           value2=parsed_content['SCOPUS_AUTHOR_ID'])
     print('\nAdding DOIs and RESEARCHER_IDs...')
-    rcg.create_nodepairs_and_edges_params(name1='DOI', category1=parsed_content['DOI_TYPE'],
+    rcg.create_nodepairs_and_edges_params(name1='DOI',
+                                          category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
-                                          name2='RESEARCHER_ID', category2='person',
+                                          name2='RESEARCHER_ID',
+                                          category2='person',
                                           value2=parsed_content['RESEARCHER_ID'])
     print('\nAdding DOIs and ISNIs...')
-    rcg.create_nodepairs_and_edges_params(name1='DOI', category1=parsed_content['DOI_TYPE'],
+    rcg.create_nodepairs_and_edges_params(name1='DOI',
+                                          category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
-                                          name2='ISNI', category2='person',
+                                          name2='ISNI',
+                                          category2='person',
                                           value2=parsed_content['ISNI'])
     print('\nDone.\n')
     return
@@ -416,6 +444,8 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 if not os.path.exists(rcg.RICGRAPH_INI_FILE):
     print('Error, Ricgraph ini file "' + rcg.RICGRAPH_INI_FILE + '" not found, exiting.')
     exit(1)
+
+rcg.print_commandline_arguments(argument_list=sys.argv)
 
 config = configparser.ConfigParser()
 config.read(rcg.RICGRAPH_INI_FILE)
@@ -434,18 +464,24 @@ except KeyError:
 print('\nPreparing graph...')
 rcg.open_ricgraph()
 
-# Empty Ricgraph, choose one of the following.
-# rcg.empty_ricgraph(answer='yes')
-# rcg.empty_ricgraph(answer='no')
-rcg.empty_ricgraph()
+empty_graph = rcg.get_commandline_argument(argument='--empty_ricgraph',
+                                           argument_list=sys.argv)
+if empty_graph == '':
+    # Empty Ricgraph, choose one of the following.
+    # rcg.empty_ricgraph(answer='yes')
+    # rcg.empty_ricgraph(answer='no')
+    rcg.empty_ricgraph()
+else:
+    rcg.empty_ricgraph(answer=empty_graph)
 
 parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
                                                        headers=YODA_HEADERS,
                                                        harvest_filename=YODA_HARVEST_FILENAME)
-if parse_yoda_data is None:
+if parse_yoda_data is None or parse_yoda_data.empty:
     print('There are no data from Yoda to harvest.\n')
 else:
-    rcg.write_dataframe_to_csv(YODA_DATA_FILENAME, parse_yoda_data)
-    parsed_yoda_datacite_to_ricgraph(parse_yoda_data)
+    rcg.write_dataframe_to_csv(filename=YODA_DATA_FILENAME,
+                               df=parse_yoda_data)
+    parsed_yoda_datacite_to_ricgraph(parsed_content=parse_yoda_data)
 
 rcg.close_ricgraph()
