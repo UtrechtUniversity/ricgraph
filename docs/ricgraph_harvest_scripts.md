@@ -46,7 +46,7 @@ order](#order-of-running-the-harvest-scripts).
 ### Organization abbreviation
 Ricgraph uses the term *organization abbreviation*.
 This is a string of a few letters that can be passed to some harvest
-scripts to determine for which organisation such a script will harvest
+scripts to determine for which organization such a script will harvest
 data.  Examples are *UU* or *UMCU*.
 
 You will see this in keys in the
@@ -118,12 +118,12 @@ Options:
 With this script, you can harvest persons, organizations and research outputs.
 This script needs two parameters in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file):
-The url to Pure in *pure_url_XXXX* and the Pure API key in *pure_api_key_XXXX*.
+the url to Pure in *pure_url_XXXX*, and the Pure API key in *pure_api_key_XXXX*.
 *XXXX* is your [organization abbreviation](#organization-abbreviation).
 
 There is a lot of data in Pure, so your harvest may take a long time. You may
 reduce this by adjusting parameters at the start of the script. Look in the sections
-"Parameters for harvesting persons/organizations/research outputs from pure".
+"Parameters for harvesting persons/organizations/research outputs from Pure".
 E.g., for research outputs you can adjust
 the years to harvest with the parameter *PURE_RESOUT_YEARS* and the maximum number of
 records to harvest with *PURE_RESOUT_MAX_RECS_TO_HARVEST*.

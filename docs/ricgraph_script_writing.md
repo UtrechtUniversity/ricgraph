@@ -7,7 +7,7 @@ The module code *ricgraph.py* can be found in directory [ricgraph](../ricgraph).
 documented and hints to use it can be found in those files.
 
 For more information about harvesting data, 
-see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md).
+see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
 
 [Return to main README.md file](../README.md).
 
@@ -162,7 +162,7 @@ You can do the following to be able to use Neo4j Desktop and Ricgraph:
    an easy to type and short one
    since the DBMS will only be accessible from your own machine. Click "Create".
    Also, insert the password in field *neo4j_password* in
-   the [Ricgraph initialization file](#Ricgraph-initialization-file).
+   the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 1. Ready.
 
 ### Return to main README.md file
