@@ -131,33 +131,43 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
         if count % 20000 == 0:
             print('\n', end='', flush=True)
 
-        if 'Id' not in harvest_item:
-            # There must be an Id, otherwise skip.
-            continue
-        if 'NameShort' in harvest_item:
-            parse_line = {}
-            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
-            parse_line['FULL_NAME'] = str(harvest_item['NameShort'])
-            parse_chunk.append(parse_line)
         if 'Employee_Url' in harvest_item:
-            parse_line = {}
-            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
             path = pathlib.PurePath(harvest_item['Employee_Url'])
-            parse_line['UUSTAFF_PAGE_ID'] = str(path.name)
+            uustaff_page_id = str(path.name)
+            parse_line = {}
+            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
             parse_line['UUSTAFF_PAGE_URL'] = str(harvest_item['Employee_Url'])
             # Sometimes EmployeeUrl has 'https:/www...' instead of 'https://www...', repair.
             parse_line['UUSTAFF_PAGE_URL'] = re.sub(pattern=r'https:/www',
                                                     repl='https://www',
                                                     string=parse_line['UUSTAFF_PAGE_URL'])
             parse_chunk.append(parse_line)
+        else:
+            # There must be an Employee_Url (UUSTAFF_PAGE_ID), otherwise skip.
+            continue
+
+        if 'Id' in harvest_item:
+            parse_line = {}
+            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
+            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+            parse_chunk.append(parse_line)
+        else:
+            # There must be an Id (UUSTAFF_ID_PERS), otherwise skip.
+            continue
+
+        if 'NameShort' in harvest_item:
+            parse_line = {}
+            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
+            parse_line['FULL_NAME'] = str(harvest_item['NameShort'])
+            parse_chunk.append(parse_line)
         if 'Email' in harvest_item:
             parse_line = {}
-            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
             parse_line['EMAIL'] = str(harvest_item['Email'])
             parse_chunk.append(parse_line)
         if 'PhotoUrl' in harvest_item:
             parse_line = {}
-            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
             # 'PhotoUrl' is a substring of a weblink, this confuses things. Replace with a UUID.
             parse_line['PHOTO'] = str(uuid.uuid4())
             parse_line['PHOTO_URL'] = UUSTAFF_URL + str(harvest_item['PhotoUrl'])
@@ -168,7 +178,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
                     if links['Name'] is None or links['Url'] is None:
                         continue
                     parse_line = {}
-                    parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+                    parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
                     name_identifier = str(links['Name'].lower())
                     value_identifier = str(links['Url'])
                     path = pathlib.PurePath(value_identifier)
@@ -200,14 +210,14 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
 
             if org_name != '':
                 parse_line = {}
-                parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+                parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
                 parse_line['FACULTY'] = org_name
                 parse_chunk.append(parse_line)
         if 'Expertises' in harvest_item:
             for expertise in harvest_item['Expertises']:
                 if 'Name' in expertise and 'Url' in expertise:
                     parse_line = {}
-                    parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+                    parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
                     parse_line['EXPERTISE_AREA_NAME'] = str(expertise['Name'])
                     parse_line['EXPERTISE_AREA_URL'] = UU_WEBSITE + str(expertise['Url'])
                     parse_chunk.append(parse_line)
@@ -215,7 +225,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             for focusarea in harvest_item['FocusAreas']:
                 if 'Name' in focusarea and 'Url' in focusarea:
                     parse_line = {}
-                    parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+                    parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
                     # Focus areas are called 'Research areas' on the UU website.
                     parse_line['RESEARCH_AREA_NAME'] = str(focusarea['Name'])
                     parse_line['RESEARCH_AREA_URL'] = UU_WEBSITE + str(focusarea['Url'])
@@ -224,7 +234,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             for skill in harvest_item['Skills']:
                 if 'Name' in skill and 'Url' in skill:
                     parse_line = {}
-                    parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+                    parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
                     parse_line['SKILL_NAME'] = str(skill['Name'])
                     parse_line['SKILL_URL'] = UU_WEBSITE + str(skill['Url'])
                     parse_chunk.append(parse_line)
@@ -391,12 +401,14 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     #    person-root.
     # If you have 2 of type (b), use these as the first 2 columns.
     #
-    # Below, we chose UUSTAFF_ID_PERS as first identifier, because this is the identifier
-    # we used to link SolisID to in the previous step.
+    # Below, we chose UUSTAFF_PAGE_ID as first identifier, because this is the identifier
+    # we used to link SolisID to in the previous step
+    # (in parsed_pure_uustaffpages_to_ricgraph()).
 
     # ####### Insert persons.
-    person_identifiers = parsed_content[['UUSTAFF_PAGE_ID', 'ORCID', 'FULL_NAME',
-                                         'EMAIL', 'UUSTAFF_ID_PERS', 'PHOTO',
+    person_identifiers = parsed_content[['UUSTAFF_PAGE_ID', 'ORCID',
+                                         'UUSTAFF_ID_PERS', 'FULL_NAME',
+                                         'EMAIL', 'PHOTO',
                                          'TWITTER', 'LINKEDIN',
                                          'GITHUB']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
@@ -434,12 +446,12 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     rcg.update_nodes_df(nodes=nodes_to_update)
 
     # ####### Insert organizations.
-    organizations = parsed_content[['UUSTAFF_ID_PERS', 'FACULTY']].copy(deep=True)
+    organizations = parsed_content[['UUSTAFF_PAGE_ID', 'FACULTY']].copy(deep=True)
     organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'UUSTAFF_ID_PERS': 'value1',
+    organizations.rename(columns={'UUSTAFF_PAGE_ID': 'value1',
                                   'FACULTY': 'value2'}, inplace=True)
-    new_organization_columns = {'name1': 'UUSTAFF_ID_PERS',
+    new_organization_columns = {'name1': 'UUSTAFF_PAGE_ID',
                                 'category1': 'person',
                                 'name2': 'UUSTAFF_ID_ORG',
                                 'category2': 'organization',
@@ -454,14 +466,14 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
 
     # ####### Insert expertises.
-    expertises = parsed_content[['UUSTAFF_ID_PERS', 'EXPERTISE_AREA_NAME',
+    expertises = parsed_content[['UUSTAFF_PAGE_ID', 'EXPERTISE_AREA_NAME',
                                  'EXPERTISE_AREA_URL']].copy(deep=True)
     expertises.dropna(axis=0, how='any', inplace=True)
     expertises.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    expertises.rename(columns={'UUSTAFF_ID_PERS': 'value1',
+    expertises.rename(columns={'UUSTAFF_PAGE_ID': 'value1',
                                'EXPERTISE_AREA_NAME': 'value2',
                                'EXPERTISE_AREA_URL': 'url_main2'}, inplace=True)
-    new_expertises_columns = {'name1': 'UUSTAFF_ID_PERS',
+    new_expertises_columns = {'name1': 'UUSTAFF_PAGE_ID',
                               'category1': 'person',
                               'name2': 'EXPERTISE_AREA',
                               'category2': 'competence',
@@ -476,14 +488,14 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=expertises)
 
     # ####### Insert research areas.
-    research_areas = parsed_content[['UUSTAFF_ID_PERS', 'RESEARCH_AREA_NAME',
+    research_areas = parsed_content[['UUSTAFF_PAGE_ID', 'RESEARCH_AREA_NAME',
                                      'RESEARCH_AREA_URL']].copy(deep=True)
     research_areas.dropna(axis=0, how='any', inplace=True)
     research_areas.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    research_areas.rename(columns={'UUSTAFF_ID_PERS': 'value1',
+    research_areas.rename(columns={'UUSTAFF_PAGE_ID': 'value1',
                                    'RESEARCH_AREA_NAME': 'value2',
                                    'RESEARCH_AREA_URL': 'url_main2'}, inplace=True)
-    new_research_areas_columns = {'name1': 'UUSTAFF_ID_PERS',
+    new_research_areas_columns = {'name1': 'UUSTAFF_PAGE_ID',
                                   'category1': 'person',
                                   'name2': 'RESEARCH_AREA',
                                   'category2': 'competence',
@@ -498,13 +510,13 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=research_areas)
 
     # ####### Insert skills.
-    skills = parsed_content[['UUSTAFF_ID_PERS', 'SKILL_NAME', 'SKILL_URL']].copy(deep=True)
+    skills = parsed_content[['UUSTAFF_PAGE_ID', 'SKILL_NAME', 'SKILL_URL']].copy(deep=True)
     skills.dropna(axis=0, how='any', inplace=True)
     skills.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    skills.rename(columns={'UUSTAFF_ID_PERS': 'value1',
+    skills.rename(columns={'UUSTAFF_PAGE_ID': 'value1',
                            'SKILL_NAME': 'value2',
                            'SKILL_URL': 'url_main2'}, inplace=True)
-    new_skills_columns = {'name1': 'UUSTAFF_ID_PERS',
+    new_skills_columns = {'name1': 'UUSTAFF_PAGE_ID',
                           'category1': 'person',
                           'name2': 'SKILL',
                           'category2': 'competence',
