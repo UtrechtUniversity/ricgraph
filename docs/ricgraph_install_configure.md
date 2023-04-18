@@ -28,8 +28,9 @@ Other things you need to do:
 1. [Use a Python virtual environment](#use-a-python-virtual-environment).
 1. [Install the Python requirements](#install-the-python-requirements).
 1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file).
-1. Start writing code, or start reusing code,
-   see [Ricgraph programming examples](ricgraph_programming_examples.md).
+1. Start 
+   - harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md);
+   - writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md).
 1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
 
 Other things you might want to do:

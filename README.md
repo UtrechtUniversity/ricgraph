@@ -142,11 +142,11 @@ Some of Ricgraph's features are:
 * Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md).
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
-* Write code, or start reusing code,
-  see the [Ricgraph programming examples](docs/ricgraph_programming_examples.md).
-* Or [do a harvest for Utrecht University datasets and
-  software](docs/ricgraph_programming_examples.md#harvest-of-utrecht-university-datasets-and-software).
+* Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md),
+  e.g. by doing a harvest for Utrecht University datasets and
+  software. 
   You will observe that the information from two sources is neatly combined into one graph.
+* Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md).
 * To query, visualize and explore the graph,
   see [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
 * Of course, there is [future work to do](docs/ricgraph_future_work.md). Please let me know

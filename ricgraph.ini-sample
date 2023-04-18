@@ -34,17 +34,18 @@
 #
 # ########################################################################
 # 
-# What is 'organization abbreviation'?
-# This is a string of a few letters, which can be passed to some harvest
+# Ricgraph uses the term 'organization abbreviation'.
+# This is a string of a few letters that can be passed to some harvest
 # scripts to determine for which organisation such a script will harvest
 # data.  Examples are UU, UMCU, DUT, EUR, etc, see below.
 #
 # You will see this in keys such as 'organization_name_UU' or
 # 'organization_name_UMCU'. The general format is 'key_XXXX,' with 'XXXX' 
 # the 'organization abbreviation'.
-# If your organization abbreviation is not in this file, feel free to add. 
+#
+# If your organization abbreviation is not in this file, feel free to add one. 
 # You can take any (short) string and pass it to a harvest script. You only
-# need to insert key and value for the organization(s) you are planning
+# need to insert keys (and values) for the organizations you are planning
 # to harvest.
 #
 # ########################################################################
