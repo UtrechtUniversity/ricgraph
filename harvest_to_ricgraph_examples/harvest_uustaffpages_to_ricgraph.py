@@ -71,6 +71,7 @@ global UUSTAFF_URL
 # Parameters for harvesting from UU staff pages
 # ######################################################
 UUSTAFF_MAX_FACULTY_NR = 25
+UUSTAFF_CONNECTDATA_FROM_FILE = False
 UUSTAFF_HARVEST_FROM_FILE = False
 UUSTAFF_HARVEST_FILENAME = 'uustaff_harvest.json'
 UUSTAFF_DATA_FILENAME = 'uustaff_data.csv'
@@ -135,12 +136,12 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             continue
         if 'NameShort' in harvest_item:
             parse_line = {}
-            parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
             parse_line['FULL_NAME'] = str(harvest_item['NameShort'])
             parse_chunk.append(parse_line)
         if 'Employee_Url' in harvest_item:
             parse_line = {}
-            parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
             path = pathlib.PurePath(harvest_item['Employee_Url'])
             parse_line['UUSTAFF_PAGE_ID'] = str(path.name)
             parse_line['UUSTAFF_PAGE_URL'] = str(harvest_item['Employee_Url'])
@@ -151,12 +152,12 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             parse_chunk.append(parse_line)
         if 'Email' in harvest_item:
             parse_line = {}
-            parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
             parse_line['EMAIL'] = str(harvest_item['Email'])
             parse_chunk.append(parse_line)
         if 'PhotoUrl' in harvest_item:
             parse_line = {}
-            parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
             # 'PhotoUrl' is a substring of a weblink, this confuses things. Replace with a UUID.
             parse_line['PHOTO'] = str(uuid.uuid4())
             parse_line['PHOTO_URL'] = UUSTAFF_URL + str(harvest_item['PhotoUrl'])
@@ -167,7 +168,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
                     if links['Name'] is None or links['Url'] is None:
                         continue
                     parse_line = {}
-                    parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+                    parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
                     name_identifier = str(links['Name'].lower())
                     value_identifier = str(links['Url'])
                     path = pathlib.PurePath(value_identifier)
@@ -199,14 +200,14 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
 
             if org_name != '':
                 parse_line = {}
-                parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+                parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
                 parse_line['FACULTY'] = org_name
                 parse_chunk.append(parse_line)
         if 'Expertises' in harvest_item:
             for expertise in harvest_item['Expertises']:
                 if 'Name' in expertise and 'Url' in expertise:
                     parse_line = {}
-                    parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+                    parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
                     parse_line['EXPERTISE_AREA_NAME'] = str(expertise['Name'])
                     parse_line['EXPERTISE_AREA_URL'] = UU_WEBSITE + str(expertise['Url'])
                     parse_chunk.append(parse_line)
@@ -214,7 +215,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             for focusarea in harvest_item['FocusAreas']:
                 if 'Name' in focusarea and 'Url' in focusarea:
                     parse_line = {}
-                    parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+                    parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
                     # Focus areas are called 'Research areas' on the UU website.
                     parse_line['RESEARCH_AREA_NAME'] = str(focusarea['Name'])
                     parse_line['RESEARCH_AREA_URL'] = UU_WEBSITE + str(focusarea['Url'])
@@ -223,7 +224,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             for skill in harvest_item['Skills']:
                 if 'Name' in skill and 'Url' in skill:
                     parse_line = {}
-                    parse_line['UUSTAFF_ID'] = str(harvest_item['Id'])
+                    parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
                     parse_line['SKILL_NAME'] = str(skill['Name'])
                     parse_line['SKILL_URL'] = UU_WEBSITE + str(skill['Url'])
                     parse_chunk.append(parse_line)
@@ -352,12 +353,13 @@ def harvest_and_parse_uustaffpages_data(url: str,
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting UU staff pages...')
-    retval = harvest_json_and_write_to_file_uustaffpages(filename=harvest_filename,
-                                                         url=url,
-                                                         max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST)
-    if len(retval) == 0:
-        # Nothing found.
-        return None
+    if not UUSTAFF_HARVEST_FROM_FILE:
+        retval = harvest_json_and_write_to_file_uustaffpages(filename=harvest_filename,
+                                                             url=url,
+                                                             max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST)
+        if len(retval) == 0:
+            # Nothing found.
+            return None
 
     harvest_data = rcg.read_json_from_file(filename=harvest_filename)
     parse = parse_uustaff_persons(harvest=harvest_data)
@@ -388,13 +390,15 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     #    since new identifiers from this harvest will be  linked to an already existing
     #    person-root.
     # If you have 2 of type (b), use these as the first 2 columns.
+    #
+    # Below, we chose UUSTAFF_ID_PERS as first identifier, because this is the identifier
+    # we used to link SolisID to in the previous step.
 
     # ####### Insert persons.
-    person_identifiers = parsed_content[['UUSTAFF_ID', 'ORCID', 'FULL_NAME',
-                                         'EMAIL', 'UUSTAFF_PAGE_ID', 'PHOTO',
+    person_identifiers = parsed_content[['UUSTAFF_PAGE_ID', 'ORCID', 'FULL_NAME',
+                                         'EMAIL', 'UUSTAFF_ID_PERS', 'PHOTO',
                                          'TWITTER', 'LINKEDIN',
                                          'GITHUB']].copy(deep=True)
-    person_identifiers.rename(columns={'UUSTAFF_ID': 'UUSTAFF_ID_PERS'}, inplace=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -430,10 +434,10 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     rcg.update_nodes_df(nodes=nodes_to_update)
 
     # ####### Insert organizations.
-    organizations = parsed_content[['UUSTAFF_ID', 'FACULTY']].copy(deep=True)
+    organizations = parsed_content[['UUSTAFF_ID_PERS', 'FACULTY']].copy(deep=True)
     organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'UUSTAFF_ID': 'value1',
+    organizations.rename(columns={'UUSTAFF_ID_PERS': 'value1',
                                   'FACULTY': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'UUSTAFF_ID_PERS',
                                 'category1': 'person',
@@ -443,22 +447,24 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)
     organizations = organizations[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2', 'source_event2', 'history_event2']]
+                                   'name2', 'category2', 'value2',
+                                   'source_event2', 'history_event2']]
     print('The following organizations from UU staff pages will be inserted in Ricgraph:')
     print(organizations)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
 
     # ####### Insert expertises.
-    expertises = parsed_content[['UUSTAFF_ID', 'EXPERTISE_AREA_NAME', 'EXPERTISE_AREA_URL']].copy(deep=True)
+    expertises = parsed_content[['UUSTAFF_ID_PERS', 'EXPERTISE_AREA_NAME',
+                                 'EXPERTISE_AREA_URL']].copy(deep=True)
     expertises.dropna(axis=0, how='any', inplace=True)
     expertises.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    expertises.rename(columns={'UUSTAFF_ID': 'value1',
+    expertises.rename(columns={'UUSTAFF_ID_PERS': 'value1',
                                'EXPERTISE_AREA_NAME': 'value2',
                                'EXPERTISE_AREA_URL': 'url_main2'}, inplace=True)
     new_expertises_columns = {'name1': 'UUSTAFF_ID_PERS',
                               'category1': 'person',
                               'name2': 'EXPERTISE_AREA',
-                              'category2': 'expertise',
+                              'category2': 'competence',
                               'source_event2': 'UU staff pages',
                               'history_event2': history_event}
     expertises = expertises.assign(**new_expertises_columns)
@@ -470,16 +476,17 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=expertises)
 
     # ####### Insert research areas.
-    research_areas = parsed_content[['UUSTAFF_ID', 'RESEARCH_AREA_NAME', 'RESEARCH_AREA_URL']].copy(deep=True)
+    research_areas = parsed_content[['UUSTAFF_ID_PERS', 'RESEARCH_AREA_NAME',
+                                     'RESEARCH_AREA_URL']].copy(deep=True)
     research_areas.dropna(axis=0, how='any', inplace=True)
     research_areas.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    research_areas.rename(columns={'UUSTAFF_ID': 'value1',
+    research_areas.rename(columns={'UUSTAFF_ID_PERS': 'value1',
                                    'RESEARCH_AREA_NAME': 'value2',
                                    'RESEARCH_AREA_URL': 'url_main2'}, inplace=True)
     new_research_areas_columns = {'name1': 'UUSTAFF_ID_PERS',
                                   'category1': 'person',
                                   'name2': 'RESEARCH_AREA',
-                                  'category2': 'research area',
+                                  'category2': 'competence',
                                   'source_event2': 'UU staff pages',
                                   'history_event2': history_event}
     research_areas = research_areas.assign(**new_research_areas_columns)
@@ -491,16 +498,16 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=research_areas)
 
     # ####### Insert skills.
-    skills = parsed_content[['UUSTAFF_ID', 'SKILL_NAME', 'SKILL_URL']].copy(deep=True)
+    skills = parsed_content[['UUSTAFF_ID_PERS', 'SKILL_NAME', 'SKILL_URL']].copy(deep=True)
     skills.dropna(axis=0, how='any', inplace=True)
     skills.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    skills.rename(columns={'UUSTAFF_ID': 'value1',
+    skills.rename(columns={'UUSTAFF_ID_PERS': 'value1',
                            'SKILL_NAME': 'value2',
                            'SKILL_URL': 'url_main2'}, inplace=True)
     new_skills_columns = {'name1': 'UUSTAFF_ID_PERS',
                           'category1': 'person',
                           'name2': 'SKILL',
-                          'category2': 'skill',
+                          'category2': 'competence',
                           'source_event2': 'UU staff pages',
                           'history_event2': history_event}
     skills = skills.assign(**new_skills_columns)
@@ -559,7 +566,7 @@ def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
         path = pathlib.PurePath(uustaff_page_url)
         parse_line = {}
         parse_line['EMPLOYEE_ID'] = str(node['value'])
-        parse_line['UUSTAFF_ID'] = str(path.name)
+        parse_line['UUSTAFF_PAGE_ID'] = str(path.name)
         parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
@@ -578,24 +585,28 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Insert Pure SolisIDs and corresponding persons from UU staff pages in Ricgraph...')
-    print('There are ' + str(len(parsed_content)) + ' records, parsing record: 0  ', end='')
-    count = 0
-    for row in parsed_content.itertuples():
-        count += 1
-        if count % 25 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 500 == 0:
-            print('\n', end='', flush=True)
+    now = datetime.now()
+    timestamp = now.strftime('%Y%m%d-%H%M%S')
+    history_event = 'Source: Harvest UU staff pages connect EMPLOYEE_ID and UUSTAFF_PAGE_ID at ' + timestamp + '.'
 
-        # Does not make sense to add a 'history_event' since the two nodes already
-        # exist and are not modified. So the 'history_event' will not be registered.
-        rcg.merge_personroots_of_two_nodes(name1='EMPLOYEE_ID',
-                                           value1=row.EMPLOYEE_ID,
-                                           name2='UUSTAFF_PAGE_ID',
-                                           value2=row.UUSTAFF_ID)
+    solisids_staffids = parsed_content[['EMPLOYEE_ID', 'UUSTAFF_PAGE_ID']].copy(deep=True)
+    solisids_staffids.rename(columns={'EMPLOYEE_ID': 'value1',
+                                      'UUSTAFF_PAGE_ID': 'value2'}, inplace=True)
+    new_solisids_staffids_columns = {'name1': 'EMPLOYEE_ID',
+                                     'category1': 'person',
+                                     'name2': 'UUSTAFF_PAGE_ID',
+                                     'category2': 'person',
+                                     'source_event2': 'UU staff pages',
+                                     'history_event2': history_event}
+    solisids_staffids = solisids_staffids.assign(**new_solisids_staffids_columns)
+    solisids_staffids = solisids_staffids[['name1', 'category1', 'value1',
+                                           'name2', 'category2', 'value2',
+                                           'source_event2', 'history_event2']]
 
-    print(count, '\n', end='', flush=True)
+    print('The following Pure SolisIDs and corresponding persons from UU staff pages will be inserted in Ricgraph:')
+    print(solisids_staffids)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=solisids_staffids)
+
     print('Done.\n')
     return
 
@@ -641,6 +652,27 @@ else:
 if True:              # Comment this line to comment out code block A
     print('\nNote: If this script hangs, just run it again.')
     print('This is probably due to a time-out of the server that is hosting the UU staff pages.\n')
+
+    if not UUSTAFF_CONNECTDATA_FROM_FILE:
+        parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL)
+        if parsed_results is None or parsed_results.empty:
+            print('There are no Pure SolisIDs to connect to UU staff pages.\n')
+        else:
+            rcg.write_dataframe_to_csv(filename=UUSTAFF_CONNECT_FILENAME,
+                                       df=parsed_results)
+            parsed_pure_uustaffpages_to_ricgraph(parsed_content=parsed_results)
+    else:
+        parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_CONNECT_FILENAME)
+        parsed_pure_uustaffpages_to_ricgraph(parsed_content=parsed_results)
+# ########## End of code block A ##########
+
+
+# if False:
+if True:
+    print('\nNote: If this script hangs from this point on, do the following:')
+    print('1. Edit the python code, comment out code block A (i.e. make sure it does not get executed).')
+    print('2. Rerun this script.')
+    print('This is probably due to a time-out of the server that is hosting the UU staff pages.\n')
     parse_uustaff = harvest_and_parse_uustaffpages_data(url=UUSTAFF_URL,
                                                         harvest_filename=UUSTAFF_HARVEST_FILENAME)
     if parse_uustaff is None or parse_uustaff.empty:
@@ -654,23 +686,6 @@ if True:              # Comment this line to comment out code block A
     # parsing for UU sub organizations and UU research output.
     # For inspiration see harvest_pure_to_ricgraph.py.
     parsed_uustaff_persons_to_ricgraph(parsed_content=parse_uustaff)
-# ########## End of code block A ##########
-
-
-# if False:
-if True:
-    print('\nNote: If this script hangs from this point on, do the following:')
-    print('1. Edit the python code, comment out code block A (i.e. make sure it does not get executed).')
-    print('2. Rerun this script.')
-    print('This is probably due to a time-out of the server that is hosting the UU staff pages.\n')
-    parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL)
-    if parsed_results is None or parsed_results.empty:
-        print('There are no Pure SolisIDs to connect to UU staff pages.\n')
-    else:
-        rcg.write_dataframe_to_csv(filename=UUSTAFF_CONNECT_FILENAME,
-                                   df=parsed_results)
-        print('The next step might be slow.')
-        parsed_pure_uustaffpages_to_ricgraph(parsed_content=parsed_results)
 
 
 rcg.close_ricgraph()

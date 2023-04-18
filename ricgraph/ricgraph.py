@@ -1050,8 +1050,12 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
                              names ending with '2' to a 'right' node.
     :return: None.
     """
-    left_and_right_nodepairs = pandas.DataFrame(value1).copy(deep=True)
-    left_and_right_nodepairs.rename(columns={value1.name: 'value1'}, inplace=True)
+    if type(value1) == str:
+        left_and_right_nodepairs = pandas.DataFrame(data={'value1': value1},
+                                                    index=[0])
+    else:
+        left_and_right_nodepairs = pandas.DataFrame(data=value1).copy(deep=True)
+        left_and_right_nodepairs.rename(columns={value1.name: 'value1'}, inplace=True)
 
     # This makes programming more efficient
     allowed_properties = RICGRAPH_PROPERTIES_ADDITIONAL + RICGRAPH_PROPERTIES_STANDARD
