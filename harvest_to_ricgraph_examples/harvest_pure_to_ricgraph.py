@@ -287,13 +287,13 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
             continue
         if 'name' in harvest_item:
             parse_line = {}
-            parse_line['PERSON_UUID'] = str(harvest_item['uuid'])
+            parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
             parse_line['FULL_NAME'] = harvest_item['name']['lastName'] \
                                       + ', ' + harvest_item['name']['firstName']
             parse_chunk.append(parse_line)
         if 'orcid' in harvest_item:
             parse_line = {}
-            parse_line['PERSON_UUID'] = str(harvest_item['uuid'])
+            parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
             parse_line['ORCID'] = str(harvest_item['orcid'])
             parse_chunk.append(parse_line)
         if 'ids' in harvest_item:
@@ -302,7 +302,7 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                     value_identifier = str(identities['value']['value'])
                     name_identifier = str(identities['type']['term']['text'][0]['value'])
                     parse_line = {}
-                    parse_line['PERSON_UUID'] = str(harvest_item['uuid'])
+                    parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
                     parse_line[name_identifier] = value_identifier
                     parse_chunk.append(parse_line)
         if 'staffOrganisationAssociations' in harvest_item:
@@ -325,7 +325,7 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                             continue
 
                     parse_line = {}
-                    parse_line['PERSON_UUID'] = str(harvest_item['uuid'])
+                    parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
                     parse_line['organisationalUnit'] = str(orgunit['uuid'])
                     parse_chunk.append(parse_line)
 
@@ -336,12 +336,15 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
     # dropna(how='all'): drop row if all row values contain NaN
     parse_result.dropna(axis=0, how='all', inplace=True)
     parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    parse_result.rename(columns={'Digital author ID': 'DIGITAL_AUTHOR_ID',
-                                 'Scopus Author ID': 'SCOPUS_AUTHOR_ID',
-                                 'Employee ID': 'EMPLOYEE_ID',
-                                 'Researcher ID': 'RESEARCHER_ID',
-                                 'organisationalUnit': 'ORG_UUID',
+    parse_result.rename(columns={'Scopus Author ID': 'SCOPUS_AUTHOR_ID',
+                                 'organisationalUnit': 'PURE_UUID_ORG'
                                  }, inplace=True)
+    if 'Digital author ID' in parse_result.columns:
+        parse_result.rename(columns={'Digital author ID': 'DIGITAL_AUTHOR_ID'}, inplace=True)
+    if 'Researcher ID' in parse_result.columns:
+        parse_result.rename(columns={'Researcher ID': 'RESEARCHER_ID'}, inplace=True)
+    if 'Employee ID' in parse_result.columns:
+        parse_result.rename(columns={'Employee ID': 'EMPLOYEE_ID'}, inplace=True)
     return parse_result
 
 
@@ -414,7 +417,7 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
                     continue
 
                 parse_line = {}
-                parse_line['ORG_UUID'] = str(harvest_item['uuid'])
+                parse_line['PURE_UUID_ORG'] = str(harvest_item['uuid'])
                 # 'type' and 'name' must exist, otherwise we wouldn't have gotten here
                 parse_line['ORG_TYPE_NAME'] = harvest_item['type']['term']['text'][0]['value']
                 parse_line['ORG_NAME'] = harvest_item['name']['text'][0]['value']
@@ -464,8 +467,9 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
             # There must be a type of this resout, otherwise skip
             continue
         if 'workflow' in harvest_item:
-            if harvest_item['workflow']['workflowStep'] != 'validated':
-                # Only 'validated' resouts
+            if harvest_item['workflow']['workflowStep'] != 'validated' \
+               and harvest_item['workflow']['workflowStep'] != 'approved':
+                # Only 'validated' or 'approved' resouts
                 continue
         else:
             # Skip if no workflow
@@ -617,11 +621,15 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     # Since Pure is the first system we harvest, the order of the columns in
     # this DataFrame does not really matter.
-    person_identifiers = parsed_content[['PERSON_UUID', 'FULL_NAME',
-                                         'ORCID', 'SCOPUS_AUTHOR_ID', 'EMPLOYEE_ID',
-                                         'DIGITAL_AUTHOR_ID',
-                                         'ISNI', 'RESEARCHER_ID']].copy(deep=True)
-    person_identifiers.rename(columns={'PERSON_UUID': 'PURE_UUID_PERS'}, inplace=True)
+    person_identifiers = parsed_content[['PURE_UUID_PERS', 'FULL_NAME',
+                                         'ORCID', 'SCOPUS_AUTHOR_ID',
+                                         'ISNI']].copy(deep=True)
+    if 'DIGITAL_AUTHOR_ID' in parsed_content.columns:
+        person_identifiers['DIGITAL_AUTHOR_ID'] = parsed_content[['DIGITAL_AUTHOR_ID']].copy(deep=True)
+    if 'RESEARCHER_ID' in parsed_content.columns:
+        person_identifiers['RESEARCHER_ID'] = parsed_content[['RESEARCHER_ID']].copy(deep=True)
+    if 'EMPLOYEE_ID' in parsed_content.columns:
+        person_identifiers['EMPLOYEE_ID'] = parsed_content[['EMPLOYEE_ID']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -632,15 +640,15 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                    source_event=HARVEST_SOURCE,
                                    history_event=history_event)
 
-    organizations = parsed_content[['PERSON_UUID', 'ORG_UUID']].copy(deep=True)
+    organizations = parsed_content[['PURE_UUID_PERS', 'PURE_UUID_ORG']].copy(deep=True)
     organizations.dropna(axis=0, how='all', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations['url_main1'] = organizations[['PERSON_UUID']].apply(
+    organizations['url_main1'] = organizations[['PURE_UUID_PERS']].apply(
                                  lambda row: create_pure_url(name='PURE_UUID_PERS',
-                                                             value=row['PERSON_UUID']), axis=1)
+                                                             value=row['PURE_UUID_PERS']), axis=1)
     # Do not insert the organization URL here, it is done in parsed_organizations_to_ricgraph()
-    organizations.rename(columns={'PERSON_UUID': 'value1',
-                                  'ORG_UUID': 'value2'}, inplace=True)
+    organizations.rename(columns={'PURE_UUID_PERS': 'value1',
+                                  'PURE_UUID_ORG': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'PURE_UUID_PERS',
                                 'category1': 'person',
                                 'name2': 'PURE_UUID_ORG',
@@ -671,13 +679,13 @@ def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     parsed_content['FULL_ORG_NAME'] = parsed_content['ORG_TYPE_NAME'] + ': ' + parsed_content['ORG_NAME']
     parsed_content['FULL_PARENT_NAME'] = parsed_content['PARENT_TYPE_NAME'] + ': ' + parsed_content['PARENT_NAME']
-    organizations = parsed_content[['ORG_UUID', 'FULL_ORG_NAME', 'PARENT_UUID', 'FULL_PARENT_NAME']].copy(deep=True)
+    organizations = parsed_content[['PURE_UUID_ORG', 'FULL_ORG_NAME', 'PARENT_UUID', 'FULL_PARENT_NAME']].copy(deep=True)
     organizations.dropna(axis=0, how='all', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations['url_main1'] = organizations[['ORG_UUID']].apply(
+    organizations['url_main1'] = organizations[['PURE_UUID_ORG']].apply(
                                  lambda row: create_pure_url(name='PURE_UUID_ORG',
-                                                             value=row['ORG_UUID']), axis=1)
-    organizations.rename(columns={'ORG_UUID': 'value1',
+                                                             value=row['PURE_UUID_ORG']), axis=1)
+    organizations.rename(columns={'PURE_UUID_ORG': 'value1',
                                   'FULL_ORG_NAME': 'comment1',
                                   'PARENT_UUID': 'value2',
                                   'FULL_PARENT_NAME': 'comment2'}, inplace=True)
