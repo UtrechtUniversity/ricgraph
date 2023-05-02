@@ -551,7 +551,7 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
     nodes_clean = nodes.copy(deep=True)
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
     nodes_clean.replace('', numpy.nan, inplace=True)
-    nodes_clean.dropna(axis=0, how='all', inplace=True)
+    nodes_clean.dropna(axis=0, how='any', inplace=True)
     nodes_clean.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
     print('\nCache used at start of function: ' + str(read_node.cache_info()) + '.')
