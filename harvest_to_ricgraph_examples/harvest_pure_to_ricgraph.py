@@ -30,7 +30,13 @@
 #
 # This file contains example code for Ricgraph.
 #
-# With this code, you can harvest persons, organizations and research outputs from Pure.
+# With this code, you can harvest persons, organizations and research outputs from Pure,
+# using both the READ API as well as the CRUD API. You don't need to specify this,
+# the script will know.
+# I would recommend to use the READ API, since the CRUD API is in development and does not have
+# filters on e.g. active persons yet. Neither does it allow harvesting of research outputs
+# for one year only, so you might hit memory bounds if you harvest every research output
+# for all years with the CRUD API.
 # You have to set some parameters in ricgraph.ini.
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
@@ -66,6 +72,8 @@ import numpy
 from datetime import datetime
 from typing import Union
 import configparser
+import requests
+import pathlib
 import ricgraph as rcg
 
 
@@ -73,7 +81,10 @@ import ricgraph as rcg
 # General parameters for harvesting from Pure.
 # Documentation Pure API: PURE_URL/ws/api/524/api-docs/index.html
 # ######################################################
-PURE_API_VERSION = 'ws/api/524'
+# Pure can be harvested according to the READ or CRUD API.
+global PURE_API_VERSION
+PURE_READ_API_VERSION = 'ws/api/524'
+PURE_CRUD_API_VERSION = 'ws/api'
 PURE_CHUNKSIZE = 500
 PURE_HEADERS = {'Accept': 'application/json'
                 # The following will be read in __main__
@@ -85,11 +96,15 @@ global HARVEST_SOURCE
 # ######################################################
 # Parameters for harvesting persons from Pure
 # ######################################################
-PURE_PERSONS_ENDPOINT = 'persons'
+# Pure can be harvested according to the READ or CRUD API.
+global PURE_PERSONS_ENDPOINT
+PURE_READ_PERSONS_ENDPOINT = 'persons'
+PURE_CRUD_PERSONS_ENDPOINT = 'persons/search'
 PURE_PERSONS_HARVEST_FROM_FILE = False
 PURE_PERSONS_HARVEST_FILENAME = 'pure_persons_harvest.json'
 PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+# The current version of the Pure CRUD API do not have these filters yet.
 PURE_PERSONS_FIELDS = {'fields': ['uuid',
                                   'name.*',
                                   'ids.*',
@@ -103,11 +118,15 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
 # ######################################################
 # Parameters for harvesting organizations from Pure
 # ######################################################
-PURE_ORGANIZATIONS_ENDPOINT = 'organisational-units'
+# Pure can be harvested according to the READ or CRUD API.
+global PURE_ORGANIZATIONS_ENDPOINT
+PURE_READ_ORGANIZATIONS_ENDPOINT = 'organisational-units'
+PURE_CRUD_ORGANIZATIONS_ENDPOINT = 'organizations/search'
 PURE_ORGANIZATIONS_HARVEST_FROM_FILE = False
 PURE_ORGANIZATIONS_HARVEST_FILENAME = 'pure_organizations_harvest.json'
 PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.csv'
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+# The current version of the Pure CRUD API do not have these filters yet.
 PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
                                         'period.*',
                                         'name.*',
@@ -120,23 +139,37 @@ PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
 # ######################################################
 # Parameters for harvesting research outputs from Pure
 # ######################################################
-PURE_RESOUT_ENDPOINT = 'research-outputs'
+# Pure can be harvested according to the READ or CRUD API.
+global PURE_RESOUT_ENDPOINT
+PURE_READ_RESOUT_ENDPOINT = 'research-outputs'
+PURE_CRUD_RESOUT_ENDPOINT = 'research-outputs/search'
 PURE_RESOUT_HARVEST_FROM_FILE = False
 PURE_RESOUT_HARVEST_FILENAME = 'pure_resout_harvest.json'
 PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
-PURE_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
-# This number is the max recs to harvest per year, not total
+global PURE_RESOUT_YEARS
+# The Pure READ API allows to specify years to harvest.
+PURE_READ_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
+# The Pure CRUD API does not allow this. This might cause memory problems.
+# You might want to set PURE_RESOUT_MAX_RECS_TO_HARVEST.
+PURE_CRUD_RESOUT_YEARS = ['all']
+# For Pure READ API: this number is the max recs to harvest per year, not total
+# For Pure CRUD API: this number is the max recs to harvest total.
 PURE_RESOUT_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-PURE_RESOUT_FIELDS = {'fields': ['uuid',
-                                 'title.*',
-                                 'confidential',
-                                 'type.*',
-                                 'workflow.*',
-                                 'publicationStatuses.*',
-                                 'personAssociations.*',
-                                 'electronicVersions.*'
-                                 ]
-                      }
+global PURE_RESOUT_FIELDS
+# The current version of the Pure CRUD API do not have these filters yet.
+PURE_READ_RESOUT_FIELDS = {'fields': ['uuid',
+                                      'title.*',
+                                      'confidential',
+                                      'type.*',
+                                      'workflow.*',
+                                      'publicationStatuses.*',
+                                      'personAssociations.*',
+                                      'electronicVersions.*'
+                                      ]
+                           }
+PURE_CRUD_RESOUT_FIELDS = {'orderings': ['publicationYear'],
+                           'orderBy': 'descending'
+                           }
 
 
 # ######################################################
@@ -261,6 +294,19 @@ def lookup_resout_type_pure(type_uri: str) -> str:
         return 'unknown'
 
 
+def find_organization_name(uuid: str, organization_names: dict):
+    """Find the full organization name which belongs to an organization with a certain UUID.
+
+    :param uuid: the UUID.
+    :param organization_names: the dict with organization names.
+    :return: the full organization name.
+    """
+    if uuid in organization_names:
+        return str(organization_names[uuid])
+    else:
+        return 'Organization name not found for UUID ' + uuid + '.'
+
+
 # ######################################################
 # Parsing
 # ######################################################
@@ -286,17 +332,20 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
             # There must be an uuid, otherwise skip
             continue
         if 'name' in harvest_item:
-            parse_line = {}
-            parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
-            parse_line['FULL_NAME'] = harvest_item['name']['lastName'] \
-                                      + ', ' + harvest_item['name']['firstName']
-            parse_chunk.append(parse_line)
+            if 'lastName' in harvest_item['name']:
+                parse_line = {}
+                parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
+                parse_line['FULL_NAME'] = harvest_item['name']['lastName']
+                if 'firstName' in harvest_item['name']:
+                    parse_line['FULL_NAME'] += ', ' + harvest_item['name']['firstName']
+                parse_chunk.append(parse_line)
         if 'orcid' in harvest_item:
             parse_line = {}
             parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
             parse_line['ORCID'] = str(harvest_item['orcid'])
             parse_chunk.append(parse_line)
         if 'ids' in harvest_item:
+            # Field in Pure READ API.
             for identities in harvest_item['ids']:
                 if 'value' in identities and 'type' in identities:
                     value_identifier = str(identities['value']['value'])
@@ -305,11 +354,28 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                     parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
                     parse_line[name_identifier] = value_identifier
                     parse_chunk.append(parse_line)
+        if 'identifiers' in harvest_item:
+            # Field in Pure CRUD API.
+            for identities in harvest_item['identifiers']:
+                if 'id' in identities and 'type' in identities:
+                    value_identifier = str(identities['id'])
+                    name_identifier = str(identities['type']['term']['en_GB'])
+                    parse_line = {}
+                    parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
+                    parse_line[name_identifier] = value_identifier
+                    parse_chunk.append(parse_line)
+        label = ''
         if 'staffOrganisationAssociations' in harvest_item:
-            for stafforg in harvest_item['staffOrganisationAssociations']:
+            # Field in Pure READ API.
+            label = 'staffOrganisationAssociations'
+        elif 'staffOrganizationAssociations' in harvest_item:
+            # Field in Pure CRUD API.
+            label = 'staffOrganizationAssociations'
+        if label != '':
+            for stafforg in harvest_item[label]:
                 if 'period' in stafforg:
                     if 'endDate' in stafforg['period'] and stafforg['period']['endDate'] != '':
-                        # Only consider current organizations, that is an organization
+                        # Only consider persons of current organizations, that is an organization
                         # where endData is not existing or empty. If not, then skip.
                         continue
                 else:
@@ -317,17 +383,24 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                     continue
 
                 if 'organisationalUnit' in stafforg:
+                    # Field in Pure READ API.
                     orgunit = stafforg['organisationalUnit']
                     if 'type' in orgunit:
                         pure_org_uri = str(orgunit['type']['uri'])
                         if pure_org_uri[-3] == 'r':
                             # Skip research organizations (with an 'r' in the uri, like ..../r05)
                             continue
+                elif 'organization' in stafforg:
+                    # Field in Pure CRUD API.
+                    orgunit = stafforg['organization']
+                    # We don't have the 'type' in Pure CRUD API.
+                else:
+                    continue
 
-                    parse_line = {}
-                    parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
-                    parse_line['organisationalUnit'] = str(orgunit['uuid'])
-                    parse_chunk.append(parse_line)
+                parse_line = {}
+                parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
+                parse_line['PURE_UUID_ORG'] = str(orgunit['uuid'])
+                parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
 
@@ -336,15 +409,24 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
     # dropna(how='all'): drop row if all row values contain NaN
     parse_result.dropna(axis=0, how='all', inplace=True)
     parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    parse_result.rename(columns={'Scopus Author ID': 'SCOPUS_AUTHOR_ID',
-                                 'organisationalUnit': 'PURE_UUID_ORG'
-                                 }, inplace=True)
+    if 'Scopus Author ID' in parse_result.columns:
+        parse_result.rename(columns={'Scopus Author ID': 'SCOPUS_AUTHOR_ID'}, inplace=True)
     if 'Digital author ID' in parse_result.columns:
         parse_result.rename(columns={'Digital author ID': 'DIGITAL_AUTHOR_ID'}, inplace=True)
     if 'Researcher ID' in parse_result.columns:
         parse_result.rename(columns={'Researcher ID': 'RESEARCHER_ID'}, inplace=True)
     if 'Employee ID' in parse_result.columns:
         parse_result.rename(columns={'Employee ID': 'EMPLOYEE_ID'}, inplace=True)
+
+    if 'PURE_UUID_ORG' not in parse_result.columns \
+       and PURE_API_VERSION == PURE_CRUD_API_VERSION:
+        print('\nPure is harvested using the Pure CRUD API.')
+        print('Persons found are not members of any organization.')
+        print('This is probably caused by field "staffOrganizationAssociations" not present in')
+        print('the CRUD API export for "persons".')
+        print('Please ask your Pure administrator to export this field. Exiting.')
+        exit(1)
+
     return parse_result
 
 
@@ -356,6 +438,7 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
     """
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
+    organization_names = {}
     print('There are ' + str(len(harvest)) + ' organization records, parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
@@ -368,13 +451,20 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
         if 'uuid' not in harvest_item:
             # There must be an uuid, otherwise skip
             continue
+        label = ''
         if 'period' in harvest_item:
-            if 'endDate' in harvest_item['period'] and harvest_item['period']['endDate'] != '':
+            # Field in Pure READ API.
+            label = 'period'
+        elif 'lifecycle' in harvest_item:
+            # Field in Pure CRUD API.
+            label = 'lifecycle'
+        if label != '':
+            if 'endDate' in harvest_item[label] and harvest_item[label]['endDate'] != '':
                 # Only consider current organizations, that is an organization
                 # where endDate is not existing or empty. If not, then skip.
                 continue
         else:
-            # If there is no period skip
+            # If there is no period or lifecycle skip
             continue
         if 'type' in harvest_item:
             pure_org_uri = str(harvest_item['type']['uri'])
@@ -405,31 +495,53 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
                     # There must be an uuid, otherwise skip
                     continue
                 # Note: 'parents' does not have a 'period', so we don't need to do something.
+                # Note: 'type' and 'name' must exist, otherwise we wouldn't have gotten here.
                 if 'type' in parentsorg:
+                    # Field in Pure READ API.
                     pure_parentsorg_uri = str(parentsorg['type']['uri'])
                     if pure_parentsorg_uri[-3] == 'r':
                         # Skip research organizations (with an 'r' in the uri, like ..../r05)
                         continue
-                else:
-                    continue
 
-                if 'name' not in parentsorg:
+                    org_type_name = str(harvest_item['type']['term']['text'][0]['value'])
+                    org_name = str(harvest_item['name']['text'][0]['value'])
+                elif 'systemName' in parentsorg:
+                    # Field in Pure CRUD API.
+                    org_type_name = str(harvest_item['type']['term']['en_GB'])
+                    org_name = str(harvest_item['name']['en_GB'])
+                else:
                     continue
 
                 parse_line = {}
                 parse_line['PURE_UUID_ORG'] = str(harvest_item['uuid'])
-                # 'type' and 'name' must exist, otherwise we wouldn't have gotten here
-                parse_line['ORG_TYPE_NAME'] = harvest_item['type']['term']['text'][0]['value']
-                parse_line['ORG_NAME'] = harvest_item['name']['text'][0]['value']
+                parse_line['ORG_TYPE_NAME'] = org_type_name
+                parse_line['ORG_NAME'] = org_name
+                parse_line['FULL_ORG_NAME'] = org_type_name + ': ' + org_name
                 parse_line['PARENT_UUID'] = str(parentsorg['uuid'])
-                parse_line['PARENT_TYPE_NAME'] = parentsorg['type']['term']['text'][0]['value']
-                parse_line['PARENT_NAME'] = parentsorg['name']['text'][0]['value']
                 parse_chunk.append(parse_line)
+                organization_names[parse_line['PURE_UUID_ORG']] = parse_line['FULL_ORG_NAME']
+        else:
+            # Assume it is the top level organization since it doesn't have a parent.
+            # Note: 'type' and 'name' must exist, otherwise we wouldn't have gotten here.
+            if PURE_API_VERSION == PURE_READ_API_VERSION:
+                # We are in Pure READ API.
+                org_type_name = str(harvest_item['type']['term']['text'][0]['value'])
+                org_name = str(harvest_item['name']['text'][0]['value'])
+            else:
+                # We are in Pure CRUD API.
+                org_type_name = str(harvest_item['type']['term']['en_GB'])
+                org_name = str(harvest_item['name']['en_GB'])
+            # Only necessary to add the top level organization to the dict with organization names.
+            organization_names[str(harvest_item['uuid'])] = org_type_name + ': ' + org_name
 
     print(count, '\n', end='', flush=True)
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    parse_result['FULL_PARENT_NAME'] = parse_result[['PARENT_UUID']].apply(lambda row:
+                                           find_organization_name(uuid=row['PARENT_UUID'],
+                                               organization_names=organization_names), axis=1)
+
     # dropna(how='all'): drop row if all row values contain NaN
     parse_result.dropna(axis=0, how='all', inplace=True)
     parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -467,10 +579,18 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
             # There must be a type of this resout, otherwise skip
             continue
         if 'workflow' in harvest_item:
-            if harvest_item['workflow']['workflowStep'] != 'validated' \
-               and harvest_item['workflow']['workflowStep'] != 'approved':
-                # Only 'validated' or 'approved' resouts
-                continue
+            if 'workflowStep' in harvest_item['workflow']:
+                # Field in Pure READ API.
+                if harvest_item['workflow']['workflowStep'] != 'validated' \
+                   and harvest_item['workflow']['workflowStep'] != 'approved':
+                    # Only 'validated' or 'approved' resouts.
+                    continue
+            if 'step' in harvest_item['workflow']:
+                # Field in Pure CRUD API.
+                if harvest_item['workflow']['step'] != 'validated' \
+                        and harvest_item['workflow']['step'] != 'approved':
+                    # Only 'validated' or 'approved' resouts.
+                    continue
         else:
             # Skip if no workflow
             continue
@@ -483,10 +603,10 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                     if 'publicationDate' in pub_item:
                         if 'year' in pub_item['publicationDate']:
                             publication_year = pub_item['publicationDate']['year']
-                    if pub_item['publicationStatus']['term']['text'][0]['value'] == 'Published':
-                        # Only 'Published' resouts
-                        published_found = True
-                        break
+                    if 'publicationStatus' in pub_item:
+                        if pathlib.PurePath(pub_item['publicationStatus']['uri']).name == 'published':
+                            published_found = True
+                            break
 
             if not published_found:
                 continue
@@ -500,8 +620,16 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                 if 'doi' in elecversions:
                     doi = str(elecversions['doi'])
                     doi = rewrite_pure_doi(doi=doi)
+
+        label = ''
         if 'personAssociations' in harvest_item:
-            for persons in harvest_item['personAssociations']:
+            # Field in Pure READ API.
+            label = 'personAssociations'
+        elif 'contributors' in harvest_item:
+            # Field in Pure CRUD API.
+            label = 'contributors'
+        if label != '':
+            for persons in harvest_item[label]:
                 if 'person' in persons:                             # internal person
                     if 'uuid' not in persons['person']:
                         # There must be an uuid, otherwise skip
@@ -521,9 +649,11 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                     author_uuid += ' (author collaboration)'
                 else:
                     # If we get here you might want to add another "elif" above with
-                    # the missing personAssociation. Sometimes there is no, then it is ok.
-                    print('\nparse_pure_resout(): Warning: Unknown personAssociation for publication '
-                          + str(harvest_item['uuid']))
+                    # the missing personAssociation. Sometimes there is none, then it is ok.
+                    # Do not print a warning message, most of the time it is an external person
+                    # without any identifier.
+                    # print('\nparse_pure_resout(): Warning: Unknown personAssociation/contributor for publication '
+                    #      + str(harvest_item['uuid']))
                     continue
 
                 parse_line = {}
@@ -536,6 +666,16 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                 parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
+
+    if len(parse_chunk) == 0 \
+       and PURE_API_VERSION == PURE_CRUD_API_VERSION:
+        print('\nPure is harvested using the Pure CRUD API.')
+        print('No research outputs were found.')
+        print('This is probably caused by one or more of the following fields not present in')
+        print('the CRUD API export for "research outputs":')
+        print('"workflow", "publicationStatuses" and/or "contributors".')
+        print('Please ask your Pure administrator to export these fields. Exiting.')
+        exit(1)
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
@@ -622,8 +762,9 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # Since Pure is the first system we harvest, the order of the columns in
     # this DataFrame does not really matter.
     person_identifiers = parsed_content[['PURE_UUID_PERS', 'FULL_NAME',
-                                         'ORCID', 'SCOPUS_AUTHOR_ID',
-                                         'ISNI']].copy(deep=True)
+                                         'ORCID', 'ISNI']].copy(deep=True)
+    if 'SCOPUS_AUTHOR_ID' in parsed_content.columns:
+        person_identifiers['SCOPUS_AUTHOR_ID'] = parsed_content[['SCOPUS_AUTHOR_ID']].copy(deep=True)
     if 'DIGITAL_AUTHOR_ID' in parsed_content.columns:
         person_identifiers['DIGITAL_AUTHOR_ID'] = parsed_content[['DIGITAL_AUTHOR_ID']].copy(deep=True)
     if 'RESEARCHER_ID' in parsed_content.columns:
@@ -677,9 +818,10 @@ def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     timestamp = now.strftime("%Y%m%d-%H%M%S")
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' organizations at ' + timestamp + '.'
 
-    parsed_content['FULL_ORG_NAME'] = parsed_content['ORG_TYPE_NAME'] + ': ' + parsed_content['ORG_NAME']
-    parsed_content['FULL_PARENT_NAME'] = parsed_content['PARENT_TYPE_NAME'] + ': ' + parsed_content['PARENT_NAME']
-    organizations = parsed_content[['PURE_UUID_ORG', 'FULL_ORG_NAME', 'PARENT_UUID', 'FULL_PARENT_NAME']].copy(deep=True)
+    organizations = parsed_content[['PURE_UUID_ORG',
+                                    'FULL_ORG_NAME',
+                                    'PARENT_UUID',
+                                    'FULL_PARENT_NAME']].copy(deep=True)
     organizations.dropna(axis=0, how='all', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     organizations['url_main1'] = organizations[['PURE_UUID_ORG']].apply(
@@ -806,6 +948,39 @@ except KeyError:
     print('\nRicgraph initialization: error, "'
           + pure_url + '" or "' + pure_api_key
           + '" not found in Ricgraph ini file, exiting.')
+    exit(1)
+
+# Find out if we should harvest Pure according to the Pure READ API or the Pure CRUD API.
+read_url = PURE_URL + '/' + PURE_READ_API_VERSION + '/' + PURE_READ_PERSONS_ENDPOINT
+crud_url = PURE_URL + '/' + PURE_CRUD_API_VERSION + '/' + PURE_CRUD_PERSONS_ENDPOINT
+read_response = requests.post(url=read_url, headers=PURE_HEADERS, json={'fields': ['*']})
+crud_response = requests.post(url=crud_url, headers=PURE_HEADERS, json={'fields': ['*']})
+if read_response.status_code == requests.codes.ok:
+    print('Pure will be harvested using the Pure READ API.')
+    PURE_API_VERSION = PURE_READ_API_VERSION
+    PURE_PERSONS_ENDPOINT = PURE_READ_PERSONS_ENDPOINT
+    PURE_ORGANIZATIONS_ENDPOINT = PURE_READ_ORGANIZATIONS_ENDPOINT
+    PURE_RESOUT_ENDPOINT = PURE_READ_RESOUT_ENDPOINT
+    PURE_RESOUT_YEARS = PURE_READ_RESOUT_YEARS
+    PURE_RESOUT_FIELDS = PURE_READ_RESOUT_FIELDS
+elif crud_response.status_code == requests.codes.ok:
+    print('Pure will be harvested using the Pure CRUD API.')
+    PURE_API_VERSION = PURE_CRUD_API_VERSION
+    PURE_PERSONS_ENDPOINT = PURE_CRUD_PERSONS_ENDPOINT
+    PURE_ORGANIZATIONS_ENDPOINT = PURE_CRUD_ORGANIZATIONS_ENDPOINT
+    PURE_RESOUT_ENDPOINT = PURE_CRUD_RESOUT_ENDPOINT
+    PURE_RESOUT_YEARS = PURE_CRUD_RESOUT_YEARS
+    PURE_RESOUT_FIELDS = PURE_CRUD_RESOUT_FIELDS
+else:
+    print('Could not determine whether Pure should be harvested using the READ or CRUD API.')
+    print('Response Pure READ API:')
+    print('Status code: ' + str(read_response.status_code))
+    print('Url: ' + read_response.url)
+    print('Error: ' + read_response.text)
+    print('Response Pure CRUD API:')
+    print('Status code: ' + str(crud_response.status_code))
+    print('Url: ' + crud_response.url)
+    print('Error: ' + crud_response.text)
     exit(1)
 
 HARVEST_SOURCE = 'Pure-' + organization

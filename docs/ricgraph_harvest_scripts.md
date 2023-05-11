@@ -118,7 +118,8 @@ Options:
 With this script, you can harvest persons, organizations and research outputs.
 This script needs two parameters in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file):
-the url to Pure in *pure_url_XXXX*, and the Pure API key in *pure_api_key_XXXX*.
+the url to Pure in *pure_url_XXXX*, and the 
+Pure [API](https://en.wikipedia.org/wiki/API) key in *pure_api_key_XXXX*.
 *XXXX* is your [organization abbreviation](#organization-abbreviation).
 
 There is a lot of data in Pure, so your harvest may take a long time. You may
@@ -127,6 +128,36 @@ reduce this by adjusting parameters at the start of the script. Look in the sect
 E.g., for research outputs you can adjust
 the years to harvest with the parameter *PURE_RESOUT_YEARS* and the maximum number of
 records to harvest with *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
+
+Pure has two APIs, a READ and a CRUD API.
+The Pure READ API ("old" API) is only for reading data from Pure.
+The Pure CRUD API ("new" API) can be used to create, read, update and delete data 
+in Pure (hence the name: CRUD). You do not need to specify which API you want to use,
+the script will be able to determine it for you
+(just include the API key in the initialization file).
+The author recommends to use the READ API.
+You can use both of them to harvest data from Pure,
+but each of them has its own advantages and disadvantages:
+* The Pure READ API has a number of filters, which allow to reduce data requested from Pure
+  on the Pure server,
+  thereby preventing this data to be sent to the computer which is running the Pure harvest 
+  script, and for the harvest script, to process all this data. 
+  E.g., the READ API has a filter for persons, so only active persons in Pure will
+  be sent to the harvesting computer, thereby reducing the number of persons to process in the harvest
+  script from all persons in Pure to only active persons in Pure. 
+  Another filter is the start and end publication year for research outputs. 
+  This makes it possible for the Pure harvest script to only process research outputs from a
+  certain year, instead of all research outputs in Pure. This prevents potential memory problems.
+* The Pure CRUD API allows the Pure administrator to specify which Pure fields are allowed
+  to be sent from the Pure server to the computer that is running the Pure harvest script.
+  This allows for only sending data that is requested. However, since this API is in development,
+  a lot of the filters present in the READ API do not exist (yet), especially the
+  filters mentioned in the previous bullet. That means, if you run
+  the Pure harvest script, you might encounter memory problems while harvesting 
+  research outputs due to the number of research outputs in Pure, 
+  unless you set *PURE_RESOUT_MAX_RECS_TO_HARVEST* in the Pure harvest script to some
+  suitable value. 
+
 
 ### Harvest of Utrecht University datasets
 
