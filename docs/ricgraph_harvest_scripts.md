@@ -114,6 +114,11 @@ Options:
           file.
           If this option is not present, the script will prompt the user
           what to do.
+  --harvest_projects <yes|no>
+          'yes': projects will be harvested.
+          'no' (or any other answer): projects will not be harvested.
+          If this option is not present, projects will not be harvested,
+          the script will not prompt the user.
 ```
 With this script, you can harvest persons, organizations and research outputs.
 This script needs two parameters in the
@@ -122,6 +127,7 @@ the url to Pure in *pure_url_XXXX*, and the
 Pure [API](https://en.wikipedia.org/wiki/API) key in *pure_api_key_XXXX*.
 *XXXX* is your [organization abbreviation](#organization-abbreviation).
 
+#### Limit the amount of data to harvest from Pure
 There is a lot of data in Pure, so your harvest may take a long time. You may
 reduce this by adjusting parameters at the start of the script. Look in the sections
 "Parameters for harvesting persons/organizations/research outputs from Pure".
@@ -129,6 +135,7 @@ E.g., for research outputs you can adjust
 the years to harvest with the parameter *PURE_RESOUT_YEARS* and the maximum number of
 records to harvest with *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
 
+#### Pure READ and Pure CRUD API
 Pure has two APIs, a READ and a CRUD API.
 The Pure READ API ("old" API) is only for reading data from Pure.
 The Pure CRUD API ("new" API) can be used to create, read, update and delete data 
@@ -158,6 +165,27 @@ but each of them has its own advantages and disadvantages:
   unless you set *PURE_RESOUT_MAX_RECS_TO_HARVEST* in the Pure harvest script to some
   suitable value. 
 
+#### Pure harvesting of projects
+You can also harvest projects from Pure, if your organization uses them. You will
+need to use the Pure READ API, harvesting projects with the PURE CRUD API has not
+been implemented yet.
+
+Projects will be connected to related persons, related organizations
+(the chair/department/faculty the person is from), related research outputs, and
+related projects (if any).
+
+Note that it can happen that you may find a project that is connected to a 
+*person-root* which only has a *PURE_UUID_PERS* and nothing else, or that you
+may find a project that is connected to a research output which only
+has a *PURE_UUID_RESOUT* and nothing else.
+This is probably caused by the Pure harvest script that (in its standard
+configuration) only harvests active persons, those are
+persons who are working at your organization at the time of harvest
+(so you will not have any information about persons that have worked
+on the project, e.g. PhDs or postdocs, since they may already have left 
+your organization),
+and only harvests research outputs from 2020 onward,
+and your project may have research outputs from before 2020.
 
 ### Harvest of Utrecht University datasets
 
