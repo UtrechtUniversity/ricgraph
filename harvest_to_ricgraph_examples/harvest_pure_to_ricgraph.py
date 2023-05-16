@@ -111,7 +111,7 @@ PURE_PERSONS_HARVEST_FROM_FILE = False
 PURE_PERSONS_HARVEST_FILENAME = 'pure_persons_harvest.json'
 PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-# The current version of the Pure CRUD API do not have these filters yet.
+# The current version of the Pure CRUD API does not have these filters yet.
 PURE_PERSONS_FIELDS = {'fields': ['uuid',
                                   'name.*',
                                   'ids.*',
@@ -133,7 +133,7 @@ PURE_ORGANIZATIONS_HARVEST_FROM_FILE = False
 PURE_ORGANIZATIONS_HARVEST_FILENAME = 'pure_organizations_harvest.json'
 PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.csv'
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-# The current version of the Pure CRUD API do not have these filters yet.
+# The current version of the Pure CRUD API does not have these filters yet.
 PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
                                         'period.*',
                                         'name.*',
@@ -163,7 +163,7 @@ PURE_CRUD_RESOUT_YEARS = ['all']
 # For Pure CRUD API: this number is the max recs to harvest total.
 PURE_RESOUT_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 global PURE_RESOUT_FIELDS
-# The current version of the Pure CRUD API do not have these filters yet.
+# The current version of the Pure CRUD API does not have these filters yet.
 PURE_READ_RESOUT_FIELDS = {'fields': ['uuid',
                                       'title.*',
                                       'confidential',
@@ -190,9 +190,8 @@ PURE_PROJECTS_HARVEST_FROM_FILE = False
 PURE_PROJECTS_HARVEST_FILENAME = 'pure_projects_harvest.json'
 PURE_PROJECTS_DATA_FILENAME = 'pure_projects_data.csv'
 PURE_PROJECTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-# The current version of the Pure CRUD API do not have these filters yet.
+# The current version of the Pure CRUD API does not have these filters yet.
 PURE_PROJECTS_FIELDS = {'fields': ['uuid',
-                                   # 'managingOrganisationalUnit.*', # We use the organization of the participant.
                                    'period.*',
                                    'confidential',
                                    'title.*',
@@ -203,6 +202,7 @@ PURE_PROJECTS_FIELDS = {'fields': ['uuid',
                                    'ids.*',
                                    'participants.person.uuid.*',
                                    'participants.organisationalUnits.uuid.*',
+                                   # 'managingOrganisationalUnit.*', # We use the organization of the participant.
                                    # 'organizationalUnits.*',       # We use the organization of the participant.
                                    # 'collaborators.*',             # These are other organizations, skip.
                                    'relatedResearchOutputs.uuid.*',
