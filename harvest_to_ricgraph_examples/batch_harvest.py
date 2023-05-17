@@ -32,6 +32,7 @@ os.system('python harvest_openalex_to_ricgraph.py --empty_ricgraph no --organiza
 os.system('python harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization UMCU')
 os.system('python harvest_uustaffpages_to_ricgraph.py --empty_ricgraph no')
 
+# os.system('python harvest_pure_to_ricgraph.py --empty_ricgraph no --organization VU --harvest_projects yes')
 
 # ###########################################################
 # Batch order 2: If you'd like to harvest OpenAlex
