@@ -26,6 +26,8 @@ In the videos, you will observe nodes of several colors and sizes:
 
 None of these videos have sound.
 
+For other illustrations of Ricgraph, see [the mentions of Ricgraph](ricgraph_mentions.md).
+
 [Return to main README.md file](../README.md).
 
 ### Video Start with ORCID to find software

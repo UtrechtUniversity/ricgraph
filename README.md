@@ -38,7 +38,8 @@ To learn more about Ricgraph,
 [by a description how Ricgraph can be used](#what-can-ricgraph-do). There is also
 [a section with next steps you might want to take](#next-steps).
 You can also look at
-the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md).
+the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md),
+or the [mentions of Ricgraph](docs/ricgraph_mentions.md).
 
 ## Why Ricgraph?
 
