@@ -2,8 +2,8 @@ cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
 message: "If you use Ricgraph, please cite it."
 type: software
-version: "v1.5"
-date-released: "2023-04-18"
+version: "v1.7"
+date-released: "2023-05-18"
 authors:
   - given-names: "Rik D.T."
     family-names: Janssen
@@ -37,6 +37,9 @@ identifiers:
   - description: "Ricgraph DOI v1.6"
     type: doi
     value: "10.5281/zenodo.7841385"
+  - description: "Ricgraph DOI v1.7"
+    type: doi
+    value: "10.5281/zenodo.XXXXXXX"
 abstract: >-
   Ricgraph (Research in context graph) is a graph
   (https://en.wikipedia.org/wiki/Graph_theory) with nodes (sometimes called
