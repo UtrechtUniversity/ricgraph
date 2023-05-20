@@ -14,11 +14,11 @@ This page lists where Ricgraph has been presented and where it has been mentione
 
 ### Ricgraph mentions
 
-| When            | Where                                                       | Title and link to pdf                                                                                                                                |
-|-----------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| January 1, 2023 | SURF communities, blog                                   | [Ricgraph - Research in context graph](mentions/230125-SURF_communities-Ricgraph-Research_in_context_graph.pdf)                                      |
-| May 2, 2023     | FAIR Research IT newsletter                                 | [Op ontdekking gaan is avontuurlijk, maar vaak tijdrovend](mentions/230502-FAIR_Research_IT-Newsletter_april_2023.pdf)                               |
-| May 12, 2023    | SURF communities, blog                                      | [PID Graphs, the road to data integration and discovery](mentions/230512-SURF_communities-PID_Graphs_the_road_to_data_integration_and_discovery.pdf) |
+| When             | Where                       | Title and link to pdf                                                                                                                                | Weblink                                                                                                                        |
+|------------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| January 25, 2023 | SURF communities, blog      | [Ricgraph - Research in context graph](mentions/230125-SURF_communities-Ricgraph-Research_in_context_graph.pdf)                                      | [link](https://communities.surf.nl/en/open-research-information/article/ricgraph-research-in-context-graph)                    |
+| May 2, 2023      | FAIR Research IT newsletter | [Op ontdekking gaan is avontuurlijk, maar vaak tijdrovend](mentions/230502-FAIR_Research_IT-Newsletter_april_2023.pdf)                               |                                                                                                                                |
+| May 12, 2023     | SURF communities, blog      | [PID Graphs, the road to data integration and discovery](mentions/230512-SURF_communities-PID_Graphs_the_road_to_data_integration_and_discovery.pdf) | [link](https://communities.surf.nl/en/open-research-information/article/pid-graphs-the-road-to-data-integration-and-discovery) |
 
 
 [Return to main README.md file](../README.md).
