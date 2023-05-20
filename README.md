@@ -39,7 +39,7 @@ To learn more about Ricgraph,
 [a section with next steps you might want to take](#next-steps).
 You can also look at
 the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md),
-or the [mentions of Ricgraph](docs/ricgraph_mentions.md).
+or the [presentations and mentions of Ricgraph](docs/ricgraph_presentations_mentions.md).
 
 ## Why Ricgraph?
 
