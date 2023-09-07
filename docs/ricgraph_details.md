@@ -35,7 +35,7 @@ Click the figure to enlarge.
 A person can have any number of identifiers.
 The person in the left figure has one *ORCID*, one *ISNI* and one *FULL_NAME*.
 The person in the right figure has a lot more identifiers, and some identifiers appear more than once.
-E.g. this person has 2 different ORCIDs and 2 FULL_NAMEs (with different spellings).
+E.g. this person has two different ORCIDs and two FULL_NAMEs (with different spellings).
 
 ### Research outputs connected to persons
 

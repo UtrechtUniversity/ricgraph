@@ -80,8 +80,8 @@ Click a figure to enlarge.
 | <img src="docs/images/one-person-with-research-outputs.jpg" height="170">   | <img src="docs/images/symbols.jpg" height="170"> | <img src="docs/images/colors-vertical.jpg" height="170"> |
 
 
-This figure shows one person using a
-[*person-root* node, a node which "represents" a person](ricgraph_details.md#person-root-node-in-ricgraph)
+This figure shows one person *A* using a
+[*person-root* node, a node which "represents" a person](docs/ricgraph_details.md#person-root-node-in-ricgraph)
 as it is called
 in Ricgraph.
 This person has contributed to three articles, two data sets and one software package.
