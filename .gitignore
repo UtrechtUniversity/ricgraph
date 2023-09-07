@@ -1,12 +1,13 @@
 # ###########################
 # .gitignore for Ricgraph - Research in context graph.
-# January 4, 2022.
+# January 4, 2023.
 # ###########################
 ricgraph.ini
 *.json
 *.csv
 *.xml
 .idea
+*experimental*
 !neo4j_config/*.json
 
 # ###########################

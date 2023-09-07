@@ -72,26 +72,44 @@ in a university context.
 
 ### Example
 
-In the figures below, nodes in green are datasets, nodes in yellow journal articles,
-nodes in red software and nodes in blue person identifiers. Small nodes are harvested from
-the data repository [Yoda](https://search.datacite.org/repositories/delft.uu),
-medium-sized nodes from
-the [Research Information System Pure](https://www.elsevier.com/solutions/pure),
-and large sized nodes from the
-[Research Software Directory](https://research-software-directory.org).
-Click the figures to enlarge.
+See the figures below for example graphs that show how Ricgraph works.
+Click a figure to enlarge.
 
-| one person with several research outputs          | several persons with several research outputs        |
-|---------------------------------------------------|------------------------------------------------------|
-| <img src="docs/images/rcg-all1.jpg" height="170"> | <img src="docs/images/rcg-all2-ab.jpg" height="200"> |
+| one person with several research outputs                                    | symbols for type of object                   | colors for source system                                 |
+|-----------------------------------------------------------------------------|--------------------------------------------------|----------------------------------------------------------|
+| <img src="docs/images/one-person-with-research-outputs.jpg" height="170">   | <img src="docs/images/symbols.jpg" height="170"> | <img src="docs/images/colors-vertical.jpg" height="170"> |
 
-The left figure shows that a person has 5 identifiers (blue) and 3 journal articles (yellow)
-from Pure,
-2 datasets from Yoda (green) and 1 software package from the Research Software Directory (red).
-*Person-root* is the central node to which everything related to a person is connected.
-Information from several sources is combined in one graph.
-The right figure shows a more extensive example. Two persons, A and B, have worked together on
-a software package (red), a dataset (green), and something else (grey).
+
+This figure shows one person using a
+[*person-root* node, a node which "represents" a person](ricgraph_details.md#person-root-node-in-ricgraph)
+as it is called
+in Ricgraph.
+This person has contributed to three articles, two data sets and one software package.
+Two articles and one data set are from
+the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
+(their color is green),
+one data set is from
+the data repository [Yoda](https://search.datacite.org/repositories/delft.uu)
+(in orange), 
+one article is from [OpenAlex](https://openalex.org) (in purple),
+and
+the software package is from the
+[Research Software Directory](https://research-software-directory.org) (in blue).
+
+
+| several persons with several research outputs                                  | one person with several identifiers and research outputs |
+|--------------------------------------------------------------------------------|----------------------------------------------------------|
+| <img src="docs/images/several-persons-with-research-outputs.jpg" height="200"> | <img src="docs/images/identifiers-and-outputs.jpg" height="200">               |
+
+The left part of this figure shows several persons having several research outputs
+(the symbols) and
+how these are related (i.e. which person contributed to which research output).
+It also shows from which source system these research outputs have originated
+(using different colors).
+The right part shows one person having several identifiers and several research outputs.
+This person has two different ORCIDs, one ISNI, one SCOPUS_AUTHOR_ID, and two FULL_NAMEs (which differ
+in spelling). These identifiers have also been obtained from different source systems, as their color indicates.
+
 More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 
 ## What can Ricgraph do?

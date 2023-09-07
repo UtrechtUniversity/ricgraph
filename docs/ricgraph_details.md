@@ -25,30 +25,26 @@ Ricgraph uses a special node *person-root*. This node is connected to all the di
 person identifiers which have been harvested.
 *Person-root* "represents" a person. Research outputs from a person
 will also be connected to this *person-root* node.
-The following figure shows two examples (click the figure to enlarge).
+The following figure shows two examples. *B* is the *person-root* node. 
+Click the figure to enlarge.
 
-| a person with a few identifiers                | a person with a lot of identifiers             |
-|------------------------------------------------|------------------------------------------------|
-| <img src="images/rcg-ids1.jpg" height="130">   | <img src="images/rcg-ids2.jpg" height="200">   |
+| a person with a few identifiers                         | a person with a lot of identifiers                  |
+|---------------------------------------------------------|-----------------------------------------------------|
+| <img src="images/person-few-ids.jpg" height="200"> | <img src="images/person-many-ids.jpg" height="200"> |
 
 A person can have any number of identifiers.
 The person in the left figure has one *ORCID*, one *ISNI* and one *FULL_NAME*.
 The person in the right figure has a lot more identifiers, and some identifiers appear more than once.
-E.g. this person has 2 SCOPUS_AUTHOR_IDs and 2 ISNIs.
+E.g. this person has 2 different ORCIDs and 2 FULL_NAMEs (with different spellings).
 
 ### Research outputs connected to persons
 
-| one person with three research outputs          | three persons with one research output          |
-|-------------------------------------------------|-------------------------------------------------|
-| <img src="images/rcg-resout1.jpg" height="200"> | <img src="images/rcg-resout2.jpg" height="130"> |
+| one person with three research outputs                                 | three persons with one research output                                |symbols for type of object                   | colors for source system                                 |
+|------------------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------|----------------------------------------------------------|
+| <img src="images/identifiers-and-outputs.jpg" height="200"> | <img src="images/three-persons-one-research-output.jpg" height="200"> |<img src="images/symbols.jpg" height="170"> | <img src="images/colors-vertical.jpg" height="170"> |
 
-In both figures, nodes in blue are related to a person and nodes in yellow to journal articles.
-The person in the left figure is identified by *FULL_NAME*, *ISNI* and *ORCID*,
-which are connected to the *person-root* node (as in the previous section). This person
-has three journal articles, identified by *DOI*. These are also connected to the *person-root* node.
-In the right figure, there are three *person-root* nodes, representing three different persons
-(other nodes with person identifiers are not shown for readability).
-All these persons have contributed to the same research output, identified by *DOI*.
+The left figure shows how one person, its identifiers and research outputs are connected.
+The right figure shows how three persons have contributed to one research output.
 
 ### Videos of Ricgraph
 To see a demonstration of Ricgraph, you can look at 
