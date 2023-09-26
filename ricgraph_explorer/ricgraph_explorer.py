@@ -36,7 +36,7 @@
 # not for production use. That means, this code has not been hardened for
 # "the outside world". Be careful if you expose it to the outside world.
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February 2023.
+# Extended Rik D.T. Janssen, February 2023, September 2023.
 #
 # ########################################################################
 #
@@ -62,6 +62,22 @@ from markupsafe import escape
 import ricgraph as rcg
 
 ricgraph_explorer = Flask(__name__)
+
+# Ricgraph_explorerer is also a "discoverer". This parameter gives the
+# default mode. Possibilities are:
+# details_view: show all the details.
+# person_view: show a person card, limit details (e.g. do not show _history & _source)
+DEFAULT_DISCOVERER_MODE = 'person_view'
+
+# Ricgraph_explorer shows tables. You can specify which columns you need.
+# You do this by making a list of one or more fields in a Ricgraph node.
+# There are some predefined lists.
+DETAIL_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
+                  'url_main', 'url_other', '_source', '_history']
+RESEARCH_OUTPUT_COLUMNS = ['name', 'category', 'value', 'comment',
+                           'year', 'url_main', 'url_other']
+ORGANIZATION_COLUMNS = ['name', 'value', 'comment', 'url_main']
+ID_COLUMNS = ['name', 'value', 'url_main']
 
 # When we do a query, we return at most this number of nodes.
 MAX_RESULTS = 50
@@ -113,8 +129,10 @@ page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-
 page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right: 0.5em">explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item' + button_style_border + '">Home</a>'
-page_header += '<a href="/search" class="w3-bar-item' + button_style_border + '">Exact match search</a>'
-page_header += '<a href="/searchcontains" class="w3-bar-item' + button_style_border + '">String search</a>'
+page_header += '<a href="/search?discoverer_mode=' + DEFAULT_DISCOVERER_MODE + '" class="w3-bar-item'
+page_header += button_style_border + '">Exact match search (' + DEFAULT_DISCOVERER_MODE + ')</a>'
+page_header += '<a href="/searchcontains?discoverer_mode=' + DEFAULT_DISCOVERER_MODE + '" class="w3-bar-item'
+page_header += button_style_border + '">String search (' + DEFAULT_DISCOVERER_MODE + ')</a>'
 page_header += '</div>'
 page_header += '</header>'
 
@@ -149,10 +167,16 @@ search_form += '<h3>Type something to search</h3>'
 search_form += 'This is an case-sensitive, exact match search, using AND if you use multiple fields:'
 search_form += '</div>'
 search_form += '<div class="w3-container">'
+# Don't use this one, then 'discoverer_mode' will not be passed:
+# search_form += '<form method="post" action="/search">'
 search_form += '<form method="post">'
-search_form += '<label>name:</label><input class="w3-input w3-border" type=text name=search_name>'
-search_form += '<br><label>category:</label><input class="w3-input w3-border" type=text name=search_category>'
-search_form += '<br><label>value:</label><input class="w3-input w3-border" type=text name=search_value>'
+search_form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
+search_form += '<input class="w3-input w3-border" type=text name=search_name>'
+search_form += '<br><label>Search for a value in Ricgraph field <em>category</em>:</label>'
+search_form += '<input class="w3-input w3-border" type=text name=search_category>'
+search_form += '<br><label>Search for a value in Ricgraph field <em>value</em>:</label>'
+search_form += '<input class="w3-input w3-border" type=text name=search_value>'
+search_form += '<input type="hidden" name="search_discoverer_mode" value=>'
 search_form += '<br><input class="w3-input' + button_style + '" type=submit value=search>'
 search_form += '</form>'
 search_form += '</div>'
@@ -167,8 +191,11 @@ searchcontains_form += '<h3>Type something to search</h3>'
 searchcontains_form += 'This is a case-insensitive, inexact match:'
 searchcontains_form += '</div>'
 searchcontains_form += '<div class="w3-container">'
+# Don't use this one, then 'discoverer_mode' will not be passed:
+# searchcontains_form += '<form method="post" action="/searchcontains">'
 searchcontains_form += '<form method="post">'
-searchcontains_form += '<label>value:</label><input class="w3-input w3-border" type=text name=search_value>'
+searchcontains_form += '<label>Search for a value in Ricgraph field <em>value</em>:</label>'
+searchcontains_form += '<input class="w3-input w3-border" type=text name=search_value>'
 searchcontains_form += '<br><input class="w3-input' + button_style + '" type=submit value=search>'
 searchcontains_form += '</form>'
 searchcontains_form += '</div>'
@@ -189,14 +216,72 @@ def index_html() -> str:
 
     html = html_body_start
     html += get_html_for_cardstart()
-    html += 'This is Ricgraph explorer. You can use it to explore Ricgraph.'
+    html += '<h3>This is Ricgraph explorer</h3>'
+    html += 'You can use Ricgraph explorer to explore Ricgraph. '
+
+    html += 'There are two methods to start exploring:'
     html += '<ul>'
-    html += '<li><a href=' + url_for('search') + '>' + 'Do a case-sensitive, '
-    html += 'exact match search on fields '
-    html += '<i>name</i>, <i>category</i> and/or <i>value</i>' + '</a>;'
-    html += '<li><a href=' + url_for('searchcontains') + '>' + 'Do a search on '
-    html += 'field <i>value</i> containing a string' + '</a>.'
+    html += '<li>find your first node by using exact match;'
+    html += '<li>find your first node by using search on a field.</li>'
+    html += '</li>'
     html += '</ul>'
+    html += '</p>'
+
+    html += 'There are two methods for viewing the results '
+    html += '(for an explation see the text below the table):'
+    html += '<ul>'
+    html += '<li><em>person_view</em>: only show relevant columns;'
+    html += '<li><em>details_view</em>: show all columns.</li>'
+    html += '</li>'
+    html += '</ul>'
+    html += '</p>'
+    html += '</br>'
+
+    html += '<table style="font-size:110%; text-align:center">'
+    html += '<colgroup class="uu-yellow">'
+    html += '<col span=1>'
+    html += '</colgroup>'
+    html += '<tr class="uu-yellow">'
+    html += '<th>view of the result</th>'
+    html += '<th>case-sensitive, exact match search on fields</br><i>name</i>, '
+    html += '<i>category</i> and/or <i>value</i></th>'
+    html += '<th>search on field <i>value</i> containing a string</th>'
+    html += '</tr>'
+    html += '<tr>'
+    html += '<td style="text-align:left;">person_view<br/>only show relevant columns</td>'
+    html += '<td width=40%><a href=' + url_for('search') + '?discoverer_mode=person_view class="'
+    html += button_style + '">choose this one</a></td>'
+    html += '<td width=40%><a href=' + url_for('searchcontains') + '?discoverer_mode=person_view class="'
+    html += button_style + '">choose this one</a></td>'
+    html += '</tr>'
+    html += '<tr>'
+    html += '<td style="text-align:left;">details_view<br/>show all columns</td>'
+    html += '<td><a href=' + url_for('search') + '?discoverer_mode=details_view class="'
+    html += button_style + '">choose this one</a></td>'
+    html += '<td><a href=' + url_for('searchcontains') + '?discoverer_mode=details_view class="'
+    html += button_style + '">choose this one</a></td>'
+    html += '</tr>'
+    html += '</table>'
+    html += '</p>'
+    html += '</br>'
+
+    html += 'The two modes for viewing the results (the <em>discoverer_mode</em>) are:'
+    html += '<ul>'
+    html += '<li><em>person_view</em>: '
+    html += 'only relevant columns are shown. '
+    html += 'Basically this means that tables have less columns (to reduce information overload) '
+    html += 'and that the order of the tables is different. '
+    html += '</br>This view has been tailored to the Utrecht University staff pages, since some of these '
+    html += 'pages also include expertise areas, research areas, skills or photos. '
+    html += 'If present, these will be presented in a more attractive way. '
+    html += 'If the UU staff pages have not been harvested, this view may still be relevant, '
+    html += 'because it shows that the layout of information shown can be adapted to a target audience.'
+    html += '</li>'
+    html += '<li><em>details_view</em>: all columns in Ricgraph will be shown.</li>'
+    html += '</ul>'
+    html += '</p>Technically, these modes are implemented using a parameter "?discoverer_mode=<em>mode</em>" '
+    html += 'in the url. You may modify this as you like.'
+
     html += get_html_for_cardend()
     html += html_body_end
     return html
@@ -216,25 +301,46 @@ def search(id_value=None) -> str:
     """
     global html_body_start, html_body_end, search_form
 
+    discoverer_mode = str(escape(request.args.get('discoverer_mode')))
+    if discoverer_mode == 'None':
+        discoverer_mode_passed_in_url = False
+    else:
+        discoverer_mode_passed_in_url = True
+
+    if discoverer_mode != 'details_view' \
+       and discoverer_mode != 'person_view':
+        discoverer_mode = DEFAULT_DISCOVERER_MODE
+
     html = html_body_start
     if request.method == 'POST':
-        search_name = request.form['search_name']
-        search_category = request.form['search_category']
-        search_value = request.form['search_value']
+        search_name = str(escape(request.form['search_name']))
+        search_category = str(escape(request.form['search_category']))
+        search_value = str(escape(request.form['search_value']))
+        if not discoverer_mode_passed_in_url:
+            # Only get discoverer_mode from the form if it has not been
+            # passed in the url. This happens with the faceted search.
+            # Then the discoverer_mode is in the form, not in the url.
+            discoverer_mode = str(escape(request.form['search_discoverer_mode']))
+            if discoverer_mode != 'details_view' \
+               and discoverer_mode != 'person_view':
+                discoverer_mode = DEFAULT_DISCOVERER_MODE
+
         faceted_name_list = request.form.getlist('faceted_name')
         faceted_category_list = request.form.getlist('faceted_category')
-        html += find_nodes_in_ricgraph(name=escape(search_name),
-                                       category=escape(search_category),
-                                       value=escape(search_value),
+        html += find_nodes_in_ricgraph(name=search_name,
+                                       category=search_category,
+                                       value=search_value,
                                        name_want=faceted_name_list,
-                                       category_want=faceted_category_list)
+                                       category_want=faceted_category_list,
+                                       discoverer_mode=discoverer_mode)
     else:
         if id_value is None:
             html += search_form
         else:
             html += find_nodes_in_ricgraph(name='',
                                            category='',
-                                           value=escape(id_value))
+                                           value=str(escape(id_value)),
+                                           discoverer_mode=discoverer_mode)
     html += html_body_end
     return html
 
@@ -250,11 +356,17 @@ def searchcontains() -> str:
     """
     global html_body_start, html_body_end, searchcontains_form
 
+    discoverer_mode = str(escape(request.args.get('discoverer_mode')))
+    if discoverer_mode != 'details_view' \
+       and discoverer_mode != 'person_view':
+        discoverer_mode = DEFAULT_DISCOVERER_MODE
+
     html = html_body_start
     if request.method == 'POST':
-        search_value = request.form['search_value']
-        html += find_nodes_in_ricgraph(value=escape(search_value),
-                                       use_contain_phrase=True)
+        search_value = str(escape(request.form['search_value']))
+        html += find_nodes_in_ricgraph(value=search_value,
+                                       use_contain_phrase=True,
+                                       discoverer_mode=discoverer_mode)
     else:
         html += searchcontains_form
 
@@ -265,8 +377,304 @@ def searchcontains() -> str:
 # ##############################################################################
 # This is where the work is done.
 # ##############################################################################
-def faceted_navigation_in_ricgraph(nodes: list,
-                                   name: str = '', category: str = '', value: str = '') -> str:
+
+def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
+                           use_contain_phrase: bool = False,
+                           name_want: list = None, category_want: list = None,
+                           discoverer_mode: str = '') -> str:
+    """Find all nodes conforming to a query
+    in Ricgraph and generate html for the result page.
+
+    :param name: name of the nodes to find.
+    :param category: category of the nodes to find.
+    :param value: value of the nodes to find.
+    :param use_contain_phrase: determines either case-sensitive & exact match (False),
+      or case-insensitive & inexact match (True).
+    :param name_want: either a string which indicates that we only want neighbor
+      nodes where the property 'name' is equal to 'name_want'
+      (e.g. 'ORCID'),
+      or a list containing several node names, indicating
+      that we want all neighbor nodes where the property 'name' equals
+      one of the names in the list 'name_want'
+      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    :param category_want: similar to 'name_want', but now for the property 'category'.
+    :param discoverer_mode: the discoverer_mode to use.
+    :return: html to be rendered.
+    """
+    graph = rcg.open_ricgraph()         # Should probably be done in a Session
+    html = ''
+    if graph is None:
+        return 'Ricgraph could not be opened.'
+
+    if name == '' and category == '' and value == '':
+        html = get_html_for_cardstart()
+        html += 'The search field should have a value.'
+        html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += get_html_for_cardend()
+        return html
+
+    if discoverer_mode != 'details_view' and discoverer_mode != 'person_view':
+        return 'Error, unknown discoverer_mode: ' + discoverer_mode + '. Please try again.'
+
+    if name_want is None:
+        name_want = []
+    if category_want is None:
+        category_want = []
+
+    if use_contain_phrase:
+        if len(value) < 3:
+            html = get_html_for_cardstart()
+            html += 'The search string should be at least three characters.'
+            html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += get_html_for_cardend()
+            return html
+        result = rcg.read_all_nodes_containing(value=value)
+    else:
+        result = rcg.read_all_nodes(name=name, category=category, value=value)
+
+    if len(result) == 0:
+        html = get_html_for_cardstart()
+        html += 'Ricgraph explorer could not find anything.'
+        html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += get_html_for_cardend()
+        return html
+
+    if len(result) > 1:
+        table_header = 'Choose one node to continue:'
+        if discoverer_mode == 'details_view':
+            columns = DETAIL_COLUMNS
+        elif discoverer_mode == 'person_view':
+            columns = RESEARCH_OUTPUT_COLUMNS
+        html += get_html_table_from_nodes(nodes=result,
+                                          table_header=table_header,
+                                          table_columns=columns,
+                                          discoverer_mode=discoverer_mode)
+        return html
+
+    if discoverer_mode == 'details_view':
+        html = get_html_for_cardstart()
+        html += 'You searched for:<ul>'
+        if not use_contain_phrase:
+            html += '<li>name: <i>"' + str(name) + '"</i>'
+            html += '<li>category: <i>"' + str(category) + '"</i>'
+
+        html += '<li>value: <i>"' + str(value) + '"</i>'
+        if len(name_want) > 0:
+            html += '<li>name_want: <i>"' + str(name_want) + '"</i>'
+        if len(category_want) > 0:
+            html += '<li>category_want: <i>"' + str(category_want) + '"</i>'
+        html += '<li>discoverer_mode: <i>"' + discoverer_mode + '"</i>'
+        html += '</ul>'
+        html += get_html_for_cardend()
+        html += get_html_for_cardline()
+
+    columns = ''
+
+    # This is not necessary, this has been catched above.
+    # This implies that the for loop is not necessary either, since it always will be of length 1.
+    # if len(result) > MAX_RESULTS:
+    #     html += get_html_for_cardstart()
+    #     html += 'There are ' + str(len(result)) + ' results, showing first '
+    #     html += str(MAX_RESULTS) + '.<br>'
+    #     html += get_html_for_cardend()
+    # count = 0
+
+    # Loop over the nodes found.
+    for node in result:
+        # count += 1
+        # if count > MAX_RESULTS:
+        #     break
+
+        if discoverer_mode == 'details_view':
+            columns = DETAIL_COLUMNS
+        elif discoverer_mode == 'person_view':
+            columns = RESEARCH_OUTPUT_COLUMNS
+        html += get_html_table_from_nodes(nodes=[node],
+                                          table_header='Ricgraph explorer found node:',
+                                          table_columns=columns,
+                                          discoverer_mode=discoverer_mode)
+        category_dontwant = ''
+        if node['category'] == 'person':
+            personroot_nodes = rcg.get_all_personroot_nodes(node)
+            if len(personroot_nodes) == 0:
+                html += get_html_for_cardstart()
+                html += 'No person-root node found, this should not happen.'
+                html += get_html_for_cardend()
+                return html
+            elif len(personroot_nodes) == 1:
+                neighbor_nodes = rcg.get_all_neighbor_nodes_person(node)
+                table_header = ''
+                node_to_find_neighbors = personroot_nodes[0]
+                if discoverer_mode == 'details_view':
+                    table_header = 'This is a <i>person</i> node, '
+                    table_header += 'these are all IDs of its <i>person-root</i> node:'
+                    html += details_view_page(nodes=neighbor_nodes,
+                                              table_header=table_header,
+                                              table_columns=DETAIL_COLUMNS,
+                                              discoverer_mode=discoverer_mode)
+                    table_header = 'These are all the neighbors of this <i>person-root</i> node '
+                    table_header += '(without <i>person</i> nodes):'
+                    category_dontwant = 'person'
+                elif discoverer_mode == 'person_view':
+                    html += person_view_page(nodes=neighbor_nodes,
+                                             personroot=node_to_find_neighbors,
+                                             discoverer_mode=discoverer_mode)
+                    table_header = 'These are all the research outputs of this person:'
+                    # These are excluded because they have already been shown in person_view_page().
+                    category_dontwant = ['person', 'competence', 'organization', 'project']
+                # And now fall through.
+            else:
+                # More than one person-root node, that should not happen, but it did.
+                table_header = 'There is more than one <i>person-root</i> node '
+                table_header += 'for the node found. '
+                table_header += 'This should not happen, but it did, and that may have been '
+                table_header += 'caused by a mislabeling in a source system we harvested. '
+                table_header += 'Choose one <i>person-root</i> node to continue:'
+                html += get_html_table_from_nodes(nodes=personroot_nodes,
+                                                  table_header=table_header,
+                                                  table_columns=DETAIL_COLUMNS,
+                                                  discoverer_mode=discoverer_mode)
+                return html
+        else:
+            table_header = 'These are the neighbors of this node:'
+            node_to_find_neighbors = node
+
+        if discoverer_mode == 'details_view':
+            columns = DETAIL_COLUMNS
+        elif discoverer_mode == 'person_view':
+            columns = RESEARCH_OUTPUT_COLUMNS
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=node_to_find_neighbors,
+                                                    name_want=name_want,
+                                                    category_want=category_want,
+                                                    category_dontwant=category_dontwant)
+        faceted_html = get_faceted_html_table_from_nodes(nodes=neighbor_nodes,
+                                                         name=name,
+                                                         category=category,
+                                                         value=value,
+                                                         table_header=table_header,
+                                                         table_columns=columns,
+                                                         discoverer_mode=discoverer_mode)
+        html += faceted_html
+
+    return html
+
+
+def details_view_page(nodes: Union[list, NodeMatch, None],
+                      table_header: str = '',
+                      table_columns: list = None,
+                      discoverer_mode: str = '') -> str:
+    """Create a details page of the node.
+
+    :param nodes: the nodes to create a table from.
+    :param table_header: the html to show above the table.
+    :param table_columns: a list of columns to show in the table.
+    :param discoverer_mode: the discoverer_mode to use.
+    :return: html to be rendered.
+    """
+    if table_columns is None:
+        table_columns = []
+    html = get_html_table_from_nodes(nodes=nodes,
+                                     table_header=table_header,
+                                     table_columns=table_columns,
+                                     discoverer_mode=discoverer_mode)
+    return html
+
+
+def person_view_page(nodes: Union[list, NodeMatch, None],
+                     personroot: Node = None,
+                     discoverer_mode: str = '') -> str:
+    """Create a person page of the node.
+
+    :param nodes: the nodes to create a table from.
+    :param personroot: the person-root of nodes (passed for efficiency).
+    :param discoverer_mode: the discoverer_mode to use.
+    :return: html to be rendered.
+    """
+    if len(nodes) == 0:
+        html = get_html_for_cardstart()
+        html += 'No neighbors found.'
+        html += get_html_for_cardend()
+        return html
+
+    html = get_html_for_cardstart()
+    names = []
+    for node in nodes:
+        if node['name'] != 'FULL_NAME':
+            continue
+        item = '<a href=' + url_for('search')
+        item += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
+        item += node['value'] + '</a>'
+        names.append(item)
+    if len(names) == 1:
+        html += '<p class="w3-xlarge">' + ', '.join(str(item) for item in names)
+        # matching </p> inserted below
+    elif len(names) > 1:
+        html += '<p>This person has ' + str(len(names)) + ' name variants:&nbsp;'
+        html += '<font class="w3-xlarge">' + ', '.join(str(item) for item in names) + '</font>'
+        # matching </p> inserted below
+
+    for node in nodes:
+        if node['name'] != 'PHOTO':
+            continue
+        html += '&nbsp;&nbsp;'
+        html += '<a href=' + url_for('search')
+        html += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
+        html += '<img src="' + node['url_main'] + '" alt="' + node['value']
+        html += '" title="' + node['value'] + '" height="100"></a>'
+    html += '</p>'
+
+    skills = []
+    research_areas = []
+    expertise_areas = []
+    competence_nodes = rcg.get_all_neighbor_nodes(node=personroot, category_want='competence')
+    for node in competence_nodes:
+        item = '<a href=' + url_for('search')
+        item += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
+        item += node['value'] + '</a>'
+        if node['name'] == 'SKILL':
+            skills.append(item)
+        if node['name'] == 'RESEARCH_AREA':
+            research_areas.append(item)
+        if node['name'] == 'EXPERTISE_AREA':
+            expertise_areas.append(item)
+        continue
+    html_list = ''
+    if len(skills) > 0:
+        html_list += '<li>Skills: ' + ', '.join(str(item) for item in skills) + '</li>'
+    if len(research_areas) > 0:
+        html_list += '<li>Research areas: ' + ', '.join(str(item) for item in research_areas) + '</li>'
+    if len(expertise_areas) > 0:
+        html_list += '<li>Expertise areas: ' + ', '.join(str(item) for item in expertise_areas) + '</li>'
+    if html_list != '':
+        html += '<p/><td><ul>' + html_list + '</ul></td>'
+    html += get_html_for_cardend()
+
+    id_nodes = rcg.get_all_neighbor_nodes(node=personroot,
+                                          name_dontwant=['FULL_NAME', 'person-root', 'PHOTO'],
+                                          category_want='person')
+    html += get_html_table_from_nodes(nodes=id_nodes,
+                                      table_header='These are all the IDs of this person:',
+                                      table_columns=ID_COLUMNS,
+                                      discoverer_mode=discoverer_mode)
+
+    organization_nodes = rcg.get_all_neighbor_nodes(node=personroot, category_want='organization')
+    html += get_html_table_from_nodes(nodes=organization_nodes,
+                                      table_header='This person works for the following organizations:',
+                                      table_columns=ORGANIZATION_COLUMNS,
+                                      discoverer_mode=discoverer_mode)
+
+    project_nodes = rcg.get_all_neighbor_nodes(node=personroot, category_want='project')
+    html += get_html_table_from_nodes(nodes=project_nodes,
+                                      table_header='This person participated in the following projects:',
+                                      table_columns=RESEARCH_OUTPUT_COLUMNS,
+                                      discoverer_mode=discoverer_mode)
+    return html
+
+
+def get_facets_from_nodes(nodes: list,
+                          name: str = '', category: str = '', value: str = '',
+                          discoverer_mode: str = '') -> str:
     """Do facet navigation in Ricgraph.
     The facets will be constructed based on 'name' and 'category'.
     Facets chosen will be "catched" in function search().
@@ -276,6 +684,7 @@ def faceted_navigation_in_ricgraph(nodes: list,
     :param name: name of the nodes to find.
     :param category: category of the nodes to find.
     :param value: value of the nodes to find.
+    :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered, or empty string ('') if faceted navigation is
       not useful because there is only one facet.
     """
@@ -301,7 +710,10 @@ def faceted_navigation_in_ricgraph(nodes: list,
 
     faceted_form = get_html_for_cardstart()
     faceted_form += '<div class="facetedform">'
-    faceted_form += '<form method="post" action="/search">'
+    # An option might be to pass 'discoverer_mode' in the url, but that might confuse the user:
+    # although in that case you can modify that mode, it will not work because other required
+    # parameters have been passed as POST data and those are already gone.
+    faceted_form += '<form method="post" action="' + url_for('search') + '">'
     if len(name_histogram) == 1:
         # Get the first (and only) element in the dict, pass it as hidden field to search().
         name_key = str(list(name_histogram.keys())[0])
@@ -344,6 +756,7 @@ def faceted_navigation_in_ricgraph(nodes: list,
     faceted_form += '<input type="hidden" name="search_name" value="' + str(name) + '">'
     faceted_form += '<input type="hidden" name="search_category" value="' + str(category) + '">'
     faceted_form += '<input type="hidden" name="search_value" value="' + str(value) + '">'
+    faceted_form += '<input type="hidden" name="search_discoverer_mode" value="' + str(discoverer_mode) + '">'
     faceted_form += '<input class="w3-input' + button_style + '" type=submit value="Do the faceted navigation">'
     faceted_form += '</form>'
     faceted_form += '</div>'
@@ -352,173 +765,31 @@ def faceted_navigation_in_ricgraph(nodes: list,
     return html
 
 
-def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
-                           use_contain_phrase: bool = False,
-                           name_want: list = None, category_want: list = None) -> str:
-    """Find all nodes conforming to a query
-    in Ricgraph and generate html for the result page.
-
-    :param name: name of the nodes to find.
-    :param category: category of the nodes to find.
-    :param value: value of the nodes to find.
-    :param use_contain_phrase: determines either case-sensitive & exact match,
-      or case-insensitive & inexact match.
-    :param name_want: either a string which indicates that we only want neighbor
-      nodes where the property 'name' is equal to 'name_want'
-      (e.g. 'ORCID'),
-      or a list containing several node names, indicating
-      that we want all neighbor nodes where the property 'name' equals
-      one of the names in the list 'name_want'
-      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
-      If empty (empty string), return all nodes.
-    :param category_want: similar to 'name_want', but now for the property 'category'.
-    :return: html to be rendered.
-    """
-    graph = rcg.open_ricgraph()         # Should probably be done in a Session
-    if graph is None:
-        return 'Ricgraph could not be opened.'
-
-    if name == '' and category == '' and value == '':
-        html = get_html_for_cardstart()
-        html += 'The search field should have a value.'
-        html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
-        return html
-
-    if name_want is None:
-        name_want = []
-    if category_want is None:
-        category_want = []
-
-    if use_contain_phrase:
-        if len(value) < 3:
-            html = get_html_for_cardstart()
-            html += 'The search string should be at least three characters.'
-            html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            return html
-
-        result = rcg.read_all_nodes_containing(value=value)
-    else:
-        result = rcg.read_all_nodes(name=name, category=category, value=value)
-
-    if len(result) == 0:
-        html = get_html_for_cardstart()
-        html += 'Ricgraph explorer could not find anything.'
-        html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
-        return html
-
-    html = get_html_for_cardstart()
-    html += 'You searched for:<ul>'
-    if not use_contain_phrase:
-        html += '<li>name: <i>"' + str(name) + '"</i>'
-        html += '<li>category: <i>"' + str(category) + '"</i>'
-
-    html += '<li>value: <i>"' + str(value) + '"</i>'
-    if len(name_want) > 0:
-        html += '<li>name_want: <i>"' + str(name_want) + '"</i>'
-    if len(category_want) > 0:
-        html += '<li>category_want: <i>"' + str(category_want) + '"</i>'
-    html += '</ul>'
-    html += get_html_for_cardend()
-
-    if use_contain_phrase:
-        table_header = 'Choose one node to continue:'
-        html += get_html_table_from_nodes(nodes=result, table_header=table_header)
-        return html
-
-    if len(result) > MAX_RESULTS:
-        html += get_html_for_cardstart()
-        html += 'There are ' + str(len(result)) + ' results, showing first '
-        html += str(MAX_RESULTS) + '.<br>'
-        html += get_html_for_cardend()
-    count = 0
-    # Loop over the nodes found.
-    for node in result:
-        count += 1
-        if count > MAX_RESULTS:
-            break
-
-        html += get_html_for_cardline()
-        html += get_html_table_from_nodes(nodes=[node],
-                                          table_header='Ricgraph explorer found node:')
-        if node['category'] == 'person':
-            personroot_nodes = rcg.get_all_personroot_nodes(node)
-            if len(personroot_nodes) == 0:
-                html += get_html_for_cardstart()
-                html += 'No person-root node found, this should not happen.'
-                html += get_html_for_cardend()
-                return html
-            elif len(personroot_nodes) == 1:
-                table_header = 'This is a <i>person</i> node, '
-                table_header += 'these are all IDs of its <i>person-root</i> node:'
-                neighbor_nodes = rcg.get_all_neighbor_nodes_person(node)
-                html += get_html_table_from_nodes(nodes=neighbor_nodes,
-                                                  table_header=table_header)
-
-                table_header = 'These are all the neighbors of this <i>person-root</i> node '
-                table_header += '(without <i>person</i> nodes):'
-                node_to_find_neighbors = personroot_nodes[0]
-                category_dontwant = 'person'
-                # And now fall through.
-            else:
-                # More than one person-root node, that should not happen, but it did.
-                table_header = 'There is more than one <i>person-root</i> node '
-                table_header += 'for the node found. '
-                table_header += 'This should not happen, but it did, and that may have been '
-                table_header += 'caused by a mislabeling in a source system we harvested. '
-                table_header += 'Choose one <i>person-root</i> node to continue:'
-                html += get_html_table_from_nodes(nodes=personroot_nodes,
-                                                  table_header=table_header)
-                return html
-        else:
-            table_header = 'These are the neighbors of this node:'
-            node_to_find_neighbors = node
-            category_dontwant = ''
-
-        neighbor_nodes = rcg.get_all_neighbor_nodes(node=node_to_find_neighbors,
-                                                    name_want=name_want,
-                                                    category_want=category_want,
-                                                    category_dontwant=category_dontwant)
-        faceted_html = faceted_navigation_in_ricgraph(nodes=neighbor_nodes,
-                                                      name=name,
-                                                      category=category,
-                                                      value=value)
-        if faceted_html == '':
-            table_header += '<br>[Facet panel not shown because there is only one facet to show.]'
-
-        table_html = get_html_table_from_nodes(nodes=neighbor_nodes,
-                                               table_header=table_header)
-        if faceted_html == '':
-            # Faceted navigation not useful, don't show the panel.
-            html += table_html
-        else:
-            # Divide space between facet panel and table.
-            html += '<div class="w3-row-padding w3-stretch" >'
-            html += '<div class="w3-col" style="width:300px" >'
-            html += faceted_html
-            html += '</div>'
-            html += '<div class="w3-rest" >'
-            html += table_html
-            html += '</div>'
-            html += '</div>'
-
-    return html
-
-
-def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None], table_header: str = '') -> str:
+# ##############################################################################
+# The HTML for the tables is generated here.
+# ##############################################################################
+def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
+                              table_header: str = '',
+                              table_columns: list = None,
+                              discoverer_mode: str = '') -> str:
     """Create a html table for all nodes in the list.
 
     :param nodes: the nodes to create a table from.
     :param table_header: the html to show above the table.
+    :param table_columns: a list of columns to show in the table.
+    :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
+    if table_columns is None:
+        table_columns = []
     if len(nodes) == 0:
-        html = get_html_for_cardstart()
-        html += 'No neighbors found.'
-        html += get_html_for_cardend()
-        return html
+        if set(table_columns) == set(DETAIL_COLUMNS):
+            html = get_html_for_cardstart()
+            html += 'No neighbors found.'
+            html += get_html_for_cardend()
+            return html
+        else:
+            return ''
 
     html = get_html_for_cardstart()
     html += table_header
@@ -526,22 +797,81 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None], table_header:
         html += '<br>There are ' + str(len(nodes)) + ' rows in this table, showing first '
         html += str(MAX_ROWS_IN_TABLE) + '.<br>'
     html += get_html_for_tablestart()
-    html += get_html_for_tableheader()
+    html += get_html_for_tableheader(table_columns=table_columns)
     count = 0
     for node in nodes:
         count += 1
         if count > MAX_ROWS_IN_TABLE:
             break
-        html += get_html_for_tablerow(node=node)
+        html += get_html_for_tablerow(node=node,
+                                      table_columns=table_columns,
+                                      discoverer_mode=discoverer_mode)
 
     html += get_html_for_tableend()
     html += get_html_for_cardend()
     return html
 
 
-# ##############################################################################
-# The HTML for the tables is generated here.
-# ##############################################################################
+def get_faceted_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
+                                      name: str = '',
+                                      category: str = '',
+                                      value: str = '',
+                                      table_header: str = '',
+                                      table_columns: list = None,
+                                      discoverer_mode: str = '') -> str:
+    """Create a faceted html table for all nodes in the list.
+
+    :param nodes: the nodes to create a table from.
+    :param name: name of the nodes to find.
+    :param category: category of the nodes to find.
+    :param value: value of the nodes to find.
+    :param table_header: the html to show above the table.
+    :param table_columns: a list of columns to show in the table.
+    :param discoverer_mode: the discoverer_mode to use.
+    :return: html to be rendered.
+    """
+    if table_columns is None:
+        table_columns = []
+    if len(nodes) == 0:
+        if set(table_columns) == set(DETAIL_COLUMNS):
+            html = get_html_for_cardstart()
+            html += 'No neighbors found.'
+            html += get_html_for_cardend()
+            return html
+        else:
+            return ''
+
+    faceted_html = get_facets_from_nodes(nodes=nodes,
+                                         name=name,
+                                         category=category,
+                                         value=value,
+                                         discoverer_mode=discoverer_mode)
+    if faceted_html == '' \
+       and discoverer_mode == 'details_view':
+        table_header += '<br>[Facet panel not shown because there is only one facet to show.]'
+
+    table_html = get_html_table_from_nodes(nodes=nodes,
+                                           table_header=table_header,
+                                           table_columns=table_columns,
+                                           discoverer_mode=discoverer_mode)
+    html = ''
+    if faceted_html == '':
+        # Faceted navigation not useful, don't show the panel.
+        html += table_html
+    else:
+        # Divide space between facet panel and table.
+        html += '<div class="w3-row-padding w3-stretch" >'
+        html += '<div class="w3-col" style="width:300px" >'
+        html += faceted_html
+        html += '</div>'
+        html += '<div class="w3-rest" >'
+        html += table_html
+        html += '</div>'
+        html += '</div>'
+
+    return html
+
+
 def get_html_for_tablestart() -> str:
     """Get the html required for the start of a html table.
 
@@ -551,77 +881,106 @@ def get_html_for_tablestart() -> str:
     return html
 
 
-def get_html_for_tableheader() -> str:
+def get_html_for_tableheader(table_columns: list = None) -> str:
     """Get the html required for the header of a html table.
 
+    :param table_columns: a list of columns to show in the table.
     :return: html to be rendered.
     """
+    if table_columns is None:
+        table_columns = []
     html = '<tr class="uu-yellow">'
-    html += '<th>name</th>'
-    html += '<th>category</th>'
-    html += '<th class=sorttable_alpha">value</th>'
-    html += '<th>comment</th>'
-    html += '<th>year</th>'
-    html += '<th class="sorttable_nosort">url_main</th>'
-    html += '<th class="sorttable_nosort">url_other</th>'
-    html += '<th class="sorttable_nosort">_source</th>'
-    html += '<th class="sorttable_nosort">_history</th>'
+    if 'name' in table_columns:
+        html += '<th>name</th>'
+    if 'category' in table_columns:
+        html += '<th>category</th>'
+    if 'value' in table_columns:
+        html += '<th class=sorttable_alpha">value</th>'
+    if 'comment' in table_columns:
+        html += '<th>comment</th>'
+    if 'year' in table_columns:
+        html += '<th>year</th>'
+    if 'url_main' in table_columns:
+        html += '<th class="sorttable_nosort">url_main</th>'
+    if 'url_other' in table_columns:
+        html += '<th class="sorttable_nosort">url_other</th>'
+    if '_source' in table_columns:
+        html += '<th class="sorttable_nosort">_source</th>'
+    if '_history' in table_columns:
+        html += '<th class="sorttable_nosort">_history</th>'
     html += '</tr>'
     return html
 
 
-def get_html_for_tablerow(node: Node) -> str:
+def get_html_for_tablerow(node: Node,
+                          table_columns: list = None,
+                          discoverer_mode: str = '') -> str:
     """Get the html required for a row of a html table.
 
+    :param node: the node to show in the table.
+    :param table_columns: a list of columns to show in the table.
+    :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
+    if table_columns is None:
+        table_columns = []
     html = '<tr class="item">'
-    html += '<td>' + node['name'] + '</td>'
-    html += '<td>' + node['category'] + '</td>'
-    html += '<td><a href=' + url_for('search') + urllib.parse.quote(node['value']) + '>'
-    html += node['value'] + '</a></td>'
-    if node['comment'] == '':
-        # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
-        # for easier browsing.
-        html += '<td><ul>'
-        if node['name'] == 'person-root':
-            for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
-                html += '<li>' + full_name_node['value'] + '</li>'
-        html += '</ul></td>'
-    else:
-        html += '<td width=30%>' + node['comment'] + '</td>'
-
-    if node['year'] == '':
-        html += '<td></td>'
-    else:
-        html += '<td>' + node['year'] + '</td>'
-
-    if node['url_main'] == '':
-        html += '<td></td>'
-    else:
-        html += '<td><a href=' + node['url_main'] + ' target="_blank"> url_main link </a></td>'
-
-    if node['url_other'] == '':
-        html += '<td></td>'
-    else:
-        html += '<td><a href=' + node['url_other'] + ' target="_blank"> url_other link </a></td>'
-
-    if node['_source'] == '':
-        html += '<td></td>'
-    else:
-        html += '<td><ul>'
-        for source in node['_source']:
-            html += '<li>' + source
-        html += '</ul></td>'
-
-    if node['_history'] == '':
-        html += '<td></td>'
-    else:
-        html += '<td><details><summary>Click for history</summary><ul>'
-        for history in node['_history']:
-            html += '<li>' + history
-        html += '</ul></details></td>'
-
+    if 'name' in table_columns:
+        # Name can never be empty, it is part of _key.
+        html += '<td>' + node['name'] + '</td>'
+    if 'category' in table_columns:
+        if node['category'] == '':
+            html += '<td></td>'
+        else:
+            html += '<td>' + node['category'] + '</td>'
+    if 'value' in table_columns:
+        # Value can never be empty, it is part of _key.
+        html += '<td><a href=' + url_for('search')
+        html += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
+        html += node['value'] + '</a></td>'
+    if 'comment' in table_columns:
+        if node['comment'] == '':
+            # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
+            # for easier browsing.
+            html += '<td><ul>'
+            if node['name'] == 'person-root':
+                for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
+                    html += '<li>' + full_name_node['value'] + '</li>'
+            html += '</ul></td>'
+        else:
+            html += '<td width=30%>' + node['comment'] + '</td>'
+    if 'year' in table_columns:
+        if node['year'] == '':
+            html += '<td></td>'
+        else:
+            html += '<td>' + node['year'] + '</td>'
+    if 'url_main' in table_columns:
+        if node['url_main'] == '':
+            html += '<td></td>'
+        else:
+            html += '<td><a href=' + node['url_main'] + ' target="_blank"> url_main link </a></td>'
+    if 'url_other' in table_columns:
+        if node['url_other'] == '':
+            html += '<td></td>'
+        else:
+            html += '<td><a href=' + node['url_other'] + ' target="_blank"> url_other link </a></td>'
+    if '_source' in table_columns:
+        if node['_source'] == '':
+            html += '<td></td>'
+        else:
+            html += '<td><ul>'
+            for source in node['_source']:
+                html += '<li>' + source
+            html += '</ul></td>'
+    if '_history' in table_columns:
+        if node['_history'] == '':
+            html += '<td></td>'
+        else:
+            html += '<td><details><summary>Click for history</summary><ul>'
+            for history in node['_history']:
+                # html += '<li>' + history
+                html += '<li>' + history + '</li>'
+            html += '</ul></details></td>'
     html += '</tr>'
     return html
 
