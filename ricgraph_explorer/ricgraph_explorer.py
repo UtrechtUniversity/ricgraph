@@ -100,6 +100,10 @@ stylesheet += '.uu-yellow, .uu-hover-yellow:hover '
 stylesheet += '{color: #000!important; background-color: #ffcd00!important;}'
 stylesheet += '.uu-red, .uu-hover-red:hover '
 stylesheet += '{color: #000!important; background-color: #c00a35!important;}'
+stylesheet += '.uu-orange, .uu-hover-orange:hover '
+stylesheet += '{color: #000!important; background-color: #f3965e!important;}'
+stylesheet += '.uu-blue, .uu-hover-blue:hover '
+stylesheet += '{color: #000!important; background-color: #5287c6!important;}'
 stylesheet += '.rj-gray, .rj-hover-gray:hover '
 stylesheet += '{color: #000!important; background-color: #cecece!important;}'
 stylesheet += '.rj-border-black, .rj-hover-border-black:hover {border-color: #000!important;}'
@@ -117,6 +121,8 @@ stylesheet += '</style>'
 
 # The html preamble
 html_preamble = '<meta name="viewport" content="width=device-width, initial-scale=1">'
+# The W3.css style file is at https://www.w3schools.com/w3css/4/w3.css. I use the "pro" version.
+# The pro version is identical to the standard version except for it has no colors defined.
 html_preamble += '<link rel="stylesheet" href="/static/w3pro.css">'
 html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">'
 
@@ -222,7 +228,7 @@ def index_html() -> str:
     html += 'There are two methods to start exploring:'
     html += '<ul>'
     html += '<li>find your first node by using exact match;'
-    html += '<li>find your first node by using search on a field.</li>'
+    html += '<li>find your first node by using search on a field value.</li>'
     html += '</li>'
     html += '</ul>'
     html += '</p>'
@@ -230,8 +236,11 @@ def index_html() -> str:
     html += 'There are two methods for viewing the results '
     html += '(for an explation see the text below the table):'
     html += '<ul>'
-    html += '<li><em>person_view</em>: only show relevant columns;'
-    html += '<li><em>details_view</em>: show all columns.</li>'
+    html += '<li><em>person_view</em>: only show relevant columns, '
+    html += 'research outputs presented in a <em>tabbed</em> format;'
+    html += '</li>'
+    html += '<li><em>details_view</em>: show all columns, '
+    html += 'research outputs presented in a table with <em>facets</em>.'
     html += '</li>'
     html += '</ul>'
     html += '</p>'
@@ -269,15 +278,18 @@ def index_html() -> str:
     html += '<ul>'
     html += '<li><em>person_view</em>: '
     html += 'only relevant columns are shown. '
-    html += 'Basically this means that tables have less columns (to reduce information overload) '
-    html += 'and that the order of the tables is different. '
+    html += 'Research outputs are presented in a <em>tabbed</em> format. '
+    html += 'Tables have less columns (to reduce information overload) '
+    html += 'and the order of the tables is different compared to the other <em>discoverer_mode</em>. '
     html += '</br>This view has been tailored to the Utrecht University staff pages, since some of these '
     html += 'pages also include expertise areas, research areas, skills or photos. '
     html += 'If present, these will be presented in a more attractive way. '
     html += 'If the UU staff pages have not been harvested, this view may still be relevant, '
-    html += 'because it shows that the layout of information shown can be adapted to a target audience.'
+    html += 'because it shows that the layout of information can be adapted to a target audience.'
     html += '</li>'
-    html += '<li><em>details_view</em>: all columns in Ricgraph will be shown.</li>'
+    html += '<li><em>details_view</em>: all columns in Ricgraph will be shown. '
+    html += 'Research outputs are presented in a table with <em>facets</em>. '
+    html += '</li>'
     html += '</ul>'
     html += '</p>Technically, these modes are implemented using a parameter "?discoverer_mode=<em>mode</em>" '
     html += 'in the url. You may modify this as you like.'
@@ -441,6 +453,7 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
         return html
 
     if len(result) > 1:
+        columns = ''
         table_header = 'Choose one node to continue:'
         if discoverer_mode == 'details_view':
             columns = DETAIL_COLUMNS
@@ -540,22 +553,28 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
             table_header = 'These are the neighbors of this node:'
             node_to_find_neighbors = node
 
-        if discoverer_mode == 'details_view':
-            columns = DETAIL_COLUMNS
-        elif discoverer_mode == 'person_view':
-            columns = RESEARCH_OUTPUT_COLUMNS
         neighbor_nodes = rcg.get_all_neighbor_nodes(node=node_to_find_neighbors,
                                                     name_want=name_want,
                                                     category_want=category_want,
                                                     category_dontwant=category_dontwant)
-        faceted_html = get_faceted_html_table_from_nodes(nodes=neighbor_nodes,
-                                                         name=name,
-                                                         category=category,
-                                                         value=value,
-                                                         table_header=table_header,
-                                                         table_columns=columns,
-                                                         discoverer_mode=discoverer_mode)
-        html += faceted_html
+        table_html = ''
+        if discoverer_mode == 'details_view':
+            columns = DETAIL_COLUMNS
+            table_html = get_faceted_html_table_from_nodes(nodes=neighbor_nodes,
+                                                           name=name,
+                                                           category=category,
+                                                           value=value,
+                                                           table_header=table_header,
+                                                           table_columns=columns,
+                                                           discoverer_mode=discoverer_mode)
+        elif discoverer_mode == 'person_view':
+            columns = RESEARCH_OUTPUT_COLUMNS
+            table_html = get_tabs_html_table_from_nodes(nodes=neighbor_nodes,
+                                                        personroot=node_to_find_neighbors,
+                                                        table_header=table_header,
+                                                        table_columns=columns,
+                                                        discoverer_mode=discoverer_mode)
+        html += table_html
 
     return html
 
@@ -868,6 +887,98 @@ def get_faceted_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
         html += table_html
         html += '</div>'
         html += '</div>'
+
+    return html
+
+
+def get_tabs_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
+                                   personroot: Node = None,
+                                   table_header: str = '',
+                                   table_columns: list = None,
+                                   discoverer_mode: str = '') -> str:
+    """Create a html table with tabs for all nodes in the list.
+
+    :param nodes: the nodes to create a table from.
+    :param personroot: the person-root of nodes (passed for efficiency).
+    :param table_header: the html to show above the table.
+    :param table_columns: a list of columns to show in the table.
+    :param discoverer_mode: the discoverer_mode to use.
+    :return: html to be rendered.
+    """
+    if table_columns is None:
+        table_columns = []
+    if len(nodes) == 0:
+        if set(table_columns) == set(DETAIL_COLUMNS):
+            html = get_html_for_cardstart()
+            html += 'No neighbors found.'
+            html += get_html_for_cardend()
+            return html
+        else:
+            return ''
+
+    category_histogram = {}
+    for node in nodes:
+        if node['category'] not in category_histogram:
+            category_histogram[node['category']] = 1
+        else:
+            category_histogram[node['category']] += 1
+
+    # I suppose this sort statement also works if len(category_histogram) == 1.
+    category_histogram_sort = sorted(category_histogram, key=category_histogram.get, reverse=True)
+
+    first_iteration = True
+    tab_names_html = '<div class="w3-bar uu-yellow">'
+    for tab_name in category_histogram_sort:
+        tab_text = tab_name + '&nbsp;<i>(' + str(category_histogram[tab_name]) + ')</i>'
+        tab_names_html += '<button class="w3-bar-item w3-button tablink'
+        if first_iteration:
+            tab_names_html += ' uu-orange'
+            first_iteration = False
+        else:
+            tab_names_html += ''
+        tab_names_html += '" onclick="openResOut(event,\'' + tab_name + '\')">' + tab_text + '</button>'
+    tab_names_html += '</div>'
+
+    first_iteration = True
+    tab_contents_html = ''
+    for tab_name in category_histogram_sort:
+        tab_contents_html += '<div id="' + tab_name + '" class="w3-container w3-border resout"'
+        if first_iteration:
+            tab_contents_html += ''
+            first_iteration = False
+        else:
+            tab_contents_html += ' style="display:none"'
+        tab_contents_html += '>'
+        nodes_of_tab_name = rcg.get_all_neighbor_nodes(node=personroot, category_want=tab_name)
+        table_title = 'List of ' + tab_name + 's for this person:'
+        table = get_html_table_from_nodes(nodes=nodes_of_tab_name,
+                                          table_header=table_title,
+                                          table_columns=table_columns,
+                                          discoverer_mode=discoverer_mode)
+        tab_contents_html += table
+        tab_contents_html += '</div>'
+
+    # This code is from https://www.w3schools.com/w3css/w3css_tabulators.asp.
+    tab_javascript = """<script>
+                        function openResOut(evt, resoutName) {
+                          var i, x, tablinks;
+                          x = document.getElementsByClassName("resout");
+                          for (i = 0; i < x.length; i++) {
+                            x[i].style.display = "none";
+                          }
+                          tablinks = document.getElementsByClassName("tablink");
+                          for (i = 0; i < x.length; i++) {
+                            tablinks[i].className = tablinks[i].className.replace(" uu-orange", "");
+                          }
+                          document.getElementById(resoutName).style.display = "block";
+                          evt.currentTarget.className += " uu-orange";
+                        }
+                        </script>"""
+
+    html = get_html_for_cardstart()
+    html += table_header
+    html += tab_names_html + tab_contents_html + tab_javascript
+    html += get_html_for_cardend()
 
     return html
 
