@@ -113,6 +113,9 @@ stylesheet += 'ul {padding-left:2em; margin:0px}'
 stylesheet += 'table {font-size:85%;}'
 stylesheet += 'table, th, td {border-collapse:collapse; border: 1px solid black}'
 stylesheet += 'th {text-align:left;}'
+# Style for tabbed html table header.
+stylesheet += '.tablink {font-size:85%;}'
+# Style for faceted box.
 stylesheet += '.facetedform {font-size:90%;}'
 # For table sorting. \u00a0 is a non-breaking space.
 stylesheet += 'table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse)'
@@ -516,13 +519,13 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
                 html += get_html_for_cardend()
                 return html
             elif len(personroot_nodes) == 1:
-                neighbor_nodes = rcg.get_all_neighbor_nodes_person(node)
+                person_neighbor_nodes = rcg.get_all_neighbor_nodes_person(node)
                 table_header = ''
                 node_to_find_neighbors = personroot_nodes[0]
                 if discoverer_mode == 'details_view':
                     table_header = 'This is a <i>person</i> node, '
                     table_header += 'these are all IDs of its <i>person-root</i> node:'
-                    html += details_view_page(nodes=neighbor_nodes,
+                    html += details_view_page(nodes=person_neighbor_nodes,
                                               table_header=table_header,
                                               table_columns=DETAIL_COLUMNS,
                                               discoverer_mode=discoverer_mode)
@@ -530,7 +533,7 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
                     table_header += '(without <i>person</i> nodes):'
                     category_dontwant = 'person'
                 elif discoverer_mode == 'person_view':
-                    html += person_view_page(nodes=neighbor_nodes,
+                    html += person_view_page(nodes=person_neighbor_nodes,
                                              personroot=node_to_find_neighbors,
                                              discoverer_mode=discoverer_mode)
                     table_header = 'These are all the research outputs of this person:'
@@ -569,11 +572,11 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
                                                            discoverer_mode=discoverer_mode)
         elif discoverer_mode == 'person_view':
             columns = RESEARCH_OUTPUT_COLUMNS
-            table_html = get_tabs_html_table_from_nodes(nodes=neighbor_nodes,
-                                                        personroot=node_to_find_neighbors,
-                                                        table_header=table_header,
-                                                        table_columns=columns,
-                                                        discoverer_mode=discoverer_mode)
+            table_html = get_tabbed_html_table_from_nodes(nodes=neighbor_nodes,
+                                                          table_header=table_header,
+                                                          table_columns=columns,
+                                                          tabs_on='category',
+                                                          discoverer_mode=discoverer_mode)
         html += table_html
 
     return html
@@ -643,10 +646,17 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
         html += '" title="' + node['value'] + '" height="100"></a>'
     html += '</p>'
 
+    # Note: 'nodes' only contains nodes of category 'person'. We also need all neighbors.
+    all_neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot)
     skills = []
     research_areas = []
     expertise_areas = []
-    competence_nodes = rcg.get_all_neighbor_nodes(node=personroot, category_want='competence')
+    competence_nodes = []
+
+    # Get the nodes of interest. Using rcg.get_all_neighbor_nodes() is not efficient.
+    for node in all_neighbor_nodes:
+        if node['category'] == 'competence':
+            competence_nodes.append(node)
     for node in competence_nodes:
         item = '<a href=' + url_for('search')
         item += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
@@ -669,23 +679,33 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
         html += '<p/><td><ul>' + html_list + '</ul></td>'
     html += get_html_for_cardend()
 
-    id_nodes = rcg.get_all_neighbor_nodes(node=personroot,
-                                          name_dontwant=['FULL_NAME', 'person-root', 'PHOTO'],
-                                          category_want='person')
-    html += get_html_table_from_nodes(nodes=id_nodes,
-                                      table_header='These are all the IDs of this person:',
-                                      table_columns=ID_COLUMNS,
-                                      discoverer_mode=discoverer_mode)
+    id_nodes = []
+    for node in nodes:
+        if node['name'] != 'FULL_NAME' \
+           and node['name'] != 'person-root' \
+           and node['name'] != 'PHOTO':
+            id_nodes.append(node)
+    html += get_tabbed_html_table_from_nodes(nodes=id_nodes,
+                                             table_header='These are all the IDs of this person:',
+                                             table_columns=ID_COLUMNS,
+                                             tabs_on='name',
+                                             discoverer_mode=discoverer_mode)
 
-    organization_nodes = rcg.get_all_neighbor_nodes(node=personroot, category_want='organization')
+    organization_nodes = []
+    for node in all_neighbor_nodes:
+        if node['category'] == 'organization':
+            organization_nodes.append(node)
     html += get_html_table_from_nodes(nodes=organization_nodes,
-                                      table_header='This person works for the following organizations:',
+                                      table_header='This person is connected to the following organizations:',
                                       table_columns=ORGANIZATION_COLUMNS,
                                       discoverer_mode=discoverer_mode)
 
-    project_nodes = rcg.get_all_neighbor_nodes(node=personroot, category_want='project')
+    project_nodes = []
+    for node in all_neighbor_nodes:
+        if node['category'] == 'project':
+            project_nodes.append(node)
     html += get_html_table_from_nodes(nodes=project_nodes,
-                                      table_header='This person participated in the following projects:',
+                                      table_header='This person is connected to the following projects:',
                                       table_columns=RESEARCH_OUTPUT_COLUMNS,
                                       discoverer_mode=discoverer_mode)
     return html
@@ -891,17 +911,17 @@ def get_faceted_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
     return html
 
 
-def get_tabs_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
-                                   personroot: Node = None,
-                                   table_header: str = '',
-                                   table_columns: list = None,
-                                   discoverer_mode: str = '') -> str:
+def get_tabbed_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
+                                     table_header: str = '',
+                                     table_columns: list = None,
+                                     tabs_on: str = '',
+                                     discoverer_mode: str = '') -> str:
     """Create a html table with tabs for all nodes in the list.
 
     :param nodes: the nodes to create a table from.
-    :param personroot: the person-root of nodes (passed for efficiency).
     :param table_header: the html to show above the table.
     :param table_columns: a list of columns to show in the table.
+    :param tabs_on: the name of the field in Ricgraph you'd like to have tabs on.
     :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
@@ -915,41 +935,46 @@ def get_tabs_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
             return html
         else:
             return ''
+    if tabs_on != 'name' and tabs_on != 'category':
+        return 'get_tabbed_html_table_from_nodes(): Invalid value for "tabs_on": ' + tabs_on + '.'
 
-    category_histogram = {}
+    histogram = {}
     for node in nodes:
-        if node['category'] not in category_histogram:
-            category_histogram[node['category']] = 1
+        if node[tabs_on] not in histogram:
+            histogram[node[tabs_on]] = 1
         else:
-            category_histogram[node['category']] += 1
+            histogram[node[tabs_on]] += 1
 
-    # I suppose this sort statement also works if len(category_histogram) == 1.
-    category_histogram_sort = sorted(category_histogram, key=category_histogram.get, reverse=True)
+    histogram_sort = sorted(histogram, key=histogram.get, reverse=True)
 
     first_iteration = True
     tab_names_html = '<div class="w3-bar uu-yellow">'
-    for tab_name in category_histogram_sort:
-        tab_text = tab_name + '&nbsp;<i>(' + str(category_histogram[tab_name]) + ')</i>'
+    for tab_name in histogram_sort:
+        tab_text = tab_name + '&nbsp;<i>(' + str(histogram[tab_name]) + ')</i>'
         tab_names_html += '<button class="w3-bar-item w3-button tablink'
         if first_iteration:
             tab_names_html += ' uu-orange'
             first_iteration = False
         else:
             tab_names_html += ''
-        tab_names_html += '" onclick="openResOut(event,\'' + tab_name + '\')">' + tab_text + '</button>'
+        tab_names_html += '" onclick="openTab(event,\'' + tab_name + '\')">' + tab_text + '</button>'
     tab_names_html += '</div>'
 
     first_iteration = True
     tab_contents_html = ''
-    for tab_name in category_histogram_sort:
-        tab_contents_html += '<div id="' + tab_name + '" class="w3-container w3-border resout"'
+    for tab_name in histogram_sort:
+        tab_contents_html += '<div id="' + tab_name + '" class="w3-container w3-border tabitem"'
         if first_iteration:
             tab_contents_html += ''
             first_iteration = False
         else:
             tab_contents_html += ' style="display:none"'
         tab_contents_html += '>'
-        nodes_of_tab_name = rcg.get_all_neighbor_nodes(node=personroot, category_want=tab_name)
+        nodes_of_tab_name = []
+        # Get the nodes of interest. Using rcg.get_all_neighbor_nodes() is not efficient.
+        for node in nodes:
+            if node[tabs_on] == tab_name:
+                nodes_of_tab_name.append(node)
         table_title = 'List of ' + tab_name + 's for this person:'
         table = get_html_table_from_nodes(nodes=nodes_of_tab_name,
                                           table_header=table_title,
@@ -960,9 +985,9 @@ def get_tabs_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
 
     # This code is from https://www.w3schools.com/w3css/w3css_tabulators.asp.
     tab_javascript = """<script>
-                        function openResOut(evt, resoutName) {
+                        function openTab(evt, tabName) {
                           var i, x, tablinks;
-                          x = document.getElementsByClassName("resout");
+                          x = document.getElementsByClassName("tabitem");
                           for (i = 0; i < x.length; i++) {
                             x[i].style.display = "none";
                           }
@@ -970,7 +995,7 @@ def get_tabs_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
                           for (i = 0; i < x.length; i++) {
                             tablinks[i].className = tablinks[i].className.replace(" uu-orange", "");
                           }
-                          document.getElementById(resoutName).style.display = "block";
+                          document.getElementById(tabName).style.display = "block";
                           evt.currentTarget.className += " uu-orange";
                         }
                         </script>"""
