@@ -1270,7 +1270,7 @@ def get_all_neighbor_nodes(node: Node,
     global _graph
 
     if _graph is None:
-        print('\nget_personroot_node(): Error: graph has not been initialized or opened.\n\n')
+        print('\nget_all_neighbor_nodes(): Error: graph has not been initialized or opened.\n\n')
         return []
 
     if node is None:
