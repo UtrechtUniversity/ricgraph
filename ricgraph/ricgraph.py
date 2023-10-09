@@ -124,6 +124,7 @@ __version__ = ''
 
 LINKS_TO = Relationship.type('LINKS_TO')
 RICGRAPH_INI_FILE = '../ricgraph.ini'
+RICGRAPH_KEY_SEPARATOR = '|'
 
 # Cache size for read_node() function (in number of elements in cache). This
 # cannot be read from the config file since it will be read too late.
@@ -283,7 +284,35 @@ def create_ricgraph_key(name: str, value: str) -> str:
     :param value: value of the node.
     :return: key generated for the node.
     """
-    return value.lower() + '|' + name.lower()
+    # Check and correct for occurrences of RICGRAPH_KEY_SEPARATOR.
+    name = name.replace(RICGRAPH_KEY_SEPARATOR, '#')
+    value = value.replace(RICGRAPH_KEY_SEPARATOR, '#')
+
+    return value.lower() + RICGRAPH_KEY_SEPARATOR + name.lower()
+
+
+def get_namepart_from_ricgraph_key(key: str) -> str:
+    """Get the 'name' part from the composite key in a node.
+
+    :param key: key of the node.
+    :return: name part of key for the node.
+    """
+    key_list = key.split(sep=RICGRAPH_KEY_SEPARATOR)
+    if len(key_list) != 2:
+        return ''
+    return key_list[1]
+
+
+def get_valuepart_from_ricgraph_key(key: str) -> str:
+    """Get the 'value' part from the composite key in a node.
+
+    :param key: key of the node.
+    :return: value part of key for the node.
+    """
+    key_list = key.split(sep=RICGRAPH_KEY_SEPARATOR)
+    if len(key_list) != 2:
+        return ''
+    return key_list[0]
 
 
 def create_well_known_url(name: str, value: str) -> str:
