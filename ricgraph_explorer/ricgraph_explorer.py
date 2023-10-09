@@ -303,15 +303,15 @@ def index_html() -> str:
 
 
 @ricgraph_explorer.route('/search/', methods=['GET', 'POST'])
-@ricgraph_explorer.route('/search/<path:id_value>', methods=['GET'])
-def search(id_value=None) -> str:
+@ricgraph_explorer.route('/search/<path:key_value>', methods=['GET'])
+def search(key_value=None) -> str:
     """Ricgraph explorer entry, the search page, when you access '/search'.
     If you add a parameter, like '/search/abcd' Ricgraph will search
     for 'abcd' in the 'value' field of a node.
     Without parameter, it will present a search page, where you can search
     on the 'name', 'category' and/or 'value' field of a node.
 
-    :param id_value: value to search for in the 'value' field.
+    :param key_value: key to search for in the 'name' and 'value' fields.
     :return: html to be rendered.
     """
     global html_body_start, html_body_end, search_form
@@ -349,12 +349,13 @@ def search(id_value=None) -> str:
                                        category_want=faceted_category_list,
                                        discoverer_mode=discoverer_mode)
     else:
-        if id_value is None:
+        if key_value is None:
             html += search_form
         else:
-            html += find_nodes_in_ricgraph(name='',
-                                           category='',
-                                           value=str(escape(id_value)),
+            search_value = rcg.get_valuepart_from_ricgraph_key(key=str(escape(key_value)))
+            search_name = rcg.get_namepart_from_ricgraph_key(key=str(escape(key_value)))
+            html += find_nodes_in_ricgraph(name=search_name,
+                                           value=search_value,
                                            discoverer_mode=discoverer_mode)
     html += html_body_end
     return html
@@ -424,7 +425,7 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
 
     if name == '' and category == '' and value == '':
         html = get_html_for_cardstart()
-        html += 'The search field should have a value.'
+        html += 'Ricgraph explorer could not find anything.'
         html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
         html += get_html_for_cardend()
         return html
@@ -624,8 +625,9 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
     for node in nodes:
         if node['name'] != 'FULL_NAME':
             continue
+        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('search')
-        item += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
+        item += urllib.parse.quote(key) + '?discoverer_mode=' + discoverer_mode + '>'
         item += node['value'] + '</a>'
         names.append(item)
     if len(names) == 1:
@@ -639,9 +641,10 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
     for node in nodes:
         if node['name'] != 'PHOTO':
             continue
+        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         html += '&nbsp;&nbsp;'
         html += '<a href=' + url_for('search')
-        html += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
+        html += urllib.parse.quote(key) + '?discoverer_mode=' + discoverer_mode + '>'
         html += '<img src="' + node['url_main'] + '" alt="' + node['value']
         html += '" title="' + node['value'] + '" height="100"></a>'
     html += '</p>'
@@ -658,8 +661,9 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
         if node['category'] == 'competence':
             competence_nodes.append(node)
     for node in competence_nodes:
+        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('search')
-        item += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
+        item += urllib.parse.quote(key) + '?discoverer_mode=' + discoverer_mode + '>'
         item += node['value'] + '</a>'
         if node['name'] == 'SKILL':
             skills.append(item)
@@ -1071,8 +1075,9 @@ def get_html_for_tablerow(node: Node,
             html += '<td>' + node['category'] + '</td>'
     if 'value' in table_columns:
         # Value can never be empty, it is part of _key.
+        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         html += '<td><a href=' + url_for('search')
-        html += urllib.parse.quote(node['value']) + '?discoverer_mode=' + discoverer_mode + '>'
+        html += urllib.parse.quote(key) + '?discoverer_mode=' + discoverer_mode + '>'
         html += node['value'] + '</a></td>'
     if 'comment' in table_columns:
         if node['comment'] == '':
