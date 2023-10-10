@@ -331,6 +331,12 @@ def search(key_value=None) -> str:
         search_name = str(escape(request.form['search_name']))
         search_category = str(escape(request.form['search_category']))
         search_value = str(escape(request.form['search_value']))
+        # Check if we do either a string search or an exact match search.
+        if search_name == '' and search_value != '':
+            string_search = True
+        else:
+            string_search = False
+
         if not discoverer_mode_passed_in_url:
             # Only get discoverer_mode from the form if it has not been
             # passed in the url. This happens with the faceted search.
@@ -345,6 +351,7 @@ def search(key_value=None) -> str:
         html += find_nodes_in_ricgraph(name=search_name,
                                        category=search_category,
                                        value=search_value,
+                                       use_contain_phrase=string_search,
                                        name_want=faceted_name_list,
                                        category_want=faceted_category_list,
                                        discoverer_mode=discoverer_mode)
@@ -352,8 +359,8 @@ def search(key_value=None) -> str:
         if key_value is None:
             html += search_form
         else:
-            search_value = rcg.get_valuepart_from_ricgraph_key(key=str(escape(key_value)))
             search_name = rcg.get_namepart_from_ricgraph_key(key=str(escape(key_value)))
+            search_value = rcg.get_valuepart_from_ricgraph_key(key=str(escape(key_value)))
             html += find_nodes_in_ricgraph(name=search_name,
                                            value=search_value,
                                            discoverer_mode=discoverer_mode)
