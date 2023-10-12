@@ -56,7 +56,6 @@ import os.path
 import sys
 import re
 import pandas
-import uuid
 from datetime import datetime
 from typing import Union
 import requests
@@ -71,8 +70,10 @@ global UUSTAFF_URL
 # Parameters for harvesting from UU staff pages
 # ######################################################
 UUSTAFF_MAX_FACULTY_NR = 25
-UUSTAFF_CONNECTDATA_FROM_FILE = False
-UUSTAFF_HARVEST_FROM_FILE = False
+UUSTAFF_CONNECTDATA_FROM_FILE = True
+#UUSTAFF_CONNECTDATA_FROM_FILE = False
+# UUSTAFF_HARVEST_FROM_FILE = False
+UUSTAFF_HARVEST_FROM_FILE = True
 UUSTAFF_HARVEST_FILENAME = 'uustaff_harvest.json'
 UUSTAFF_DATA_FILENAME = 'uustaff_data.csv'
 UUSTAFF_CONNECT_FILENAME = 'uustaff_connect.csv'
@@ -108,6 +109,7 @@ UU_WEBSITE = 'https://www.uu.nl'
 UUSTAFF_FACULTY_ENDPOINT = '/Public/GetEmployeesOrganogram?f='
 UUSTAFF_EMPLOYEE_ENDPOINT = '/Public/getEmployeeData?page='
 UUSTAFF_SOLISID_ENDPOINT = '/RestApi/getmedewerkers?selectie=solisid:'
+UUSTAFF_PHOTO_ENDPOINT = '/Public/GetImage?Employee='
 
 
 # ######################################################
@@ -166,11 +168,20 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             parse_line['EMAIL'] = str(harvest_item['Email'])
             parse_chunk.append(parse_line)
         if 'PhotoUrl' in harvest_item:
+            # 'PhotoUrl' has the form '/Public/GetImage?Employee=12&_t=34567890&t='
+            # The values after '_t=' and 't=' are not relevant, the value after 'Employee=' is.
+            # Probably it is UUSTAFF_ID_PERS, but I'd rather use the 'Employee' value to be sure.
+            # Remove everything before 'Employee=' and after '&'.
+            employee_id = str(harvest_item['PhotoUrl']).lower()
+            employee_id = re.sub(pattern=r'^.*employee=', repl='', string=employee_id)
+            employee_id = re.sub(pattern=r'&.*', repl='', string=employee_id)
+            if employee_id == '':
+                continue
+
             parse_line = {}
             parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-            # 'PhotoUrl' is a substring of a weblink, this confuses things. Replace with a UUID.
-            parse_line['PHOTO'] = str(uuid.uuid4())
-            parse_line['PHOTO_URL'] = UUSTAFF_URL + str(harvest_item['PhotoUrl'])
+            parse_line['PHOTO_ID'] = str(employee_id)
+            parse_line['PHOTO_URL'] = UUSTAFF_URL + UUSTAFF_PHOTO_ENDPOINT + parse_line['PHOTO_ID']
             parse_chunk.append(parse_line)
         if 'LinksSocialMedia' in harvest_item:
             for links in harvest_item['LinksSocialMedia']:
@@ -408,7 +419,7 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     # ####### Insert persons.
     person_identifiers = parsed_content[['UUSTAFF_PAGE_ID', 'ORCID',
                                          'UUSTAFF_ID_PERS', 'FULL_NAME',
-                                         'EMAIL', 'PHOTO',
+                                         'EMAIL', 'PHOTO_ID',
                                          'TWITTER', 'LINKEDIN',
                                          'GITHUB']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
@@ -434,10 +445,10 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     rcg.update_nodes_df(nodes=nodes_to_update)
 
     # ####### Add weblinks (by using 'url_main') to nodes we have inserted above.
-    nodes_to_update = parsed_content[['PHOTO', 'PHOTO_URL']].copy(deep=True)
-    nodes_to_update.rename(columns={'PHOTO': 'value',
+    nodes_to_update = parsed_content[['PHOTO_ID', 'PHOTO_URL']].copy(deep=True)
+    nodes_to_update.rename(columns={'PHOTO_ID': 'value',
                                     'PHOTO_URL': 'url_main'}, inplace=True)
-    nodes_to_update_columns = {'name': 'PHOTO',
+    nodes_to_update_columns = {'name': 'PHOTO_ID',
                                'category': 'person'}
     nodes_to_update = nodes_to_update.assign(**nodes_to_update_columns)
     nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main']]

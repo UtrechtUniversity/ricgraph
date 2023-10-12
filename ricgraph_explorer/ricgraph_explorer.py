@@ -646,7 +646,7 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
         # matching </p> inserted below
 
     for node in nodes:
-        if node['name'] != 'PHOTO':
+        if node['name'] != 'PHOTO_ID':
             continue
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         html += '&nbsp;&nbsp;'
@@ -694,7 +694,7 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
     for node in nodes:
         if node['name'] != 'FULL_NAME' \
            and node['name'] != 'person-root' \
-           and node['name'] != 'PHOTO':
+           and node['name'] != 'PHOTO_ID':
             id_nodes.append(node)
     html += get_tabbed_html_table_from_nodes(nodes=id_nodes,
                                              table_header='These are all the IDs of this person:',
