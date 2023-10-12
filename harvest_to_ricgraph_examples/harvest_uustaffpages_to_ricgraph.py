@@ -70,10 +70,8 @@ global UUSTAFF_URL
 # Parameters for harvesting from UU staff pages
 # ######################################################
 UUSTAFF_MAX_FACULTY_NR = 25
-UUSTAFF_CONNECTDATA_FROM_FILE = True
-#UUSTAFF_CONNECTDATA_FROM_FILE = False
-# UUSTAFF_HARVEST_FROM_FILE = False
-UUSTAFF_HARVEST_FROM_FILE = True
+UUSTAFF_CONNECTDATA_FROM_FILE = False
+UUSTAFF_HARVEST_FROM_FILE = False
 UUSTAFF_HARVEST_FILENAME = 'uustaff_harvest.json'
 UUSTAFF_DATA_FILENAME = 'uustaff_data.csv'
 UUSTAFF_CONNECT_FILENAME = 'uustaff_connect.csv'
