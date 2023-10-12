@@ -137,7 +137,7 @@ def lookup_resout_type_openalex(type_uri: str) -> str:
         return 'book chapter'
     elif end.startswith('proceedings') or end.startswith('proceedings-article'):
         return 'conference proceeding'
-    elif end.startswith('journal-article') or end.startswith('peer-review'):
+    elif end.startswith('article') or end.startswith('peer-review'):
         return 'journal article'
     elif end.startswith('dataset'):
         return 'dataset'
@@ -145,7 +145,17 @@ def lookup_resout_type_openalex(type_uri: str) -> str:
         return 'thesis'
     elif end.startswith('posted-content'):
         return 'working paper'
-    elif end.startswith('other') or end.startswith('report'):
+    elif end.startswith('editorial'):
+        return 'editorial'
+    elif end.startswith('erratum'):
+        return 'erratum'
+    elif end.startswith('report'):
+        return 'report'
+    elif end.startswith('other') \
+        or end.startswith('paratext'):
+        # OpenAlex 'paratext': stuff that's in scholarly venue (like a journal)
+        # but is about the venue rather than a scholarly work properly speaking.
+        # https://docs.openalex.org/api-entities/works/work-object.
         return 'other contribution'
     else:
         print('lookup_resout_type_openalex(): unknown ' + HARVEST_SOURCE + ' output type: "' + end + '".')
