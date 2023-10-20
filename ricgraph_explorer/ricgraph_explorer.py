@@ -36,7 +36,7 @@
 # not for production use. That means, this code has not been hardened for
 # "the outside world". Be careful if you expose it to the outside world.
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February 2023, September 2023.
+# Extended Rik D.T. Janssen, February, September, October 2023.
 #
 # ########################################################################
 #
@@ -110,6 +110,8 @@ stylesheet += '.rj-border-black, .rj-hover-border-black:hover {border-color: #00
 stylesheet += 'body {background-color:white;}'
 stylesheet += 'body, h1, h2, h3, h4, h5, h6 {font-family: "Open Sans", sans-serif;}'
 stylesheet += 'ul {padding-left:2em; margin:0px}'
+stylesheet += 'a:link, a:visited {color: blue;}'
+stylesheet += 'a:hover {color: darkblue;}'
 stylesheet += 'table {font-size:85%;}'
 stylesheet += 'table, th, td {border-collapse:collapse; border: 1px solid black}'
 stylesheet += 'th {text-align:left;}'
@@ -133,7 +135,7 @@ html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?
 page_header = '<header class="w3-container uu-yellow">'
 page_header += '<div class="w3-bar uu-yellow">'
 page_header += '<div class="w3-bar-item w3-mobile" style="padding-left: 0em; padding-right: 4em">'
-page_header += '<a href="/" style="text-decoration:none">'
+page_header += '<a href="/" style="text-decoration:none; color:#000000; font-size:130%">'
 page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right: 3em">'
 page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right: 0.5em">explorer</a>'
 page_header += '</div>'
@@ -181,12 +183,12 @@ search_form += '<div class="w3-container">'
 search_form += '<form method="post">'
 search_form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
 search_form += '<input class="w3-input w3-border" type=text name=search_name>'
-search_form += '<br><label>Search for a value in Ricgraph field <em>category</em>:</label>'
+search_form += '<br/><label>Search for a value in Ricgraph field <em>category</em>:</label>'
 search_form += '<input class="w3-input w3-border" type=text name=search_category>'
-search_form += '<br><label>Search for a value in Ricgraph field <em>value</em>:</label>'
+search_form += '<br/><label>Search for a value in Ricgraph field <em>value</em>:</label>'
 search_form += '<input class="w3-input w3-border" type=text name=search_value>'
 search_form += '<input type="hidden" name="search_discoverer_mode" value=>'
-search_form += '<br><input class="w3-input' + button_style + '" type=submit value=search>'
+search_form += '<br/><input class="w3-input' + button_style + '" type=submit value=search>'
 search_form += '</form>'
 search_form += '</div>'
 search_form += '</div>'
@@ -205,7 +207,7 @@ searchcontains_form += '<div class="w3-container">'
 searchcontains_form += '<form method="post">'
 searchcontains_form += '<label>Search for a value in Ricgraph field <em>value</em>:</label>'
 searchcontains_form += '<input class="w3-input w3-border" type=text name=search_value>'
-searchcontains_form += '<br><input class="w3-input' + button_style + '" type=submit value=search>'
+searchcontains_form += '<br/><input class="w3-input' + button_style + '" type=submit value=search>'
 searchcontains_form += '</form>'
 searchcontains_form += '</div>'
 searchcontains_form += '</div>'
@@ -247,35 +249,40 @@ def index_html() -> str:
     html += '</li>'
     html += '</ul>'
     html += '</p>'
-    html += '</br>'
+    html += '<br/>'
 
-    html += '<table style="font-size:110%; text-align:center">'
+    html += get_html_for_tablestart()
     html += '<colgroup class="uu-yellow">'
     html += '<col span=1>'
     html += '</colgroup>'
-    html += '<tr class="uu-yellow">'
-    html += '<th>view of the result</th>'
-    html += '<th>case-sensitive, exact match search on fields</br><i>name</i>, '
+    html += '<tr class="uu-yellow" style="font-size:120%">'
+    html += '<th class="sorttable_nosort">view of the result</th>'
+    html += '<th class="sorttable_nosort">case-sensitive, exact match search on fields<br/><i>name</i>, '
     html += '<i>category</i> and/or <i>value</i></th>'
-    html += '<th>search on field <i>value</i> containing a string</th>'
+    html += '<th class="sorttable_nosort">search on field <i>value</i> containing a string</th>'
     html += '</tr>'
-    html += '<tr>'
-    html += '<td style="text-align:left;">person_view<br/>only show relevant columns</td>'
-    html += '<td width=40%><a href=' + url_for('search') + '?discoverer_mode=person_view class="'
+    html += '<tr style="font-size:120%;">'
+    html += '<td>person_view<br/>only show relevant columns</td>'
+    html += '<td width=40% style="text-align:center;"><a href=' + url_for('search')
+    html += '?discoverer_mode=person_view class="'
     html += button_style + '">choose this one</a></td>'
-    html += '<td width=40%><a href=' + url_for('searchcontains') + '?discoverer_mode=person_view class="'
-    html += button_style + '">choose this one</a></td>'
-    html += '</tr>'
-    html += '<tr>'
-    html += '<td style="text-align:left;">details_view<br/>show all columns</td>'
-    html += '<td><a href=' + url_for('search') + '?discoverer_mode=details_view class="'
-    html += button_style + '">choose this one</a></td>'
-    html += '<td><a href=' + url_for('searchcontains') + '?discoverer_mode=details_view class="'
+    html += '<td width=40% style="text-align:center"><a href=' + url_for('searchcontains')
+    html += '?discoverer_mode=person_view class="'
     html += button_style + '">choose this one</a></td>'
     html += '</tr>'
+    html += '<tr style="font-size:120%;">'
+    html += '<td>details_view<br/>show all columns</td>'
+    html += '<td style="text-align:center;"><a href=' + url_for('search')
+    html += '?discoverer_mode=details_view class="'
+    html += button_style + '">choose this one</a></td>'
+    html += '<td style="text-align:center;"><a href=' + url_for('searchcontains')
+    html += '?discoverer_mode=details_view class="'
+    html += button_style + '">choose this one</a></td>'
+    html += '</tr>'
+    html += get_html_for_tableend()
     html += '</table>'
     html += '</p>'
-    html += '</br>'
+    html += '<br/>'
 
     html += 'The two modes for viewing the results (the <em>discoverer_mode</em>) are:'
     html += '<ul>'
@@ -284,7 +291,7 @@ def index_html() -> str:
     html += 'Research outputs are presented in a <em>tabbed</em> format. '
     html += 'Tables have less columns (to reduce information overload) '
     html += 'and the order of the tables is different compared to the other <em>discoverer_mode</em>. '
-    html += '</br>This view has been tailored to the Utrecht University staff pages, since some of these '
+    html += '<br/>This view has been tailored to the Utrecht University staff pages, since some of these '
     html += 'pages also include expertise areas, research areas, skills or photos. '
     html += 'If present, these will be presented in a more attractive way. '
     html += 'If the UU staff pages have not been harvested, this view may still be relevant, '
@@ -397,6 +404,184 @@ def searchcontains() -> str:
     return html
 
 
+@ricgraph_explorer.route('/searchdetails/', methods=['GET'])
+def searchdetails() -> str:
+    """Ricgraph explorer entry, this 'page' does not allow data entry.
+    The data entry is via the url parameters.
+    This url creates a table with the search results with the parameters
+    provided in the url.
+
+    Possible parameters are:
+
+    - name, category, value: as usual.
+    - system1, system2: the source systems used to compute the overlap.
+    - discoverer_mode: which discoverer mode to use:
+      only show relevant columns, research outputs
+      presented in a tabbed format ('person_view'), or
+      show all columns, research outputs presented
+      in a table with facets ('details_view').
+    - overlap_mode: which overlap to compute: from this node ('thisnode'),
+      or from the neighbors of this node ('neighbornodes').
+
+    :return: html to be rendered.
+    """
+    global html_body_start, html_body_end
+
+    name = str(escape(request.args.get('name')))
+    category = str(escape(request.args.get('category')))
+    value = str(escape(request.args.get('value')))
+    system1 = str(escape(request.args.get('system1')))
+    system2 = str(escape(request.args.get('system2')))
+    discoverer_mode = str(escape(request.args.get('discoverer_mode')))
+    if discoverer_mode != 'details_view' \
+            and discoverer_mode != 'person_view':
+        discoverer_mode = DEFAULT_DISCOVERER_MODE
+    overlap_mode = str(escape(request.args.get('overlap_mode')))
+    if overlap_mode != 'thisnode' \
+            and overlap_mode != 'neighbornodes':
+        overlap_mode = 'thisnode'
+
+    if system1 == 'None':
+        system1 = ''
+    if system2 == 'None':
+        system2 = ''
+    if system1 == '' and system2 != '':
+        # swap
+        system1 = system2
+        system2 = ''
+    if system1 == 'singlesource' or system1 == 'multiplesource':
+        if system2 != '':
+            # swap
+            temp = system1
+            system1 = system2
+            system2 = temp
+
+    html = html_body_start
+    result = rcg.read_all_nodes(name=name, category=category, value=value)
+
+    if len(result) == 0:
+        # Let's try again, assuming we did a string search instead of an exact match search.
+        result = rcg.read_all_nodes_containing(value=value)
+        if len(result) == 0:
+            # No, we really didn't find anything.
+            html += get_html_for_cardstart()
+            html += 'Ricgraph explorer could not find anything in searchdetails().'
+            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += get_html_for_cardend()
+            html += html_body_end
+            return html
+
+    if overlap_mode == 'neighbornodes':
+        # In this case, we would like to know the overlap of nodes neighboring the node
+        # we have just found. We can only do that if we have found only one node.
+        if len(result) > 1:
+            html += get_html_for_cardstart()
+            html += 'Ricgraph explorer found too many nodes. It cannot compute the overlap '
+            html += 'of the neighbor nodes of more than one node in searchdetails().'
+            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += get_html_for_cardend()
+            html += html_body_end
+            return html
+
+        node = result.first()
+        if node['category'] == 'person':
+            personroot = rcg.get_personroot_node(node)
+            if personroot is None:
+                html += get_html_for_cardstart()
+                html += 'Ricgraph explorer found no "person-root" node in searchdetails().'
+                html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+                html += get_html_for_cardend()
+                html += html_body_end
+                return html
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot)
+        else:
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=node)
+        result = neighbor_nodes.copy()
+
+    relevant_result = []
+    for node in result:
+        sources = node['_source']
+        if system1 == '':
+            # Then system2 will also be '', see swap above.
+            relevant_result.append(node)
+            continue
+        if system2 == '':
+            if system1 in sources:
+                relevant_result.append(node)
+                continue
+        if system2 == 'singlesource':
+            if system1 in sources and len(sources) == 1:
+                relevant_result.append(node)
+                continue
+        if system2 == 'multiplesource':
+            if system1 in sources and len(sources) > 1:
+                relevant_result.append(node)
+                continue
+        if system1 in sources and system2 in sources:
+            relevant_result.append(node)
+
+    if discoverer_mode == 'details_view':
+        html += get_you_searched_for_card(name=name,
+                                          category=category,
+                                          value=value,
+                                          discoverer_mode=discoverer_mode,
+                                          overlap_mode=overlap_mode,
+                                          system1=system1,
+                                          system2=system2)
+
+    html += get_html_table_from_nodes(nodes=relevant_result,
+                                      table_header='These records conform to your selection:',
+                                      table_columns=DETAIL_COLUMNS,
+                                      discoverer_mode=discoverer_mode)
+
+    html += html_body_end
+    return html
+
+
+@ricgraph_explorer.route('/getoverlap/', methods=['GET'])
+def getoverlap() -> str:
+    """Ricgraph explorer entry, this 'page' does not allow data entry.
+    The data entry is via the url parameters.
+    This url calls get_overlap_in_source_systems() with the parameters
+    provided in the url.
+
+    Possible parameters are:
+
+    - name, category, value: as usual.
+    - discoverer_mode: which discoverer mode to use:
+      only show relevant columns, research outputs
+      presented in a tabbed format ('person_view'), or
+      show all columns, research outputs presented
+      in a table with facets ('details_view').
+    - overlap_mode: which overlap to compute: from this node ('thisnode'),
+      or from the neighbors of this node ('neighbornodes').
+
+    :return: html to be rendered.
+    """
+    global html_body_start, html_body_end
+
+    name = str(escape(request.args.get('name')))
+    category = str(escape(request.args.get('category')))
+    value = str(escape(request.args.get('value')))
+    discoverer_mode = str(escape(request.args.get('discoverer_mode')))
+    if discoverer_mode != 'details_view' \
+            and discoverer_mode != 'person_view':
+        discoverer_mode = DEFAULT_DISCOVERER_MODE
+    overlap_mode = str(escape(request.args.get('overlap_mode')))
+    if overlap_mode != 'thisnode' \
+            and overlap_mode != 'neighbornodes':
+        overlap_mode = 'thisnode'
+
+    html = html_body_start
+
+    html += get_overlap_in_source_systems(name=name, category=category, value=value,
+                                          discoverer_mode=discoverer_mode,
+                                          overlap_mode=overlap_mode)
+
+    html += html_body_end
+    return html
+
+
 # ##############################################################################
 # This is where the work is done.
 # ##############################################################################
@@ -426,14 +611,13 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
     :return: html to be rendered.
     """
     graph = rcg.open_ricgraph()         # Should probably be done in a Session
-    html = ''
     if graph is None:
         return 'Ricgraph could not be opened.'
 
     if name == '' and category == '' and value == '':
         html = get_html_for_cardstart()
         html += 'Ricgraph explorer could not find anything.'
-        html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
         html += get_html_for_cardend()
         return html
 
@@ -449,7 +633,7 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
         if len(value) < 3:
             html = get_html_for_cardstart()
             html += 'The search string should be at least three characters.'
-            html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
             html += get_html_for_cardend()
             return html
         result = rcg.read_all_nodes_containing(value=value)
@@ -459,134 +643,184 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
     if len(result) == 0:
         html = get_html_for_cardstart()
         html += 'Ricgraph explorer could not find anything.'
-        html += '<br><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
         html += get_html_for_cardend()
         return html
 
     if len(result) > 1:
         columns = ''
-        table_header = 'Choose one node to continue:'
+        table_header = 'Choose one node to continue, or '
+        table_header += '<a href="' + url_for('getoverlap')
+        table_header += '?name=' + name
+        table_header += '&category=' + category
+        table_header += '&value=' + value
+        table_header += '&discoverer_mode=' + discoverer_mode
+        table_header += '">'
+        table_header += 'click here to show the overlap in source systems for your query'
+        table_header += '</a>:'
         if discoverer_mode == 'details_view':
             columns = DETAIL_COLUMNS
         elif discoverer_mode == 'person_view':
             columns = RESEARCH_OUTPUT_COLUMNS
-        html += get_html_table_from_nodes(nodes=result,
-                                          table_header=table_header,
-                                          table_columns=columns,
-                                          discoverer_mode=discoverer_mode)
+        html = get_html_table_from_nodes(nodes=result,
+                                         table_header=table_header,
+                                         table_columns=columns,
+                                         discoverer_mode=discoverer_mode)
         return html
 
+    html = ''
     if discoverer_mode == 'details_view':
-        html = get_html_for_cardstart()
-        html += 'You searched for:<ul>'
-        if not use_contain_phrase:
-            html += '<li>name: <i>"' + str(name) + '"</i>'
-            html += '<li>category: <i>"' + str(category) + '"</i>'
-
-        html += '<li>value: <i>"' + str(value) + '"</i>'
-        if len(name_want) > 0:
-            html += '<li>name_want: <i>"' + str(name_want) + '"</i>'
-        if len(category_want) > 0:
-            html += '<li>category_want: <i>"' + str(category_want) + '"</i>'
-        html += '<li>discoverer_mode: <i>"' + discoverer_mode + '"</i>'
-        html += '</ul>'
-        html += get_html_for_cardend()
-        html += get_html_for_cardline()
+        html += get_you_searched_for_card(name=name,
+                                          category=category,
+                                          value=value,
+                                          name_want=name_want,
+                                          category_want=category_want,
+                                          discoverer_mode=discoverer_mode)
 
     columns = ''
+    node = result.first()
+    if discoverer_mode == 'details_view':
+        columns = DETAIL_COLUMNS
+    elif discoverer_mode == 'person_view':
+        columns = RESEARCH_OUTPUT_COLUMNS
+    html += get_html_table_from_nodes(nodes=[node],
+                                      table_header='Ricgraph explorer found node:',
+                                      table_columns=columns,
+                                      discoverer_mode=discoverer_mode)
+    html += get_html_for_cardstart()
+    html += 'You can '
+    html += '<a href="' + url_for('getoverlap')
+    html += '?name=' + name
+    html += '&category=' + category
+    html += '&value=' + value
+    html += '&discoverer_mode=' + discoverer_mode
+    html += '&overlap_mode=' + 'neighbornodes'
+    html += '">'
+    html += 'click here to do show the overlap in source systems for '
+    html += 'the neighbor nodes of this node'
+    html += '</a>.'
+    html += get_html_for_cardend()
 
-    # This is not necessary, this has been catched above.
-    # This implies that the for loop is not necessary either, since it always will be of length 1.
-    # if len(result) > MAX_RESULTS:
-    #     html += get_html_for_cardstart()
-    #     html += 'There are ' + str(len(result)) + ' results, showing first '
-    #     html += str(MAX_RESULTS) + '.<br>'
-    #     html += get_html_for_cardend()
-    # count = 0
-
-    # Loop over the nodes found.
-    for node in result:
-        # count += 1
-        # if count > MAX_RESULTS:
-        #     break
-
-        if discoverer_mode == 'details_view':
-            columns = DETAIL_COLUMNS
-        elif discoverer_mode == 'person_view':
-            columns = RESEARCH_OUTPUT_COLUMNS
-        html += get_html_table_from_nodes(nodes=[node],
-                                          table_header='Ricgraph explorer found node:',
-                                          table_columns=columns,
+    category_dontwant = ''
+    if node['category'] == 'person':
+        personroot_nodes = rcg.get_all_personroot_nodes(node=node)
+        if len(personroot_nodes) == 0:
+            html += get_html_for_cardstart()
+            html += 'No person-root node found, this should not happen.'
+            html += get_html_for_cardend()
+            return html
+        elif len(personroot_nodes) == 1:
+            person_neighbor_nodes = rcg.get_all_neighbor_nodes_person(node=node)
+            table_header = ''
+            node_to_find_neighbors = personroot_nodes[0]
+            if discoverer_mode == 'details_view':
+                table_header = 'This is a <i>person</i> node, '
+                table_header += 'these are all IDs of its <i>person-root</i> node:'
+                html += details_view_page(nodes=person_neighbor_nodes,
+                                          table_header=table_header,
+                                          table_columns=DETAIL_COLUMNS,
                                           discoverer_mode=discoverer_mode)
-        category_dontwant = ''
-        if node['category'] == 'person':
-            personroot_nodes = rcg.get_all_personroot_nodes(node)
-            if len(personroot_nodes) == 0:
-                html += get_html_for_cardstart()
-                html += 'No person-root node found, this should not happen.'
-                html += get_html_for_cardend()
-                return html
-            elif len(personroot_nodes) == 1:
-                person_neighbor_nodes = rcg.get_all_neighbor_nodes_person(node)
-                table_header = ''
-                node_to_find_neighbors = personroot_nodes[0]
-                if discoverer_mode == 'details_view':
-                    table_header = 'This is a <i>person</i> node, '
-                    table_header += 'these are all IDs of its <i>person-root</i> node:'
-                    html += details_view_page(nodes=person_neighbor_nodes,
+                table_header = 'These are all the neighbors of this <i>person-root</i> node '
+                table_header += '(without <i>person</i> nodes):'
+                category_dontwant = 'person'
+            elif discoverer_mode == 'person_view':
+                html += person_view_page(nodes=person_neighbor_nodes,
+                                         personroot=node_to_find_neighbors,
+                                         discoverer_mode=discoverer_mode)
+                table_header = 'These are all the research outputs of this person:'
+                # These are excluded because they have already been shown in person_view_page().
+                category_dontwant = ['person', 'competence', 'organization', 'project']
+            # And now fall through.
+        else:
+            # More than one person-root node, that should not happen, but it did.
+            table_header = 'There is more than one <i>person-root</i> node '
+            table_header += 'for the node found. '
+            table_header += 'This should not happen, but it did, and that may have been '
+            table_header += 'caused by a mislabeling in a source system we harvested. '
+            table_header += 'Choose one <i>person-root</i> node to continue:'
+            html += get_html_table_from_nodes(nodes=personroot_nodes,
                                               table_header=table_header,
                                               table_columns=DETAIL_COLUMNS,
                                               discoverer_mode=discoverer_mode)
-                    table_header = 'These are all the neighbors of this <i>person-root</i> node '
-                    table_header += '(without <i>person</i> nodes):'
-                    category_dontwant = 'person'
-                elif discoverer_mode == 'person_view':
-                    html += person_view_page(nodes=person_neighbor_nodes,
-                                             personroot=node_to_find_neighbors,
-                                             discoverer_mode=discoverer_mode)
-                    table_header = 'These are all the research outputs of this person:'
-                    # These are excluded because they have already been shown in person_view_page().
-                    category_dontwant = ['person', 'competence', 'organization', 'project']
-                # And now fall through.
-            else:
-                # More than one person-root node, that should not happen, but it did.
-                table_header = 'There is more than one <i>person-root</i> node '
-                table_header += 'for the node found. '
-                table_header += 'This should not happen, but it did, and that may have been '
-                table_header += 'caused by a mislabeling in a source system we harvested. '
-                table_header += 'Choose one <i>person-root</i> node to continue:'
-                html += get_html_table_from_nodes(nodes=personroot_nodes,
-                                                  table_header=table_header,
-                                                  table_columns=DETAIL_COLUMNS,
-                                                  discoverer_mode=discoverer_mode)
-                return html
-        else:
-            table_header = 'These are the neighbors of this node:'
-            node_to_find_neighbors = node
+            return html
+    else:
+        table_header = 'These are the neighbors of this node:'
+        node_to_find_neighbors = node
 
-        neighbor_nodes = rcg.get_all_neighbor_nodes(node=node_to_find_neighbors,
-                                                    name_want=name_want,
-                                                    category_want=category_want,
-                                                    category_dontwant=category_dontwant)
-        table_html = ''
-        if discoverer_mode == 'details_view':
-            columns = DETAIL_COLUMNS
-            table_html = get_faceted_html_table_from_nodes(nodes=neighbor_nodes,
-                                                           name=name,
-                                                           category=category,
-                                                           value=value,
-                                                           table_header=table_header,
-                                                           table_columns=columns,
-                                                           discoverer_mode=discoverer_mode)
-        elif discoverer_mode == 'person_view':
-            columns = RESEARCH_OUTPUT_COLUMNS
-            table_html = get_tabbed_html_table_from_nodes(nodes=neighbor_nodes,
-                                                          table_header=table_header,
-                                                          table_columns=columns,
-                                                          tabs_on='category',
-                                                          discoverer_mode=discoverer_mode)
-        html += table_html
+    neighbor_nodes = rcg.get_all_neighbor_nodes(node=node_to_find_neighbors,
+                                                name_want=name_want,
+                                                category_want=category_want,
+                                                category_dontwant=category_dontwant)
+    table_html = ''
+    if discoverer_mode == 'details_view':
+        columns = DETAIL_COLUMNS
+        table_html = get_faceted_html_table_from_nodes(nodes=neighbor_nodes,
+                                                       name=name,
+                                                       category=category,
+                                                       value=value,
+                                                       table_header=table_header,
+                                                       table_columns=columns,
+                                                       discoverer_mode=discoverer_mode)
+    elif discoverer_mode == 'person_view':
+        columns = RESEARCH_OUTPUT_COLUMNS
+        table_html = get_tabbed_html_table_from_nodes(nodes=neighbor_nodes,
+                                                      table_header=table_header,
+                                                      table_columns=columns,
+                                                      tabs_on='category',
+                                                      discoverer_mode=discoverer_mode)
+    html += table_html
 
+    return html
+
+
+def get_you_searched_for_card(name: str = '', category: str = '', value: str = '',
+                              name_want: list = None,
+                              category_want: list = None,
+                              discoverer_mode: str = '',
+                              overlap_mode: str = '',
+                              system1: str = '',
+                              system2: str = '') -> str:
+    """Get the html for the "You searched for" card.
+    With the exception of name, category, and value, only search fields with are not
+    empty will be shown.
+
+    :param name: name.
+    :param category: category.
+    :param value: value.
+    :param name_want: name_want.
+    :param category_want: category_want.
+    :param discoverer_mode: discoverer_mode.
+    :param overlap_mode: overlap_mode.
+    :param system1: system1.
+    :param system2: system2.
+    :return: html to be rendered.
+    """
+    if name_want is None:
+        name_want = []
+    if category_want is None:
+        category_want = []
+
+    html = get_html_for_cardstart()
+    html += '<details><summary>Click for information about your search</summary><ul>'
+    html += '<li>name: <i>"' + str(name) + '"</i>'
+    html += '<li>category: <i>"' + str(category) + '"</i>'
+    html += '<li>value: <i>"' + str(value) + '"</i>'
+    if len(name_want) > 0:
+        html += '<li>name_want: <i>"' + str(name_want) + '"</i>'
+    if len(category_want) > 0:
+        html += '<li>category_want: <i>"' + str(category_want) + '"</i>'
+    if discoverer_mode != '':
+        html += '<li>discoverer_mode: <i>"' + str(discoverer_mode) + '"</i>'
+    if overlap_mode != '':
+        html += '<li>overlap: <i>"' + str(overlap_mode) + '"</i>'
+    if system1 != '':
+        html += '<li>system1: <i>"' + str(system1) + '"</i>'
+    if system2 != '':
+        html += '<li>system2: <i>"' + str(system2) + '"</i>'
+    html += '</ul>'
+    html += '</details>'
+    html += get_html_for_cardend()
+    html += get_html_for_cardline()
     return html
 
 
@@ -780,9 +1014,9 @@ def get_facets_from_nodes(nodes: list,
             name_label = bucket + '&nbsp;<i>(' + str(name_histogram[bucket]) + ')</i>'
             faceted_form += '<input class="w3-check" type="checkbox" name="faceted_name" value="'
             faceted_form += bucket + '" checked>'
-            faceted_form += '<label>&nbsp;' + name_label + '</label><br>'
+            faceted_form += '<label>&nbsp;' + name_label + '</label><br/>'
         faceted_form += '</div>'
-        faceted_form += '</div></br>'
+        faceted_form += '</div><br/>'
 
     if len(category_histogram) == 1:
         # Get the first (and only) element in the dict, pass it as hidden field to search().
@@ -798,9 +1032,9 @@ def get_facets_from_nodes(nodes: list,
             category_label = bucket + '&nbsp;<i>(' + str(category_histogram[bucket]) + ')</i>'
             faceted_form += '<input class="w3-check" type="checkbox" name="faceted_category" value="'
             faceted_form += bucket + '" checked>'
-            faceted_form += '<label>&nbsp;' + category_label + '</label><br>'
+            faceted_form += '<label>&nbsp;' + category_label + '</label><br/>'
         faceted_form += '</div>'
-        faceted_form += '</div></br>'
+        faceted_form += '</div><br/>'
 
     # Send name, category and value as hidden fields to search().
     faceted_form += '<input type="hidden" name="search_name" value="' + str(name) + '">'
@@ -815,8 +1049,287 @@ def get_facets_from_nodes(nodes: list,
     return html
 
 
+def get_overlap_in_source_systems(name: str = '', category: str = '', value: str = '',
+                                  discoverer_mode: str = '',
+                                  overlap_mode: str = 'thisnode') -> str:
+    """Get the overlap in records from source systems.
+
+    :param name: name of the nodes to find.
+    :param category: category of the nodes to find.
+    :param value: value of the nodes to find.
+    :param discoverer_mode: the discoverer_mode to use.
+    :param overlap_mode: which overlap to compute: from this node ('thisnode')
+    or from the neighbors of this node ('neighbornodes').
+    :return: html to be rendered.
+    """
+    html = ''
+    if discoverer_mode == 'details_view':
+        html += get_you_searched_for_card(name=name,
+                                          category=category,
+                                          value=value,
+                                          discoverer_mode=discoverer_mode,
+                                          overlap_mode=overlap_mode)
+
+    if name == '' and category == '' and value == '':
+        html += get_html_for_cardstart()
+        html += 'Ricgraph explorer could not find anything.'
+        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += get_html_for_cardend()
+        return html
+
+    if discoverer_mode != 'details_view' and discoverer_mode != 'person_view':
+        return 'Error, unknown discoverer_mode: ' + discoverer_mode + '. Please try again.'
+
+    if overlap_mode != 'thisnode' and overlap_mode != 'neighbornodes':
+        return 'Error, unknown overlap_mode: ' + overlap_mode + '. Please try again.'
+
+    nodes = rcg.read_all_nodes(name=name, category=category, value=value)
+    if len(nodes) == 0:
+        # Let's try again, assuming we did a string search instead of an exact match search.
+        nodes = rcg.read_all_nodes_containing(value=value)
+        if len(nodes) == 0:
+            # No, we really didn't find anything.
+            html += get_html_for_cardstart()
+            html += 'Ricgraph explorer could not find anything.'
+            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += get_html_for_cardend()
+            return html
+
+    if overlap_mode == 'neighbornodes':
+        # In this case, we would like to know the overlap of nodes neighboring the node
+        # we have just found. We can only do that if we have found only one node.
+        if len(nodes) > 1:
+            html += get_html_for_cardstart()
+            html += 'Ricgraph explorer found too many nodes. It cannot compute the overlap '
+            html += 'of the neighbor nodes of more than one node in get_overlap_in_source_systems().'
+            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += get_html_for_cardend()
+            return html
+
+        node = nodes.first()
+        if node['category'] == 'person':
+            personroot = rcg.get_personroot_node(node)
+            if personroot is None:
+                html += get_html_for_cardstart()
+                html += 'Ricgraph explorer found no "person-root" '
+                html += 'node in get_overlap_in_source_systems().'
+                html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+                html += get_html_for_cardend()
+                return html
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot)
+        else:
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=node)
+        nodes = neighbor_nodes.copy()
+
+    nr_total_recs = 0
+    nr_recs_from_one_source = 0
+    nr_recs_from_multiple_sources = 0
+    recs_from_one_source = rcg.create_multidimensional_dict(1, int)
+    recs_from_multiple_sources = rcg.create_multidimensional_dict(1, int)
+    recs_from_multiple_sources_histogram = rcg.create_multidimensional_dict(2, int)
+
+    # Determine the overlap in source systems.
+    for node in nodes:
+        sources = node['_source']
+        if len(sources) == 0:
+            continue
+        nr_total_recs += 1
+        if len(sources) == 1:
+            nr_recs_from_one_source += 1
+            recs_from_one_source[sources[0]] += 1
+            continue
+        nr_recs_from_multiple_sources += 1
+        for system1 in sources:
+            recs_from_multiple_sources[system1] += 1
+            for system2 in sources:
+                recs_from_multiple_sources_histogram[system1][system2] += 1
+
+    if nr_total_recs == 0:
+        if overlap_mode == 'neighbornodes':
+            html += get_html_for_cardstart()
+            html += 'Ricgraph explorer found no overlap in source systems for '
+            html += 'the neighbors of this node. '
+            html += 'This may be caused by that these neighbors are "person-root" nodes. '
+            html += 'These nodes are generated by Ricgraph and do not have a source system.'
+            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += get_html_for_cardend()
+            return html
+        return ''
+
+    # Now determine all the systems we have harvested from.
+    all_harvested_systems = []
+    for system in recs_from_one_source:
+        if system not in all_harvested_systems:
+            all_harvested_systems.append(system)
+    for system in recs_from_multiple_sources:
+        if system not in all_harvested_systems:
+            all_harvested_systems.append(system)
+    all_harvested_systems.sort()
+
+    html += get_html_for_cardstart()
+    html += '<h3>Number of records in source systems</h3>'
+    html += 'This table shows the number of records found in only one source or '
+    html += 'found in multiple sources for your query. '
+    html += 'You can click on a number to retrieve these records.'
+    html += get_html_for_tablestart()
+    html += '<tr class="uu-yellow">'
+    html += '<th class="sorttable_nosort">Source systems</th>'
+    html += '<th class="sorttable_nosort">Total records in source systems: '
+    html += str(nr_total_recs)
+    html += '</th>'
+    html += '<th class="sorttable_nosort">Total records found in only one source: '
+    html += str(nr_recs_from_one_source)
+    html += ' (' + str(round(100 * nr_recs_from_one_source/nr_total_recs))
+    html += '% of total ' + str(nr_total_recs) + ' records)'
+    html += '</th>'
+    html += '<th class="sorttable_nosort">Total records found in multiple sources: '
+    html += str(nr_recs_from_multiple_sources)
+    html += ' (' + str(round(100 * nr_recs_from_multiple_sources/nr_total_recs))
+    html += '% of total ' + str(nr_total_recs) + ' records)'
+    html += '</th>'
+    html += '</tr>'
+
+    for system in all_harvested_systems:
+        html += '<tr class="item">'
+        html += '<td>' + system + '</td>'
+        row_total = 0
+        if system in recs_from_one_source:
+            row_total += recs_from_one_source[system]
+        if system in recs_from_multiple_sources:
+            row_total += recs_from_multiple_sources[system]
+
+        if row_total > 0:
+            html += '<td>' + str(row_total) + '</td>'
+        else:
+            html += '<td>0</td>'
+        if system in recs_from_one_source:
+            html += '<td>'
+            html += '<a href="' + url_for('searchdetails')
+            html += '?name=' + name
+            html += '&category=' + category
+            html += '&value=' + value
+            html += '&system1=' + system
+            html += '&system2=singlesource'
+            html += '&discoverer_mode=' + discoverer_mode
+            html += '&overlap_mode=' + overlap_mode
+            html += '">'
+            html += str(recs_from_one_source[system])
+            html += ' (' + str(round(100 * recs_from_one_source[system]/nr_recs_from_one_source)) + '%)'
+            html += '</a>'
+            html += '</td>'
+        else:
+            html += '<td>0</td>'
+        if system in recs_from_multiple_sources:
+            html += '<td>'
+            html += '<a href="' + url_for('searchdetails')
+            html += '?name=' + name
+            html += '&category=' + category
+            html += '&value=' + value
+            html += '&system1=' + system
+            html += '&system2=multiplesource'
+            html += '&discoverer_mode=' + discoverer_mode
+            html += '&overlap_mode=' + overlap_mode
+            html += '">'
+            html += str(recs_from_multiple_sources[system])
+            html += ' (' + str(round(100 * recs_from_multiple_sources[system]/nr_recs_from_multiple_sources)) + '%)'
+            html += '</a>'
+            html += '</td>'
+        else:
+            html += '<td>0</td>'
+    html += '</tr>'
+    html += get_html_for_tableend()
+    html += 'Note that the numbers in the columns "Total records in source systems" '
+    html += 'and "Total records found in multiple sources" do not need '
+    html += 'to count up to resp. '
+    html += 'the total number of records ('
+    html += str(nr_total_recs)
+    html += ') and the total number of records from multiple sources ('
+    html += str(nr_recs_from_multiple_sources)
+    html += ') since a record in that column will originate from multiple sources, and subsequently will occur '
+    html += 'in in multiple rows of that column.'
+
+    if nr_recs_from_multiple_sources == 0:
+        html += get_html_for_cardend()
+        return html
+
+    html += '<br/>'
+    html += '<br/>'
+    html += '<h3>Overlap in records from multiple sources</h3>'
+    html += 'For the records found for your query in multiple sources, this table shows in which sources '
+    html += 'they were found. '
+    html += 'You can click on a number to retrieve these records.'
+
+    html += get_html_for_tablestart()
+    html_header2 = '<tr class="uu-yellow">'
+    html_header2 += '<th class="sorttable_nosort">A record from \u25be...</th>'
+    html_header2 += '<th class="sorttable_nosort">Total records found in multiple sources</th>'
+    count = 0
+    for second in all_harvested_systems:
+        html_header2 += '<th class="sorttable_nosort">' + second + '</th>'
+        count += 1
+    html_header2 += '</tr>'
+    html_header1 = '<tr class="uu-yellow">'
+    html_header1 += '<th class="sorttable_nosort" colspan="2"></th>'
+    html_header1 += '<th class="sorttable_nosort" colspan="' + str(count) + '">... was also found in \u25be</th>'
+    html_header1 += '</tr>'
+    html += html_header1 + html_header2
+
+    for system1 in all_harvested_systems:
+        html += '<tr class="item">'
+        html += '<td>' + system1 + '</td>'
+        if system1 in recs_from_multiple_sources:
+            html += '<td>'
+            html += '<a href="' + url_for('searchdetails')
+            html += '?name=' + name
+            html += '&category=' + category
+            html += '&value=' + value
+            html += '&system1=' + system1
+            html += '&system2=multiplesource'
+            html += '&discoverer_mode=' + discoverer_mode
+            html += '&overlap_mode=' + overlap_mode
+            html += '">'
+            html += str(recs_from_multiple_sources[system1])
+            html += '</a>'
+            html += '</td>'
+        else:
+            html += '<td>0</td>'
+        for system2 in all_harvested_systems:
+            if system1 == system2:
+                # html += '<td>-</td>'
+                html += '<td>&check;</td>'
+                continue
+            if system2 in recs_from_multiple_sources_histogram[system1]:
+                html += '<td>'
+                html += '<a href="' + url_for('searchdetails')
+                html += '?name=' + name
+                html += '&category=' + category
+                html += '&value=' + value
+                html += '&system1=' + system1
+                html += '&system2=' + system2
+                html += '&discoverer_mode=' + discoverer_mode
+                html += '&overlap_mode=' + overlap_mode
+                html += '">'
+                html += str(recs_from_multiple_sources_histogram[system1][system2])
+                percent = recs_from_multiple_sources_histogram[system1][system2]/recs_from_multiple_sources[system1]
+                html += ' (' + str(round(100 * percent)) + '%)'
+                html += '</a>'
+                html += '</td>'
+            else:
+                html += '<td>0</td>'
+        html += '</tr>'
+    html += get_html_for_tableend()
+    html += 'Note that the number of records in a row in column 3, 4, etc. do not need '
+    html += 'to count up to the total number of records from that source (in the second column), '
+    html += 'since a record in this table will originate from at least two sources, '
+    html += 'and subsequently will occur multiple times on the same row.'
+
+    html += get_html_for_cardend()
+
+    return html
+
+
 # ##############################################################################
-# The HTML for the tables is generated here.
+# The HTML for the various 'discover_mode's is generated here.
 # ##############################################################################
 def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
                               table_header: str = '',
@@ -844,8 +1357,8 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
     html = get_html_for_cardstart()
     html += table_header
     if len(nodes) > MAX_ROWS_IN_TABLE:
-        html += '<br>There are ' + str(len(nodes)) + ' rows in this table, showing first '
-        html += str(MAX_ROWS_IN_TABLE) + '.<br>'
+        html += '<br/>There are ' + str(len(nodes)) + ' rows in this table, showing first '
+        html += str(MAX_ROWS_IN_TABLE) + '.<br/>'
     html += get_html_for_tablestart()
     html += get_html_for_tableheader(table_columns=table_columns)
     count = 0
@@ -898,7 +1411,7 @@ def get_faceted_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
                                          discoverer_mode=discoverer_mode)
     if faceted_html == '' \
        and discoverer_mode == 'details_view':
-        table_header += '<br>[Facet panel not shown because there is only one facet to show.]'
+        table_header += '<br/>[Facet panel not shown because there is only one facet to show.]'
 
     table_html = get_html_table_from_nodes(nodes=nodes,
                                            table_header=table_header,
@@ -1019,6 +1532,9 @@ def get_tabbed_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
     return html
 
 
+# ##############################################################################
+# The HTML for the tables is generated here.
+# ##############################################################################
 def get_html_for_tablestart() -> str:
     """Get the html required for the start of a html table.
 
@@ -1126,7 +1642,6 @@ def get_html_for_tablerow(node: Node,
         else:
             html += '<td><details><summary>Click for history</summary><ul>'
             for history in node['_history']:
-                # html += '<li>' + history
                 html += '<li>' + history + '</li>'
             html += '</ul></details></td>'
     html += '</tr>'

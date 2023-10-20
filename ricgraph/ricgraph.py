@@ -30,7 +30,7 @@
 #
 # This file is the main file for Ricgraph.
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, February 2023, March 2023.
+# Updated Rik D.T. Janssen, February, March, October 2023.
 #
 # ########################################################################
 
@@ -100,18 +100,19 @@ In the default configuration of Ricgraph, the following properties are included:
 
 import os.path
 from datetime import datetime
+import numpy
+import pandas
+import requests
 import csv
 import uuid
 import json
 from typing import Union
+from collections import defaultdict
 from functools import lru_cache, wraps
 import configparser
 
-import requests
 from py2neo import *
 from py2neo.matching import *
-import numpy
-import pandas
 
 
 __author__ = 'Rik D.T. Janssen'
@@ -1383,7 +1384,7 @@ def get_all_neighbor_nodes_person(node: Node) -> list:
     if personroot is None:
         return []
 
-    neighbor_nodes = get_all_neighbor_nodes(personroot, category_want='person')
+    neighbor_nodes = get_all_neighbor_nodes(node=personroot, category_want='person')
     neighbor_nodes.append(personroot)
 
     return neighbor_nodes
@@ -1393,16 +1394,39 @@ def get_all_neighbor_nodes_person(node: Node) -> list:
 # Utility functions
 # ##############################################################################
 
+def create_multidimensional_dict(dimension: int, dict_type):
+    """Create a multimensional dict.
+    Non-existing keys will be added automatically.
+    From https://stackoverflow.com/questions/29348345/declaring-a-multi-dimensional-dictionary-in-python,
+    the second answer.
+
+    Example use:
+    new_dict = create_multidimensional_dict(2, int)
+    new_dict['key1']['key2'] += 5
+
+    :param dimension: dimension of the dict.
+    :param dict_type: type of the dict.
+    :return: the dict.
+    """
+    if dimension == 0:
+        return None
+    if dimension == 1:
+        return defaultdict(dict_type)
+    else:
+        return defaultdict(lambda: create_multidimensional_dict(dimension=dimension - 1,
+                                                                dict_type=dict_type))
+
+
 # #####
 # Note:
 # This function was written using the JSON harvested by the following python files:
 # - GET: harvest_openalex_to_ricgraph.py.
 # - POST: harvest_pure_to_ricgraph.py.
-
+#
 # Possibly for other harvests some changes should be made. Please also test the result
 # with the above-mentioned files, and add the filename of the new harvest script.
 # #####
-def harvest_json(url: str, headers: dict, body: dict = [], max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
+def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
     """Harvest json data from a file.
 
     :param url: URL to harvest.
@@ -1412,6 +1436,9 @@ def harvest_json(url: str, headers: dict, body: dict = [], max_recs_to_harvest: 
     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
     :return: list of records in json format, or empty list if nothing found.
     """
+    if body is None:
+        body = []
+
     print('Harvesting json data from ' + url + '.')
     print('Getting data...')
 
@@ -1518,7 +1545,7 @@ def harvest_json(url: str, headers: dict, body: dict = [], max_recs_to_harvest: 
     return json_data
 
 
-def harvest_json_and_write_to_file(filename: str, url: str, headers: dict, body: dict = [],
+def harvest_json_and_write_to_file(filename: str, url: str, headers: dict, body: dict = None,
                                    max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
     """Harvest json data and write the data found to a file.
     This data is a list of records in json format. If no records are harvested, nothing is written.
@@ -1531,6 +1558,9 @@ def harvest_json_and_write_to_file(filename: str, url: str, headers: dict, body:
     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
     :return: list of records in json format, or empty list if nothing found.
     """
+    if body is None:
+        body = []
+
     json_data = harvest_json(url=url,
                              headers=headers,
                              body=body,
