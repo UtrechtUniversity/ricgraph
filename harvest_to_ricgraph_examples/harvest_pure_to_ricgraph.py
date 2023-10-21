@@ -37,11 +37,17 @@
 # filters on e.g. active persons yet. Neither does it allow harvesting of research outputs
 # for one year only, so you might hit memory bounds if you harvest every research output
 # for all years with the CRUD API.
+#
+# In Pure, organizations are hierarchical. That means, an organization has a parent org,
+# which has a parent org, up until a root org.
+# At the end of this script, a person (i.e. its person-root node) will be connected to
+# all of these hierarchical orgs.
+#
 # You have to set some parameters in ricgraph.ini.
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, April 2023.
+# Updated Rik D.T. Janssen, April, October 2023.
 #
 # ########################################################################
 #
@@ -225,7 +231,7 @@ def create_pure_url(name: str, value: str) -> str:
 
     :param name: an identifier name, e.g. PURE_UUID_PERS, PURE_UUID_ORG, etc.
     :param value: the value.
-    :return: an URL.
+    :return: a URL.
     """
     if name == '' or value == '':
         return ''
@@ -988,74 +994,154 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                    source_event=HARVEST_SOURCE,
                                    history_event=history_event)
 
-    organizations = parsed_content[['PURE_UUID_PERS', 'PURE_UUID_ORG']].copy(deep=True)
-    organizations.dropna(axis=0, how='all', inplace=True)
-    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations['url_main1'] = organizations[['PURE_UUID_PERS']].apply(
-                                 lambda row: create_pure_url(name='PURE_UUID_PERS',
-                                                             value=row['PURE_UUID_PERS']), axis=1)
-    # Do not insert the organization URL here, it is done in parsed_organizations_to_ricgraph()
-    organizations.rename(columns={'PURE_UUID_PERS': 'value1',
-                                  'PURE_UUID_ORG': 'value2'}, inplace=True)
-    new_organization_columns = {'name1': 'PURE_UUID_PERS',
+    # Note that the URL to this person in Pure is set in
+    # parsed_organizations_to_ricgraph(). It could have been done here, but doing it there
+    # is more efficient.
+
+    return
+
+
+def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
+                                     parsed_content_organizations: pandas.DataFrame) -> None:
+    """Insert the parsed organizations in Ricgraph.
+
+    In Pure, organizations are hierarchical. That means, an organization has a parent org,
+    which has a parent org, up until a root org.
+    At the end of this function, a person (i.e. its person-root node) will be connected to
+    all of these hierarchical orgs.
+
+    :param parsed_content_persons: The person records to connect to organization records in Ricgraph.
+    :param parsed_content_organizations: The organization records to insert in Ricgraph.
+    :return: None.
+    """
+    print('\nInserting organizations and persons from organizations from '
+          + HARVEST_SOURCE + ' in Ricgraph...')
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' organizations at ' + timestamp + '.'
+
+    print('Determining all parent organizations of an organization...')
+    parsed_content = parsed_content_organizations[['PURE_UUID_ORG',
+                                                   'FULL_ORG_NAME',
+                                                   'PARENT_UUID']].copy(deep=True)
+    parsed_content.dropna(axis=0, how='any', inplace=True)
+    parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    organization_and_all_parents = {}
+    # Transform dataframe to dict. The first entry in the list at a dict[<org>] is the
+    # name, following entries are the parents of <org>.
+    # In this loop, construct the dict and its direct parent, in the second loop
+    # the top-level orgs will be added, and in the third loop all of its
+    # parents will be appended to dict[<org>].
+    for index in range(len(parsed_content)):
+        orgid = str(parsed_content.iloc[index, 0])
+        orgname = str(parsed_content.iloc[index, 1])
+        parentorgid = str(parsed_content.iloc[index, 2])
+        organization_and_all_parents.setdefault(orgid, [])
+        organization_and_all_parents[orgid].append(orgname)
+        organization_and_all_parents[orgid].append(parentorgid)
+
+    # 2nd loop: Do the same for PARENT_UUID and FULL_PARENT_NAME. This is necessary because the
+    # top-level org will not be in PURE_UUID_ORG.
+    parsed_content = parsed_content_organizations[['PARENT_UUID',
+                                                   'FULL_PARENT_NAME']].copy(deep=True)
+    parsed_content.dropna(axis=0, how='any', inplace=True)
+    parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    for index in range(len(parsed_content)):
+        orgid = str(parsed_content.iloc[index, 0])
+        orgname = str(parsed_content.iloc[index, 1])
+        if orgid not in organization_and_all_parents:
+            organization_and_all_parents.setdefault(orgid, [])
+            organization_and_all_parents[orgid].append(orgname)
+
+    # 3rd loop: For each organization, find all of its parents.
+    something_changed = True
+    nr_iterations = 0
+    while something_changed:
+        something_changed = False
+        nr_iterations += 1
+        for orgid in organization_and_all_parents:
+            for parentorgid in organization_and_all_parents[orgid]:
+                if parentorgid not in organization_and_all_parents:
+                    continue
+                parentslist = organization_and_all_parents[parentorgid]
+                for index in range(len(parentslist)):
+                    if index == 0:
+                        # Remember: first entry in list is the name of the org.
+                        continue
+                    if parentslist[index] not in organization_and_all_parents[orgid]:
+                        something_changed = True
+                        organization_and_all_parents[orgid].append(parentslist[index])
+
+    print(str(nr_iterations) + ' iterations were necessary to determine all parent organizations.')
+
+    print('Determining all links between persons and all of their organizations... ', end='', flush=True)
+    parsed_content = parsed_content_persons[['PURE_UUID_PERS',
+                                             'PURE_UUID_ORG']].copy(deep=True)
+    parsed_content.dropna(axis=0, how='any', inplace=True)
+    parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    person_organization = {}
+    for index in range(len(parsed_content)):
+        personid = parsed_content.iloc[index, 0]
+        orgid = parsed_content.iloc[index, 1]
+        person_organization.setdefault(personid, [])
+        person_organization[personid] = orgid
+
+    parse_chunk = []                # list of dictionaries
+    for personid in person_organization:
+        orgid = person_organization[personid]
+        if orgid not in organization_and_all_parents:
+            continue
+        # Now get all parents of orgid.
+        parentslist = organization_and_all_parents[orgid]
+        for index in range(len(parentslist)):
+            if index == 0:
+                # Remember: first entry in list is the name of the org.
+                continue
+            parse_line = {}
+            parse_line['PURE_UUID_PERS'] = str(personid)
+            orgid = str(parentslist[index])
+            parse_line['PURE_UUID_ORG'] = orgid
+            parse_line['ORG_NAME'] = str(organization_and_all_parents[orgid][0])
+            parse_chunk.append(parse_line)
+
+    print('Done.\n')
+
+    persorgnodes = pandas.DataFrame()
+    parse_chunk_df = pandas.DataFrame(parse_chunk)
+    persorgnodes = pandas.concat([persorgnodes, parse_chunk_df], ignore_index=True)
+    persorgnodes.dropna(axis=0, how='all', inplace=True)
+    persorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+
+    # This could have been done in parsed_persons_to_ricgraph(), but doing it here
+    # is more efficient.
+    persorgnodes['url_main1'] = persorgnodes[['PURE_UUID_PERS']].apply(
+                                lambda row: create_pure_url(name='PURE_UUID_PERS',
+                                                            value=row['PURE_UUID_PERS']), axis=1)
+    persorgnodes['url_main2'] = persorgnodes[['PURE_UUID_ORG']].apply(
+                                lambda row: create_pure_url(name='PURE_UUID_ORG',
+                                                            value=row['PURE_UUID_ORG']), axis=1)
+    persorgnodes.rename(columns={'PURE_UUID_PERS': 'value1',
+                                 'PURE_UUID_ORG': 'value2',
+                                 'ORG_NAME': 'comment2'}, inplace=True)
+    new_persorgnodes_columns = {'name1': 'PURE_UUID_PERS',
                                 'category1': 'person',
                                 'name2': 'PURE_UUID_ORG',
                                 'category2': 'organization',
                                 'source_event2': HARVEST_SOURCE,
                                 'history_event2': history_event}
-    organizations = organizations.assign(**new_organization_columns)
-    organizations = organizations[['name1', 'category1', 'value1', 'url_main1',
-                                   'name2', 'category2', 'value2', 'source_event2', 'history_event2']]
+    persorgnodes = persorgnodes.assign(**new_persorgnodes_columns)
+    persorgnodes = persorgnodes[['name1', 'category1', 'value1',
+                                 'url_main1',
+                                 'name2', 'category2', 'value2',
+                                 'comment2', 'url_main2',
+                                 'source_event2', 'history_event2']]
 
-    print('The following organizations from persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(organizations)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+    print('The following organizations and persons from organizations from '
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+    print(persorgnodes)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=persorgnodes)
     print('\nDone.\n')
-    return
 
-
-def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
-    """Insert the parsed organizations in Ricgraph.
-
-    :param parsed_content: The records to insert in Ricgraph, if not present yet.
-    :return: None.
-    """
-    print('Inserting organizations from ' + HARVEST_SOURCE + ' in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' organizations at ' + timestamp + '.'
-
-    organizations = parsed_content[['PURE_UUID_ORG',
-                                    'FULL_ORG_NAME',
-                                    'PARENT_UUID',
-                                    'FULL_PARENT_NAME']].copy(deep=True)
-    organizations.dropna(axis=0, how='all', inplace=True)
-    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations['url_main1'] = organizations[['PURE_UUID_ORG']].apply(
-                                 lambda row: create_pure_url(name='PURE_UUID_ORG',
-                                                             value=row['PURE_UUID_ORG']), axis=1)
-    organizations.rename(columns={'PURE_UUID_ORG': 'value1',
-                                  'FULL_ORG_NAME': 'comment1',
-                                  'PARENT_UUID': 'value2',
-                                  'FULL_PARENT_NAME': 'comment2'}, inplace=True)
-    new_organization_columns = {'name1': 'PURE_UUID_ORG',
-                                'category1': 'organization',
-                                'source_event1': HARVEST_SOURCE,
-                                'history_event1': history_event,
-                                'name2': 'PURE_UUID_ORG',
-                                'category2': 'organization',
-                                'source_event2': HARVEST_SOURCE,
-                                'history_event2': history_event}
-    organizations = organizations.assign(**new_organization_columns)
-    organizations = organizations[['name1', 'category1', 'value1', 'comment1', 'url_main1',
-                                   'source_event1', 'history_event1',
-                                   'name2', 'category2', 'value2', 'comment2',
-                                   'source_event2', 'history_event2']]
-
-    print('The following organizations from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(organizations)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
-    print('\nDone.\n')
     return
 
 
@@ -1402,7 +1488,8 @@ if True:
     else:
         rcg.write_dataframe_to_csv(filename=data_file,
                                    df=parse_organizations)
-        parsed_organizations_to_ricgraph(parsed_content=parse_organizations)
+        parsed_organizations_to_ricgraph(parsed_content_persons=parse_persons,
+                                         parsed_content_organizations=parse_organizations)
 
 
 # if False:
