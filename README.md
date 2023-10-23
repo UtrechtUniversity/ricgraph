@@ -45,15 +45,15 @@ or the [presentations and mentions of Ricgraph](docs/ricgraph_presentations_ment
 
 Ricgraph has been developed because a university had a need to be able to show
 people, organizations and research outputs
-(e.g. books, journal articles, datasets, software, etc.)
+(e.g. books, journal articles, data sets, software, etc.)
 in relation to each other. This information is stored in different systems.
 That university needed to show research in context in a
 graph (hence the name).
 Ricgraph is able to answer questions like:
 
-* Which person has contributed to which book, journal article, dataset,
+* Which person has contributed to which book, journal article, data set,
   software package, etc.?
-* Given e.g. a dataset or software package, who has contributed to it?
+* Given e.g. a data set or software package, who has contributed to it?
 * What identifiers does a person have (there are a lot in use at universities)?
 * Show a network of persons who have worked together?
 * For what organization does a person work? So which organizations have worked together?
@@ -120,7 +120,7 @@ Some of Ricgraph's features are:
   The objective is to get metadata from
   objects from a source system in a process called "harvesting".
   That means that e.g. persons and publications
-  can be harvested from one system, datasets from another system, and software from a third system.
+  can be harvested from one system, data sets from another system, and software from a third system.
   Everything found will be combined into one graph.
 * Ricgraph can harvest from many sources, and you can write your own
   harvesting scripts. Example scripts are included to
@@ -162,7 +162,7 @@ Some of Ricgraph's features are:
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
 * Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md),
-  e.g. by doing a harvest for Utrecht University datasets and
+  e.g. by doing a harvest for Utrecht University data sets and
   software. 
   You will observe that the information from two sources is neatly combined into one graph.
 * Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md).

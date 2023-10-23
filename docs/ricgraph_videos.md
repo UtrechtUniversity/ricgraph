@@ -9,7 +9,7 @@ more metadata can be harvested, and more insights can be obtained.
 
 For these videos, Ricgraph has harvested the following source systems:
 * Utrecht University persons, organizations and research outputs from Pure;
-* Utrecht University datasets
+* Utrecht University data sets
   from the data repository [Yoda](https://search.datacite.org/repositories/delft.uu);
 * Utrecht University software
   from the [Research Software Directory](https://research-software-directory.org).
@@ -17,7 +17,7 @@ For these videos, Ricgraph has harvested the following source systems:
 In the videos, you will observe nodes of several colors and sizes:
 * blue nodes indicate persons;
 * yellow nodes indicate journal articles;
-* green nodes indicate datasets;
+* green nodes indicate data sets;
 * red nodes indicate software;
 * grey nodes indicate all other category nodes, such as organizations and other types of research outputs;
 * small nodes are harvested from Yoda;
@@ -59,7 +59,7 @@ https://user-images.githubusercontent.com/121875841/226640670-0ca613b3-8a3e-4790
 In this [video Find outputs and organizations from 
 a person (1m10s) (click to download)](videos/ricgraph_find_outputs_and_organizations_from_person.mp4),
 we first look up all nodes in Ricgraph that are connected to
-one person, i.e. publications, software and datasets the person has contributed to, 
+one person, i.e. publications, software and data sets the person has contributed to, 
 and organizations the person is a member of.
 Then we zoom in on the 
 chair/subunit this person is a member of, and expand it to show his colleagues in the same chair/subunit.

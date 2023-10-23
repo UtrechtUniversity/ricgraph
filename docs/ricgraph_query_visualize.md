@@ -38,7 +38,7 @@ you are traversing the graph.
 
 Ricgraph explorer also offers
 [Faceted navigation](https://en.wikipedia.org/wiki/Faceted_search).
-That means, if a query results in a table with e.g. *journal articles*, *datasets*,
+That means, if a query results in a table with e.g. *journal articles*, *data sets*,
 and *software*, you can narrow down on one or more of these categories by
 checking or unchecking their corresponding checkbox.
 
@@ -100,7 +100,7 @@ contains four different shortcuts for
   "Node name ..." for property *comment*.
 
 These queries can be entered in the Bloom text box "Search graph",
-by typing e.g. "Node name ORCID" or "Node category dataset".
+by typing e.g. "Node name ORCID" or "Node category data set".
 For more information see
 [Bloom search bar](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/search-bar)
 and [Boom pattern
@@ -146,7 +146,7 @@ contains a few rules based on the value of properties.
 Rules which determine the color of a node:
 
 * if property *category* = "person": color = blue.
-* if property *category* = "dataset": color = green.
+* if property *category* = "data set": color = green.
 * if property *category* = "journal article": color = yellow.
 * if property *category* = "software": color = red.
 * all other nodes: color = grey.

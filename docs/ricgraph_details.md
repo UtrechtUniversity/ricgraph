@@ -56,7 +56,7 @@ All nodes in Ricgraph have the following properties:
 
 * `name`: name of the node, e.g. ISNI, ORCID, DOI, FULL_NAME, SCOPUS_AUTHOR_ID, etc.;
 * `category`: category of the node,
-  e.g. person, person-root, book, journal article, dataset, software, etc.;
+  e.g. person, person-root, book, journal article, data set, software, etc.;
 * `value`: value of the node;
 * `_key`: key value of the node, not to be modified by the user;
 * `_source`: sorted list of sources a record has been

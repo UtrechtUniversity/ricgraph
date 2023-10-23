@@ -28,7 +28,7 @@ There are five examples of harvest scripts provided, for
 * [harvest of OpenAlex](#harvest-of-openalex);
 * [harvest of Pure](#harvest-of-pure);
 * [harvest of Utrecht University 
-  datasets](#harvest-of-utrecht-university-datasets);
+  data sets](#harvest-of-utrecht-university-data-sets);
 * [harvest of Utrecht University staff 
   pages](#harvest-of-utrecht-university-staff-pages);
 * [harvest of software from the Research Software 
@@ -187,9 +187,9 @@ your organization),
 and only harvests research outputs from 2020 onward,
 and your project may have research outputs from before 2020.
 
-### Harvest of Utrecht University datasets
+### Harvest of Utrecht University data sets
 
-To harvest Utrecht University datasets
+To harvest Utrecht University data sets
 from the data repository 
 [Yoda](https://search.datacite.org/repositories/delft.uu),
 use the script
