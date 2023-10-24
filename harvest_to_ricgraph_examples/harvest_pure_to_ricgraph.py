@@ -135,8 +135,7 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
 global PURE_ORGANIZATIONS_ENDPOINT
 PURE_READ_ORGANIZATIONS_ENDPOINT = 'organisational-units'
 PURE_CRUD_ORGANIZATIONS_ENDPOINT = 'organizations/search'
-# PURE_ORGANIZATIONS_HARVEST_FROM_FILE = False
-PURE_ORGANIZATIONS_HARVEST_FROM_FILE = True
+PURE_ORGANIZATIONS_HARVEST_FROM_FILE = False
 PURE_ORGANIZATIONS_HARVEST_FILENAME = 'pure_organizations_harvest.json'
 PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.csv'
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
@@ -157,14 +156,12 @@ PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
 global PURE_RESOUT_ENDPOINT
 PURE_READ_RESOUT_ENDPOINT = 'research-outputs'
 PURE_CRUD_RESOUT_ENDPOINT = 'research-outputs/search'
-# PURE_RESOUT_HARVEST_FROM_FILE = False
-PURE_RESOUT_HARVEST_FROM_FILE = True
+PURE_RESOUT_HARVEST_FROM_FILE = False
 PURE_RESOUT_HARVEST_FILENAME = 'pure_resout_harvest.json'
 PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
 global PURE_RESOUT_YEARS
 # The Pure READ API allows to specify years to harvest.
-# PURE_READ_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
-PURE_READ_RESOUT_YEARS = ['2020']
+PURE_READ_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
 # The Pure CRUD API does not allow this. This might cause memory problems.
 # You might want to set PURE_RESOUT_MAX_RECS_TO_HARVEST.
 PURE_CRUD_RESOUT_YEARS = ['all']
