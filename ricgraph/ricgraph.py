@@ -1489,7 +1489,7 @@ def lookup_resout_type(research_output_type: str,
         return 'empty'
 
     if research_output_type not in research_output_mapping:
-        print('lookup_resout_type(): unknown output type: "' + research_output_type + '".')
+        print('lookup_resout_type(): unknown research output type: "' + research_output_type + '".')
         return 'unknown'
 
     return research_output_mapping[research_output_type]

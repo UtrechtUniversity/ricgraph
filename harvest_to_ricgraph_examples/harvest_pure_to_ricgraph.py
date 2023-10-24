@@ -714,7 +714,6 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                 parse_line['DOI'] = doi
                 parse_line['TITLE'] = str(harvest_item['title']['value'])
                 parse_line['YEAR'] = str(publication_year)
-                # parse_line['TYPE'] = lookup_resout_type_pure(type_uri=str(harvest_item['type']['uri']))
                 parse_line['TYPE'] = rcg.lookup_resout_type(research_output_type=str(harvest_item['type']['uri']),
                                                             research_output_mapping=ROTYPE_MAPPING_PURE)
                 parse_line['AUTHOR_UUID'] = author_uuid
@@ -843,7 +842,6 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
                     continue
                 if 'type' in resout \
                    and 'uri' in resout['type']:
-                    # resout_category = lookup_resout_type_pure(str(resout['type']['uri']))
                     resout_category = rcg.lookup_resout_type(research_output_type=str(resout['type']['uri']),
                                                              research_output_mapping=ROTYPE_MAPPING_PURE)
                 else:
