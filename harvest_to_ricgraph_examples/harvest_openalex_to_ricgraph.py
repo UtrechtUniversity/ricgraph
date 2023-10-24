@@ -87,8 +87,7 @@ global HARVEST_SOURCE
 # Parameters for harvesting persons and research outputs from OpenAlex
 # ######################################################
 OPENALEX_ENDPOINT = 'works'
-# OPENALEX_HARVEST_FROM_FILE = False
-OPENALEX_HARVEST_FROM_FILE = True
+OPENALEX_HARVEST_FROM_FILE = False
 OPENALEX_HARVEST_FILENAME = 'openalex_harvest.json'
 OPENALEX_DATA_FILENAME = 'openalex_data.csv'
 OPENALEX_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
@@ -228,7 +227,7 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
             parse_line['OPENALEX'] = openalex_id
             parse_line['ROR'] = institution_ror
             if institution_display_name != '':
-                parse_line['INSTITUTION_DISPLAY_NAME'] = institution_display_name
+                parse_line['INSTITUTION_NAME'] = institution_display_name
             parse_chunk.append(parse_line)
 
             if 'doi' not in harvest_item:
@@ -333,20 +332,19 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                    source_event=HARVEST_SOURCE,
                                    history_event=history_event)
 
-    organizations = parsed_content[['OPENALEX', 'ROR']].copy(deep=True)
-    organizations.dropna(axis=0, how='all', inplace=True)
+    organizations = parsed_content[['OPENALEX', 'INSTITUTION_NAME']].copy(deep=True)
+    organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'OPENALEX': 'value1', 'ROR': 'value2'}, inplace=True)
+    organizations.rename(columns={'OPENALEX': 'value1', 'INSTITUTION_NAME': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'OPENALEX',
                                 'category1': 'person',
-                                'name2': 'ROR',
+                                'name2': 'ORGANIZATION_NAME',
                                 'category2': 'organization',
-                                'comment2': ORGANIZATION_NAME,
                                 'source_event2': HARVEST_SOURCE,
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)
     organizations = organizations[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2', 'comment2',
+                                   'name2', 'category2', 'value2',
                                    'source_event2', 'history_event2']]
 
     print('The following organizations from persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
