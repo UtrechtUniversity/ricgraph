@@ -1447,8 +1447,8 @@ resout_uuid_or_doi = {}
 # You can use 'True' or 'False' depending on your needs to harvest persons/organizations/research outputs.
 # This might be handy if you are testing your parsing.
 
-if False:
-# if True:
+# if False:
+if True:
     harvest_file = PURE_PERSONS_HARVEST_FILENAME.split('.')[0] \
                    + '-' + organization + '.' \
                    + PURE_PERSONS_HARVEST_FILENAME.split('.')[1]
@@ -1468,9 +1468,8 @@ if False:
         parsed_persons_to_ricgraph(parsed_content=parse_persons)
 
 
-if False:
-# if True:
-    parse_persons=rcg.read_dataframe_from_csv(filename='pure_persons_data-UU.csv')
+# if False:
+if True:
     harvest_file = PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[0] \
                    + '-' + organization + '.' \
                    + PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[1]
