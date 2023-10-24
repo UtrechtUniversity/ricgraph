@@ -614,9 +614,69 @@ def update_node(name: str, category: str, value: str,
     :param category: idem.
     :param value: idem.
     :param other_properties: a dictionary of all the other properties.
-    :return: the node created, or None if this was not possible
+    :return: the node updated, or None if this was not possible
     """
     node = create_node(name=name, category=category, value=value, **other_properties)
+    return node
+
+
+def update_node_value(name: str, old_value: str, new_value: str,
+                **other_properties: dict) -> Node:
+    """Update a node, change the value field.
+    This is a special case of update_node() because we change the key. Therefore,
+    a lot of restrictions apply which do not apply with update_node().
+    Use carefully, because other fields that contain 'old_value' (such
+    as 'url_main' or 'url_other') are not being updated, so they will
+    point to the wrong URL.
+
+    :param name: 'name' field of node.
+    :param old_value: old 'value' field of node.
+    :param new_value: old 'value' field of node.
+    :return: the node updated, or None if this was not possible
+    """
+    # A lot of the code below is copied from create_node().
+    global _graph
+
+    if _graph is None:
+        print('\nupdate_node_value(): Error: graph has not been initialized or opened.\n\n')
+        return None
+
+    lname = str(name)
+    loldvalue = str(old_value)
+    lnewvalue = str(new_value)
+
+    if lname == '' or loldvalue == '' or lnewvalue == '' \
+       or lname == 'nan' or loldvalue == 'nan' or lnewvalue == 'nan':
+        return None
+
+    now = datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    node = read_node(name=lname, value=loldvalue)
+    if node is None:
+        # Node we want to change does not exist.
+        return None
+
+    newnode = read_node(name=lname, value=lnewvalue)
+    if newnode is not None:
+        # Node we want to change to does already exist.
+        # We should do a merge of these two nodes, but merge does not work
+        # satisfactorily (there is code for it but it has not been tested
+        # extensively). Therefore we do not change.
+        print('update_node_value(): Error: new node already exists, this should not happen.')
+        print('Nothing has been changed.')
+        return None
+
+    # Create from CRUD
+    node['value'] = lnewvalue
+    oldkey = node['_key']
+    newkey = create_ricgraph_key(name=lname, value=lnewvalue)
+    node['_key'] = newkey
+    history_line = create_history_line(field_name='value', old_value=loldvalue, new_value=lnewvalue)
+    history_line += create_history_line(field_name='_key', old_value=oldkey, new_value=newkey)
+    node['_history'].append(timestamp + ': Updated. ' + history_line)
+
+    # The push() only works after a graph has been created, merge() does not update
+    _graph.push(node)
     return node
 
 
