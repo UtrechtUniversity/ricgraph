@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, April, 2023.
+# Updated Rik D.T. Janssen, April, October 2023.
 #
 # ########################################################################
 #
@@ -70,34 +70,19 @@ global YODA_URL
 
 
 # ######################################################
+# Mapping from Yoda Datacite research output types to Ricgraph research output types.
+# ######################################################
+ROTYPE_MAPPING_YODA = {
+    'Research Data': rcg.ROTYPE_DATASET,
+    'Method Description': rcg.ROTYPE_METHOD_DESCRIPTION,
+    'Computer code': rcg.ROTYPE_SOFTWARE,
+    'Other Document': rcg.ROTYPE_OTHER_CONTRIBUTION
+}
+
+
+# ######################################################
 # Utility functions related to harvesting of Yoda
 # ######################################################
-
-def lookup_resout_type_datacite(type_uri: str) -> str:
-    """Convert the Yoda datacite output type to an 'easier' output type.
-    Please have a look at lookup_resout_type_pure() in
-    file harvest_pure_to_ricgraph.py to see which types can be recognized.
-    This makes sure you will have the same types when harvesting from different sources.
-
-    :param type_uri: The TYPE_URI string from Yoda datacite.
-    :return: The result, in a few words.
-    """
-    if type(type_uri) == '':
-        print('lookup_resout_type_datacite(): Yoda datacite research output has no type.')
-        return 'empty'
-
-    if type_uri == 'Computer code':
-        return 'software'
-    elif type_uri == 'Method Description':
-        return 'method description'
-    elif type_uri == 'Research Data':
-        return 'dataset'
-    elif type_uri == 'Other Document':
-        return 'other contribution'
-    else:
-        print('lookup_resout_type_datacite(): unknown Yoda datacite output type: "' + type_uri + '".')
-        return 'unknown'
-
 
 # ######################################################
 # Parsing
@@ -261,7 +246,8 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
 
     datacite_data = pandas.DataFrame(rowdict)
     datacite_data['DOI_TYPE'] = datacite_data[['resourceType']].apply(
-        lambda row: lookup_resout_type_datacite(type_uri=row['resourceType']), axis=1)
+        lambda row: rcg.lookup_resout_type(research_output_type=row['resourceType'],
+                                           research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
     datacite_data['DOI'] = datacite_data['DOI'].str.lower()
     datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='', inplace=True)
     datacite_data['ISNI'].replace(regex=r'[ ]*', value='', inplace=True)

@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, March 2023.
-# Updated Rik D.T. Janssen, April 2023.
+# Updated Rik D.T. Janssen, April, October 2023.
 #
 # ########################################################################
 #
@@ -87,13 +87,41 @@ global HARVEST_SOURCE
 # Parameters for harvesting persons and research outputs from OpenAlex
 # ######################################################
 OPENALEX_ENDPOINT = 'works'
-OPENALEX_HARVEST_FROM_FILE = False
+# OPENALEX_HARVEST_FROM_FILE = False
+OPENALEX_HARVEST_FROM_FILE = True
 OPENALEX_HARVEST_FILENAME = 'openalex_harvest.json'
 OPENALEX_DATA_FILENAME = 'openalex_data.csv'
 OPENALEX_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
 # This number is the max recs to harvest per year, not total
 OPENALEX_MAX_RECS_TO_HARVEST = 0                             # 0 = all records
 OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships'
+
+
+# ######################################################
+# Mapping from OpenAlex research output types to Ricgraph research output types.
+# ######################################################
+ROTYPE_MAPPING_OPENALEX = {
+    'article': rcg.ROTYPE_JOURNAL_ARTICLE,
+    'book': rcg.ROTYPE_BOOK,
+    'book-chapter': rcg.ROTYPE_BOOKCHAPTER,
+    'dataset': rcg.ROTYPE_DATASET,
+    'dissertation': rcg.ROTYPE_PHDTHESIS,
+    'editorial': rcg.ROTYPE_EDITORIAL,
+    'erratum': rcg.ROTYPE_MEMORANDUM,
+    'letter': rcg.ROTYPE_LETTER,
+    'monograph': rcg.ROTYPE_BOOK,
+    'other': rcg.ROTYPE_OTHER_CONTRIBUTION,
+    'paratext': rcg.ROTYPE_OTHER_CONTRIBUTION,
+            # OpenAlex 'paratext': stuff that's in scholarly venue (like a journal)
+            # but is about the venue rather than a scholarly work properly speaking.
+            # https://docs.openalex.org/api-entities/works/work-object.
+    'peer-review': rcg.ROTYPE_REVIEW,
+    'posted-content': rcg.ROTYPE_PREPRINT,
+    'proceedings': rcg.ROTYPE_CONFERENCE_ARTICLE,
+    'proceedings-article': rcg.ROTYPE_CONFERENCE_ARTICLE,
+    'reference-entry': rcg.ROTYPE_ENTRY,
+    'report': rcg.ROTYPE_REPORT
+}
 
 
 # ######################################################
@@ -115,51 +143,6 @@ def rewrite_openalex_doi(doi: str) -> str:
     # Remove any /, : or space at the beginning
     doi = re.sub(pattern=r'^[/: ]*', repl='', string=doi)
     return doi
-
-
-def lookup_resout_type_openalex(type_uri: str) -> str:
-    """Convert the OpenAlex output type to a shorter and easier readable output type.
-    See function lookup_resout_type_pure()
-    in harvest_pure_to_ricgraph.py for possible return types.
-
-    :param type_uri: The TYPE_URI string from OpenAlex.
-    :return: The result, in a few words.
-    """
-    if type_uri == '':
-        print('lookup_resout_type_openalex(): research output has no type.')
-        return 'empty'
-
-    end = type_uri
-    # The order used is the same order as in lookup_resout_type_pure().
-    if end.startswith('book') or end.startswith('monograph'):
-        return 'book'
-    elif end.startswith('book-chapter') or end.startswith('reference-entry'):
-        return 'book chapter'
-    elif end.startswith('proceedings') or end.startswith('proceedings-article'):
-        return 'conference proceeding'
-    elif end.startswith('article') or end.startswith('peer-review'):
-        return 'journal article'
-    elif end.startswith('dataset'):
-        return 'dataset'
-    elif end.startswith('dissertation'):
-        return 'thesis'
-    elif end.startswith('posted-content'):
-        return 'working paper'
-    elif end.startswith('editorial'):
-        return 'editorial'
-    elif end.startswith('erratum'):
-        return 'erratum'
-    elif end.startswith('report'):
-        return 'report'
-    elif end.startswith('other') \
-        or end.startswith('paratext'):
-        # OpenAlex 'paratext': stuff that's in scholarly venue (like a journal)
-        # but is about the venue rather than a scholarly work properly speaking.
-        # https://docs.openalex.org/api-entities/works/work-object.
-        return 'other contribution'
-    else:
-        print('lookup_resout_type_openalex(): unknown ' + HARVEST_SOURCE + ' output type: "' + end + '".')
-        return 'unknown'
 
 
 # ######################################################
@@ -196,6 +179,8 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                 continue
 
             own_organization_found = False
+            institution_ror = ''
+            institution_display_name = ''
             for institution in authors['institutions']:
                 if 'ror' not in institution:
                     continue
@@ -208,7 +193,13 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                     continue
                 own_organization_found = True
 
+                path = pathlib.PurePath(institution['ror'])
+                institution_ror = str(path.name)
+                if 'display_name' in institution and institution['display_name'] is not None:
+                    institution_display_name = str(institution['display_name'])
+
             if not own_organization_found:
+                # Note: this is a design choice. We only want records from our own institution.
                 continue
 
             if 'id' not in authors['author']:
@@ -235,7 +226,9 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
 
             parse_line = {}
             parse_line['OPENALEX'] = openalex_id
-            parse_line['ROR'] = str(ORGANIZATION_ROR)
+            parse_line['ROR'] = institution_ror
+            if institution_display_name != '':
+                parse_line['INSTITUTION_DISPLAY_NAME'] = institution_display_name
             parse_chunk.append(parse_line)
 
             if 'doi' not in harvest_item:
@@ -256,9 +249,11 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
             else:
                 parse_line['YEAR'] = ''
             if harvest_item['type'] is None:
-                parse_line['TYPE'] = str(lookup_resout_type_openalex(type_uri=''))
+                parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type='',
+                                                                research_output_mapping=ROTYPE_MAPPING_OPENALEX))
             else:
-                parse_line['TYPE'] = str(lookup_resout_type_openalex(type_uri=harvest_item['type']))
+                parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type=harvest_item['type'],
+                                                                research_output_mapping=ROTYPE_MAPPING_OPENALEX))
             parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)

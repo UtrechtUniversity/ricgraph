@@ -123,6 +123,9 @@ __package__ = 'Ricgraph'
 __version__ = ''
 
 
+# ########################################################################
+# Start of constants section
+# ########################################################################
 LINKS_TO = Relationship.type('LINKS_TO')
 RICGRAPH_INI_FILE = '../ricgraph.ini'
 RICGRAPH_KEY_SEPARATOR = '|'
@@ -130,6 +133,56 @@ RICGRAPH_KEY_SEPARATOR = '|'
 # Cache size for read_node() function (in number of elements in cache). This
 # cannot be read from the config file since it will be read too late.
 CACHE_SIZE_READ_NODE = 15000
+
+# ########################################################################
+# Research output types used in Ricgraph.
+# Harvested sources most often have a type for a research output.
+# In a harvest script for a certain source, you specify a mapping
+# from the names used in the source you harvest, to the values below.
+# This ensures that Ricgraph uses the same wording for types of
+# research outputs harvested from different sources.
+#
+# An example mapping may look like this:
+# mapping = {
+#    'book': ROTYPE_BOOK,
+#    'dataset': ROTYPE_DATASET,
+#    'software': ROTYPE_SOFTWARE
+# }
+#
+# Call the function lookup_resout_type() to do this mapping.
+#
+# This list is inspired by the Strategy Evaluation Protocol 2021-2027
+# https://www.universiteitenvannederland.nl/files/documenten/Domeinen/Onderzoek/SEP_2021-2027.pdf,
+# Appendix E2.
+ROTYPE_ABSTRACT = 'abstract'
+ROTYPE_BOOK = 'book'
+ROTYPE_BOOKCHAPTER = 'book chapter'
+ROTYPE_CONFERENCE_ARTICLE = 'conference article'
+ROTYPE_DATASET = 'data set'
+ROTYPE_DESIGN = 'design'
+ROTYPE_DIGITAL_VISUAL_PRODUCT = 'digital or visual product'
+ROTYPE_EDITORIAL = 'editorial'
+ROTYPE_ENTRY = 'entry for encyclopedia or dictionary'
+ROTYPE_EXHIBITION_PERFORMANCE = 'exhibition or performance'
+ROTYPE_JOURNAL_ARTICLE = 'journal article'
+ROTYPE_LETTER = 'letter to the editor'
+ROTYPE_MEMORANDUM = 'memorandum'
+ROTYPE_METHOD_DESCRIPTION = 'method description'
+ROTYPE_OTHER_CONTRIBUTION = 'other contribution'
+ROTYPE_PATENT = 'patent'
+ROTYPE_PHDTHESIS = 'PhD thesis'
+ROTYPE_POSTER = 'poster'
+ROTYPE_PREPRINT = 'preprint'
+ROTYPE_PRESENTATION = 'presentation'
+ROTYPE_REPORT = 'report'
+ROTYPE_REVIEW = 'review'
+ROTYPE_SOFTWARE = 'software'
+ROTYPE_THESIS = 'thesis'
+ROTYPE_WEBSITE = 'website or web publication'
+# ########################################################################
+# End of constants section
+# ########################################################################
+
 
 global _graph
 
@@ -1415,6 +1468,31 @@ def create_multidimensional_dict(dimension: int, dict_type):
     else:
         return defaultdict(lambda: create_multidimensional_dict(dimension=dimension - 1,
                                                                 dict_type=dict_type))
+
+
+def lookup_resout_type(research_output_type: str,
+                       research_output_mapping: dict) -> str:
+    """Convert a research output type from a harvested system
+    to a shorter and easier Ricgraph research output type, according to a certain mapping.
+    The reason for doing this is to ensure a constant naming of research output
+    types for objects harvested from different sources.
+    For more explanation, see the text at 'Research output types used in Ricgraph' at
+    the start of this file.
+
+    :param research_output_type: A research output type from a source system.
+    :param research_output_mapping: The mapping from the source system to Ricgraph
+    research output types.
+    :return: The result, in a few words.
+    """
+    if research_output_type == '':
+        print('lookup_resout_type(): no research output type specified .')
+        return 'empty'
+
+    if research_output_type not in research_output_mapping:
+        print('lookup_resout_type(): unknown output type: "' + research_output_type + '".')
+        return 'unknown'
+
+    return research_output_mapping[research_output_type]
 
 
 # #####

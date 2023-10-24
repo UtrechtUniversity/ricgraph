@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, April, 2023.
+# Updated Rik D.T. Janssen, April, October 2023.
 #
 # ########################################################################
 #
@@ -136,7 +136,7 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
                         if 'publication_year' in mention[0]:
                             publication_year_most_recent_doi = str(mention[0]['publication_year'])
 
-        # The following results in names and ORCIDs of contributors.
+        # The following results in names and ORCID's of contributors.
         # In case there are no names, the software will be added anyway to Ricgraph.
         contributor = pandas.json_normalize(software_package, 'contributor')
 
@@ -249,7 +249,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                              'package_url': 'url_other1',
                              'orcid': 'value2'}, inplace=True)
     new_software_columns = {'name1': 'DOI',
-                            'category1': 'software',
+                            'category1': rcg.ROTYPE_SOFTWARE,
                             'source_event1': HARVEST_SOURCE,
                             'history_event1': history_event,
                             'name2': 'ORCID',

@@ -135,7 +135,8 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
 global PURE_ORGANIZATIONS_ENDPOINT
 PURE_READ_ORGANIZATIONS_ENDPOINT = 'organisational-units'
 PURE_CRUD_ORGANIZATIONS_ENDPOINT = 'organizations/search'
-PURE_ORGANIZATIONS_HARVEST_FROM_FILE = False
+# PURE_ORGANIZATIONS_HARVEST_FROM_FILE = False
+PURE_ORGANIZATIONS_HARVEST_FROM_FILE = True
 PURE_ORGANIZATIONS_HARVEST_FILENAME = 'pure_organizations_harvest.json'
 PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.csv'
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
@@ -156,12 +157,14 @@ PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
 global PURE_RESOUT_ENDPOINT
 PURE_READ_RESOUT_ENDPOINT = 'research-outputs'
 PURE_CRUD_RESOUT_ENDPOINT = 'research-outputs/search'
-PURE_RESOUT_HARVEST_FROM_FILE = False
+# PURE_RESOUT_HARVEST_FROM_FILE = False
+PURE_RESOUT_HARVEST_FROM_FILE = True
 PURE_RESOUT_HARVEST_FILENAME = 'pure_resout_harvest.json'
 PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
 global PURE_RESOUT_YEARS
 # The Pure READ API allows to specify years to harvest.
-PURE_READ_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
+# PURE_READ_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
+PURE_READ_RESOUT_YEARS = ['2020']
 # The Pure CRUD API does not allow this. This might cause memory problems.
 # You might want to set PURE_RESOUT_MAX_RECS_TO_HARVEST.
 PURE_CRUD_RESOUT_YEARS = ['all']
@@ -220,6 +223,60 @@ PURE_PROJECTS_FIELDS = {'fields': ['uuid',
                                    # 'relatedPressMedia.*',
                                    ]
                         }
+
+
+# ######################################################
+# Mapping from Pure research output types to Ricgraph research output types.
+# ######################################################
+ROTYPE_PREFIX_PURE = '/dk/atira/pure/researchoutput/researchoutputtypes/'
+ROTYPE_MAPPING_PURE = {
+    ROTYPE_PREFIX_PURE + 'bookanthology/anthology': rcg.ROTYPE_BOOK,
+    ROTYPE_PREFIX_PURE + 'bookanthology/book': rcg.ROTYPE_BOOK,
+    ROTYPE_PREFIX_PURE + 'bookanthology/commissioned': rcg.ROTYPE_BOOK,
+    ROTYPE_PREFIX_PURE + 'bookanthology/inaugural': rcg.ROTYPE_BOOK,
+    ROTYPE_PREFIX_PURE + 'bookanthology/valedictory': rcg.ROTYPE_BOOK,
+    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/case_note': rcg.ROTYPE_MEMORANDUM,
+    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/chapter': rcg.ROTYPE_BOOKCHAPTER,
+    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/commissioned': rcg.ROTYPE_BOOKCHAPTER,
+    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/conference': rcg.ROTYPE_BOOKCHAPTER,
+    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/entry': rcg.ROTYPE_ENTRY,
+    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/foreword': rcg.ROTYPE_ABSTRACT,
+    ROTYPE_PREFIX_PURE + 'contributiontoconference/abstract': rcg.ROTYPE_ABSTRACT,
+    ROTYPE_PREFIX_PURE + 'contributiontoconference/other': rcg.ROTYPE_CONFERENCE_ARTICLE,
+    ROTYPE_PREFIX_PURE + 'contributiontoconference/paper': rcg.ROTYPE_CONFERENCE_ARTICLE,
+    ROTYPE_PREFIX_PURE + 'contributiontoconference/poster': rcg.ROTYPE_POSTER,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/abstract': rcg.ROTYPE_ABSTRACT,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/article': rcg.ROTYPE_JOURNAL_ARTICLE,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/book': rcg.ROTYPE_BOOK,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/case_note': rcg.ROTYPE_MEMORANDUM,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/comment': rcg.ROTYPE_MEMORANDUM,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/conferencearticle': rcg.ROTYPE_CONFERENCE_ARTICLE,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/editorial': rcg.ROTYPE_EDITORIAL,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/erratum': rcg.ROTYPE_MEMORANDUM,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/letter': rcg.ROTYPE_LETTER,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/scientific': rcg.ROTYPE_JOURNAL_ARTICLE,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/shortsurvey': rcg.ROTYPE_JOURNAL_ARTICLE,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/special': rcg.ROTYPE_JOURNAL_ARTICLE,
+    ROTYPE_PREFIX_PURE + 'contributiontojournal/systematicreview': rcg.ROTYPE_REVIEW,
+    ROTYPE_PREFIX_PURE + 'memorandum/academicmemorandum': rcg.ROTYPE_MEMORANDUM,
+    ROTYPE_PREFIX_PURE + 'methoddescription': rcg.ROTYPE_METHOD_DESCRIPTION,
+    ROTYPE_PREFIX_PURE + 'nontextual/database': rcg.ROTYPE_DATASET,
+    ROTYPE_PREFIX_PURE + 'nontextual/design': rcg.ROTYPE_DESIGN,
+    ROTYPE_PREFIX_PURE + 'nontextual/digitalorvisualproducts': rcg.ROTYPE_DIGITAL_VISUAL_PRODUCT,
+    ROTYPE_PREFIX_PURE + 'nontextual/exhibition': rcg.ROTYPE_EXHIBITION_PERFORMANCE,
+    ROTYPE_PREFIX_PURE + 'nontextual/performance': rcg.ROTYPE_EXHIBITION_PERFORMANCE,
+    ROTYPE_PREFIX_PURE + 'nontextual/software': rcg.ROTYPE_SOFTWARE,
+    ROTYPE_PREFIX_PURE + 'nontextual/web': rcg.ROTYPE_WEBSITE,
+    ROTYPE_PREFIX_PURE + 'othercontribution/other': rcg.ROTYPE_OTHER_CONTRIBUTION,
+    ROTYPE_PREFIX_PURE + 'patent/patent': rcg.ROTYPE_PATENT,
+    ROTYPE_PREFIX_PURE + 'thesis/doc1': rcg.ROTYPE_PHDTHESIS,
+    ROTYPE_PREFIX_PURE + 'thesis/doc2': rcg.ROTYPE_PHDTHESIS,
+    ROTYPE_PREFIX_PURE + 'thesis/doc3': rcg.ROTYPE_PHDTHESIS,
+    ROTYPE_PREFIX_PURE + 'thesis/doc4': rcg.ROTYPE_PHDTHESIS,
+    ROTYPE_PREFIX_PURE + 'workingpaper/discussionpaper': rcg.ROTYPE_PREPRINT,
+    ROTYPE_PREFIX_PURE + 'workingpaper/preprint': rcg.ROTYPE_PREPRINT,
+    ROTYPE_PREFIX_PURE + 'workingpaper/workingpaper': rcg.ROTYPE_PREPRINT
+}
 
 
 # ######################################################
@@ -288,64 +345,6 @@ def rewrite_pure_doi(doi: str) -> str:
     doi = re.sub(pattern=r'^[/: ]*', repl='', string=doi)
     doi = re.sub(pattern=r'.proxy.uu.nl/', repl='', string=doi)
     return doi
-
-
-def lookup_resout_type_pure(type_uri: str) -> str:
-    """Convert the Pure output type to a shorter and easier readable output type.
-    This list is inspired by the Strategy Evaluation Protocol 2021-2027
-    https://www.universiteitenvannederland.nl/files/documenten/Domeinen/Onderzoek/SEP_2021-2027.pdf,
-    Appendix E2.
-
-    :param type_uri: The TYPE_URI string from Pure.
-    :return: The result, in a few words.
-    """
-    if type_uri == '':
-        print('lookup_resout_type_pure(): research output has no type.')
-        return 'empty'
-
-    pure_prefix = '/dk/atira/pure/researchoutput/researchoutputtypes'
-    if type_uri.startswith(pure_prefix):
-        end = type_uri[len(pure_prefix) + 1:]
-    else:
-        print('lookup_resout_type_pure(): ' + HARVEST_SOURCE
-              + ' research output malformed: "' + type_uri + '".')
-        return HARVEST_SOURCE + ' research output malformed: ' + type_uri
-
-    if end.startswith('bookanthology'):
-        return 'book'
-    elif end.startswith('contributiontobookanthology'):
-        return 'book chapter'
-    elif end.startswith('contributiontoconference'):
-        return 'conference proceeding'
-    elif end.startswith('contributiontojournal'):
-        return 'journal article'
-    elif end.startswith('memorandum'):
-        return 'memorandum'
-    elif end.startswith('methoddescription'):
-        return 'method description'
-    elif end.startswith('nontextual/database'):
-        return 'dataset'
-    elif end.startswith('nontextual/design'):
-        return 'design'
-    elif end.startswith('nontextual/software'):
-        return 'software'
-    elif end.startswith('nontextual/web'):
-        return 'website'
-    elif end.startswith('nontextual/digitalorvisualproducts'):
-        return 'digital or visual product'
-    elif end.startswith('nontextual/exhibition') or end.startswith('nontextual/performance'):
-        return 'exhibition or performance'
-    elif end.startswith('patent'):
-        return 'patent'
-    elif end.startswith('thesis'):
-        return 'thesis'
-    elif end.startswith('workingpaper'):
-        return 'working paper'
-    elif end.startswith('othercontribution'):
-        return 'other contribution'
-    else:
-        print('lookup_resout_type_pure(): unknown ' + HARVEST_SOURCE + ' output type: "' + end + '".')
-        return 'unknown'
 
 
 def find_organization_name(uuid: str, organization_names: dict):
@@ -715,7 +714,9 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                 parse_line['DOI'] = doi
                 parse_line['TITLE'] = str(harvest_item['title']['value'])
                 parse_line['YEAR'] = str(publication_year)
-                parse_line['TYPE'] = lookup_resout_type_pure(type_uri=str(harvest_item['type']['uri']))
+                # parse_line['TYPE'] = lookup_resout_type_pure(type_uri=str(harvest_item['type']['uri']))
+                parse_line['TYPE'] = rcg.lookup_resout_type(research_output_type=str(harvest_item['type']['uri']),
+                                                            research_output_mapping=ROTYPE_MAPPING_PURE)
                 parse_line['AUTHOR_UUID'] = author_uuid
                 parse_chunk.append(parse_line)
 
@@ -842,7 +843,9 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
                     continue
                 if 'type' in resout \
                    and 'uri' in resout['type']:
-                    resout_category = lookup_resout_type_pure(str(resout['type']['uri']))
+                    # resout_category = lookup_resout_type_pure(str(resout['type']['uri']))
+                    resout_category = rcg.lookup_resout_type(research_output_type=str(resout['type']['uri']),
+                                                             research_output_mapping=ROTYPE_MAPPING_PURE)
                 else:
                     continue
 
@@ -1101,7 +1104,7 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
             parse_line['PURE_UUID_PERS'] = str(personid)
             orgid = str(parentslist[index])
             parse_line['PURE_UUID_ORG'] = orgid
-            parse_line['ORG_NAME'] = str(organization_and_all_parents[orgid][0])
+            parse_line['FULL_ORG_NAME'] = str(organization_and_all_parents[orgid][0])
             parse_chunk.append(parse_line)
 
     print('Done.\n')
@@ -1109,8 +1112,6 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     persorgnodes = pandas.DataFrame()
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     persorgnodes = pandas.concat([persorgnodes, parse_chunk_df], ignore_index=True)
-    persorgnodes.dropna(axis=0, how='all', inplace=True)
-    persorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
     # This could have been done in parsed_persons_to_ricgraph(), but doing it here
     # is more efficient.
@@ -1120,12 +1121,14 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     persorgnodes['url_main2'] = persorgnodes[['PURE_UUID_ORG']].apply(
                                 lambda row: create_pure_url(name='PURE_UUID_ORG',
                                                             value=row['PURE_UUID_ORG']), axis=1)
+    persorgnodes.drop(labels='PURE_UUID_ORG', axis='columns', inplace=True)
+    persorgnodes.dropna(axis=0, how='all', inplace=True)
+    persorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     persorgnodes.rename(columns={'PURE_UUID_PERS': 'value1',
-                                 'PURE_UUID_ORG': 'value2',
-                                 'ORG_NAME': 'comment2'}, inplace=True)
+                                 'FULL_ORG_NAME': 'value2'}, inplace=True)
     new_persorgnodes_columns = {'name1': 'PURE_UUID_PERS',
                                 'category1': 'person',
-                                'name2': 'PURE_UUID_ORG',
+                                'name2': 'ORGANIZATION_NAME',
                                 'category2': 'organization',
                                 'source_event2': HARVEST_SOURCE,
                                 'history_event2': history_event}
@@ -1133,7 +1136,7 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     persorgnodes = persorgnodes[['name1', 'category1', 'value1',
                                  'url_main1',
                                  'name2', 'category2', 'value2',
-                                 'comment2', 'url_main2',
+                                 'url_main2',
                                  'source_event2', 'history_event2']]
 
     print('The following organizations and persons from organizations from '
@@ -1449,8 +1452,8 @@ resout_uuid_or_doi = {}
 # You can use 'True' or 'False' depending on your needs to harvest persons/organizations/research outputs.
 # This might be handy if you are testing your parsing.
 
-# if False:
-if True:
+if False:
+# if True:
     harvest_file = PURE_PERSONS_HARVEST_FILENAME.split('.')[0] \
                    + '-' + organization + '.' \
                    + PURE_PERSONS_HARVEST_FILENAME.split('.')[1]
@@ -1470,8 +1473,9 @@ if True:
         parsed_persons_to_ricgraph(parsed_content=parse_persons)
 
 
-# if False:
-if True:
+if False:
+# if True:
+    parse_persons=rcg.read_dataframe_from_csv(filename='pure_persons_data-UU.csv')
     harvest_file = PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[0] \
                    + '-' + organization + '.' \
                    + PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[1]
