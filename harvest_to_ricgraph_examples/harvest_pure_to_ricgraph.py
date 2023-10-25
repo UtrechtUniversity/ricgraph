@@ -1062,17 +1062,27 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
         something_changed = False
         nr_iterations += 1
         for orgid in organization_and_all_parents:
-            for parentorgid in organization_and_all_parents[orgid]:
+            orgid_name_and_parentslist = organization_and_all_parents[orgid]
+            # For each parent of orgid, find its parent, up to the top org.
+            # In this first loop, we loop over the parents of orgid we've already found.
+            for index in range(len(orgid_name_and_parentslist)):
+                if index == 0:
+                    # Remember: first entry in list is the name of orgid.
+                    continue
+                parentorgid = orgid_name_and_parentslist[index]
+                # Now, find the parents of parentorgid, first check if there is any.
                 if parentorgid not in organization_and_all_parents:
                     continue
                 parentslist = organization_and_all_parents[parentorgid]
+                # Now loop over the lists of parents of 'parentorgid'.
                 for index in range(len(parentslist)):
                     if index == 0:
-                        # Remember: first entry in list is the name of the org.
+                        # Remember: first entry in list is the name of the parent org.
                         continue
-                    if parentslist[index] not in organization_and_all_parents[orgid]:
+                    parent_of_parentorgid = parentslist[index]
+                    if parent_of_parentorgid not in organization_and_all_parents[orgid]:
                         something_changed = True
-                        organization_and_all_parents[orgid].append(parentslist[index])
+                        organization_and_all_parents[orgid].append(parent_of_parentorgid)
 
     print(str(nr_iterations) + ' iterations were necessary to determine all parent organizations.')
 
@@ -1085,26 +1095,43 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     for index in range(len(parsed_content)):
         personid = parsed_content.iloc[index, 0]
         orgid = parsed_content.iloc[index, 1]
+        if personid in person_organization:
+            # This personid seems to be in more than one org.
+            person_organization[personid].append(orgid)
+            continue
         person_organization.setdefault(personid, [])
-        person_organization[personid] = orgid
+        person_organization[personid].append(orgid)
 
     parse_chunk = []                # list of dictionaries
     for personid in person_organization:
-        orgid = person_organization[personid]
-        if orgid not in organization_and_all_parents:
-            continue
-        # Now get all parents of orgid.
-        parentslist = organization_and_all_parents[orgid]
-        for index in range(len(parentslist)):
-            if index == 0:
-                # Remember: first entry in list is the name of the org.
+        orgidlist = person_organization[personid]
+        # This person may be in several organizations in 'orgidlist'.
+        for orgid in orgidlist:
+            if orgid not in organization_and_all_parents:
                 continue
+            orgid_name_and_parentslist = organization_and_all_parents[orgid]
+            orgid_name = orgid_name_and_parentslist[0]
+
+            # First connect this person and 'orgid'.
             parse_line = {}
             parse_line['PURE_UUID_PERS'] = str(personid)
-            orgid = str(parentslist[index])
             parse_line['PURE_UUID_ORG'] = orgid
-            parse_line['FULL_ORG_NAME'] = str(organization_and_all_parents[orgid][0])
+            parse_line['FULL_ORG_NAME'] = orgid_name
             parse_chunk.append(parse_line)
+
+            # Now get all parents of orgid.
+            # Then connect this person with the parents of 'orgid'.
+            for index in range(len(orgid_name_and_parentslist)):
+                if index == 0:
+                    # Remember: first entry in list is the name of the org.
+                    continue
+                parse_line = {}
+                parse_line['PURE_UUID_PERS'] = str(personid)
+                parent_orgid = str(orgid_name_and_parentslist[index])
+                parent_name = str(organization_and_all_parents[parent_orgid][0])
+                parse_line['PURE_UUID_ORG'] = parent_orgid
+                parse_line['FULL_ORG_NAME'] = parent_name
+                parse_chunk.append(parse_line)
 
     print('Done.\n')
 
