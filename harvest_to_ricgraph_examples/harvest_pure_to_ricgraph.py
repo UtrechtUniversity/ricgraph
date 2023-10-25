@@ -1034,6 +1034,10 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
         orgid = str(parsed_content.iloc[index, 0])
         orgname = str(parsed_content.iloc[index, 1])
         parentorgid = str(parsed_content.iloc[index, 2])
+        if orgid in organization_and_all_parents:
+            # This orgid seems to have more than one parent.
+            organization_and_all_parents[orgid].append(parentorgid)
+            continue
         organization_and_all_parents.setdefault(orgid, [])
         organization_and_all_parents[orgid].append(orgname)
         organization_and_all_parents[orgid].append(parentorgid)
