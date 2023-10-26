@@ -32,9 +32,16 @@
 # Ricgraph.
 # The purpose is to illustrate how web based access using Flask can be done.
 # To keep it simple, everything has been done in this file.
+#
 # Please note that this code is meant for research purposes,
 # not for production use. That means, this code has not been hardened for
 # "the outside world". Be careful if you expose it to the outside world.
+#
+# Note: if 'value' fields are passed als URL parameter, they are not escaped
+# using escape() (which is supposed to be good practise). If we would use escape(),
+# a search with 'value' that contains an '&', will be translated to the HTML
+# character '&amp;', which will not be found in the database.
+#
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September, October 2023.
 #
@@ -55,6 +62,7 @@
 
 
 import urllib.parse
+# import urllib
 from typing import Union
 from py2neo import Node, NodeMatch
 from flask import Flask, request, url_for
@@ -337,7 +345,8 @@ def search(key_value=None) -> str:
     if request.method == 'POST':
         search_name = str(escape(request.form['search_name']))
         search_category = str(escape(request.form['search_category']))
-        search_value = str(escape(request.form['search_value']))
+        # Do not use escape() for 'value', see note at beginning of this file.
+        search_value = str(request.form['search_value'])
         # Check if we do either a string search or an exact match search.
         if search_name == '' and search_value != '':
             string_search = True
@@ -366,8 +375,10 @@ def search(key_value=None) -> str:
         if key_value is None:
             html += search_form
         else:
-            search_name = rcg.get_namepart_from_ricgraph_key(key=str(escape(key_value)))
-            search_value = rcg.get_valuepart_from_ricgraph_key(key=str(escape(key_value)))
+            # Don't use escape() here. Then e.g. a search value that contains an '&', will be
+            # translated to the HTML character '&amp;', which will not be found in the database.
+            search_name = rcg.get_namepart_from_ricgraph_key(key=str(key_value))
+            search_value = rcg.get_valuepart_from_ricgraph_key(key=str(key_value))
             html += find_nodes_in_ricgraph(name=search_name,
                                            value=search_value,
                                            discoverer_mode=discoverer_mode)
@@ -393,7 +404,8 @@ def searchcontains() -> str:
 
     html = html_body_start
     if request.method == 'POST':
-        search_value = str(escape(request.form['search_value']))
+        # Do not use escape() for 'value', see note at beginning of this file.
+        search_value = str(request.form['search_value'])
         html += find_nodes_in_ricgraph(value=search_value,
                                        use_contain_phrase=True,
                                        discoverer_mode=discoverer_mode)
@@ -429,7 +441,8 @@ def searchdetails() -> str:
 
     name = str(escape(request.args.get('name')))
     category = str(escape(request.args.get('category')))
-    value = str(escape(request.args.get('value')))
+    # Do not use escape() for 'value', see note at beginning of this file.
+    value = str(request.args.get('value'))
     system1 = str(escape(request.args.get('system1')))
     system2 = str(escape(request.args.get('system2')))
     discoverer_mode = str(escape(request.args.get('discoverer_mode')))
@@ -562,7 +575,8 @@ def getoverlap() -> str:
 
     name = str(escape(request.args.get('name')))
     category = str(escape(request.args.get('category')))
-    value = str(escape(request.args.get('value')))
+    # Do not use escape() for 'value', see note at beginning of this file.
+    value = str(request.args.get('value'))
     discoverer_mode = str(escape(request.args.get('discoverer_mode')))
     if discoverer_mode != 'details_view' \
             and discoverer_mode != 'person_view':
@@ -650,11 +664,9 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
     if len(result) > 1:
         columns = ''
         table_header = 'Choose one node to continue, or '
-        table_header += '<a href="' + url_for('getoverlap')
-        table_header += '?name=' + name
-        table_header += '&category=' + category
-        table_header += '&value=' + value
-        table_header += '&discoverer_mode=' + discoverer_mode
+        table_header += '<a href="' + url_for('getoverlap') + '?'
+        table_header += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+                                                'discoverer_mode': discoverer_mode})
         table_header += '">'
         table_header += 'click here to show the overlap in source systems for your query'
         table_header += '</a>:'
@@ -689,12 +701,10 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
                                       discoverer_mode=discoverer_mode)
     html += get_html_for_cardstart()
     html += 'You can '
-    html += '<a href="' + url_for('getoverlap')
-    html += '?name=' + name
-    html += '&category=' + category
-    html += '&value=' + value
-    html += '&discoverer_mode=' + discoverer_mode
-    html += '&overlap_mode=' + 'neighbornodes'
+    html += '<a href="' + url_for('getoverlap') + '?'
+    html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+                                    'discoverer_mode': discoverer_mode,
+                                    'overlap_mode': 'neighbornodes'})
     html += '">'
     html += 'click here to do show the overlap in source systems for '
     html += 'the neighbor nodes of this node'
@@ -868,7 +878,8 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
             continue
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('search')
-        item += urllib.parse.quote(key) + '?discoverer_mode=' + discoverer_mode + '>'
+        item += urllib.parse.quote(key) + '?'
+        item += urllib.parse.urlencode({'discoverer_mode': discoverer_mode}) + '>'
         item += node['value'] + '</a>'
         names.append(item)
     if len(names) == 1:
@@ -885,7 +896,8 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         html += '&nbsp;&nbsp;'
         html += '<a href=' + url_for('search')
-        html += urllib.parse.quote(key) + '?discoverer_mode=' + discoverer_mode + '>'
+        html += urllib.parse.quote(key) + '?'
+        html += urllib.parse.urlencode({'discoverer_mode': discoverer_mode}) + '>'
         html += '<img src="' + node['url_main'] + '" alt="' + node['value']
         html += '" title="' + node['value'] + '" height="100"></a>'
     html += '</p>'
@@ -904,7 +916,8 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
     for node in competence_nodes:
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('search')
-        item += urllib.parse.quote(key) + '?discoverer_mode=' + discoverer_mode + '>'
+        item += urllib.parse.quote(key) + '?'
+        item += urllib.parse.urlencode({'discoverer_mode': discoverer_mode}) + '>'
         item += node['value'] + '</a>'
         if node['name'] == 'SKILL':
             skills.append(item)
@@ -1204,14 +1217,12 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
             html += '<td>0</td>'
         if system in recs_from_one_source:
             html += '<td>'
-            html += '<a href="' + url_for('searchdetails')
-            html += '?name=' + name
-            html += '&category=' + category
-            html += '&value=' + value
-            html += '&system1=' + system
-            html += '&system2=singlesource'
-            html += '&discoverer_mode=' + discoverer_mode
-            html += '&overlap_mode=' + overlap_mode
+            html += '<a href="' + url_for('searchdetails') + '?'
+            html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+                                            'system1': system,
+                                            'system2': 'singlesource',
+                                            'discoverer_mode': discoverer_mode,
+                                            'overlap_mode': overlap_mode})
             html += '">'
             html += str(recs_from_one_source[system])
             html += ' (' + str(round(100 * recs_from_one_source[system]/nr_recs_from_one_source)) + '%)'
@@ -1221,14 +1232,12 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
             html += '<td>0</td>'
         if system in recs_from_multiple_sources:
             html += '<td>'
-            html += '<a href="' + url_for('searchdetails')
-            html += '?name=' + name
-            html += '&category=' + category
-            html += '&value=' + value
-            html += '&system1=' + system
-            html += '&system2=multiplesource'
-            html += '&discoverer_mode=' + discoverer_mode
-            html += '&overlap_mode=' + overlap_mode
+            html += '<a href="' + url_for('searchdetails') + '?'
+            html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+                                            'system1': system,
+                                            'system2': 'multiplesource',
+                                            'discoverer_mode': discoverer_mode,
+                                            'overlap_mode': overlap_mode})
             html += '">'
             html += str(recs_from_multiple_sources[system])
             html += ' (' + str(round(100 * recs_from_multiple_sources[system]/nr_recs_from_multiple_sources)) + '%)'
@@ -1279,14 +1288,12 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
         html += '<td>' + system1 + '</td>'
         if system1 in recs_from_multiple_sources:
             html += '<td>'
-            html += '<a href="' + url_for('searchdetails')
-            html += '?name=' + name
-            html += '&category=' + category
-            html += '&value=' + value
-            html += '&system1=' + system1
-            html += '&system2=multiplesource'
-            html += '&discoverer_mode=' + discoverer_mode
-            html += '&overlap_mode=' + overlap_mode
+            html += '<a href="' + url_for('searchdetails') + '?'
+            html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+                                            'system1': system1,
+                                            'system2': 'multiplesource',
+                                            'discoverer_mode': discoverer_mode,
+                                            'overlap_mode': overlap_mode})
             html += '">'
             html += str(recs_from_multiple_sources[system1])
             html += '</a>'
@@ -1295,19 +1302,16 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
             html += '<td>0</td>'
         for system2 in all_harvested_systems:
             if system1 == system2:
-                # html += '<td>-</td>'
                 html += '<td>&check;</td>'
                 continue
             if system2 in recs_from_multiple_sources_histogram[system1]:
                 html += '<td>'
-                html += '<a href="' + url_for('searchdetails')
-                html += '?name=' + name
-                html += '&category=' + category
-                html += '&value=' + value
-                html += '&system1=' + system1
-                html += '&system2=' + system2
-                html += '&discoverer_mode=' + discoverer_mode
-                html += '&overlap_mode=' + overlap_mode
+                html += '<a href="' + url_for('searchdetails') + '?'
+                html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+                                                'system1': system1,
+                                                'system2': system2,
+                                                'discoverer_mode': discoverer_mode,
+                                                'overlap_mode': overlap_mode})
                 html += '">'
                 html += str(recs_from_multiple_sources_histogram[system1][system2])
                 percent = recs_from_multiple_sources_histogram[system1][system2]/recs_from_multiple_sources[system1]
@@ -1355,10 +1359,12 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
             return ''
 
     html = get_html_for_cardstart()
-    html += table_header
+    html += '<span style="float: left;">' + table_header + '</span>'
     if len(nodes) > MAX_ROWS_IN_TABLE:
-        html += '<br/>There are ' + str(len(nodes)) + ' rows in this table, showing first '
-        html += str(MAX_ROWS_IN_TABLE) + '.<br/>'
+        html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table, showing first '
+        html += str(MAX_ROWS_IN_TABLE) + '.</span>'
+    elif len(nodes) >= 10:
+        html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table.</span> '
     html += get_html_for_tablestart()
     html += get_html_for_tableheader(table_columns=table_columns)
     count = 0
@@ -1600,12 +1606,14 @@ def get_html_for_tablerow(node: Node,
         # Value can never be empty, it is part of _key.
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         html += '<td><a href=' + url_for('search')
-        html += urllib.parse.quote(key) + '?discoverer_mode=' + discoverer_mode + '>'
+        html += urllib.parse.quote(key) + '?'
+        html += urllib.parse.urlencode({'discoverer_mode': discoverer_mode}) + '>'
         html += node['value'] + '</a></td>'
     if 'comment' in table_columns:
         if node['comment'] == '':
             # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
             # for easier browsing.
+            # TODO: this is very time consuming.
             html += '<td><ul>'
             if node['name'] == 'person-root':
                 for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
