@@ -37,7 +37,7 @@
 # not for production use. That means, this code has not been hardened for
 # "the outside world". Be careful if you expose it to the outside world.
 #
-# Note: if 'value' fields are passed als URL parameter, they are not escaped
+# Note: if a 'value' field is passed as an URL parameter, it are not escaped
 # using escape() (which is supposed to be good practise). If we would use escape(),
 # a search with 'value' that contains an '&', will be translated to the HTML
 # character '&amp;', which will not be found in the database.
@@ -62,7 +62,6 @@
 
 
 import urllib.parse
-# import urllib
 from typing import Union
 from py2neo import Node, NodeMatch
 from flask import Flask, request, url_for
@@ -1364,7 +1363,7 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
         html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table, showing first '
         html += str(MAX_ROWS_IN_TABLE) + '.</span>'
     elif len(nodes) >= 10:
-        html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table.</span> '
+        html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table.</span>'
     html += get_html_for_tablestart()
     html += get_html_for_tableheader(table_columns=table_columns)
     count = 0
