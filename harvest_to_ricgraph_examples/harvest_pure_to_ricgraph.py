@@ -1475,17 +1475,25 @@ else:
     HARVEST_PROJECTS = False
 resout_uuid_or_doi = {}
 
+# ########################################################################
 # You can use 'True' or 'False' depending on your needs to harvest persons/organizations/research outputs.
 # This might be handy if you are testing your parsing.
+# You might also want to set parameters as 'PURE_[object name]_HARVEST_FROM_FILE' = True,
+# see the top of this file.
+# ########################################################################
+
+
+# ########################################################################
+# Code for harvesting persons. Harvested persons are required for organizations.
+data_file = PURE_PERSONS_DATA_FILENAME.split('.')[0] \
+            + '-' + organization + '.' \
+            + PURE_PERSONS_DATA_FILENAME.split('.')[1]
 
 # if False:
 if True:
     harvest_file = PURE_PERSONS_HARVEST_FILENAME.split('.')[0] \
                    + '-' + organization + '.' \
                    + PURE_PERSONS_HARVEST_FILENAME.split('.')[1]
-    data_file = PURE_PERSONS_DATA_FILENAME.split('.')[0] \
-                + '-' + organization + '.' \
-                + PURE_PERSONS_DATA_FILENAME.split('.')[1]
     parse_persons = harvest_and_parse_pure_data(mode='persons',
                                                 endpoint=PURE_PERSONS_ENDPOINT,
                                                 headers=PURE_HEADERS,
@@ -1499,8 +1507,15 @@ if True:
         parsed_persons_to_ricgraph(parsed_content=parse_persons)
 
 
+# ########################################################################
+# Code for harvesting organizations. This is dependent on harvested persons.
 # if False:
 if True:
+    # Uncomment the next line for (some) debugging purposes.
+    # You might also want to set 'PURE_PERSONS_HARVEST_FROM_FILE = True'
+    # at the top of this file.
+    # parse_persons = rcg.read_dataframe_from_csv(filename=data_file)
+
     harvest_file = PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[0] \
                    + '-' + organization + '.' \
                    + PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[1]
@@ -1521,6 +1536,8 @@ if True:
                                          parsed_content_organizations=parse_organizations)
 
 
+# ########################################################################
+# Code for harvesting research outputs.
 # if False:
 if True:
     for year in PURE_RESOUT_YEARS:
@@ -1547,6 +1564,8 @@ if True:
             parsed_resout_to_ricgraph(parsed_content=parse_resout)
 
 
+# ########################################################################
+# Code for harvesting projects.
 if HARVEST_PROJECTS:
     if PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('\nPure is harvested using the Pure CRUD API.')
