@@ -37,7 +37,7 @@
 # not for production use. That means, this code has not been hardened for
 # "the outside world". Be careful if you expose it to the outside world.
 #
-# Note: if a 'value' field is passed as an URL parameter, it are not escaped
+# Note: if a 'value' field is passed as an URL parameter, it is not escaped
 # using escape() (which is supposed to be good practise). If we would use escape(),
 # a search with 'value' that contains an '&', will be translated to the HTML
 # character '&amp;', which will not be found in the database.
