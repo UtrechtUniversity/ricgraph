@@ -566,6 +566,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union
     nodes_in_graph = NodeMatcher(_graph)
     if lname != '' and lcategory == '' and lvalue != '':
         # I assume this is faster than querying on both property 'name' and 'value'.
+        # You can limit the number nodes by using something like nodes_in_graph.match().limit(1000)
         all_nodes = nodes_in_graph.match('RCGNode', _key=create_ricgraph_key(name=lname, value=lvalue))
         return all_nodes
 
@@ -577,6 +578,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union
     if lvalue != '':
         node_properties['value'] = lvalue
 
+    # You can limit the number nodes by using something like nodes_in_graph.match().limit(1000)
     all_nodes = nodes_in_graph.match('RCGNode', **node_properties)
     return all_nodes
 
@@ -1390,7 +1392,8 @@ def get_all_neighbor_nodes(node: Node,
                            name_want: Union[str, list] = '',
                            name_dontwant: Union[str, list] = '',
                            category_want: Union[str, list] = '',
-                           category_dontwant: Union[str, list] = '') -> list:
+                           category_dontwant: Union[str, list] = '',
+                           max_nr_neighbor_nodes: int = 0) -> list:
     """Get all the neighbors of 'node' in a list.
     You can restrict the nodes returned by specifying one or more of the
     other parameters. If more than one is specified, the result is an AND.
@@ -1408,6 +1411,7 @@ def get_all_neighbor_nodes(node: Node,
       If empty (empty string), all nodes are 'wanted'.
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param category_dontwant: similar, but for property 'category' and nodes we don't want.
+    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :return: the list of neighboring nodes satisfying all these criteria.
     """
     global _graph
@@ -1456,8 +1460,14 @@ def get_all_neighbor_nodes(node: Node,
     else:
         category_dontwant_list = category_dontwant
 
+    count = 0
+    all_nodes = 9999999999                # a large number
+    if max_nr_neighbor_nodes == 0:
+        max_nr_neighbor_nodes = all_nodes
     neighbor_nodes = []
     for edge in edges:
+        if count >= max_nr_neighbor_nodes:
+            break
         next_node = edge.end_node
         if node == next_node:
             continue
@@ -1467,27 +1477,33 @@ def get_all_neighbor_nodes(node: Node,
             continue
         if len(name_want) == 0 and len(category_want) == 0:
             neighbor_nodes.append(next_node)
+            count += 1
             continue
         if next_node['name'] in name_want_list \
            and next_node['category'] in category_want_list:
             neighbor_nodes.append(next_node)
+            count += 1
             continue
         if next_node['name'] in name_want_list and len(category_want_list) == 0:
             neighbor_nodes.append(next_node)
+            count += 1
             continue
         if len(name_want_list) == 0 and next_node['category'] in category_want_list:
             neighbor_nodes.append(next_node)
+            count += 1
             continue
         # Any other next_node we do not want.
 
     return neighbor_nodes
 
 
-def get_all_neighbor_nodes_person(node: Node) -> list:
+def get_all_neighbor_nodes_person(node: Node,
+                                  max_nr_neighbor_nodes: int = 0) -> list:
     """Get all the 'person' neighbor nodes connected to 'node',
     also including 'node'.
 
     :param node: the node.
+    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :return: all person nodes connected to 'node'.
     """
     if node is None:
@@ -1497,7 +1513,9 @@ def get_all_neighbor_nodes_person(node: Node) -> list:
     if personroot is None:
         return []
 
-    neighbor_nodes = get_all_neighbor_nodes(node=personroot, category_want='person')
+    neighbor_nodes = get_all_neighbor_nodes(node=personroot,
+                                            category_want='person',
+                                            max_nr_neighbor_nodes=max_nr_neighbor_nodes)
     neighbor_nodes.append(personroot)
 
     return neighbor_nodes

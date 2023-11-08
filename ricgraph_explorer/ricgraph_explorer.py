@@ -1066,7 +1066,8 @@ def results_page(node: Node,
     neighbor_nodes = rcg.get_all_neighbor_nodes(node=node_to_find_neighbors,
                                                 name_want=name_want,
                                                 category_want=category_want,
-                                                category_dontwant=category_dontwant)
+                                                category_dontwant=category_dontwant,
+                                                max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE)
     table_html = ''
     if discoverer_mode == 'details_view':
         columns = DETAIL_COLUMNS
@@ -2064,7 +2065,7 @@ def get_tabbed_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
         for node in nodes:
             if node[tabs_on] == tab_name:
                 nodes_of_tab_name.append(node)
-        table_title = 'List of ' + tab_name + 's for this person:'
+        table_title = 'List of ' + tab_name + 's:'
         table = get_html_table_from_nodes(nodes=nodes_of_tab_name,
                                           table_header=table_title,
                                           table_columns=table_columns,
