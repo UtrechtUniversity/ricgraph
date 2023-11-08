@@ -387,20 +387,21 @@ def findnodes() -> str:
     """
     global html_body_start, html_body_end
 
+    search_mode = get_url_parameter_value(parameter='search_mode',
+                                          allowed_values=['exact_match', 'value_search'],
+                                          default_value=DEFAULT_SEARCH_MODE)
     key = get_url_parameter_value(parameter='key', use_escape=False)
     if key != '':
         # We prefer the URL parameter 'key' above 'name' & 'value'
         name = rcg.get_namepart_from_ricgraph_key(key=key)
         category = ''
         value = rcg.get_valuepart_from_ricgraph_key(key=key)
+        search_mode = 'exact_match'
     else:
         name = get_url_parameter_value(parameter='name')
         category = get_url_parameter_value(parameter='category')
         value = get_url_parameter_value(parameter='value', use_escape=False)
 
-    search_mode = get_url_parameter_value(parameter='search_mode',
-                                          allowed_values=['exact_match', 'value_search'],
-                                          default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=['details_view', 'person_view'],
                                               default_value=DEFAULT_DISCOVERER_MODE)
@@ -2173,9 +2174,9 @@ def get_html_for_tablerow(node: Node,
             # for easier browsing.
             # TODO: this is very time consuming.
             html += '<td><ul>'
-            if node['name'] == 'person-root':
-                for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
-                    html += '<li>' + full_name_node['value'] + '</li>'
+            #if node['name'] == 'person-root':
+            #    for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
+            #        html += '<li>' + full_name_node['value'] + '</li>'
             html += '</ul></td>'
         else:
             html += '<td width=30%>' + node['comment'] + '</td>'
