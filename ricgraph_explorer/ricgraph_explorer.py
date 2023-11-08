@@ -2174,9 +2174,9 @@ def get_html_for_tablerow(node: Node,
             # for easier browsing.
             # TODO: this is very time consuming.
             html += '<td><ul>'
-            #if node['name'] == 'person-root':
-            #    for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
-            #        html += '<li>' + full_name_node['value'] + '</li>'
+            if node['name'] == 'person-root':
+                for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
+                    html += '<li>' + full_name_node['value'] + '</li>'
             html += '</ul></td>'
         else:
             html += '<td width=30%>' + node['comment'] + '</td>'
