@@ -71,6 +71,12 @@ ricgraph_explorer = Flask(__name__)
 # person_view: show a person card, limit details (e.g. do not show _history & _source)
 DEFAULT_DISCOVERER_MODE = 'person_view'
 
+# You can search in two different ways in Ricgraph explorer. This parameter
+# gives the default mode. Possibilities are:
+# exact_match: do a search on exact match.
+# value_search: do a string search on field 'value'.
+DEFAULT_SEARCH_MODE = 'value_search'
+
 # Ricgraph_explorer shows tables. You can specify which columns you need.
 # You do this by making a list of one or more fields in a Ricgraph node.
 # There are some predefined lists.
@@ -101,6 +107,8 @@ button_style_border = button_style + ' w3-border rj-border-black '
 stylesheet = '<style>'
 stylesheet += '.w3-container {padding: 16px;}'
 stylesheet += '.w3-check {width:15px;height: 15px;position: relative; top:3px;}'
+# Note: #ffcd00 is 'uu-yellow' below.
+stylesheet += '.w3-radio {accent-color: #ffcd00;}'
 # Define UU colors. We do not need to define "black" and "white" (they do exist).
 # See https://www.uu.nl/organisatie/huisstijl/huisstijlelementen/kleur.
 stylesheet += '.uu-yellow, .uu-hover-yellow:hover '
@@ -147,10 +155,10 @@ page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-
 page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right: 0.5em">explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item' + button_style_border + '">Home</a>'
-page_header += '<a href="/search?discoverer_mode=' + DEFAULT_DISCOVERER_MODE + '" class="w3-bar-item'
-page_header += button_style_border + '">Exact match search (' + DEFAULT_DISCOVERER_MODE + ')</a>'
-page_header += '<a href="/searchcontains?discoverer_mode=' + DEFAULT_DISCOVERER_MODE + '" class="w3-bar-item'
-page_header += button_style_border + '">String search (' + DEFAULT_DISCOVERER_MODE + ')</a>'
+page_header += '<a href="/searchform?search_mode=exact_match" class="w3-bar-item'
+page_header += button_style_border + '">Exact match search</a>'
+page_header += '<a href="/searchform?search_mode=value_search" class="w3-bar-item'
+page_header += button_style_border + '">String search</a>'
 page_header += '</div>'
 page_header += '</header>'
 
@@ -177,49 +185,6 @@ html_body_end += '<script src="/static/ricgraph_sorttable.js"></script>'
 html_body_end += '</body>'
 html_body_end += '</html>'
 
-# The html search form for an exact match search (on /search).
-search_form = '<section class="w3-container">'
-search_form += '<div class="w3-card-4">'
-search_form += '<div class="w3-container uu-yellow">'
-search_form += '<h3>Type something to search</h3>'
-search_form += 'This is an case-sensitive, exact match search, using AND if you use multiple fields:'
-search_form += '</div>'
-search_form += '<div class="w3-container">'
-# Don't use this one, then 'discoverer_mode' will not be passed:
-# search_form += '<form method="post" action="/search">'
-search_form += '<form method="post">'
-search_form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
-search_form += '<input class="w3-input w3-border" type=text name=search_name>'
-search_form += '<br/><label>Search for a value in Ricgraph field <em>category</em>:</label>'
-search_form += '<input class="w3-input w3-border" type=text name=search_category>'
-search_form += '<br/><label>Search for a value in Ricgraph field <em>value</em>:</label>'
-search_form += '<input class="w3-input w3-border" type=text name=search_value>'
-search_form += '<input type="hidden" name="search_discoverer_mode" value=>'
-search_form += '<br/><input class="w3-input' + button_style + '" type=submit value=search>'
-search_form += '</form>'
-search_form += '</div>'
-search_form += '</div>'
-search_form += '</section>'
-
-# The html search form for a search on a string (on /searchcontains).
-searchcontains_form = '<section class="w3-container">'
-searchcontains_form += '<div class="w3-card-4">'
-searchcontains_form += '<div class="w3-container uu-yellow">'
-searchcontains_form += '<h3>Type something to search</h3>'
-searchcontains_form += 'This is a case-insensitive, inexact match:'
-searchcontains_form += '</div>'
-searchcontains_form += '<div class="w3-container">'
-# Don't use this one, then 'discoverer_mode' will not be passed:
-# searchcontains_form += '<form method="post" action="/searchcontains">'
-searchcontains_form += '<form method="post">'
-searchcontains_form += '<label>Search for a value in Ricgraph field <em>value</em>:</label>'
-searchcontains_form += '<input class="w3-input w3-border" type=text name=search_value>'
-searchcontains_form += '<br/><input class="w3-input' + button_style + '" type=submit value=search>'
-searchcontains_form += '</form>'
-searchcontains_form += '</div>'
-searchcontains_form += '</div>'
-searchcontains_form += '</section>'
-
 
 # ##############################################################################
 # Entry functions.
@@ -244,46 +209,20 @@ def index_html() -> str:
     html += '</li>'
     html += '</ul>'
     html += '</p>'
-
-    html += 'There are two methods for viewing the results '
-    html += '(for an explanation see the section below):'
-    html += '<ul>'
-    html += '<li><em>person_view</em>: only show relevant columns, '
-    html += 'research outputs presented in a <em>tabbed</em> format;'
-    html += '</li>'
-    html += '<li><em>details_view</em>: show all columns, '
-    html += 'research outputs presented in a table with <em>facets</em>.'
-    html += '</li>'
-    html += '</ul>'
-    html += '</p>'
     html += '<br/>'
 
     html += get_html_for_tablestart()
-    html += '<colgroup class="uu-yellow">'
-    html += '<col span=1>'
-    html += '</colgroup>'
-    html += '<tr class="uu-yellow" style="font-size:120%">'
-    html += '<th class="sorttable_nosort">view of the result</th>'
-    html += '<th class="sorttable_nosort">case-sensitive, exact match search on fields<br/><i>name</i>, '
+    html += '<tr class="uu-yellow" style="font-size:120%; text-align:center;">'
+    html += '<th class="sorttable_nosort">case-sensitive, exact match search on fields<i>name</i>, '
     html += '<i>category</i> and/or <i>value</i></th>'
     html += '<th class="sorttable_nosort">search on field <i>value</i> containing a string</th>'
     html += '</tr>'
     html += '<tr style="font-size:120%;">'
-    html += '<td>person_view<br/>only show relevant columns</td>'
-    html += '<td width=40% style="text-align:center;"><a href=' + url_for('search')
-    html += '?discoverer_mode=person_view class="'
+    html += '<td width=50% style="text-align:center;"><a href=' + url_for('searchform')
+    html += '?search_mode=exact_match class="'
     html += button_style + '">choose this one</a></td>'
-    html += '<td width=40% style="text-align:center"><a href=' + url_for('searchcontains')
-    html += '?discoverer_mode=person_view class="'
-    html += button_style + '">choose this one</a></td>'
-    html += '</tr>'
-    html += '<tr style="font-size:120%;">'
-    html += '<td>details_view<br/>show all columns</td>'
-    html += '<td style="text-align:center;"><a href=' + url_for('search')
-    html += '?discoverer_mode=details_view class="'
-    html += button_style + '">choose this one</a></td>'
-    html += '<td style="text-align:center;"><a href=' + url_for('searchcontains')
-    html += '?discoverer_mode=details_view class="'
+    html += '<td width=50% style="text-align:center"><a href=' + url_for('searchform')
+    html += '?search_mode=value_search class="'
     html += button_style + '">choose this one</a></td>'
     html += '</tr>'
     html += get_html_for_tableend()
@@ -322,6 +261,78 @@ def index_html() -> str:
     html += 'and in which source they were found. '
     html += 'The option to do this will appear automatically after a search for a node.'
 
+    html += get_html_for_cardend()
+    html += html_body_end
+    return html
+
+
+@ricgraph_explorer.route(rule='/searchform/', methods=['GET'])
+def searchform() -> str:
+    """Ricgraph explorer entry, this 'page' shows the search form, both the
+    exact match search form and the string search on the 'value' field form.
+
+    Possible parameters are:
+    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
+      or 'person_view' to have a nicer layout.
+    - search_mode: the search_mode to use, 'exact_match' or 'value_search' (string
+      search on field 'value').
+
+    returns html to parse.
+    """
+    global html_body_start, html_body_end
+
+    graph = rcg.open_ricgraph()         # Should probably be done in a Session
+    if graph is None:
+        return 'Ricgraph could not be opened.'
+
+    search_mode = get_url_parameter_value(parameter='search_mode',
+                                          allowed_values=['exact_match', 'value_search'],
+                                          default_value=DEFAULT_SEARCH_MODE)
+    discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
+                                              allowed_values=['details_view', 'person_view'],
+                                              default_value=DEFAULT_DISCOVERER_MODE)
+    html = html_body_start
+    html += get_html_for_cardstart()
+
+    html += '<h3>Type something to search</h3>'
+    if search_mode == 'value_search':
+        html += 'This is a case-insensitive, inexact match:'
+    else:
+        html += 'This is an case-sensitive, exact match search, using AND if you use multiple fields:'
+
+    form = '<form method="get" action="/findnodes">'
+    if search_mode == 'exact_match':
+        form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
+        form += '<input class="w3-input w3-border" type=text name=name>'
+        form += '<br/><label>Search for a value in Ricgraph field <em>category</em>:</label>'
+        form += '<input class="w3-input w3-border" type=text name=category>'
+    form += '<br/><label>Search for a value in Ricgraph field <em>value</em>:</label>'
+    form += '<input class="w3-input w3-border" type=text name=value>'
+    form += '<input type="hidden" name="search_mode" value=' + search_mode + '>'
+
+    radio_person_text = ' <em>person_view</em>: only show relevant columns, '
+    radio_person_text += 'research outputs presented in a <em>tabbed</em> format'
+    radio_details_text = ' <em>details_view</em>: show all columns, '
+    radio_details_text += 'research outputs presented in a table with <em>facets</em>'
+
+    form += '</br>Please specify how you like to view your results (for explanation see below):</br>'
+    form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="person_view"'
+    if discoverer_mode == DEFAULT_DISCOVERER_MODE:
+        form += 'checked'
+    form += '>'
+    form += '<label>' + radio_person_text + '</label></br>'
+    form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="details_view"'
+    if discoverer_mode != DEFAULT_DISCOVERER_MODE:
+        form += 'checked'
+    form += '>'
+    form += '<label>' + radio_details_text + '</label></br>'
+
+    form += '<br/><input class="w3-input' + button_style + '" type=submit value=search>'
+    form += '</form>'
+    html += form
+
+    html += get_html_for_cardend()
+    html += get_html_for_cardstart()
     html += '<h4>Explanation of the modes for viewing the results</h4>'
     html += 'The two modes for viewing the results (the <em>discoverer_mode</em>) are:'
     html += '<ul>'
@@ -348,100 +359,113 @@ def index_html() -> str:
     return html
 
 
-@ricgraph_explorer.route(rule='/search/', methods=['GET', 'POST'])
-@ricgraph_explorer.route(rule='/search/<path:key_value>', methods=['GET'])
-def search(key_value=None) -> str:
-    """Ricgraph explorer entry, the search page, when you access '/search'.
-    If you add a parameter, like '/search/abcd' Ricgraph will search
-    for 'abcd' in the 'value' field of a node.
-    Without parameter, it will present a search page, where you can search
-    on the 'name', 'category' and/or 'value' field of a node.
+@ricgraph_explorer.route(rule='/findnodes/', methods=['GET'])
+def findnodes() -> str:
+    """Ricgraph explorer entry, this 'page' only uses URL parameters.
+    Find nodes based on URL parameters passed.
 
-    :param key_value: key to search for in the 'name' and 'value' fields.
-    :return: html to be rendered.
+    Possible parameters are:
+
+    - key: key of the nodes to find. If present, this field is preferred above
+      'name', 'category' or 'value'.
+    - name: name of the nodes to find.
+    - category: category of the nodes to find.
+    - value: value of the nodes to find.
+    - faceted_name: either a string which indicates that we only want neighbor
+      nodes where the property 'name' is equal to 'faceted_name'
+      (e.g. 'ORCID'), or a list containing several node names, indicating
+      that we want all neighbor nodes where the property 'name' equals
+      one of the names in the list 'faceted_name' (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    - faceted_category: similar to 'faceted_name', but now for the property 'category'.
+    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
+      or 'person_view' to have a nicer layout.
+    - search_mode: the search_mode to use, 'exact_match' or 'value_search' (string
+      search on field 'value').
+
+    returns html to parse.
     """
-    global html_body_start, html_body_end, search_form
+    global html_body_start, html_body_end
 
-    discoverer_mode = str(escape(request.args.get('discoverer_mode')))
-    if discoverer_mode == 'None':
-        discoverer_mode_passed_in_url = False
+    key = get_url_parameter_value(parameter='key', use_escape=False)
+    if key != '':
+        # We prefer the URL parameter 'key' above 'name' & 'value'
+        name = rcg.get_namepart_from_ricgraph_key(key=key)
+        category = ''
+        value = rcg.get_valuepart_from_ricgraph_key(key=key)
     else:
-        discoverer_mode_passed_in_url = True
+        name = get_url_parameter_value(parameter='name')
+        category = get_url_parameter_value(parameter='category')
+        value = get_url_parameter_value(parameter='value', use_escape=False)
 
-    if discoverer_mode != 'details_view' \
-       and discoverer_mode != 'person_view':
-        discoverer_mode = DEFAULT_DISCOVERER_MODE
+    search_mode = get_url_parameter_value(parameter='search_mode',
+                                          allowed_values=['exact_match', 'value_search'],
+                                          default_value=DEFAULT_SEARCH_MODE)
+    discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
+                                              allowed_values=['details_view', 'person_view'],
+                                              default_value=DEFAULT_DISCOVERER_MODE)
+    faceted_name_list = request.args.getlist('faceted_name')
+    faceted_category_list = request.args.getlist('faceted_category')
 
     html = html_body_start
-    if request.method == 'POST':
-        search_name = str(escape(request.form['search_name']))
-        search_category = str(escape(request.form['search_category']))
-        # Do not use escape() for 'value', see note at beginning of this file.
-        search_value = str(request.form['search_value'])
-        # Check if we do either a string search or an exact match search.
-        if search_name == '' and search_value != '':
-            string_search = True
-        else:
-            string_search = False
 
-        if not discoverer_mode_passed_in_url:
-            # Only get discoverer_mode from the form if it has not been
-            # passed in the url. This happens with the faceted search.
-            # Then the discoverer_mode is in the form, not in the url.
-            discoverer_mode = str(escape(request.form['search_discoverer_mode']))
-            if discoverer_mode != 'details_view' \
-               and discoverer_mode != 'person_view':
-                discoverer_mode = DEFAULT_DISCOVERER_MODE
+    if name == '' and category == '' and value == '':
+        html += get_html_for_cardstart()
+        html += 'Ricgraph explorer could not find anything.'
+        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += get_html_for_cardend()
+        html += html_body_end
+        return html
 
-        faceted_name_list = request.form.getlist('faceted_name')
-        faceted_category_list = request.form.getlist('faceted_category')
-        html += find_nodes_in_ricgraph(name=search_name,
-                                       category=search_category,
-                                       value=search_value,
-                                       use_contain_phrase=string_search,
-                                       name_want=faceted_name_list,
-                                       category_want=faceted_category_list,
-                                       discoverer_mode=discoverer_mode)
+    if search_mode == 'exact_match':
+        result = rcg.read_all_nodes(name=name, category=category, value=value)
     else:
-        if key_value is None:
-            html += search_form
-        else:
-            # Don't use escape() here. Then e.g. a search value that contains an '&', will be
-            # translated to the HTML character '&amp;', which will not be found in the database.
-            search_name = rcg.get_namepart_from_ricgraph_key(key=str(key_value))
-            search_value = rcg.get_valuepart_from_ricgraph_key(key=str(key_value))
-            html += find_nodes_in_ricgraph(name=search_name,
-                                           value=search_value,
-                                           discoverer_mode=discoverer_mode)
-    html += html_body_end
-    return html
+        if len(value) < 3:
+            html += get_html_for_cardstart()
+            html += 'The search string should be at least three characters.'
+            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+            html += get_html_for_cardend()
+            html += html_body_end
+            return html
+        result = rcg.read_all_nodes_containing(value=value)
 
+    if len(result) == 0:
+        # We didn't find anything.
+        html += get_html_for_cardstart()
+        html += 'Ricgraph explorer could not find anything.'
+        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
+        html += get_html_for_cardend()
+        html += html_body_end
+        return html
 
-@ricgraph_explorer.route(rule='/searchcontains/', methods=['GET', 'POST'])
-def searchcontains() -> str:
-    """Ricgraph explorer entry, the search on a substring page,
-    when you access '/searchcontains'.
-    This page will present a search page, where you can search
-    on the 'value' field of a node.
+    if len(result) > 1:
+        columns = ''
+        table_header = 'Choose one node to continue, or '
+        table_header += '<a href="' + url_for('getoverlap') + '?'
+        table_header += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+                                                'discoverer_mode': discoverer_mode})
+        table_header += '">'
+        table_header += 'click here to show the overlap in source systems for your query'
+        table_header += '</a>:'
+        if discoverer_mode == 'details_view':
+            columns = DETAIL_COLUMNS
+        elif discoverer_mode == 'person_view':
+            columns = RESEARCH_OUTPUT_COLUMNS
+        html += get_html_table_from_nodes(nodes=result,
+                                          table_header=table_header,
+                                          table_columns=columns,
+                                          discoverer_mode=discoverer_mode)
+        html += html_body_end
+        return html
 
-    :return: html to be rendered.
-    """
-    global html_body_start, html_body_end, searchcontains_form
-
-    discoverer_mode = str(escape(request.args.get('discoverer_mode')))
-    if discoverer_mode != 'details_view' \
-       and discoverer_mode != 'person_view':
-        discoverer_mode = DEFAULT_DISCOVERER_MODE
-
-    html = html_body_start
-    if request.method == 'POST':
-        # Do not use escape() for 'value', see note at beginning of this file.
-        search_value = str(request.form['search_value'])
-        html += find_nodes_in_ricgraph(value=search_value,
-                                       use_contain_phrase=True,
-                                       discoverer_mode=discoverer_mode)
-    else:
-        html += searchcontains_form
+    node = result.first()
+    # If 'faceted_name_list' and/or 'faceted_category_list' have not been passed as
+    # URL parameter(s), they will be '[]'. That means: all names and/or categories.
+    # So no additional checks needed.
+    html += results_page(node=node,
+                         name_want=faceted_name_list,
+                         category_want=faceted_category_list,
+                         discoverer_mode=discoverer_mode)
 
     html += html_body_end
     return html
@@ -928,12 +952,9 @@ def get_url_parameter_value(parameter: str,
         allowed_values = []
 
     if use_escape:
-        value = str(escape(request.args.get(parameter)))
+        value = str(escape(request.args.get(parameter, default='')))
     else:
-        value = str(request.args.get(parameter))
-
-    if value == 'None':
-        value = ''
+        value = str(request.args.get(parameter, default=''))
 
     if value == '' and default_value != '':
         value = str(default_value)
@@ -946,18 +967,12 @@ def get_url_parameter_value(parameter: str,
     return value
 
 
-def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
-                           use_contain_phrase: bool = False,
-                           name_want: list = None, category_want: list = None,
-                           discoverer_mode: str = '') -> str:
-    """Find all nodes conforming to a query
-    in Ricgraph and generate html for the result page.
+def results_page(node: Node,
+                 name_want: list = None, category_want: list = None,
+                 discoverer_mode: str = '') -> str:
+    """Show the result page for a node.
 
-    :param name: name of the nodes to find.
-    :param category: category of the nodes to find.
-    :param value: value of the nodes to find.
-    :param use_contain_phrase: determines either case-sensitive & exact match (False),
-      or case-insensitive & inexact match (True).
+    :param node: node to show the result page for.
     :param name_want: either a string which indicates that we only want neighbor
       nodes where the property 'name' is equal to 'name_want'
       (e.g. 'ORCID'),
@@ -970,63 +985,16 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
     :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
-    graph = rcg.open_ricgraph()         # Should probably be done in a Session
-    if graph is None:
-        return 'Ricgraph could not be opened.'
-
-    if name == '' and category == '' and value == '':
-        html = get_html_for_cardstart()
-        html += 'Ricgraph explorer could not find anything.'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
-        return html
-
-    if discoverer_mode != 'details_view' and discoverer_mode != 'person_view':
-        return 'Error, unknown discoverer_mode: ' + discoverer_mode + '. Please try again.'
-
     if name_want is None:
         name_want = []
     if category_want is None:
         category_want = []
 
-    if use_contain_phrase:
-        if len(value) < 3:
-            html = get_html_for_cardstart()
-            html += 'The search string should be at least three characters.'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            return html
-        result = rcg.read_all_nodes_containing(value=value)
-    else:
-        result = rcg.read_all_nodes(name=name, category=category, value=value)
-
-    if len(result) == 0:
-        html = get_html_for_cardstart()
-        html += 'Ricgraph explorer could not find anything.'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
-        return html
-
-    if len(result) > 1:
-        columns = ''
-        table_header = 'Choose one node to continue, or '
-        table_header += '<a href="' + url_for('getoverlap') + '?'
-        table_header += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
-                                                'discoverer_mode': discoverer_mode})
-        table_header += '">'
-        table_header += 'click here to show the overlap in source systems for your query'
-        table_header += '</a>:'
-        if discoverer_mode == 'details_view':
-            columns = DETAIL_COLUMNS
-        elif discoverer_mode == 'person_view':
-            columns = RESEARCH_OUTPUT_COLUMNS
-        html = get_html_table_from_nodes(nodes=result,
-                                         table_header=table_header,
-                                         table_columns=columns,
-                                         discoverer_mode=discoverer_mode)
-        return html
-
+    name = node['name']
+    category = node['category']
+    value = node['value']
     html = ''
+    columns = ''
     if discoverer_mode == 'details_view':
         html += get_you_searched_for_card(name=name,
                                           category=category,
@@ -1035,13 +1003,11 @@ def find_nodes_in_ricgraph(name: str = '', category: str = '', value: str = '',
                                           category_want=category_want,
                                           discoverer_mode=discoverer_mode)
 
-    columns = ''
-    node = result.first()
     if discoverer_mode == 'details_view':
         columns = DETAIL_COLUMNS
     elif discoverer_mode == 'person_view':
         columns = RESEARCH_OUTPUT_COLUMNS
-    html += get_html_table_from_nodes(nodes=[node],
+    html += get_html_table_from_nodes(nodes=node,
                                       table_header='Ricgraph explorer found node:',
                                       table_columns=columns,
                                       discoverer_mode=discoverer_mode)
@@ -1129,7 +1095,7 @@ def find_enrich_candidates(node: Union[Node, None],
     This function can be used to find _all_ enrichments in Ricgraph, but that would
     take too much time, so a hard limit is used to break from the loop.
 
-    :param node: the starting node for finding enrichments for, or None if you
+    :param node: the starting node for finding enrichments for, or None if
       you want to find enrichments for all 'person-root' nodes in Ricgraph.
     :param source_system: the source system to find enrichments for.
     :param discoverer_mode: as usual.
@@ -1472,9 +1438,9 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
         if node['name'] != 'FULL_NAME':
             continue
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        item = '<a href=' + url_for('search')
-        item += urllib.parse.quote(key) + '?'
-        item += urllib.parse.urlencode({'discoverer_mode': discoverer_mode}) + '>'
+        item = '<a href=' + url_for('findnodes') + '?'
+        item += urllib.parse.urlencode({'key': key,
+                                        'discoverer_mode': discoverer_mode}) + '>'
         item += node['value'] + '</a>'
         names.append(item)
     if len(names) == 1:
@@ -1490,9 +1456,9 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
             continue
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         html += '&nbsp;&nbsp;'
-        html += '<a href=' + url_for('search')
-        html += urllib.parse.quote(key) + '?'
-        html += urllib.parse.urlencode({'discoverer_mode': discoverer_mode}) + '>'
+        html += '<a href=' + url_for('findnodes') + '?'
+        html += urllib.parse.urlencode({'key': key,
+                                        'discoverer_mode': discoverer_mode}) + '>'
         html += '<img src="' + node['url_main'] + '" alt="' + node['value']
         html += '" title="' + node['value'] + '" height="100"></a>'
     html += '</p>'
@@ -1510,9 +1476,9 @@ def person_view_page(nodes: Union[list, NodeMatch, None],
             competence_nodes.append(node)
     for node in competence_nodes:
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        item = '<a href=' + url_for('search')
-        item += urllib.parse.quote(key) + '?'
-        item += urllib.parse.urlencode({'discoverer_mode': discoverer_mode}) + '>'
+        item = '<a href=' + url_for('findnodes') + '?'
+        item += urllib.parse.urlencode({'key': key,
+                                        'discoverer_mode': discoverer_mode}) + '>'
         item += node['value'] + '</a>'
         if node['name'] == 'SKILL':
             skills.append(item)
@@ -1602,10 +1568,11 @@ def get_facets_from_nodes(nodes: list,
 
     faceted_form = get_html_for_cardstart()
     faceted_form += '<div class="facetedform">'
-    # An option might be to pass 'discoverer_mode' in the url, but that might confuse the user:
-    # although in that case you can modify that mode, it will not work because other required
-    # parameters have been passed as POST data and those are already gone.
-    faceted_form += '<form method="post" action="' + url_for('search') + '">'
+    faceted_form += '<form method="get" action="' + url_for('findnodes') + '">'
+    faceted_form += '<input type="hidden" name="name" value="' + str(name) + '">'
+    faceted_form += '<input type="hidden" name="category" value="' + str(category) + '">'
+    faceted_form += '<input type="hidden" name="value" value="' + str(value) + '">'
+    faceted_form += '<input type="hidden" name="discoverer_mode" value="' + str(discoverer_mode) + '">'
     if len(name_histogram) == 1:
         # Get the first (and only) element in the dict, pass it as hidden field to search().
         name_key = str(list(name_histogram.keys())[0])
@@ -1645,10 +1612,6 @@ def get_facets_from_nodes(nodes: list,
         faceted_form += '</div><br/>'
 
     # Send name, category and value as hidden fields to search().
-    faceted_form += '<input type="hidden" name="search_name" value="' + str(name) + '">'
-    faceted_form += '<input type="hidden" name="search_category" value="' + str(category) + '">'
-    faceted_form += '<input type="hidden" name="search_value" value="' + str(value) + '">'
-    faceted_form += '<input type="hidden" name="search_discoverer_mode" value="' + str(discoverer_mode) + '">'
     faceted_form += '<input class="w3-input' + button_style + '" type=submit value="Do the faceted navigation">'
     faceted_form += '</form>'
     faceted_form += '</div>'
@@ -1930,7 +1893,7 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
 # ##############################################################################
 # The HTML for the various 'discover_mode's is generated here.
 # ##############################################################################
-def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
+def get_html_table_from_nodes(nodes: Union[list, NodeMatch, Node],
                               table_header: str = '',
                               table_columns: list = None,
                               discoverer_mode: str = '') -> str:
@@ -1942,7 +1905,7 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
     :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
-    if type(nodes) == Node:
+    if isinstance(nodes, Node):
         # Make a list.
         nodes = [nodes]
 
@@ -2014,10 +1977,6 @@ def get_faceted_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
                                          category=category,
                                          value=value,
                                          discoverer_mode=discoverer_mode)
-    # if faceted_html == '' \
-    #    and discoverer_mode == 'details_view':
-    #     table_header += '<br/>[Facet panel not shown because there is only one facet to show.]'
-
     table_html = get_html_table_from_nodes(nodes=nodes,
                                            table_header=table_header,
                                            table_columns=table_columns,
@@ -2204,9 +2163,9 @@ def get_html_for_tablerow(node: Node,
     if 'value' in table_columns:
         # Value can never be empty, it is part of _key.
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        html += '<td><a href=' + url_for('search')
-        html += urllib.parse.quote(key) + '?'
-        html += urllib.parse.urlencode({'discoverer_mode': discoverer_mode}) + '>'
+        html += '<td><a href=' + url_for('findnodes') + '?'
+        html += urllib.parse.urlencode({'key': key,
+                                        'discoverer_mode': discoverer_mode}) + '>'
         html += node['value'] + '</a></td>'
     if 'comment' in table_columns:
         if node['comment'] == '':
