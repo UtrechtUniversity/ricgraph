@@ -409,6 +409,84 @@ def create_history_line(field_name: str, old_value: str, new_value: str) -> str:
     return 'Updated field "' + field_name + '" from "' + old_value + '" to "' + new_value + '". '
 
 
+def create_name_cache_in_personroot(node: Node, personroot: Node):
+    """This function caches the value of a node with 'name' 'FULL_NAME'
+    in the 'comment' property of its person-root node 'personroot'.
+    If the cache is not present, it is created.
+
+    :param node: node to add FULL_NAME to cache.
+    :param personroot: personroot node of 'node'. For efficiency, we do not check
+      if this really is the case.
+    :return: No return value.
+    """
+    if node is None:
+        return
+    if personroot is None:
+        return
+    if node['name'] == 'FULL_NAME':
+        if isinstance(personroot['comment'], str):
+            if personroot['comment'] == '':
+                old_value = str(personroot['comment'])
+                personroot['comment'] = []
+                personroot['comment'].append(node['value'])
+                now = datetime.now()
+                timestamp = now.strftime("%Y%m%d-%H%M%S")
+                history_line = create_history_line(field_name='comment',
+                                                   old_value=old_value,
+                                                   new_value=str(personroot['comment']))
+                personroot['_history'].append(timestamp + ': ' + history_line)
+                _graph.push(personroot)
+        elif isinstance(personroot['comment'], list):
+            if node['value'] not in personroot['comment']:
+                old_value = str(personroot['comment'])
+                personroot['comment'].append(node['value'])
+                now = datetime.now()
+                timestamp = now.strftime("%Y%m%d-%H%M%S")
+                history_line = create_history_line(field_name='comment',
+                                                   old_value=old_value,
+                                                   new_value=str(personroot['comment']))
+                personroot['_history'].append(timestamp + ': ' + history_line)
+                _graph.push(personroot)
+        # In all other cases: it is already in the cache,
+        # or leave it as it is: 'comment' seems to be used for something we don't know.
+
+        return
+    return
+
+
+def recreate_name_cache_in_personroot(personroot: Node):
+    """This function recreates the cache of all the nodes with 'name' 'FULL_NAME'
+    in the 'comment' property of its person-root node 'personroot'.
+    If the cache is not present, it is created.
+
+    :param personroot: personroot node of 'node'. For efficiency, we do not check
+      if this really is the case.
+    :return: No return value.
+    """
+    if personroot is None:
+        return
+    neighbornodes = get_all_neighbor_nodes(node=personroot)
+    name_cache = []
+    for node in neighbornodes:
+        if node['name'] == 'FULL_NAME':
+            if node['value'] not in name_cache:
+                name_cache.append(node['value'])
+
+    if len(name_cache) != 0:
+        if (isinstance(personroot['comment'], str) and personroot['comment'] == '') \
+           or isinstance(personroot['comment'], list):
+            now = datetime.now()
+            timestamp = now.strftime("%Y%m%d-%H%M%S")
+            history_line = create_history_line(field_name='comment',
+                                               old_value=str(personroot['comment']),
+                                               new_value=str(name_cache))
+            personroot['_history'].append(timestamp + ': ' + history_line)
+            personroot['comment'] = name_cache
+            _graph.push(personroot)
+        # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
+    return
+
+
 # _history should be an ordered list:
 # "[...] that the items have a defined order, and that order will not change.
 # If you add new items to a list, the new items will be placed at the end of the list."
@@ -622,8 +700,7 @@ def update_node(name: str, category: str, value: str,
     return node
 
 
-def update_node_value(name: str, old_value: str, new_value: str,
-                **other_properties: dict) -> Node:
+def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, None]:
     """Update a node, change the value field.
     This is a special case of update_node() because we change the key. Therefore,
     a lot of restrictions apply which do not apply with update_node().
@@ -679,6 +756,9 @@ def update_node_value(name: str, old_value: str, new_value: str,
 
     # The push() only works after a graph has been created, merge() does not update
     _graph.push(node)
+    if node['name'] == 'FULL_NAME':
+        personroot = get_or_create_personroot_node(person_node=node)
+        recreate_name_cache_in_personroot(personroot=personroot)
     return node
 
 
@@ -1127,6 +1207,12 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
         return
 
     connect_two_nodes(left_node=node1, right_node=node2)
+    if node1['name'] == 'FULL_NAME':
+        personroot = get_or_create_personroot_node(person_node=node1)
+        create_name_cache_in_personroot(node=node1, personroot=personroot)
+    if node2['name'] == 'FULL_NAME':
+        personroot = get_or_create_personroot_node(person_node=node2)
+        create_name_cache_in_personroot(node=node2, personroot=personroot)
     return
 
 
@@ -1195,7 +1281,7 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
                              names ending with '2' to a 'right' node.
     :return: None.
     """
-    if type(value1) == str:
+    if isinstance(value1, str):
         left_and_right_nodepairs = pandas.DataFrame(data={'value1': value1},
                                                     index=[0])
     else:
@@ -1216,14 +1302,14 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
         for other_name in ext_other_properties:
             other_value = ext_other_properties[other_name]
             if prop_name + '1' == other_name:
-                if type(other_value) == str:
+                if isinstance(other_value, str):
                     left_and_right_nodepairs[prop_name + '1'] = other_value
                 else:
                     left_and_right_nodepairs = pandas.concat([left_and_right_nodepairs, other_value], axis='columns')
                     left_and_right_nodepairs.rename(columns={other_value.name: prop_name + '1'}, inplace=True)
 
             if prop_name + '2' == other_name:
-                if type(other_value) == str:
+                if isinstance(other_value, str):
                     left_and_right_nodepairs[prop_name + '2'] = other_value
                 else:
                     left_and_right_nodepairs = pandas.concat([left_and_right_nodepairs, other_value], axis='columns')
@@ -1428,7 +1514,7 @@ def get_all_neighbor_nodes(node: Node,
         return []
 
     # If 'name_want' etc. are strings, convert them to lists.
-    if type(name_want) == str:
+    if isinstance(name_want, str):
         if name_want == '':
             name_want_list = []
         else:
@@ -1436,7 +1522,7 @@ def get_all_neighbor_nodes(node: Node,
     else:
         name_want_list = name_want
 
-    if type(name_dontwant) == str:
+    if isinstance(name_dontwant, str):
         if name_dontwant == '':
             name_dontwant_list = []
         else:
@@ -1444,7 +1530,7 @@ def get_all_neighbor_nodes(node: Node,
     else:
         name_dontwant_list = name_dontwant
 
-    if type(category_want) == str:
+    if isinstance(category_want, str):
         if category_want == '':
             category_want_list = []
         else:
@@ -1452,7 +1538,7 @@ def get_all_neighbor_nodes(node: Node,
     else:
         category_want_list = category_want
 
-    if type(category_dontwant) == str:
+    if isinstance(category_dontwant, str):
         if category_dontwant == '':
             category_dontwant_list = []
         else:

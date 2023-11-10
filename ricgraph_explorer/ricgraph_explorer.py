@@ -2170,17 +2170,21 @@ def get_html_for_tablerow(node: Node,
                                         'discoverer_mode': discoverer_mode}) + '>'
         html += node['value'] + '</a></td>'
     if 'comment' in table_columns:
-        if node['comment'] == '':
-            # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
-            # for easier browsing.
-            # TODO: this is very time consuming.
-            html += '<td><ul>'
-            if node['name'] == 'person-root':
-                for full_name_node in rcg.get_all_neighbor_nodes(node, name_want='FULL_NAME'):
-                    html += '<li>' + full_name_node['value'] + '</li>'
-            html += '</ul></td>'
+        if isinstance(node['comment'], str):
+            if node['comment'] == '':
+                html += '<td><ul>'
+            else:
+                html += '<td width=30%>' + node['comment'] + '</td>'
         else:
-            html += '<td width=30%>' + node['comment'] + '</td>'
+            if node['name'] == 'person-root' and isinstance(node['comment'], list):
+                # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
+                # for easier browsing.
+                html += '<td><ul>'
+                for cached_name in node['comment']:
+                    html += '<li>' + cached_name + '</li>'
+                html += '</ul></td>'
+            else:
+                html += '<td width=30%>' + str(node['comment']) + '</td>'
     if 'year' in table_columns:
         if node['year'] == '':
             html += '<td></td>'
@@ -2197,16 +2201,16 @@ def get_html_for_tablerow(node: Node,
         else:
             html += '<td><a href=' + node['url_other'] + ' target="_blank"> url_other link </a></td>'
     if '_source' in table_columns:
-        if node['_source'] == '':
-            html += '<td></td>'
+        if isinstance(node['_source'], str):
+            html += '<td>' + node['_source'] + '</td>'
         else:
             html += '<td><ul>'
             for source in node['_source']:
-                html += '<li>' + source
+                html += '<li>' + source + '</li>'
             html += '</ul></td>'
     if '_history' in table_columns:
-        if node['_history'] == '':
-            html += '<td></td>'
+        if isinstance(node['_history'], str):
+            html += '<td>' + node['_history'] + '</td>'
         else:
             html += '<td><details><summary>Click for history</summary><ul>'
             for history in node['_history']:
