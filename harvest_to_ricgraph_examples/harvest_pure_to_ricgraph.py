@@ -47,7 +47,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, April, October 2023.
+# Updated Rik D.T. Janssen, April, October, November 2023.
 #
 # ########################################################################
 #
@@ -105,6 +105,7 @@ global PURE_URL
 global HARVEST_SOURCE
 global HARVEST_PROJECTS
 global resout_uuid_or_doi
+global organization
 
 # ######################################################
 # Parameters for harvesting persons from Pure
@@ -124,9 +125,23 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
                                   'staffOrganisationAssociations.period.*',
                                   'staffOrganisationAssociations.organisationalUnit.*',
                                   'orcid'
-                                  ],
-                       'employmentStatus': 'ACTIVE'
+                                  ]
+                       # See remark below.
+                       # 'employmentStatus': 'ACTIVE'
                        }
+
+# For the Pure READ API.
+# We harvest all persons from Pure, whether they are active or not. We do this,
+# because persons not active might have contributed to a research output.
+# But we only add these persons if their endDate is within
+# PURE_PERSONS_INCLUDE_YEARS_BEFORE years before the lowest value in PURE_RESOUT_YEARS.
+# Otherwise, we may end up with far too many persons.
+# If we add such a person, we do not add its organization because it is very
+# probably outdated.
+PURE_PERSONS_INCLUDE_YEARS_BEFORE = 5
+# For the Pure CRUD API we use this value, because we cannot filter research
+# outputs on years.
+PURE_PERSONS_LOWEST_YEAR = 2010
 
 # ######################################################
 # Parameters for harvesting organizations from Pure
@@ -367,11 +382,23 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
     :param harvest: the harvest.
     :return: the harvested persons in a DataFrame.
     """
+    if PURE_API_VERSION == PURE_READ_API_VERSION:
+        # We use the Pure READ API.
+        lowest_resout_year = int(min(PURE_RESOUT_YEARS)) - PURE_PERSONS_INCLUDE_YEARS_BEFORE
+    else:
+        lowest_resout_year = PURE_PERSONS_LOWEST_YEAR
+
+    # parse_chunk_final: things we want to put in the DataFrame parse_result with
+    # harvested persons to be returned.
+    parse_chunk_final = []
     parse_result = pandas.DataFrame()
-    parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' person records, parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
+        # parse_chunk: things of this loop we might want to put in the DataFrame with
+        # harvested persons to be returned. If so, we add them to parse_chunk_final.
+        # If not they will not end up in the harvested persons.
+        parse_chunk = []
         count += 1
         if count % 1000 == 0:
             print(count, ' ', end='', flush=True)
@@ -427,7 +454,16 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                     if 'endDate' in stafforg['period'] and stafforg['period']['endDate'] != '':
                         # Only consider persons of current organizations, that is an organization
                         # where endData is not existing or empty. If not, then skip.
-                        continue
+                        end_year = int(stafforg['period']['endDate'][:4])
+                        if end_year < lowest_resout_year:
+                            continue
+                        else:
+                            # Put in the DataFrame with harvested persons to be returned.
+                            # We do not add its organization because it is very # probably outdated.
+                            # No need to check if it is already there, it that is the case it will
+                            # be filtered out from the dataframe below.
+                            parse_chunk_final.extend(parse_chunk)
+                            continue
                 else:
                     # If there is no period skip
                     continue
@@ -452,9 +488,12 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                 parse_line['PURE_UUID_ORG'] = str(orgunit['uuid'])
                 parse_chunk.append(parse_line)
 
+                # Put in the DataFrame with harvested persons to be returned.
+                parse_chunk_final.extend(parse_chunk)
+
     print(count, '\n', end='', flush=True)
 
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
+    parse_chunk_df = pandas.DataFrame(parse_chunk_final)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
     # dropna(how='all'): drop row if all row values contain NaN
     parse_result.dropna(axis=0, how='all', inplace=True)
@@ -691,12 +730,22 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                         continue
                     author_uuid = str(persons['externalPerson']['uuid'])
                     author_uuid += ' (external person)'
+                    if 'name' in persons['externalPerson'] \
+                       and 'text' in persons['externalPerson']['name'] \
+                       and 'value' in persons['externalPerson']['name']['text'][0]:
+                        author_name = persons['externalPerson']['name']['text'][0]['value']
+                        author_uuid += ' (' + author_name + ')'
                 elif 'authorCollaboration' in persons:             # author collaboration
                     if 'uuid' not in persons['authorCollaboration']:
                         # There must be an uuid, otherwise skip
                         continue
                     author_uuid = str(persons['authorCollaboration']['uuid'])
                     author_uuid += ' (author collaboration)'
+                    if 'name' in persons['authorCollaboration'] \
+                            and 'text' in persons['authorCollaboration']['name'] \
+                            and 'value' in persons['authorCollaboration']['name']['text'][0]:
+                        author_name = persons['authorCollaboration']['name']['text'][0]['value']
+                        author_uuid += ' (' + author_name + ')'
                 else:
                     # If we get here you might want to add another "elif" above with
                     # the missing personAssociation. Sometimes there is none, then it is ok.
@@ -772,8 +821,18 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
         if 'visibility' in harvest_item:
             if 'key' in harvest_item['visibility'] \
                     and harvest_item['visibility']['key'] != 'FREE':
+                # TODO: Hack for Utrecht University Pure. Their projects have visibility
+                # 'BACKEND'. This will change sometime in the future and then this
+                # hack should be removed. Date of the hack: November 11, 2023.
+                # It should be like this:
+                # #### start
                 # It must be public, otherwise skip.
-                continue
+                # continue
+                # #### end
+                # But with the hack it is:
+                if organization != 'UU':
+                    # It must be public, otherwise skip.
+                    continue
         else:
             # It must be explicitly declared to be public, otherwise skip.
             continue
@@ -795,6 +854,8 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
 
         # For now, we don't care about the 'workflow' status.
 
+        # One could say: "There are no ids, so do not harvest". However, for
+        # now we don't use 'ids' as 'value' field, so for now we _do_ harvest.
         if 'ids' in harvest_item:
             name = ''
             value = ''
@@ -806,8 +867,8 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
             if name == '' or value == '':
                 continue
             title = '[' + name + ': ' + value + '] ' + title
-        else:
-            continue
+        # else:
+        #    continue
 
         if 'participants' in harvest_item:
             for participant in harvest_item['participants']:
@@ -1075,11 +1136,11 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
                     continue
                 parentslist = organization_and_all_parents[parentorgid]
                 # Now loop over the lists of parents of 'parentorgid'.
-                for index in range(len(parentslist)):
-                    if index == 0:
+                for index_pl in range(len(parentslist)):
+                    if index_pl == 0:
                         # Remember: first entry in list is the name of the parent org.
                         continue
-                    parent_of_parentorgid = parentslist[index]
+                    parent_of_parentorgid = parentslist[index_pl]
                     if parent_of_parentorgid not in organization_and_all_parents[orgid]:
                         something_changed = True
                         organization_and_all_parents[orgid].append(parent_of_parentorgid)
