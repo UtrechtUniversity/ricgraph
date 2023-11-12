@@ -134,9 +134,8 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
         if 'Employee_Url' in harvest_item:
             path = pathlib.PurePath(harvest_item['Employee_Url'])
             uustaff_page_id = str(path.name)
-            parse_line = {}
-            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-            parse_line['UUSTAFF_PAGE_URL'] = str(harvest_item['Employee_Url'])
+            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                          'UUSTAFF_PAGE_URL': str(harvest_item['Employee_Url'])}
             # Sometimes EmployeeUrl has 'https:/www...' instead of 'https://www...', repair.
             parse_line['UUSTAFF_PAGE_URL'] = re.sub(pattern=r'https:/www',
                                                     repl='https://www',
@@ -147,23 +146,20 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             continue
 
         if 'Id' in harvest_item:
-            parse_line = {}
-            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-            parse_line['UUSTAFF_ID_PERS'] = str(harvest_item['Id'])
+            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                          'UUSTAFF_ID_PERS': str(harvest_item['Id'])}
             parse_chunk.append(parse_line)
         else:
             # There must be an Id (UUSTAFF_ID_PERS), otherwise skip.
             continue
 
         if 'NameShort' in harvest_item:
-            parse_line = {}
-            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-            parse_line['FULL_NAME'] = str(harvest_item['NameShort'])
+            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                          'FULL_NAME': str(harvest_item['NameShort'])}
             parse_chunk.append(parse_line)
         if 'Email' in harvest_item:
-            parse_line = {}
-            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-            parse_line['EMAIL'] = str(harvest_item['Email'])
+            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                          'EMAIL': str(harvest_item['Email'])}
             parse_chunk.append(parse_line)
         if 'PhotoUrl' in harvest_item:
             # 'PhotoUrl' has the form '/Public/GetImage?Employee=12&_t=34567890&t='
@@ -176,9 +172,8 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
             if employee_id == '':
                 continue
 
-            parse_line = {}
-            parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-            parse_line['PHOTO_ID'] = str(employee_id)
+            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                          'PHOTO_ID': str(employee_id)}
             parse_line['PHOTO_URL'] = UUSTAFF_URL + UUSTAFF_PHOTO_ENDPOINT + parse_line['PHOTO_ID']
             parse_chunk.append(parse_line)
         if 'LinksSocialMedia' in harvest_item:
@@ -186,8 +181,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
                 if 'Name' in links and 'Url' in links:
                     if links['Name'] is None or links['Url'] is None:
                         continue
-                    parse_line = {}
-                    parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
+                    parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id}
                     name_identifier = str(links['Name'].lower())
                     value_identifier = str(links['Url'])
                     path = pathlib.PurePath(value_identifier)
@@ -218,34 +212,30 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
                         break
 
             if org_name != '':
-                parse_line = {}
-                parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-                parse_line['FACULTY'] = org_name
+                parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                              'FACULTY': org_name}
                 parse_chunk.append(parse_line)
         if 'Expertises' in harvest_item:
             for expertise in harvest_item['Expertises']:
                 if 'Name' in expertise and 'Url' in expertise:
-                    parse_line = {}
-                    parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-                    parse_line['EXPERTISE_AREA_NAME'] = str(expertise['Name'])
-                    parse_line['EXPERTISE_AREA_URL'] = UU_WEBSITE + str(expertise['Url'])
+                    parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                                  'EXPERTISE_AREA_NAME': str(expertise['Name']),
+                                  'EXPERTISE_AREA_URL': UU_WEBSITE + str(expertise['Url'])}
                     parse_chunk.append(parse_line)
         if 'FocusAreas' in harvest_item:
             for focusarea in harvest_item['FocusAreas']:
                 if 'Name' in focusarea and 'Url' in focusarea:
-                    parse_line = {}
-                    parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
                     # Focus areas are called 'Research areas' on the UU website.
-                    parse_line['RESEARCH_AREA_NAME'] = str(focusarea['Name'])
-                    parse_line['RESEARCH_AREA_URL'] = UU_WEBSITE + str(focusarea['Url'])
+                    parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                                  'RESEARCH_AREA_NAME': str(focusarea['Name']),
+                                  'RESEARCH_AREA_URL': UU_WEBSITE + str(focusarea['Url'])}
                     parse_chunk.append(parse_line)
         if 'Skills' in harvest_item:
             for skill in harvest_item['Skills']:
                 if 'Name' in skill and 'Url' in skill:
-                    parse_line = {}
-                    parse_line['UUSTAFF_PAGE_ID'] = uustaff_page_id
-                    parse_line['SKILL_NAME'] = str(skill['Name'])
-                    parse_line['SKILL_URL'] = UU_WEBSITE + str(skill['Url'])
+                    parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                                  'SKILL_NAME': str(skill['Name']),
+                                  'SKILL_URL': UU_WEBSITE + str(skill['Url'])}
                     parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
@@ -327,7 +317,7 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
                 for element in UUSTAFF_FIELDS_TO_HARVEST:
                     if element in employee_page['Employee']:
                         tmp = employee_page['Employee'][element]
-                        if type(tmp) == list and tmp == []:
+                        if isinstance(tmp, list) and len(tmp) == 0:
                             continue
                         if tmp is not None:
                             parse[element] = tmp
@@ -462,7 +452,7 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                   'FACULTY': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'UUSTAFF_PAGE_ID',
                                 'category1': 'person',
-                                'name2': 'UUSTAFF_ID_ORG',
+                                'name2': 'ORGANIZATION_NAME',
                                 'category2': 'organization',
                                 'source_event2': 'UU staff pages',
                                 'history_event2': history_event}
@@ -585,9 +575,8 @@ def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
             continue
 
         path = pathlib.PurePath(uustaff_page_url)
-        parse_line = {}
-        parse_line['EMPLOYEE_ID'] = str(node['value'])
-        parse_line['UUSTAFF_PAGE_ID'] = str(path.name)
+        parse_line = {'EMPLOYEE_ID': str(node['value']),
+                      'UUSTAFF_PAGE_ID': str(path.name)}
         parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)

@@ -105,7 +105,6 @@ global PURE_URL
 global HARVEST_SOURCE
 global HARVEST_PROJECTS
 global resout_uuid_or_doi
-global organization
 
 # ######################################################
 # Parameters for harvesting persons from Pure
@@ -410,16 +409,14 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
             continue
         if 'name' in harvest_item:
             if 'lastName' in harvest_item['name']:
-                parse_line = {}
-                parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
-                parse_line['FULL_NAME'] = harvest_item['name']['lastName']
+                parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
+                              'FULL_NAME': harvest_item['name']['lastName']}
                 if 'firstName' in harvest_item['name']:
                     parse_line['FULL_NAME'] += ', ' + harvest_item['name']['firstName']
                 parse_chunk.append(parse_line)
         if 'orcid' in harvest_item:
-            parse_line = {}
-            parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
-            parse_line['ORCID'] = str(harvest_item['orcid'])
+            parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
+                          'ORCID': str(harvest_item['orcid'])}
             parse_chunk.append(parse_line)
         if 'ids' in harvest_item:
             # Field in Pure READ API.
@@ -427,9 +424,8 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                 if 'value' in identities and 'type' in identities:
                     value_identifier = str(identities['value']['value'])
                     name_identifier = str(identities['type']['term']['text'][0]['value'])
-                    parse_line = {}
-                    parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
-                    parse_line[name_identifier] = value_identifier
+                    parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
+                                  name_identifier: value_identifier}
                     parse_chunk.append(parse_line)
         if 'identifiers' in harvest_item:
             # Field in Pure CRUD API.
@@ -437,9 +433,8 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                 if 'id' in identities and 'type' in identities:
                     value_identifier = str(identities['id'])
                     name_identifier = str(identities['type']['term']['en_GB'])
-                    parse_line = {}
-                    parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
-                    parse_line[name_identifier] = value_identifier
+                    parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
+                                  name_identifier: value_identifier}
                     parse_chunk.append(parse_line)
         label = ''
         if 'staffOrganisationAssociations' in harvest_item:
@@ -483,9 +478,8 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                 else:
                     continue
 
-                parse_line = {}
-                parse_line['PURE_UUID_PERS'] = str(harvest_item['uuid'])
-                parse_line['PURE_UUID_ORG'] = str(orgunit['uuid'])
+                parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
+                              'PURE_UUID_ORG': str(orgunit['uuid'])}
                 parse_chunk.append(parse_line)
 
                 # Put in the DataFrame with harvested persons to be returned.
@@ -525,6 +519,8 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
     :param harvest: the harvest.
     :return: the harvested organizations in a DataFrame.
     """
+    global organization
+
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
     organization_names = {}
@@ -601,12 +597,11 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
                 else:
                     continue
 
-                parse_line = {}
-                parse_line['PURE_UUID_ORG'] = str(harvest_item['uuid'])
-                parse_line['ORG_TYPE_NAME'] = org_type_name
-                parse_line['ORG_NAME'] = org_name
-                parse_line['FULL_ORG_NAME'] = org_type_name + ': ' + org_name
-                parse_line['PARENT_UUID'] = str(parentsorg['uuid'])
+                parse_line = {'PURE_UUID_ORG': str(harvest_item['uuid']),
+                              'ORG_TYPE_NAME': org_type_name,
+                              'ORG_NAME': org_name,
+                              'FULL_ORG_NAME': organization + ' ' + org_type_name + ': ' + org_name,
+                              'PARENT_UUID': str(parentsorg['uuid'])}
                 parse_chunk.append(parse_line)
                 organization_names[parse_line['PURE_UUID_ORG']] = parse_line['FULL_ORG_NAME']
         else:
@@ -627,9 +622,11 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    parse_result['FULL_PARENT_NAME'] = parse_result[['PARENT_UUID']].apply(lambda row:
-                                           find_organization_name(uuid=row['PARENT_UUID'],
-                                               organization_names=organization_names), axis=1)
+    parse_result['FULL_PARENT_NAME'] = (
+        parse_result[['PARENT_UUID']].apply(lambda row:
+                                            find_organization_name(uuid=row['PARENT_UUID'],
+                                                                   organization_names=organization_names),
+                                            axis=1))
 
     # dropna(how='all'): drop row if all row values contain NaN
     parse_result.dropna(axis=0, how='all', inplace=True)
@@ -755,14 +752,13 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                     #      + str(harvest_item['uuid']))
                     continue
 
-                parse_line = {}
-                parse_line['RESOUT_UUID'] = str(harvest_item['uuid'])
-                parse_line['DOI'] = doi
-                parse_line['TITLE'] = str(harvest_item['title']['value'])
-                parse_line['YEAR'] = str(publication_year)
-                parse_line['TYPE'] = rcg.lookup_resout_type(research_output_type=str(harvest_item['type']['uri']),
-                                                            research_output_mapping=ROTYPE_MAPPING_PURE)
-                parse_line['AUTHOR_UUID'] = author_uuid
+                parse_line = {'RESOUT_UUID': str(harvest_item['uuid']),
+                              'DOI': doi,
+                              'TITLE': str(harvest_item['title']['value']),
+                              'YEAR': str(publication_year),
+                              'TYPE': rcg.lookup_resout_type(research_output_type=str(harvest_item['type']['uri']),
+                                                             research_output_mapping=ROTYPE_MAPPING_PURE),
+                              'AUTHOR_UUID': author_uuid}
                 parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
@@ -792,6 +788,7 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
     :return: the harvested persons in a DataFrame.
     """
     global resout_uuid_or_doi
+    global organization
 
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
@@ -884,12 +881,11 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
                 else:
                     continue
 
-                parse_line = {}
-                parse_line['PURE_UUID_PROJECT'] = uuid
-                parse_line['PURE_UUID_PROJECT_URL'] = create_pure_url('PURE_UUID_PROJECT', uuid)
-                parse_line['PURE_PROJECT_TITLE'] = title
-                parse_line['PURE_PROJECT_PARTICIPANT_UUID'] = participant_uuid
-                parse_line['PURE_PROJECT_PARTICIPANT_ORG'] = participant_org
+                parse_line = {'PURE_UUID_PROJECT': uuid,
+                              'PURE_UUID_PROJECT_URL': create_pure_url('PURE_UUID_PROJECT', uuid),
+                              'PURE_PROJECT_TITLE': title,
+                              'PURE_PROJECT_PARTICIPANT_UUID': participant_uuid,
+                              'PURE_PROJECT_PARTICIPANT_ORG': participant_org}
                 parse_chunk.append(parse_line)
 
         if 'relatedResearchOutputs' in harvest_item:
@@ -914,14 +910,12 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
                         resout_name = 'DOI'
                     else:
                         resout_name = 'PURE_UUID_RESOUT'
-                parse_line = {}
-
-                parse_line['PURE_UUID_PROJECT'] = uuid
-                parse_line['PURE_UUID_PROJECT_URL'] = create_pure_url('PURE_UUID_PROJECT', uuid)
-                parse_line['PURE_PROJECT_TITLE'] = title
-                parse_line['PURE_PROJECT_RESOUT_NAME'] = resout_name
-                parse_line['PURE_PROJECT_RESOUT_CATEGORY'] = resout_category
-                parse_line['PURE_PROJECT_RESOUT_VALUE'] = resout_value
+                parse_line = {'PURE_UUID_PROJECT': uuid,
+                              'PURE_UUID_PROJECT_URL': create_pure_url('PURE_UUID_PROJECT', uuid),
+                              'PURE_PROJECT_TITLE': title,
+                              'PURE_PROJECT_RESOUT_NAME': resout_name,
+                              'PURE_PROJECT_RESOUT_CATEGORY': resout_category,
+                              'PURE_PROJECT_RESOUT_VALUE': resout_value}
                 parse_chunk.append(parse_line)
 
         if 'relatedProjects' in harvest_item:
@@ -932,11 +926,10 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
                 else:
                     continue
 
-                parse_line = {}
-                parse_line['PURE_UUID_PROJECT'] = uuid
-                parse_line['PURE_UUID_PROJECT_URL'] = create_pure_url('PURE_UUID_PROJECT', uuid)
-                parse_line['PURE_PROJECT_TITLE'] = title
-                parse_line['PURE_PROJECT_RELATEDPROJECT_UUID'] = related_project_uuid
+                parse_line = {'PURE_UUID_PROJECT': uuid,
+                              'PURE_UUID_PROJECT_URL': create_pure_url('PURE_UUID_PROJECT', uuid),
+                              'PURE_PROJECT_TITLE': title,
+                              'PURE_PROJECT_RELATEDPROJECT_UUID': related_project_uuid}
                 parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
@@ -1174,10 +1167,9 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
             orgid_name = orgid_name_and_parentslist[0]
 
             # First connect this person and 'orgid'.
-            parse_line = {}
-            parse_line['PURE_UUID_PERS'] = str(personid)
-            parse_line['PURE_UUID_ORG'] = orgid
-            parse_line['FULL_ORG_NAME'] = orgid_name
+            parse_line = {'PURE_UUID_PERS': str(personid),
+                          'PURE_UUID_ORG': orgid,
+                          'FULL_ORG_NAME': orgid_name}
             parse_chunk.append(parse_line)
 
             # Now get all parents of orgid.
@@ -1186,8 +1178,7 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
                 if index == 0:
                     # Remember: first entry in list is the name of the org.
                     continue
-                parse_line = {}
-                parse_line['PURE_UUID_PERS'] = str(personid)
+                parse_line = {'PURE_UUID_PERS': str(personid)}
                 parent_orgid = str(orgid_name_and_parentslist[index])
                 parent_name = str(organization_and_all_parents[parent_orgid][0])
                 parse_line['PURE_UUID_ORG'] = parent_orgid

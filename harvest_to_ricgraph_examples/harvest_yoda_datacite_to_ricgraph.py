@@ -179,7 +179,7 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
     # write name and all its identifiers
     for item_in_names in dict_with_one_name:
         if item_in_names == 'nameIdentifier':
-            # Separate the various nameIdentifiers (like SCOPUS_ID, ORCID, etc)
+            # Separate the various nameIdentifiers (like SCOPUS_ID, ORCID, etc.)
             name_identifiers = dict_with_one_name['nameIdentifier']
             for identifier in name_identifiers:
                 if identifier == '@nameIdentifierScheme':
@@ -199,7 +199,7 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
             new_record[key] = value
             if key == 'creatorName' or key == 'contributorName':
                 # Also insert it in another colomn, for convenience
-                if type(value) != str:
+                if not isinstance(value, str):
                     # Sometimes it is an OrderedDict
                     new_record['contributorName'] = value['#text']
                 else:

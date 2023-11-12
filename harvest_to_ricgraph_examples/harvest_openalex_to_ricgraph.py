@@ -210,22 +210,19 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
 
             if 'orcid' in authors['author']:
                 if authors['author']['orcid'] is not None:
-                    parse_line = {}
-                    parse_line['OPENALEX'] = openalex_id
+                    parse_line = {'OPENALEX': openalex_id}
                     path = pathlib.PurePath(authors['author']['orcid'])
                     parse_line['ORCID'] = str(path.name)
                     parse_chunk.append(parse_line)
 
             if 'display_name' in authors['author']:
                 if authors['author']['display_name'] is not None:
-                    parse_line = {}
-                    parse_line['OPENALEX'] = openalex_id
-                    parse_line['FULL_NAME'] = str(authors['author']['display_name'])
+                    parse_line = {'OPENALEX': openalex_id,
+                                  'FULL_NAME': str(authors['author']['display_name'])}
                     parse_chunk.append(parse_line)
 
-            parse_line = {}
-            parse_line['OPENALEX'] = openalex_id
-            parse_line['ROR'] = institution_ror
+            parse_line = {'OPENALEX': openalex_id,
+                          'ROR': institution_ror}
             if institution_display_name != '':
                 parse_line['INSTITUTION_NAME'] = institution_display_name
             parse_chunk.append(parse_line)
@@ -239,10 +236,9 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
             if harvest_item['doi'] is None or harvest_item['title'] is None:
                 continue
 
-            parse_line = {}
-            parse_line['OPENALEX'] = openalex_id
-            parse_line['DOI'] = str(rewrite_openalex_doi(doi=harvest_item['doi']))
-            parse_line['TITLE'] = str(harvest_item['title'])
+            parse_line = {'OPENALEX': openalex_id,
+                          'DOI': str(rewrite_openalex_doi(doi=harvest_item['doi'])),
+                          'TITLE': str(harvest_item['title'])}
             if 'publication_year' in harvest_item:
                 parse_line['YEAR'] = str(harvest_item['publication_year'])
             else:

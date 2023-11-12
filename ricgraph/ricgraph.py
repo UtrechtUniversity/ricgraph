@@ -424,13 +424,13 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
     if personroot is None:
         return
     if node['name'] == 'FULL_NAME':
+        now = datetime.now()
+        timestamp = now.strftime("%Y%m%d-%H%M%S")
         if isinstance(personroot['comment'], str):
             if personroot['comment'] == '':
                 old_value = str(personroot['comment'])
                 personroot['comment'] = []
                 personroot['comment'].append(node['value'])
-                now = datetime.now()
-                timestamp = now.strftime("%Y%m%d-%H%M%S")
                 history_line = create_history_line(field_name='comment',
                                                    old_value=old_value,
                                                    new_value=str(personroot['comment']))
@@ -440,8 +440,6 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
             if node['value'] not in personroot['comment']:
                 old_value = str(personroot['comment'])
                 personroot['comment'].append(node['value'])
-                now = datetime.now()
-                timestamp = now.strftime("%Y%m%d-%H%M%S")
                 history_line = create_history_line(field_name='comment',
                                                    old_value=old_value,
                                                    new_value=str(personroot['comment']))
@@ -450,7 +448,6 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
         # In all other cases: it is already in the cache,
         # or leave it as it is: 'comment' seems to be used for something we don't know.
 
-        return
     return
 
 
@@ -480,8 +477,8 @@ def recreate_name_cache_in_personroot(personroot: Node):
             history_line = create_history_line(field_name='comment',
                                                old_value=str(personroot['comment']),
                                                new_value=str(name_cache))
-            personroot['_history'].append(timestamp + ': ' + history_line)
-            personroot['comment'] = name_cache
+            personroot['_history'].append(timestamp + ': Cleaned and recreated name cache. ' + history_line)
+            personroot['comment'] = name_cache.copy()
             _graph.push(personroot)
         # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
     return
@@ -739,8 +736,8 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     if newnode is not None:
         # Node we want to change to does already exist.
         # We should do a merge of these two nodes, but merge does not work
-        # satisfactorily (there is code for it but it has not been tested
-        # extensively). Therefore we do not change.
+        # satisfactorily (there is code for it, but it has not been tested
+        # extensively). Therefore, we do not change.
         print('update_node_value(): Error: new node already exists, this should not happen.')
         print('Nothing has been changed.')
         return None
@@ -1329,7 +1326,7 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
 
 def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
                                source_event: Union[dict, str], history_event: Union[dict, str]) -> None:
-    """Unify a collection of personal identifiers (e.g. ORCID, ISNI, etc).
+    """Unify a collection of personal identifiers (e.g. ORCID, ISNI, etc.).
     That means that every column is unified to every other column.
     The identifiers are specified as columns in a DataFrame.
 
