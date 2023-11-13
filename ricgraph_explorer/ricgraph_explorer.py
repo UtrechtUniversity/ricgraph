@@ -93,6 +93,10 @@ MAX_RESULTS = 50
 # If we render a table, we return at most this number of rows in that table.
 MAX_ROWS_IN_TABLE = 250
 
+# If we search for neighbors of an 'organization' node, in the first filter
+# in filterorganization(), we restrict it to return at most this number of nodes.
+MAX_ORGANIZATION_NODES_TO_RETURN = 4 * MAX_ROWS_IN_TABLE
+
 # It is possible to find enrichments for all nodes in Ricgraph. However, that
 # will take a long time. This is the maximum number of nodes Ricgraph explorer
 # is going to enrich in find_enrich_candidates().
@@ -534,8 +538,15 @@ def filterorganization() -> str:
 
     # Get the neighbors of the 'organization' node.
     relevant_result = []
-    neighbors = rcg.get_all_neighbor_nodes(node=node, name_want='person-root')
+    # neighbors = rcg.get_all_neighbor_nodes(node=node, name_want='person-root')
+    # Note the hard limit
+    neighbors = rcg.get_all_neighbor_nodes(node=node,
+                                           name_want='person-root',
+                                           max_nr_neighbor_nodes=MAX_ORGANIZATION_NODES_TO_RETURN)
+    count = 0
     for neighbor in neighbors:
+        if count >= MAX_ROWS_IN_TABLE:
+            break
         # We include ourselves.
         # For get_all_neighbor_nodes(), for the '_want' parameters: if we pass '',
         # that means we do not want a filter for that parameter.
@@ -543,8 +554,11 @@ def filterorganization() -> str:
                                                     name_want=name_filter,
                                                     category_want=category_filter)
         for item in more_neighbors:
+            if count >= MAX_ROWS_IN_TABLE:
+                break
             if item not in relevant_result:
                 relevant_result.append(item)
+                count += 1
 
     if len(relevant_result) == 0:
         # Nothing found
@@ -565,7 +579,9 @@ def filterorganization() -> str:
         table_colums = RESEARCH_OUTPUT_COLUMNS
 
     table_header = 'This node is used for finding information about the persons '
-    table_header += 'or their results of this organization:'
+    table_header += 'or their results of this organization '
+    table_header += '(for at most ' + str(MAX_ORGANIZATION_NODES_TO_RETURN) + ' neighbor nodes, '
+    table_header += 'for program speed reasons):'
     html += get_html_table_from_nodes(nodes=result,
                                       table_header=table_header,
                                       table_columns=table_colums,
@@ -577,7 +593,8 @@ def filterorganization() -> str:
         table_header += '"' + name_filter + '" '
     elif category_filter != '':
         table_header += '"' + category_filter + '" '
-    table_header += 'nodes of all the persons or their results of this organization:'
+    table_header += 'nodes of all the persons or their results of this organization '
+    table_header += '(for the given number of neighbor nodes):'
     html += get_html_table_from_nodes(nodes=relevant_result,
                                       table_header=table_header,
                                       table_columns=table_colums,
@@ -1246,7 +1263,8 @@ def get_more_options_card(node: Node,
         form += '</label>'
         form += '<input class="w3-border" type=text name=category_filter></br>'
         button_text = 'find more information about persons or their results '
-        button_text += 'in this organization'
+        button_text += 'in this organization '
+        button_text += '(this may take quite some time)'
         form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
         form += '</form>'
         html += form
@@ -1927,6 +1945,10 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, Node],
     if len(nodes) > MAX_ROWS_IN_TABLE:
         html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table, showing first '
         html += str(MAX_ROWS_IN_TABLE) + '.</span>'
+    elif len(nodes) == MAX_ROWS_IN_TABLE:
+        # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
+        # so we have no idea how many search results there are.
+        html += '<span style="float: right;">Showing first ' + str(MAX_ROWS_IN_TABLE) + ' rows.</span>'
     elif len(nodes) >= 2:
         html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table.</span>'
     html += get_html_for_tablestart()
