@@ -38,8 +38,8 @@ To learn more about Ricgraph,
 [by a description how Ricgraph can be used](#what-can-ricgraph-do). There is also
 [a section with next steps you might want to take](#next-steps).
 You can also look at
-the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md),
-or the [presentations and mentions of Ricgraph](docs/ricgraph_presentations_mentions.md).
+the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
+or the [presentations and mentions of Ricgraph](docs/ricgraph_publications_presentations_mentions.md).
 
 ## Why Ricgraph?
 
@@ -158,7 +158,7 @@ Some of Ricgraph's features are:
 
 * Read more about [Ricgraph details](docs/ricgraph_details.md),
   such as example graphs, person identifiers and the *person-root* node.
-* Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_videos.md).
+* Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
 * Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md),

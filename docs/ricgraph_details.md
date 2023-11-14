@@ -48,7 +48,7 @@ The right figure shows how three persons have contributed to one research output
 
 ### Videos of Ricgraph
 To see a demonstration of Ricgraph, you can look at 
-the [videos we have made to demonstrate Ricgraph](ricgraph_videos.md).
+the [videos we have made to demonstrate Ricgraph](ricgraph_example_use_videos.md).
 
 ### Properties of nodes in Ricgraph
 
