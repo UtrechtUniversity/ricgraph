@@ -4,38 +4,38 @@
 
 ## What is Ricgraph?
 
-Ricgraph (Research in context graph) is a
-[graph](https://en.wikipedia.org/wiki/Graph_theory) with
-nodes (sometimes called vertices)
-and edges (sometimes called links) to represent objects and their relations.
-It can be used to store, manipulate and read metadata of any object that
-has a relation to another object,
-as long as every object can be "represented" by at least a *name* and a *value*.
-In Ricgraph, one node represents one object, and an edge represents the
-relation between two objects.
-It is written in Python and uses [Neo4j](https://neo4j.com)
-as [graph database engine](https://en.wikipedia.org/wiki/Graph_database).  
+What if... we look at research information as a graph? We would have relations 
+between objects, we would be able to “walk”
+from one object to another, and related objects would be neighbors. 
+For example, starting with a researcher, the publications
+of this person are only one step away by following one edge, 
+and other contributors to that publication are again
+one step (edge) away.
 
-Metadata of an object are stored as "properties"
-in a node, i.e. as information associated with a node.
-For example, a node may store two properties, *name = PET* and
-*value = cat*. Another node may store *name = FULL_NAME* and *value = John Doe*.
-Then the edge between those two nodes means that the person with FULL_NAME John Doe
-has a PET which is a cat.
+With Ricgraph, you can create a 
+[graph](https://en.wikipedia.org/wiki/Graph_theory)
+from research information that
+is stored in various source systems. You can
+explore this graph and discover relations you were not aware of. 
+We have developed Ricgraph (Research in context graph)
+because our university had a need to be able to show our researchers, 
+their skills, (child) organizations (e.g. unit, department, faculty, university),
+projects and research outputs (e.g. publications, 
+datasets, software packages) in relation to each other.
+This information is stored in different systems, such as Pure, OpenAlex, Yoda, 
+the Research Software Directory, and our
+organization’s employee pages.
 
-The philosophy of Ricgraph is that it stores metadata, not the objects the metadata
-refer to. To access an object, a node has a link to that object in
-the system it was obtained from. The objective is to get metadata from
-objects from a source system in a process called "harvesting".
-All information harvested from several source systems will be combined into one graph.
-Modification of metadata of an object is
-done in the source system the object was
-harvested from, and then reharvesting of that source system.
+By combining this information in one graph, it is possible to show 
+research in context (hence the name). Ricgraph is a
+graph that uses nodes and edges to represent objects and their relations. 
+It can be used to store, manipulate and read
+metadata of any object that has a relation to another object.
 
-To learn more about Ricgraph, 
+To learn more about Ricgraph,
 [read why Ricgraph has been developed](#why-ricgraph), including
-[an example](#example). This is followed
-[by a description how Ricgraph can be used](#what-can-ricgraph-do). There is also
+[examples](#examples). This is followed by
+[Ricgraph in bullet points](#ricgraph-in-bullet-points). There is also
 [a section with next steps you might want to take](#next-steps).
 You can also look at
 the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
@@ -43,41 +43,49 @@ or the [publications, presentations and mentions of Ricgraph](docs/ricgraph_publ
 
 ## Why Ricgraph?
 
-Ricgraph has been developed because a university had a need to be able to show
-people, organizations and research outputs
-(e.g. books, journal articles, data sets, software, etc.)
-in relation to each other. This information is stored in different systems.
-That university needed to show research in context in a
-graph (hence the name).
-Ricgraph is able to answer questions like:
+Ricgraph can answer questions like:
+* Which researcher has contributed to which publication, dataset, software package, project, etc.?
+* Given e.g. a dataset, software package, or project, who has contributed to it?
+* What identifiers does a researcher have (e.g. ORCID, ISNI, organization employee ID, email address)?
+* What skills does a researcher have?
+* Show a network of researchers who have worked together?
+* Which organizations have worked together?
 
-* Which person has contributed to which book, journal article, data set,
-  software package, etc.?
-* Given e.g. a data set or software package, who has contributed to it?
-* What identifiers does a person have (there are a lot in use at universities)?
-* Show a network of persons who have worked together?
-* For what organization does a person work? So which organizations have worked together?
+Also, more elaborate information can be found using Ricgraph and Ricgraph explorer:
+* You can find information about persons or their results in a (child) 
+  organization (unit, department, faculty, university). 
+  For example, you can find out what data sets or software are produced in your faculty. Or the skills of all persons in your department. Of course this is only possible in case you have harvested them.
+* You can find out with whom a person shares research output types. 
+  For example, you can find out with whom someone shares software or data sets.
+* You can get tables showing how you can enrich a source system based on other systems you have harvested. For example, suppose you have harvested both Pure and OpenAlex, using this feature you can find out which publications in OpenAlex are not in Pure. You might want to add those to Pure.
+* You can get a table that shows the overlap in harvests from different source systems. 
+  For example, after a query to show all ORCID nodes, 
+  the table summarizes the number of ORCID nodes which were
+  only found in one source, and which were found in multiple sources. 
+  Another table gives a detailed overview how many
+  nodes originate from which different source systems. Then, you can drill down by 
+  clicking on a number in one of these
+  two tables to find the nodes corresponding to that number. 
 
-Ricgraph provides example code to do this. We have chosen a
-graph as a datastructure, since it is a logical and efficient
-method to access objects
-which are close to objects they have a relation to. For example,
-starting with a person, its research outputs are only one
-step away by following one edge, and other contributors to that research output are
-again one step (edge) away.
+With Ricgraph, you can get metadata from objects from any source system you’d like. 
+You run the harvest script for that
+system, and data will be imported in Ricgraph and will be 
+combined automatically with data which is already there.
+Ricgraph provides harvest scripts for the systems mentioned above. 
+Scripts for other sources can be written easily.
 
 In the remainder of this text, Ricgraph is described in the use case of
 showing people, organizations and research outputs in relation to each other
 in a university context.
 
-### Example
+## Examples
 
 See the figures below for example graphs that show how Ricgraph works.
 Click a figure to enlarge.
 
-| one person with several research outputs                                    | symbols for type of object                   | colors for source system                                 |
-|-----------------------------------------------------------------------------|--------------------------------------------------|----------------------------------------------------------|
-| <img src="docs/images/one-person-with-research-outputs.jpg" height="170">   | <img src="docs/images/symbols.jpg" height="170"> | <img src="docs/images/colors-vertical.jpg" height="170"> |
+| one person with several research outputs                                  | symbols for type of object                       | colors for source system                                 |
+|---------------------------------------------------------------------------|--------------------------------------------------|----------------------------------------------------------|
+| <img src="docs/images/one-person-with-research-outputs.jpg" height="170"> | <img src="docs/images/symbols.jpg" height="170"> | <img src="docs/images/colors-vertical.jpg" height="170"> |
 
 
 This figure shows one person *A* using a
@@ -97,9 +105,9 @@ the software package is from the
 [Research Software Directory](https://research-software-directory.org) (in blue).
 
 
-| several persons with several research outputs                                  | one person with several identifiers and research outputs |
-|--------------------------------------------------------------------------------|----------------------------------------------------------|
-| <img src="docs/images/several-persons-with-research-outputs.jpg" height="200"> | <img src="docs/images/identifiers-and-outputs.jpg" height="200">               |
+| several persons with several research outputs                                  | one person with several identifiers and research outputs         |
+|--------------------------------------------------------------------------------|------------------------------------------------------------------|
+| <img src="docs/images/several-persons-with-research-outputs.jpg" height="200"> | <img src="docs/images/identifiers-and-outputs.jpg" height="200"> |
 
 The left part of this figure shows several persons having several research outputs
 (the symbols) and
@@ -112,33 +120,52 @@ in spelling). These identifiers have also been obtained from different source sy
 
 More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 
-## What can Ricgraph do?
+## Ricgraph in bullet points
 
-Some of Ricgraph's features are:
-
-* Ricgraph stores metadata of objects.
-  The objective is to get metadata from
+* The philosophy of Ricgraph is that it stores metadata, not the objects the metadata
+  refer to. To access an object, a node has a link to that object in
+  the system it was obtained from. 
+* We have chosen a
+  graph as a datastructure, since it is a logical and efficient
+  method to access objects
+  which are close to objects they have a relation to. For example,
+  starting with a person, its research outputs are only one
+  step away by following one edge, and other contributors to that research output are
+  again one step (edge) away.
+* Ricgraph is a graph with
+  nodes (sometimes called vertices)
+  and edges (sometimes called links) to represent objects and their relations.
+  It can be used to store, manipulate and read metadata of any object that
+  has a relation to another object,
+  as long as every object can be "represented" by at least a *name* and a *value*.
+  In Ricgraph, one node represents one object, and an edge represents the
+  relation between two objects.
+  It is written in Python and uses [Neo4j](https://neo4j.com)
+  as [graph database engine](https://en.wikipedia.org/wiki/Graph_database).
+* Metadata of an object are stored as "properties"
+  in a node, i.e. as information associated with a node.
+  For example, a node may store two properties, *name = PET* and
+  *value = cat*. Another node may store *name = FULL_NAME* and *value = John Doe*.
+  Then the edge between those two nodes means that the person with FULL_NAME John Doe
+  has a PET which is a cat.
+* The objective of Ricgraph is to get metadata from
   objects from a source system in a process called "harvesting".
   That means that e.g. persons and publications
   can be harvested from one system, data sets from another system, and software from a third system.
   Everything found will be combined into one graph.
 * Ricgraph can harvest from many sources, and you can write your own
   harvesting scripts. Example scripts are included to
-  harvest from the [Research Information System Pure](https://www.elsevier.com/solutions/pure),
+  harvest from the [OpenAlex](https://openalex.org), 
+  the [Research Information System Pure](https://www.elsevier.com/solutions/pure),
   the data repository [Yoda](https://search.datacite.org/repositories/delft.uu),
-  and the [Research Software Directory](https://research-software-directory.org).
+  the [Research Software Directory](https://research-software-directory.org), and 
+  for the [Utrecht University staff pages](https://www.uu.nl/staff/search).
 * Ricgraph can be used as an ID resolver. It can, given an identifier of a person,
   easily find other identifiers of that person. When new identifiers are found when
   harvesting from new systems,
-  they will be added automatically. It can form the core engine for the Dutch
-  [National Roadmap for Persistent
-  Identifiers](https://www.surf.nl/en/national-roadmap-for-persistent-identifiers).
+  they will be added automatically. 
 * Since Ricgraph combines information from different sources in one graph, it
-  can be used as a discoverer (an aggregated search engine), such as the
-  [UU-discoverer](https://itforresearch.uu.nl/wiki/UU-discoverer).
-  Also, it can be used as a core engine for the
-  [Dutch Open Knowledge
-  Base](https://communities.surf.nl/en/open-research-information/article/building-an-open-knowledge-base).
+  can be used as a discoverer (an aggregated search engine).
 * Ricgraph can check the consistency of information harvested. For example, ORCIDs and ISNIs
   are supposed to refer to one person, so every node representing such an identifier should have
   only one edge. This can be checked easily.

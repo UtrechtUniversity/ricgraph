@@ -20,7 +20,7 @@ explanation of some of these approaches and how they compare to Ricgraph.
 | [OpenAlex](https://openalex.org)                                               | NoSQL (unstructured)         | harvesting of many sources, e.g. Microsoft Academic, Crossref, ORCID, ROR, Pubmed, Internet Archive, ...        | research outputs, people, organizations, publishers, concepts, geo info                                            | mature                             | 
 | [Research.fi](https://research.fi/en/)                                         | asp.net, probably relational | harvesting of Finnish institutional repositories and funder systems                                             | publications, people (beta), projects, research data, funding calls, infrastructures, organizations                | mature                             | 
 
-All of these systems only store metadata, they do not store objects (e.g. pdfs, data files, software, etc).
+All of these systems only store metadata, they do not store objects (e.g. pdfs, data files, software, etc.).
 Often they store the link to the object.
 
 A big difference between on the one hand Lens, OpenAire graph, OpenAlex and Research.fi

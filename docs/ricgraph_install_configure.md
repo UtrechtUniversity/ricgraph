@@ -230,7 +230,7 @@ of Ricgraph has noticed that this does not occur often, therefore the default is
 
 ### Using Ricgraph
 Before you can do anything with Ricgraph, you need to harvest sources,
-see [Ricgraph programming examples](ricgraph_programming_examples.md).
+see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
 After you have harvested sources, you can execute queries and visualize the results,
 see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
 

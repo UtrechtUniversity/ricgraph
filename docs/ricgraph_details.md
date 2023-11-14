@@ -28,8 +28,8 @@ will also be connected to this *person-root* node.
 The following figure shows two examples. *B* is the *person-root* node. 
 Click the figure to enlarge.
 
-| a person with a few identifiers                         | a person with a lot of identifiers                  |
-|---------------------------------------------------------|-----------------------------------------------------|
+| a person with a few identifiers                    | a person with a lot of identifiers                  |
+|----------------------------------------------------|-----------------------------------------------------|
 | <img src="images/person-few-ids.jpg" height="200"> | <img src="images/person-many-ids.jpg" height="200"> |
 
 A person can have any number of identifiers.
@@ -39,9 +39,9 @@ E.g. this person has two different ORCIDs and two FULL_NAMEs (with different spe
 
 ### Research outputs connected to persons
 
-| one person with three research outputs                                 | three persons with one research output                                |symbols for type of object                   | colors for source system                                 |
-|------------------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------|----------------------------------------------------------|
-| <img src="images/identifiers-and-outputs.jpg" height="200"> | <img src="images/three-persons-one-research-output.jpg" height="200"> |<img src="images/symbols.jpg" height="170"> | <img src="images/colors-vertical.jpg" height="170"> |
+| one person with three research outputs                      | three persons with one research output                                | symbols for type of object                  | colors for source system                            |
+|-------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------|-----------------------------------------------------|
+| <img src="images/identifiers-and-outputs.jpg" height="200"> | <img src="images/three-persons-one-research-output.jpg" height="200"> | <img src="images/symbols.jpg" height="170"> | <img src="images/colors-vertical.jpg" height="170"> |
 
 The left figure shows how one person, its identifiers and research outputs are connected.
 The right figure shows how three persons have contributed to one research output.
