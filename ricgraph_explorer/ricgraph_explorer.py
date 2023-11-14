@@ -69,7 +69,10 @@ ricgraph_explorer = Flask(__name__)
 # default mode. Possibilities are:
 # details_view: show all the details.
 # person_view: show a person card, limit details (e.g. do not show _history & _source)
-DEFAULT_DISCOVERER_MODE = 'person_view'
+# Should be this:
+# DEFAULT_DISCOVERER_MODE = 'person_view'
+# But for development, this one is easier:
+DEFAULT_DISCOVERER_MODE = 'details_view'
 
 # You can search in two different ways in Ricgraph explorer. This parameter
 # gives the default mode. Possibilities are:
@@ -109,30 +112,30 @@ button_style_border = button_style + ' w3-border rj-border-black '
 
 # The html stylesheet.
 stylesheet = '<style>'
-stylesheet += '.w3-container {padding: 16px;}'
-stylesheet += '.w3-check {width:15px;height: 15px;position: relative; top:3px;}'
+stylesheet += '.w3-container {padding:16px;}'
 # Note: #ffcd00 is 'uu-yellow' below.
+stylesheet += '.w3-check {width:15px; height:15px; position:relative; top:3px; accent-color:#ffcd00;}'
 stylesheet += '.w3-radio {accent-color: #ffcd00;}'
 # Define UU colors. We do not need to define "black" and "white" (they do exist).
 # See https://www.uu.nl/organisatie/huisstijl/huisstijlelementen/kleur.
 stylesheet += '.uu-yellow, .uu-hover-yellow:hover '
-stylesheet += '{color: #000!important; background-color: #ffcd00!important;}'
+stylesheet += '{color:#000!important; background-color:#ffcd00!important;}'
 stylesheet += '.uu-red, .uu-hover-red:hover '
-stylesheet += '{color: #000!important; background-color: #c00a35!important;}'
+stylesheet += '{color:#000!important; background-color:#c00a35!important;}'
 stylesheet += '.uu-orange, .uu-hover-orange:hover '
-stylesheet += '{color: #000!important; background-color: #f3965e!important;}'
+stylesheet += '{color:#000!important; background-color:#f3965e!important;}'
 stylesheet += '.uu-blue, .uu-hover-blue:hover '
-stylesheet += '{color: #000!important; background-color: #5287c6!important;}'
+stylesheet += '{color:#000!important; background-color:#5287c6!important;}'
 stylesheet += '.rj-gray, .rj-hover-gray:hover '
-stylesheet += '{color: #000!important; background-color: #cecece!important;}'
-stylesheet += '.rj-border-black, .rj-hover-border-black:hover {border-color: #000!important;}'
+stylesheet += '{color:#000!important; background-color:#cecece!important;}'
+stylesheet += '.rj-border-black, .rj-hover-border-black:hover {border-color:#000!important;}'
 stylesheet += 'body {background-color:white;}'
-stylesheet += 'body, h1, h2, h3, h4, h5, h6 {font-family: "Open Sans", sans-serif;}'
+stylesheet += 'body, h1, h2, h3, h4, h5, h6 {font-family:"Open Sans",sans-serif;}'
 stylesheet += 'ul {padding-left:2em; margin:0px}'
-stylesheet += 'a:link, a:visited {color: blue;}'
-stylesheet += 'a:hover {color: darkblue;}'
+stylesheet += 'a:link, a:visited {color:blue;}'
+stylesheet += 'a:hover {color:darkblue;}'
 stylesheet += 'table {font-size:85%;}'
-stylesheet += 'table, th, td {border-collapse:collapse; border: 1px solid black}'
+stylesheet += 'table, th, td {border-collapse:collapse; border:1px solid black}'
 stylesheet += 'th {text-align:left;}'
 # Style for tabbed html table header.
 stylesheet += '.tablink {font-size:85%;}'
@@ -153,10 +156,10 @@ html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?
 # The html page header.
 page_header = '<header class="w3-container uu-yellow">'
 page_header += '<div class="w3-bar uu-yellow">'
-page_header += '<div class="w3-bar-item w3-mobile" style="padding-left: 0em; padding-right: 4em">'
+page_header += '<div class="w3-bar-item w3-mobile" style="padding-left:0em; padding-right:4em">'
 page_header += '<a href="/" style="text-decoration:none; color:#000000; font-size:130%">'
-page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right: 3em">'
-page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right: 0.5em">explorer</a>'
+page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right:3em">'
+page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right:0.5em">explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item' + button_style_border + '">Home</a>'
 page_header += '<a href="/searchform?search_mode=exact_match" class="w3-bar-item'
@@ -321,12 +324,12 @@ def searchform() -> str:
 
     form += '</br>Please specify how you like to view your results (for explanation see below):</br>'
     form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="person_view"'
-    if discoverer_mode == DEFAULT_DISCOVERER_MODE:
+    if discoverer_mode == 'person_view':
         form += 'checked'
     form += '>'
     form += '<label>' + radio_person_text + '</label></br>'
     form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="details_view"'
-    if discoverer_mode != DEFAULT_DISCOVERER_MODE:
+    if discoverer_mode == 'details_view':
         form += 'checked'
     form += '>'
     form += '<label>' + radio_details_text + '</label></br>'
@@ -1185,9 +1188,10 @@ def find_enrich_candidates(node: Union[Node, None],
             if node['category'] == 'person':
                 person_nodes.append(node)
         if len(person_nodes) == 0:
-            html += 'find_enrich_candidate(): Unexpected, although we have found enrich candidates, '
-            html += 'there are no "person" nodes to identify this node. '
-            html += 'This does not seem to make sense.'
+            html += 'find_enrich_candidates(): there are enrich candidates '
+            html += 'to enrich source system "' + source_system
+            html += '", but there are no "person" nodes to identify this node in this source system. '
+            html += 'Maybe there are no "person" nodes in "' + source_system + '" for this node?'
         else:
             table_header = 'You can use the information in this table to find this node in source system "'
             table_header += source_system + '":'
@@ -1227,7 +1231,8 @@ def find_enrich_candidates(node: Union[Node, None],
             html += get_html_table_from_nodes(nodes=person_root_node,
                                               table_header=table_header,
                                               table_columns=table_colums)
-            html += '</br>Ricgraph could not find any candidates to enrich this node. '
+            html += '</br>Ricgraph could not find any candidates to enrich this node '
+            html += 'in source system "' + source_system + '". '
             html += 'This might also be caused by a misspelling in the name of the source system.'
             html += get_html_for_cardend()
 
@@ -1941,16 +1946,16 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, Node],
             return ''
 
     html = get_html_for_cardstart()
-    html += '<span style="float: left;">' + table_header + '</span>'
+    html += '<span style="float:left;">' + table_header + '</span>'
     if len(nodes) > MAX_ROWS_IN_TABLE:
-        html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table, showing first '
+        html += '<span style="float:right;">There are ' + str(len(nodes)) + ' rows in this table, showing first '
         html += str(MAX_ROWS_IN_TABLE) + '.</span>'
     elif len(nodes) == MAX_ROWS_IN_TABLE:
         # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
         # so we have no idea how many search results there are.
-        html += '<span style="float: right;">Showing first ' + str(MAX_ROWS_IN_TABLE) + ' rows.</span>'
+        html += '<span style="float:right;">Showing first ' + str(MAX_ROWS_IN_TABLE) + ' rows.</span>'
     elif len(nodes) >= 2:
-        html += '<span style="float: right;">There are ' + str(len(nodes)) + ' rows in this table.</span>'
+        html += '<span style="float:right;">There are ' + str(len(nodes)) + ' rows in this table.</span>'
     html += get_html_for_tablestart()
     html += get_html_for_tableheader(table_columns=table_columns)
     count = 0
@@ -2306,4 +2311,5 @@ if __name__ == "__main__":
 
     # If you uncomment the next line, ricgraph explorer will be exposed to
     # the outside world. Read the remarks at the top of this file before you do so.
+    # Also, comment out the line above.
     # ricgraph_explorer.run(host='0.0.0.0', debug=True, port=3030)
