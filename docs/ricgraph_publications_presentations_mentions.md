@@ -32,8 +32,7 @@ presented and where it has been mentioned.
 [Return to main README.md file](../README.md).
 
 ### Arjan Sieverink presents Ricgraph at Pure International Conference 2023
-
-
+https://github.com/UtrechtUniversity/ricgraph/assets/121875841/1a810def-9f51-47e7-adce-327d0e005f03
 
 In this [video of the presentation at the Pure International Conference 2023, Dubrovnik, 
 Croatia (19m27s) (click to download)](videos/231026-RDTJanssen+ASieverink-Ricgraph_Showcasing_research_in_context_using_Pure_and_other_sources-PRCN2023_video.mp4),
