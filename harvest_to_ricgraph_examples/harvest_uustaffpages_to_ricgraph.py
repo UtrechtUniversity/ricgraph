@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, March 2023.
-# Updated Rik D.T. Janssen, April 2023.
+# Updated Rik D.T. Janssen, April, November 2023.
 #
 # ########################################################################
 #
@@ -444,7 +444,7 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     print(nodes_to_update)
     rcg.update_nodes_df(nodes=nodes_to_update)
 
-    # ####### Insert organizations.
+    # ####### Insert organizations (faculties only).
     organizations = parsed_content[['UUSTAFF_PAGE_ID', 'FACULTY']].copy(deep=True)
     organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -461,6 +461,16 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                    'name2', 'category2', 'value2',
                                    'source_event2', 'history_event2']]
     print('The following organizations from UU staff pages will be inserted in Ricgraph:')
+    print(organizations)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+
+    # ####### Insert organizations (connect all to Utrecht University, all staff is part of UU).
+    organizations.drop(columns={'value2'}, inplace=True)
+    organizations['value2'] = 'Utrecht University'
+    organizations = organizations[['name1', 'category1', 'value1',
+                                   'name2', 'category2', 'value2',
+                                   'source_event2', 'history_event2']]
+    print('"Utrecht University" will be connected to anyone from UU staff pages in Ricgraph:')
     print(organizations)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
 
