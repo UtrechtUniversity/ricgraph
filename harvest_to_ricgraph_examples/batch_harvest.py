@@ -10,7 +10,9 @@
 #
 # This file is an example to show how to run Ricgraph harvest scripts 
 # in a batch. Choose one of the available batch orders, or create your own
-# batch order.
+# batch order. 'Batch order 1' is specifically created for harvesting Utrecht
+# University sources. Please adapt for your own situation, for example use
+# 'Batch order 2' or 'Batch order 3'.
 #
 # A best practise is to start the harvest with that harvest script of which
 # you expect the most data.
