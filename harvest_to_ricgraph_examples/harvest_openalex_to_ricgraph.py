@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, March 2023.
-# Updated Rik D.T. Janssen, April, October 2023.
+# Updated Rik D.T. Janssen, April, October, November 2023.
 #
 # ########################################################################
 #
@@ -86,6 +86,7 @@ global HARVEST_SOURCE
 # ######################################################
 # Parameters for harvesting persons and research outputs from OpenAlex
 # ######################################################
+OPENALEX_API_URL = 'https://api.openalex.org/'
 OPENALEX_ENDPOINT = 'works'
 OPENALEX_HARVEST_FROM_FILE = False
 OPENALEX_HARVEST_FILENAME = 'openalex_harvest.json'
@@ -126,6 +127,26 @@ ROTYPE_MAPPING_OPENALEX = {
 # ######################################################
 # Utility functions related to harvesting of OpenAlex
 # ######################################################
+
+def create_openalex_url(name: str, value: str) -> str:
+    """Create a URL to refer to the source of a node.
+    The id for an author in the json looks like a URL. I am not sure if it is
+    supposed to be a URL that works, but now (November 2023) it does not.
+    Since there is no other URL which shows author information, we use a link
+    to the json for the author in the API.
+
+    :param name: an identifier name.
+    :param value: the value.
+    :return: a URL.
+    """
+    if name == '' or value == '':
+        return ''
+
+    if name == 'AUTHOR':
+        return OPENALEX_API_URL + 'authors/' + value
+    else:
+        return ''
+
 
 def rewrite_openalex_doi(doi: str) -> str:
     """Rewrite the DOI obtained from OpenAlex.
@@ -329,6 +350,9 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                    history_event=history_event)
 
     organizations = parsed_content[['OPENALEX', 'INSTITUTION_NAME']].copy(deep=True)
+    organizations['url_main1'] = organizations[['OPENALEX']].apply(
+                                 lambda row: create_openalex_url(name='AUTHOR',
+                                                                 value=row['OPENALEX']), axis=1)
     organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     organizations.rename(columns={'OPENALEX': 'value1', 'INSTITUTION_NAME': 'value2'}, inplace=True)
@@ -340,6 +364,7 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)
     organizations = organizations[['name1', 'category1', 'value1',
+                                   'url_main1',
                                    'name2', 'category2', 'value2',
                                    'source_event2', 'history_event2']]
 
@@ -362,10 +387,10 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' research outputs at ' + timestamp + '.'
 
     resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
-    resout.dropna(axis=0, how='all', inplace=True)
+    resout.dropna(axis=0, how='any', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    resout['value1'] = resout['DOI'].copy(deep=True)
     resout.rename(columns={'TYPE': 'category1',
+                           'DOI': 'value1',
                            'TITLE': 'comment1',
                            'YEAR': 'year1',
                            'OPENALEX': 'value2'}, inplace=True)
