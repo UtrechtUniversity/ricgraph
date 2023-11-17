@@ -99,9 +99,9 @@ Now we need to find the port number which Neo4j Desktop is using:
 1. Note that the text "neo4j > Untitled Perspective 1"
    has been changed in "neo4j > ricgraph_bloom_config".
 1. A few centimeters below "neo4j > ricgraph_bloom_config", just below the text "Add category",
-   click on the oval "RCGNode". At the right, a new window will appear.
-1. In this window, below the word "Labels", check if an oval box with the text "RCGNode" is
-   shown. If not, click on "Add labels", click on "RCGNode".
+   click on the oval "RicgraphNode". At the right, a new window will appear.
+1. In this window, below the word "Labels", check if an oval box with the text "RicgraphNode" is
+   shown. If not, click on "Add labels", click on "RicgraphNode".
 1. Click on the icon <img src="images/neo4j2.jpg" height="20">
    to go back to the main screen of Bloom.
 1. Ready.

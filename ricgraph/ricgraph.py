@@ -319,10 +319,10 @@ def empty_ricgraph(answer: str = '') -> None:
     # graph.run('DROP INDEX ValueIndex IF EXISTS')
 
     print('Creating indexes...')
-    _graph.run('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR(n: RCGNode) ON(n._key)')
-    _graph.run('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR(n: RCGNode) ON(n.name)')
-    _graph.run('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR(n: RCGNode) ON(n.category)')
-    # graph.run('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR(n: RCGNode) ON(n.value)')
+    _graph.run('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR(n: RicgraphNode) ON(n._key)')
+    _graph.run('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR(n: RicgraphNode) ON(n.name)')
+    _graph.run('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR(n: RicgraphNode) ON(n.category)')
+    # graph.run('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR(n: RicgraphNode) ON(n.value)')
 
     print('These indexes have been created (column "state" indicates if they have been generated yet):')
     out = _graph.run('SHOW INDEXES')
@@ -543,7 +543,7 @@ def create_node(name: str, category: str, value: str,
 
         history = [timestamp + ': Created. ' + node_properties['history_event']]
         node_properties['history_event'] = ''
-        new_node = Node('RCGNode', _key=create_ricgraph_key(name=lname, value=lvalue),
+        new_node = Node('RicgraphNode', _key=create_ricgraph_key(name=lname, value=lvalue),
                         _source=source, _history=history,
                         name=lname, category=lcategory, value=lvalue, **node_properties)
         _graph.create(new_node)
@@ -642,7 +642,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union
     if lname != '' and lcategory == '' and lvalue != '':
         # I assume this is faster than querying on both property 'name' and 'value'.
         # You can limit the number nodes by using something like nodes_in_graph.match().limit(1000)
-        all_nodes = nodes_in_graph.match('RCGNode', _key=create_ricgraph_key(name=lname, value=lvalue))
+        all_nodes = nodes_in_graph.match('RicgraphNode', _key=create_ricgraph_key(name=lname, value=lvalue))
         return all_nodes
 
     node_properties = {}
@@ -654,7 +654,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union
         node_properties['value'] = lvalue
 
     # You can limit the number nodes by using something like nodes_in_graph.match().limit(1000)
-    all_nodes = nodes_in_graph.match('RCGNode', **node_properties)
+    all_nodes = nodes_in_graph.match('RicgraphNode', **node_properties)
     return all_nodes
 
 
@@ -854,7 +854,7 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
         personroot = create_node(name='person-root', category='person', value=value)
         edge1 = LINKS_TO(person_node, personroot)
         edge2 = LINKS_TO(personroot, person_node)
-        _graph.merge(edge1 | edge2, 'RCGNode', '_key')
+        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
         return personroot
 
     personroot_nodes = get_all_personroot_nodes(node=person_node)
@@ -903,7 +903,7 @@ def connect_person_and_non_person_node(person_node: Node,
 
     edge1 = LINKS_TO(non_person_node, personroot)
     edge2 = LINKS_TO(personroot, non_person_node)
-    _graph.merge(edge1 | edge2, 'RCGNode', '_key')
+    _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
     return
 
 
@@ -990,7 +990,7 @@ def merge_two_personroot_nodes(left_personroot_node: Node, right_personroot_node
         #   since it only deletes edges. Use with caution (or don't use).
         _graph.delete(edge_delete1)
         _graph.delete(edge_delete2)
-        _graph.merge(edge_create1 | edge_create2, 'RCGNode', '_key')
+        _graph.merge(edge_create1 | edge_create2, 'RicgraphNode', '_key')
 
     what_happened += '.'
     left_personroot_node['_history'].append(what_happened)
@@ -1065,7 +1065,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
             return
         edge1 = LINKS_TO(right_node, personroot)
         edge2 = LINKS_TO(personroot, right_node)
-        _graph.merge(edge1 | edge2, 'RCGNode', '_key')
+        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
         return
 
     if nr_edges_left_node > 0 and nr_edges_right_node == 0:
@@ -1075,7 +1075,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
             return
         edge1 = LINKS_TO(right_node, personroot)
         edge2 = LINKS_TO(personroot, right_node)
-        _graph.merge(edge1 | edge2, 'RCGNode', '_key')
+        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
         return
 
     if nr_edges_left_node == 0 and nr_edges_right_node > 0:
@@ -1085,7 +1085,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
             return
         edge1 = LINKS_TO(left_node, personroot)
         edge2 = LINKS_TO(personroot, left_node)
-        _graph.merge(edge1 | edge2, 'RCGNode', '_key')
+        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
         return
 
     left_personroot_node = get_or_create_personroot_node(person_node=left_node)
@@ -1108,7 +1108,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
     edge2 = LINKS_TO(right_personroot_node, left_node)
     edge3 = LINKS_TO(right_node, left_personroot_node)
     edge4 = LINKS_TO(left_personroot_node, right_node)
-    _graph.merge(edge1 | edge2 | edge3 | edge4, 'RCGNode', '_key')
+    _graph.merge(edge1 | edge2 | edge3 | edge4, 'RicgraphNode', '_key')
 
     now = datetime.now()
     timestamp = now.strftime('%Y%m%d-%H%M%S')
@@ -1152,7 +1152,7 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
         edge2 = LINKS_TO(right_node, left_node)
 
         # Do a "merge" instead of a "create" to prevent double edges.
-        _graph.merge(edge1 | edge2, 'RCGNode', '_key')
+        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
         return
 
     # At least one of the nodes is a 'person' link. These should be linked via their 'person-root' node.
