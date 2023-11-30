@@ -1,3 +1,5 @@
+[![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=31110&r=123)
+
 <img src="docs/images/ricgraph_logo.jpg" height="30"> 
 
 # Ricgraph - Research in context graph 
