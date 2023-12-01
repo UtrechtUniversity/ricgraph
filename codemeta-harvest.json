@@ -1,0 +1,78 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@type": "SoftwareSourceCode",
+    "funder": {
+        "@type": "Organization",
+        "name": "Utrecht University"
+    },
+    "softwareRequirements": [
+        "flask",
+        "markupsafe",
+        "neo4j",
+        "numpy",
+        "pandas",
+        "py2neo",
+        "pyalex",
+        "requests",
+        "ratelimit",
+        "xmltodict",
+        "sickle"
+    ],
+    "targetProduct": [
+        {
+            "@type": "CommandLineApplication",
+            "name": "Harvest script for OpenAlex",
+            "executableName": "harvest_openalex_to_ricgraph.py"
+        },
+        {
+            "@type": "CommandLineApplication",
+            "name": "Harvest script for Pure",
+            "executableName": "harvest_pure_to_ricgraph.py"
+        },
+        {
+            "@type": "CommandLineApplication",
+            "name": "Harvest script for the Research Software Directory",
+            "executableName": "harvest_rsd_to_ricgraph.py"
+        },
+        {
+            "@type": "CommandLineApplication",
+            "name": "Harvest script for Utrecht University staff pages",
+            "executableName": "harvest_uustaffpages_to_ricgraph.py"
+        },
+        {
+            "@type": "CommandLineApplication",
+            "name": "Harvest script for the data repository Yoda",
+            "executableName": "harvest_yoda_to_ricgraph.py"
+        },
+        {
+            "@type": "SoftwareLibrary",
+            "name": "Ricgraph",
+            "executableName": "ricgraph.py"
+        },
+        {
+            "@type": "WebApplication",
+            "name": "Ricgraph Explorer"
+        }
+    ],
+    "softwareHelp": [
+        {
+            "@id": "https://github.com/UtrechtUniversity/ricgraph/blob/master/README.md",
+            "@type": "CreativeWork",
+            "name": "Ricgraph - Research in context graph documentation",
+            "url": "https://github.com/UtrechtUniversity/ricgraph/blob/master/README.md"
+        }
+    ],
+    "referencePublication": {
+        "@type": "Report",
+        "sameAs": "https://doi.org/10.5281/zenodo.10057997",
+        "name": "Ricgraph: showcasing research in context using Pure and other sources",
+        "author": [ "Rik D.T. Janssen", "Arjan Sieverink" ],
+        "url": "https://doi.org/10.5281/zenodo.10057997"
+	},
+    "applicationCategory": [ 
+    	"https://vocabs.dariah.eu/tadirah/analyzing", 
+    	"https://vocabs.dariah.eu/tadirah/capturing", 
+    	"https://vocabs.dariah.eu/tadirah/enriching", 
+    	"https://vocabs.dariah.eu/tadirah/storing" 
+        ]
+}
