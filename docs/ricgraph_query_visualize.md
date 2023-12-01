@@ -4,7 +4,7 @@ To query and visualize Ricgraph nodes and edges, there are several possibilities
 
 * First you have to [start Neo4j Desktop](#start-neo4j-desktop).
 * Then you can query and visualize using:
-    * Ricgraph explorer, read [How to use Ricgraph explorer](#How-to-use-ricgraph-explorer).
+    * Ricgraph Explorer, read [How to use Ricgraph Explorer](#How-to-use-ricgraph-explorer).
     * Bloom, read [How to use Bloom](#How-to-use-bloom).
     * Other methods for querying and visualization are
       [Future work](ricgraph_future_work.md).
@@ -25,10 +25,10 @@ To query and visualize Ricgraph nodes and edges, there are several possibilities
 1. Now, next to the text "Graph DBMS" a green icon appears with
    the text "ACTIVE". Your graph database engine is active and ready for use.
 
-### How to use Ricgraph explorer
+### How to use Ricgraph Explorer
 
-Ricgraph explorer is a web based explorer for Ricgraph. You can use it to search for nodes
-based on the node properties *name*, *category* and/or *value*. Ricgraph explorer will
+Ricgraph Explorer is a web based explorer for Ricgraph. You can use it to search for nodes
+based on the node properties *name*, *category* and/or *value*. Ricgraph Explorer will
 present a simple form where you can enter one or more of these values.
 As result, all objects related to your search value(s) will be returned in the form
 of a table.
@@ -36,7 +36,7 @@ Also, if you have searched for a *person*, all of its identifiers will be return
 You can go to other nodes by clicking on a value in the *value* column. By doing this,
 you are traversing the graph.
 
-Ricgraph explorer also offers
+Ricgraph Explorer also offers
 [Faceted navigation](https://en.wikipedia.org/wiki/Faceted_search).
 That means, if a query results in a table with e.g. *journal articles*, *data sets*,
 and *software*, you can narrow down on one or more of these categories by
@@ -44,7 +44,7 @@ checking or unchecking their corresponding checkbox.
 
 #### Execute queries
 
-To use Ricgraph explorer, follow these steps:
+To use Ricgraph Explorer, follow these steps:
 
 1. [Start Neo4j Desktop](#Start-neo4j-desktop).
 1. Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).

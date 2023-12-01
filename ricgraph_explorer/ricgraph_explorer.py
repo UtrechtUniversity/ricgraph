@@ -28,7 +28,7 @@
 #
 # ########################################################################
 #
-# This file is Ricgraph explorer, a web based tool to access nodes in
+# This file is Ricgraph Explorer, a web based tool to access nodes in
 # Ricgraph.
 # The purpose is to illustrate how web based access using Flask can be done.
 # To keep it simple, everything has been done in this file.
@@ -42,7 +42,7 @@
 #
 # ########################################################################
 #
-# For table sorting. Ricgraph explorer uses sorttable.js.
+# For table sorting. Ricgraph Explorer uses sorttable.js.
 # It is copied from https://www.kryogenix.org/code/browser/sorttable
 # on February 1, 2023. At that link, you'll find a how-to. It is licensed under X11-MIT.
 # It is renamed to ricgraph_sorttable.js since it has a small modification
@@ -50,7 +50,7 @@
 #
 # ##############################################################################
 #
-# Ricgraph explorer uses W3.CSS, a modern, responsive, mobile first CSS framework.
+# Ricgraph Explorer uses W3.CSS, a modern, responsive, mobile first CSS framework.
 # See https://www.w3schools.com/w3css/default.asp.
 #
 # ##############################################################################
@@ -65,7 +65,7 @@ import ricgraph as rcg
 
 ricgraph_explorer = Flask(__name__)
 
-# Ricgraph_explorerer is also a "discoverer". This parameter gives the
+# Ricgraph Explorerer is also a "discoverer". This parameter gives the
 # default mode. Possibilities are:
 # details_view: show all the details.
 # person_view: show a person card, limit details (e.g. do not show _history & _source)
@@ -74,13 +74,13 @@ ricgraph_explorer = Flask(__name__)
 # But for development, this one is easier:
 DEFAULT_DISCOVERER_MODE = 'details_view'
 
-# You can search in two different ways in Ricgraph explorer. This parameter
+# You can search in two different ways in Ricgraph Explorer. This parameter
 # gives the default mode. Possibilities are:
 # exact_match: do a search on exact match.
 # value_search: do a string search on field 'value'.
 DEFAULT_SEARCH_MODE = 'value_search'
 
-# Ricgraph_explorer shows tables. You can specify which columns you need.
+# Ricgraph Explorer shows tables. You can specify which columns you need.
 # You do this by making a list of one or more fields in a Ricgraph node.
 # There are some predefined lists.
 DETAIL_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
@@ -101,7 +101,7 @@ MAX_ROWS_IN_TABLE = 250
 MAX_ORGANIZATION_NODES_TO_RETURN = 4 * MAX_ROWS_IN_TABLE
 
 # It is possible to find enrichments for all nodes in Ricgraph. However, that
-# will take a long time. This is the maximum number of nodes Ricgraph explorer
+# will take a long time. This is the maximum number of nodes Ricgraph Explorer
 # is going to enrich in find_enrich_candidates().
 MAX_NR_NODES_TO_ENRICH = 20
 
@@ -112,6 +112,17 @@ button_style_border = button_style + ' w3-border rj-border-black '
 
 # The html stylesheet.
 stylesheet = '<style>'
+# Scrollbar colors, see https://www.w3schools.com/howto/howto_css_custom_scrollbar.asp.
+# Note that this is not supported in Firefox.
+# Scrollbar width.
+stylesheet += '::-webkit-scrollbar {width:10px;}'
+# Scrollbar track.
+stylesheet += '::-webkit-scrollbar-track {background-color:#e1e1e1;}'
+# Scrollbar handle.
+stylesheet += '::-webkit-scrollbar-thumb {background-color:#999;}'
+# Scrollbar handle on hover.
+stylesheet += '::-webkit-scrollbar-thumb:hover {background-color:#555;}'
+
 stylesheet += '.w3-container {padding:16px;}'
 # Note: #ffcd00 is 'uu-yellow' below.
 stylesheet += '.w3-check {width:15px; height:15px; position:relative; top:3px; accent-color:#ffcd00;}'
@@ -159,7 +170,7 @@ page_header += '<div class="w3-bar uu-yellow">'
 page_header += '<div class="w3-bar-item w3-mobile" style="padding-left:0em; padding-right:4em">'
 page_header += '<a href="/" style="text-decoration:none; color:#000000; font-size:130%">'
 page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right:3em">'
-page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right:0.5em">explorer</a>'
+page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right:0.5em">Explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item' + button_style_border + '">Home</a>'
 page_header += '<a href="/searchform?search_mode=exact_match" class="w3-bar-item'
@@ -171,7 +182,7 @@ page_header += '</header>'
 
 # The html page footer.
 page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
-page_footer += 'Disclaimer: Ricgraph explorer is recommended for research use, not for production use. '
+page_footer += 'Disclaimer: Ricgraph Explorer is recommended for research use, not for production use. '
 page_footer += 'For more information about Ricgraph, see '
 page_footer += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
 page_footer += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
@@ -181,7 +192,7 @@ page_footer += '</footer>'
 html_body_start = '<!DOCTYPE html>'
 html_body_start += '<html>'
 html_body_start += html_preamble
-html_body_start += '<title>Ricgraph explorer</title>'
+html_body_start += '<title>Ricgraph Explorer</title>'
 html_body_start += '<body>'
 html_body_start += stylesheet
 html_body_start += page_header
@@ -198,7 +209,7 @@ html_body_end += '</html>'
 # ##############################################################################
 @ricgraph_explorer.route(rule='/')
 def index_html() -> str:
-    """Ricgraph explorer entry, the index page, when you access '/'.
+    """Ricgraph Explorer entry, the index page, when you access '/'.
 
     :return: html to be rendered.
     """
@@ -206,8 +217,8 @@ def index_html() -> str:
 
     html = html_body_start
     html += get_html_for_cardstart()
-    html += '<h3>This is Ricgraph explorer</h3>'
-    html += 'You can use Ricgraph explorer to explore Ricgraph. '
+    html += '<h3>This is Ricgraph Explorer</h3>'
+    html += 'You can use Ricgraph Explorer to explore Ricgraph. '
 
     html += 'There are two methods to start exploring:'
     html += '<ul>'
@@ -275,7 +286,7 @@ def index_html() -> str:
 
 @ricgraph_explorer.route(rule='/searchform/', methods=['GET'])
 def searchform() -> str:
-    """Ricgraph explorer entry, this 'page' shows the search form, both the
+    """Ricgraph Explorer entry, this 'page' shows the search form, both the
     exact match search form and the string search on the 'value' field form.
 
     Possible parameters are:
@@ -287,10 +298,6 @@ def searchform() -> str:
     returns html to parse.
     """
     global html_body_start, html_body_end
-
-    graph = rcg.open_ricgraph()         # Should probably be done in a Session
-    if graph is None:
-        return 'Ricgraph could not be opened.'
 
     search_mode = get_url_parameter_value(parameter='search_mode',
                                           allowed_values=['exact_match', 'value_search'],
@@ -368,7 +375,7 @@ def searchform() -> str:
 
 @ricgraph_explorer.route(rule='/findnodes/', methods=['GET'])
 def findnodes() -> str:
-    """Ricgraph explorer entry, this 'page' only uses URL parameters.
+    """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     Find nodes based on URL parameters passed.
 
     Possible parameters are:
@@ -419,7 +426,7 @@ def findnodes() -> str:
 
     if name == '' and category == '' and value == '':
         html += get_html_for_cardstart()
-        html += 'Ricgraph explorer could not find anything.'
+        html += 'Ricgraph Explorer could not find anything.'
         html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
         html += get_html_for_cardend()
         html += html_body_end
@@ -440,7 +447,7 @@ def findnodes() -> str:
     if len(result) == 0:
         # We didn't find anything.
         html += get_html_for_cardstart()
-        html += 'Ricgraph explorer could not find anything.'
+        html += 'Ricgraph Explorer could not find anything.'
         html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
         html += get_html_for_cardend()
         html += html_body_end
@@ -481,7 +488,7 @@ def findnodes() -> str:
 
 @ricgraph_explorer.route(rule='/filterorganization/', methods=['GET'])
 def filterorganization() -> str:
-    """Ricgraph explorer entry, this 'page' only uses URL parameters.
+    """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     This function filters for persons or their results in a certain organization.
     This URL creates a table with the filter results with the parameters
     provided in the URL.
@@ -609,7 +616,7 @@ def filterorganization() -> str:
 
 @ricgraph_explorer.route(rule='/filterperson/', methods=['GET'])
 def filterperson() -> str:
-    """Ricgraph explorer entry, this 'page' only uses URL parameters.
+    """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     This function filters for persons who are connected to one person,
     sharing a certain research output type.
     This URL creates a table with the filter results with the parameters
@@ -693,7 +700,7 @@ def filterperson() -> str:
     for node in neighbors:
         persons = rcg.get_all_neighbor_nodes(node=node, name_want='person-root')
         for person in persons:
-            if person['value'] == personroot:
+            if person['_key'] == personroot['_key']:
                 # Note: we do not include ourselves.
                 continue
             if person not in connected_persons:
@@ -728,7 +735,7 @@ def filterperson() -> str:
 
 @ricgraph_explorer.route(rule='/getoverlap/', methods=['GET'])
 def getoverlap() -> str:
-    """Ricgraph explorer entry, this 'page' does not allow data entry.
+    """Ricgraph Explorer entry, this 'page' does not allow data entry.
     The data entry is via the url parameters.
     This url calls get_overlap_in_source_systems() with the parameters
     provided in the url.
@@ -770,7 +777,7 @@ def getoverlap() -> str:
 
 @ricgraph_explorer.route(rule='/getoverlaprecords/', methods=['GET'])
 def getoverlaprecords() -> str:
-    """Ricgraph explorer entry, this 'page' does not allow data entry.
+    """Ricgraph Explorer entry, this 'page' does not allow data entry.
     The data entry is via the url parameters.
     This url creates a table with the search results with the parameters
     provided in the url.
@@ -833,7 +840,7 @@ def getoverlaprecords() -> str:
         # we have just found. We can only do that if we have found only one node.
         if len(result) > 1:
             html += get_html_for_cardstart()
-            html += 'Ricgraph explorer found too many nodes. It cannot compute the overlap '
+            html += 'Ricgraph Explorer found too many nodes. It cannot compute the overlap '
             html += 'of the neighbor nodes of more than one node in getoverlaprecords().'
             html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
             html += get_html_for_cardend()
@@ -846,7 +853,7 @@ def getoverlaprecords() -> str:
             if personroot is None:
                 html += get_html_for_cardstart()
                 html += 'Unexpected result in getoverlaprecords(): '
-                html += 'Ricgraph explorer found no "person-root" node.'
+                html += 'Ricgraph Explorer found no "person-root" node.'
                 html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
                 html += get_html_for_cardend()
                 html += html_body_end
@@ -901,7 +908,7 @@ def getoverlaprecords() -> str:
 
 @ricgraph_explorer.route(rule='/findenrichcandidates/', methods=['GET'])
 def findenrichcandidates() -> str:
-    """Ricgraph explorer entry, this 'page' only uses URL parameters.
+    """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     This url calls find_enrich_candidates() with the parameters
     provided in the url.
 
@@ -1029,7 +1036,7 @@ def results_page(node: Node,
     elif discoverer_mode == 'person_view':
         columns = RESEARCH_OUTPUT_COLUMNS
     html += get_html_table_from_nodes(nodes=node,
-                                      table_header='Ricgraph explorer found node:',
+                                      table_header='Ricgraph Explorer found node:',
                                       table_columns=columns,
                                       discoverer_mode=discoverer_mode)
 
@@ -1131,7 +1138,7 @@ def find_enrich_candidates(node: Union[Node, None],
         html += 'You have chosen to enrich <em>all</em> nodes in Ricgraph for source system "'
         html += source_system + '". '
         html += 'However, that will take a long time. '
-        html += 'Ricgraph explorer will find enrich candidates for at most '
+        html += 'Ricgraph Explorer will find enrich candidates for at most '
         html += str(MAX_NR_NODES_TO_ENRICH) + ' nodes. '
         html += 'If you want to find more nodes to enrich, change the constant '
         html += '<em>MAX_NR_NODES_TO_ENRICH</em> in file <em>ricgraph_explorer.py</em>.'
@@ -1309,7 +1316,7 @@ def get_more_options_card(node: Node,
         html += 'is used to improve or enhance information in this source system. '
         html += 'This is possible if the neighbors of this node originate from various source systems. '
         html += 'Use the field below to enter a name of one of your source systems. '
-        html += 'Ricgraph explorer will show what information can be added to this source system, '
+        html += 'Ricgraph Explorer will show what information can be added to this source system, '
         html += 'based on the information harvested from other source systems. '
         html += 'This is a case-sensitive, exact match field.</br>'
         form = '<form method="get" action="/findenrichcandidates">'
@@ -1668,7 +1675,7 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
 
     if name == '' and category == '' and value == '':
         html += get_html_for_cardstart()
-        html += 'Ricgraph explorer could not find anything.'
+        html += 'Ricgraph Explorer could not find anything.'
         html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
         html += get_html_for_cardend()
         return html
@@ -1686,7 +1693,7 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
         if len(nodes) == 0:
             # No, we really didn't find anything.
             html += get_html_for_cardstart()
-            html += 'Ricgraph explorer could not find anything.'
+            html += 'Ricgraph Explorer could not find anything.'
             html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
             html += get_html_for_cardend()
             return html
@@ -1696,7 +1703,7 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
         # we have just found. We can only do that if we have found only one node.
         if len(nodes) > 1:
             html += get_html_for_cardstart()
-            html += 'Ricgraph explorer found too many nodes. It cannot compute the overlap '
+            html += 'Ricgraph Explorer found too many nodes. It cannot compute the overlap '
             html += 'of the neighbor nodes of more than one node in get_overlap_in_source_systems().'
             html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
             html += get_html_for_cardend()
@@ -1707,7 +1714,7 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
             personroot = rcg.get_personroot_node(node)
             if personroot is None:
                 html += get_html_for_cardstart()
-                html += 'Ricgraph explorer found no "person-root" '
+                html += 'Ricgraph Explorer found no "person-root" '
                 html += 'node in get_overlap_in_source_systems().'
                 html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
                 html += get_html_for_cardend()
@@ -1743,7 +1750,7 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
     if nr_total_recs == 0:
         if overlap_mode == 'neighbornodes':
             html += get_html_for_cardstart()
-            html += 'Ricgraph explorer found no overlap in source systems for '
+            html += 'Ricgraph Explorer found no overlap in source systems for '
             html += 'the neighbors of this node. '
             html += 'This may be caused by that these neighbors are "person-root" nodes. '
             html += 'These nodes are generated by Ricgraph and do not have a source system.'
@@ -2303,13 +2310,18 @@ def get_html_for_cardline() -> str:
 # ################### main ###################
 # ############################################
 if __name__ == "__main__":
+    graph = rcg.open_ricgraph()         # Should probably be done in a Session
+    if graph is None:
+        print('Ricgraph could not be opened.')
+        exit(2)
+
     # For normal use:
     ricgraph_explorer.run(port=3030)
 
     # For debug purposes:
     # ricgraph_explorer.run(debug=True, port=3030)
 
-    # If you uncomment the next line, ricgraph explorer will be exposed to
+    # If you uncomment the next line, Ricgraph Explorer will be exposed to
     # the outside world. Read the remarks at the top of this file before you do so.
     # Also, comment out the line above.
     # ricgraph_explorer.run(host='0.0.0.0', debug=True, port=3030)

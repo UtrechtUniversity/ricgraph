@@ -265,7 +265,7 @@ follow these steps:
 1. Once it is active, [install the Bloom configuration](#install-bloom-configuration).
 1. Now you are ready to explore the data 
    using [Bloom](ricgraph_query_visualize.md#how-to-use-bloom)
-   or [Ricgraph explorer](ricgraph_query_visualize.md#how-to-use-ricgraph-explorer).
+   or [Ricgraph Explorer](ricgraph_query_visualize.md#how-to-use-ricgraph-explorer).
 
 ### Return to main README.md file
 

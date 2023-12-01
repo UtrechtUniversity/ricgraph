@@ -51,7 +51,7 @@ Ricgraph can answer questions like:
 * Show a network of researchers who have worked together?
 * Which organizations have worked together?
 
-Also, more elaborate information can be found using Ricgraph and Ricgraph explorer:
+Also, more elaborate information can be found using Ricgraph and Ricgraph Explorer:
 * You can find information about persons or their results in a (child) 
   organization (unit, department, faculty, university). 
   For example, you can find out what data sets or software are produced in your faculty. Or the skills of all persons in your department. Of course this is only possible in case you have harvested them.

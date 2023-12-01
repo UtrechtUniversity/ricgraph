@@ -63,9 +63,9 @@ information, and the EOSC research discovery graph and PID graph do not exist ye
 
 Ricgraph is easy to extend: the code is concise and can be found on GitHub.
 Also, it is possible to traverse the graph that has been constructed, either with Neo4j Bloom or
-with Ricgraph explorer, or with any other visualizer or explorer that someone builds.
+with Ricgraph Explorer, or with any other visualizer or explorer that someone builds.
 Also, Ricgraph can contain any field (entity) by changing the Ricgraph initialization file, 
-creating a harvest script to fill this field, and modifying Ricgraph explorer to show this field.
+creating a harvest script to fill this field, and modifying Ricgraph Explorer to show this field.
 
 ### Return to main README.md file
 
