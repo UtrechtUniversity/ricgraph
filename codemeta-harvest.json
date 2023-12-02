@@ -1,10 +1,14 @@
 {
-    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@context": [
+        "https://doi.org/10.5063/schema/codemeta-2.0",
+        "http://schema.org"
+    ],
     "@type": "SoftwareSourceCode",
     "funder": {
         "@type": "Organization",
         "name": "Utrecht University"
     },
+    "programmingLanguage": "Python",
     "softwareRequirements": [
         "flask",
         "markupsafe",
@@ -21,27 +25,27 @@
     "targetProduct": [
         {
             "@type": "CommandLineApplication",
-            "name": "Harvest script for OpenAlex",
+            "name": "Script to harvest OpenAlex for Ricgraph",
             "executableName": "harvest_openalex_to_ricgraph.py"
         },
         {
             "@type": "CommandLineApplication",
-            "name": "Harvest script for Pure",
+            "name": "Script to harvest the Research Information System Pure for Ricgraph",
             "executableName": "harvest_pure_to_ricgraph.py"
         },
         {
             "@type": "CommandLineApplication",
-            "name": "Harvest script for the Research Software Directory",
+            "name": "Script to harvest the Research Software Directory for Ricgraph",
             "executableName": "harvest_rsd_to_ricgraph.py"
         },
         {
             "@type": "CommandLineApplication",
-            "name": "Harvest script for Utrecht University staff pages",
+            "name": "Script to harvest the Utrecht University staff pages for Ricgraph",
             "executableName": "harvest_uustaffpages_to_ricgraph.py"
         },
         {
             "@type": "CommandLineApplication",
-            "name": "Harvest script for the data repository Yoda",
+            "name": "Script to harvest the data repository Yoda for Ricgraph",
             "executableName": "harvest_yoda_to_ricgraph.py"
         },
         {
