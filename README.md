@@ -1,6 +1,10 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7524314.svg)](https://doi.org/10.5281/zenodo.7524314)
+![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph)
+![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph)
+![GitHub license](https://img.shields.io/github/license/UtrechtUniversity/ricgraph)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=31110&r=123)
 ![Technology Readiness Level 6/9 - Late Prototype - Technology demonstrated in target setting, end-users adopt it for testing purposes](https://w3id.org/research-technology-readiness-levels/Level6LatePrototype.svg)
+[![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=32110&r=123)
 
 <img src="docs/images/ricgraph_logo.jpg" height="30"> 
 
