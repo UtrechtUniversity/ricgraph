@@ -22,3 +22,9 @@ From: https://www.uu.nl/organisatie/huisstijl/downloads/logo
 Date copied: February 15, 2023
 Changes: crop & resize
 
+
+File: circle_info_solid_uuyellow.svg
+From: https://fontawesome.com/icons/circle-info?f=classic&s=solid
+Original file: circle_info_solid.svg
+Date copied: December 1, 2023
+Changes: changed color from black to UU yellow (#ffcd00)

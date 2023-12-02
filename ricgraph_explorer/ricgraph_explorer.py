@@ -77,7 +77,7 @@ DEFAULT_DISCOVERER_MODE = 'details_view'
 # You can search in two different ways in Ricgraph Explorer. This parameter
 # gives the default mode. Possibilities are:
 # exact_match: do a search on exact match.
-# value_search: do a string search on field 'value'.
+# value_search: do a broad search on field 'value'.
 DEFAULT_SEARCH_MODE = 'value_search'
 
 # Ricgraph Explorer shows tables. You can specify which columns you need.
@@ -176,7 +176,7 @@ page_header += '<a href="/" class="w3-bar-item' + button_style_border + '">Home<
 page_header += '<a href="/searchform?search_mode=exact_match" class="w3-bar-item'
 page_header += button_style_border + '">Exact match search</a>'
 page_header += '<a href="/searchform?search_mode=value_search" class="w3-bar-item'
-page_header += button_style_border + '">String search</a>'
+page_header += button_style_border + '">Broad search</a>'
 page_header += '</div>'
 page_header += '</header>'
 
@@ -220,36 +220,69 @@ def index_html() -> str:
     html += '<h3>This is Ricgraph Explorer</h3>'
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
 
-    html += 'There are two methods to start exploring:'
-    html += '<ul>'
-    html += '<li>find your first node by using exact match;'
-    html += '<li>find your first node by using search on a field value.</li>'
-    html += '</li>'
-    html += '</ul>'
-    html += '</p>'
-    html += '<br/>'
+    html += 'There are various methods to start exploring:'
+    # # html += 'There are two methods to start exploring:'
+    # html += '<ul>'
+    # html += '<li>find your first node by using exact match;'
+    # html += '<li>find your first node by using search on a field value.</li>'
+    # html += '</li>'
+    # html += '</ul>'
+    # html += '</p>'
+    # html += '<br/>'
+    #
+    # html += get_html_for_tablestart()
+    # html += '<tr class="uu-yellow" style="font-size:120%; text-align:center;">'
+    # html += '<th class="sorttable_nosort">case-sensitive, exact match search on fields <i>name</i>, '
+    # html += '<i>category</i> and/or <i>value</i></th>'
+    # html += '<th class="sorttable_nosort">search on field <i>value</i> containing a string</th>'
+    # html += '</tr>'
+    # html += '<tr style="font-size:120%;">'
+    # html += '<td width=50% style="text-align:center;"><a href=' + url_for('searchform')
+    # html += '?search_mode=exact_match class="'
+    # html += button_style + '">exact match search</a></td>'
+    # html += '<td width=50% style="text-align:center"><a href=' + url_for('searchform')
+    # html += '?search_mode=value_search class="'
+    # html += button_style + '">broad search</a></td>'
+    # html += '</tr>'
+    # html += '<tr style="font-size:120%;">'
+    # html += '<td width=50% style="text-align:center;"><a href=' + url_for('searchform')
+    # html += '?search_mode=value_search&name=FULL_NAME class="'
+    # html += button_style + '">name search</a></td>'
+    # html += '<td width=50% style="text-align:center"><a href=' + url_for('searchform')
+    # html += '?search_mode=value_search class="'
+    # html += button_style + '">XXXXXname search</a></td>'
+    # html += '</tr>'
+    # html += get_html_for_tableend()
+    # html += '</table>'
+    # html += '</p>'
+    # html += '<br/>'
 
-    html += get_html_for_tablestart()
-    html += '<tr class="uu-yellow" style="font-size:120%; text-align:center;">'
-    html += '<th class="sorttable_nosort">case-sensitive, exact match search on fields<i>name</i>, '
-    html += '<i>category</i> and/or <i>value</i></th>'
-    html += '<th class="sorttable_nosort">search on field <i>value</i> containing a string</th>'
-    html += '</tr>'
-    html += '<tr style="font-size:120%;">'
-    html += '<td width=50% style="text-align:center;"><a href=' + url_for('searchform')
-    html += '?search_mode=exact_match class="'
-    html += button_style + '">choose this one</a></td>'
-    html += '<td width=50% style="text-align:center"><a href=' + url_for('searchform')
+    html += '<p/>'
+    html += '<a href=' + url_for('searchform')
+    html += '?search_mode=value_search&name=FULL_NAME class="'
+    html += button_style + '">search for a person</a>'
+    html += '<p/>'
+    html += '<a href=' + url_for('searchform')
+    html += '?search_mode=value_search&category=organization class="'
+    html += button_style + '">search for a (child) organization</a>'
+    html += '<p/>'
+    html += '<a href=' + url_for('searchform')
+    html += '?search_mode=value_search&category=competence class="'
+    html += button_style + '">search for a skill, expertise area or research area</a> '
+    html += 'This only works if you have harvested the UU staff pages.'
+    html += '<p/>'
+    html += '<a href=' + url_for('searchform')
     html += '?search_mode=value_search class="'
-    html += button_style + '">choose this one</a></td>'
-    html += '</tr>'
-    html += get_html_for_tableend()
-    html += '</table>'
-    html += '</p>'
-    html += '<br/>'
+    html += button_style + '">search for anything (broad search)</a>'
+    html += '<p/>'
+    html += '<a href=' + url_for('searchform')
+    html += '?search_mode=exact_match class="'
+    html += button_style + '">advanced search (exact match search)</a>'
+    html += get_html_for_cardend()
 
+    html += get_html_for_cardstart()
     html += '<h4>Explore persons</h4>'
-    html += 'After a search for a peron, you can choose to find out with whom this person '
+    html += 'After a search for a person, you can choose to find out with whom this person '
     html += 'shares research outputs. Also, you can find out how to '
     html += 'improve or enhance information in one of your source systems. This '
     html += 'is called "enriching" your source system, and '
@@ -287,18 +320,20 @@ def index_html() -> str:
 @ricgraph_explorer.route(rule='/searchform/', methods=['GET'])
 def searchform() -> str:
     """Ricgraph Explorer entry, this 'page' shows the search form, both the
-    exact match search form and the string search on the 'value' field form.
+    exact match search form and the broad search on the 'value' field form.
 
     Possible parameters are:
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
-    - search_mode: the search_mode to use, 'exact_match' or 'value_search' (string
+    - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
       search on field 'value').
 
     returns html to parse.
     """
     global html_body_start, html_body_end
 
+    name = get_url_parameter_value(parameter='name')
+    category = get_url_parameter_value(parameter='category')
     search_mode = get_url_parameter_value(parameter='search_mode',
                                           allowed_values=['exact_match', 'value_search'],
                                           default_value=DEFAULT_SEARCH_MODE)
@@ -308,67 +343,89 @@ def searchform() -> str:
     html = html_body_start
     html += get_html_for_cardstart()
 
-    html += '<h3>Type something to search</h3>'
-    if search_mode == 'value_search':
-        html += 'This is a case-insensitive, inexact match:'
-    else:
-        html += 'This is an case-sensitive, exact match search, using AND if you use multiple fields:'
-
     form = '<form method="get" action="/findnodes">'
     if search_mode == 'exact_match':
         form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
         form += '<input class="w3-input w3-border" type=text name=name>'
         form += '<br/><label>Search for a value in Ricgraph field <em>category</em>:</label>'
-        form += '<input class="w3-input w3-border" type=text name=category>'
-    form += '<br/><label>Search for a value in Ricgraph field <em>value</em>:</label>'
+        form += '<input class="w3-input w3-border" type=text name=category><br/>'
+    if search_mode == 'value_search' and name != '':
+        form += '<input type="hidden" name="name" value=' + name + '>'
+    if search_mode == 'value_search' and category != '':
+        form += '<input type="hidden" name="category" value=' + category + '>'
+    form += '<label>Search for a value in Ricgraph field <em>value</em>:</label>'
     form += '<input class="w3-input w3-border" type=text name=value>'
     form += '<input type="hidden" name="search_mode" value=' + search_mode + '>'
 
-    radio_person_text = ' <em>person_view</em>: only show relevant columns, '
-    radio_person_text += 'research outputs presented in a <em>tabbed</em> format'
-    radio_details_text = ' <em>details_view</em>: show all columns, '
-    radio_details_text += 'research outputs presented in a table with <em>facets</em>'
+    if search_mode == 'value_search':
+        form += 'This field is case-insensitive and uses inexact match search.'
+    else:
+        form += 'These fields are case-sensitive and use exact match search. '
+        form += 'If you enter values in more than one field, these fields are combined using AND.'
 
-    form += '</br>Please specify how you like to view your results (for explanation see below):</br>'
+    radio_person_text = ' <em>person_view</em>: only show relevant columns, '
+    radio_person_text += 'research outputs presented in a <em>tabbed</em> format '
+    radio_person_tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
+    radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
+    radio_person_tooltip += 'This view only shows relevant columns. '
+    radio_person_tooltip += 'Research outputs are presented in a <em>tabbed</em> format. '
+    radio_person_tooltip += 'Tables have less columns (to reduce information overload) '
+    radio_person_tooltip += 'and the order of the tables is different compared to the other <em>discoverer_mode</em>. '
+    radio_person_tooltip += '<br/>This view has been tailored to the Utrecht University staff pages, since some '
+    radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
+    radio_person_tooltip += 'If present, these will be presented in a more attractive way. '
+    radio_person_tooltip += 'If the UU staff pages have not been harvested, this view may still be relevant, '
+    radio_person_tooltip += 'because it shows that the layout of information can be adapted to a target audience.'
+    radio_person_tooltip += '</div>'
+
+    radio_details_text = ' <em>details_view</em>: show all columns, '
+    radio_details_text += 'research outputs presented in a table with <em>facets</em> '
+    radio_details_tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
+    radio_details_tooltip += '<div class="w3-text" style="margin-left:60px;"> '
+    radio_details_tooltip += 'This view shows all columns in Ricgraph. '
+    radio_details_tooltip += 'Research outputs are presented in a table with <em>facets</em>. '
+    radio_details_tooltip += '</div>'
+
+    form += '<br/><br/>Please specify how you like to view your results (for explanation see below):<br/>'
     form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="person_view"'
     if discoverer_mode == 'person_view':
         form += 'checked'
-    form += '>'
-    form += '<label>' + radio_person_text + '</label></br>'
+    form += '>' + radio_person_text
+    form += '<label class="w3-tooltip">' + radio_person_tooltip + '</label><br/>'
     form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="details_view"'
     if discoverer_mode == 'details_view':
         form += 'checked'
-    form += '>'
-    form += '<label>' + radio_details_text + '</label></br>'
+    form += '>' + radio_details_text
+    form += '<label class="w3-tooltip">' + radio_details_tooltip + '</label><br/>'
 
     form += '<br/><input class="w3-input' + button_style + '" type=submit value=search>'
     form += '</form>'
     html += form
 
     html += get_html_for_cardend()
-    html += get_html_for_cardstart()
-    html += '<h4>Explanation of the modes for viewing the results</h4>'
-    html += 'The two modes for viewing the results (the <em>discoverer_mode</em>) are:'
-    html += '<ul>'
-    html += '<li><em>person_view</em>: '
-    html += 'only relevant columns are shown. '
-    html += 'Research outputs are presented in a <em>tabbed</em> format. '
-    html += 'Tables have less columns (to reduce information overload) '
-    html += 'and the order of the tables is different compared to the other <em>discoverer_mode</em>. '
-    html += '<br/>This view has been tailored to the Utrecht University staff pages, since some of these '
-    html += 'pages also include expertise areas, research areas, skills or photos. '
-    html += 'If present, these will be presented in a more attractive way. '
-    html += 'If the UU staff pages have not been harvested, this view may still be relevant, '
-    html += 'because it shows that the layout of information can be adapted to a target audience.'
-    html += '</li>'
-    html += '<li><em>details_view</em>: all columns in Ricgraph will be shown. '
-    html += 'Research outputs are presented in a table with <em>facets</em>. '
-    html += '</li>'
-    html += '</ul>'
-    html += '</p>Technically, these modes are implemented using a parameter "?discoverer_mode=<em>mode</em>" '
-    html += 'in the url. You may modify this as you like.'
-
-    html += get_html_for_cardend()
+    # html += get_html_for_cardstart()
+    # html += '<h4>Explanation of the modes for viewing the results</h4>'
+    # html += 'The two modes for viewing the results (the <em>discoverer_mode</em>) are:'
+    # html += '<ul>'
+    # html += '<li><em>person_view</em>: '
+    # html += 'only relevant columns are shown. '
+    # html += 'Research outputs are presented in a <em>tabbed</em> format. '
+    # html += 'Tables have less columns (to reduce information overload) '
+    # html += 'and the order of the tables is different compared to the other <em>discoverer_mode</em>. '
+    # html += '<br/>This view has been tailored to the Utrecht University staff pages, since some of these '
+    # html += 'pages also include expertise areas, research areas, skills or photos. '
+    # html += 'If present, these will be presented in a more attractive way. '
+    # html += 'If the UU staff pages have not been harvested, this view may still be relevant, '
+    # html += 'because it shows that the layout of information can be adapted to a target audience.'
+    # html += '</li>'
+    # html += '<li><em>details_view</em>: all columns in Ricgraph will be shown. '
+    # html += 'Research outputs are presented in a table with <em>facets</em>. '
+    # html += '</li>'
+    # html += '</ul>'
+    # html += '</p>Technically, these modes are implemented using a parameter "?discoverer_mode=<em>mode</em>" '
+    # html += 'in the url. You may modify this as you like.'
+    #
+    # html += get_html_for_cardend()
     html += html_body_end
     return html
 
@@ -394,7 +451,7 @@ def findnodes() -> str:
     - faceted_category: similar to 'faceted_name', but now for the property 'category'.
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
-    - search_mode: the search_mode to use, 'exact_match' or 'value_search' (string
+    - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
       search on field 'value').
 
     returns html to parse.
@@ -442,7 +499,7 @@ def findnodes() -> str:
             html += get_html_for_cardend()
             html += html_body_end
             return html
-        result = rcg.read_all_nodes_containing(value=value)
+        result = rcg.read_all_nodes_containing_value(name=name, category=category, value=value)
 
     if len(result) == 0:
         # We didn't find anything.
@@ -521,8 +578,8 @@ def filterorganization() -> str:
 
     result = rcg.read_all_nodes(name=name, value=value)
     if len(result) == 0:
-        # Let's try again, assuming we did a string search instead of an exact match search.
-        result = rcg.read_all_nodes_containing(value=value)
+        # Let's try again, assuming we did a broad search instead of an exact match search.
+        result = rcg.read_all_nodes_containing_value(value=value)
         if len(result) == 0:
             # No, we really didn't find anything.
             html += get_html_for_cardstart()
@@ -648,8 +705,8 @@ def filterperson() -> str:
 
     result = rcg.read_all_nodes(name=name, value=value)
     if len(result) == 0:
-        # Let's try again, assuming we did a string search instead of an exact match search.
-        result = rcg.read_all_nodes_containing(value=value)
+        # Let's try again, assuming we did a broad search instead of an exact match search.
+        result = rcg.read_all_nodes_containing_value(value=value)
         if len(result) == 0:
             # No, we really didn't find anything.
             html += get_html_for_cardstart()
@@ -823,8 +880,8 @@ def getoverlaprecords() -> str:
     html = html_body_start
     result = rcg.read_all_nodes(name=name, category=category, value=value)
     if len(result) == 0:
-        # Let's try again, assuming we did a string search instead of an exact match search.
-        result = rcg.read_all_nodes_containing(value=value)
+        # Let's try again, assuming we did a broad search instead of an exact match search.
+        result = rcg.read_all_nodes_containing_value(value=value)
         if len(result) == 0:
             # No, we really didn't find anything.
             html += get_html_for_cardstart()
@@ -1612,7 +1669,7 @@ def get_facets_from_nodes(nodes: list,
     else:
         faceted_form += '<div class="w3-card-4">'
         faceted_form += '<div class="w3-container uu-yellow">'
-        faceted_form += '<b>Faceted navigation on "name"</b>'
+        faceted_form += '<b>Filter on "name"</b>'
         faceted_form += '</div>'
         faceted_form += '<div class="w3-container">'
         # Sort a dict on value:
@@ -1632,7 +1689,7 @@ def get_facets_from_nodes(nodes: list,
     else:
         faceted_form += '<div class="w3-card-4">'
         faceted_form += '<div class="w3-container uu-yellow">'
-        faceted_form += '<b>Faceted navigation on "category"</b>'
+        faceted_form += '<b>Filter on "category"</b>'
         faceted_form += '</div>'
         faceted_form += '<div class="w3-container">'
         for bucket in sorted(category_histogram, key=category_histogram.get, reverse=True):
@@ -1644,7 +1701,7 @@ def get_facets_from_nodes(nodes: list,
         faceted_form += '</div><br/>'
 
     # Send name, category and value as hidden fields to search().
-    faceted_form += '<input class="w3-input' + button_style + '" type=submit value="Do the faceted navigation">'
+    faceted_form += '<input class="w3-input' + button_style + '" type=submit value="refresh">'
     faceted_form += '</form>'
     faceted_form += '</div>'
     faceted_form += get_html_for_cardend()
@@ -1688,8 +1745,8 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
 
     nodes = rcg.read_all_nodes(name=name, category=category, value=value)
     if len(nodes) == 0:
-        # Let's try again, assuming we did a string search instead of an exact match search.
-        nodes = rcg.read_all_nodes_containing(value=value)
+        # Let's try again, assuming we did a broad search instead of an exact match search.
+        nodes = rcg.read_all_nodes_containing_value(value=value)
         if len(nodes) == 0:
             # No, we really didn't find anything.
             html += get_html_for_cardstart()
