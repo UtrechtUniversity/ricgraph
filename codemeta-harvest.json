@@ -66,17 +66,30 @@
             "url": "https://github.com/UtrechtUniversity/ricgraph/blob/master/README.md"
         }
     ],
-    "referencePublication": {
-        "@type": "Report",
-        "sameAs": "https://doi.org/10.5281/zenodo.10057997",
-        "name": "Ricgraph: showcasing research in context using Pure and other sources",
-        "author": [ "Rik D.T. Janssen", "Arjan Sieverink" ],
-        "url": "https://doi.org/10.5281/zenodo.10057997"
-	},
-    "applicationCategory": [ 
-    	"https://vocabs.dariah.eu/tadirah/analyzing", 
-    	"https://vocabs.dariah.eu/tadirah/capturing", 
-    	"https://vocabs.dariah.eu/tadirah/enriching", 
-    	"https://vocabs.dariah.eu/tadirah/storing" 
+    "referencePublication": [
+        {
+            "@type": "Report",
+            "sameAs": "https://doi.org/10.5281/zenodo.10057997",
+            "name": "Ricgraph: showcasing research in context using Pure and other sources",
+            "author": [ "Rik D.T. Janssen", "Arjan Sieverink" ],
+            "url": "https://doi.org/10.5281/zenodo.10057997"
+	    },
+        {
+            "@type": "SoftwareSourceCode",
+            "sameAs": "https://doi.org/10.5281/zenodo.7524314",
+            "name": "Ricgraph - Research in context graph",
+            "author": "Rik D.T. Janssen",
+            "url": "https://doi.org/10.5281/zenodo.7524314"
+        }
+    ],
+    "applicationCategory": [
+    	"https://vocabs.dariah.eu/tadirah/analyzing",
+        "https://vocabs.dariah.eu/tadirah/browsing",
+    	"https://vocabs.dariah.eu/tadirah/capturing",
+        "https://vocabs.dariah.eu/tadirah/discovering",
+    	"https://vocabs.dariah.eu/tadirah/enriching",
+        "https://vocabs.dariah.eu/tadirah/exploration",
+        "https://vocabs.dariah.eu/tadirah/informationRetrieval",
+    	"https://vocabs.dariah.eu/tadirah/storing"
         ]
 }
