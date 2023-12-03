@@ -127,6 +127,11 @@ stylesheet += '.w3-container {padding:16px;}'
 # Note: #ffcd00 is 'uu-yellow' below.
 stylesheet += '.w3-check {width:15px; height:15px; position:relative; top:3px; accent-color:#ffcd00;}'
 stylesheet += '.w3-radio {accent-color: #ffcd00;}'
+# Restrict the width of the input fields.
+stylesheet += '.w3-input {width:50%}'
+# Restrict the width of the buttons. Note that this does not seem to work for some buttons.
+# TODO: I did not succeed in making this work for all buttons.
+stylesheet += '.w3-button {min-width:50%}'
 # Define UU colors. We do not need to define "black" and "white" (they do exist).
 # See https://www.uu.nl/organisatie/huisstijl/huisstijlelementen/kleur.
 stylesheet += '.uu-yellow, .uu-hover-yellow:hover '
@@ -172,11 +177,12 @@ page_header += '<a href="/" style="text-decoration:none; color:#000000; font-siz
 page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right:3em">'
 page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right:0.5em">Explorer</a>'
 page_header += '</div>'
-page_header += '<a href="/" class="w3-bar-item' + button_style_border + '">Home</a>'
+page_header += '<a href="/" class="w3-bar-item'
+page_header += button_style_border + '" style="min-width:12em">Home</a>'
 page_header += '<a href="/searchform?search_mode=exact_match" class="w3-bar-item'
-page_header += button_style_border + '">Exact match search</a>'
+page_header += button_style_border + '" style="min-width:12em">Exact match search</a>'
 page_header += '<a href="/searchform?search_mode=value_search" class="w3-bar-item'
-page_header += button_style_border + '">Broad search</a>'
+page_header += button_style_border + '" style="min-width:12em">Broad search</a>'
 page_header += '</div>'
 page_header += '</header>'
 
@@ -266,10 +272,10 @@ def index_html() -> str:
     html += '?search_mode=value_search&category=organization class="'
     html += button_style + '">search for a (child) organization</a>'
     html += '<p/>'
+    # TODO: make the next button dependent on having harvested UU staff pages.
     html += '<a href=' + url_for('searchform')
     html += '?search_mode=value_search&category=competence class="'
     html += button_style + '">search for a skill, expertise area or research area</a> '
-    html += 'This only works if you have harvested the UU staff pages.'
     html += '<p/>'
     html += '<a href=' + url_for('searchform')
     html += '?search_mode=value_search class="'
@@ -353,7 +359,10 @@ def searchform() -> str:
         form += '<input type="hidden" name="name" value=' + name + '>'
     if search_mode == 'value_search' and category != '':
         form += '<input type="hidden" name="category" value=' + category + '>'
-    form += '<label>Search for a value in Ricgraph field <em>value</em>:</label>'
+    if search_mode == 'exact_match':
+        form += '<label>Search for a value in Ricgraph field <em>value</em>:</label>'
+    else:
+        form += '<label>Type your search string:</label>'
     form += '<input class="w3-input w3-border" type=text name=value>'
     form += '<input type="hidden" name="search_mode" value=' + search_mode + '>'
 
@@ -398,7 +407,7 @@ def searchform() -> str:
     form += '>' + radio_details_text
     form += '<label class="w3-tooltip">' + radio_details_tooltip + '</label><br/>'
 
-    form += '<br/><input class="w3-input' + button_style + '" type=submit value=search>'
+    form += '<br/><input class="' + button_style + '" type=submit value=search>'
     form += '</form>'
     html += form
 
@@ -1327,10 +1336,10 @@ def get_more_options_card(node: Node,
         form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
         form += '<label>Search for persons or results using field <em>name</em>: '
         form += '</label>'
-        form += '<input class="w3-border" type=text name=name_filter></br>'
+        form += '<input class="w3-input w3-border" type=text name=name_filter></br>'
         form += '<label>Search for persons or results using field <em>category</em>: '
         form += '</label>'
-        form += '<input class="w3-border" type=text name=category_filter></br>'
+        form += '<input class="w3-input w3-border" type=text name=category_filter></br>'
         button_text = 'find more information about persons or their results '
         button_text += 'in this organization '
         button_text += '(this may take quite some time)'
@@ -1355,7 +1364,7 @@ def get_more_options_card(node: Node,
         form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
         form += '<label>Search for this research output type using field <em>category</em>: '
         form += '</label>'
-        form += '<input class="w3-border" type=text name=category_filter></br>'
+        form += '<input class="w3-input w3-border" type=text name=category_filter></br>'
         button_text = 'find persons that share certain research output types with this person'
         form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
         form += '</form>'
@@ -1381,7 +1390,7 @@ def get_more_options_card(node: Node,
         form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
         form += '<label>The name of the source system als it appears in column <em>_source</em>: '
         form += '</label>'
-        form += '<input class="w3-border" type=text name=source_system></br>'
+        form += '<input class="w3-input w3-border" type=text name=source_system></br>'
         button_text = 'find information harvested from other source systems, not present in this source system'
         form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
         form += '</form>'
