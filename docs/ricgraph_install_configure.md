@@ -104,6 +104,8 @@ Now we need to find the port number which Neo4j Desktop is using:
    shown. If not, click on "Add labels", click on "RicgraphNode".
 1. Click on the icon <img src="images/neo4j2.jpg" height="20">
    to go back to the main screen of Bloom.
+1. Click on the cog icon below <img src="images/neo4j2.jpg" height="20">, you might want
+   to set "Use classic search" to "on".
 1. Ready.
 
 ### Download Ricgraph
