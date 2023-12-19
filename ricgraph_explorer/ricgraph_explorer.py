@@ -109,6 +109,8 @@ MAX_NR_NODES_TO_ENRICH = 20
 button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 # A button with a black line around it.
 button_style_border = button_style + ' w3-border rj-border-black '
+# Restrict the width of a button.
+button_width = ' style="min-width:50%;" '
 
 # The html stylesheet.
 stylesheet = '<style>'
@@ -129,9 +131,6 @@ stylesheet += '.w3-check {width:15px; height:15px; position:relative; top:3px; a
 stylesheet += '.w3-radio {accent-color: #ffcd00;}'
 # Restrict the width of the input fields.
 stylesheet += '.w3-input {width:50%}'
-# Restrict the width of the buttons. Note that this does not seem to work for some buttons.
-# TODO: I did not succeed in making this work for all buttons.
-stylesheet += '.w3-button {min-width:50%}'
 # Define UU colors. We do not need to define "black" and "white" (they do exist).
 # See https://www.uu.nl/organisatie/huisstijl/huisstijlelementen/kleur.
 stylesheet += '.uu-yellow, .uu-hover-yellow:hover '
@@ -227,63 +226,32 @@ def index_html() -> str:
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
 
     html += 'There are various methods to start exploring:'
-    # # html += 'There are two methods to start exploring:'
-    # html += '<ul>'
-    # html += '<li>find your first node by using exact match;'
-    # html += '<li>find your first node by using search on a field value.</li>'
-    # html += '</li>'
-    # html += '</ul>'
-    # html += '</p>'
-    # html += '<br/>'
-    #
-    # html += get_html_for_tablestart()
-    # html += '<tr class="uu-yellow" style="font-size:120%; text-align:center;">'
-    # html += '<th class="sorttable_nosort">case-sensitive, exact match search on fields <i>name</i>, '
-    # html += '<i>category</i> and/or <i>value</i></th>'
-    # html += '<th class="sorttable_nosort">search on field <i>value</i> containing a string</th>'
-    # html += '</tr>'
-    # html += '<tr style="font-size:120%;">'
-    # html += '<td width=50% style="text-align:center;"><a href=' + url_for('searchform')
-    # html += '?search_mode=exact_match class="'
-    # html += button_style + '">exact match search</a></td>'
-    # html += '<td width=50% style="text-align:center"><a href=' + url_for('searchform')
-    # html += '?search_mode=value_search class="'
-    # html += button_style + '">broad search</a></td>'
-    # html += '</tr>'
-    # html += '<tr style="font-size:120%;">'
-    # html += '<td width=50% style="text-align:center;"><a href=' + url_for('searchform')
-    # html += '?search_mode=value_search&name=FULL_NAME class="'
-    # html += button_style + '">name search</a></td>'
-    # html += '<td width=50% style="text-align:center"><a href=' + url_for('searchform')
-    # html += '?search_mode=value_search class="'
-    # html += button_style + '">XXXXXname search</a></td>'
-    # html += '</tr>'
-    # html += get_html_for_tableend()
-    # html += '</table>'
-    # html += '</p>'
-    # html += '<br/>'
-
     html += '<p/>'
     html += '<a href=' + url_for('searchform')
-    html += '?search_mode=value_search&name=FULL_NAME class="'
-    html += button_style + '">search for a person</a>'
+    html += '?search_mode=value_search&name=FULL_NAME '
+    html += 'class="' + button_style + '"' + button_width
+    html += '>search for a person</a>'
     html += '<p/>'
     html += '<a href=' + url_for('searchform')
-    html += '?search_mode=value_search&category=organization class="'
-    html += button_style + '">search for a (child) organization</a>'
+    html += '?search_mode=value_search&category=organization '
+    html += 'class="' + button_style + '"' + button_width
+    html += '>search for a (child) organization</a>'
     html += '<p/>'
     # TODO: make the next button dependent on having harvested UU staff pages.
     html += '<a href=' + url_for('searchform')
-    html += '?search_mode=value_search&category=competence class="'
-    html += button_style + '">search for a skill, expertise area or research area</a> '
+    html += '?search_mode=value_search&category=competence '
+    html += 'class="' + button_style + '"' + button_width
+    html += '>search for a skill, expertise area or research area</a> '
     html += '<p/>'
     html += '<a href=' + url_for('searchform')
-    html += '?search_mode=value_search class="'
-    html += button_style + '">search for anything (broad search)</a>'
+    html += '?search_mode=value_search '
+    html += 'class="' + button_style + '"' + button_width
+    html += '>search for anything (broad search)</a>'
     html += '<p/>'
     html += '<a href=' + url_for('searchform')
-    html += '?search_mode=exact_match class="'
-    html += button_style + '">advanced search (exact match search)</a>'
+    html += '?search_mode=exact_match '
+    html += 'class="' + button_style + '"' + button_width
+    html += '>advanced search (exact match search)</a>'
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
@@ -412,29 +380,6 @@ def searchform() -> str:
     html += form
 
     html += get_html_for_cardend()
-    # html += get_html_for_cardstart()
-    # html += '<h4>Explanation of the modes for viewing the results</h4>'
-    # html += 'The two modes for viewing the results (the <em>discoverer_mode</em>) are:'
-    # html += '<ul>'
-    # html += '<li><em>person_view</em>: '
-    # html += 'only relevant columns are shown. '
-    # html += 'Research outputs are presented in a <em>tabbed</em> format. '
-    # html += 'Tables have less columns (to reduce information overload) '
-    # html += 'and the order of the tables is different compared to the other <em>discoverer_mode</em>. '
-    # html += '<br/>This view has been tailored to the Utrecht University staff pages, since some of these '
-    # html += 'pages also include expertise areas, research areas, skills or photos. '
-    # html += 'If present, these will be presented in a more attractive way. '
-    # html += 'If the UU staff pages have not been harvested, this view may still be relevant, '
-    # html += 'because it shows that the layout of information can be adapted to a target audience.'
-    # html += '</li>'
-    # html += '<li><em>details_view</em>: all columns in Ricgraph will be shown. '
-    # html += 'Research outputs are presented in a table with <em>facets</em>. '
-    # html += '</li>'
-    # html += '</ul>'
-    # html += '</p>Technically, these modes are implemented using a parameter "?discoverer_mode=<em>mode</em>" '
-    # html += 'in the url. You may modify this as you like.'
-    #
-    # html += get_html_for_cardend()
     html += html_body_end
     return html
 
@@ -1187,8 +1132,9 @@ def find_enrich_candidates(node: Union[Node, None],
                            source_system: str = '',
                            discoverer_mode: str = '') -> str:
     """This function tries to find nodes to enrich source system 'source_system'.
-    This function can be used to find _all_ enrichments in Ricgraph, but that would
-    take too much time, so a hard limit is used to break from the loop.
+    In case this function is used to find _all_ enrichments in Ricgraph,
+    (node = None), a hard limit is used to break from the loop, since it would
+    take too much time.
 
     :param node: the starting node for finding enrichments for, or None if
       you want to find enrichments for all 'person-root' nodes in Ricgraph.
@@ -1224,12 +1170,11 @@ def find_enrich_candidates(node: Union[Node, None],
     else:
         table_colums = RESEARCH_OUTPUT_COLUMNS
 
-    count = 0
+    count = 1
     something_found = False
     for personroot in personroot_nodes:
         if count > MAX_NR_NODES_TO_ENRICH:
             break
-        count += 1
         node_in_source_system = []
         node_not_in_source_system = []
         neighbors = rcg.get_all_neighbor_nodes(node=personroot)
@@ -1249,6 +1194,7 @@ def find_enrich_candidates(node: Union[Node, None],
 
         # Now we are left with a node that _is_ in 'source_system'.
         something_found = True
+        count += 1
         html += get_html_for_cardstart()
         table_header = 'This node is used to determine possible enrichments of source system "'
         table_header += source_system + '":'
@@ -1257,9 +1203,9 @@ def find_enrich_candidates(node: Union[Node, None],
                                           table_columns=table_colums)
 
         person_nodes = []
-        for node in node_in_source_system:
-            if node['category'] == 'person':
-                person_nodes.append(node)
+        for node_source in node_in_source_system:
+            if node_source['category'] == 'person':
+                person_nodes.append(node_source)
         if len(person_nodes) == 0:
             html += 'find_enrich_candidates(): there are enrich candidates '
             html += 'to enrich source system "' + source_system
@@ -1281,16 +1227,19 @@ def find_enrich_candidates(node: Union[Node, None],
         html += get_html_for_cardend()
 
     if something_found:
-        html += get_html_for_cardstart()
-        html += 'The table above shows how you can enrich source system "'
-        html += source_system + '" based on one person node. '
-        html += '<a href=' + url_for('findenrichcandidates') + '?'
-        html += urllib.parse.urlencode({'discoverer_mode': discoverer_mode,
-                                        'source_system': source_system}) + '>'
-        html += 'You can click here if you would like to find candidates to enrich '
-        html += 'for <em>all</em> nodes in Ricgraph</a>. '
-        html += 'Warning: this may take quite some time.'
-        html += get_html_for_cardend()
+        if node is not None:
+            # This message is only useful if we have entered this function with the
+            # aim to enrich one node.
+            html += get_html_for_cardstart()
+            html += 'The table above shows how you can enrich source system "'
+            html += source_system + '" based on one person node. '
+            html += '<a href=' + url_for('findenrichcandidates') + '?'
+            html += urllib.parse.urlencode({'discoverer_mode': discoverer_mode,
+                                            'source_system': source_system}) + '>'
+            html += 'You can click here if you would like to find candidates to enrich '
+            html += 'for <em>all</em> nodes in Ricgraph</a>. '
+            html += 'Warning: this may take quite some time.'
+            html += get_html_for_cardend()
     else:
         if node is None:
             html += get_html_for_cardstart()
@@ -1836,6 +1785,18 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
     all_harvested_systems.sort()
 
     html += get_html_for_cardstart()
+    html += '<h3>Your query</h3>'
+    html += 'This was your query:'
+    html += '<ul>'
+    if name != '':
+        html += '<li>name: <i>"' + str(name) + '"</i>'
+    if category != '':
+        html += '<li>category: <i>"' + str(category) + '"</i>'
+    if value != '':
+        html += '<li>value: <i>"' + str(value) + '"</i>'
+    html += '</ul>'
+
+    html += '<br/>'
     html += '<h3>Number of records in source systems</h3>'
     html += 'This table shows the number of records found in only one source or '
     html += 'found in multiple sources for your query. '
@@ -1881,8 +1842,12 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
                                             'overlap_mode': overlap_mode})
             html += '">'
             html += str(recs_from_one_source[system])
-            html += ' (' + str(round(100 * recs_from_one_source[system]/nr_recs_from_one_source)) + '%)'
             html += '</a>'
+            # html += ' (' + str(round(100 * recs_from_one_source[system]/nr_recs_from_one_source)) + '%)'
+            html += ' (' + str(round(100 * recs_from_one_source[system]/nr_recs_from_one_source))
+            # html += '% of ' + str(nr_recs_from_one_source) + ' records from one source)'
+            html += '% of ' + str(nr_recs_from_one_source) + ' records are only in ' + system + ')'
+            #html += '</a>'
             html += '</td>'
         else:
             html += '<td>0</td>'
@@ -1896,8 +1861,11 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
                                             'overlap_mode': overlap_mode})
             html += '">'
             html += str(recs_from_multiple_sources[system])
-            html += ' (' + str(round(100 * recs_from_multiple_sources[system]/nr_recs_from_multiple_sources)) + '%)'
             html += '</a>'
+            # html += ' (' + str(round(100 * recs_from_multiple_sources[system]/nr_recs_from_multiple_sources)) + '%)'
+            html += ' (' + str(round(100 * recs_from_multiple_sources[system]/nr_recs_from_multiple_sources))
+            html += '% of ' + str(nr_recs_from_multiple_sources) + ' records are in multiple sources)'
+            #html += '</a>'
             html += '</td>'
         else:
             html += '<td>0</td>'
@@ -1922,7 +1890,9 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
     html += '<h3>Overlap in records from multiple sources</h3>'
     html += 'For the records found for your query in multiple sources, this table shows in which sources '
     html += 'they were found. '
-    html += 'You can click on a number to retrieve these records.'
+    html += 'You can click on a number to retrieve these records. '
+    html += 'The second column in this table corresponds to the last column in '
+    html += 'the previous table.'
 
     html += get_html_for_tablestart()
     html_header2 = '<tr class="uu-yellow">'
