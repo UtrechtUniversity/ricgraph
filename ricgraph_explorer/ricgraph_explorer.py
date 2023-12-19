@@ -1843,11 +1843,8 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
             html += '">'
             html += str(recs_from_one_source[system])
             html += '</a>'
-            # html += ' (' + str(round(100 * recs_from_one_source[system]/nr_recs_from_one_source)) + '%)'
             html += ' (' + str(round(100 * recs_from_one_source[system]/nr_recs_from_one_source))
-            # html += '% of ' + str(nr_recs_from_one_source) + ' records from one source)'
             html += '% of ' + str(nr_recs_from_one_source) + ' records are only in ' + system + ')'
-            #html += '</a>'
             html += '</td>'
         else:
             html += '<td>0</td>'
@@ -1862,10 +1859,8 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
             html += '">'
             html += str(recs_from_multiple_sources[system])
             html += '</a>'
-            # html += ' (' + str(round(100 * recs_from_multiple_sources[system]/nr_recs_from_multiple_sources)) + '%)'
             html += ' (' + str(round(100 * recs_from_multiple_sources[system]/nr_recs_from_multiple_sources))
             html += '% of ' + str(nr_recs_from_multiple_sources) + ' records are in multiple sources)'
-            #html += '</a>'
             html += '</td>'
         else:
             html += '<td>0</td>'
