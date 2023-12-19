@@ -2,8 +2,8 @@ cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
 message: "If you use Ricgraph, please cite it."
 type: software
-version: "v1.11"
-date-released: "2023-11-08"
+version: "v1.12"
+date-released: "2023-12-19"
 authors:
   - given-names: "Rik D.T."
     family-names: Janssen
@@ -52,35 +52,45 @@ identifiers:
   - description: "Ricgraph DOI v1.11"
     type: doi
     value: "10.5281/zenodo.10083972"
+  - description: "Ricgraph DOI v1.12"
+    type: doi
+    value: "10.5281/zenodo.XXXXXXXX"
 abstract: >-
-  Ricgraph (Research in context graph) is a graph
-  (https://en.wikipedia.org/wiki/Graph_theory) with nodes (sometimes called
-  vertices) and edges (sometimes called links) to represent objects and their
+  With Ricgraph (Research in context graph), you can create a graph from
+  research information that is stored in various source systems. This can be
+  done for multiple organizations. You can explore this graph and discover
+  relations you were not aware of.
+
+  What if... we look at research information as a graph? We would have
+  relations between objects, we would be able to "walk" from one object to
+  another, and related objects would be neighbors. For example, starting with a
+  researcher, the publications of this person are only one step away by
+  following one edge, and other contributors to that publication are again one
+  step (edge) away.
+
+  Ricgraph has been developed because our university had a need to explore and
+  visualize our researchers, their research results (e.g. publications, data
+  sets, software packages), the teams, their collaborations, skills, projects,
+  and their relations. By combining this information in one graph, it is
+  possible to show research in context (hence the name).
+
+  Ricgraph is a graph that uses nodes and edges to represent objects and their
   relations. It can be used to store, manipulate and read metadata of any
-  object that has a relation to another object, as long as every object can be
-  'represented' by at least a 'name' and a 'value'. In Ricgraph, one node
-  represents one object, and an edge represents the relation between two
-  objects. It is written in Python and uses Neo4j as graph database engine
-  (https://en.wikipedia.org/wiki/Graph_database).
-
-  Metadata of an object are stored as 'properties' in a node, i.e. as
-  information associated with a node. For example, a node may store two
-  properties, 'name = PET' and 'value = cat'. Another node may store 'name =
-  FULL_NAME' and 'value = John Doe'. Then the edge between those two nodes
-  means that the person with FULL_NAME John Doe has a PET which is a cat.
-
-  The philosophy of Ricgraph is that it stores metadata, not the objects the
-  metadata refer to. To access an object, a node has a link to that object in
-  the system it was obtained from. The objective is to get metadata from
-  objects from a source system in a process called 'harvesting'. All
-  information harvested from several source systems will be combined into one
-  graph. Modification of metadata of an object is done in the source system the
-  object was harvested from, and then reharvesting of that source system.
+  object that has a relation to another object. Metadata from objects can be
+  obtained from any source system you'd like. You run the harvest script for
+  that system, and data will be imported in Ricgraph and will be combined
+  automatically with data which is already there. Ricgraph provides several
+  harvest scripts, and scripts for other sources can be written easily.
 keywords:
-  - ricgraph
-  - "research in context graph"
-  - graph
-  - "graph database"
+  - "Ricgraph"
+  - "Ricgraph Explorer"
+  - "Research in context graph"
+  - "Graph"
+  - "Graph database"
+  - "Data harvesting"
+  - "Data enrichment"
+  - "Linked data"
+  - "Knowledge graph"
   - "Utrecht University"
 license: MIT
 repository-code: "https://github.com/UtrechtUniversity/ricgraph"
