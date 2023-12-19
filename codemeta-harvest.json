@@ -9,6 +9,8 @@
         "name": "Utrecht University"
     },
     "programmingLanguage": "Python",
+    "developmentStatus": [ "https://w3id.org/research-technology-readiness-levels#Level6LatePrototype", "https://www.repostatus.org/#active" ],
+    "thumbnailUrl": "https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/master/docs/images/ricgraph_logo.jpg",
     "softwareRequirements": [
         "flask",
         "markupsafe",
