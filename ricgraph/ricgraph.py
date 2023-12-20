@@ -403,10 +403,10 @@ def create_well_known_url(name: str, value: str) -> str:
         return ''
 
 
-def create_history_line(field_name: str, old_value: str, new_value: str) -> str:
+def create_history_line(property_name: str, old_value: str, new_value: str) -> str:
     """Create a line to be used in the 'history' property of a node.
     """
-    return 'Updated field "' + field_name + '" from "' + old_value + '" to "' + new_value + '". '
+    return 'Updated property "' + property_name + '" from "' + old_value + '" to "' + new_value + '". '
 
 
 def create_name_cache_in_personroot(node: Node, personroot: Node):
@@ -431,7 +431,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                 old_value = str(personroot['comment'])
                 personroot['comment'] = []
                 personroot['comment'].append(node['value'])
-                history_line = create_history_line(field_name='comment',
+                history_line = create_history_line(property_name='comment',
                                                    old_value=old_value,
                                                    new_value=str(personroot['comment']))
                 personroot['_history'].append(timestamp + ': ' + history_line)
@@ -440,7 +440,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
             if node['value'] not in personroot['comment']:
                 old_value = str(personroot['comment'])
                 personroot['comment'].append(node['value'])
-                history_line = create_history_line(field_name='comment',
+                history_line = create_history_line(property_name='comment',
                                                    old_value=old_value,
                                                    new_value=str(personroot['comment']))
                 personroot['_history'].append(timestamp + ': ' + history_line)
@@ -474,7 +474,7 @@ def recreate_name_cache_in_personroot(personroot: Node):
            or isinstance(personroot['comment'], list):
             now = datetime.now()
             timestamp = now.strftime("%Y%m%d-%H%M%S")
-            history_line = create_history_line(field_name='comment',
+            history_line = create_history_line(property_name='comment',
                                                old_value=str(personroot['comment']),
                                                new_value=str(name_cache))
             personroot['_history'].append(timestamp + ': Cleaned and recreated name cache. ' + history_line)
@@ -497,7 +497,7 @@ def create_node(name: str, category: str, value: str,
     """Create a node.
     For now all properties will have string value, except for _history, which is a list.
 
-    :param name: 'name' field of node.
+    :param name: 'name' property of node.
     :param category: idem.
     :param value: idem.
     :param other_properties: a dictionary of all the other properties.
@@ -554,7 +554,7 @@ def create_node(name: str, category: str, value: str,
     if node['category'] != lcategory:
         # Not necessary to do similar tests for lname, lvalue or _key, since changing one of these
         # means that a new node will be created, which is done in the "if" part above.
-        history_line += create_history_line(field_name='category', old_value=node['category'], new_value=lcategory)
+        history_line += create_history_line(property_name='category', old_value=node['category'], new_value=lcategory)
         node['category'] = lcategory
 
     for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
@@ -566,7 +566,7 @@ def create_node(name: str, category: str, value: str,
                 if old_val != other_value_str:
                     if prop_name != 'history_event' and prop_name != 'source_event':
                         # Do not enter (changes to) property history_event or source_event in _history
-                        history_line += create_history_line(field_name=prop_name,
+                        history_line += create_history_line(property_name=prop_name,
                                                             old_value=node[prop_name], new_value=other_value_str)
                     # Note: for now all properties (except _source and _history) will have string value
                     node[prop_name] = other_value_str
@@ -574,7 +574,7 @@ def create_node(name: str, category: str, value: str,
 
     if node['url_main'] == '' and url != '':
         # If no url_main has been passed, insert an ISNI, DOI, etc. url if category is ISNI, DOI, etc.
-        history_line += create_history_line(field_name='url_main', old_value=node['url_main'], new_value=url)
+        history_line += create_history_line(property_name='url_main', old_value=node['url_main'], new_value=url)
         node['url_main'] = url
 
     if node['source_event'] != '':
@@ -582,7 +582,7 @@ def create_node(name: str, category: str, value: str,
             old_list = node['_source'].copy()
             node['_source'].append(node['source_event'])
             node['_source'].sort()
-            history_line += create_history_line(field_name='_source',
+            history_line += create_history_line(property_name='_source',
                                                 old_value=str(old_list), new_value=str(node['_source']))
     node['source_event'] = ''
 
@@ -605,8 +605,8 @@ def read_node(name: str = '', value: str = '') -> Node:
     Since all nodes are supposed to be unique if both are
     specified, return the first one found.
 
-    :param name: 'name' field of node.
-    :param value: 'value' field of node.
+    :param name: 'name' property of node.
+    :param value: 'value' property of node.
     :return: the node read, or None if no node was found.
     """
     first_node = read_all_nodes(name=name, value=value).first()
@@ -617,7 +617,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union
     """Read a number of nodes based on name, category or value.
     Any of these parameters can be specified.
 
-    :param name: 'name' field of node.
+    :param name: 'name' property of node.
     :param category: idem.
     :param value: idem.
     :return: NodeMatch object, which is a kind of list of nodes read, or None if nothing found
@@ -664,9 +664,9 @@ def read_all_nodes_containing_value(name: str = '', category: str = '', value: s
     """Read a number of nodes where property 'value' contains a certain value (a string search).
     If you also specify 'name' and/or 'category', they will be used to restrict the results.
 
-    :param name: 'name' field of node, exact match.
-    :param category: 'category' field of node, exact match.
-    :param value: 'value' field of node, string search on this field only.
+    :param name: 'name' property of node, exact match.
+    :param category: 'category' property of node, exact match.
+    :param value: 'value' property of node, string search on this property only.
     :return: NodeMatch object, which is a kind of list of nodes read, or None if nothing found
     """
     global _graph
@@ -687,13 +687,13 @@ def read_all_nodes_containing_value(name: str = '', category: str = '', value: s
     if lvalue == '':
         return None
 
-    # Prepare Cypher query. String search on field 'value'
+    # Prepare Cypher query. String search on property 'value'
     cypher_query = 'toLower(_.value) CONTAINS toLower("' + lvalue + '")'
     if lname != '':
-        # Exact match on field 'name', if present.
+        # Exact match on property 'name', if present.
         cypher_query += ' AND (_.name) = "' + lname + '"'
     if lcategory != '':
-        # Exact match on field 'category', if present.
+        # Exact match on property 'category', if present.
         cypher_query += ' AND (_.category) = "' + lcategory + '"'
     nodes_in_graph = NodeMatch(_graph)
     all_nodes = nodes_in_graph.where(cypher_query)
@@ -704,7 +704,7 @@ def update_node(name: str, category: str, value: str,
                 **other_properties: dict) -> Node:
     """Update a node.
 
-    :param name: 'name' field of node.
+    :param name: 'name' property of node.
     :param category: idem.
     :param value: idem.
     :param other_properties: a dictionary of all the other properties.
@@ -715,16 +715,16 @@ def update_node(name: str, category: str, value: str,
 
 
 def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, None]:
-    """Update a node, change the value field.
+    """Update a node, change the value property.
     This is a special case of update_node() because we change the key. Therefore,
     a lot of restrictions apply which do not apply with update_node().
-    Use carefully, because other fields that contain 'old_value' (such
+    Use carefully, because other property that contain 'old_value' (such
     as 'url_main' or 'url_other') are not being updated, so they will
     point to the wrong URL.
 
-    :param name: 'name' field of node.
-    :param old_value: old 'value' field of node.
-    :param new_value: old 'value' field of node.
+    :param name: 'name' property of node.
+    :param old_value: old 'value' property of node.
+    :param new_value: old 'value' property of node.
     :return: the node updated, or None if this was not possible
     """
     # A lot of the code below is copied from create_node().
@@ -764,8 +764,8 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     oldkey = node['_key']
     newkey = create_ricgraph_key(name=lname, value=lnewvalue)
     node['_key'] = newkey
-    history_line = create_history_line(field_name='value', old_value=loldvalue, new_value=lnewvalue)
-    history_line += create_history_line(field_name='_key', old_value=oldkey, new_value=newkey)
+    history_line = create_history_line(property_name='value', old_value=loldvalue, new_value=lnewvalue)
+    history_line += create_history_line(property_name='_key', old_value=oldkey, new_value=newkey)
     node['_history'].append(timestamp + ': Updated. ' + history_line)
 
     # The push() only works after a graph has been created, merge() does not update
@@ -821,7 +821,7 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
 def delete_node(name: str, value: str) -> None:
     """Delete a node based on name and value.
 
-    :param name: 'name' field of node.
+    :param name: 'name' property of node.
     :param value: idem.
     """
     global _graph
@@ -1026,10 +1026,10 @@ def merge_personroots_of_two_nodes(name1: str, value1: str,
     """Merge two 'person-root' nodes, by specifying one of its neighbors.
     Or do nothing if their person-roots are already the same node.
 
-    :param name1: 'name' field of left node.
-    :param value1: 'value' field of left node.
-    :param name2: 'name' field of right node.
-    :param value2: 'value' field of right node.
+    :param name1: 'name' property of left node.
+    :param value1: 'value' property of left node.
+    :param name2: 'name' property of right node.
+    :param value2: 'value' property of right node.
     :return: None.
     """
     left_node = read_node(name=name1, value=value1)
@@ -1195,10 +1195,10 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
     The nodes are specified by the properties passed.
     All 'left' nodes end with '1', all right nodes end with '2'.
 
-    :param name1: 'name' field of left node.
+    :param name1: 'name' property of left node.
     :param category1: idem.
     :param value1: idem.
-    :param name2: 'name' field of right node.
+    :param name2: 'name' property of right node.
     :param category2: idem.
     :param value2: idem
     :param other_properties: a dictionary of all the other properties.
@@ -1284,10 +1284,10 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
 
     If it is a dict containing strings, then every node pair will have a different value for that property.
 
-    :param name1: 'name' field of left node.
+    :param name1: 'name' property of left node.
     :param category1: idem.
     :param value1: idem.
-    :param name2: 'name' field of right node.
+    :param name2: 'name' property of right node.
     :param category2: idem.
     :param value2: idem.
     :param other_properties: a dictionary of all the other properties.
@@ -1329,7 +1329,7 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
                     left_and_right_nodepairs = pandas.concat([left_and_right_nodepairs, other_value], axis='columns')
                     left_and_right_nodepairs.rename(columns={other_value.name: prop_name + '2'}, inplace=True)
 
-    # Reorder a bit, starting with the last, only the name-category-value fields, since they will surely exist
+    # Reorder a bit, starting with the last, only the name-category-value property, since they will surely exist
     left_and_right_nodepairs.insert(0, 'value2', left_and_right_nodepairs.pop('value2'))
     left_and_right_nodepairs.insert(0, 'category2', left_and_right_nodepairs.pop('category2'))
     left_and_right_nodepairs.insert(0, 'name2', left_and_right_nodepairs.pop('name2'))
