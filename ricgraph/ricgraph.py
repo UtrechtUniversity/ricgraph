@@ -700,6 +700,36 @@ def read_all_nodes_containing_value(name: str = '', category: str = '', value: s
     return all_nodes
 
 
+
+def read_all_values_of_property(node_property: str = '') -> Union[list, None]:
+    """Read all the values of a certain property.
+
+    :param node_property: the property to find all values.
+    :return: a sorted list with all the values.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nread_all_values_of_property(): Error: graph has not been initialized or opened.\n\n')
+        return None
+
+    if node_property != 'name' and node_property != 'category':
+        print('\nread_all_values_of_property(): Error: only works for property "name" or "category".\n\n')
+        return None
+
+    cypher_query = 'MATCH (p:RicgraphNode) RETURN COLLECT(DISTINCT p.' + node_property + ')'
+    result = _graph.run(cypher_query)
+    result_list = result.to_series().tolist()
+    if len(result_list) == 0:
+        return None
+    result_list = result_list[0]
+    if len(result_list) == 0:
+        return None
+    # We need 'key' to do a case insenstive search.
+    result_list_sorted = sorted(result_list, key=str.lower)
+    return result_list_sorted
+
+
 def update_node(name: str, category: str, value: str,
                 **other_properties: dict) -> Node:
     """Update a node.
