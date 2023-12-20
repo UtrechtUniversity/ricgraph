@@ -38,7 +38,7 @@
 # "the outside world". Be careful if you expose it to the outside world.
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September to November 2023.
+# Extended Rik D.T. Janssen, February, September to December 2023.
 #
 # ########################################################################
 #
@@ -56,10 +56,11 @@
 # ##############################################################################
 
 
+import os
 import urllib.parse
 from typing import Union
 from py2neo import Node, NodeMatch
-from flask import Flask, request, url_for
+from flask import Flask, request, url_for, send_from_directory
 from markupsafe import escape
 import ricgraph as rcg
 
@@ -210,6 +211,16 @@ html_body_end = page_footer
 html_body_end += '<script src="/static/ricgraph_sorttable.js"></script>'
 html_body_end += '</body>'
 html_body_end += '</html>'
+
+
+# ##############################################################################
+# Favicon
+# ##############################################################################
+@ricgraph_explorer.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(ricgraph_explorer.root_path, 'static'),
+                               path='favicon.ico',
+                               mimetype='image/vnd.microsoft.icon')
 
 
 # ##############################################################################
