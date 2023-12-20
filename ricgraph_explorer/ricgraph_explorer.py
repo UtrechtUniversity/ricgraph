@@ -105,6 +105,9 @@ MAX_ORGANIZATION_NODES_TO_RETURN = 4 * MAX_ROWS_IN_TABLE
 # is going to enrich in find_enrich_candidates().
 MAX_NR_NODES_TO_ENRICH = 20
 
+global name_all_datalist, category_all_datalist
+
+
 # The style for the buttons, note the space before and after the text.
 button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 # A button with a black line around it.
@@ -305,6 +308,7 @@ def searchform() -> str:
     returns html to parse.
     """
     global html_body_start, html_body_end
+    global name_all_datalist, category_all_datalist
 
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
@@ -320,9 +324,16 @@ def searchform() -> str:
     form = '<form method="get" action="/findnodes">'
     if search_mode == 'exact_match':
         form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
-        form += '<input class="w3-input w3-border" type=text name=name>'
-        form += '<br/><label>Search for a value in Ricgraph field <em>category</em>:</label>'
-        form += '<input class="w3-input w3-border" type=text name=category><br/>'
+        form += '<input class="w3-input w3-border" list="name_all_datalist"'
+        form += 'name=name id=name autocomplete=off>'
+        form += name_all_datalist
+        form += '<br/>'
+
+        form += '<label>Search for a value in Ricgraph field <em>category</em>:</label>'
+        form += '<input class="w3-input w3-border" list="category_all_datalist"'
+        form += 'name=category id=category autocomplete=off>'
+        form += category_all_datalist
+        form += '<br/>'
     if search_mode == 'value_search' and name != '':
         form += '<input type="hidden" name="name" value=' + name + '>'
     if search_mode == 'value_search' and category != '':
@@ -1266,6 +1277,8 @@ def find_enrich_candidates(node: Union[Node, None],
 def get_more_options_card(node: Node,
                           name: str = '', category: str = '', value: str = '',
                           discoverer_mode: str = '') -> str:
+    global name_all_datalist, category_all_datalist
+
     html = get_html_for_cardstart()
     html += 'You can choose one of the following options (but you do not need to):</br>'
 
@@ -1285,10 +1298,16 @@ def get_more_options_card(node: Node,
         form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
         form += '<label>Search for persons or results using field <em>name</em>: '
         form += '</label>'
-        form += '<input class="w3-input w3-border" type=text name=name_filter></br>'
+        form += '<input class="w3-input w3-border" list="name_all_datalist"'
+        form += 'name=name_filter id=nam_filtere autocomplete=off>'
+        form += name_all_datalist
+
         form += '<label>Search for persons or results using field <em>category</em>: '
         form += '</label>'
-        form += '<input class="w3-input w3-border" type=text name=category_filter></br>'
+        form += '<input class="w3-input w3-border" list="category_all_datalist"'
+        form += 'name=category_filter id=category_filter autocomplete=off>'
+        form += category_all_datalist
+
         button_text = 'find more information about persons or their results '
         button_text += 'in this organization '
         button_text += '(this may take quite some time)'
@@ -1313,7 +1332,9 @@ def get_more_options_card(node: Node,
         form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
         form += '<label>Search for this research output type using field <em>category</em>: '
         form += '</label>'
-        form += '<input class="w3-input w3-border" type=text name=category_filter></br>'
+        form += '<input class="w3-input w3-border" list="category_all_datalist"'
+        form += 'name=category_filter id=category_filter autocomplete=off>'
+        form += category_all_datalist
         button_text = 'find persons that share certain research output types with this person'
         form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
         form += '</form>'
@@ -1323,7 +1344,6 @@ def get_more_options_card(node: Node,
         # Option 3.
         # Enriching can only be done starting from a 'person' node.
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        # html += '<details><summary>Click for more information about enriching your source systems.</summary><ul>'
         html += '<details><summary>Click for more information about improving or '
         html += 'enhancing information in one of your source systems.</summary><ul>'
         html += 'The process of improving or enhancing information in a source system is called "enriching" '
@@ -2345,6 +2365,24 @@ if __name__ == "__main__":
     if graph is None:
         print('Ricgraph could not be opened.')
         exit(2)
+
+    name_all = rcg.read_all_values_of_property('name')
+    if name_all is None:
+        print('Error in obtaining list with all property values for property "name".')
+        exit(2)
+    name_all_datalist = '<datalist id="name_all_datalist">'
+    for name_item in name_all:
+        name_all_datalist += '<option value="' + name_item + '">'
+    name_all_datalist += '</datalist>'
+
+    category_all = rcg.read_all_values_of_property('category')
+    if category_all is None:
+        print('Error in obtaining list with all property values for property "category".')
+        exit(2)
+    category_all_datalist = '<datalist id="category_all_datalist">'
+    for category_item in category_all:
+        category_all_datalist += '<option value="' + category_item + '">'
+    category_all_datalist += '</datalist>'
 
     # For normal use:
     ricgraph_explorer.run(port=3030)
