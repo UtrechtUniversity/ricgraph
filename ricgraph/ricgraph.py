@@ -30,7 +30,7 @@
 #
 # This file is the main file for Ricgraph.
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, February, March, October 2023.
+# Updated Rik D.T. Janssen, February, March, September to December 2023.
 #
 # ########################################################################
 
@@ -328,6 +328,50 @@ def empty_ricgraph(answer: str = '') -> None:
     out = _graph.run('SHOW INDEXES')
     print(out)
     return
+
+
+def ricgraph_nr_nodes() -> Union[int, None]:
+    """Count the number of nodes in Ricgraph.
+
+    :return: the number of nodes.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nricgraph_nr_nodes(): Error: graph has not been initialized or opened.\n\n')
+        return None
+
+    cypher_query = 'MATCH () RETURN COUNT(*) AS count'
+    result = _graph.run(cypher_query).data()
+    if len(result) == 0:
+        return None
+    result = result[0]
+    if 'count' not in result:
+        return None
+    result = int(result['count'])
+    return result
+
+
+def ricgraph_nr_edges() -> Union[int, None]:
+    """Count the number of edges in Ricgraph.
+
+    :return: the number of edges.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nricgraph_nr_edges(): Error: graph has not been initialized or opened.\n\n')
+        return None
+
+    cypher_query = 'MATCH() -[r]->() RETURN COUNT(r) AS count'
+    result = _graph.run(cypher_query).data()
+    if len(result) == 0:
+        return None
+    result = result[0]
+    if 'count' not in result:
+        return None
+    result = int(result['count'])
+    return result
 
 
 def create_ricgraph_key(name: str, value: str) -> str:
@@ -700,7 +744,6 @@ def read_all_nodes_containing_value(name: str = '', category: str = '', value: s
     return all_nodes
 
 
-
 def read_all_values_of_property(node_property: str = '') -> Union[list, None]:
     """Read all the values of a certain property.
 
@@ -713,18 +756,34 @@ def read_all_values_of_property(node_property: str = '') -> Union[list, None]:
         print('\nread_all_values_of_property(): Error: graph has not been initialized or opened.\n\n')
         return None
 
-    if node_property != 'name' and node_property != 'category':
-        print('\nread_all_values_of_property(): Error: only works for property "name" or "category".\n\n')
+    if node_property != 'name' \
+       and node_property != 'category' \
+       and node_property != '_source':
+        print('\nread_all_values_of_property(): Error: function does not work for property "'
+              + node_property + '".\n\n')
         return None
 
-    cypher_query = 'MATCH (p:RicgraphNode) RETURN COLLECT(DISTINCT p.' + node_property + ')'
-    result = _graph.run(cypher_query)
-    result_list = result.to_series().tolist()
+    cypher_query = 'MATCH (p:RicgraphNode) RETURN COLLECT(DISTINCT p.' + node_property + ') AS entries'
+    result = _graph.run(cypher_query).data()
+    if len(result) == 0:
+        return None
+    result = result[0]
+    if 'entries' not in result:
+        return None
+    result_list = result['entries']
     if len(result_list) == 0:
         return None
-    result_list = result_list[0]
-    if len(result_list) == 0:
-        return None
+    if node_property == '_source':
+        # This is a special case, we have a list of lists that we need to untangle.
+        list_of_lists = result_list
+        result_list = []
+        for item in list_of_lists:
+            if len(item) == 0:
+                continue
+            for encapsulated_item in item:
+                if encapsulated_item not in result_list:
+                    result_list.append(encapsulated_item)
+
     # We need 'key' to do a case insenstive search.
     result_list_sorted = sorted(result_list, key=str.lower)
     return result_list_sorted

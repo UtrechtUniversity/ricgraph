@@ -77,7 +77,7 @@ DEFAULT_DISCOVERER_MODE = 'details_view'
 
 # You can search in two different ways in Ricgraph Explorer. This parameter
 # gives the default mode. Possibilities are:
-# exact_match: do a search on exact match.
+# exact_match: do a search on exact match, we call it 'advanced search'.
 # value_search: do a broad search on field 'value'.
 DEFAULT_SEARCH_MODE = 'value_search'
 
@@ -106,15 +106,16 @@ MAX_ORGANIZATION_NODES_TO_RETURN = 4 * MAX_ROWS_IN_TABLE
 # is going to enrich in find_enrich_candidates().
 MAX_NR_NODES_TO_ENRICH = 20
 
-global name_all_datalist, category_all_datalist
+global name_all_datalist, category_all_datalist, source_all, source_all_datalist
 
-
+# The html 'width' of input fields or 'min-width' of buttons.
+field_button_width = '30%'
 # The style for the buttons, note the space before and after the text.
 button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 # A button with a black line around it.
 button_style_border = button_style + ' w3-border rj-border-black '
-# Restrict the width of a button.
-button_width = ' style="min-width:50%;" '
+# Restrict the width of a button. Use 'min-width' to make sure the text fits.
+button_width = ' style="min-width:' + field_button_width + ';" '
 
 # The html stylesheet.
 stylesheet = '<style>'
@@ -134,7 +135,7 @@ stylesheet += '.w3-container {padding:16px;}'
 stylesheet += '.w3-check {width:15px; height:15px; position:relative; top:3px; accent-color:#ffcd00;}'
 stylesheet += '.w3-radio {accent-color: #ffcd00;}'
 # Restrict the width of the input fields.
-stylesheet += '.w3-input {width:50%}'
+stylesheet += '.w3-input {width:' + field_button_width + ';}'
 # Define UU colors. We do not need to define "black" and "white" (they do exist).
 # See https://www.uu.nl/organisatie/huisstijl/huisstijlelementen/kleur.
 stylesheet += '.uu-yellow, .uu-hover-yellow:hover '
@@ -183,7 +184,7 @@ page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item'
 page_header += button_style_border + '" style="min-width:12em">Home</a>'
 page_header += '<a href="/searchform?search_mode=exact_match" class="w3-bar-item'
-page_header += button_style_border + '" style="min-width:12em">Exact match search</a>'
+page_header += button_style_border + '" style="min-width:12em">Advanced search</a>'
 page_header += '<a href="/searchform?search_mode=value_search" class="w3-bar-item'
 page_header += button_style_border + '" style="min-width:12em">Broad search</a>'
 page_header += '</div>'
@@ -233,6 +234,7 @@ def index_html() -> str:
     :return: html to be rendered.
     """
     global html_body_start, html_body_end
+    global source_all
 
     html = html_body_start
     html += get_html_for_cardstart()
@@ -265,7 +267,7 @@ def index_html() -> str:
     html += '<a href=' + url_for('searchform')
     html += '?search_mode=exact_match '
     html += 'class="' + button_style + '"' + button_width
-    html += '>advanced search (exact match search)</a>'
+    html += '>advanced search</a>'
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
@@ -300,6 +302,22 @@ def index_html() -> str:
     html += 'and in which source they were found. '
     html += 'The option to do this will appear automatically after a search for a node.'
 
+    html += get_html_for_cardend()
+
+    html += get_html_for_cardstart()
+    nr_nodes = rcg.ricgraph_nr_nodes()
+    nr_edges = rcg.ricgraph_nr_edges()
+    html += '<h4>Statistics</h4>'
+    html += '<ul>'
+    html += '<li>'
+    html += 'Ricgraph contains data from the following source systems: '
+    html += ', '.join([str(source) for source in source_all])
+    html += '.'
+    html += '</li>'
+    html += '<li>'
+    html += 'There are ' + str(nr_nodes) + ' nodes and ' + str(nr_edges) + ' edges.'
+    html += '</li>'
+    html += '</ul>'
     html += get_html_for_cardend()
     html += html_body_end
     return html
@@ -397,7 +415,7 @@ def searchform() -> str:
     form += '>' + radio_details_text
     form += '<label class="w3-tooltip">' + radio_details_tooltip + '</label><br/>'
 
-    form += '<br/><input class="' + button_style + '" type=submit value=search>'
+    form += '<br/><input class="' + button_style + '" ' + button_width + ' type=submit value=search>'
     form += '</form>'
     html += form
 
@@ -1231,8 +1249,8 @@ def find_enrich_candidates(node: Union[Node, None],
         if len(person_nodes) == 0:
             html += 'find_enrich_candidates(): there are enrich candidates '
             html += 'to enrich source system "' + source_system
-            html += '", but there are no "person" nodes to identify this node in this source system. '
-            html += 'Maybe there are no "person" nodes in "' + source_system + '" for this node?'
+            html += '", but there are no <em>person</em> nodes to identify this node in "'
+            html += source_system + '".'
         else:
             table_header = 'You can use the information in this table to find this node in source system "'
             table_header += source_system + '":'
@@ -1277,7 +1295,6 @@ def find_enrich_candidates(node: Union[Node, None],
                                               table_columns=table_colums)
             html += '</br>Ricgraph could not find any candidates to enrich this node '
             html += 'in source system "' + source_system + '". '
-            html += 'This might also be caused by a misspelling in the name of the source system.'
             html += get_html_for_cardend()
 
     html += '</p>'
@@ -1288,7 +1305,7 @@ def find_enrich_candidates(node: Union[Node, None],
 def get_more_options_card(node: Node,
                           name: str = '', category: str = '', value: str = '',
                           discoverer_mode: str = '') -> str:
-    global name_all_datalist, category_all_datalist
+    global name_all_datalist, category_all_datalist, source_all_datalist
 
     html = get_html_for_cardstart()
     html += 'You can choose one of the following options (but you do not need to):</br>'
@@ -1312,6 +1329,7 @@ def get_more_options_card(node: Node,
         form += '<input class="w3-input w3-border" list="name_all_datalist"'
         form += 'name=name_filter id=nam_filtere autocomplete=off>'
         form += name_all_datalist
+        form += '</br>'
 
         form += '<label>Search for persons or results using field <em>category</em>: '
         form += '</label>'
@@ -1370,7 +1388,9 @@ def get_more_options_card(node: Node,
         form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
         form += '<label>The name of the source system als it appears in column <em>_source</em>: '
         form += '</label>'
-        form += '<input class="w3-input w3-border" type=text name=source_system></br>'
+        form += '<input class="w3-input w3-border" list="source_all_datalist"'
+        form += 'name=source_system id=source_system autocomplete=off>'
+        form += source_all_datalist
         button_text = 'find information harvested from other source systems, not present in this source system'
         form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
         form += '</form>'
@@ -2382,8 +2402,8 @@ if __name__ == "__main__":
         print('Error in obtaining list with all property values for property "name".')
         exit(2)
     name_all_datalist = '<datalist id="name_all_datalist">'
-    for name_item in name_all:
-        name_all_datalist += '<option value="' + name_item + '">'
+    for property_item in name_all:
+        name_all_datalist += '<option value="' + property_item + '">'
     name_all_datalist += '</datalist>'
 
     category_all = rcg.read_all_values_of_property('category')
@@ -2391,9 +2411,18 @@ if __name__ == "__main__":
         print('Error in obtaining list with all property values for property "category".')
         exit(2)
     category_all_datalist = '<datalist id="category_all_datalist">'
-    for category_item in category_all:
-        category_all_datalist += '<option value="' + category_item + '">'
+    for property_item in category_all:
+        category_all_datalist += '<option value="' + property_item + '">'
     category_all_datalist += '</datalist>'
+
+    source_all = rcg.read_all_values_of_property('_source')
+    if source_all is None:
+        print('Error in obtaining list with all property values for property "_source".')
+        exit(2)
+    source_all_datalist = '<datalist id="source_all_datalist">'
+    for property_item in source_all:
+        source_all_datalist += '<option value="' + property_item + '">'
+    source_all_datalist += '</datalist>'
 
     # For normal use:
     ricgraph_explorer.run(port=3030)
