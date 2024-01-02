@@ -38,7 +38,7 @@
 # "the outside world". Be careful if you expose it to the outside world.
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September to December 2023.
+# Extended Rik D.T. Janssen, February, September 2023 to January 2024.
 #
 # ########################################################################
 #
@@ -66,10 +66,10 @@ import ricgraph as rcg
 
 ricgraph_explorer = Flask(__name__)
 
-# Ricgraph Explorerer is also a "discoverer". This parameter gives the
+# Ricgraph Explorer is also a "discoverer". This parameter gives the
 # default mode. Possibilities are:
-# details_view: show all the details.
-# person_view: show a person card, limit details (e.g. do not show _history & _source)
+# - details_view: show all the details.
+# - person_view: show a person card, limit details (e.g. do not show _history & _source)
 # Should be this:
 # DEFAULT_DISCOVERER_MODE = 'person_view'
 # But for development, this one is easier:
@@ -89,7 +89,7 @@ DETAIL_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
 RESEARCH_OUTPUT_COLUMNS = ['name', 'category', 'value', 'comment',
                            'year', 'url_main', 'url_other']
 ORGANIZATION_COLUMNS = ['name', 'value', 'comment', 'url_main']
-ID_COLUMNS = ['name', 'value', 'url_main']
+ID_COLUMNS = ['name', 'value', 'comment', 'url_main']
 
 # When we do a query, we return at most this number of nodes.
 MAX_RESULTS = 50
@@ -106,7 +106,25 @@ MAX_ORGANIZATION_NODES_TO_RETURN = 4 * MAX_ROWS_IN_TABLE
 # is going to enrich in find_enrich_candidates().
 MAX_NR_NODES_TO_ENRICH = 20
 
+# These are all the 'view_mode's that are allowed.
+VIEW_MODE_ALL = ['view_regular_table_personal',
+                 'view_regular_table_organizations',
+                 'view_regular_table_persons',
+                 'view_regular_table_category',
+                 'view_regular_table_overlap',
+                 'view_regular_table_overlap_records',
+                 'view_unspecified_table_resouts',
+                 'view_unspecified_table_everything',
+                 'view_unspecified_table_everything_except_ids',
+                 'view_unspecified_table_organizations',
+                 'view_regular_table_person_share_resouts',
+                 'view_regular_table_person_enrich_source_system',
+                 'view_regular_table_organization_addinfo',
+                 ]
+
 global name_all_datalist, category_all_datalist, source_all, source_all_datalist
+global resout_types_all, resout_types_all_datalist
+global personal_types_all, remainder_types_all
 
 # The html 'width' of input fields or 'min-width' of buttons.
 field_button_width = '30%'
@@ -183,9 +201,9 @@ page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item'
 page_header += button_style_border + '" style="min-width:12em">Home</a>'
-page_header += '<a href="/searchform?search_mode=exact_match" class="w3-bar-item'
+page_header += '<a href="/searchpage?search_mode=exact_match" class="w3-bar-item'
 page_header += button_style_border + '" style="min-width:12em">Advanced search</a>'
-page_header += '<a href="/searchform?search_mode=value_search" class="w3-bar-item'
+page_header += '<a href="/searchpage?search_mode=value_search" class="w3-bar-item'
 page_header += button_style_border + '" style="min-width:12em">Broad search</a>'
 page_header += '</div>'
 page_header += '</header>'
@@ -193,7 +211,7 @@ page_header += '</header>'
 # The html page footer.
 page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
 page_footer += 'Disclaimer: Ricgraph Explorer is recommended for research use, not for production use. '
-page_footer += 'For more information about Ricgraph, see '
+page_footer += 'For more information about Ricgraph and Ricgraph Explorer, see '
 page_footer += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
 page_footer += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
 page_footer += '</footer>'
@@ -226,82 +244,57 @@ def favicon():
 
 # ##############################################################################
 # Entry functions.
+# Ricgraph Explorer has three web pages:
+# 1. homepage.
+# 2. searchpage.
+# 3a. if there is more than one result: optionspage with a list of nodes to choose from.
+# 3b. if there is just one result: optionspage, this page depends on the node type found.
+# 4. resultspage, this page depends on what the user would like to see.
 # ##############################################################################
 @ricgraph_explorer.route(rule='/')
-def index_html() -> str:
-    """Ricgraph Explorer entry, the index page, when you access '/'.
+def homepage() -> str:
+    """Ricgraph Explorer entry, the home page, when you access '/'.
 
     :return: html to be rendered.
     """
     global html_body_start, html_body_end
-    global source_all
+    global source_all, category_all
 
     html = html_body_start
     html += get_html_for_cardstart()
     html += '<h3>This is Ricgraph Explorer</h3>'
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
-
     html += 'There are various methods to start exploring:'
     html += '<p/>'
-    html += '<a href=' + url_for('searchform')
-    html += '?search_mode=value_search&name=FULL_NAME '
-    html += 'class="' + button_style + '"' + button_width
-    html += '>search for a person</a>'
+    html += create_html_form(destination='searchpage',
+                             button_text='search for a person',
+                             hidden_fields={'search_mode': 'value_search',
+                                            'name': 'FULL_NAME'
+                                            })
     html += '<p/>'
-    html += '<a href=' + url_for('searchform')
-    html += '?search_mode=value_search&category=organization '
-    html += 'class="' + button_style + '"' + button_width
-    html += '>search for a (child) organization</a>'
+    html += create_html_form(destination='searchpage',
+                             button_text='search for a (child) organization',
+                             hidden_fields={'search_mode': 'value_search',
+                                            'category': 'organization'
+                                            })
     html += '<p/>'
-    # TODO: make the next button dependent on having harvested UU staff pages.
-    html += '<a href=' + url_for('searchform')
-    html += '?search_mode=value_search&category=competence '
-    html += 'class="' + button_style + '"' + button_width
-    html += '>search for a skill, expertise area or research area</a> '
+    if 'competence' in category_all:
+        html += create_html_form(destination='searchpage',
+                                 button_text='search for a skill, expertise area or research area',
+                                 hidden_fields={'search_mode': 'value_search',
+                                                'category': 'competence'
+                                                })
+        html += '<p/>'
+    html += create_html_form(destination='searchpage',
+                             button_text='search for anything (broad search)',
+                             hidden_fields={'search_mode': 'value_search'
+                                            })
     html += '<p/>'
-    html += '<a href=' + url_for('searchform')
-    html += '?search_mode=value_search '
-    html += 'class="' + button_style + '"' + button_width
-    html += '>search for anything (broad search)</a>'
+    html += create_html_form(destination='searchpage',
+                             button_text='advanced search',
+                             hidden_fields={'search_mode': 'exact_match'
+                                            })
     html += '<p/>'
-    html += '<a href=' + url_for('searchform')
-    html += '?search_mode=exact_match '
-    html += 'class="' + button_style + '"' + button_width
-    html += '>advanced search</a>'
-    html += get_html_for_cardend()
-
-    html += get_html_for_cardstart()
-    html += '<h4>Explore persons</h4>'
-    html += 'After a search for a person, you can choose to find out with whom this person '
-    html += 'shares research outputs. Also, you can find out how to '
-    html += 'improve or enhance information in one of your source systems. This '
-    html += 'is called "enriching" your source system, and '
-    html += 'means that information found in one or more other harvested systems, '
-    html += 'is used to improve or enhance information in the first source system. '
-    html += 'The options to do this will appear automatically after a search for '
-    html += 'a person.'
-
-    html += '<h4>Explore (child) organizations</h4>'
-    html += 'After a search for a (child) organization, you can choose what you '
-    html += 'would like to see about the persons or their results in this (child) organization. '
-    html += 'For instance, if you have harvested a source system containing '
-    html += 'chairs, units, departments, faculties, etc., you can find out to what '
-    html += 'research outputs the persons in that organization have contributed, '
-    html += 'or what skills the persons in that organization have (but only '
-    html += 'if you have harvested skills). '
-    html += 'The option to do this will appear automatically after a search for '
-    html += 'a (child) organization.'
-
-    html += '<h4>Explore the overlap in source systems</h4>'
-    html += 'If you have harvested more than one source system, you can choose '
-    html += 'to find the overlap in these source systems, based on a node '
-    html += 'you have searched for. '
-    html += 'You will get two tables, one showing the number of records found in only '
-    html += 'one source and the number of records found in multiple sources. '
-    html += 'The other table shows the number of records found in multiple sources, '
-    html += 'and in which source they were found. '
-    html += 'The option to do this will appear automatically after a search for a node.'
-
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
@@ -323,8 +316,8 @@ def index_html() -> str:
     return html
 
 
-@ricgraph_explorer.route(rule='/searchform/', methods=['GET'])
-def searchform() -> str:
+@ricgraph_explorer.route(rule='/searchpage/', methods=['GET'])
+def searchpage() -> str:
     """Ricgraph Explorer entry, this 'page' shows the search form, both the
     exact match search form and the broad search on the 'value' field form.
 
@@ -337,7 +330,7 @@ def searchform() -> str:
     returns html to parse.
     """
     global html_body_start, html_body_end
-    global name_all_datalist, category_all_datalist
+    global name_all_datalist, category_all, category_all_datalist
 
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
@@ -350,7 +343,7 @@ def searchform() -> str:
     html = html_body_start
     html += get_html_for_cardstart()
 
-    form = '<form method="get" action="/findnodes">'
+    form = '<form method="get" action="/optionspage">'
     if search_mode == 'exact_match':
         form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
         form += '<input class="w3-input w3-border" list="name_all_datalist"'
@@ -387,12 +380,12 @@ def searchform() -> str:
     radio_person_tooltip += 'This view only shows relevant columns. '
     radio_person_tooltip += 'Research outputs are presented in a <em>tabbed</em> format. '
     radio_person_tooltip += 'Tables have less columns (to reduce information overload) '
-    radio_person_tooltip += 'and the order of the tables is different compared to the other <em>discoverer_mode</em>. '
-    radio_person_tooltip += '<br/>This view has been tailored to the Utrecht University staff pages, since some '
-    radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
-    radio_person_tooltip += 'If present, these will be presented in a more attractive way. '
-    radio_person_tooltip += 'If the UU staff pages have not been harvested, this view may still be relevant, '
-    radio_person_tooltip += 'because it shows that the layout of information can be adapted to a target audience.'
+    radio_person_tooltip += 'and the order of the tables is different compared to the other option. '
+    radio_person_tooltip += 'It shows that the layout of information can be adapted to a target audience.'
+    if 'competence' in category_all:
+        radio_person_tooltip += '<br/>This view has been tailored to the Utrecht University staff pages, since some '
+        radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
+        radio_person_tooltip += 'These will be presented in a more attractive way. '
     radio_person_tooltip += '</div>'
 
     radio_details_text = ' <em>details_view</em>: show all columns, '
@@ -424,8 +417,8 @@ def searchform() -> str:
     return html
 
 
-@ricgraph_explorer.route(rule='/findnodes/', methods=['GET'])
-def findnodes() -> str:
+@ricgraph_explorer.route(rule='/optionspage/', methods=['GET'])
+def optionspage() -> str:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     Find nodes based on URL parameters passed.
 
@@ -436,13 +429,6 @@ def findnodes() -> str:
     - name: name of the nodes to find.
     - category: category of the nodes to find.
     - value: value of the nodes to find.
-    - faceted_name: either a string which indicates that we only want neighbor
-      nodes where the property 'name' is equal to 'faceted_name'
-      (e.g. 'ORCID'), or a list containing several node names, indicating
-      that we want all neighbor nodes where the property 'name' equals
-      one of the names in the list 'faceted_name' (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
-      If empty (empty string), return all nodes.
-    - faceted_category: similar to 'faceted_name', but now for the property 'category'.
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
     - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
@@ -466,540 +452,108 @@ def findnodes() -> str:
         name = get_url_parameter_value(parameter='name')
         category = get_url_parameter_value(parameter='category')
         value = get_url_parameter_value(parameter='value', use_escape=False)
-
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=['details_view', 'person_view'],
                                               default_value=DEFAULT_DISCOVERER_MODE)
-    faceted_name_list = request.args.getlist('faceted_name')
-    faceted_category_list = request.args.getlist('faceted_category')
 
     html = html_body_start
-
     if name == '' and category == '' and value == '':
-        html += get_html_for_cardstart()
-        html += 'Ricgraph Explorer could not find anything.'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
+        html += get_message(message='Ricgraph Explorer could not find anything.')
         html += html_body_end
         return html
-
     if search_mode == 'exact_match':
         result = rcg.read_all_nodes(name=name, category=category, value=value)
     else:
         if len(value) < 3:
-            html += get_html_for_cardstart()
-            html += 'The search string should be at least three characters.'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
+            html += get_message(message='The search string should be at least three characters.')
             html += html_body_end
             return html
         result = rcg.read_all_nodes_containing_value(name=name, category=category, value=value)
-
     if len(result) == 0:
         # We didn't find anything.
-        html += get_html_for_cardstart()
-        html += 'Ricgraph Explorer could not find anything.'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
+        html += get_message(message='Ricgraph Explorer could not find anything.')
         html += html_body_end
         return html
-
     if len(result) > 1:
-        columns = ''
-        table_header = 'Choose one node to continue, or '
-        table_header += '<a href="' + url_for('getoverlap') + '?'
-        table_header += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
-                                                'discoverer_mode': discoverer_mode})
-        table_header += '">'
-        table_header += 'click here to show the overlap in source systems for your query'
-        table_header += '</a>:'
-        if discoverer_mode == 'details_view':
-            columns = DETAIL_COLUMNS
-        elif discoverer_mode == 'person_view':
-            columns = RESEARCH_OUTPUT_COLUMNS
-        html += get_html_table_from_nodes(nodes=result,
-                                          table_header=table_header,
-                                          table_columns=columns,
-                                          discoverer_mode=discoverer_mode)
+        html += get_regular_table(nodes_list=result,
+                                  table_header='Choose one node to continue:',
+                                  discoverer_mode=discoverer_mode)
         html += html_body_end
         return html
 
     node = result.first()
-    # If 'faceted_name_list' and/or 'faceted_category_list' have not been passed as
-    # URL parameter(s), they will be '[]'. That means: all names and/or categories.
-    # So no additional checks needed.
-    html += results_page(node=node,
-                         name_want=faceted_name_list,
-                         category_want=faceted_category_list,
-                         discoverer_mode=discoverer_mode)
-
+    html += create_options_page(node=node, discoverer_mode=discoverer_mode)
     html += html_body_end
     return html
 
 
-@ricgraph_explorer.route(rule='/filterorganization/', methods=['GET'])
-def filterorganization() -> str:
+@ricgraph_explorer.route(rule='/resultspage/', methods=['GET'])
+def resultspage() -> str:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
-    This function filters for persons or their results in a certain organization.
-    This URL creates a table with the filter results with the parameters
-    provided in the URL.
+    View the results based on the values passed.
+    This function is tied to create_results_page(), where, depending on the
+    value of 'view_mode', is determined what will be viewed.
+    This function will only be called with one node, so we can use 'key' to find it.
 
     Possible parameters are:
 
-    - key: as usual.
-    - discoverer_mode: as usual.
-    - name_filter: filter persons or research outputs on this name field.
-    - category_filter: filter persons or research outputs on this category field.
+    - view_mode: determines what will be shown in create_results_page().
+      This view_mode is first set in create_options_page(), and then
+      caught first in resultspage() and then in create_results_page().
+    - key: key of the nodes to find.
+    - name_list: either a string which indicates that we only want neighbor
+      nodes where the property 'name' is equal to 'name_list'
+      (e.g. 'ORCID'), or a list containing several node names, indicating
+      that we want all neighbor nodes where the property 'name' equals
+      one of the names in the list 'name_list' (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    - category_list: similar to 'name_list', but now for the property 'category'.
+    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
+      or 'person_view' to have a nicer layout.
 
-    :return: html to be rendered.
+    returns html to parse.
     """
     global html_body_start, html_body_end
 
-    html = html_body_start
-
+    view_mode = get_url_parameter_value(parameter='view_mode')
     key = get_url_parameter_value(parameter='key', use_escape=False)
-    if key == '':
-        html += 'filterorganization(): "key" URL parameter is required.'
-        html += html_body_end
-        return html
-    name = rcg.get_namepart_from_ricgraph_key(key=key)
-    value = rcg.get_valuepart_from_ricgraph_key(key=key)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=['details_view', 'person_view'],
                                               default_value=DEFAULT_DISCOVERER_MODE)
-    name_filter = get_url_parameter_value(parameter='name_filter')
-    category_filter = get_url_parameter_value(parameter='category_filter')
-
-    result = rcg.read_all_nodes(name=name, value=value)
-    if len(result) == 0:
-        # Let's try again, assuming we did a broad search instead of an exact match search.
-        result = rcg.read_all_nodes_containing_value(value=value)
-        if len(result) == 0:
-            # No, we really didn't find anything.
-            html += get_html_for_cardstart()
-            html += 'Unexpected result in filterorganization(): '
-            html += 'This organization cannot be found in Ricgraph.'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            html += html_body_end
-            return html
-
-    # Now 'result' contains the node(s) on the (previous) screen where you pressed the button to get
-    # more info about that node. We get the first one.
-    node = result.first()
-    if node['category'] != 'organization':
-        html += get_html_for_cardstart()
-        html += 'Unexpected result in filterorganization(): '
-        html += 'You have not passed an "organization" node, but a "' + node['category']
-        html += '" node in fiterorganization(). '
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
-        html += html_body_end
-        return html
-
-    # Get the neighbors of the 'organization' node.
-    relevant_result = []
-    # neighbors = rcg.get_all_neighbor_nodes(node=node, name_want='person-root')
-    # Note the hard limit
-    neighbors = rcg.get_all_neighbor_nodes(node=node,
-                                           name_want='person-root',
-                                           max_nr_neighbor_nodes=MAX_ORGANIZATION_NODES_TO_RETURN)
-    count = 0
-    for neighbor in neighbors:
-        if count >= MAX_ROWS_IN_TABLE:
-            break
-        # We include ourselves.
-        # For get_all_neighbor_nodes(), for the '_want' parameters: if we pass '',
-        # that means we do not want a filter for that parameter.
-        more_neighbors = rcg.get_all_neighbor_nodes(node=neighbor,
-                                                    name_want=name_filter,
-                                                    category_want=category_filter)
-        for item in more_neighbors:
-            if count >= MAX_ROWS_IN_TABLE:
-                break
-            if item not in relevant_result:
-                relevant_result.append(item)
-                count += 1
-
-    if len(relevant_result) == 0:
-        # Nothing found
-        html += get_html_for_cardstart()
-        html += 'Could not find any persons or results for this organization.'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
-        html += html_body_end
-        return html
-
-    if discoverer_mode == 'details_view':
-        table_colums = DETAIL_COLUMNS
-        html += get_you_searched_for_card(key=key,
-                                          discoverer_mode=discoverer_mode,
-                                          name_filter=name_filter,
-                                          category_filter=category_filter)
-    else:
-        table_colums = RESEARCH_OUTPUT_COLUMNS
-
-    table_header = 'This node is used for finding information about the persons '
-    table_header += 'or their results of this organization '
-    table_header += '(for at most ' + str(MAX_ORGANIZATION_NODES_TO_RETURN) + ' neighbor nodes, '
-    table_header += 'for program speed reasons):'
-    html += get_html_table_from_nodes(nodes=result,
-                                      table_header=table_header,
-                                      table_columns=table_colums,
-                                      discoverer_mode=discoverer_mode)
-    table_header = 'These are all the '
-    if name_filter != '' and category_filter != '':
-        table_header += '"' + name_filter + '" and "' + category_filter + '" '
-    elif name_filter != '':
-        table_header += '"' + name_filter + '" '
-    elif category_filter != '':
-        table_header += '"' + category_filter + '" '
-    table_header += 'nodes of all the persons or their results of this organization '
-    table_header += '(for the given number of neighbor nodes):'
-    html += get_html_table_from_nodes(nodes=relevant_result,
-                                      table_header=table_header,
-                                      table_columns=table_colums,
-                                      discoverer_mode=discoverer_mode)
-
-    html += html_body_end
-    return html
-
-
-@ricgraph_explorer.route(rule='/filterperson/', methods=['GET'])
-def filterperson() -> str:
-    """Ricgraph Explorer entry, this 'page' only uses URL parameters.
-    This function filters for persons who are connected to one person,
-    sharing a certain research output type.
-    This URL creates a table with the filter results with the parameters
-    provided in the URL.
-
-    Possible parameters are:
-
-    - key: as usual.
-    - discoverer_mode: as usual.
-    - category_filter: the type of research output to filter on.
-
-    :return: html to be rendered.
-    """
-    global html_body_start, html_body_end
+    name_list = request.args.getlist('name_list')
+    category_list = request.args.getlist('category_list')
 
     html = html_body_start
 
-    key = get_url_parameter_value(parameter='key', use_escape=False)
-    if key == '':
-        html += 'filterperson(): "key" URL parameter is required.'
-        html += html_body_end
-        return html
-    name = rcg.get_namepart_from_ricgraph_key(key=key)
-    value = rcg.get_valuepart_from_ricgraph_key(key=key)
-    discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=['details_view', 'person_view'],
-                                              default_value=DEFAULT_DISCOVERER_MODE)
-    category_filter = get_url_parameter_value(parameter='category_filter')
-
-    result = rcg.read_all_nodes(name=name, value=value)
-    if len(result) == 0:
-        # Let's try again, assuming we did a broad search instead of an exact match search.
-        result = rcg.read_all_nodes_containing_value(value=value)
-        if len(result) == 0:
-            # No, we really didn't find anything.
-            html += get_html_for_cardstart()
-            html += 'Unexpected result in filterperson(): '
-            html += 'This person cannot be found in Ricgraph.'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            html += html_body_end
-            return html
-
-    # Now 'result' contains the node(s) on the (previous) screen where you pressed the button to get
-    # more info about that node. We get the first one.
-    node = result.first()
-    if node['category'] != 'person':
-        html += get_html_for_cardstart()
-        html += 'Unexpected result in filterperson(): '
-        html += 'You have not passed an "person" node, but a "' + node['category']
-        html += '" node in filterperson().'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
-        html += html_body_end
-        return html
-    if node['name'] != 'person-root':
-        personroot = rcg.get_personroot_node(node=node)
-    else:
-        personroot = node
-
-    if category_filter == '':
-        neighbors = rcg.get_all_neighbor_nodes(node=personroot,
-                                               category_dontwant=['person', 'competence', 'organization'])
-    else:
-        neighbors = rcg.get_all_neighbor_nodes(node=personroot,
-                                               category_want=category_filter,
-                                               category_dontwant=['person', 'competence', 'organization'])
-
-    if len(neighbors) == 0:
-        # Nothing found
-        html += get_html_for_cardstart()
-        html += 'This person does not seem to share any research output types '
-        html += 'with other persons.'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
+    if view_mode not in VIEW_MODE_ALL:
+        html += get_message(message='Unknown view_mode: "' + view_mode + '".')
         html += html_body_end
         return html
 
-    # Now for all relevant_results found, find the connecting 'person-root' node
-    connected_persons = []
-    for node in neighbors:
-        persons = rcg.get_all_neighbor_nodes(node=node, name_want='person-root')
-        for person in persons:
-            if person['_key'] == personroot['_key']:
-                # Note: we do not include ourselves.
-                continue
-            if person not in connected_persons:
-                connected_persons.append(person)
-
-    if discoverer_mode == 'details_view':
-        table_colums = DETAIL_COLUMNS
-        html += get_you_searched_for_card(key=key,
-                                          discoverer_mode=discoverer_mode,
-                                          category_filter=category_filter)
-    else:
-        table_colums = RESEARCH_OUTPUT_COLUMNS
-
-    table_header = 'This is the person we start with:'
-    html += get_html_table_from_nodes(nodes=personroot,
-                                      table_header=table_header,
-                                      table_columns=table_colums,
-                                      discoverer_mode=discoverer_mode)
-    if category_filter == '':
-        table_header = 'This person shares research output types '
-    else:
-        table_header = 'This person shares research output type "' + category_filter + '" '
-    table_header += 'with these persons:'
-    html += get_html_table_from_nodes(nodes=connected_persons,
-                                      table_header=table_header,
-                                      table_columns=table_colums,
-                                      discoverer_mode=discoverer_mode)
-
-    html += html_body_end
-    return html
-
-
-@ricgraph_explorer.route(rule='/getoverlap/', methods=['GET'])
-def getoverlap() -> str:
-    """Ricgraph Explorer entry, this 'page' does not allow data entry.
-    The data entry is via the url parameters.
-    This url calls get_overlap_in_source_systems() with the parameters
-    provided in the url.
-
-    Possible parameters are:
-
-    - name, category, value: as usual.
-    - discoverer_mode: which discoverer mode to use:
-      only show relevant columns, research outputs
-      presented in a tabbed format ('person_view'), or
-      show all columns, research outputs presented
-      in a table with facets ('details_view').
-    - overlap_mode: which overlap to compute: from this node ('thisnode'),
-      or from the neighbors of this node ('neighbornodes').
-
-    :return: html to be rendered.
-    """
-    global html_body_start, html_body_end
-
-    name = get_url_parameter_value(parameter='name')
-    category = get_url_parameter_value(parameter='category')
-    value = get_url_parameter_value(parameter='value', use_escape=False)
-    discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=['details_view', 'person_view'],
-                                              default_value=DEFAULT_DISCOVERER_MODE)
-    overlap_mode = get_url_parameter_value(parameter='overlap_mode',
-                                           allowed_values=['thisnode', 'neighbornodes'],
-                                           default_value='thisnode')
-
-    html = html_body_start
-
-    html += get_overlap_in_source_systems(name=name, category=category, value=value,
-                                          discoverer_mode=discoverer_mode,
-                                          overlap_mode=overlap_mode)
-
-    html += html_body_end
-    return html
-
-
-@ricgraph_explorer.route(rule='/getoverlaprecords/', methods=['GET'])
-def getoverlaprecords() -> str:
-    """Ricgraph Explorer entry, this 'page' does not allow data entry.
-    The data entry is via the url parameters.
-    This url creates a table with the search results with the parameters
-    provided in the url.
-
-    Possible parameters are:
-
-    - name, category, value: as usual.
-    - system1, system2: the source systems used to compute the overlap.
-    - discoverer_mode: which discoverer mode to use:
-      only show relevant columns, research outputs
-      presented in a tabbed format ('person_view'), or
-      show all columns, research outputs presented
-      in a table with facets ('details_view').
-    - overlap_mode: which overlap to compute: from this node ('thisnode'),
-      or from the neighbors of this node ('neighbornodes').
-
-    :return: html to be rendered.
-    """
-    global html_body_start, html_body_end
-
-    name = get_url_parameter_value(parameter='name')
-    category = get_url_parameter_value(parameter='category')
-    value = get_url_parameter_value(parameter='value', use_escape=False)
-    system1 = get_url_parameter_value(parameter='system1')
-    system2 = get_url_parameter_value(parameter='system2')
-    discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=['details_view', 'person_view'],
-                                              default_value=DEFAULT_DISCOVERER_MODE)
-    overlap_mode = get_url_parameter_value(parameter='overlap_mode',
-                                           allowed_values=['thisnode', 'neighbornodes'],
-                                           default_value='thisnode')
-    if system1 == '' and system2 != '':
-        # swap
-        system1 = system2
-        system2 = ''
-    if system1 == 'singlesource' or system1 == 'multiplesource':
-        if system2 != '':
-            # swap
-            temp = system1
-            system1 = system2
-            system2 = temp
-
-    html = html_body_start
-    result = rcg.read_all_nodes(name=name, category=category, value=value)
-    if len(result) == 0:
-        # Let's try again, assuming we did a broad search instead of an exact match search.
-        result = rcg.read_all_nodes_containing_value(value=value)
-        if len(result) == 0:
-            # No, we really didn't find anything.
-            html += get_html_for_cardstart()
-            html += 'Unexpected result in getoverlaprecords(): '
-            html += 'This node cannot be found in Ricgraph.'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            html += html_body_end
-            return html
-
-    if overlap_mode == 'neighbornodes':
-        # In this case, we would like to know the overlap of nodes neighboring the node
-        # we have just found. We can only do that if we have found only one node.
-        if len(result) > 1:
-            html += get_html_for_cardstart()
-            html += 'Ricgraph Explorer found too many nodes. It cannot compute the overlap '
-            html += 'of the neighbor nodes of more than one node in getoverlaprecords().'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            html += html_body_end
-            return html
-
-        node = result.first()
-        if node['category'] == 'person':
-            personroot = rcg.get_personroot_node(node)
-            if personroot is None:
-                html += get_html_for_cardstart()
-                html += 'Unexpected result in getoverlaprecords(): '
-                html += 'Ricgraph Explorer found no "person-root" node.'
-                html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-                html += get_html_for_cardend()
-                html += html_body_end
-                return html
-            neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot)
-        else:
-            neighbor_nodes = rcg.get_all_neighbor_nodes(node=node)
-        result = neighbor_nodes.copy()
-
-    relevant_result = []
-    for node in result:
-        sources = node['_source']
-        if system1 == '':
-            # Then system2 will also be '', see swap above.
-            relevant_result.append(node)
-            continue
-        if system2 == '':
-            if system1 in sources:
-                relevant_result.append(node)
-                continue
-        if system2 == 'singlesource':
-            if system1 in sources and len(sources) == 1:
-                relevant_result.append(node)
-                continue
-        if system2 == 'multiplesource':
-            if system1 in sources and len(sources) > 1:
-                relevant_result.append(node)
-                continue
-        if system1 in sources and system2 in sources:
-            relevant_result.append(node)
-
-    if discoverer_mode == 'details_view':
-        table_colums = DETAIL_COLUMNS
-        html += get_you_searched_for_card(name=name,
-                                          category=category,
-                                          value=value,
-                                          discoverer_mode=discoverer_mode,
-                                          overlap_mode=overlap_mode,
-                                          system1=system1,
-                                          system2=system2)
-    else:
-        table_colums = RESEARCH_OUTPUT_COLUMNS
-
-    html += get_html_table_from_nodes(nodes=relevant_result,
-                                      table_header='These records conform to your selection:',
-                                      table_columns=table_colums,
-                                      discoverer_mode=discoverer_mode)
-
-    html += html_body_end
-    return html
-
-
-@ricgraph_explorer.route(rule='/findenrichcandidates/', methods=['GET'])
-def findenrichcandidates() -> str:
-    """Ricgraph Explorer entry, this 'page' only uses URL parameters.
-    This url calls find_enrich_candidates() with the parameters
-    provided in the url.
-
-    Possible parameters are:
-
-    - key: as usual, if key = '' , all nodes will be enriched.
-    - discoverer_mode: as usual.
-    - source_system: the source system to be enriched.
-
-    :return: html to be rendered.
-    """
-    global html_body_start, html_body_end
-
-    html = html_body_start
-
-    key = get_url_parameter_value(parameter='key', use_escape=False)
-    if key == '':
-        # We are going to enrich all nodes in Ricgraph.
-        node = None
-    else:
-        name = rcg.get_namepart_from_ricgraph_key(key=key)
-        value = rcg.get_valuepart_from_ricgraph_key(key=key)
-        nodes = rcg.read_all_nodes(name=name, value=value)
-        node = nodes.first()
-    discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=['details_view', 'person_view'],
-                                              default_value=DEFAULT_DISCOVERER_MODE)
-    source_system = get_url_parameter_value(parameter='source_system')
-    if source_system == '':
-        html += get_html_for_cardstart()
-        html += 'You need to specify a source system if you would like to '
-        html += 'enhance a source system.'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
+    if view_mode == 'view_regular_table_overlap_records':
+        # Special case, we catch it here because it needs a number of parameters which
+        # I do not really want to pass down all the way.
+        name = get_url_parameter_value(parameter='name')
+        category = get_url_parameter_value(parameter='category')
+        value = get_url_parameter_value(parameter='value', use_escape=False)
+        system1 = get_url_parameter_value(parameter='system1')
+        system2 = get_url_parameter_value(parameter='system2')
+        overlap_mode = get_url_parameter_value(parameter='overlap_mode',
+                                               allowed_values=['thisnode', 'neighbornodes'],
+                                               default_value='neighbornodes')
+        html += find_overlap_in_source_systems_records(name=name, category=category, value=value,
+                                                       system1=system1, system2=system2,
+                                                       discoverer_mode=discoverer_mode,
+                                                       overlap_mode=overlap_mode)
         html += html_body_end
         return html
 
-    html += find_enrich_candidates(node=node,
-                                   source_system=source_system,
-                                   discoverer_mode=discoverer_mode)
+    html += create_results_page(view_mode=view_mode,
+                                key=key,
+                                name_list=name_list,
+                                category_list=category_list,
+                                discoverer_mode=discoverer_mode)
+
     html += html_body_end
     return html
 
@@ -1008,207 +562,568 @@ def findenrichcandidates() -> str:
 # This is where the work is done.
 # ##############################################################################
 
-def get_url_parameter_value(parameter: str,
-                            allowed_values: list = None,
-                            default_value: str = '',
-                            use_escape: bool = True) -> str:
-    """Get a URL parameter and its value.
+def create_options_page(node: Node, discoverer_mode: str = '') -> str:
+    """This function creates the page with options to choose from, depending on the
+    choice the user has made on the index page.
+    The 'view_mode' that is used, is caught first in resultspage() and then
+    in create_results_page().
 
-
-    :param parameter: name of the URL parameter.
-    :param allowed_values: allowed values of the URL parameter, if any.
-    :param default_value: the default value, if any.
-    :param use_escape: whether to call escape() or not for the URL parameter. We should
-        do this for safety, however, we cannot always do this, because then we
-        cannot search correctly in Ricgraph.
-        For example, if we would use escape() for a URL parameter that contains an '&',
-        such as in 'Department: Research & Data Management Services',
-        that '&' will be translated to the HTML character '&amp;', which then
-        will not be found in Ricgraph.
-    :return: the value of the URL parameter.
-    """
-    if allowed_values is None:
-        allowed_values = []
-
-    if use_escape:
-        value = str(escape(request.args.get(parameter, default='')))
-    else:
-        value = str(request.args.get(parameter, default=''))
-
-    if value == '' and default_value != '':
-        value = str(default_value)
-
-    if len(allowed_values) > 0:
-        # If 'default_value' == '', then 'value' will be '', which is what we intend.
-        if value not in allowed_values:
-            value = str(default_value)
-
-    return value
-
-
-def results_page(node: Node,
-                 name_want: list = None, category_want: list = None,
-                 discoverer_mode: str = '') -> str:
-    """Show the result page for a node.
-
-    :param node: node to show the result page for.
-    :param name_want: either a string which indicates that we only want neighbor
-      nodes where the property 'name' is equal to 'name_want'
-      (e.g. 'ORCID'),
-      or a list containing several node names, indicating
-      that we want all neighbor nodes where the property 'name' equals
-      one of the names in the list 'name_want'
-      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
-      If empty (empty string), return all nodes.
-    :param category_want: similar to 'name_want', but now for the property 'category'.
-    :param discoverer_mode: the discoverer_mode to use.
+    :param node: the node that is found and that determines the possible choices.
+    :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
-    if name_want is None:
-        name_want = []
-    if category_want is None:
-        category_want = []
+    global name_all_datalist, category_all_datalist, source_all_datalist
+    global resout_types_all, resout_types_all_datalist
 
-    name = node['name']
-    category = node['category']
-    value = node['value']
     html = ''
-    columns = ''
-    if discoverer_mode == 'details_view':
-        html += get_you_searched_for_card(name=name,
-                                          category=category,
-                                          value=value,
-                                          name_want=name_want,
-                                          category_want=category_want,
-                                          discoverer_mode=discoverer_mode)
+    if node is None:
+        return get_message(message='create_options_page(): Node is None. This should not happen.')
 
     if discoverer_mode == 'details_view':
-        columns = DETAIL_COLUMNS
-    elif discoverer_mode == 'person_view':
-        columns = RESEARCH_OUTPUT_COLUMNS
-    html += get_html_table_from_nodes(nodes=node,
-                                      table_header='Ricgraph Explorer found node:',
-                                      table_columns=columns,
-                                      discoverer_mode=discoverer_mode)
-
-    html += get_more_options_card(node=node,
-                                  name=name, category=category, value=value,
-                                  discoverer_mode=discoverer_mode)
-
-    category_dontwant = ''
-    if node['category'] == 'person':
-        personroot_nodes = rcg.get_all_personroot_nodes(node=node)
-        if len(personroot_nodes) == 0:
-            html += get_html_for_cardstart()
-            html += 'No person-root node found, this should not happen.'
-            html += get_html_for_cardend()
-            return html
-        elif len(personroot_nodes) == 1:
-            person_neighbor_nodes = rcg.get_all_neighbor_nodes_person(node=node)
-            table_header = ''
-            node_to_find_neighbors = personroot_nodes[0]
-            if discoverer_mode == 'details_view':
-                table_header = 'This is a <i>person</i> node, '
-                table_header += 'these are all IDs of its <i>person-root</i> node:'
-                html += details_view_page(nodes=person_neighbor_nodes,
-                                          table_header=table_header,
-                                          table_columns=DETAIL_COLUMNS,
+        html += get_you_searched_for_card(key=node['_key'],
                                           discoverer_mode=discoverer_mode)
-                table_header = 'These are all the neighbors of this <i>person-root</i> node '
-                table_header += '(without <i>person</i> nodes):'
-                category_dontwant = 'person'
-            elif discoverer_mode == 'person_view':
-                html += person_view_page(nodes=person_neighbor_nodes,
-                                         personroot=node_to_find_neighbors,
-                                         discoverer_mode=discoverer_mode)
-                table_header = 'These are all the research outputs of this person:'
-                # These are excluded because they have already been shown in person_view_page().
-                category_dontwant = ['person', 'competence', 'organization', 'project']
-            # And now fall through.
-        else:
-            # More than one person-root node, that should not happen, but it did.
-            table_header = 'There is more than one <i>person-root</i> node '
-            table_header += 'for the node found. '
-            table_header += 'This should not happen, but it did, and that may have been '
-            table_header += 'caused by a mislabeling in a source system we harvested. '
-            table_header += 'Choose one <i>person-root</i> node to continue:'
-            html += get_html_table_from_nodes(nodes=personroot_nodes,
-                                              table_header=table_header,
-                                              table_columns=DETAIL_COLUMNS,
-                                              discoverer_mode=discoverer_mode)
-            return html
+
+    key = node['_key']
+    html += get_found_message(node=node, discoverer_mode=discoverer_mode)
+
+    # This is used more than once, so we define it here.
+    overlap = get_html_for_cardstart()
+    explanation = '<h5>More information about overlap in source systems</h5>'
+    explanation += 'If the information in Ricgraph has originated from more than one '
+    explanation += 'source system, you can find out from which ones.</br>'
+    button_text = 'find the overlap in source systems for '
+    button_text += 'the neighbor nodes of this node'
+    # overlap += create_html_form(destination='getoverlap',
+    overlap += create_html_form(destination='resultspage',
+                                button_text=button_text,
+                                explanation=explanation,
+                                hidden_fields={'key': key,
+                                               'discoverer_mode': discoverer_mode,
+                                               'view_mode': 'view_regular_table_overlap'
+                                               })
+    overlap += get_html_for_cardend()
+
+    if node['category'] == 'organization':
+        html += get_html_for_cardstart()
+        html += '<h4>What would you like to see from this organization?</h4>'
+        html += create_html_form(destination='resultspage',
+                                 button_text='show persons related to this organization',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'name_list': 'person-root',
+                                                'view_mode': 'view_regular_table_persons'
+                                                })
+        html += '<p/>'
+
+        html += create_html_form(destination='resultspage',
+                                 button_text='show all information related to this organization',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_unspecified_table_organizations'
+                                                })
+        html += get_html_for_cardend()
+
+        html += get_html_for_cardstart()
+        html += '<h4>Advanced information related to this organization</h4>'
+        html += get_html_for_cardstart()
+        explanation = '<h5>More information about persons or their results in this organization.</h5>'
+        explanation += 'By using the fields below, you can choose '
+        explanation += 'what you would like to see about the persons or their results in this organization. '
+        explanation += 'You can use one or both fields.'
+        button_text = 'find specific information (this may take quite some time)'
+        label_text_name = 'Search for persons or results using field <em>name</em>: '
+        input_spec_name = ('list', 'name_list', 'name_all_datalist', name_all_datalist)
+        label_text_category = 'Search for persons or results using field <em>category</em>: '
+        input_spec_category = ('list', 'category_list', 'category_all_datalist', category_all_datalist)
+        html += create_html_form(destination='resultspage',
+                                 button_text=button_text,
+                                 explanation=explanation,
+                                 input_fields={label_text_name: input_spec_name,
+                                               label_text_category: input_spec_category,
+                                               },
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_organization_addinfo'
+                                                })
+        html += '<br/>'
+        explanation = 'Or, click this button to '
+        explanation += 'get a list of any information about persons or their results in this organization:'
+        button_text = 'find any information (this may take quite some time)'
+        html += create_html_form(destination='resultspage',
+                                 button_text=button_text,
+                                 explanation=explanation,
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_organization_addinfo'
+                                                })
+        html += get_html_for_cardend()
+        html += overlap
+        html += get_html_for_cardend()
+
+    elif node['category'] == 'person':
+        html += get_html_for_cardstart()
+        html += '<h4>What would you like to see from this person?</h4>'
+
+        html += create_html_form(destination='resultspage',
+                                 button_text='show personal information related to this person',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'category_list': 'person',
+                                                'view_mode': 'view_regular_table_personal'
+                                                })
+        html += '<p/>'
+
+        html += create_html_form(destination='resultspage',
+                                 button_text='show organizations related to this person',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'category_list': 'organization',
+                                                'view_mode': 'view_regular_table_organizations'
+                                                })
+        html += '<p/>'
+
+        html += create_html_form(destination='resultspage',
+                                 button_text='show research outputs related to this person',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'category_list': resout_types_all,
+                                                'view_mode': 'view_unspecified_table_resouts'
+                                                })
+        html += '<p/>'
+
+        everything_except_ids = category_all.copy()
+        everything_except_ids.remove('person')
+        html += create_html_form(destination='resultspage',
+                                 button_text='show everything except identities related to this person',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'category_list': everything_except_ids,
+                                                'view_mode': 'view_unspecified_table_everything_except_ids'
+                                                })
+        html += '<p/>'
+
+        html += create_html_form(destination='resultspage',
+                                 button_text='show all information related to this person',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'category_list': remainder_types_all,
+                                                'view_mode': 'view_unspecified_table_everything'
+                                                })
+        html += get_html_for_cardend()
+
+        html += get_html_for_cardstart()
+        html += '<h4>Advanced information related to this person</h4>'
+        html += get_html_for_cardstart()
+        explanation = '<h5>With whom does this person share research outputs?</h5>'
+        label_text = 'By entering a value in the field below, '
+        label_text += 'you will get a list of persons who share that research output type with this person:'
+        input_spec = ('list', 'category_list', 'resout_types_all_datalist', resout_types_all_datalist)
+        html += create_html_form(destination='resultspage',
+                                 button_text='find persons that share this research output type with this person',
+                                 explanation=explanation,
+                                 input_fields={label_text: input_spec},
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_person_share_resouts'
+                                                })
+
+        html += '<br/>'
+        explanation = 'Or, click this button to '
+        explanation += 'get a list of persons who share any research output type with this person:'
+        html += create_html_form(destination='resultspage',
+                                 button_text='find persons that share any research output types with this person',
+                                 explanation=explanation,
+                                 hidden_fields={'key': key,
+                                                'category_list': resout_types_all,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_person_share_resouts'
+                                                })
+        html += get_html_for_cardend()
+
+        html += get_html_for_cardstart()
+        explanation = '<h5>How to improve or '
+        explanation += 'enhance information in one of your source systems</h5>'
+        explanation += 'The process of improving or enhancing information in a source system is called "enriching" '
+        explanation += 'your source system. This means that information found in one or more other harvested systems, '
+        explanation += 'is used to improve or enhance information in this source system. '
+        explanation += 'This is possible in case the neighbors of this node originate from various source systems. '
+        explanation += 'Use the field below to enter a name of one of your source systems. '
+        explanation += 'Ricgraph Explorer will show what information can be added to this source system, '
+        explanation += 'based on the information harvested from other source systems. '
+        label_text = 'The name of the source system you would like to enrich:'
+        # Note: we misuse the field 'category_list' to pass the name of the source system.
+        button_text = 'find information harvested from other source systems, '
+        button_text += 'not present in this source system'
+        input_spec = ('list', 'category_list', 'source_all_datalist', source_all_datalist)
+        html += create_html_form(destination='resultspage',
+                                 button_text=button_text,
+                                 explanation=explanation,
+                                 input_fields={label_text: input_spec},
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_person_enrich_source_system'
+                                                })
+        html += get_html_for_cardend()
+        html += overlap
+        html += get_html_for_cardend()
+
+    # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
+
     else:
-        table_header = 'These are the neighbors of this node:'
-        node_to_find_neighbors = node
-
-    neighbor_nodes = rcg.get_all_neighbor_nodes(node=node_to_find_neighbors,
-                                                name_want=name_want,
-                                                category_want=category_want,
-                                                category_dontwant=category_dontwant,
-                                                max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE)
-    table_html = ''
-    if discoverer_mode == 'details_view':
-        columns = DETAIL_COLUMNS
-        table_html = get_faceted_html_table_from_nodes(nodes=neighbor_nodes,
-                                                       name=name,
-                                                       category=category,
-                                                       value=value,
-                                                       table_header=table_header,
-                                                       table_columns=columns,
-                                                       discoverer_mode=discoverer_mode)
-    elif discoverer_mode == 'person_view':
-        columns = RESEARCH_OUTPUT_COLUMNS
-        table_html = get_tabbed_html_table_from_nodes(nodes=neighbor_nodes,
-                                                      table_header=table_header,
-                                                      table_columns=columns,
-                                                      tabs_on='category',
-                                                      discoverer_mode=discoverer_mode)
-    html += table_html
+        html = create_results_page(view_mode='view_regular_table_category',
+                                   key=key,
+                                   discoverer_mode=discoverer_mode)
 
     return html
 
 
-def find_enrich_candidates(node: Union[Node, None],
-                           source_system: str = '',
+def create_results_page(view_mode: str,
+                        key: str,
+                        name_list: list = None,
+                        category_list: list = None,
+                        discoverer_mode: str = '') -> str:
+    """This function creates the page with results to show to the user.
+    What is produced depends on 'view_mode'.
+    The 'view_mode' that is used, is first set in create_options_page(), and then
+    caught first in resultspage() and then in create_results_page().
+
+    :param view_mode: what type of page to create.
+    :param key: the _key of the node that is found and that determines where we start from.
+    :param name_list: a list containing several node names, indicating
+      that we want all neighbor nodes where the property 'name' equals
+      one of the names in the list 'name_str' (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty , return all nodes.
+    :param category_list: as name_str, but for category.
+    :param discoverer_mode: as usual.
+    :return: html to be rendered.
+    """
+    global resout_types_all, personal_types_all, remainder_types_all
+
+    if name_list is None:
+        name_list = []
+    name_list_str = ''
+    if len(name_list) == 1:
+        name_list_str = name_list[0]
+    if category_list is None:
+        category_list = []
+    category_list_str = ''
+    if len(category_list) == 1:
+        category_list_str = category_list[0]
+
+    html = ''
+    table_header = ''
+    result = rcg.read_all_nodes(name=rcg.get_namepart_from_ricgraph_key(key=key),
+                                value=rcg.get_valuepart_from_ricgraph_key(key=key))
+    if len(result) == 0 or len(result) > 1:
+        if len(result) == 0:
+            message = 'Ricgraph Explorer could not find anything. '
+        else:
+            message = 'Ricgraph Explorer found too many nodes. '
+        message += 'This should not happen. '
+        return get_message(message=message)
+
+    node = result.first()
+    if discoverer_mode == 'details_view':
+        table_columns_ids = DETAIL_COLUMNS
+        table_columns_org = DETAIL_COLUMNS
+        table_columns_resout = DETAIL_COLUMNS
+        if node is not None:
+            html += get_you_searched_for_card(key=node['_key'],
+                                              name_list=name_list,
+                                              category_list=category_list,
+                                              view_mode=view_mode,
+                                              discoverer_mode=discoverer_mode)
+    else:
+        table_columns_ids = ID_COLUMNS
+        table_columns_org = ORGANIZATION_COLUMNS
+        table_columns_resout = RESEARCH_OUTPUT_COLUMNS
+
+    # We need this multiple times.
+    node_found = get_found_message(node=node, discoverer_mode=discoverer_mode)
+
+    if view_mode == 'view_regular_table_personal':
+        personroot_node = rcg.get_personroot_node(node=node)
+        neighbor_nodes_personal = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                             category_want=personal_types_all)
+        html += node_found
+        if discoverer_mode == 'details_view':
+            html += get_regular_table(nodes_list=neighbor_nodes_personal,
+                                      table_header='This is personal information related to this person:',
+                                      table_columns=table_columns_ids,
+                                      discoverer_mode=discoverer_mode)
+        else:
+            html += view_personal_information(nodes_list=neighbor_nodes_personal,
+                                              discoverer_mode=discoverer_mode)
+
+    elif view_mode == 'view_regular_table_organizations' \
+            or view_mode == 'view_regular_table_persons' \
+            or view_mode == 'view_regular_table_category':
+        if view_mode == 'view_regular_table_persons' \
+           or view_mode == 'view_regular_table_category':
+            personroot_node = node
+        else:
+            personroot_node = rcg.get_personroot_node(node=node)
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                    name_want=name_list,
+                                                    category_want=category_list)
+        if view_mode == 'view_regular_table_organizations':
+            table_header = 'These are the organizations related to this person:'
+            table_columns = table_columns_org
+        elif view_mode == 'view_regular_table_persons':
+            table_header = 'These are persons related to this organization:'
+            table_columns = table_columns_ids
+        elif view_mode == 'view_regular_table_category':
+            table_header = 'This is all information related to this ' + node['category'] + ':'
+            table_columns = table_columns_resout
+        else:
+            table_header = 'Unknown view mode "' + view_mode + '" for this table_header.'
+            table_columns = table_columns_resout
+        html += node_found
+        html += get_regular_table(nodes_list=neighbor_nodes,
+                                  table_header=table_header,
+                                  table_columns=table_columns,
+                                  discoverer_mode=discoverer_mode)
+
+    elif view_mode == 'view_unspecified_table_resouts' \
+            or view_mode == 'view_unspecified_table_everything_except_ids' \
+            or view_mode == 'view_unspecified_table_organizations':
+        if view_mode == 'view_unspecified_table_organizations':
+            personroot_node = node
+        else:
+            personroot_node = rcg.get_personroot_node(node=node)
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                    name_want=name_list,
+                                                    category_want=category_list)
+        if view_mode == 'view_unspecified_table_resouts':
+            table_header = 'These are the research outputs related to this person:'
+        elif view_mode == 'view_unspecified_table_everything_except_ids':
+            table_header = 'These are all the neighbors related to this person (without its identities):'
+        elif view_mode == 'view_unspecified_table_organizations':
+            table_header = 'This is all information related to this organization:'
+        html += node_found
+        if discoverer_mode == 'details_view':
+            html += get_faceted_table(parent_node=node,
+                                      neighbor_nodes=neighbor_nodes,
+                                      table_header=table_header,
+                                      table_columns=table_columns_resout,
+                                      view_mode=view_mode,
+                                      discoverer_mode=discoverer_mode)
+        else:
+            html += get_tabbed_table(nodes_list=neighbor_nodes,
+                                     table_header=table_header,
+                                     table_columns=table_columns_resout,
+                                     tabs_on='category',
+                                     discoverer_mode=discoverer_mode)
+
+    elif view_mode == 'view_unspecified_table_everything':
+        personroot_node = rcg.get_personroot_node(node=node)
+        html += node_found
+        neighbor_nodes_personal = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                             category_want=personal_types_all)
+        neighbor_nodes_remainder = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                              name_want=name_list,
+                                                              category_want=category_list)
+        if discoverer_mode == 'details_view':
+            html += get_regular_table(nodes_list=neighbor_nodes_personal,
+                                      table_header='This is personal information related to this person:',
+                                      table_columns=table_columns_ids,
+                                      discoverer_mode=discoverer_mode)
+            html += get_faceted_table(parent_node=node,
+                                      neighbor_nodes=neighbor_nodes_remainder,
+                                      table_header='This is other information related to this person:',
+                                      table_columns=table_columns_resout,
+                                      view_mode=view_mode,
+                                      discoverer_mode=discoverer_mode)
+        else:
+            html += view_personal_information(nodes_list=neighbor_nodes_personal,
+                                              discoverer_mode=discoverer_mode)
+            html += get_tabbed_table(nodes_list=neighbor_nodes_remainder,
+                                     table_header='This is other information related to this person:',
+                                     table_columns=table_columns_resout,
+                                     tabs_on='category',
+                                     discoverer_mode=discoverer_mode)
+
+    elif view_mode == 'view_regular_table_person_share_resouts':
+        personroot_node = rcg.get_personroot_node(node=node)
+        if category_list_str == '':
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                        category_dontwant=['person', 'competence', 'organization'])
+        else:
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                        category_want=category_list,
+                                                        category_dontwant=['person', 'competence', 'organization'])
+        html += find_person_share_resouts(parent_node=node,
+                                          neighbor_nodes=neighbor_nodes,
+                                          category_str=category_list_str,
+                                          discoverer_mode=discoverer_mode)
+
+    elif view_mode == 'view_regular_table_person_enrich_source_system':
+        # Note: we misuse the field 'category_list' to pass the name of the source system
+        # we would like to enrich.
+        if len(category_list) == 0:
+            source_system = ''
+        else:
+            source_system = str(category_list[0])
+        html += find_enrich_candidates(parent_node=node,
+                                       source_system=source_system,
+                                       discoverer_mode=discoverer_mode)
+
+    elif view_mode == 'view_regular_table_organization_addinfo':
+        # Note the hard limit.
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=node,
+                                                    name_want='person-root',
+                                                    max_nr_neighbor_nodes=MAX_ORGANIZATION_NODES_TO_RETURN)
+        html += find_organization_additional_info(parent_node=node,
+                                                  neighbor_nodes=neighbor_nodes,
+                                                  name_str=name_list_str,
+                                                  category_str=category_list_str,
+                                                  discoverer_mode=discoverer_mode)
+    elif view_mode == 'view_regular_table_overlap':
+        html += find_overlap_in_source_systems(name=node['name'],
+                                               category=node['category'],
+                                               value=node['value'],
+                                               discoverer_mode=discoverer_mode,
+                                               overlap_mode='neighbornodes')
+
+    # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
+
+    else:
+        html += get_message(message='create_results_page(): Unknown view_mode "' + view_mode + '".')
+    return html
+
+
+def view_personal_information(nodes_list: Union[list, NodeMatch],
+                              discoverer_mode: str = '') -> str:
+    """Create a person page of the node.
+    This page shows the name variants, a photo (if present),
+    and a list of competences (if present). Then a table with the other identities.
+    'discover_mode' will always be 'person_view', but we still pass it for future
+    extensions.
+
+    :param nodes_list: the nodes to create a table from.
+    :param discoverer_mode: the discoverer_mode to use.
+    :return: html to be rendered.
+    """
+    if len(nodes_list) == 0:
+        return get_message('No neighbors found.')
+
+    html = get_html_for_cardstart()
+    names = []
+    for node in nodes_list:
+        if node['name'] != 'FULL_NAME':
+            continue
+        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
+        item = '<a href=' + url_for('optionspage') + '?'
+        item += urllib.parse.urlencode({'key': key,
+                                        'discoverer_mode': discoverer_mode}) + '>'
+        item += node['value'] + '</a>'
+        names.append(item)
+    if len(names) == 1:
+        html += '<p class="w3-xlarge">' + ', '.join(str(item) for item in names)
+        # matching </p> inserted below
+    elif len(names) > 1:
+        html += '<p>This person has ' + str(len(names)) + ' name variants:&nbsp;'
+        html += '<font class="w3-xlarge">' + ', '.join(str(item) for item in names) + '</font>'
+        # matching </p> inserted below
+
+    for node in nodes_list:
+        if node['name'] != 'PHOTO_ID':
+            continue
+        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
+        html += '&nbsp;&nbsp;'
+        html += '<a href=' + url_for('optionspage') + '?'
+        html += urllib.parse.urlencode({'key': key,
+                                        'discoverer_mode': discoverer_mode}) + '>'
+        html += '<img src="' + node['url_main'] + '" alt="' + node['value']
+        html += '" title="' + node['value'] + '" height="100"></a>'
+    html += '</p>'
+
+    skills = []
+    research_areas = []
+    expertise_areas = []
+
+    # Get the nodes of interest. Using rcg.get_all_neighbor_nodes() is not efficient.
+    for node in nodes_list:
+        if node['category'] != 'competence':
+            continue
+        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
+        item = '<a href=' + url_for('optionspage') + '?'
+        item += urllib.parse.urlencode({'key': key,
+                                        'discoverer_mode': discoverer_mode}) + '>'
+        item += node['value'] + '</a>'
+        if node['name'] == 'SKILL':
+            skills.append(item)
+        if node['name'] == 'RESEARCH_AREA':
+            research_areas.append(item)
+        if node['name'] == 'EXPERTISE_AREA':
+            expertise_areas.append(item)
+        continue
+    html_list = ''
+    if len(skills) > 0:
+        html_list += '<li>Skills: ' + ', '.join(str(item) for item in skills) + '</li>'
+    if len(research_areas) > 0:
+        html_list += '<li>Research areas: ' + ', '.join(str(item) for item in research_areas) + '</li>'
+    if len(expertise_areas) > 0:
+        html_list += '<li>Expertise areas: ' + ', '.join(str(item) for item in expertise_areas) + '</li>'
+    if html_list != '':
+        html += '<p/><td><ul>' + html_list + '</ul></td>'
+    html += get_html_for_cardend()
+
+    id_nodes = []
+    for node in nodes_list:
+        if node['category'] != 'person':
+            continue
+        if node['name'] != 'FULL_NAME' \
+                and node['name'] != 'person-root' \
+                and node['name'] != 'PHOTO_ID':
+            id_nodes.append(node)
+    html += get_tabbed_table(nodes_list=id_nodes,
+                             table_header='These are the identities related to this person:',
+                             table_columns=ID_COLUMNS,
+                             tabs_on='name',
+                             discoverer_mode=discoverer_mode)
+    return html
+
+
+def find_enrich_candidates(parent_node: Union[Node, None],
+                           source_system: str,
                            discoverer_mode: str = '') -> str:
     """This function tries to find nodes to enrich source system 'source_system'.
+    It is built around 'person-root' nodes. For each person-root node (in case there are
+    more than one) we check if we can enrich that node.
     In case this function is used to find _all_ enrichments in Ricgraph,
-    (node = None), a hard limit is used to break from the loop, since it would
-    take too much time.
+    (then parent_node = None), a hard limit is used to break from the loop, since otherwise
+    it would take too much time.
+    We do not use 'name', 'category' and/or 'value' to get a list of nodes
+    (as in e.g. find_overlap_in_source_systems()), because
+    in that case we need to do an additional step to get these 'person-root' nodes.
 
-    :param node: the starting node for finding enrichments for, or None if
+    :param parent_node: the starting node for finding enrichments for, or None if
       you want to find enrichments for all 'person-root' nodes in Ricgraph.
     :param source_system: the source system to find enrichments for.
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
     html = ''
-    if node is None:
+    if parent_node is None:
         personroot_nodes = rcg.read_all_nodes(name='person-root')
         person_root_node = None
-        html += get_html_for_cardstart()
-        html += 'You have chosen to enrich <em>all</em> nodes in Ricgraph for source system "'
-        html += source_system + '". '
-        html += 'However, that will take a long time. '
-        html += 'Ricgraph Explorer will find enrich candidates for at most '
-        html += str(MAX_NR_NODES_TO_ENRICH) + ' nodes. '
-        html += 'If you want to find more nodes to enrich, change the constant '
-        html += '<em>MAX_NR_NODES_TO_ENRICH</em> in file <em>ricgraph_explorer.py</em>.'
-        html += get_html_for_cardend()
+        message = 'You have chosen to enrich <em>all</em> nodes in Ricgraph for source system "'
+        message += source_system + '". '
+        message += 'However, that will take a long time. '
+        message += 'Ricgraph Explorer will find enrich candidates for at most '
+        message += str(MAX_NR_NODES_TO_ENRICH) + ' nodes. '
+        message += 'If you want to find more nodes to enrich, change the constant '
+        message += '<em>MAX_NR_NODES_TO_ENRICH</em> in file <em>ricgraph_explorer.py</em>.'
+        html += get_message(message=message, please_try_again=False)
     else:
-        person_root_node = rcg.get_personroot_node(node)
+        person_root_node = rcg.get_personroot_node(parent_node)
         personroot_nodes = [person_root_node]
 
     if discoverer_mode == 'details_view':
-        table_colums = DETAIL_COLUMNS
-        if node is not None:
-            html += get_you_searched_for_card(name=node['name'],
-                                              category=node['category'],
-                                              value=node['value'],
-                                              discoverer_mode=discoverer_mode,
-                                              source_system=source_system)
+        table_columns = DETAIL_COLUMNS
     else:
-        table_colums = RESEARCH_OUTPUT_COLUMNS
+        table_columns = RESEARCH_OUTPUT_COLUMNS
 
     count = 1
     something_found = False
@@ -1238,9 +1153,9 @@ def find_enrich_candidates(node: Union[Node, None],
         html += get_html_for_cardstart()
         table_header = 'This node is used to determine possible enrichments of source system "'
         table_header += source_system + '":'
-        html += get_html_table_from_nodes(nodes=personroot,
-                                          table_header=table_header,
-                                          table_columns=table_colums)
+        html += get_regular_table(nodes_list=[personroot],
+                                  table_header=table_header,
+                                  table_columns=table_columns)
 
         person_nodes = []
         for node_source in node_in_source_system:
@@ -1254,45 +1169,46 @@ def find_enrich_candidates(node: Union[Node, None],
         else:
             table_header = 'You can use the information in this table to find this node in source system "'
             table_header += source_system + '":'
-            html += get_html_table_from_nodes(nodes=person_nodes,
-                                              table_header=table_header,
-                                              table_columns=table_colums)
+            html += get_regular_table(nodes_list=person_nodes,
+                                      table_header=table_header,
+                                      table_columns=table_columns)
 
         table_header = 'You could enrich source system "' + source_system + '" '
         table_header += 'by using this information harvested from other source systems. '
         table_header += 'This information is not in source system "' + source_system + '".'
-        html += get_html_table_from_nodes(nodes=node_not_in_source_system,
-                                          table_header=table_header,
-                                          table_columns=table_colums)
+        html += get_regular_table(nodes_list=node_not_in_source_system,
+                                  table_header=table_header,
+                                  table_columns=table_columns)
         html += get_html_for_cardend()
 
     if something_found:
-        if node is not None:
+        if parent_node is not None:
+            pass
+            # ### This may be added in a future release.
             # This message is only useful if we have entered this function with the
             # aim to enrich one node.
-            html += get_html_for_cardstart()
-            html += 'The table above shows how you can enrich source system "'
-            html += source_system + '" based on one person node. '
-            html += '<a href=' + url_for('findenrichcandidates') + '?'
-            html += urllib.parse.urlencode({'discoverer_mode': discoverer_mode,
-                                            'source_system': source_system}) + '>'
-            html += 'You can click here if you would like to find candidates to enrich '
-            html += 'for <em>all</em> nodes in Ricgraph</a>. '
-            html += 'Warning: this may take quite some time.'
-            html += get_html_for_cardend()
+            # message = 'The table above shows how you can enrich source system "'
+            # message += source_system + '" based on one person node. '
+            # message += '<a href=' + url_for('findenrichcandidates') + '?'
+            # message += urllib.parse.urlencode({'discoverer_mode': discoverer_mode,
+            #                                    'source_system': source_system}) + '>'
+            # message += 'You can click here if you would like to find candidates to enrich '
+            # message += 'for <em>all</em> nodes in Ricgraph</a>. '
+            # message += 'Warning: this may take quite some time.'
+            # html += get_message(message=message, please_try_again=False)
+            # ### end.
     else:
-        if node is None:
-            html += get_html_for_cardstart()
-            html += 'Ricgraph could not find any candidates to enrich for source system "'
-            html += source_system + '".'
-            html += get_html_for_cardend()
+        if parent_node is None:
+            message = 'Ricgraph could not find any candidates to enrich for source system "'
+            message += source_system + '".'
+            html += get_message(message=message)
         else:
             html += get_html_for_cardstart()
             table_header = 'This node is used to determine possible enrichments of source system "'
             table_header += source_system + '":'
-            html += get_html_table_from_nodes(nodes=person_root_node,
-                                              table_header=table_header,
-                                              table_columns=table_colums)
+            html += get_regular_table(nodes_list=[person_root_node],
+                                      table_header=table_header,
+                                      table_columns=table_columns)
             html += '</br>Ricgraph could not find any candidates to enrich this node '
             html += 'in source system "' + source_system + '". '
             html += get_html_for_cardend()
@@ -1302,492 +1218,209 @@ def find_enrich_candidates(node: Union[Node, None],
     return html
 
 
-def get_more_options_card(node: Node,
-                          name: str = '', category: str = '', value: str = '',
-                          discoverer_mode: str = '') -> str:
-    global name_all_datalist, category_all_datalist, source_all_datalist
+def find_person_share_resouts(parent_node: Node,
+                              neighbor_nodes: Union[list, NodeMatch],
+                              category_str: str = '',
+                              discoverer_mode: str = '') -> str:
+    """Function that finds with whom a person shares research outputs.
 
-    html = get_html_for_cardstart()
-    html += 'You can choose one of the following options (but you do not need to):</br>'
-
-    # Option 1.
-    if node['category'] == 'organization':
-        # This type of filtering can only be done starting from an 'organization' node.
-        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        html += '<details><summary>Click for more information about persons or their results '
-        html += 'in this organization.</summary><ul>'
-        html += 'By using the fields below, you can choose '
-        html += 'what you would like to see about the persons or their results in this organization. '
-        html += 'If you leave both fields empty, you will get a list of all persons '
-        html += 'and their results in this organization. '
-        html += 'These are case-sensitive, exact match fields.</br>'
-        form = '<form method="get" action="/filterorganization">'
-        form += '<input type="hidden" name="key" value="' + key + '">'
-        form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
-        form += '<label>Search for persons or results using field <em>name</em>: '
-        form += '</label>'
-        form += '<input class="w3-input w3-border" list="name_all_datalist"'
-        form += 'name=name_filter id=nam_filtere autocomplete=off>'
-        form += name_all_datalist
-        form += '</br>'
-
-        form += '<label>Search for persons or results using field <em>category</em>: '
-        form += '</label>'
-        form += '<input class="w3-input w3-border" list="category_all_datalist"'
-        form += 'name=category_filter id=category_filter autocomplete=off>'
-        form += category_all_datalist
-
-        button_text = 'find more information about persons or their results '
-        button_text += 'in this organization '
-        button_text += '(this may take quite some time)'
-        form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
-        form += '</form>'
-        html += form
-        html += '</ul></details>'
-
-    if node['category'] == 'person':
-        # Option 2.
-        # This type of filtering can only be done starting from an 'person' node.
-        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        html += '<details><summary>Click here to find out with whom this person shares '
-        html += 'research output types.</summary><ul>'
-        html += 'By entering a value in the field below, '
-        html += 'you will get a list of persons who share that research output type with this person. '
-        html += 'If you leave the field empty, you will get a list of persons who share any research '
-        html += 'output type with this person. '
-        html += 'This is a case-sensitive, exact match field.</br>'
-        form = '<form method="get" action="/filterperson">'
-        form += '<input type="hidden" name="key" value="' + key + '">'
-        form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
-        form += '<label>Search for this research output type using field <em>category</em>: '
-        form += '</label>'
-        form += '<input class="w3-input w3-border" list="category_all_datalist"'
-        form += 'name=category_filter id=category_filter autocomplete=off>'
-        form += category_all_datalist
-        button_text = 'find persons that share certain research output types with this person'
-        form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
-        form += '</form>'
-        html += form
-        html += '</ul></details>'
-
-        # Option 3.
-        # Enriching can only be done starting from a 'person' node.
-        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        html += '<details><summary>Click for more information about improving or '
-        html += 'enhancing information in one of your source systems.</summary><ul>'
-        html += 'The process of improving or enhancing information in a source system is called "enriching" '
-        html += 'your source system. This means that information found in one or more other harvested systems, '
-        html += 'is used to improve or enhance information in this source system. '
-        html += 'This is possible if the neighbors of this node originate from various source systems. '
-        html += 'Use the field below to enter a name of one of your source systems. '
-        html += 'Ricgraph Explorer will show what information can be added to this source system, '
-        html += 'based on the information harvested from other source systems. '
-        html += 'This is a case-sensitive, exact match field.</br>'
-        form = '<form method="get" action="/findenrichcandidates">'
-        form += '<input type="hidden" name="key" value="' + key + '">'
-        form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
-        form += '<label>The name of the source system als it appears in column <em>_source</em>: '
-        form += '</label>'
-        form += '<input class="w3-input w3-border" list="source_all_datalist"'
-        form += 'name=source_system id=source_system autocomplete=off>'
-        form += source_all_datalist
-        button_text = 'find information harvested from other source systems, not present in this source system'
-        form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
-        form += '</form>'
-        html += form
-        html += '</ul></details>'
-
-    # Option 4.
-    html += '<details><summary>Click for more information about overlap in '
-    html += 'source systems.</summary><ul>'
-    html += 'If the information in Ricgraph has orginated from more than one '
-    html += 'source system, you can find out from which ones.</br>'
-    form = '<form method="get" action="/getoverlap">'
-    form += '<input type="hidden" name="name" value="' + name + '">'
-    form += '<input type="hidden" name="category" value="' + category + '">'
-    form += '<input type="hidden" name="value" value="' + value + '">'
-    form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
-    form += '<input type="hidden" name="overlap_mode" value="' + 'neighbornodes' + '">'
-    button_text = 'find the overlap in source systems for '
-    button_text += 'the neighbor nodes of this node'
-    form += '<input class="' + button_style + '" type=submit value="' + button_text + '">'
-    form += '</form>'
-    html += form
-    html += '</ul></details>'
-    html += get_html_for_cardend()
-
-    return html
-
-
-def get_you_searched_for_card(name: str = 'None', category: str = 'None', value: str = 'None',
-                              key: str = 'None',
-                              name_want: list = None,
-                              category_want: list = None,
-                              discoverer_mode: str = 'None',
-                              overlap_mode: str = 'None',
-                              system1: str = 'None',
-                              system2: str = 'None',
-                              source_system: str = 'None',
-                              name_filter: str = 'None',
-                              category_filter: str = 'None') -> str:
-    """Get the html for the "You searched for" card.
-    If you do not pass a str parameter, such as 'key', the default value will
-    be 'None', which indicates that that value has not been passed.
-    Its value will not be shown.
-    That is different to passing a parameter 'key' with a value ''.
-    Then that parameter will be shown.
-    This makes it possible to pass a parameter with value '' and show that value.
-
-    :param name: name.
-    :param category: category.
-    :param value: value.
-    :param key: key.
-    :param name_want: name_want.
-    :param category_want: category_want.
-    :param discoverer_mode: discoverer_mode.
-    :param overlap_mode: overlap_mode.
-    :param system1: system1.
-    :param system2: system2.
-    :param source_system: source_system.
-    :param name_filter: name_filter.
-    :param category_filter: category_filter.
+    :param parent_node: the starting node for finding shared research output types.
+    :param neighbor_nodes: the neighbors of that node.
+    :param category_str: the category of research outputs, or '' if any category.
+      Note that this value is only used to display the category used, not to select
+      nodes, that has already been done in create_results_page().
+    :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
-    if name_want is None:
-        name_want = []
-    if category_want is None:
-        category_want = []
+    html = ''
+    if parent_node['category'] != 'person':
+        message = 'Unexpected result in find_person_share_resouts(): '
+        message += 'You have not passed an "person" node, but a "' + parent_node['category']
+        message += '" node.'
+        return get_message(message=message)
 
-    html = get_html_for_cardstart()
-    html += '<details><summary>Click for information about your search</summary><ul>'
-    if name != 'None':
-        html += '<li>name: <i>"' + str(name) + '"</i>'
-    if category != 'None':
-        html += '<li>category: <i>"' + str(category) + '"</i>'
-    if value != 'None':
-        html += '<li>value: <i>"' + str(value) + '"</i>'
-    if key != 'None':
-        html += '<li>key: <i>"' + str(key) + '"</i>'
-    if len(name_want) > 0:
-        html += '<li>name_want: <i>"' + str(name_want) + '"</i>'
-    if len(category_want) > 0:
-        html += '<li>category_want: <i>"' + str(category_want) + '"</i>'
-    if discoverer_mode != 'None':
-        html += '<li>discoverer_mode: <i>"' + str(discoverer_mode) + '"</i>'
-    if overlap_mode != 'None':
-        html += '<li>overlap_mode: <i>"' + str(overlap_mode) + '"</i>'
-    if system1 != 'None':
-        html += '<li>system1: <i>"' + str(system1) + '"</i>'
-    if system2 != 'None':
-        html += '<li>system2: <i>"' + str(system2) + '"</i>'
-    if source_system != 'None':
-        html += '<li>source_system: <i>"' + str(source_system) + '"</i>'
-    if name_filter != 'None':
-        html += '<li>name_filter: <i>"' + str(name_filter) + '"</i>'
-    if category_filter != 'None':
-        html += '<li>category_filter: <i>"' + str(category_filter) + '"</i>'
-    html += '</ul>'
-    html += '</details>'
-    html += get_html_for_cardend()
-    html += get_html_for_cardline()
-    return html
-
-
-def details_view_page(nodes: Union[list, NodeMatch, None],
-                      table_header: str = '',
-                      table_columns: list = None,
-                      discoverer_mode: str = '') -> str:
-    """Create a details page of the node.
-
-    :param nodes: the nodes to create a table from.
-    :param table_header: the html to show above the table.
-    :param table_columns: a list of columns to show in the table.
-    :param discoverer_mode: the discoverer_mode to use.
-    :return: html to be rendered.
-    """
-    if table_columns is None:
-        table_columns = []
-    html = get_html_table_from_nodes(nodes=nodes,
-                                     table_header=table_header,
-                                     table_columns=table_columns,
-                                     discoverer_mode=discoverer_mode)
-    return html
-
-
-def person_view_page(nodes: Union[list, NodeMatch, None],
-                     personroot: Node = None,
-                     discoverer_mode: str = '') -> str:
-    """Create a person page of the node.
-
-    :param nodes: the nodes to create a table from.
-    :param personroot: the person-root of nodes (passed for efficiency).
-    :param discoverer_mode: the discoverer_mode to use.
-    :return: html to be rendered.
-    """
-    if len(nodes) == 0:
-        html = get_html_for_cardstart()
-        html += 'No neighbors found.'
-        html += get_html_for_cardend()
-        return html
-
-    html = get_html_for_cardstart()
-    names = []
-    for node in nodes:
-        if node['name'] != 'FULL_NAME':
-            continue
-        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        item = '<a href=' + url_for('findnodes') + '?'
-        item += urllib.parse.urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}) + '>'
-        item += node['value'] + '</a>'
-        names.append(item)
-    if len(names) == 1:
-        html += '<p class="w3-xlarge">' + ', '.join(str(item) for item in names)
-        # matching </p> inserted below
-    elif len(names) > 1:
-        html += '<p>This person has ' + str(len(names)) + ' name variants:&nbsp;'
-        html += '<font class="w3-xlarge">' + ', '.join(str(item) for item in names) + '</font>'
-        # matching </p> inserted below
-
-    for node in nodes:
-        if node['name'] != 'PHOTO_ID':
-            continue
-        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        html += '&nbsp;&nbsp;'
-        html += '<a href=' + url_for('findnodes') + '?'
-        html += urllib.parse.urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}) + '>'
-        html += '<img src="' + node['url_main'] + '" alt="' + node['value']
-        html += '" title="' + node['value'] + '" height="100"></a>'
-    html += '</p>'
-
-    # Note: 'nodes' only contains nodes of category 'person'. We also need all neighbors.
-    all_neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot)
-    skills = []
-    research_areas = []
-    expertise_areas = []
-    competence_nodes = []
-
-    # Get the nodes of interest. Using rcg.get_all_neighbor_nodes() is not efficient.
-    for node in all_neighbor_nodes:
-        if node['category'] == 'competence':
-            competence_nodes.append(node)
-    for node in competence_nodes:
-        key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        item = '<a href=' + url_for('findnodes') + '?'
-        item += urllib.parse.urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}) + '>'
-        item += node['value'] + '</a>'
-        if node['name'] == 'SKILL':
-            skills.append(item)
-        if node['name'] == 'RESEARCH_AREA':
-            research_areas.append(item)
-        if node['name'] == 'EXPERTISE_AREA':
-            expertise_areas.append(item)
-        continue
-    html_list = ''
-    if len(skills) > 0:
-        html_list += '<li>Skills: ' + ', '.join(str(item) for item in skills) + '</li>'
-    if len(research_areas) > 0:
-        html_list += '<li>Research areas: ' + ', '.join(str(item) for item in research_areas) + '</li>'
-    if len(expertise_areas) > 0:
-        html_list += '<li>Expertise areas: ' + ', '.join(str(item) for item in expertise_areas) + '</li>'
-    if html_list != '':
-        html += '<p/><td><ul>' + html_list + '</ul></td>'
-    html += get_html_for_cardend()
-
-    id_nodes = []
-    for node in nodes:
-        if node['name'] != 'FULL_NAME' \
-           and node['name'] != 'person-root' \
-           and node['name'] != 'PHOTO_ID':
-            id_nodes.append(node)
-    html += get_tabbed_html_table_from_nodes(nodes=id_nodes,
-                                             table_header='These are all the IDs of this person:',
-                                             table_columns=ID_COLUMNS,
-                                             tabs_on='name',
-                                             discoverer_mode=discoverer_mode)
-
-    organization_nodes = []
-    for node in all_neighbor_nodes:
-        if node['category'] == 'organization':
-            organization_nodes.append(node)
-    html += get_html_table_from_nodes(nodes=organization_nodes,
-                                      table_header='This person is connected to the following organizations:',
-                                      table_columns=ORGANIZATION_COLUMNS,
-                                      discoverer_mode=discoverer_mode)
-
-    project_nodes = []
-    for node in all_neighbor_nodes:
-        if node['category'] == 'project':
-            project_nodes.append(node)
-    html += get_html_table_from_nodes(nodes=project_nodes,
-                                      table_header='This person is connected to the following projects:',
-                                      table_columns=RESEARCH_OUTPUT_COLUMNS,
-                                      discoverer_mode=discoverer_mode)
-    return html
-
-
-def get_facets_from_nodes(nodes: list,
-                          name: str = '', category: str = '', value: str = '',
-                          discoverer_mode: str = '') -> str:
-    """Do facet navigation in Ricgraph.
-    The facets will be constructed based on 'name' and 'category'.
-    Facets chosen will be "catched" in function search().
-    If there is only one facet (for either one or both), it will not be shown.
-
-    :param nodes: the nodes to construct the facets from.
-    :param name: name of the nodes to find.
-    :param category: category of the nodes to find.
-    :param value: value of the nodes to find.
-    :param discoverer_mode: the discoverer_mode to use.
-    :return: html to be rendered, or empty string ('') if faceted navigation is
-      not useful because there is only one facet.
-    """
-    if len(nodes) == 0:
-        return ''
-
-    name_histogram = {}
-    category_histogram = {}
-    for node in nodes:
-        if node['name'] not in name_histogram:
-            name_histogram[node['name']] = 1
+    if len(neighbor_nodes) == 0:
+        # Nothing found
+        if category_str == '':
+            message = 'This person does not seem to share any research output types '
+            message += 'with other persons.'
         else:
-            name_histogram[node['name']] += 1
+            message = 'This person does not seem to share research output type "'
+            message += category_str + '" with other persons.'
+        return get_message(message=message)
 
-        if node['category'] not in category_histogram:
-            category_histogram[node['category']] = 1
-        else:
-            category_histogram[node['category']] += 1
+    # Now for all relevant_results found, find the connecting 'person-root' node
+    connected_persons = []
+    for node in neighbor_nodes:
+        persons = rcg.get_all_neighbor_nodes(node=node, name_want='person-root')
+        for person in persons:
+            if person['_key'] == parent_node['_key']:
+                # Note: we do not include ourselves.
+                continue
+            if person not in connected_persons:
+                connected_persons.append(person)
 
-    if len(name_histogram) <= 1 and len(category_histogram) <= 1:
-        # We have only one facet, so don't show the facet panel.
-        return ''
-
-    faceted_form = get_html_for_cardstart()
-    faceted_form += '<div class="facetedform">'
-    faceted_form += '<form method="get" action="' + url_for('findnodes') + '">'
-    faceted_form += '<input type="hidden" name="name" value="' + str(name) + '">'
-    faceted_form += '<input type="hidden" name="category" value="' + str(category) + '">'
-    faceted_form += '<input type="hidden" name="value" value="' + str(value) + '">'
-    faceted_form += '<input type="hidden" name="discoverer_mode" value="' + str(discoverer_mode) + '">'
-    if len(name_histogram) == 1:
-        # Get the first (and only) element in the dict, pass it as hidden field to search().
-        name_key = str(list(name_histogram.keys())[0])
-        faceted_form += '<input type="hidden" name="faceted_name" value="' + name_key + '">'
+    if discoverer_mode == 'details_view':
+        table_columns = DETAIL_COLUMNS
     else:
-        faceted_form += '<div class="w3-card-4">'
-        faceted_form += '<div class="w3-container uu-yellow">'
-        faceted_form += '<b>Filter on "name"</b>'
-        faceted_form += '</div>'
-        faceted_form += '<div class="w3-container">'
-        # Sort a dict on value:
-        # https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
-        for bucket in sorted(name_histogram, key=name_histogram.get, reverse=True):
-            name_label = bucket + '&nbsp;<i>(' + str(name_histogram[bucket]) + ')</i>'
-            faceted_form += '<input class="w3-check" type="checkbox" name="faceted_name" value="'
-            faceted_form += bucket + '" checked>'
-            faceted_form += '<label>&nbsp;' + name_label + '</label><br/>'
-        faceted_form += '</div>'
-        faceted_form += '</div><br/>'
+        table_columns = RESEARCH_OUTPUT_COLUMNS
 
-    if len(category_histogram) == 1:
-        # Get the first (and only) element in the dict, pass it as hidden field to search().
-        category_key = str(list(category_histogram.keys())[0])
-        faceted_form += '<input type="hidden" name="faceted_category" value="' + category_key + '">'
+    table_header = 'This is the person we start with:'
+    html += get_regular_table(nodes_list=[parent_node],
+                              table_header=table_header,
+                              table_columns=table_columns,
+                              discoverer_mode=discoverer_mode)
+    if category_str == '':
+        table_header = 'This person shares research output types '
     else:
-        faceted_form += '<div class="w3-card-4">'
-        faceted_form += '<div class="w3-container uu-yellow">'
-        faceted_form += '<b>Filter on "category"</b>'
-        faceted_form += '</div>'
-        faceted_form += '<div class="w3-container">'
-        for bucket in sorted(category_histogram, key=category_histogram.get, reverse=True):
-            category_label = bucket + '&nbsp;<i>(' + str(category_histogram[bucket]) + ')</i>'
-            faceted_form += '<input class="w3-check" type="checkbox" name="faceted_category" value="'
-            faceted_form += bucket + '" checked>'
-            faceted_form += '<label>&nbsp;' + category_label + '</label><br/>'
-        faceted_form += '</div>'
-        faceted_form += '</div><br/>'
-
-    # Send name, category and value as hidden fields to search().
-    faceted_form += '<input class="w3-input' + button_style + '" type=submit value="refresh">'
-    faceted_form += '</form>'
-    faceted_form += '</div>'
-    faceted_form += get_html_for_cardend()
-    html = faceted_form
+        table_header = 'This person shares research output type "' + category_str + '" '
+    table_header += 'with these persons:'
+    html += get_regular_table(nodes_list=connected_persons,
+                              table_header=table_header,
+                              table_columns=table_columns,
+                              discoverer_mode=discoverer_mode)
     return html
 
 
-def get_overlap_in_source_systems(name: str = '', category: str = '', value: str = '',
-                                  discoverer_mode: str = '',
-                                  overlap_mode: str = 'thisnode') -> str:
+def find_organization_additional_info(parent_node: Node,
+                                      neighbor_nodes: Union[list, NodeMatch, None],
+                                      name_str: str = '',
+                                      category_str: str = '',
+                                      discoverer_mode: str = '') -> str:
+    """Function that finds additional information connected to a (child) organization.
+
+    :param parent_node: the starting node for finding additional information.
+    :param neighbor_nodes: the neighbors of that node.
+    :param name_str: the name of research output type.
+    :param category_str: the category of research output type.
+    :param discoverer_mode: as usual.
+    :return: html to be rendered.
+    """
+    html = ''
+    if parent_node is None:
+        message = 'Unexpected result in find_organization_additional_info(): '
+        message += 'This organization cannot be found in Ricgraph.'
+        return get_message(message=message)
+
+    if parent_node['category'] != 'organization':
+        message = 'Unexpected result in filterorganization(): '
+        message += 'You have not passed an "organization" node, but a "' + parent_node['category']
+        message += '" node in fiterorganization(). '
+        return get_message(message=message)
+
+    relevant_result = []
+    count = 0
+    if name_str == 'person-root':
+        if category_str == 'person' or category_str == '':
+            # Special case: 'neighbor_nodes' are 'person-root's, so return that list.
+            relevant_result = neighbor_nodes.copy()
+    else:
+        for neighbor in neighbor_nodes:
+            if count >= MAX_ROWS_IN_TABLE:
+                break
+            # We include ourselves.
+            # For get_all_neighbor_nodes(), for the '_want' parameters: if we pass '',
+            # that means we do not want a filter for that parameter.
+            more_neighbors = rcg.get_all_neighbor_nodes(node=neighbor,
+                                                        name_want=name_str,
+                                                        category_want=category_str)
+            for item in more_neighbors:
+                if count >= MAX_ROWS_IN_TABLE:
+                    break
+                if item not in relevant_result:
+                    relevant_result.append(item)
+                    count += 1
+
+    if len(relevant_result) == 0:
+        message = 'Could not find any persons or results for this organization, using '
+        if name_str != '' and category_str != '':
+            message += 'search terms '
+            message += '"' + name_str + '" and "' + category_str + '".'
+        elif name_str != '':
+            message += 'search term '
+            message += '"' + name_str + '".'
+        elif category_str != '':
+            message += 'search term '
+            message += '"' + category_str + '".'
+        else:
+            message += 'no search term.'
+        return get_message(message=message)
+
+    if discoverer_mode == 'details_view':
+        table_columns = DETAIL_COLUMNS
+    else:
+        table_columns = RESEARCH_OUTPUT_COLUMNS
+
+    table_header = 'This node is used for finding information about the persons '
+    table_header += 'or their results of this organization '
+    table_header += '(for at most ' + str(MAX_ORGANIZATION_NODES_TO_RETURN) + ' neighbor nodes, '
+    table_header += 'for program speed reasons):'
+    html += get_regular_table(nodes_list=[parent_node],
+                              table_header=table_header,
+                              table_columns=table_columns,
+                              discoverer_mode=discoverer_mode)
+    table_header = 'These are all the '
+    if name_str != '' and category_str != '':
+        table_header += '"' + name_str + '" and "' + category_str + '" '
+    elif name_str != '':
+        table_header += '"' + name_str + '" '
+    elif category_str != '':
+        table_header += '"' + category_str + '" '
+    table_header += 'nodes of all the persons or their results of this organization '
+    table_header += '(for the given number of neighbor nodes):'
+    html += get_regular_table(nodes_list=relevant_result,
+                              table_header=table_header,
+                              table_columns=table_columns,
+                              discoverer_mode=discoverer_mode)
+    return html
+
+
+def find_overlap_in_source_systems(name: str = '', category: str = '', value: str = '',
+                                   discoverer_mode: str = '',
+                                   overlap_mode: str = 'neighbornodes') -> str:
     """Get the overlap in records from source systems.
+    We do need a 'name', 'category' and/or 'value', otherwise we won't be able
+    to find overlap in source systems for a list of records. That list can only be
+    found using these fields, and then these fields can be passed to
+    find_overlap_in_source_systems_records() to show the overlap nodes in a table.
+    If we want to find overlap of only one node, these fields will result in only one record
+    to be found, and the overlap will be computed of the neighbors of that node.
+    This function is tightly connected to find_overlap_in_source_systems_records().
 
-    :param name: name of the nodes to find.
-    :param category: category of the nodes to find.
-    :param value: value of the nodes to find.
+    :param name: name of the node(s) to find.
+    :param category: category of the node(s) to find.
+    :param value: value of the node(s) to find.
     :param discoverer_mode: the discoverer_mode to use.
     :param overlap_mode: which overlap to compute: from this node ('thisnode')
     or from the neighbors of this node ('neighbornodes').
     :return: html to be rendered.
     """
     html = ''
-    if discoverer_mode == 'details_view':
-        html += get_you_searched_for_card(name=name,
-                                          category=category,
-                                          value=value,
-                                          discoverer_mode=discoverer_mode,
-                                          overlap_mode=overlap_mode)
-
-    if name == '' and category == '' and value == '':
-        html += get_html_for_cardstart()
-        html += 'Ricgraph Explorer could not find anything.'
-        html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-        html += get_html_for_cardend()
-        return html
-
-    if discoverer_mode != 'details_view' and discoverer_mode != 'person_view':
-        return 'Error, unknown discoverer_mode: ' + discoverer_mode + '. Please try again.'
-
-    if overlap_mode != 'thisnode' and overlap_mode != 'neighbornodes':
-        return 'Error, unknown overlap_mode: ' + overlap_mode + '. Please try again.'
-
     nodes = rcg.read_all_nodes(name=name, category=category, value=value)
     if len(nodes) == 0:
         # Let's try again, assuming we did a broad search instead of an exact match search.
         nodes = rcg.read_all_nodes_containing_value(value=value)
         if len(nodes) == 0:
-            # No, we really didn't find anything.
-            html += get_html_for_cardstart()
-            html += 'Ricgraph Explorer could not find anything.'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            return html
+            return get_message(message='Ricgraph Explorer could not find anything.')
 
     if overlap_mode == 'neighbornodes':
         # In this case, we would like to know the overlap of nodes neighboring the node
         # we have just found. We can only do that if we have found only one node.
         if len(nodes) > 1:
-            html += get_html_for_cardstart()
-            html += 'Ricgraph Explorer found too many nodes. It cannot compute the overlap '
-            html += 'of the neighbor nodes of more than one node in get_overlap_in_source_systems().'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            return html
+            message = 'Ricgraph Explorer found too many nodes. It cannot compute the overlap '
+            message += 'of the neighbor nodes of more than one node in get_overlap_in_source_systems().'
+            return get_message(message=message)
 
-        node = nodes.first()
-        if node['category'] == 'person':
-            personroot = rcg.get_personroot_node(node)
+        parent_node = nodes.first()
+        if parent_node['category'] == 'person':
+            personroot = rcg.get_personroot_node(node=parent_node)
             if personroot is None:
-                html += get_html_for_cardstart()
-                html += 'Ricgraph Explorer found no "person-root" '
-                html += 'node in get_overlap_in_source_systems().'
-                html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-                html += get_html_for_cardend()
-                return html
+                message = 'Ricgraph Explorer found no "person-root" '
+                message += 'node in get_overlap_in_source_systems().'
+                return get_message(message=message)
             neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot)
         else:
-            neighbor_nodes = rcg.get_all_neighbor_nodes(node=node)
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=parent_node)
         nodes = neighbor_nodes.copy()
 
     nr_total_recs = 0
@@ -1815,14 +1448,11 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
 
     if nr_total_recs == 0:
         if overlap_mode == 'neighbornodes':
-            html += get_html_for_cardstart()
-            html += 'Ricgraph Explorer found no overlap in source systems for '
-            html += 'the neighbors of this node. '
-            html += 'This may be caused by that these neighbors are "person-root" nodes. '
-            html += 'These nodes are generated by Ricgraph and do not have a source system.'
-            html += '<br/><a href=' + url_for('index_html') + '>' + 'Please try again' + '</a>.'
-            html += get_html_for_cardend()
-            return html
+            message = 'Ricgraph Explorer found no overlap in source systems for '
+            message += 'the neighbors of this node. '
+            message += 'This may be caused by that these neighbors are "person-root" nodes. '
+            message += 'These nodes are generated by Ricgraph and do not have a source system.'
+            return get_message(message=message)
         return ''
 
     # Now determine all the systems we have harvested from.
@@ -1885,10 +1515,11 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
             html += '<td>0</td>'
         if system in recs_from_one_source:
             html += '<td>'
-            html += '<a href="' + url_for('getoverlaprecords') + '?'
+            html += '<a href="' + url_for('resultspage') + '?'
             html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
                                             'system1': system,
                                             'system2': 'singlesource',
+                                            'view_mode': 'view_regular_table_overlap_records',
                                             'discoverer_mode': discoverer_mode,
                                             'overlap_mode': overlap_mode})
             html += '">'
@@ -1901,10 +1532,11 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
             html += '<td>0</td>'
         if system in recs_from_multiple_sources:
             html += '<td>'
-            html += '<a href="' + url_for('getoverlaprecords') + '?'
+            html += '<a href="' + url_for('resultspage') + '?'
             html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
                                             'system1': system,
                                             'system2': 'multiplesource',
+                                            'view_mode': 'view_regular_table_overlap_records',
                                             'discoverer_mode': discoverer_mode,
                                             'overlap_mode': overlap_mode})
             html += '">'
@@ -1960,10 +1592,11 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
         html += '<td>' + system1 + '</td>'
         if system1 in recs_from_multiple_sources:
             html += '<td>'
-            html += '<a href="' + url_for('getoverlaprecords') + '?'
+            html += '<a href="' + url_for('resultspage') + '?'
             html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
                                             'system1': system1,
                                             'system2': 'multiplesource',
+                                            'view_mode': 'view_regular_table_overlap_records',
                                             'discoverer_mode': discoverer_mode,
                                             'overlap_mode': overlap_mode})
             html += '">'
@@ -1978,10 +1611,11 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
                 continue
             if system2 in recs_from_multiple_sources_histogram[system1]:
                 html += '<td>'
-                html += '<a href="' + url_for('getoverlaprecords') + '?'
+                html += '<a href="' + url_for('resultspage') + '?'
                 html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
                                                 'system1': system1,
                                                 'system2': system2,
+                                                'view_mode': 'view_regular_table_overlap_records',
                                                 'discoverer_mode': discoverer_mode,
                                                 'overlap_mode': overlap_mode})
                 html += '">'
@@ -1998,57 +1632,378 @@ def get_overlap_in_source_systems(name: str = '', category: str = '', value: str
     html += 'to count up to the total number of records from that source (in the second column), '
     html += 'since a record in this table will originate from at least two sources, '
     html += 'and subsequently will occur multiple times on the same row.'
-
     html += get_html_for_cardend()
 
     return html
 
 
+def find_overlap_in_source_systems_records(name: str = '', category: str = '', value: str = '',
+                                           system1: str = '', system2: str = '',
+                                           discoverer_mode: str = '',
+                                           overlap_mode: str = '') -> str:
+    """Show the overlap records in a html table.
+    This function is tightly connected to find_overlap_in_source_systems().
+    We do need a 'name', 'category' and/or 'value', otherwise we won't be able
+    to find overlap in source systems for a list of records.
+
+    :param name: name of the node(s) to find.
+    :param category: category of the node(s) to find.
+    :param value: value of the node(s) to find.
+    :param system1: source system 1 used to compute the overlap.
+    :param system2: source system 2 used to compute the overlap.
+    :param discoverer_mode: the discoverer_mode to use.
+    :param overlap_mode: which overlap to compute: from this node ('thisnode')
+    or from the neighbors of this node ('neighbornodes').
+    :return: html to be rendered.
+    """
+    html = ''
+    if system1 == '' and system2 != '':
+        # swap
+        system1 = system2
+        system2 = ''
+    if system1 == 'singlesource' or system1 == 'multiplesource':
+        if system2 != '':
+            # swap
+            temp = system1
+            system1 = system2
+            system2 = temp
+
+    result = rcg.read_all_nodes(name=name, category=category, value=value)
+    if len(result) == 0:
+        # Let's try again, assuming we did a broad search instead of an exact match search.
+        result = rcg.read_all_nodes_containing_value(value=value)
+        if len(result) == 0:
+            # No, we really didn't find anything.
+            message = 'Unexpected result in find_overlap_in_source_systems_records(): '
+            message += 'This node cannot be found in Ricgraph.'
+            return get_message(message=message)
+
+    if overlap_mode == 'neighbornodes':
+        # In this case, we would like to know the overlap of nodes neighboring the node
+        # we have just found. We can only do that if we have found only one node.
+        if len(result) > 1:
+            message = 'Ricgraph Explorer found too many nodes. It cannot compute the overlap '
+            message += 'of the neighbor nodes of more than one node '
+            message += 'in find_overlap_in_source_systems_records().'
+            return get_message(message=message)
+
+        node = result.first()
+        if node['category'] == 'person':
+            personroot = rcg.get_personroot_node(node)
+            if personroot is None:
+                message = 'Unexpected result in find_overlap_in_source_systems_records(): '
+                message += 'Ricgraph Explorer found no "person-root" node.'
+                return get_message(message=message)
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot)
+        else:
+            neighbor_nodes = rcg.get_all_neighbor_nodes(node=node)
+        result = neighbor_nodes.copy()
+
+    relevant_result = []
+    for node in result:
+        sources = node['_source']
+        if system1 == '':
+            # Then system2 will also be '', see swap above.
+            relevant_result.append(node)
+            continue
+        if system2 == '':
+            if system1 in sources:
+                relevant_result.append(node)
+                continue
+        if system2 == 'singlesource':
+            if system1 in sources and len(sources) == 1:
+                relevant_result.append(node)
+                continue
+        if system2 == 'multiplesource':
+            if system1 in sources and len(sources) > 1:
+                relevant_result.append(node)
+                continue
+        if system1 in sources and system2 in sources:
+            relevant_result.append(node)
+
+    if discoverer_mode == 'details_view':
+        table_columns = DETAIL_COLUMNS
+        html += get_you_searched_for_card(name=name,
+                                          category=category,
+                                          value=value,
+                                          discoverer_mode=discoverer_mode,
+                                          overlap_mode=overlap_mode,
+                                          system1=system1,
+                                          system2=system2)
+    else:
+        table_columns = RESEARCH_OUTPUT_COLUMNS
+
+    html += get_regular_table(nodes_list=relevant_result,
+                              table_header='These records conform to your selection:',
+                              table_columns=table_columns,
+                              discoverer_mode=discoverer_mode)
+    return html
+
+
 # ##############################################################################
-# The HTML for the various 'discover_mode's is generated here.
+# General functions.
 # ##############################################################################
-def get_html_table_from_nodes(nodes: Union[list, NodeMatch, Node],
-                              table_header: str = '',
-                              table_columns: list = None,
-                              discoverer_mode: str = '') -> str:
+
+def get_url_parameter_value(parameter: str,
+                            allowed_values: list = None,
+                            default_value: str = '',
+                            use_escape: bool = True) -> str:
+    """Get a URL parameter and its value.
+
+
+    :param parameter: name of the URL parameter.
+    :param allowed_values: allowed values of the URL parameter, if any.
+    :param default_value: the default value, if any.
+    :param use_escape: whether to call escape() or not for the URL parameter. We should
+        do this for safety, however, we cannot always do this, because then we
+        cannot search correctly in Ricgraph.
+        For example, if we would use escape() for a URL parameter that contains an '&',
+        such as in 'Department: Research & Data Management Services',
+        that '&' will be translated to the HTML character '&amp;', which then
+        will not be found in Ricgraph.
+    :return: the value of the URL parameter.
+    """
+    if allowed_values is None:
+        allowed_values = []
+
+    if use_escape:
+        value = str(escape(request.args.get(parameter, default='')))
+    else:
+        value = str(request.args.get(parameter, default=''))
+
+    if value == '' and default_value != '':
+        value = str(default_value)
+
+    if len(allowed_values) > 0:
+        # If 'default_value' == '', then 'value' will be '', which is what we intend.
+        if value not in allowed_values:
+            value = str(default_value)
+
+    return value
+
+
+def get_message(message: str, please_try_again: bool = True) -> str:
+    """This function creates a html message containing 'message'.
+
+    :param message: the message.
+    :param please_try_again: if True, a link to try again will be added.
+    :return: html to be rendered.
+    """
+    html = get_html_for_cardstart()
+    html += message
+    if please_try_again:
+        html += '<br/><a href=' + url_for('homepage') + '>' + 'Please try again' + '</a>.'
+    html += get_html_for_cardend()
+    return html
+
+
+def get_found_message(node: Node,
+                      table_header: str = '',
+                      discoverer_mode: str = '') -> str:
+    """This function creates a html table containing 'node'.
+
+    :param node: the node to put in the table.
+    :param table_header: header for the table.
+    :param discoverer_mode: as usual.
+    :return: html to be rendered.
+    """
+    if table_header == '':
+        header = 'Ricgraph Explorer found node:'
+    else:
+        header = table_header
+
+    html = get_regular_table(nodes_list=[node],
+                             table_header=header,
+                             discoverer_mode=discoverer_mode)
+    return html
+
+
+def create_html_form(destination: str,
+                     button_text: str,
+                     explanation: str = '',
+                     input_fields: dict = '',
+                     hidden_fields: dict = '') -> str:
+    """Creates a form according to a specification.
+
+    'input_fields' is a dict according to this specification:
+    input_fields={label_text: input_spec}. It may have more than one entry.
+    'label_text' is the text for the label of the input field,
+    and 'input_spec' is a list that specifies how the html for the
+    input field is constructed:
+    1. input_spec = ('list', <name of field>, <name of datalist>, <datalist>)
+    2. input_spec = ('text', <name of field>)
+    The first element of the list can only be 'list' or 'text'.
+
+    'hidden_fields' is a dict according to this specification:
+    hidden_fields={<name of hidden field>: <value of hidden field>}.
+    It may have more than one entry.
+
+    :param destination: function to go to after submitting the form.
+    :param button_text: text for the button.
+    :param explanation: explanation of the form (optional).
+    :param input_fields: see above.
+    :param hidden_fields: see above.
+    :return: html for the form.
+    """
+    form = explanation
+    form += '<form method="get" action="/' + destination + '">'
+    for item in input_fields:
+        if input_fields[item][0] == 'list':
+            if len(input_fields[item]) != 4:
+                print('Wrong length for input field of type "list": ' +
+                      str(len(input_fields[item])) + ', should be 4.')
+                continue
+            form += '<label>' + item + '</label>'
+            form += '<input class="w3-input w3-border" '
+            form += 'list="' + input_fields[item][2] + '" '     # 2: name of datalist
+            form += 'name="' + input_fields[item][1] + '" '     # 1: name of field
+            form += 'id="' + input_fields[item][1] + '" '       # 1: name of field
+            form += 'autocomplete=off>'
+            form += input_fields[item][3]                       # 3: datalist
+        if input_fields[item][0] == 'text':
+            if len(input_fields[item]) != 2:
+                print('Wrong length for input field of type "text": ' +
+                      str(len(input_fields[item])) + ', should be 2.')
+                continue
+            form += '<label>' + item + '</label>'
+            form += '<input class="w3-input w3-border" '
+            form += 'type="' + input_fields[item][0] + '" '     # 0: type of field ('text')
+            form += 'name="' + input_fields[item][1] + '" '     # 1: name of field
+            form += '>'
+
+    for item in hidden_fields:
+        if isinstance(hidden_fields[item], str):
+            form += '<input type="hidden" name="' + item
+            form += '" value="' + hidden_fields[item] + '">'
+        elif isinstance(hidden_fields[item], list):
+            # For every element in the list we add a URL param with
+            # the same name and a different value.
+            for value in hidden_fields[item]:
+                form += '<input type="hidden" name="' + item
+                form += '" value="' + value + '">'
+
+    form += '<input class="' + button_style + '"' + button_width
+    form += 'type=submit value="' + button_text + '">'
+    form += '</form>'
+    return form
+
+
+def get_you_searched_for_card(name: str = 'None', category: str = 'None', value: str = 'None',
+                              key: str = 'None',
+                              name_list: list = None,
+                              category_list: list = None,
+                              view_mode: str = 'None',
+                              discoverer_mode: str = 'None',
+                              overlap_mode: str = 'None',
+                              system1: str = 'None',
+                              system2: str = 'None',
+                              source_system: str = 'None',
+                              name_filter: str = 'None',
+                              category_filter: str = 'None') -> str:
+    """Get the html for the "You searched for" card.
+    If you do not pass a str parameter, such as 'key', the default value will
+    be 'None', which indicates that that value has not been passed.
+    Its value will not be shown.
+    That is different to passing a parameter 'key' with a value ''.
+    Then that parameter will be shown.
+    This makes it possible to pass a parameter with value '' and show that value.
+
+    :param name: name.
+    :param category: category.
+    :param value: value.
+    :param key: key.
+    :param name_list: name_list.
+    :param category_list: category_list.
+    :param view_mode: view_mode.
+    :param discoverer_mode: discoverer_mode.
+    :param overlap_mode: overlap_mode.
+    :param system1: system1.
+    :param system2: system2.
+    :param source_system: source_system.
+    :param name_filter: name_filter.
+    :param category_filter: category_filter.
+    :return: html to be rendered.
+    """
+    if name_list is None:
+        name_list = []
+    if category_list is None:
+        category_list = []
+
+    html = get_html_for_cardstart()
+    html += '<details><summary>Click for information about your search</summary><ul>'
+    if name != 'None':
+        html += '<li>name: <i>"' + str(name) + '"</i>'
+    if category != 'None':
+        html += '<li>category: <i>"' + str(category) + '"</i>'
+    if value != 'None':
+        html += '<li>value: <i>"' + str(value) + '"</i>'
+    if key != 'None':
+        html += '<li>key: <i>"' + str(key) + '"</i>'
+    if len(name_list) > 0:
+        html += '<li>name_list: <i>"' + str(name_list) + '"</i>'
+    if len(category_list) > 0:
+        html += '<li>category_list: <i>"' + str(category_list) + '"</i>'
+    if view_mode != 'None':
+        html += '<li>view_mode: <i>"' + str(view_mode) + '"</i>'
+    if discoverer_mode != 'None':
+        html += '<li>discoverer_mode: <i>"' + str(discoverer_mode) + '"</i>'
+    if overlap_mode != 'None':
+        html += '<li>overlap_mode: <i>"' + str(overlap_mode) + '"</i>'
+    if system1 != 'None':
+        html += '<li>system1: <i>"' + str(system1) + '"</i>'
+    if system2 != 'None':
+        html += '<li>system2: <i>"' + str(system2) + '"</i>'
+    if source_system != 'None':
+        html += '<li>source_system: <i>"' + str(source_system) + '"</i>'
+    if name_filter != 'None':
+        html += '<li>name_filter: <i>"' + str(name_filter) + '"</i>'
+    if category_filter != 'None':
+        html += '<li>category_filter: <i>"' + str(category_filter) + '"</i>'
+    html += '</ul>'
+    html += '</details>'
+    html += get_html_for_cardend()
+    html += get_html_for_cardline()
+    return html
+
+
+# ##############################################################################
+# The HTML for the regular, tabbed and faceted tables is generated here.
+# ##############################################################################
+def get_regular_table(nodes_list: Union[list, NodeMatch],
+                      table_header: str = '',
+                      table_columns: list = None,
+                      discoverer_mode: str = '') -> str:
     """Create a html table for all nodes in the list.
 
-    :param nodes: the nodes to create a table from.
+    :param nodes_list: the nodes to create a table from.
     :param table_header: the html to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
-    if isinstance(nodes, Node):
-        # Make a list.
-        nodes = [nodes]
-
     if table_columns is None:
-        table_columns = DETAIL_COLUMNS
-    if len(nodes) == 0:
-        if set(table_columns) == set(DETAIL_COLUMNS):
-            html = get_html_for_cardstart()
-            html += 'No neighbors found.'
-            html += get_html_for_cardend()
-            return html
+        if discoverer_mode == 'details_view':
+            table_columns = DETAIL_COLUMNS
         else:
-            return ''
+            table_columns = RESEARCH_OUTPUT_COLUMNS
+    if len(nodes_list) == 0:
+        return get_message(table_header + '</br>Nothing found.')
 
     html = get_html_for_cardstart()
     html += '<span style="float:left;">' + table_header + '</span>'
-    if len(nodes) > MAX_ROWS_IN_TABLE:
-        html += '<span style="float:right;">There are ' + str(len(nodes)) + ' rows in this table, showing first '
+    if len(nodes_list) > MAX_ROWS_IN_TABLE:
+        html += '<span style="float:right;">There are ' + str(len(nodes_list)) + ' rows in this table, showing first '
         html += str(MAX_ROWS_IN_TABLE) + '.</span>'
-    elif len(nodes) == MAX_ROWS_IN_TABLE:
+    elif len(nodes_list) == MAX_ROWS_IN_TABLE:
         # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
         # so we have no idea how many search results there are.
         html += '<span style="float:right;">Showing first ' + str(MAX_ROWS_IN_TABLE) + ' rows.</span>'
-    elif len(nodes) >= 2:
-        html += '<span style="float:right;">There are ' + str(len(nodes)) + ' rows in this table.</span>'
+    elif len(nodes_list) >= 2:
+        html += '<span style="float:right;">There are ' + str(len(nodes_list)) + ' rows in this table.</span>'
     html += get_html_for_tablestart()
     html += get_html_for_tableheader(table_columns=table_columns)
     count = 0
-    for node in nodes:
+    for node in nodes_list:
         count += 1
         if count > MAX_ROWS_IN_TABLE:
             break
@@ -2061,44 +2016,38 @@ def get_html_table_from_nodes(nodes: Union[list, NodeMatch, Node],
     return html
 
 
-def get_faceted_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
-                                      name: str = '',
-                                      category: str = '',
-                                      value: str = '',
-                                      table_header: str = '',
-                                      table_columns: list = None,
-                                      discoverer_mode: str = '') -> str:
-    """Create a faceted html table for all nodes in the list.
+def get_faceted_table(parent_node: Node,
+                      neighbor_nodes: Union[list, NodeMatch, None],
+                      table_header: str = '',
+                      table_columns: list = None,
+                      view_mode: str = '',
+                      discoverer_mode: str = '') -> str:
+    """Create a faceted html table for all neighbor_nodes in the list.
 
-    :param nodes: the nodes to create a table from.
-    :param name: name of the nodes to find.
-    :param category: category of the nodes to find.
-    :param value: value of the nodes to find.
+    :param parent_node: the parent of the nodes to construct the facets from.
+    :param neighbor_nodes: the neighbor_nodes to create a table from.
     :param table_header: the html to show above the table.
     :param table_columns: a list of columns to show in the table.
+    :param view_mode: which view to use.
     :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
     if table_columns is None:
-        table_columns = []
-    if len(nodes) == 0:
-        if set(table_columns) == set(DETAIL_COLUMNS):
-            html = get_html_for_cardstart()
-            html += 'No neighbors found.'
-            html += get_html_for_cardend()
-            return html
+        if discoverer_mode == 'details_view':
+            table_columns = DETAIL_COLUMNS
         else:
-            return ''
+            table_columns = RESEARCH_OUTPUT_COLUMNS
+    if len(neighbor_nodes) == 0:
+        return get_message(table_header + '</br>Nothing found.')
 
-    faceted_html = get_facets_from_nodes(nodes=nodes,
-                                         name=name,
-                                         category=category,
-                                         value=value,
+    faceted_html = get_facets_from_nodes(parent_node=parent_node,
+                                         neighbor_nodes=neighbor_nodes,
+                                         view_mode=view_mode,
                                          discoverer_mode=discoverer_mode)
-    table_html = get_html_table_from_nodes(nodes=nodes,
-                                           table_header=table_header,
-                                           table_columns=table_columns,
-                                           discoverer_mode=discoverer_mode)
+    table_html = get_regular_table(nodes_list=neighbor_nodes,
+                                   table_header=table_header,
+                                   table_columns=table_columns,
+                                   discoverer_mode=discoverer_mode)
     html = ''
     if faceted_html == '':
         # Faceted navigation not useful, don't show the panel.
@@ -2117,14 +2066,14 @@ def get_faceted_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
     return html
 
 
-def get_tabbed_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
-                                     table_header: str = '',
-                                     table_columns: list = None,
-                                     tabs_on: str = '',
-                                     discoverer_mode: str = '') -> str:
+def get_tabbed_table(nodes_list: Union[list, NodeMatch, None],
+                     table_header: str = '',
+                     table_columns: list = None,
+                     tabs_on: str = '',
+                     discoverer_mode: str = '') -> str:
     """Create a html table with tabs for all nodes in the list.
 
-    :param nodes: the nodes to create a table from.
+    :param nodes_list: the nodes to create a table from.
     :param table_header: the html to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param tabs_on: the name of the field in Ricgraph you'd like to have tabs on.
@@ -2132,20 +2081,17 @@ def get_tabbed_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
     :return: html to be rendered.
     """
     if table_columns is None:
-        table_columns = []
-    if len(nodes) == 0:
-        if set(table_columns) == set(DETAIL_COLUMNS):
-            html = get_html_for_cardstart()
-            html += 'No neighbors found.'
-            html += get_html_for_cardend()
-            return html
+        if discoverer_mode == 'details_view':
+            table_columns = DETAIL_COLUMNS
         else:
-            return ''
+            table_columns = RESEARCH_OUTPUT_COLUMNS
+    if len(nodes_list) == 0:
+        return get_message(table_header + '</br>Nothing found.')
     if tabs_on != 'name' and tabs_on != 'category':
-        return 'get_tabbed_html_table_from_nodes(): Invalid value for "tabs_on": ' + tabs_on + '.'
+        return get_message(message='get_tabbed_table(): Invalid value for "tabs_on": ' + tabs_on + '.')
 
     histogram = {}
-    for node in nodes:
+    for node in nodes_list:
         if node[tabs_on] not in histogram:
             histogram[node[tabs_on]] = 1
         else:
@@ -2178,14 +2124,14 @@ def get_tabbed_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
         tab_contents_html += '>'
         nodes_of_tab_name = []
         # Get the nodes of interest. Using rcg.get_all_neighbor_nodes() is not efficient.
-        for node in nodes:
+        for node in nodes_list:
             if node[tabs_on] == tab_name:
                 nodes_of_tab_name.append(node)
         table_title = 'List of ' + tab_name + 's:'
-        table = get_html_table_from_nodes(nodes=nodes_of_tab_name,
-                                          table_header=table_title,
-                                          table_columns=table_columns,
-                                          discoverer_mode=discoverer_mode)
+        table = get_regular_table(nodes_list=nodes_of_tab_name,
+                                  table_header=table_title,
+                                  table_columns=table_columns,
+                                  discoverer_mode=discoverer_mode)
         tab_contents_html += table
         tab_contents_html += '</div>'
 
@@ -2214,8 +2160,97 @@ def get_tabbed_html_table_from_nodes(nodes: Union[list, NodeMatch, None],
     return html
 
 
+def get_facets_from_nodes(parent_node: Node,
+                          neighbor_nodes: list,
+                          view_mode: str = '',
+                          discoverer_mode: str = '') -> str:
+    """Do facet navigation in Ricgraph.
+    The facets will be constructed based on 'name' and 'category'.
+    Facets chosen will be "caught" in function search().
+    If there is only one facet (for either one or both), it will not be shown.
+
+    :param parent_node: the parent of the nodes to construct the facets from.
+    :param neighbor_nodes: the nodes to construct the facets from.
+    :param view_mode: which view to use.
+    :param discoverer_mode: the discoverer_mode to use.
+    :return: html to be rendered, or empty string ('') if faceted navigation is
+      not useful because there is only one facet.
+    """
+    if len(neighbor_nodes) == 0:
+        return ''
+
+    name_histogram = {}
+    category_histogram = {}
+    for node in neighbor_nodes:
+        if node['name'] not in name_histogram:
+            name_histogram[node['name']] = 1
+        else:
+            name_histogram[node['name']] += 1
+
+        if node['category'] not in category_histogram:
+            category_histogram[node['category']] = 1
+        else:
+            category_histogram[node['category']] += 1
+
+    if len(name_histogram) <= 1 and len(category_histogram) <= 1:
+        # We have only one facet, so don't show the facet panel.
+        return ''
+
+    faceted_form = get_html_for_cardstart()
+    faceted_form += '<div class="facetedform">'
+    faceted_form += '<form method="get" action="' + url_for('resultspage') + '">'
+    faceted_form += '<input type="hidden" name="key" value="' + str(parent_node['_key']) + '">'
+    faceted_form += '<input type="hidden" name="view_mode" value="' + str(view_mode) + '">'
+    faceted_form += '<input type="hidden" name="discoverer_mode" value="' + str(discoverer_mode) + '">'
+    if len(name_histogram) == 1:
+        # Get the first (and only) element in the dict, pass it as hidden field to search().
+        name_key = str(list(name_histogram.keys())[0])
+        faceted_form += '<input type="hidden" name="name_list" value="' + name_key + '">'
+    else:
+        faceted_form += '<div class="w3-card-4">'
+        faceted_form += '<div class="w3-container uu-yellow">'
+        faceted_form += '<b>Filter on "name"</b>'
+        faceted_form += '</div>'
+        faceted_form += '<div class="w3-container">'
+        # Sort a dict on value:
+        # https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
+        for bucket in sorted(name_histogram, key=name_histogram.get, reverse=True):
+            name_label = bucket + '&nbsp;<i>(' + str(name_histogram[bucket]) + ')</i>'
+            faceted_form += '<input class="w3-check" type="checkbox" name="name_list" value="'
+            faceted_form += bucket + '" checked>'
+            faceted_form += '<label>&nbsp;' + name_label + '</label><br/>'
+        faceted_form += '</div>'
+        faceted_form += '</div><br/>'
+
+    if len(category_histogram) == 1:
+        # Get the first (and only) element in the dict, pass it as hidden field to search().
+        category_key = str(list(category_histogram.keys())[0])
+        faceted_form += '<input type="hidden" name="category_list" value="' + category_key + '">'
+    else:
+        faceted_form += '<div class="w3-card-4">'
+        faceted_form += '<div class="w3-container uu-yellow">'
+        faceted_form += '<b>Filter on "category"</b>'
+        faceted_form += '</div>'
+        faceted_form += '<div class="w3-container">'
+        for bucket in sorted(category_histogram, key=category_histogram.get, reverse=True):
+            category_label = bucket + '&nbsp;<i>(' + str(category_histogram[bucket]) + ')</i>'
+            faceted_form += '<input class="w3-check" type="checkbox" name="category_list" value="'
+            faceted_form += bucket + '" checked>'
+            faceted_form += '<label>&nbsp;' + category_label + '</label><br/>'
+        faceted_form += '</div>'
+        faceted_form += '</div><br/>'
+
+    # Send name, category and value as hidden fields to search().
+    faceted_form += '<input class="w3-input' + button_style + '" type=submit value="refresh">'
+    faceted_form += '</form>'
+    faceted_form += '</div>'
+    faceted_form += get_html_for_cardend()
+    html = faceted_form
+    return html
+
+
 # ##############################################################################
-# The HTML for the tables is generated here.
+# The general HTML for the tables is generated here.
 # ##############################################################################
 def get_html_for_tablestart() -> str:
     """Get the html required for the start of a html table.
@@ -2281,7 +2316,7 @@ def get_html_for_tablerow(node: Node,
     if 'value' in table_columns:
         # Value can never be empty, it is part of _key.
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-        html += '<td><a href=' + url_for('findnodes') + '?'
+        html += '<td><a href=' + url_for('optionspage') + '?'
         html += urllib.parse.urlencode({'key': key,
                                         'discoverer_mode': discoverer_mode}) + '>'
         html += node['value'] + '</a></td>'
@@ -2401,24 +2436,38 @@ if __name__ == "__main__":
     if name_all is None:
         print('Error in obtaining list with all property values for property "name".')
         exit(2)
+    category_all = rcg.read_all_values_of_property('category')
+    if category_all is None:
+        print('Error in obtaining list with all property values for property "category".')
+        exit(2)
+    source_all = rcg.read_all_values_of_property('_source')
+    if source_all is None:
+        print('Error in obtaining list with all property values for property "_source".')
+        exit(2)
+
     name_all_datalist = '<datalist id="name_all_datalist">'
     for property_item in name_all:
         name_all_datalist += '<option value="' + property_item + '">'
     name_all_datalist += '</datalist>'
 
-    category_all = rcg.read_all_values_of_property('category')
-    if category_all is None:
-        print('Error in obtaining list with all property values for property "category".')
-        exit(2)
+    resout_types_all = []
+    if 'competence' in category_all:
+        personal_types_all = ['person', 'competence']
+    else:
+        personal_types_all = ['person']
+    remainder_types_all = []
+    resout_types_all_datalist = '<datalist id="resout_types_all_datalist">'
     category_all_datalist = '<datalist id="category_all_datalist">'
     for property_item in category_all:
+        if property_item in rcg.ROTYPE_ALL:
+            resout_types_all.append(property_item)
+            resout_types_all_datalist += '<option value="' + property_item + '">'
+        if property_item not in personal_types_all:
+            remainder_types_all.append(property_item)
         category_all_datalist += '<option value="' + property_item + '">'
     category_all_datalist += '</datalist>'
+    resout_types_all_datalist += '</datalist>'
 
-    source_all = rcg.read_all_values_of_property('_source')
-    if source_all is None:
-        print('Error in obtaining list with all property values for property "_source".')
-        exit(2)
     source_all_datalist = '<datalist id="source_all_datalist">'
     for property_item in source_all:
         source_all_datalist += '<option value="' + property_item + '">'
