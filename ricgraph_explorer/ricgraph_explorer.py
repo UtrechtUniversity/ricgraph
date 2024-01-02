@@ -57,6 +57,7 @@
 
 
 import os
+import sys
 import urllib.parse
 from typing import Union
 from py2neo import Node, NodeMatch
@@ -122,12 +123,23 @@ VIEW_MODE_ALL = ['view_regular_table_personal',
                  'view_regular_table_organization_addinfo',
                  ]
 
+# The dict 'nodes_cache' is used to be able to pass nodes (i.e. links to Node)
+# between the pages of this application. If we would not do this, we would need
+# to search the node again every time we go to a new page. Then we would
+# lose the advantage of using a graph.
+# I could have used rcg.read_node() with @ricgraph_lru_cache, but I'd prefer to be
+# able to store any node in the cache at the moment I prefer, as is done
+# in function get_regular_table()).
+# This dict has the format: [Ricgraph _key]: [Node link]
+nodes_cache = {}
+
 global name_all_datalist, category_all_datalist, source_all, source_all_datalist
 global resout_types_all, resout_types_all_datalist
 global personal_types_all, remainder_types_all
 
 # The html 'width' of input fields or 'min-width' of buttons.
-field_button_width = '30%'
+# field_button_width = '30%'
+field_button_width = '500px'
 # The style for the buttons, note the space before and after the text.
 button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 # A button with a black line around it.
@@ -194,17 +206,17 @@ html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?
 # The html page header.
 page_header = '<header class="w3-container uu-yellow">'
 page_header += '<div class="w3-bar uu-yellow">'
-page_header += '<div class="w3-bar-item w3-mobile" style="padding-left:0em; padding-right:4em">'
-page_header += '<a href="/" style="text-decoration:none; color:#000000; font-size:130%">'
-page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right:3em">'
-page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right:0.5em">Explorer</a>'
+page_header += '<div class="w3-bar-item w3-mobile" style="padding-left:0em; padding-right:4em;">'
+page_header += '<a href="/" style="text-decoration:none; color:#000000; font-size:130%;">'
+page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right:3em;">'
+page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right:0.5em;">Explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item'
-page_header += button_style_border + '" style="min-width:12em">Home</a>'
+page_header += button_style_border + '" style="min-width:12em;">Home</a>'
 page_header += '<a href="/searchpage?search_mode=exact_match" class="w3-bar-item'
-page_header += button_style_border + '" style="min-width:12em">Advanced search</a>'
+page_header += button_style_border + '" style="min-width:12em;">Advanced search</a>'
 page_header += '<a href="/searchpage?search_mode=value_search" class="w3-bar-item'
-page_header += button_style_border + '" style="min-width:12em">Broad search</a>'
+page_header += button_style_border + '" style="min-width:12em;">Broad search</a>'
 page_header += '</div>'
 page_header += '</header>'
 
@@ -309,6 +321,10 @@ def homepage() -> str:
     html += '</li>'
     html += '<li>'
     html += 'There are ' + str(nr_nodes) + ' nodes and ' + str(nr_edges) + ' edges.'
+    html += '</li>'
+    html += '<li>'
+    html += 'The node cache has ' + str(len(nodes_cache)) + ' elements, and its size is '
+    html += str(round(sys.getsizeof(nodes_cache)/1000, 1)) + ' kB.'
     html += '</li>'
     html += '</ul>'
     html += get_html_for_cardend()
@@ -461,6 +477,17 @@ def optionspage() -> str:
         html += get_message(message='Ricgraph Explorer could not find anything.')
         html += html_body_end
         return html
+
+    # First check if the node is in 'node_cache'.
+    if name != '' and category == '' and value != '':
+        key = rcg.create_ricgraph_key(name=name, value=value)
+        if key in nodes_cache:
+            node = nodes_cache[key]
+            html += create_options_page(node=node, discoverer_mode=discoverer_mode)
+            html += html_body_end
+            return html
+
+    # No, it is not.
     if search_mode == 'exact_match':
         result = rcg.read_all_nodes(name=name, category=category, value=value)
     else:
@@ -482,6 +509,7 @@ def optionspage() -> str:
         return html
 
     node = result.first()
+    nodes_cache[key] = node
     html += create_options_page(node=node, discoverer_mode=discoverer_mode)
     html += html_body_end
     return html
@@ -812,17 +840,21 @@ def create_results_page(view_mode: str,
 
     html = ''
     table_header = ''
-    result = rcg.read_all_nodes(name=rcg.get_namepart_from_ricgraph_key(key=key),
-                                value=rcg.get_valuepart_from_ricgraph_key(key=key))
-    if len(result) == 0 or len(result) > 1:
-        if len(result) == 0:
-            message = 'Ricgraph Explorer could not find anything. '
-        else:
-            message = 'Ricgraph Explorer found too many nodes. '
-        message += 'This should not happen. '
-        return get_message(message=message)
+    if key in nodes_cache:
+        node = nodes_cache[key]
+    else:
+        result = rcg.read_all_nodes(name=rcg.get_namepart_from_ricgraph_key(key=key),
+                                    value=rcg.get_valuepart_from_ricgraph_key(key=key))
+        if len(result) == 0 or len(result) > 1:
+            if len(result) == 0:
+                message = 'Ricgraph Explorer could not find anything. '
+            else:
+                message = 'Ricgraph Explorer found too many nodes. '
+            message += 'This should not happen. '
+            return get_message(message=message)
+        node = result.first()
+        nodes_cache[key] = node
 
-    node = result.first()
     if discoverer_mode == 'details_view':
         table_columns_ids = DETAIL_COLUMNS
         table_columns_org = DETAIL_COLUMNS
@@ -1106,8 +1138,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     """
     html = ''
     if parent_node is None:
-        personroot_nodes = rcg.read_all_nodes(name='person-root')
-        person_root_node = None
+        personroot_list = rcg.read_all_nodes(name='person-root')
+        personroot_node = None
         message = 'You have chosen to enrich <em>all</em> nodes in Ricgraph for source system "'
         message += source_system + '". '
         message += 'However, that will take a long time. '
@@ -1117,8 +1149,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
         message += '<em>MAX_NR_NODES_TO_ENRICH</em> in file <em>ricgraph_explorer.py</em>.'
         html += get_message(message=message, please_try_again=False)
     else:
-        person_root_node = rcg.get_personroot_node(parent_node)
-        personroot_nodes = [person_root_node]
+        personroot_node = rcg.get_personroot_node(parent_node)
+        personroot_list = [personroot_node]
 
     if discoverer_mode == 'details_view':
         table_columns = DETAIL_COLUMNS
@@ -1127,7 +1159,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
 
     count = 1
     something_found = False
-    for personroot in personroot_nodes:
+    for personroot in personroot_list:
         if count > MAX_NR_NODES_TO_ENRICH:
             break
         node_in_source_system = []
@@ -1206,7 +1238,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
             html += get_html_for_cardstart()
             table_header = 'This node is used to determine possible enrichments of source system "'
             table_header += source_system + '":'
-            html += get_regular_table(nodes_list=[person_root_node],
+            html += get_regular_table(nodes_list=[personroot_node],
                                       table_header=table_header,
                                       table_columns=table_columns)
             html += '</br>Ricgraph could not find any candidates to enrich this node '
@@ -2010,6 +2042,10 @@ def get_regular_table(nodes_list: Union[list, NodeMatch],
         html += get_html_for_tablerow(node=node,
                                       table_columns=table_columns,
                                       discoverer_mode=discoverer_mode)
+        # Add node to nodes_cache if it is not there already.
+        key = node['_key']
+        if key not in nodes_cache:
+            nodes_cache[key] = node
 
     html += get_html_for_tableend()
     html += get_html_for_cardend()
@@ -2241,7 +2277,8 @@ def get_facets_from_nodes(parent_node: Node,
         faceted_form += '</div><br/>'
 
     # Send name, category and value as hidden fields to search().
-    faceted_form += '<input class="w3-input' + button_style + '" type=submit value="refresh">'
+    # faceted_form += '<input class="w3-input' + button_style + '" type=submit value="refresh">'
+    faceted_form += '<input class="w3-input' + button_style + '" style="width:8em;" type=submit value="refresh">'
     faceted_form += '</form>'
     faceted_form += '</div>'
     faceted_form += get_html_for_cardend()
