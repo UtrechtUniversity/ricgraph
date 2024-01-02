@@ -150,6 +150,7 @@ CACHE_SIZE_READ_NODE = 15000
 # }
 #
 # Call the function lookup_resout_type() to do this mapping.
+# If you add a type, also add it to ROTYPE_ALL.
 #
 # This list is inspired by the Strategy Evaluation Protocol 2021-2027
 # https://www.universiteitenvannederland.nl/files/documenten/Domeinen/Onderzoek/SEP_2021-2027.pdf,
@@ -179,6 +180,33 @@ ROTYPE_REVIEW = 'review'
 ROTYPE_SOFTWARE = 'software'
 ROTYPE_THESIS = 'thesis'
 ROTYPE_WEBSITE = 'website or web publication'
+
+ROTYPE_ALL = [ROTYPE_ABSTRACT,
+              ROTYPE_BOOK,
+              ROTYPE_BOOKCHAPTER,
+              ROTYPE_CONFERENCE_ARTICLE,
+              ROTYPE_DATASET,
+              ROTYPE_DESIGN,
+              ROTYPE_DIGITAL_VISUAL_PRODUCT,
+              ROTYPE_EDITORIAL,
+              ROTYPE_ENTRY,
+              ROTYPE_EXHIBITION_PERFORMANCE,
+              ROTYPE_JOURNAL_ARTICLE,
+              ROTYPE_LETTER,
+              ROTYPE_MEMORANDUM,
+              ROTYPE_METHOD_DESCRIPTION,
+              ROTYPE_OTHER_CONTRIBUTION,
+              ROTYPE_PATENT,
+              ROTYPE_PHDTHESIS,
+              ROTYPE_POSTER,
+              ROTYPE_PREPRINT,
+              ROTYPE_PRESENTATION,
+              ROTYPE_REPORT,
+              ROTYPE_REVIEW,
+              ROTYPE_SOFTWARE,
+              ROTYPE_THESIS,
+              ROTYPE_WEBSITE]
+
 # ########################################################################
 # End of constants section
 # ########################################################################
