@@ -2277,7 +2277,6 @@ def get_facets_from_nodes(parent_node: Node,
         faceted_form += '</div><br/>'
 
     # Send name, category and value as hidden fields to search().
-    # faceted_form += '<input class="w3-input' + button_style + '" type=submit value="refresh">'
     faceted_form += '<input class="w3-input' + button_style + '" style="width:8em;" type=submit value="refresh">'
     faceted_form += '</form>'
     faceted_form += '</div>'
