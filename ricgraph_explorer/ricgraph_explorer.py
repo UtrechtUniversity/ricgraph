@@ -110,7 +110,7 @@ MAX_NR_NODES_TO_ENRICH = 20
 # These are all the 'view_mode's that are allowed.
 VIEW_MODE_ALL = ['view_regular_table_personal',
                  'view_regular_table_organizations',
-                 'view_regular_table_persons',
+                 'view_regular_table_persons_of_org',
                  'view_regular_table_category',
                  'view_regular_table_overlap',
                  'view_regular_table_overlap_records',
@@ -138,8 +138,7 @@ global resout_types_all, resout_types_all_datalist
 global personal_types_all, remainder_types_all
 
 # The html 'width' of input fields or 'min-width' of buttons.
-# field_button_width = '30%'
-field_button_width = '500px'
+field_button_width = '30em'
 # The style for the buttons, note the space before and after the text.
 button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 # A button with a black line around it.
@@ -383,36 +382,31 @@ def searchpage() -> str:
     form += '<input class="w3-input w3-border" type=text name=value>'
     form += '<input type="hidden" name="search_mode" value=' + search_mode + '>'
 
-    if search_mode == 'value_search':
-        form += 'This field is case-insensitive and uses inexact match search.'
-    else:
+    if search_mode == 'exact_match':
         form += 'These fields are case-sensitive and use exact match search. '
-        form += 'If you enter values in more than one field, these fields are combined using AND.'
+        form += 'If you enter values in more than one field, these fields are combined using AND.</br>'
 
     radio_person_text = ' <em>person_view</em>: only show relevant columns, '
-    radio_person_text += 'research outputs presented in a <em>tabbed</em> format '
+    radio_person_text += 'results are presented in a <em>tabbed</em> format '
     radio_person_tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
     radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
-    radio_person_tooltip += 'This view only shows relevant columns. '
-    radio_person_tooltip += 'Research outputs are presented in a <em>tabbed</em> format. '
-    radio_person_tooltip += 'Tables have less columns (to reduce information overload) '
-    radio_person_tooltip += 'and the order of the tables is different compared to the other option. '
-    radio_person_tooltip += 'It shows that the layout of information can be adapted to a target audience.'
+    radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
+    radio_person_tooltip += 'Also, tables have less columns to reduce information overload. '
     if 'competence' in category_all:
-        radio_person_tooltip += '<br/>This view has been tailored to the Utrecht University staff pages, since some '
+        radio_person_tooltip += 'This view has been tailored to the Utrecht University staff pages, since some '
         radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
-        radio_person_tooltip += 'These will be presented in a more attractive way. '
+        radio_person_tooltip += 'These will be presented in a different way using lists. '
     radio_person_tooltip += '</div>'
 
     radio_details_text = ' <em>details_view</em>: show all columns, '
-    radio_details_text += 'research outputs presented in a table with <em>facets</em> '
+    radio_details_text += 'research outputs are presented in a table with <em>facets</em> '
     radio_details_tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
     radio_details_tooltip += '<div class="w3-text" style="margin-left:60px;"> '
     radio_details_tooltip += 'This view shows all columns in Ricgraph. '
     radio_details_tooltip += 'Research outputs are presented in a table with <em>facets</em>. '
     radio_details_tooltip += '</div>'
 
-    form += '<br/><br/>Please specify how you like to view your results (for explanation see below):<br/>'
+    form += '<br/>Please specify how you like to view your results:<br/>'
     form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="person_view"'
     if discoverer_mode == 'person_view':
         form += 'checked'
@@ -452,7 +446,7 @@ def optionspage() -> str:
 
     returns html to parse.
     """
-    global html_body_start, html_body_end
+    global html_body_start, html_body_end, nodes_cache
 
     search_mode = get_url_parameter_value(parameter='search_mode',
                                           allowed_values=['exact_match', 'value_search'],
@@ -479,7 +473,7 @@ def optionspage() -> str:
         return html
 
     # First check if the node is in 'node_cache'.
-    if name != '' and category == '' and value != '':
+    if name != '' and value != '':
         key = rcg.create_ricgraph_key(name=name, value=value)
         if key in nodes_cache:
             node = nodes_cache[key]
@@ -502,13 +496,15 @@ def optionspage() -> str:
         html += html_body_end
         return html
     if len(result) > 1:
+        table_header = 'Your search resulted in more than one node. Please choose one node to continue:'
         html += get_regular_table(nodes_list=result,
-                                  table_header='Choose one node to continue:',
+                                  table_header=table_header,
                                   discoverer_mode=discoverer_mode)
         html += html_body_end
         return html
 
     node = result.first()
+    key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
     nodes_cache[key] = node
     html += create_options_page(node=node, discoverer_mode=discoverer_mode)
     html += html_body_end
@@ -617,10 +613,10 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
     # This is used more than once, so we define it here.
     overlap = get_html_for_cardstart()
     explanation = '<h5>More information about overlap in source systems</h5>'
-    explanation += 'If the information in Ricgraph has originated from more than one '
-    explanation += 'source system, you can find out from which ones.</br>'
+    explanation += 'If the information in Ricgraph for for the neighbors of this node have originated '
+    explanation += 'from more than one source system, you can find out from which ones.</br>'
     button_text = 'find the overlap in source systems for '
-    button_text += 'the neighbor nodes of this node'
+    button_text += 'the neighbor nodes of this node (this may take some time)'
     # overlap += create_html_form(destination='getoverlap',
     overlap += create_html_form(destination='resultspage',
                                 button_text=button_text,
@@ -639,7 +635,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'name_list': 'person-root',
-                                                'view_mode': 'view_regular_table_persons'
+                                                'view_mode': 'view_regular_table_persons_of_org'
                                                 })
         html += '<p/>'
 
@@ -653,15 +649,17 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
 
         html += get_html_for_cardstart()
         html += '<h4>Advanced information related to this organization</h4>'
+        html += 'Depending on the number of persons in the organization above, '
+        html += 'the following options may take some time before showing the result.'
         html += get_html_for_cardstart()
         explanation = '<h5>More information about persons or their results in this organization.</h5>'
         explanation += 'By using the fields below, you can choose '
         explanation += 'what you would like to see about the persons or their results in this organization. '
         explanation += 'You can use one or both fields.'
-        button_text = 'find specific information (this may take quite some time)'
+        button_text = 'find specific information (this may take some time)'
         label_text_name = 'Search for persons or results using field <em>name</em>: '
         input_spec_name = ('list', 'name_list', 'name_all_datalist', name_all_datalist)
-        label_text_category = 'Search for persons or results using field <em>category</em>: '
+        label_text_category = '</br>Search for persons or results using field <em>category</em>: '
         input_spec_category = ('list', 'category_list', 'category_all_datalist', category_all_datalist)
         html += create_html_form(destination='resultspage',
                                  button_text=button_text,
@@ -676,7 +674,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += '<br/>'
         explanation = 'Or, click this button to '
         explanation += 'get a list of any information about persons or their results in this organization:'
-        button_text = 'find any information (this may take quite some time)'
+        button_text = 'find any information (this may take some time)'
         html += create_html_form(destination='resultspage',
                                  button_text=button_text,
                                  explanation=explanation,
@@ -769,13 +767,12 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
-        explanation = '<h5>How to improve or '
-        explanation += 'enhance information in one of your source systems</h5>'
+        explanation = '<h5>Improve or enhance information in one of your source systems</h5>'
         explanation += 'The process of improving or enhancing information in a source system is called "enriching" '
-        explanation += 'your source system. This means that information found in one or more other harvested systems, '
-        explanation += 'is used to improve or enhance information in this source system. '
-        explanation += 'This is possible in case the neighbors of this node originate from various source systems. '
-        explanation += 'Use the field below to enter a name of one of your source systems. '
+        explanation += 'that source system. This is only possible if you have harvested more than one source system. '
+        explanation += 'By using information found in one or more other harvested systems, '
+        explanation += 'information in this source system can be improved or enhanced. '
+        explanation += '</br>Use the field below to enter a name of one of your source systems. '
         explanation += 'Ricgraph Explorer will show what information can be added to this source system, '
         explanation += 'based on the information harvested from other source systems. '
         label_text = 'The name of the source system you would like to enrich:'
@@ -825,7 +822,7 @@ def create_results_page(view_mode: str,
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
-    global resout_types_all, personal_types_all, remainder_types_all
+    global resout_types_all, personal_types_all, remainder_types_all, nodes_cache
 
     if name_list is None:
         name_list = []
@@ -839,7 +836,6 @@ def create_results_page(view_mode: str,
         category_list_str = category_list[0]
 
     html = ''
-    table_header = ''
     if key in nodes_cache:
         node = nodes_cache[key]
     else:
@@ -888,10 +884,8 @@ def create_results_page(view_mode: str,
                                               discoverer_mode=discoverer_mode)
 
     elif view_mode == 'view_regular_table_organizations' \
-            or view_mode == 'view_regular_table_persons' \
             or view_mode == 'view_regular_table_category':
-        if view_mode == 'view_regular_table_persons' \
-           or view_mode == 'view_regular_table_category':
+        if view_mode == 'view_regular_table_category':
             personroot_node = node
         else:
             personroot_node = rcg.get_personroot_node(node=node)
@@ -901,14 +895,8 @@ def create_results_page(view_mode: str,
         if view_mode == 'view_regular_table_organizations':
             table_header = 'These are the organizations related to this person:'
             table_columns = table_columns_org
-        elif view_mode == 'view_regular_table_persons':
-            table_header = 'These are persons related to this organization:'
-            table_columns = table_columns_ids
-        elif view_mode == 'view_regular_table_category':
-            table_header = 'This is all information related to this ' + node['category'] + ':'
-            table_columns = table_columns_resout
         else:
-            table_header = 'Unknown view mode "' + view_mode + '" for this table_header.'
+            table_header = 'This is all information related to this ' + node['category'] + ':'
             table_columns = table_columns_resout
         html += node_found
         html += get_regular_table(nodes_list=neighbor_nodes,
@@ -916,22 +904,60 @@ def create_results_page(view_mode: str,
                                   table_columns=table_columns,
                                   discoverer_mode=discoverer_mode)
 
-    elif view_mode == 'view_unspecified_table_resouts' \
-            or view_mode == 'view_unspecified_table_everything_except_ids' \
-            or view_mode == 'view_unspecified_table_organizations':
-        if view_mode == 'view_unspecified_table_organizations':
-            personroot_node = node
+    elif view_mode == 'view_regular_table_persons_of_org':
+        # Some organizations have a large number of neighbors, but we will only show
+        # MAX_ROWS_IN_TABLE in the table. Therefore, reduce the number of neighbors when
+        # searching for persons in an organization. Don't do this for other view_modes, because
+        # in that case the table shows how many records are found.
+        personroot_node = node
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                    name_want=name_list,
+                                                    category_want=category_list,
+                                                    max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE)
+        table_header = 'These are persons related to this organization:'
+        table_columns = table_columns_ids
+        html += node_found
+        html += get_regular_table(nodes_list=neighbor_nodes,
+                                  table_header=table_header,
+                                  table_columns=table_columns,
+                                  discoverer_mode=discoverer_mode)
+
+    elif view_mode == 'view_unspecified_table_organizations':
+        # Some organizations have a large number of neighbors, but we will only show
+        # MAX_ROWS_IN_TABLE in the table. Therefore, reduce the number of neighbors when
+        # searching for persons in an organization. Don't do this for other view_modes, because
+        # in that case the table shows how many records are found.
+        personroot_node = node
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                    name_want=name_list,
+                                                    category_want=category_list,
+                                                    max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE)
+        table_header = 'This is all information related to this organization:'
+        html += node_found
+        if discoverer_mode == 'details_view':
+            html += get_faceted_table(parent_node=node,
+                                      neighbor_nodes=neighbor_nodes,
+                                      table_header=table_header,
+                                      table_columns=table_columns_resout,
+                                      view_mode=view_mode,
+                                      discoverer_mode=discoverer_mode)
         else:
-            personroot_node = rcg.get_personroot_node(node=node)
+            html += get_tabbed_table(nodes_list=neighbor_nodes,
+                                     table_header=table_header,
+                                     table_columns=table_columns_resout,
+                                     tabs_on='category',
+                                     discoverer_mode=discoverer_mode)
+
+    elif view_mode == 'view_unspecified_table_resouts' \
+            or view_mode == 'view_unspecified_table_everything_except_ids':
+        personroot_node = rcg.get_personroot_node(node=node)
         neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
                                                     name_want=name_list,
                                                     category_want=category_list)
         if view_mode == 'view_unspecified_table_resouts':
             table_header = 'These are the research outputs related to this person:'
-        elif view_mode == 'view_unspecified_table_everything_except_ids':
+        else:
             table_header = 'These are all the neighbors related to this person (without its identities):'
-        elif view_mode == 'view_unspecified_table_organizations':
-            table_header = 'This is all information related to this organization:'
         html += node_found
         if discoverer_mode == 'details_view':
             html += get_faceted_table(parent_node=node,
@@ -1231,8 +1257,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
             # ### end.
     else:
         if parent_node is None:
-            message = 'Ricgraph could not find any candidates to enrich for source system "'
-            message += source_system + '".'
+            message = 'Ricgraph could not find any information in other source systems '
+            message += 'to enrich source system "' + source_system + '".'
             html += get_message(message=message)
         else:
             html += get_html_for_cardstart()
@@ -1241,8 +1267,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
             html += get_regular_table(nodes_list=[personroot_node],
                                       table_header=table_header,
                                       table_columns=table_columns)
-            html += '</br>Ricgraph could not find any candidates to enrich this node '
-            html += 'in source system "' + source_system + '". '
+            html += '</br>Ricgraph could not find any information in other source systems '
+            html += 'to enrich source system "' + source_system + '".'
             html += get_html_for_cardend()
 
     html += '</p>'
@@ -1274,10 +1300,10 @@ def find_person_share_resouts(parent_node: Node,
     if len(neighbor_nodes) == 0:
         # Nothing found
         if category_str == '':
-            message = 'This person does not seem to share any research output types '
+            message = 'This person does not share any research output types '
             message += 'with other persons.'
         else:
-            message = 'This person does not seem to share research output type "'
+            message = 'This person does not share research output type "'
             message += category_str + '" with other persons.'
         return get_message(message=message)
 
@@ -2091,7 +2117,7 @@ def get_faceted_table(parent_node: Node,
     else:
         # Divide space between facet panel and table.
         html += '<div class="w3-row-padding w3-stretch" >'
-        html += '<div class="w3-col" style="width:300px" >'
+        html += '<div class="w3-col" style="width:20em" >'
         html += faceted_html
         html += '</div>'
         html += '<div class="w3-rest" >'
