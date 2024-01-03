@@ -909,8 +909,7 @@ def create_results_page(view_mode: str,
         # MAX_ROWS_IN_TABLE in the table. Therefore, reduce the number of neighbors when
         # searching for persons in an organization. Don't do this for other view_modes, because
         # in that case the table shows how many records are found.
-        personroot_node = node
-        neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=node,
                                                     name_want=name_list,
                                                     category_want=category_list,
                                                     max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE)
@@ -927,8 +926,7 @@ def create_results_page(view_mode: str,
         # MAX_ROWS_IN_TABLE in the table. Therefore, reduce the number of neighbors when
         # searching for persons in an organization. Don't do this for other view_modes, because
         # in that case the table shows how many records are found.
-        personroot_node = node
-        neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=node,
                                                     name_want=name_list,
                                                     category_want=category_list,
                                                     max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE)
