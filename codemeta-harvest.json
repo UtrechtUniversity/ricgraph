@@ -4,6 +4,7 @@
         "http://schema.org"
     ],
     "@type": "SoftwareSourceCode",
+    "sameAs": "https://doi.org/10.5281/zenodo.7524314",
     "funder": {
         "@type": "Organization",
         "name": "Utrecht University"
@@ -75,14 +76,7 @@
             "name": "Ricgraph: showcasing research in context using Pure and other sources",
             "author": [ "Rik D.T. Janssen", "Arjan Sieverink" ],
             "url": "https://doi.org/10.5281/zenodo.10057997"
-	    },
-        {
-            "@type": "SoftwareSourceCode",
-            "sameAs": "https://doi.org/10.5281/zenodo.7524314",
-            "name": "Ricgraph - Research in context graph",
-            "author": "Rik D.T. Janssen",
-            "url": "https://doi.org/10.5281/zenodo.7524314"
-        }
+	    }
     ],
     "applicationCategory": [
     	"https://vocabs.dariah.eu/tadirah/analyzing",
