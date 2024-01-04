@@ -57,7 +57,7 @@ identifiers:
     value: "10.5281/zenodo.10404893"
   - description: "Ricgraph DOI v1.13"
     type: doi
-    value: "10.5281/zenodo.XXXXXXXX"
+    value: "10.5281/zenodo.10458813"
 abstract: >-
   With Ricgraph (Research in context graph), you can create a graph from
   research information that is stored in various source systems. This can be
