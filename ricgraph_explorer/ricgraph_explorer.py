@@ -546,6 +546,13 @@ def resultspage() -> str:
                                               default_value=DEFAULT_DISCOVERER_MODE)
     name_list = request.args.getlist('name_list')
     category_list = request.args.getlist('category_list')
+    # HTML forms with an empty field named e.g. 'aa' will result in a URL parameter '...&aa=&...'.
+    # In this case, getlist() returns [''].
+    # This is undesirable behaviour, since I'd rather have an empty list. Correct for it.
+    if len(name_list) == 1 and name_list[0] == '':
+        name_list = []
+    if len(category_list) == 1 and category_list[0] == '':
+        category_list = []
 
     html = html_body_start
 
@@ -597,7 +604,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
     :return: html to be rendered.
     """
     global name_all_datalist, category_all_datalist, source_all_datalist
-    global resout_types_all, resout_types_all_datalist
+    global category_all, resout_types_all, resout_types_all_datalist
 
     html = ''
     if node is None:
@@ -617,7 +624,6 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
     explanation += 'from more than one source system, you can find out from which ones.</br>'
     button_text = 'find the overlap in source systems for '
     button_text += 'the neighbor nodes of this node (this may take some time)'
-    # overlap += create_html_form(destination='getoverlap',
     overlap += create_html_form(destination='resultspage',
                                 button_text=button_text,
                                 explanation=explanation,
@@ -649,12 +655,43 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
 
         html += get_html_for_cardstart()
         html += '<h4>Advanced information related to this organization</h4>'
-        html += 'Depending on the number of persons in the organization above, '
+        html += 'Depending on the number of persons in ' + str(node['value']) + ', '
         html += 'the following options may take some time before showing the result.'
         html += get_html_for_cardstart()
-        explanation = '<h5>More information about persons or their results in this organization.</h5>'
-        explanation += 'By using the fields below, you can choose '
-        explanation += 'what you would like to see about the persons or their results in this organization. '
+        html += '<h5>More information about persons or their results in this organization.</h5>'
+        button_text = 'find research outputs from all persons in this organization (this may take some time)'
+        html += create_html_form(destination='resultspage',
+                                 button_text=button_text,
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'category_list': resout_types_all,
+                                                'view_mode': 'view_regular_table_organization_addinfo'
+                                                })
+        html += '<p/>'
+
+        if 'competence' in category_all:
+            button_text = 'find skills from all persons in this organization (this may take some time)'
+            html += create_html_form(destination='resultspage',
+                                     button_text=button_text,
+                                     hidden_fields={'key': key,
+                                                    'discoverer_mode': discoverer_mode,
+                                                    'category_list': 'competence',
+                                                    'view_mode': 'view_regular_table_organization_addinfo'
+                                                    })
+            html += '<p/>'
+
+        button_text = 'find any information from persons or their results '
+        button_text += 'in this organization (this may take some time)'
+        html += create_html_form(destination='resultspage',
+                                 button_text=button_text,
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_organization_addinfo'
+                                                })
+        html += '<br/>'
+
+        explanation = 'By using the fields below, you can choose '
+        explanation += 'what you would like to see from the persons or their results in this organization. '
         explanation += 'You can use one or both fields.'
         button_text = 'find specific information (this may take some time)'
         label_text_name = 'Search for persons or results using field <em>name</em>: '
@@ -667,17 +704,6 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  input_fields={label_text_name: input_spec_name,
                                                label_text_category: input_spec_category,
                                                },
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_organization_addinfo'
-                                                })
-        html += '<br/>'
-        explanation = 'Or, click this button to '
-        explanation += 'get a list of any information about persons or their results in this organization:'
-        button_text = 'find any information (this may take some time)'
-        html += create_html_form(destination='resultspage',
-                                 button_text=button_text,
-                                 explanation=explanation,
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_organization_addinfo'
@@ -740,30 +766,27 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += get_html_for_cardstart()
         html += '<h4>Advanced information related to this person</h4>'
         html += get_html_for_cardstart()
-        explanation = '<h5>With whom does this person share research outputs?</h5>'
+        html += '<h5>With whom does this person share research outputs?</h5>'
+        html += create_html_form(destination='resultspage',
+                                 button_text='find persons that share any research output types with this person',
+                                 hidden_fields={'key': key,
+                                                'category_list': resout_types_all,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_person_share_resouts'
+                                                })
+
+        html += '<br/>'
         label_text = 'By entering a value in the field below, '
-        label_text += 'you will get a list of persons who share that research output type with this person:'
+        label_text += 'you will get a list of persons who share a specific research output type with this person:'
         input_spec = ('list', 'category_list', 'resout_types_all_datalist', resout_types_all_datalist)
         html += create_html_form(destination='resultspage',
-                                 button_text='find persons that share this research output type with this person',
-                                 explanation=explanation,
+                                 button_text='find persons that share a specific research output type with this person',
                                  input_fields={label_text: input_spec},
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_person_share_resouts'
                                                 })
 
-        html += '<br/>'
-        explanation = 'Or, click this button to '
-        explanation += 'get a list of persons who share any research output type with this person:'
-        html += create_html_form(destination='resultspage',
-                                 button_text='find persons that share any research output types with this person',
-                                 explanation=explanation,
-                                 hidden_fields={'key': key,
-                                                'category_list': resout_types_all,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_person_share_resouts'
-                                                })
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
@@ -826,9 +849,10 @@ def create_results_page(view_mode: str,
 
     if name_list is None:
         name_list = []
-    name_list_str = ''
-    if len(name_list) == 1:
-        name_list_str = name_list[0]
+    # The following is not used yet.
+    # name_list_str = ''
+    # if len(name_list) == 1:
+    #     name_list_str = name_list[0]
     if category_list is None:
         category_list = []
     category_list_str = ''
@@ -1001,13 +1025,9 @@ def create_results_page(view_mode: str,
 
     elif view_mode == 'view_regular_table_person_share_resouts':
         personroot_node = rcg.get_personroot_node(node=node)
-        if category_list_str == '':
-            neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
-                                                        category_dontwant=['person', 'competence', 'organization'])
-        else:
-            neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
-                                                        category_want=category_list,
-                                                        category_dontwant=['person', 'competence', 'organization'])
+        neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                    category_want=category_list,
+                                                    category_dontwant=['person', 'competence', 'organization'])
         html += find_person_share_resouts(parent_node=node,
                                           neighbor_nodes=neighbor_nodes,
                                           category_str=category_list_str,
@@ -1031,8 +1051,8 @@ def create_results_page(view_mode: str,
                                                     max_nr_neighbor_nodes=MAX_ORGANIZATION_NODES_TO_RETURN)
         html += find_organization_additional_info(parent_node=node,
                                                   neighbor_nodes=neighbor_nodes,
-                                                  name_str=name_list_str,
-                                                  category_str=category_list_str,
+                                                  name_list=name_list,
+                                                  category_list=category_list,
                                                   discoverer_mode=discoverer_mode)
     elif view_mode == 'view_regular_table_overlap':
         html += find_overlap_in_source_systems(name=node['name'],
@@ -1340,19 +1360,18 @@ def find_person_share_resouts(parent_node: Node,
 
 def find_organization_additional_info(parent_node: Node,
                                       neighbor_nodes: Union[list, NodeMatch, None],
-                                      name_str: str = '',
-                                      category_str: str = '',
+                                      name_list: list = None,
+                                      category_list: list = None,
                                       discoverer_mode: str = '') -> str:
     """Function that finds additional information connected to a (child) organization.
 
     :param parent_node: the starting node for finding additional information.
     :param neighbor_nodes: the neighbors of that node.
-    :param name_str: the name of research output type.
-    :param category_str: the category of research output type.
+    :param name_list: the name list used for selection.
+    :param category_list: the category list used for selection.
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
-    html = ''
     if parent_node is None:
         message = 'Unexpected result in find_organization_additional_info(): '
         message += 'This organization cannot be found in Ricgraph.'
@@ -1364,12 +1383,25 @@ def find_organization_additional_info(parent_node: Node,
         message += '" node in fiterorganization(). '
         return get_message(message=message)
 
+    if name_list is None:
+        name_list = []
+    if category_list is None:
+        category_list = []
+    name_str = ''
+    category_str = ''
+    if len(name_list) == 1:
+        name_str = name_list[0]
+    if len(category_list) == 1:
+        category_str = category_list[0]
+
     relevant_result = []
     count = 0
-    if name_str == 'person-root':
-        if category_str == 'person' or category_str == '':
-            # Special case: 'neighbor_nodes' are 'person-root's, so return that list.
-            relevant_result = neighbor_nodes.copy()
+    html = ''
+    if len(name_list) == 1 and name_list[0] == 'person-root' \
+       and (len(category_list) == 0
+       or (len(category_list) == 1 and (category_list[0] == 'person' or category_list[0] == ''))):
+        # Special case: 'neighbor_nodes' are 'person-root's, so return that list.
+        relevant_result = neighbor_nodes.copy()
     else:
         for neighbor in neighbor_nodes:
             if count >= MAX_ROWS_IN_TABLE:
@@ -1378,8 +1410,8 @@ def find_organization_additional_info(parent_node: Node,
             # For get_all_neighbor_nodes(), for the '_want' parameters: if we pass '',
             # that means we do not want a filter for that parameter.
             more_neighbors = rcg.get_all_neighbor_nodes(node=neighbor,
-                                                        name_want=name_str,
-                                                        category_want=category_str)
+                                                        name_want=name_list,
+                                                        category_want=category_list)
             for item in more_neighbors:
                 if count >= MAX_ROWS_IN_TABLE:
                     break
@@ -1388,18 +1420,18 @@ def find_organization_additional_info(parent_node: Node,
                     count += 1
 
     if len(relevant_result) == 0:
-        message = 'Could not find any persons or results for this organization, using '
+        message = 'Could not find any persons or results for this organization'
         if name_str != '' and category_str != '':
-            message += 'search terms '
+            message += ', using search terms '
             message += '"' + name_str + '" and "' + category_str + '".'
         elif name_str != '':
-            message += 'search term '
+            message += ', using search term '
             message += '"' + name_str + '".'
         elif category_str != '':
-            message += 'search term '
+            message += ', using search term '
             message += '"' + category_str + '".'
         else:
-            message += 'no search term.'
+            message += '.'
         return get_message(message=message)
 
     if discoverer_mode == 'details_view':
@@ -1422,7 +1454,9 @@ def find_organization_additional_info(parent_node: Node,
         table_header += '"' + name_str + '" '
     elif category_str != '':
         table_header += '"' + category_str + '" '
-    table_header += 'nodes of all the persons or their results of this organization '
+    else:
+        table_header += 'shared '
+    table_header += 'nodes of this organization '
     table_header += '(for the given number of neighbor nodes):'
     html += get_regular_table(nodes_list=relevant_result,
                               table_header=table_header,
