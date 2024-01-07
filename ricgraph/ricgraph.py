@@ -130,6 +130,10 @@ LINKS_TO = Relationship.type('LINKS_TO')
 RICGRAPH_INI_FILE = '../ricgraph.ini'
 RICGRAPH_KEY_SEPARATOR = '|'
 
+
+# Used for some loop iterations, in case no max iteration for such a loop is specified.
+A_LARGE_NUMBER = 9999999999
+
 # Cache size for read_node() function (in number of elements in cache). This
 # cannot be read from the config file since it will be read too late.
 CACHE_SIZE_READ_NODE = 15000
@@ -1678,7 +1682,7 @@ def get_all_neighbor_nodes(node: Node,
         category_dontwant_list = category_dontwant
 
     count = 0
-    all_nodes = 9999999999                # a large number
+    all_nodes = A_LARGE_NUMBER
     if max_nr_neighbor_nodes == 0:
         max_nr_neighbor_nodes = all_nodes
     neighbor_nodes = []
@@ -1815,7 +1819,7 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
     print('Harvesting json data from ' + url + '.')
     print('Getting data...')
 
-    all_records = 9999999999                # a large number
+    all_records = A_LARGE_NUMBER
     if max_recs_to_harvest == 0:
         max_recs_to_harvest = all_records
     if chunksize == 0:
