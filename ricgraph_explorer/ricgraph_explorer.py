@@ -268,7 +268,7 @@ html_body_end += '</html>'
 def favicon():
     return send_from_directory(os.path.join(ricgraph_explorer.root_path, 'static'),
                                path='favicon.ico',
-                               mimetype='image/vnd.microsoft.icon')
+                               mimetype='image/png')
 
 
 # ##############################################################################
