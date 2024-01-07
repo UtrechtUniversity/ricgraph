@@ -54,6 +54,24 @@
 # See https://www.w3schools.com/w3css/default.asp.
 #
 # ##############################################################################
+#
+# Explanation why sometimes Cypher query are used.
+# In some cases, Ricgraph Explorer uses a Cypher query instead of function calls
+# that go from node to edges to neighbor nodes and so on.
+# Sometimes, these calls can be slow, especially if:
+# - the start node has a large number of neighbors (this may be the case with
+#   top level organization nodes, e.g. with 'Utrecht University'), AND
+# - the node type you'd want to find (in name_list and/or category_list) has
+#   only a few matching nodes in Ricgraph (e.g. there are only a few 'competence'
+#   or 'patent' nodes).
+#
+# I assume Cypher is faster because Python is an interpreted language, so loops
+# may be a bit slow. In case a loop runs done over a large number of nodes or edges,
+# many calls to the graph database backend are done, which may take a lot of time.
+# A cypher query is one call to the graph database backend. Also, there are
+# many query optimizations in that backend, and the backend is a compiled application.
+#
+# ##############################################################################
 
 
 import os
@@ -659,9 +677,8 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += 'the following options may take some time before showing the result.'
         html += get_html_for_cardstart()
         html += '<h5>More information about persons or their results in this organization.</h5>'
-        button_text = 'find research outputs from all persons in this organization (this may take some time)'
         html += create_html_form(destination='resultspage',
-                                 button_text=button_text,
+                                 button_text='find research outputs from all persons in this organization',
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': resout_types_all,
@@ -670,9 +687,8 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += '<p/>'
 
         if 'competence' in category_all:
-            button_text = 'find skills from all persons in this organization (this may take some time)'
             html += create_html_form(destination='resultspage',
-                                     button_text=button_text,
+                                     button_text='find skills from all persons in this organization',
                                      hidden_fields={'key': key,
                                                     'discoverer_mode': discoverer_mode,
                                                     'category_list': 'competence',
@@ -681,7 +697,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
             html += '<p/>'
 
         button_text = 'find any information from persons or their results '
-        button_text += 'in this organization (this may take some time)'
+        button_text += 'in this organization'
         html += create_html_form(destination='resultspage',
                                  button_text=button_text,
                                  hidden_fields={'key': key,
@@ -693,13 +709,12 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         explanation = 'By using the fields below, you can choose '
         explanation += 'what you would like to see from the persons or their results in this organization. '
         explanation += 'You can use one or both fields.'
-        button_text = 'find specific information (this may take some time)'
         label_text_name = 'Search for persons or results using field <em>name</em>: '
         input_spec_name = ('list', 'name_list', 'name_all_datalist', name_all_datalist)
         label_text_category = '</br>Search for persons or results using field <em>category</em>: '
         input_spec_category = ('list', 'category_list', 'category_all_datalist', category_all_datalist)
         html += create_html_form(destination='resultspage',
-                                 button_text=button_text,
+                                 button_text='find specific information',
                                  explanation=explanation,
                                  input_fields={label_text_name: input_spec_name,
                                                label_text_category: input_spec_category,
@@ -1046,13 +1061,10 @@ def create_results_page(view_mode: str,
 
     elif view_mode == 'view_regular_table_organization_addinfo':
         # Note the hard limit.
-        neighbor_nodes = rcg.get_all_neighbor_nodes(node=node,
-                                                    name_want='person-root',
-                                                    max_nr_neighbor_nodes=MAX_ORGANIZATION_NODES_TO_RETURN)
         html += find_organization_additional_info(parent_node=node,
-                                                  neighbor_nodes=neighbor_nodes,
                                                   name_list=name_list,
                                                   category_list=category_list,
+                                                  max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE,
                                                   discoverer_mode=discoverer_mode)
     elif view_mode == 'view_regular_table_overlap':
         html += find_overlap_in_source_systems(name=node['name'],
@@ -1359,16 +1371,16 @@ def find_person_share_resouts(parent_node: Node,
 
 
 def find_organization_additional_info(parent_node: Node,
-                                      neighbor_nodes: Union[list, NodeMatch, None],
                                       name_list: list = None,
                                       category_list: list = None,
+                                      max_nr_neighbor_nodes: int = 0,
                                       discoverer_mode: str = '') -> str:
     """Function that finds additional information connected to a (child) organization.
 
     :param parent_node: the starting node for finding additional information.
-    :param neighbor_nodes: the neighbors of that node.
     :param name_list: the name list used for selection.
     :param category_list: the category list used for selection.
+    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
@@ -1378,7 +1390,7 @@ def find_organization_additional_info(parent_node: Node,
         return get_message(message=message)
 
     if parent_node['category'] != 'organization':
-        message = 'Unexpected result in filterorganization(): '
+        message = 'Unexpected result in find_organization_additional_info(): '
         message += 'You have not passed an "organization" node, but a "' + parent_node['category']
         message += '" node in fiterorganization(). '
         return get_message(message=message)
@@ -1394,30 +1406,67 @@ def find_organization_additional_info(parent_node: Node,
     if len(category_list) == 1:
         category_str = category_list[0]
 
-    relevant_result = []
-    count = 0
-    html = ''
-    if len(name_list) == 1 and name_list[0] == 'person-root' \
-       and (len(category_list) == 0
-       or (len(category_list) == 1 and (category_list[0] == 'person' or category_list[0] == ''))):
-        # Special case: 'neighbor_nodes' are 'person-root's, so return that list.
-        relevant_result = neighbor_nodes.copy()
-    else:
-        for neighbor in neighbor_nodes:
-            if count >= MAX_ROWS_IN_TABLE:
-                break
-            # We include ourselves.
-            # For get_all_neighbor_nodes(), for the '_want' parameters: if we pass '',
-            # that means we do not want a filter for that parameter.
-            more_neighbors = rcg.get_all_neighbor_nodes(node=neighbor,
-                                                        name_want=name_list,
-                                                        category_want=category_list)
-            for item in more_neighbors:
-                if count >= MAX_ROWS_IN_TABLE:
-                    break
-                if item not in relevant_result:
-                    relevant_result.append(item)
-                    count += 1
+    # ### Start.
+    # I use a Cypher query instead of the much slower code commented below.
+    # See 'Explanation why sometimes Cypher query are used.' at the start of this file.
+    #
+    # edges = rcg.get_edges(parent_node)
+    # if len(edges) == 0:
+    #     message = 'Unexpected result in find_organization_additional_info(): '
+    #     message += 'parent_node does not have neighbors.'
+    #     return get_message(message=message)
+    #
+    # # Use a set, since it does not have duplicates.
+    # neighbor_nodes_set = set()
+    # count = 0
+    # all_nodes = rcg.A_LARGE_NUMBER
+    # if max_nr_neighbor_nodes == 0:
+    #     max_nr_neighbor_nodes = all_nodes
+    # for edge in edges:
+    #     if count >= max_nr_neighbor_nodes:
+    #         break
+    #     next_node = edge.end_node
+    #     if parent_node == next_node:
+    #         continue
+    #     if next_node['name'] != 'person-root':
+    #         continue
+    #     more_neighbors = rcg.get_all_neighbor_nodes(node=next_node,
+    #                                                 name_want=name_list,
+    #                                                 category_want=category_list,
+    #                                                 max_nr_neighbor_nodes=max_nr_neighbor_nodes - count)
+    #     neighbor_nodes_set.update(set(more_neighbors))
+    #     count = len(neighbor_nodes_set)
+    # relevant_result = list(neighbor_nodes_set)
+    # ### End.
+
+    second_neighbor_name_list = ''
+    second_neighbor_category_list = ''
+    if len(name_list) > 0:
+        second_neighbor_name_list = '["'
+        second_neighbor_name_list += '", "'.join(str(item) for item in name_list)
+        second_neighbor_name_list += '"]'
+    if len(category_list) > 0:
+        second_neighbor_category_list = '["'
+        second_neighbor_category_list += '", "'.join(str(item) for item in category_list)
+        second_neighbor_category_list += '"]'
+
+    # Prepare and execute Cypher query.
+    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE node._key = '
+    cypher_query += '"' + parent_node['_key'] + '"' + ' AND neighbor.name = "person-root" '
+    cypher_query += 'MATCH (neighbor)-[]->(second_neighbor) '
+    if len(name_list) > 0 or len(category_list) > 0:
+        cypher_query += 'WHERE '
+    if len(name_list) > 0:
+        cypher_query += 'second_neighbor.name IN ' + second_neighbor_name_list + ' '
+    if len(name_list) > 0 and len(category_list) > 0:
+        cypher_query += 'AND '
+    if len(category_list) > 0:
+        cypher_query += 'second_neighbor.category IN ' + second_neighbor_category_list + ' '
+    cypher_query += 'RETURN DISTINCT second_neighbor '
+    if max_nr_neighbor_nodes > 0:
+        cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
+    print(cypher_query)
+    relevant_result = graph.run(cypher_query).to_series().to_list()
 
     if len(relevant_result) == 0:
         message = 'Could not find any persons or results for this organization'
@@ -1439,10 +1488,9 @@ def find_organization_additional_info(parent_node: Node,
     else:
         table_columns = RESEARCH_OUTPUT_COLUMNS
 
+    html = ''
     table_header = 'This node is used for finding information about the persons '
-    table_header += 'or their results of this organization '
-    table_header += '(for at most ' + str(MAX_ORGANIZATION_NODES_TO_RETURN) + ' neighbor nodes, '
-    table_header += 'for program speed reasons):'
+    table_header += 'or their results of this organization:'
     html += get_regular_table(nodes_list=[parent_node],
                               table_header=table_header,
                               table_columns=table_columns,
@@ -1456,8 +1504,7 @@ def find_organization_additional_info(parent_node: Node,
         table_header += '"' + category_str + '" '
     else:
         table_header += 'shared '
-    table_header += 'nodes of this organization '
-    table_header += '(for the given number of neighbor nodes):'
+    table_header += 'nodes of this organization:'
     html += get_regular_table(nodes_list=relevant_result,
                               table_header=table_header,
                               table_columns=table_columns,
