@@ -631,26 +631,8 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
     if discoverer_mode == 'details_view':
         html += get_you_searched_for_card(key=node['_key'],
                                           discoverer_mode=discoverer_mode)
-
     key = node['_key']
     html += get_found_message(node=node, discoverer_mode=discoverer_mode)
-
-    # This is used more than once, so we define it here.
-    overlap = get_html_for_cardstart()
-    explanation = '<h5>More information about overlap in source systems</h5>'
-    explanation += 'If the information in Ricgraph for for the neighbors of this node have originated '
-    explanation += 'from more than one source system, you can find out from which ones.</br>'
-    button_text = 'find the overlap in source systems for '
-    button_text += 'the neighbor nodes of this node (this may take some time)'
-    overlap += create_html_form(destination='resultspage',
-                                button_text=button_text,
-                                explanation=explanation,
-                                hidden_fields={'key': key,
-                                               'discoverer_mode': discoverer_mode,
-                                               'view_mode': 'view_regular_table_overlap'
-                                               })
-    overlap += get_html_for_cardend()
-
     if node['category'] == 'organization':
         html += get_html_for_cardstart()
         html += '<h4>What would you like to see from this organization?</h4>'
@@ -673,8 +655,8 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
 
         html += get_html_for_cardstart()
         html += '<h4>Advanced information related to this organization</h4>'
-        html += 'Depending on the number of persons in ' + str(node['value']) + ', '
-        html += 'the following options may take some time before showing the result.'
+        # html += 'Depending on the number of persons in ' + str(node['value']) + ', '
+        # html += 'the following options may take some time before showing the result.'
         html += get_html_for_cardstart()
         html += '<h5>More information about persons or their results in this organization.</h5>'
         html += create_html_form(destination='resultspage',
@@ -724,7 +706,6 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'view_mode': 'view_regular_table_organization_addinfo'
                                                 })
         html += get_html_for_cardend()
-        html += overlap
         html += get_html_for_cardend()
 
     elif node['category'] == 'person':
@@ -827,11 +808,27 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'view_mode': 'view_regular_table_person_enrich_source_system'
                                                 })
         html += get_html_for_cardend()
-        html += overlap
+
+        html += get_html_for_cardstart()
+        explanation = '<h5>More information about overlap in source systems</h5>'
+        explanation += 'If the information in Ricgraph for for the neighbors of this node have originated '
+        explanation += 'from more than one source system, you can find out from which ones.</br>'
+        button_text = 'find the overlap in source systems for '
+        button_text += 'the neighbor nodes of this node (this may take some time)'
+        html += create_html_form(destination='resultspage',
+                                 button_text=button_text,
+                                 explanation=explanation,
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_overlap'
+                                                })
         html += get_html_for_cardend()
 
-    # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
+        html += get_html_for_cardend()
 
+    # ###
+    # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
+    # ###
     else:
         html = create_results_page(view_mode='view_regular_table_category',
                                    key=key,
@@ -1465,7 +1462,7 @@ def find_organization_additional_info(parent_node: Node,
     cypher_query += 'RETURN DISTINCT second_neighbor '
     if max_nr_neighbor_nodes > 0:
         cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
-    print(cypher_query)
+    # print(cypher_query)
     relevant_result = graph.run(cypher_query).to_series().to_list()
 
     if len(relevant_result) == 0:
@@ -1505,10 +1502,11 @@ def find_organization_additional_info(parent_node: Node,
     else:
         table_header += 'shared '
     table_header += 'nodes of this organization:'
-    html += get_regular_table(nodes_list=relevant_result,
-                              table_header=table_header,
-                              table_columns=table_columns,
-                              discoverer_mode=discoverer_mode)
+    html += get_tabbed_table(nodes_list=relevant_result,
+                             table_header=table_header,
+                             table_columns=table_columns,
+                             tabs_on='category',
+                             discoverer_mode=discoverer_mode)
     return html
 
 
@@ -2126,17 +2124,20 @@ def get_regular_table(nodes_list: Union[list, NodeMatch],
     if len(nodes_list) == 0:
         return get_message(table_header + '</br>Nothing found.')
 
-    html = get_html_for_cardstart()
-    html += '<span style="float:left;">' + table_header + '</span>'
+    nr_rows_in_table_message = ''
     if len(nodes_list) > MAX_ROWS_IN_TABLE:
-        html += '<span style="float:right;">There are ' + str(len(nodes_list)) + ' rows in this table, showing first '
-        html += str(MAX_ROWS_IN_TABLE) + '.</span>'
+        nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this table, showing first '
+        nr_rows_in_table_message += str(MAX_ROWS_IN_TABLE) + '.'
     elif len(nodes_list) == MAX_ROWS_IN_TABLE:
         # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
         # so we have no idea how many search results there are.
-        html += '<span style="float:right;">Showing first ' + str(MAX_ROWS_IN_TABLE) + ' rows.</span>'
+        nr_rows_in_table_message = 'This table shows the first ' + str(MAX_ROWS_IN_TABLE) + ' rows.'
     elif len(nodes_list) >= 2:
-        html += '<span style="float:right;">There are ' + str(len(nodes_list)) + ' rows in this table.</span>'
+        nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this table.'
+
+    html = get_html_for_cardstart()
+    html += '<span style="float:left;">' + table_header + '</span>'
+    html += '<span style="float:right;">' + nr_rows_in_table_message + '</span>'
     html += get_html_for_tablestart()
     html += get_html_for_tableheader(table_columns=table_columns)
     count = 0
@@ -2153,6 +2154,7 @@ def get_regular_table(nodes_list: Union[list, NodeMatch],
             nodes_cache[key] = node
 
     html += get_html_for_tableend()
+    html += nr_rows_in_table_message
     html += get_html_for_cardend()
     return html
 
@@ -2238,6 +2240,14 @@ def get_tabbed_table(nodes_list: Union[list, NodeMatch, None],
         else:
             histogram[node[tabs_on]] += 1
 
+    if len(histogram) == 1:
+        # If we have only one thing to show tabs on, we do a regular table.
+        html = get_regular_table(nodes_list=nodes_list,
+                                 table_header=table_header,
+                                 table_columns=table_columns,
+                                 discoverer_mode=discoverer_mode)
+        return html
+
     histogram_sort = sorted(histogram, key=histogram.get, reverse=True)
 
     first_iteration = True
@@ -2293,9 +2303,22 @@ def get_tabbed_table(nodes_list: Union[list, NodeMatch, None],
                         }
                         </script>"""
 
+    nr_rows_in_table_message = ''
+    if len(nodes_list) > MAX_ROWS_IN_TABLE:
+        nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this tabbed table, showing first '
+        nr_rows_in_table_message += str(MAX_ROWS_IN_TABLE) + '.'
+    elif len(nodes_list) == MAX_ROWS_IN_TABLE:
+        # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
+        # so we have no idea how many search results there are.
+        nr_rows_in_table_message = 'This tabbed table shows the first ' + str(MAX_ROWS_IN_TABLE) + ' rows.'
+    elif len(nodes_list) >= 2:
+        nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this tabbed table.'
+
     html = get_html_for_cardstart()
-    html += table_header
+    html += '<span style="float:left;">' + table_header + '</span>'
+    html += '<span style="float:right;">' + nr_rows_in_table_message + '</span>'
     html += tab_names_html + tab_contents_html + tab_javascript
+    html += nr_rows_in_table_message
     html += get_html_for_cardend()
 
     return html
