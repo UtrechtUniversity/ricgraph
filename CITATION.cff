@@ -94,6 +94,7 @@ keywords:
   - "Data enrichment"
   - "Linked data"
   - "Knowledge graph"
+  - "Metadata"
   - "Utrecht University"
 license: MIT
 repository-code: "https://github.com/UtrechtUniversity/ricgraph"
