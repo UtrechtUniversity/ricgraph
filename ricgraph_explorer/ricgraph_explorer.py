@@ -867,9 +867,10 @@ def create_results_page(view_mode: str,
     #     name_list_str = name_list[0]
     if category_list is None:
         category_list = []
-    category_list_str = ''
-    if len(category_list) == 1:
-        category_list_str = category_list[0]
+    # The following is not used yet.
+    # category_list_str = ''
+    # if len(category_list) == 1:
+    #     category_list_str = category_list[0]
 
     html = ''
     if key in nodes_cache:
@@ -1036,13 +1037,11 @@ def create_results_page(view_mode: str,
                                      discoverer_mode=discoverer_mode)
 
     elif view_mode == 'view_regular_table_person_share_resouts':
-        personroot_node = rcg.get_personroot_node(node=node)
-        neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
-                                                    category_want=category_list,
-                                                    category_dontwant=['person', 'competence', 'organization'])
+        # Note the hard limit.
         html += find_person_share_resouts(parent_node=node,
-                                          neighbor_nodes=neighbor_nodes,
-                                          category_str=category_list_str,
+                                          category_want_list=category_list,
+                                          category_dontwant_list=['person', 'competence', 'organization'],
+                                          max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE,
                                           discoverer_mode=discoverer_mode)
 
     elif view_mode == 'view_regular_table_person_enrich_source_system':
@@ -1304,16 +1303,16 @@ def find_enrich_candidates(parent_node: Union[Node, None],
 
 
 def find_person_share_resouts(parent_node: Node,
-                              neighbor_nodes: Union[list, NodeMatch],
-                              category_str: str = '',
+                              category_want_list: list = None,
+                              category_dontwant_list: list = None,
+                              max_nr_neighbor_nodes: int = 0,
                               discoverer_mode: str = '') -> str:
     """Function that finds with whom a person shares research outputs.
 
     :param parent_node: the starting node for finding shared research output types.
-    :param neighbor_nodes: the neighbors of that node.
-    :param category_str: the category of research outputs, or '' if any category.
-      Note that this value is only used to display the category used, not to select
-      nodes, that has already been done in create_results_page().
+    :param category_want_list: the category list used for selection, or [] if any category.
+    :param category_dontwant_list: the category list used for selection (i.e. not these).
+    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
@@ -1324,26 +1323,38 @@ def find_person_share_resouts(parent_node: Node,
         message += '" node.'
         return get_message(message=message)
 
-    if len(neighbor_nodes) == 0:
-        # Nothing found
-        if category_str == '':
-            message = 'This person does not share any research output types '
-            message += 'with other persons.'
-        else:
-            message = 'This person does not share research output type "'
-            message += category_str + '" with other persons.'
+    personroot_node = rcg.get_personroot_node(node=parent_node)
+    edges = rcg.get_edges(personroot_node)
+    if len(edges) == 0:
+        message = 'Unexpected result in find_person_share_resouts(): '
+        message += 'personroot_node does not have neighbors.'
         return get_message(message=message)
 
-    # Now for all relevant_results found, find the connecting 'person-root' node
     connected_persons = []
-    for node in neighbor_nodes:
-        persons = rcg.get_all_neighbor_nodes(node=node, name_want='person-root')
+    count = 0
+    if max_nr_neighbor_nodes == 0:
+        max_nr_neighbor_nodes = rcg.A_LARGE_NUMBER
+    for edge in edges:
+        if count >= max_nr_neighbor_nodes:
+            break
+        next_node = edge.end_node
+        if personroot_node == next_node:
+            continue
+        if len(category_want_list) != 0 and next_node['category'] not in category_want_list:
+            continue
+        if len(category_dontwant_list) > 0 and next_node['category'] in category_dontwant_list:
+            continue
+
+        persons = rcg.get_all_neighbor_nodes(node=next_node,
+                                             name_want='person-root',
+                                             max_nr_neighbor_nodes=max_nr_neighbor_nodes - count)
         for person in persons:
-            if person['_key'] == parent_node['_key']:
+            if person['_key'] == personroot_node['_key']:
                 # Note: we do not include ourselves.
                 continue
             if person not in connected_persons:
                 connected_persons.append(person)
+                count += 1
 
     if discoverer_mode == 'details_view':
         table_columns = DETAIL_COLUMNS
@@ -1355,10 +1366,18 @@ def find_person_share_resouts(parent_node: Node,
                               table_header=table_header,
                               table_columns=table_columns,
                               discoverer_mode=discoverer_mode)
-    if category_str == '':
-        table_header = 'This person shares research output types '
+    if len(connected_persons) == 0:
+        if len(category_want_list) == 1:
+            message = 'This person does not share research output type "' + category_want_list[0] + '" '
+        else:
+            message = 'This person does not share any research output types '
+        message += 'with other persons.'
+        return html + get_message(message=message)
+
+    if len(category_want_list) == 1:
+        table_header = 'This person shares research output type "' + category_want_list[0] + '" '
     else:
-        table_header = 'This person shares research output type "' + category_str + '" '
+        table_header = 'This person shares various research output types '
     table_header += 'with these persons:'
     html += get_regular_table(nodes_list=connected_persons,
                               table_header=table_header,
