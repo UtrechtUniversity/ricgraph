@@ -52,6 +52,11 @@
             "executableName": "harvest_yoda_to_ricgraph.py"
         },
         {
+            "@type": "CommandLineApplication",
+            "name": "Script to call all harvest scripts",
+            "executableName": "batch_harvest.py"
+        },
+        {
             "@type": "SoftwareLibrary",
             "name": "Ricgraph",
             "executableName": "ricgraph.py"
