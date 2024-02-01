@@ -77,17 +77,17 @@
     "referencePublication": [
         {
             "@type": "Report",
-            "sameAs": "https://doi.org/10.5281/zenodo.10057997",
-            "name": "Ricgraph: showcasing research in context using Pure and other sources",
-            "author": [ "Rik D.T. Janssen", "Arjan Sieverink" ],
-            "url": "https://doi.org/10.5281/zenodo.10057997"
-	},
-        {
-            "@type": "Report",
             "sameAs": "https://doi.org/10.2139/ssrn.4712466",
             "name": "Ricgraph: A Flexible and Extensible Graph to Explore Research in Context from Various Systems",
             "author": [ "Rik D.T. Janssen" ],
             "url": "https://doi.org/10.2139/ssrn.4712466"
+	},
+        {
+            "@type": "Report",
+            "sameAs": "https://doi.org/10.5281/zenodo.10057997",
+            "name": "Ricgraph: showcasing research in context using Pure and other sources",
+            "author": [ "Rik D.T. Janssen", "Arjan Sieverink" ],
+            "url": "https://doi.org/10.5281/zenodo.10057997"
 	}
     ],
     "applicationCategory": [
