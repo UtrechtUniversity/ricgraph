@@ -52,6 +52,8 @@ You can also look at
 the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
 or the [publications, presentations and mentions of Ricgraph](docs/ricgraph_publications_presentations_mentions.md).
 
+Reference publication: Janssen, Rik D.T., Ricgraph: A Flexible and Extensible Graph to Explore Research in Context from Various Systems. January 2024. Submitted to SoftwareX. http://dx.doi.org/10.2139/ssrn.4712466.
+
 ## Why Ricgraph?
 
 Ricgraph can answer questions like:
