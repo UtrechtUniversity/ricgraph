@@ -31,6 +31,7 @@
 # This file is the main file for Ricgraph.
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
+# Updated Rik D.T. Janssen, February 2024.
 #
 # ########################################################################
 
@@ -624,6 +625,16 @@ def create_node(name: str, category: str, value: str,
                         name=lname, category=lcategory, value=lvalue, **node_properties)
         _graph.create(new_node)
         return new_node
+
+    if RICGRAPH_NODEADD_MODE == 'strict' and node['name'] == 'FULL_NAME':
+        # We only get here if we want to connect some other node A to this FULL_NAME node B.
+        # This FULL_NAME node B already exists. Most probably it is connected to a person-root C
+        # and that person-root C to some other nodes D and E.
+        # If we would continue, A would be connected to B, and also to C, D and E.
+        # However, connecting based on a name is not a very good idea, since two
+        # different persons may have the same name.
+        # So don't do this if we are in NODEADD_MODE 'strict'.
+        return None
 
     # Update from CRUD
     history_line = ''
@@ -1552,13 +1563,11 @@ def get_edges(node: Node) -> RelationshipMatch:
     return edges_connected_to_node
 
 
-# For the reason why there could be more than one 'person-root' node, see the
-# extensive comments in function connect_two_nodes().
 def get_personroot_node(node: Node) -> Union[Node, None]:
-    """Get the 'person-root' node for a 'person' node.
+    """Get the 'person-root' node for any type of node.
     If 'node' is already a 'person-root' node, return 'node'.
-    If there is more than one person-root node (which should not happen),
-    return the first.
+    If there is more than one person-root node (which should not happen
+    if the category is 'person'), return the first.
 
     :param node: the node.
     :return: the person-root node.
@@ -1570,21 +1579,17 @@ def get_personroot_node(node: Node) -> Union[Node, None]:
         return personroot_nodes[0]
 
 
-# For the reason why there could be more than one 'person-root' node, see the
-# extensive comments in function connect_two_nodes().
 def get_all_personroot_nodes(node: Node) -> list:
-    """Get the 'person-root' node(s) for a 'person' node.
+    """Get the 'person-root' node(s) for any type of node.
     If 'node' is already a 'person-root' node, return 'node'.
-    If there is more than one person-root node (which should not happen),
-    all will be returned in a list.
+    If there is more than one person-root node (which can happen if
+    node is e.g. a research output, and which should not happen
+    if the category is 'person'), all will be returned in a list.
 
     :param node: the node.
     :return: a list of all the person-root nodes found.
     """
     if node is None:
-        return []
-
-    if node['category'] != 'person':
         return []
 
     personroot_nodes = []
@@ -1594,8 +1599,9 @@ def get_all_personroot_nodes(node: Node) -> list:
 
     edges = get_edges(node)
     if len(edges) == 0:
-        print('get_personroot_node(): warning, "person" node with _key "' + node['_key'] + '"')
-        print('  has 0 neighbors, that should not happen, continuing...')
+        if node['category'] == 'person':
+            print('get_personroot_node(): warning, "person" node with _key "' + node['_key'] + '"')
+            print('  has 0 neighbors, that should not happen, continuing...')
         return []
 
     for edge in edges:
