@@ -67,8 +67,9 @@ Other things you might want to do:
 
 Now we need to find the port number which Neo4j Desktop is using:
 
-1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
-1. Click on the words "Graph DBMS". At the right a new screen appears.
+1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop). Start the Graph DBMS.
+1. Click on the words "Graph DBMS". At the right (or below, 
+   depending on the width of the Neo4j Desktop window) a new screen appears.
    Look at the tab "Details". Note the port number next to "Bolt port" (the default
    value is 7687).
    Insert this port number in field *neo4j_port* in
