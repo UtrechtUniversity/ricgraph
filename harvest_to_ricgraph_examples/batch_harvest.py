@@ -63,6 +63,7 @@ rename_nodes_second_group = {
     'University College Utrecht': 'UU Faculty: University College Utrecht',
     'Utrecht University Library': 'UU Faculties/Services: Utrecht University Library',
     'University Corporate Offices': 'UU Faculties/Services: University Corporate Offices',
+    'Medicine': 'University Medical Center Utrecht',
 }
 
 
