@@ -21,6 +21,8 @@ presented and where it has been mentioned.
 | May 10, 2023     | Presentation for PID graph workshop at SURF, Utrecht, NL                              | [Ricgraph - Research in context graph](presentations/230510-PID_graph_workshop_at_SURF-Ricgraph-Research_in_context_graph.pdf)                                                                                                    |
 | October 26, 2023 | Presentation for Pure International Conference 2023, Dubrovnik, Croatia               | [Ricgraph: Showcasing research in context using Pure and other sources (presentation)](presentations/231026-RDTJanssen+ASieverink-Ricgraph_Showcasing_research_in_context_using_Pure_and_other_sources-PRCN2023_presentation.pdf) |
 | October 26, 2023 | Video of presentation for Pure International Conference 2023, Dubrovnik, Croatia      | [Ricgraph: Showcasing research in context using Pure and other sources (video)](videos/231026-RDTJanssen+ASieverink-Ricgraph_Showcasing_research_in_context_using_Pure_and_other_sources-PRCN2023_video.mp4)                      |
+| January 15, 2024     | Presentation at Utrecht University, Utrecht, NL                              | Ricgraph - Research in context graph (presentation was a condensed version of the presentation of February 14, 2024)                                                                                                    |
+| February 14, 2024     | Presentation at SURF, Utrecht, NL                              | [Ricgraph - Research in context graph](presentations/240214-RDTJanssen-Ricgraph_Research_in_context_graph-SURF_presentation.pdf)                                                                                                    |
 
 ### Ricgraph mentions
 
