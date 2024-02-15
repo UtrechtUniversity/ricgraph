@@ -43,6 +43,21 @@ graph that uses nodes and edges to represent objects and their relations.
 It can be used to store, manipulate and read
 metadata of any object that has a relation to another object.
 
+Example use cases for Ricgraph are:
+* As a journalist, I want to find researchers with a certain skill 
+  and their publications, so that I can interview them for a newspaper article.
+* As a librarian, I want to enrich my local research information system 
+  with research results that are in other systems but not in ours, 
+  so that we have a more complete view of research at our university.
+* As a researcher, I want to find researchers from other universities 
+  that have co-authored publications written by the co-authors 
+  of my own publications, so that I can read their publications 
+  to find out if we share common research interests.
+
+Read section
+[Example use cases in Ricgraph](#example-use-cases-in-ricgraph)
+to find out how these use cases work out using Ricgraph.
+
 To learn more about Ricgraph,
 [read why Ricgraph has been developed](#why-ricgraph), including
 [examples](#examples). This is followed by
@@ -52,7 +67,10 @@ You can also look at
 the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
 or the [publications, presentations and mentions of Ricgraph](docs/ricgraph_publications_presentations_mentions.md).
 
-Reference publication: Janssen, Rik D.T., Ricgraph: A Flexible and Extensible Graph to Explore Research in Context from Various Systems. January 2024. Submitted to SoftwareX. https://doi.org/10.2139/ssrn.4712466.
+Reference publication: Rik D.T. Janssen, 
+*Ricgraph: A Flexible and Extensible Graph to Explore Research in Context 
+from Various Systems*. January 2024. Submitted to SoftwareX. 
+https://doi.org/10.2139/ssrn.4712466.
 
 ## Why Ricgraph?
 
@@ -90,6 +108,32 @@ Scripts for other sources can be written easily.
 In the remainder of this text, Ricgraph is described in the use case of
 showing people, organizations and research outputs in relation to each other
 in a university context.
+
+## Example use cases in Ricgraph
+
+### Use case 1, as a journalist...
+As a journalist, I want to find researchers with
+skill S and their publications, so that I can interview them for a newspaper article.
+Example skills can be: *climate change* or *stem cells*.
+
+<img src="docs/images/journalist-use-case.jpg" height="200"> 
+
+### Use case 2, as a librarian...
+As a librarian, for researcher A, I want to enrich my
+local research information system *RIS1* with identities and
+research results that are in other systems but not in ours,
+so that we have a more complete view of research at
+our university.
+
+<img src="docs/images/librarian-use-case.jpg" height="200"> 
+
+### Use case 3, as a researcher...
+As researcher A, I want to find researchers from other universities
+that have co-authored publications written by the co-authors
+of my own publications, so that I can read their publications
+to find out if we share common research interests.
+
+<img src="docs/images/researcher-use-case.jpg" height="200">
 
 ## Examples
 
