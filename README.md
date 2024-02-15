@@ -1,4 +1,5 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7524314.svg)](https://doi.org/10.5281/zenodo.7524314)
+[![Static Badge](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
+[![Static Badge](https://img.shields.io/badge/DOI%20reference%20publication-10.2139%2Fssrn.4712466-blue)](https://doi.org/10.2139/ssrn.4712466)  
 ![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph)
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest)
@@ -8,7 +9,8 @@
 [![Technology Readiness Level 6/9 - Late Prototype - Technology demonstrated in target setting, end-users adopt it for testing purposes](https://w3id.org/research-technology-readiness-levels/Level6LatePrototype.svg)](https://github.com/CLARIAH/clariah-plus/blob/main/requirements/software-metadata-requirements.md#15--you-should-express-a-technology-readiness-level)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=32110&r=123)
 <!---
-Note, the line 'GitHub last commit' ends in two spaces, to force a line break but not a paragraph break.
+Note, the lines 'DOI reference publication' and
+'GitHub last commit' end in two spaces, to force a line break but not a paragraph break.
 --->
 <img src="docs/images/ricgraph_logo.jpg" height="30"> 
 
