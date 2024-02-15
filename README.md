@@ -208,7 +208,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 * Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md).
 * To query, visualize and explore the graph,
   see [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
-* Unfortunately, there is a bug, see [known bugs](docs/ricgraph_script_writing.md#known-bugs).
+* Unfortunately, there is a bug, see [known bugs](docs/ricgraph_known_bugs.md).
   This bug may occur
   if you start a harvest script, and as first step in the script you want to empty Ricgraph.
   In that case, a Python error might occur while emptying Ricgraph. Follow the link

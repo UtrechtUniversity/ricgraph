@@ -161,19 +161,6 @@ Rules which determine the size of a node:
   the [Research Software Directory](https://research-software-directory.org).
 * all other nodes: size = medium.
 
-### Export nodes
-There are two scripts which allow to export *person* nodes to a csv file. These can be
-found in the directory [export_ricgraph_examples](../export_ricgraph_examples).
-* *export_person_identifiers.py*: exports 
-  all [person identifiers](ricgraph_details.md#person-identifiers) 
-  connected to a *person-root* node.
-* *export_person_node_properties.py*: exports 
-  all [node properties](ricgraph_details.md#properties-of-nodes-in-ricgraph) 
-  for every *person* node connected to a *person-root* node.
-
-Use the parameter *EXPORT_MAX_RECS* for the number of records to export and 
-*EXPORT_FILENAME* for the filename to export at the start of both scripts.
- 
 ### Return to main README.md file
 
 [Return to main README.md file](../README.md).

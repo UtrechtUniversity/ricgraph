@@ -1,12 +1,28 @@
 ## Ricgraph harvest scripts
 
-Ricgraph harvest scripts can be found in the directory
-[harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples).
-The code is
-documented and hints to use it can be found in those files.
-You can write your own harvest scripts:
-for more information 
-see [Ricgraph script writing](ricgraph_script_writing.md).
+Ricgraph scripts can be found in various places:
+* Directory [harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples):
+  scripts for harvesting sources and inserting the results in Ricgraph.
+  [Documentation for these scripts](ricgraph_harvest_scripts.md)
+  (this file).
+* Directory [export_ricgraph_examples](../export_ricgraph_examples):
+  scripts to export items from Ricgraph.
+  [Documentation for these scripts](ricgraph_misc_scripts.md).
+* Directory [find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples):
+  scripts for finding and enriching items from Ricgraph.
+  [Documentation for these scripts](ricgraph_misc_scripts.md).
+* The module code *ricgraph.py* can be found in
+  directory [ricgraph](../ricgraph).
+* The code for *Ricgraph Explorer* can be found in
+  directory [ricgraph_explorer](../ricgraph_explorer).
+* [Documentation for writing your own scripts](ricgraph_script_writing.md).
+
+All code is documented and hints to use it can be found in the source files.
+
+[Return to main README.md file](../README.md).
+
+
+### Introduction to harvest scripts
 
 One of the most useful features of Ricgraph is that
 it is possible to harvest sources that are
