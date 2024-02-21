@@ -1,5 +1,14 @@
 ## Install and configure Ricgraph
 
+This page describes how to install Ricgraph for a single user.
+If you would like to use Ricgraph in a multi-user environment
+on Linux, you will need to install Ricgraph differently.
+Please read [Ricgraph as a server on Linux](ricgraph_as_server.md).
+In case you have no idea what would be the best for your situation, please 
+install Ricgraph for a single user, as described on this page.
+
+### Installation instructions for a single user
+
 Ricgraph uses [Neo4j](https://neo4j.com)
 as [graph database engine](https://en.wikipedia.org/wiki/Graph_database).
 They have several products:
@@ -14,13 +23,17 @@ They have several products:
   to explore the graph using
   [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
 
+### Requirements
 The easiest method for using Ricgraph is by using a virtual machine (VM) such as
 [VirtualBox](https://www.virtualbox.org). A VM of size 25GB with 4GB memory will work.
 Of course, this depends on the (size of the) sources you plan to harvest and the
 capabilities of your computer. The more, the better. The author uses a VM of 35GB with
-8GB memory and 3 vCPUs on an 11th gen Intel i7 mobile processor. Ricgraph has been
+10GB memory and 3 vCPUs on an 11th gen Intel i7 mobile processor. 
+
+Ricgraph has been
 developed with Python 3.11, but there are reports that Ricgraph will work with Python 3.6.9.
-Other things you need to do:
+
+### Steps to take
 
 1. [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
 1. [Install the Bloom configuration](#install-bloom-configuration).

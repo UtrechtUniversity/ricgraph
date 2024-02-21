@@ -1,0 +1,19 @@
+[Unit]
+Description=Ricgraph Explorer
+After=network-online.target
+After=neo4j.service
+
+[Service]
+Type=exec
+User=ricgraph
+Group=ricgraph
+WorkingDirectory=/opt/ricgraph_venv/ricgraph_explorer
+Environment="PYTHONPATH=/opt/ricgraph_venv/ricgraph"
+ExecStart=/opt/ricgraph_venv/bin/python ricgraph_explorer.py
+StartLimitIntervalSec=1
+StartLimitBurst=100
+Restart=always
+TimeoutSec=120
+
+[Install]
+WantedBy=multi-user.target

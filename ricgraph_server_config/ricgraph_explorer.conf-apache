@@ -1,0 +1,8 @@
+<VirtualHost *:80>
+	HostnameLookups On
+	Redirect / http://127.0.0.1:3030/
+	CustomLog /var/log/apache2/ricgraph_explorer.log ssl_combined
+	ErrorLog /var/log/apache2/ricgraph_explorer-error.log
+	TransferLog /var/log/apache2/ricgraph_explorer-access.log
+</VirtualHost>                                  
+
