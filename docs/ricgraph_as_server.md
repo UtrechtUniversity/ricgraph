@@ -4,14 +4,14 @@ If you would like to use Ricgraph in such an environment, you will
 need to install Ricgraph differently than described in 
 [Install and configure Ricgraph](ricgraph_install_configure.md).
 *Multi-user environment* means that you install Ricgraph on a (virtual) machine, 
-and that various persons can logon to that machine, each with his own user-id
+and that various persons can logon to that machine, each with his own user id
 and password, and that each person will be able to use Ricgraph by using a
 web link in their web browser.
 
 The reason that a multi-user environment for Ricgraph is different than installing and using
-Ricgraph on your own user-id, is that you will need to run Neo4j and
+Ricgraph on your own user id, is that you will need to run Neo4j and
 Ricgraph Explorer as a system user instead of running it using your own user id.
-If you run Ricgraph with your own user-id, you will be the only user able to use it.
+If you run Ricgraph with your own user id, you will be the only user able to use it.
 In case other persons on that same machine would like to use Ricgraph, they have
 to install it for themselves. 
 By installing Ricgraph as a server, as described on this page,
@@ -63,6 +63,7 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
   grep ricgraph /etc/group
   grep ricgraph /etc/passwd
   ```
+  If you get output, they already exist, and you don't need to do this step.
   If you get no output, you will need to create the group and user:
   ```
   groupadd --system ricgraph
@@ -82,11 +83,13 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
   go to */opt/ricgraph_venv*, type ``tar xf /opt/ricgraph-X.YY.tar.gz`` (X.YY 
   is the version number you downloaded). You will get a directory 
   */opt/ricgraph_venv/ricgraph-X.YY*.
-* Merge the Ricgraph you have extracted with *tar* with the virtual environment:
+* Merge the Ricgraph you have extracted with *tar* with the virtual environment,
+  and do some cleanup:
   in */opt/ricgraph_venv*, type: 
   ```
   mv ricgraph-X.YY/* /opt/ricgraph_venv
   rm -r /opt/ricgraph_venv/ricgraph-X.YY
+  rm /opt/ricgraph-X.YY.tar.gz
   ```
 * Activate the Python virtual environment: 
   in */opt/ricgraph_venv*, type 
@@ -96,7 +99,7 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
   ``pip install -r requirements.txt``
 * Create a Ricgraph initalization file, 
   read [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
-  In this file, find the section
+  Next, in this file, find the section
   "Choose either the parameters for Neo4j Desktop or Neo4j Community Edition".
   Make sure you disable the parameters for Neo4j Desktop (by commenting them)
   and enable the parameter for Neo4j Community Edition.
@@ -175,7 +178,7 @@ Examples of commands you can use are:
   [http://localhost](http://localhost) in your web browser.
 * Note that this Apache VirtualHost config script only works on the (virtual) machine
   where Ricgraph has been installed. If you need to access it from outside that
-  machine, you have to modify the config script.
+  virtual machine, you have to modify the config script.
  
 ### Return to main README.md file
 
