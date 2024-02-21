@@ -179,7 +179,13 @@ Examples of commands you can use are:
 * Note that this Apache VirtualHost config script only works on the (virtual) machine
   where Ricgraph has been installed. If you need to access it from outside that
   virtual machine, you have to modify the config script.
- 
+
+### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
+
+To read how this can be done, read
+[Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
+Edition](ricgraph_install_configure.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
+
 ### Return to main README.md file
 
 [Return to main README.md file](../README.md).

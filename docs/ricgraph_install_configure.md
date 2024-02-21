@@ -261,10 +261,10 @@ To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
    is ready, a message appears.
 1. Ready.
 
-### Restore a Neo4j Desktop database dump of Ricgraph
+### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop
 To restore a 
-[Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph), 
-follow these steps:
+[Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph) 
+in Neo4j Desktop, follow these steps:
 1. Start Neo4j Desktop if it is not running, or 
    stop the graph database if it is running.
 1. Click on the button "Add" on the right side of "Project" and select "File".
@@ -282,6 +282,70 @@ follow these steps:
 1. Now you are ready to explore the data 
    using [Bloom](ricgraph_query_visualize.md#how-to-use-bloom)
    or [Ricgraph Explorer](ricgraph_query_visualize.md#how-to-use-ricgraph-explorer).
+
+### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
+To restore a
+[Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
+in Neo4j Community Edition, follow these steps:
+1. Login as user *root*.
+1. Stop Neo4j Community Edition:
+   ```
+   systemctl stop neo4j.service
+   ```
+1. To be able to restore a Neo4j database dump you need to set several permissions
+   on */etc/neo4j*:
+   ```
+   chmod 640 /etc/neo4j/*
+   chmod 750 /etc/neo4j
+   ```
+1. Save the old database:
+   ```
+   cd /var/lib/neo4j
+   mv data/ data-old
+   ```
+1. Go back to your working directory and restore the database dump:
+   ```
+   cd
+   neo4j-admin database load --expand-commands neo4j --from-path=[path to database dump directory] --overwrite-destination=true
+   ```
+   For *path to database dump directory*, specify the path, not the path and the name of the
+   database dump file (this name is *neo4j.dump*, it will be inferred automatically
+   by the *neo4j-admin* command).
+1. Set the correct permissions on */var/lib/neo4j/data*:
+   ```
+   cd /var/lib/neo4j
+   chown -R neo4j:neo4j data
+   ```
+1. Start Neo4j Community Edition:
+   ```
+   systemctl start neo4j.service
+   ```
+   Check the log for any errors, use one of:
+   ```
+   systemctl -l status neo4j.service
+   journalctl -u neo4j.service
+   ```
+1. In your web browser, go to 
+   [http://localhost:7474/browser](http://localhost:7474/browser).
+1. Neo4j will ask you to login, use username *neo4j* and password *neo4j*.
+1. Neo4j will ask you to change your password, 
+   for the new password, enter the password you have specified in
+   the [Ricgraph initialization file](#ricgraph-initialization-file)
+   (this saves you from entering a new password in that file).
+1. Start Ricgraph Explorer:
+   ```
+   systemctl start ricgraph_explorer.service
+   ```
+   Check the log for any errors, use one of:
+   ```
+   systemctl -l status ricgraph_explorer.service
+   journalctl -u ricgraph_explorer.service
+   ```
+1. Done. If all works well you might want to remove your old database:
+   ```
+   cd /var/lib/neo4j
+   rm -r data-old
+   ```
 
 ### Return to main README.md file
 
