@@ -2617,16 +2617,19 @@ if __name__ == "__main__":
 
     name_all = rcg.read_all_values_of_property('name')
     if name_all is None:
-        print('Error in obtaining list with all property values for property "name".')
-        exit(2)
+        print('Warning (possibly Error) in obtaining list with all property values for property "name".')
+        print('Continuing with an empty list. This might give unexpected results.')
+        name_all = []
     category_all = rcg.read_all_values_of_property('category')
     if category_all is None:
-        print('Error in obtaining list with all property values for property "category".')
-        exit(2)
+        print('Warning (possibly Error) in obtaining list with all property values for property "category".')
+        print('Continuing with an empty list. This might give unexpected results.')
+        category_all = []
     source_all = rcg.read_all_values_of_property('_source')
     if source_all is None:
-        print('Error in obtaining list with all property values for property "_source".')
-        exit(2)
+        print('Warning (possibly Error) in obtaining list with all property values for property "_source".')
+        print('Continuing with an empty list. This might give unexpected results.')
+        source_all = []
 
     name_all_datalist = '<datalist id="name_all_datalist">'
     for property_item in name_all:
