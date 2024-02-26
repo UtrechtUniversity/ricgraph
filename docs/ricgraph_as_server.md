@@ -55,7 +55,7 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
     Then choose the version that fits your Linux version:
     * OpenSUSE: "Linux cypher-shell_X.YY.0-Z.noarch.rpm".
     * Debian/Ubuntu: "Linux cypher-shell_X.YY.0_all.deb".
-  * Click "Download"  
+  * Click "Download".
   * Install it using your favorite package manager (see above).
 * If the installation has finished, make sure it runs by typing:
   ``` 
