@@ -4,11 +4,11 @@ If you would like to use Ricgraph in such an environment, you will
 need to install Ricgraph differently than described in 
 [Install and configure Ricgraph](ricgraph_install_configure.md).
 *Multi-user environment* means that you install Ricgraph on a (virtual) machine, 
-and that various persons can logon to that machine, each with his own user id
+and that various persons can log on to that machine, each with his own user id
 and password, and that each person will be able to use Ricgraph by using a
 web link in their web browser.
 
-The reason that a multi-user environment for Ricgraph is different than installing and using
+The reason that a multi-user environment for Ricgraph is different from installing and using
 Ricgraph on your own user id, is that you will need to run Neo4j and
 Ricgraph Explorer as a system user instead of running it using your own user id.
 If you run Ricgraph with your own user id, you will be the only user able to use it.
@@ -75,7 +75,7 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
   * Neo4j will ask you to login, use username *neo4j* and password *neo4j*.
   * Neo4j will ask you to change your password,
     for the new password, enter the password you have specified in
-    the [Ricgraph initialization file](#ricgraph-initialization-file)
+    the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file)
     (this saves you from entering a new password in that file).
  
 ### Create a ricgraph user and group
@@ -130,7 +130,7 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
 * Install the Python requirements for Ricgraph:
   in */opt/ricgraph_venv*, type 
   ``pip install -r requirements.txt``
-* Create a Ricgraph initalization file, 
+* Create a Ricgraph initialization file, 
   read [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 * In *ricgraph.ini*, find the section
   "Choose either the parameters for Neo4j Desktop or Neo4j Community Edition".
@@ -181,7 +181,7 @@ a demo server. After the steps in this section, both Neo4j Community Edition
 and Ricgraph Explorer are run
 automatically at the start of the virtual machine, so you can immediately start giving the demo.
 
-For comparison, if you would have installed Neo4j and Ricgraph for a single user, as
+For comparison, if you had installed Neo4j and Ricgraph for a single user, as
 described in 
 [the documentation describing the installation and configuration
 of Ricgraph for a single user](ricgraph_install_configure.md), 
@@ -222,7 +222,7 @@ Ricgraph Explorer is written in Flask, a framework for Python to build web inter
 Flask contains a development web server, and if you start Ricgraph Explorer by typing
 *ricgraph_explorer.py*, it will be started using that development web server. As this development
 web server is sufficient for development and demoing, it is certainly *not* sufficient
-for exposing Ricgraph data to the outside world (that is, to users outside of your own virtual machine).
+for exposing Ricgraph data to the outside world (that is, to users outside your own virtual machine).
 
 For this, you will need a web server and a WSGI environment. This section describes how
 to do that with Apache and WSGI. 
@@ -285,8 +285,8 @@ Using Apache and WSGI will expose Ricgraph Explorer and Ricgraph data to the out
 * Now you can use Ricgraph Explorer from inside your virtual machine by typing 
   [http://localhost](http://localhost) in your web browser in the virtual machine, or 
   from outside your virtual machine by going to
-  [http://[your IP address]](http://[your IP address) or
-  [http://[your hostname]](http://[your hostname). 
+  [http://[your IP address]](http://[your_IP_address) or
+  [http://[your hostname]](http://[your_hostname). 
 
 ### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
 
