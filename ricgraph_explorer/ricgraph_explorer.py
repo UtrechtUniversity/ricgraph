@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 Rik D.T. Janssen
+# Copyright (c) 2023, 2024 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,14 +31,18 @@
 # This file is Ricgraph Explorer, a web based tool to access nodes in
 # Ricgraph.
 # The purpose is to illustrate how web based access using Flask can be done.
-# To keep it simple, everything has been done in this file.
+# To keep it simple, everything is contained in this file (except for
+# some static files, which are in ../static).
 #
 # Please note that this code is meant for research purposes,
 # not for production use. That means, this code has not been hardened for
 # "the outside world". Be careful if you expose it to the outside world.
+# At least use a web server such as Apache combined with a WSGI server.
+# Please read the documentation to learn how to do that, and to find
+# example configuration files.
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September 2023 to January 2024.
+# Extended Rik D.T. Janssen, February, September 2023 to February 2024.
 #
 # ########################################################################
 #
@@ -151,9 +155,12 @@ VIEW_MODE_ALL = ['view_regular_table_personal',
 # This dict has the format: [Ricgraph _key]: [Node link]
 nodes_cache = {}
 
-global name_all_datalist, category_all_datalist, source_all, source_all_datalist
-global resout_types_all, resout_types_all_datalist
+# These will be defined in initialize_ricgraph_explorer()
+global graph
+global name_all, category_all, source_all, resout_types_all
+global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
 global personal_types_all, remainder_types_all
+global page_footer
 
 # The html 'width' of input fields or 'min-width' of buttons.
 field_button_width = '30em'
@@ -238,12 +245,20 @@ page_header += '</div>'
 page_header += '</header>'
 
 # The html page footer.
-page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
-page_footer += 'Disclaimer: Ricgraph Explorer is recommended for research use, not for production use. '
-page_footer += 'For more information about Ricgraph and Ricgraph Explorer, see '
-page_footer += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
-page_footer += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
-page_footer += '</footer>'
+page_footer_general = 'For more information about Ricgraph and Ricgraph Explorer, see '
+page_footer_general += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
+page_footer_general += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
+
+page_footer_development = '<footer class="w3-container rj-gray" style="font-size:80%">'
+page_footer_development += 'You are using Ricgraph Explorer in development mode. '
+page_footer_development += 'Do only use this for research use, not for production use. '
+page_footer_development += page_footer_general
+page_footer_development += '</footer>'
+
+page_footer_wsgi = '<footer class="w3-container rj-gray" style="font-size:80%">'
+page_footer_wsgi += 'You are using Ricgraph Explorer in an Apache WSGI environment. '
+page_footer_wsgi += page_footer_general
+page_footer_wsgi += '</footer>'
 
 # The first part of the html page, up to stylesheet and page_header.
 html_body_start = '<!DOCTYPE html>'
@@ -254,9 +269,8 @@ html_body_start += '<body>'
 html_body_start += stylesheet
 html_body_start += page_header
 
-# The last part of the html page, from page_footer to script inclusion.
-html_body_end = page_footer
-html_body_end += '<script src="/static/ricgraph_sorttable.js"></script>'
+# The last part of the html page, from page_footer (not included) to script inclusion.
+html_body_end = '<script src="/static/ricgraph_sorttable.js"></script>'
 html_body_end += '</body>'
 html_body_end += '</html>'
 
@@ -286,7 +300,7 @@ def homepage() -> str:
 
     :return: html to be rendered.
     """
-    global html_body_start, html_body_end
+    global html_body_start, html_body_end, page_footer
     global source_all, category_all
 
     html = html_body_start
@@ -345,6 +359,7 @@ def homepage() -> str:
     html += '</li>'
     html += '</ul>'
     html += get_html_for_cardend()
+    html += page_footer
     html += html_body_end
     return html
 
@@ -2606,10 +2621,15 @@ def get_html_for_cardline() -> str:
     return html
 
 
-# ############################################
-# ################### main ###################
-# ############################################
-if __name__ == "__main__":
+def initialize_ricgraph_explorer():
+    """Initialize Ricgraph Explorer.
+    :return: None.
+    """
+    global graph
+    global name_all, category_all, source_all, resout_types_all
+    global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
+    global personal_types_all, remainder_types_all
+
     graph = rcg.open_ricgraph()         # Should probably be done in a Session
     if graph is None:
         print('Ricgraph could not be opened.')
@@ -2659,13 +2679,26 @@ if __name__ == "__main__":
         source_all_datalist += '<option value="' + property_item + '">'
     source_all_datalist += '</datalist>'
 
-    # For normal use:
+    return
+
+
+# ################################################
+# ################### for WSGI ###################
+# ################################################
+def create_app():
+    global page_footer, page_footer_wsgi
+
+    initialize_ricgraph_explorer()
+    page_footer = page_footer_wsgi
+
+    return ricgraph_explorer
+
+
+# ############################################
+# ################### main ###################
+# ############################################
+if __name__ == "__main__":
+    initialize_ricgraph_explorer()
+    page_footer = page_footer_development
+
     ricgraph_explorer.run(port=3030)
-
-    # For debug purposes:
-    # ricgraph_explorer.run(debug=True, port=3030)
-
-    # If you uncomment the next line, Ricgraph Explorer will be exposed to
-    # the outside world. Read the remarks at the top of this file before you do so.
-    # Also, comment out the line above.
-    # ricgraph_explorer.run(host='0.0.0.0', debug=True, port=3030)
