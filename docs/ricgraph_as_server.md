@@ -35,8 +35,8 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
   Go to section "Graph Database Self-Managed", choose "Community".
   Choose the latest version of Neo4j. Then choose your favorite package
   format:
-  * OpenSUSE: "Red Hat Linux Package (rpm)"
-  * Debian/Ubuntu: "Debian/Ubuntu Package (deb)"
+  * OpenSUSE: "Red Hat Linux Package (rpm)".
+  * Debian/Ubuntu: "Debian/Ubuntu Package (deb)".
  
   Download the package and install it with your favorite package manager:
   * OpenSUSE: use either ``rpm -i <packagename>`` (first install)
@@ -45,6 +45,18 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
  
   You might need to install other packages required to fulfill the dependencies
   of Neo4j Community Edition.
+
+  If you get an error message about a failed dependency on *cypher-shell*, install
+  *cypher-shell* separately as follows:
+  * Go to the
+    [Tools tab of the Neo4j Deployment Center](https://neo4j.com/deployment-center/#tools-tab). 
+    Go to section "Cypher Shell", choose the version of Cypher Shell that matches
+    the version of the Neo4j Community Edition you have downloaded above.
+    Then choose the version that fits your Linux version:
+    * OpenSUSE: "Linux cypher-shell_X.YY.0-Z.noarch.rpm".
+    * Debian/Ubuntu: "Linux cypher-shell_X.YY.0_all.deb".
+  * Click "Download".
+  * Install it using your favorite package manager (see above).
 * If the installation has finished, make sure it runs by typing:
   ``` 
   systemctl enable neo4j.service
