@@ -85,7 +85,7 @@ Define APACHE_LOGDIR "/var/log/apache2"
 	# To prevent accidental use, the line with 'WSGIScriptAlias' 
 	# has been commented. Remove the comment to make it work.
 	# See 'Warning' and 'Read this' at the start of this file.
-    #WSGIScriptAlias / "${RICGRAPH_PATH}/ricgraph_explorer/ricgraph_explorer.wsgi"
+	#WSGIScriptAlias / "${RICGRAPH_PATH}/ricgraph_explorer/ricgraph_explorer.wsgi"
 	# ########## End of please modify
 
         <Directory "${RICGRAPH_PATH}/ricgraph_explorer/">
