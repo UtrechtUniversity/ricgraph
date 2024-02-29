@@ -38,8 +38,10 @@
 # Note that this file, as it is now, serves Ricgraph Explorer on a 
 # http connection, not secured (no https), and without authentication.
 # At least you should change this file to use https.
-# Add this yourself, since there are too many site specific settings to
-# give some example code.
+# You have to make modifications yourself, since there are too many
+# site specific settings to give example code.
+# Examples of these settings are your external IP address, hostname,
+# web server, domain name, SSL certificate provider, authentication source, etc.
 #
 # READ THIS:
 # To prevent accidental exposure of data in Ricgraph to the outside world, 
@@ -83,7 +85,7 @@ Define APACHE_LOGDIR "/var/log/apache2"
 	# To prevent accidental use, the line with 'WSGIScriptAlias' 
 	# has been commented. Remove the comment to make it work.
 	# See 'Warning' and 'Read this' at the start of this file.
-        #WSGIScriptAlias / "${RICGRAPH_PATH}/ricgraph_explorer/ricgraph_explorer.wsgi"
+    #WSGIScriptAlias / "${RICGRAPH_PATH}/ricgraph_explorer/ricgraph_explorer.wsgi"
 	# ########## End of please modify
 
         <Directory "${RICGRAPH_PATH}/ricgraph_explorer/">
