@@ -1,5 +1,5 @@
 ## Ricgraph as a server on Linux
-This page describes how to install Ricgraph in a multi-user environment on Linux.
+This page describes how to install and run Ricgraph in a multi-user environment on Linux.
 If you would like to use Ricgraph in such an environment, you will
 need to install Ricgraph differently than described in 
 [Install and configure Ricgraph](ricgraph_install_configure.md).
@@ -21,9 +21,25 @@ it can be used by any user on that machine.
 [Go to the documentation describing the installation and configuration
 of Ricgraph for a single user](ricgraph_install_configure.md).
 
+To install and run Ricgraph in a multi-user environment, you need to do most of
+the following steps:
+* [Check the requirements](#check-the-requirements).
+* [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition).
+* [Create a ricgraph user and group](#create-a-ricgraph-user-and-group).
+* [Create a Python virtual environment and install Ricgraph in 
+  it](#create-a-python-virtual-environment-and-install-ricgraph-in-it).
+* [Run Ricgraph scripts from the command 
+  line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob).
+* [Use a service unit file to run Ricgraph 
+  Explorer](#use-a-service-unit-file-to-run-ricgraph-explorer).
+* [Use Apache and WSGI to make Ricgraph Explorer accessible from outside your virtual 
+  machine](#use-apache-and-wsgi-to-make-ricgraph-explorer-accessible-from-outside-your-virtual-machine).
+* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
+  Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
+
 [Return to main README.md file](../README.md).
 
-### Installation instructions for a multi-user environment
+### Check the requirements
 * Please check the [Requirements for Ricgraph](ricgraph_install_configure.md#requirements).
  
 ### Install and start Neo4j Community Edition
@@ -139,20 +155,22 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
 * Deactivate the Python virtual environment: 
   type ``deactivate``
 * Login as user *root*.
-* Change the owner and group to ricgraph of directory ricgraph:
-  in */opt*, type 
+* Change the owner and group to ricgraph of directory */opt/ricgraph_venv*.
+  In */opt*, type 
   ```
   chown -R ricgraph:ricgraph /opt/ricgraph_venv
   ```
 * Exit from user *root*.
 
-### Run Ricgraph scripts from the command line
+### Run Ricgraph scripts from the command line or as a cronjob
 After following the steps in [Create a Python virtual environment and install Ricgraph in
 it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
-it is possible to run Ricgraph from the command line or as a cron job.
+it is possible to run Ricgraph from the command line or as a
+[cronjob](https://en.wikipedia.org/wiki/Cron).
 To be able to run these scripts you need to be
 user *ricgraph* and group *ricgraph*.
-You can do this by using the command
+You can do this by using user *ricgraph* in your crontab file (e.g. in */etc/crontab*),
+or by using the command
 ```
 sudo su - ricgraph
 ``` 
@@ -173,7 +191,7 @@ Examples of commands you can use are:
   cd /opt/ricgraph_venv/ricgraph_explorer; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
   ```
   
-### Use a service unit file to run Ricgraph Explorer 
+### Use a service unit file to run Ricgraph Explorer
 
 Using a service unit file to run Ricgraph Explorer 
 is very useful if you would like to set up a virtual machine that you want to use as
@@ -213,8 +231,8 @@ the outside world. All data will only be accessible in the virtual machine.
   ```
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer by typing
-  [http://localhost:3030](http://localhost:3030) in your web browser.
-
+  [http://localhost:3030](http://localhost:3030) in your web browser (i.e., the web browser of
+  the virtual machine).
 
 ### Use Apache and WSGI to make Ricgraph Explorer accessible from outside your virtual machine
 
@@ -245,7 +263,7 @@ to the outside world, you will have to modify the Apache configuration file. You
 need to make a small modification to make it work. How to do this is described in the
 comments at the start of the configuration file.
 
-Using Apache and WSGI will expose Ricgraph Explorer and Ricgraph data to the outside world.
+*Using Apache and WSGI will expose Ricgraph Explorer and Ricgraph data to the outside world.*
 
 * Follow the steps in [Create a Python virtual environment and install Ricgraph in
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
