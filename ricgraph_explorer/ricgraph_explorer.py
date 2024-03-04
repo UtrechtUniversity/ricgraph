@@ -142,6 +142,7 @@ VIEW_MODE_ALL = ['view_regular_table_personal',
                  'view_unspecified_table_organizations',
                  'view_regular_table_person_share_resouts',
                  'view_regular_table_person_enrich_source_system',
+                 'view_regular_table_person_organization_collaborations',
                  'view_regular_table_organization_addinfo',
                  ]
 
@@ -801,6 +802,25 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
+        explanation = '<h5>With which organizations does this person collaborate?</h5>'
+        explanation += 'By clicking the following button, you will get an overview '
+        explanation += 'of organizations that his person collaborates with. '
+        explanation += 'A person <em>X</em> from organization <em>A</em> '
+        explanation += 'collaborates with a person <em>Y</em> from '
+        explanation += 'organization <em>B</em> if <em>X</em> and <em>Y</em> have both contributed to '
+        explanation += 'the same research output.'
+        button_text = 'find organizations that this person collaborates with (this may take some time)'
+        html += create_html_form(destination='resultspage',
+                                 button_text=button_text,
+                                 explanation=explanation,
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_person_organization_collaborations'
+                                                })
+
+        html += get_html_for_cardend()
+
+        html += get_html_for_cardstart()
         explanation = '<h5>Improve or enhance information in one of your source systems</h5>'
         explanation += 'The process of improving or enhancing information in a source system is called "enriching" '
         explanation += 'that source system. This is only possible if you have harvested more than one source system. '
@@ -1070,6 +1090,10 @@ def create_results_page(view_mode: str,
                                        source_system=source_system,
                                        discoverer_mode=discoverer_mode)
 
+    elif view_mode == 'view_regular_table_person_organization_collaborations':
+        html += find_person_organization_collaborations(parent_node=node,
+                                                        discoverer_mode=discoverer_mode)
+
     elif view_mode == 'view_regular_table_organization_addinfo':
         # Note the hard limit.
         html += find_organization_additional_info(parent_node=node,
@@ -1181,6 +1205,90 @@ def view_personal_information(nodes_list: Union[list, NodeMatch],
                              table_columns=ID_COLUMNS,
                              tabs_on='name',
                              discoverer_mode=discoverer_mode)
+    return html
+
+
+def find_person_share_resouts(parent_node: Node,
+                              category_want_list: list = None,
+                              category_dontwant_list: list = None,
+                              max_nr_neighbor_nodes: int = 0,
+                              discoverer_mode: str = '') -> str:
+    """Function that finds with whom a person shares research outputs.
+
+    :param parent_node: the starting node for finding shared research output types.
+    :param category_want_list: the category list used for selection, or [] if any category.
+    :param category_dontwant_list: the category list used for selection (i.e. not these).
+    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
+    :param discoverer_mode: as usual.
+    :return: html to be rendered.
+    """
+    html = ''
+    if parent_node['category'] != 'person':
+        message = 'Unexpected result in find_person_share_resouts(): '
+        message += 'You have not passed an "person" node, but a "' + parent_node['category']
+        message += '" node.'
+        return get_message(message=message)
+
+    personroot_node = rcg.get_personroot_node(node=parent_node)
+    edges = rcg.get_edges(personroot_node)
+    if len(edges) == 0:
+        message = 'Unexpected result in find_person_share_resouts(): '
+        message += 'personroot_node does not have neighbors.'
+        return get_message(message=message)
+
+    connected_persons = []
+    count = 0
+    if max_nr_neighbor_nodes == 0:
+        max_nr_neighbor_nodes = rcg.A_LARGE_NUMBER
+    for edge in edges:
+        if count >= max_nr_neighbor_nodes:
+            break
+        next_node = edge.end_node
+        if personroot_node == next_node:
+            continue
+        if len(category_want_list) != 0 and next_node['category'] not in category_want_list:
+            continue
+        if len(category_dontwant_list) > 0 and next_node['category'] in category_dontwant_list:
+            continue
+
+        persons = rcg.get_all_neighbor_nodes(node=next_node,
+                                             name_want='person-root',
+                                             max_nr_neighbor_nodes=max_nr_neighbor_nodes - count)
+        for person in persons:
+            if person['_key'] == personroot_node['_key']:
+                # Note: we do not include ourselves.
+                continue
+            if person not in connected_persons:
+                connected_persons.append(person)
+                count += 1
+
+    if discoverer_mode == 'details_view':
+        table_columns = DETAIL_COLUMNS
+    else:
+        table_columns = RESEARCH_OUTPUT_COLUMNS
+
+    table_header = 'This is the person we start with:'
+    html += get_regular_table(nodes_list=[parent_node],
+                              table_header=table_header,
+                              table_columns=table_columns,
+                              discoverer_mode=discoverer_mode)
+    if len(connected_persons) == 0:
+        if len(category_want_list) == 1:
+            message = 'This person does not share research output type "' + category_want_list[0] + '" '
+        else:
+            message = 'This person does not share any research output types '
+        message += 'with other persons.'
+        return html + get_message(message=message)
+
+    if len(category_want_list) == 1:
+        table_header = 'This person shares research output type "' + category_want_list[0] + '" '
+    else:
+        table_header = 'This person shares various research output types '
+    table_header += 'with these persons:'
+    html += get_regular_table(nodes_list=connected_persons,
+                              table_header=table_header,
+                              table_columns=table_columns,
+                              discoverer_mode=discoverer_mode)
     return html
 
 
@@ -1317,23 +1425,26 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     return html
 
 
-def find_person_share_resouts(parent_node: Node,
-                              category_want_list: list = None,
-                              category_dontwant_list: list = None,
-                              max_nr_neighbor_nodes: int = 0,
-                              discoverer_mode: str = '') -> str:
-    """Function that finds with whom a person shares research outputs.
+def find_person_organization_collaborations(parent_node: Node,
+                                            discoverer_mode: str = '') -> str:
+    """Function that finds with which organization a person collaborates.
 
-    :param parent_node: the starting node for finding shared research output types.
-    :param category_want_list: the category list used for selection, or [] if any category.
-    :param category_dontwant_list: the category list used for selection (i.e. not these).
-    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
+    A person X from organization A collaborates with a person Y from
+    organization B if X and Y have both contributed to the same research output.
+    All research output types are in 'resout_types_all'.
+    This function does not give an overview of the persons that person X collaborates
+    with (although those are determined in this function) because there is
+    another function to do that.
+
+    :param parent_node: the starting node for finding collaborating organizations.
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
+    global resout_types_all
+
     html = ''
     if parent_node['category'] != 'person':
-        message = 'Unexpected result in find_person_share_resouts(): '
+        message = 'Unexpected result in find_person_organization_collaborations(): '
         message += 'You have not passed an "person" node, but a "' + parent_node['category']
         message += '" node.'
         return get_message(message=message)
@@ -1341,35 +1452,43 @@ def find_person_share_resouts(parent_node: Node,
     personroot_node = rcg.get_personroot_node(node=parent_node)
     edges = rcg.get_edges(personroot_node)
     if len(edges) == 0:
-        message = 'Unexpected result in find_person_share_resouts(): '
+        message = 'Unexpected result in find_person_organization_collaborations(): '
         message += 'personroot_node does not have neighbors.'
         return get_message(message=message)
 
+    # 'connected_persons' will be a list of persons connected to 'personroot_node'
+    # via a research output. 'connected_persons' will not contain duplicates.
     connected_persons = []
-    count = 0
-    if max_nr_neighbor_nodes == 0:
-        max_nr_neighbor_nodes = rcg.A_LARGE_NUMBER
     for edge in edges:
-        if count >= max_nr_neighbor_nodes:
-            break
         next_node = edge.end_node
         if personroot_node == next_node:
             continue
-        if len(category_want_list) != 0 and next_node['category'] not in category_want_list:
-            continue
-        if len(category_dontwant_list) > 0 and next_node['category'] in category_dontwant_list:
+        if next_node['category'] not in resout_types_all:
             continue
 
+        # Now next_node is a research output. Find persons connected to that research output.
         persons = rcg.get_all_neighbor_nodes(node=next_node,
-                                             name_want='person-root',
-                                             max_nr_neighbor_nodes=max_nr_neighbor_nodes - count)
+                                             name_want='person-root')
         for person in persons:
             if person['_key'] == personroot_node['_key']:
                 # Note: we do not include ourselves.
                 continue
             if person not in connected_persons:
                 connected_persons.append(person)
-                count += 1
+
+    # Get the organizations, first from 'personroot_node'.
+    personroot_node_organizations = rcg.get_all_neighbor_nodes(node=personroot_node,
+                                                               category_want='organization')
+
+    # And then organizations from all other nodes connected via a research output.
+    collaborating_organizations = []
+    for person in connected_persons:
+        person_organizations = rcg.get_all_neighbor_nodes(node=person,
+                                                          category_want='organization')
+        for organization in person_organizations:
+            if organization not in personroot_node_organizations \
+               and organization not in collaborating_organizations:
+                collaborating_organizations.append(organization)
 
     if discoverer_mode == 'details_view':
         table_columns = DETAIL_COLUMNS
@@ -1381,20 +1500,23 @@ def find_person_share_resouts(parent_node: Node,
                               table_header=table_header,
                               table_columns=table_columns,
                               discoverer_mode=discoverer_mode)
-    if len(connected_persons) == 0:
-        if len(category_want_list) == 1:
-            message = 'This person does not share research output type "' + category_want_list[0] + '" '
-        else:
-            message = 'This person does not share any research output types '
-        message += 'with other persons.'
+
+    if len(personroot_node_organizations) == 0:
+        html += get_message(message='This person does not work at any organization.',
+                            please_try_again=False)
+    else:
+        table_header = 'This person works at the following organizations:'
+        html += get_regular_table(nodes_list=personroot_node_organizations,
+                                  table_header=table_header,
+                                  table_columns=table_columns,
+                                  discoverer_mode=discoverer_mode)
+
+    if len(collaborating_organizations) == 0:
+        message = 'This person has no collaborations with other organizations.'
         return html + get_message(message=message)
 
-    if len(category_want_list) == 1:
-        table_header = 'This person shares research output type "' + category_want_list[0] + '" '
-    else:
-        table_header = 'This person shares various research output types '
-    table_header += 'with these persons:'
-    html += get_regular_table(nodes_list=connected_persons,
+    table_header = 'This person collaborates with the following organizations:'
+    html += get_regular_table(nodes_list=collaborating_organizations,
                               table_header=table_header,
                               table_columns=table_columns,
                               discoverer_mode=discoverer_mode)
