@@ -2807,7 +2807,7 @@ def initialize_ricgraph_explorer():
 # ################################################
 # ################### for WSGI ###################
 # ################################################
-def create_app():
+def create_ricgraph_explorer_app():
     global page_footer, page_footer_wsgi
 
     initialize_ricgraph_explorer()

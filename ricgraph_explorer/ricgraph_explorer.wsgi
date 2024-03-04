@@ -44,7 +44,7 @@ sys.path.insert(0, RICGRAPH_PATH + '/ricgraph')
 sys.path.insert(0, RICGRAPH_PATH + '/ricgraph_explorer')
 os.chdir(RICGRAPH_PATH + '/ricgraph_explorer')
 
-from ricgraph_explorer import create_app
+from ricgraph_explorer import create_ricgraph_explorer_app
 
-application = create_app()
+application = create_ricgraph_explorer_app()
 
