@@ -846,7 +846,8 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
 
         html += get_html_for_cardstart()
         explanation = '<h5>More information about overlap in source systems</h5>'
-        explanation += 'If the information in Ricgraph for for the neighbors of this node have originated '
+        explanation += 'In case more than one source systems have been harvested, '
+        explanation += 'and the information in Ricgraph for the neighbors of this node have originated '
         explanation += 'from more than one source system, you can find out from which ones.</br>'
         button_text = 'find the overlap in source systems for '
         button_text += 'the neighbor nodes of this node (this may take some time)'
