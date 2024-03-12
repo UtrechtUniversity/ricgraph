@@ -68,7 +68,7 @@ To learn more about Ricgraph,
 [a section with next steps you might want to take](#next-steps).
 You can also look at
 the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
-or the [publications, presentations and mentions of Ricgraph](docs/ricgraph_publications_presentations_mentions.md).
+or the [publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
 
 Reference publication: Rik D.T. Janssen, 
 *Ricgraph: A Flexible and Extensible Graph to Explore Research in Context 

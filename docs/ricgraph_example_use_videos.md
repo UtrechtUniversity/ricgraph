@@ -26,7 +26,7 @@ In the videos, you will observe nodes of several colors and sizes:
 
 None of these videos have sound.
 
-For other illustrations of Ricgraph, see [the presentations and mentions of Ricgraph](ricgraph_publications_presentations_mentions.md).
+For other illustrations of Ricgraph, see [the publications, presentations, use and mentions of Ricgraph](ricgraph_pubs_presentations_use_mentions.md).
 
 [Return to main README.md file](../README.md).
 
