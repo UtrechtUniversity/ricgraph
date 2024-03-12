@@ -317,7 +317,7 @@ def homepage() -> str:
                                             })
     html += '<p/>'
     html += create_html_form(destination='searchpage',
-                             button_text='search for a (child) organization',
+                             button_text='search for a (sub-)organization',
                              hidden_fields={'search_mode': 'value_search',
                                             'category': 'organization'
                                             })
@@ -433,11 +433,11 @@ def searchpage() -> str:
     radio_person_tooltip += '</div>'
 
     radio_details_text = ' <em>details_view</em>: show all columns, '
-    radio_details_text += 'research outputs are presented in a table with <em>facets</em> '
+    radio_details_text += 'research results are presented in a table with <em>facets</em> '
     radio_details_tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
     radio_details_tooltip += '<div class="w3-text" style="margin-left:60px;"> '
     radio_details_tooltip += 'This view shows all columns in Ricgraph. '
-    radio_details_tooltip += 'Research outputs are presented in a table with <em>facets</em>. '
+    radio_details_tooltip += 'Research results are presented in a table with <em>facets</em>. '
     radio_details_tooltip += '</div>'
 
     form += '<br/>Please specify how you like to view your results:<br/>'
@@ -530,7 +530,7 @@ def optionspage() -> str:
         html += html_body_end
         return html
     if len(result) > 1:
-        table_header = 'Your search resulted in more than one node. Please choose one node to continue:'
+        table_header = 'Your search resulted in more than one item. Please choose one item to continue:'
         html += get_regular_table(nodes_list=result,
                                   table_header=table_header,
                                   discoverer_mode=discoverer_mode)
@@ -676,7 +676,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += get_html_for_cardstart()
         html += '<h5>More information about persons or their results in this organization.</h5>'
         html += create_html_form(destination='resultspage',
-                                 button_text='find research outputs from all persons in this organization',
+                                 button_text='find research results from all persons in this organization',
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': resout_types_all,
@@ -747,7 +747,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += '<p/>'
 
         html += create_html_form(destination='resultspage',
-                                 button_text='show research outputs related to this person',
+                                 button_text='show research results related to this person',
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': resout_types_all,
@@ -778,9 +778,9 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         html += get_html_for_cardstart()
         html += '<h4>Advanced information related to this person</h4>'
         html += get_html_for_cardstart()
-        html += '<h5>With whom does this person share research outputs?</h5>'
+        html += '<h5>With whom does this person share research results?</h5>'
         html += create_html_form(destination='resultspage',
-                                 button_text='find persons that share any research output types with this person',
+                                 button_text='find persons that share any research result types with this person',
                                  hidden_fields={'key': key,
                                                 'category_list': resout_types_all,
                                                 'discoverer_mode': discoverer_mode,
@@ -789,10 +789,10 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
 
         html += '<br/>'
         label_text = 'By entering a value in the field below, '
-        label_text += 'you will get a list of persons who share a specific research output type with this person:'
+        label_text += 'you will get a list of persons who share a specific research result type with this person:'
         input_spec = ('list', 'category_list', 'resout_types_all_datalist', resout_types_all_datalist)
         html += create_html_form(destination='resultspage',
-                                 button_text='find persons that share a specific research output type with this person',
+                                 button_text='find persons that share a specific research result type with this person',
                                  input_fields={label_text: input_spec},
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
@@ -808,7 +808,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         explanation += 'A person <em>X</em> from organization <em>A</em> '
         explanation += 'collaborates with a person <em>Y</em> from '
         explanation += 'organization <em>B</em> if <em>X</em> and <em>Y</em> have both contributed to '
-        explanation += 'the same research output.'
+        explanation += 'the same research result.'
         button_text = 'find organizations that this person collaborates with (this may take some time)'
         html += create_html_form(destination='resultspage',
                                  button_text=button_text,
@@ -980,7 +980,7 @@ def create_results_page(view_mode: str,
         # Some organizations have a large number of neighbors, but we will only show
         # MAX_ROWS_IN_TABLE in the table. Therefore, reduce the number of neighbors when
         # searching for persons in an organization. Don't do this for other view_modes, because
-        # in that case the table shows how many records are found.
+        # in that case the table shows how many items are found.
         neighbor_nodes = rcg.get_all_neighbor_nodes(node=node,
                                                     name_want=name_list,
                                                     category_want=category_list,
@@ -997,7 +997,7 @@ def create_results_page(view_mode: str,
         # Some organizations have a large number of neighbors, but we will only show
         # MAX_ROWS_IN_TABLE in the table. Therefore, reduce the number of neighbors when
         # searching for persons in an organization. Don't do this for other view_modes, because
-        # in that case the table shows how many records are found.
+        # in that case the table shows how many items are found.
         neighbor_nodes = rcg.get_all_neighbor_nodes(node=node,
                                                     name_want=name_list,
                                                     category_want=category_list,
@@ -1025,7 +1025,7 @@ def create_results_page(view_mode: str,
                                                     name_want=name_list,
                                                     category_want=category_list)
         if view_mode == 'view_unspecified_table_resouts':
-            table_header = 'These are the research outputs related to this person:'
+            table_header = 'These are the research results related to this person:'
         else:
             table_header = 'These are all the neighbors related to this person (without its identities):'
         html += node_found
@@ -1213,9 +1213,9 @@ def find_person_share_resouts(parent_node: Node,
                               category_dontwant_list: list = None,
                               max_nr_neighbor_nodes: int = 0,
                               discoverer_mode: str = '') -> str:
-    """Function that finds with whom a person shares research outputs.
+    """Function that finds with whom a person shares research results.
 
-    :param parent_node: the starting node for finding shared research output types.
+    :param parent_node: the starting node for finding shared research result types.
     :param category_want_list: the category list used for selection, or [] if any category.
     :param category_dontwant_list: the category list used for selection (i.e. not these).
     :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
@@ -1274,16 +1274,16 @@ def find_person_share_resouts(parent_node: Node,
                               discoverer_mode=discoverer_mode)
     if len(connected_persons) == 0:
         if len(category_want_list) == 1:
-            message = 'This person does not share research output type "' + category_want_list[0] + '" '
+            message = 'This person does not share research result type "' + category_want_list[0] + '" '
         else:
-            message = 'This person does not share any research output types '
+            message = 'This person does not share any research result types '
         message += 'with other persons.'
         return html + get_message(message=message)
 
     if len(category_want_list) == 1:
-        table_header = 'This person shares research output type "' + category_want_list[0] + '" '
+        table_header = 'This person shares research result type "' + category_want_list[0] + '" '
     else:
-        table_header = 'This person shares various research output types '
+        table_header = 'This person shares various research result types '
     table_header += 'with these persons:'
     html += get_regular_table(nodes_list=connected_persons,
                               table_header=table_header,
@@ -1430,8 +1430,8 @@ def find_person_organization_collaborations(parent_node: Node,
     """Function that finds with which organization a person collaborates.
 
     A person X from organization A collaborates with a person Y from
-    organization B if X and Y have both contributed to the same research output.
-    All research output types are in 'resout_types_all'.
+    organization B if X and Y have both contributed to the same research result.
+    All research result types are in 'resout_types_all'.
     This function does not give an overview of the persons that person X collaborates
     with (although those are determined in this function) because there is
     another function to do that.
@@ -1457,7 +1457,7 @@ def find_person_organization_collaborations(parent_node: Node,
         return get_message(message=message)
 
     # 'connected_persons' will be a list of persons connected to 'personroot_node'
-    # via a research output. 'connected_persons' will not contain duplicates.
+    # via a research result. 'connected_persons' will not contain duplicates.
     connected_persons = []
     for edge in edges:
         next_node = edge.end_node
@@ -1466,7 +1466,7 @@ def find_person_organization_collaborations(parent_node: Node,
         if next_node['category'] not in resout_types_all:
             continue
 
-        # Now next_node is a research output. Find persons connected to that research output.
+        # Now next_node is a research result. Find persons connected to that research result.
         persons = rcg.get_all_neighbor_nodes(node=next_node,
                                              name_want='person-root')
         for person in persons:
@@ -1480,7 +1480,7 @@ def find_person_organization_collaborations(parent_node: Node,
     personroot_node_organizations = rcg.get_all_neighbor_nodes(node=personroot_node,
                                                                category_want='organization')
 
-    # And then organizations from all other nodes connected via a research output.
+    # And then organizations from all other nodes connected via a research result.
     collaborating_organizations = []
     for person in connected_persons:
         person_organizations = rcg.get_all_neighbor_nodes(node=person,
@@ -1528,7 +1528,7 @@ def find_organization_additional_info(parent_node: Node,
                                       category_list: list = None,
                                       max_nr_neighbor_nodes: int = 0,
                                       discoverer_mode: str = '') -> str:
-    """Function that finds additional information connected to a (child) organization.
+    """Function that finds additional information connected to a (sub-)organization.
 
     :param parent_node: the starting node for finding additional information.
     :param name_list: the name list used for selection.
@@ -1657,7 +1657,7 @@ def find_organization_additional_info(parent_node: Node,
         table_header += '"' + category_str + '" '
     else:
         table_header += 'shared '
-    table_header += 'nodes of this organization:'
+    table_header += 'items of this organization:'
     html += get_tabbed_table(nodes_list=relevant_result,
                              table_header=table_header,
                              table_columns=table_columns,
@@ -1669,12 +1669,12 @@ def find_organization_additional_info(parent_node: Node,
 def find_overlap_in_source_systems(name: str = '', category: str = '', value: str = '',
                                    discoverer_mode: str = '',
                                    overlap_mode: str = 'neighbornodes') -> str:
-    """Get the overlap in records from source systems.
+    """Get the overlap in items from source systems.
     We do need a 'name', 'category' and/or 'value', otherwise we won't be able
-    to find overlap in source systems for a list of records. That list can only be
+    to find overlap in source systems for a list of items. That list can only be
     found using these fields, and then these fields can be passed to
     find_overlap_in_source_systems_records() to show the overlap nodes in a table.
-    If we want to find overlap of only one node, these fields will result in only one record
+    If we want to find overlap of only one node, these fields will result in only one item
     to be found, and the overlap will be computed of the neighbors of that node.
     This function is tightly connected to find_overlap_in_source_systems_records().
 
@@ -1769,25 +1769,25 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     html += '</ul>'
 
     html += '<br/>'
-    html += '<h3>Number of records in source systems</h3>'
-    html += 'This table shows the number of records found in only one source or '
+    html += '<h3>Number of items in source systems</h3>'
+    html += 'This table shows the number of items found in only one source or '
     html += 'found in multiple sources for your query. '
-    html += 'You can click on a number to retrieve these records.'
+    html += 'You can click on a number to retrieve these items.'
     html += get_html_for_tablestart()
     html += '<tr class="uu-yellow">'
     html += '<th class="sorttable_nosort">Source systems</th>'
-    html += '<th class="sorttable_nosort">Total records in source systems: '
+    html += '<th class="sorttable_nosort">Total items in source systems: '
     html += str(nr_total_recs)
     html += '</th>'
-    html += '<th class="sorttable_nosort">Total records found in only one source: '
+    html += '<th class="sorttable_nosort">Total items found in only one source: '
     html += str(nr_recs_from_one_source)
     html += ' (' + str(round(100 * nr_recs_from_one_source/nr_total_recs))
-    html += '% of total ' + str(nr_total_recs) + ' records)'
+    html += '% of total ' + str(nr_total_recs) + ' items)'
     html += '</th>'
-    html += '<th class="sorttable_nosort">Total records found in multiple sources: '
+    html += '<th class="sorttable_nosort">Total items found in multiple sources: '
     html += str(nr_recs_from_multiple_sources)
     html += ' (' + str(round(100 * nr_recs_from_multiple_sources/nr_total_recs))
-    html += '% of total ' + str(nr_total_recs) + ' records)'
+    html += '% of total ' + str(nr_total_recs) + ' items)'
     html += '</th>'
     html += '</tr>'
 
@@ -1817,7 +1817,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             html += str(recs_from_one_source[system])
             html += '</a>'
             html += ' (' + str(round(100 * recs_from_one_source[system]/nr_recs_from_one_source))
-            html += '% of ' + str(nr_recs_from_one_source) + ' records are only in ' + system + ')'
+            html += '% of ' + str(nr_recs_from_one_source) + ' items are only in ' + system + ')'
             html += '</td>'
         else:
             html += '<td>0</td>'
@@ -1834,20 +1834,20 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             html += str(recs_from_multiple_sources[system])
             html += '</a>'
             html += ' (' + str(round(100 * recs_from_multiple_sources[system]/nr_recs_from_multiple_sources))
-            html += '% of ' + str(nr_recs_from_multiple_sources) + ' records are in multiple sources)'
+            html += '% of ' + str(nr_recs_from_multiple_sources) + ' items are in multiple sources)'
             html += '</td>'
         else:
             html += '<td>0</td>'
     html += '</tr>'
     html += get_html_for_tableend()
-    html += 'Note that the numbers in the columns "Total records in source systems" '
-    html += 'and "Total records found in multiple sources" do not need '
+    html += 'Note that the numbers in the columns "Total items in source systems" '
+    html += 'and "Total items found in multiple sources" do not need '
     html += 'to count up to resp. '
-    html += 'the total number of records ('
+    html += 'the total number of items ('
     html += str(nr_total_recs)
-    html += ') and the total number of records from multiple sources ('
+    html += ') and the total number of items from multiple sources ('
     html += str(nr_recs_from_multiple_sources)
-    html += ') since a record in that column will originate from multiple sources, and subsequently will occur '
+    html += ') since an item in that column will originate from multiple sources, and subsequently will occur '
     html += 'in in multiple rows of that column.'
 
     if nr_recs_from_multiple_sources == 0:
@@ -1856,17 +1856,17 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
 
     html += '<br/>'
     html += '<br/>'
-    html += '<h3>Overlap in records from multiple sources</h3>'
-    html += 'For the records found for your query in multiple sources, this table shows in which sources '
+    html += '<h3>Overlap in items from multiple sources</h3>'
+    html += 'For the items found for your query in multiple sources, this table shows in which sources '
     html += 'they were found. '
-    html += 'You can click on a number to retrieve these records. '
+    html += 'You can click on a number to retrieve these items. '
     html += 'The second column in this table corresponds to the last column in '
     html += 'the previous table.'
 
     html += get_html_for_tablestart()
     html_header2 = '<tr class="uu-yellow">'
-    html_header2 += '<th class="sorttable_nosort">A record from \u25be...</th>'
-    html_header2 += '<th class="sorttable_nosort">Total records found in multiple sources</th>'
+    html_header2 += '<th class="sorttable_nosort">An item from \u25be...</th>'
+    html_header2 += '<th class="sorttable_nosort">Total items found in multiple sources</th>'
     count = 0
     for second in all_harvested_systems:
         html_header2 += '<th class="sorttable_nosort">' + second + '</th>'
@@ -1919,9 +1919,9 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
                 html += '<td>0</td>'
         html += '</tr>'
     html += get_html_for_tableend()
-    html += 'Note that the number of records in a row in column 3, 4, etc. do not need '
-    html += 'to count up to the total number of records from that source (in the second column), '
-    html += 'since a record in this table will originate from at least two sources, '
+    html += 'Note that the number of items in a row in column 3, 4, etc. do not need '
+    html += 'to count up to the total number of items from that source (in the second column), '
+    html += 'since an item in this table will originate from at least two sources, '
     html += 'and subsequently will occur multiple times on the same row.'
     html += get_html_for_cardend()
 
@@ -1932,10 +1932,10 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
                                            system1: str = '', system2: str = '',
                                            discoverer_mode: str = '',
                                            overlap_mode: str = '') -> str:
-    """Show the overlap records in a html table.
+    """Show the overlap items in a html table.
     This function is tightly connected to find_overlap_in_source_systems().
     We do need a 'name', 'category' and/or 'value', otherwise we won't be able
-    to find overlap in source systems for a list of records.
+    to find overlap in source systems for a list of items.
 
     :param name: name of the node(s) to find.
     :param category: category of the node(s) to find.
@@ -2025,7 +2025,7 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
         table_columns = RESEARCH_OUTPUT_COLUMNS
 
     html += get_regular_table(nodes_list=relevant_result,
-                              table_header='These records conform to your selection:',
+                              table_header='These items conform to your selection:',
                               table_columns=table_columns,
                               discoverer_mode=discoverer_mode)
     return html
@@ -2099,7 +2099,7 @@ def get_found_message(node: Node,
     :return: html to be rendered.
     """
     if table_header == '':
-        header = 'Ricgraph Explorer found node:'
+        header = 'Ricgraph Explorer found item:'
     else:
         header = table_header
 
