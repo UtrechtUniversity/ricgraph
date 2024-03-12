@@ -50,8 +50,6 @@
 | October 26, 2023 | RDA Open Science Graphs For FAIR Data Interest Group | [Ricgraph - Research in context graph](mentions/231026-RDA-Ricgraph_Research_in_context_graph.pdf)                                                                | [link](https://www.rd-alliance.org/group/open-science-graphs-fair-data-ig/post/ricgraph-research-context-graph)                         |
 | February 1, 2024 | RDA Open Science Graphs For FAIR Data Interest Group | [Ricgraph: A Flexible and Extensible Graph to Explore Research in Context from Various Systems](mentions/240201-RDA-Ricgraph_A_Flexible_and_Extensible_Graph.pdf) | [link](https://www.rd-alliance.org/group/open-science-graphs-fair-data-ig/post/ricgraph-flexible-and-extensible-graph-explore-research) |
 
-[Return to main README.md file](../README.md).
-
 ### Arjan Sieverink presents Ricgraph at Pure International Conference 2023
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/1a810def-9f51-47e7-adce-327d0e005f03
 
