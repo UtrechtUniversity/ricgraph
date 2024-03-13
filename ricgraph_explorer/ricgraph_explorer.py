@@ -1370,12 +1370,13 @@ def find_enrich_candidates(parent_node: Union[Node, None],
             if node_source['category'] == 'person':
                 person_nodes.append(node_source)
         if len(person_nodes) == 0:
-            html += 'find_enrich_candidates(): there are enrich candidates '
-            html += 'to enrich source system "' + source_system
-            html += '", but there are no <em>person</em> nodes to identify this node in "'
-            html += source_system + '".'
+            message = 'There are enrich candidates '
+            message += 'to enrich source system "' + source_system
+            message += '", but there are no <em>person</em> nodes to identify this item in "'
+            message += source_system + '".'
+            html += get_message(message=message, please_try_again=False)
         else:
-            table_header = 'You can use the information in this table to find this node in source system "'
+            table_header = 'You can use the information in this table to find this item in source system "'
             table_header += source_system + '":'
             html += get_regular_table(nodes_list=person_nodes,
                                       table_header=table_header,
