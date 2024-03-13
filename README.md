@@ -85,7 +85,9 @@ Ricgraph can answer questions like:
 * Show a network of researchers who have worked together?
 * Which organizations have worked together?
 
-Also, more elaborate information can be found using Ricgraph and Ricgraph Explorer:
+Also, more elaborate information can be found using Ricgraph and 
+[Ricgraph Explorer](docs/ricgraph_explorer.md), the
+exploration tool for Ricgraph:
 * You can find information about persons or their results in a (child) 
   organization (unit, department, faculty, university). 
   For example, you can find out what data sets or software are produced in your faculty. Or the skills of all persons in your department. Of course this is only possible in case you have harvested them.
@@ -246,7 +248,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 * Read more about [Ricgraph details](docs/ricgraph_details.md),
   such as example graphs, person identifiers and the *person-root* node.
 * Read more about [Ricgraph Explorer](docs/ricgraph_explorer.md),
-  the exploration tool for Ricgraph.
+  the exploration tool for Ricgraph. 
 * Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
