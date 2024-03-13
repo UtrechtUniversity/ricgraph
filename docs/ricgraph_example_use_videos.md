@@ -94,10 +94,11 @@ in Ricgraph. This can be used to understand how nodes connect to each other.
 However, for an end user it might be complicated to use the correct
 search queries. Also, expanding nodes may result in a lot of nodes, so the user might
 get confused what there is to be learned. That is why we have made 
-[Ricgraph Explorer](ricgraph_query_visualize.md#how-to-use-ricgraph-explorer).
+[Ricgraph Explorer](ricgraph_explorer.md).
 
 The [video Ricgraph Explorer (2m20s) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
 shows how a more user-centric interface may look like. 
+This video uses Ricgraph Explorer from March 2023.
 In this video, we look
 up a specific person with his last name. As can be observed, there are three *FULL_NAME*
 nodes

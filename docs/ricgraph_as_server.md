@@ -10,7 +10,8 @@ web link in their web browser.
 
 The reason that a multi-user environment for Ricgraph is different from installing and using
 Ricgraph on your own user id, is that you will need to run Neo4j and
-Ricgraph Explorer as a system user instead of running it using your own user id.
+[Ricgraph Explorer](ricgraph_explorer.md) 
+as a system user instead of running it using your own user id.
 If you run Ricgraph with your own user id, you will be the only user able to use it.
 In case other persons on that same machine would like to use Ricgraph, they have
 to install it for themselves. 
@@ -143,6 +144,9 @@ the following steps:
 * Activate the Python virtual environment: 
   in */opt/ricgraph_venv*, type 
   ``source bin/activate``
+* Install the standard Python requirements:
+  in */opt/ricgraph_venv*, type
+  ``pip install setuptools pip wheel``
 * Install the Python requirements for Ricgraph:
   in */opt/ricgraph_venv*, type 
   ``pip install -r requirements.txt``
@@ -193,7 +197,8 @@ Examples of commands you can use are:
   
 ### Use a service unit file to run Ricgraph Explorer
 
-Using a service unit file to run Ricgraph Explorer 
+Using a service unit file to run
+[Ricgraph Explorer](ricgraph_explorer.md) 
 is very useful if you would like to set up a virtual machine that you want to use as
 a demo server. After the steps in this section, both Neo4j Community Edition
 and Ricgraph Explorer are run
@@ -236,7 +241,8 @@ the outside world. All data will only be accessible in the virtual machine.
 
 ### Use Apache and WSGI to make Ricgraph Explorer accessible from outside your virtual machine
 
-Ricgraph Explorer is written in Flask, a framework for Python to build web interfaces.
+[Ricgraph Explorer](ricgraph_explorer.md) 
+is written in Flask, a framework for Python to build web interfaces.
 Flask contains a development web server, and if you start Ricgraph Explorer by typing
 *ricgraph_explorer.py*, it will be started using that development web server. As this development
 web server is sufficient for development and demoing, it is certainly *not* sufficient

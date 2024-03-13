@@ -14,6 +14,7 @@ Ricgraph scripts can be found in various places:
   directory [ricgraph](../ricgraph).
 * The code for *Ricgraph Explorer* can be found in
   directory [ricgraph_explorer](../ricgraph_explorer).
+  [Documentation for Ricgraph Explorer](ricgraph_explorer.md).
 * [Documentation for writing your own scripts](ricgraph_script_writing.md)
   (this file).
 

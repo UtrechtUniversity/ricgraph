@@ -18,6 +18,12 @@ research information, each with its own button, for example:
 * find a person, a (sub-)organization, a skill;
 * when a person has been found, find its identities, skills, research results.
 
+Ricgraph Explorer also offers
+[Faceted navigation](https://en.wikipedia.org/wiki/Faceted_search).
+That means, if a query results in a table with e.g. *journal articles*, *data sets*,
+and *software*, you can narrow down on one or more of these categories by
+checking or unchecking their corresponding checkbox.
+
 This page describes what you can do with Ricgraph Explorer. It does this
 by showing the flow through the web application by listing the buttons available. 
 The text below lists
@@ -26,15 +32,30 @@ After clicking a few buttons, and entering values in the fields
 provided, the user will get a Results page. Since there are many possible result
 pages, we only show one as example.
 
-Each webpage in
-Ricgraph Explorer will be described in a separate section:
-* [Home page](#home-page).
-* [Person options page](#person-options-page).
-* [Organization options page](#organization-options-page).
-* [Results page](#results-page).
+On this page, you can learn more about:
+* Read about [how to use Ricgraph Explorer](#how-to-use-ricgraph-explorer).
+* The [Home page](#home-page) of Ricgraph Exploreer.
+* The [Person options page](#person-options-page) of Ricgraph Explorer.
+* The [Organization options page](#organization-options-page) of Ricgraph Explorer.
+* The [Results page](#results-page) of Ricgraph Explorer.
 * Read about [browsing Ricgraph](#browsing-ricgraph).
 
 [Return to main README.md file](../README.md).
+
+### How to use Ricgraph Explorer
+
+Depending on how Ricgraph has been installed, there are various ways to start it.
+* If you have installed Ricgraph yourself, using your own user id,
+  you have to follow the following steps:
+  * [Start Neo4j Desktop](#Start-neo4j-desktop).
+  * Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
+     It will tell you which weblink and port to use, probably
+     http://127.0.0.1:3030. Open a web browser and go to that link.
+* If you use Ricgraph on a demo server, and you have used your own user id to logon to that server,
+  you very probably do not need to start Neo4j.
+  * Open a web browser and go to http://127.0.0.1:3030.
+* If you have a domain name to access Ricgraph, for example _www.ricgraph-example.com_:
+  * Open a web browser and go to https://www.ricgraph-example.com.
 
 ### Home page
 
