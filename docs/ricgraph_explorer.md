@@ -33,7 +33,7 @@ provided, the user will get a Results page. Since there are many possible result
 pages, we only show one as example.
 
 On this page, you can learn more about:
-* Read about [how to use Ricgraph Explorer](#how-to-use-ricgraph-explorer).
+* Read about [how to start_Ricgraph Explorer](#how-to-start-ricgraph-explorer).
 * The [Home page](#home-page) of Ricgraph Exploreer.
 * The [Person options page](#person-options-page) of Ricgraph Explorer.
 * The [Organization options page](#organization-options-page) of Ricgraph Explorer.
@@ -42,12 +42,12 @@ On this page, you can learn more about:
 
 [Return to main README.md file](../README.md).
 
-### How to use Ricgraph Explorer
+### How to start Ricgraph Explorer
 
 Depending on how Ricgraph has been installed, there are various ways to start it.
 * If you have installed Ricgraph yourself, using your own user id,
   you have to follow the following steps:
-  * [Start Neo4j Desktop](#Start-neo4j-desktop).
+  * [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
   * Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
      It will tell you which weblink and port to use, probably
      http://127.0.0.1:3030. Open a web browser and go to that link.
