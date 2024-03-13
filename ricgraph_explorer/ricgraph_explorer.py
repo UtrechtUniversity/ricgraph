@@ -1359,7 +1359,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
         something_found = True
         count += 1
         html += get_html_for_cardstart()
-        table_header = 'This node is used to determine possible enrichments of source system "'
+        table_header = 'This item is used to determine possible enrichments of source system "'
         table_header += source_system + '":'
         html += get_regular_table(nodes_list=[personroot],
                                   table_header=table_header,
@@ -1412,7 +1412,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
             html += get_message(message=message)
         else:
             html += get_html_for_cardstart()
-            table_header = 'This node is used to determine possible enrichments of source system "'
+            table_header = 'This item is used to determine possible enrichments of source system "'
             table_header += source_system + '":'
             html += get_regular_table(nodes_list=[personroot_node],
                                       table_header=table_header,
@@ -1643,7 +1643,7 @@ def find_organization_additional_info(parent_node: Node,
         table_columns = RESEARCH_OUTPUT_COLUMNS
 
     html = ''
-    table_header = 'This node is used for finding information about the persons '
+    table_header = 'This item is used for finding information about the persons '
     table_header += 'or their results of this organization:'
     html += get_regular_table(nodes_list=[parent_node],
                               table_header=table_header,
