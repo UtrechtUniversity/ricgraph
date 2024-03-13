@@ -152,6 +152,12 @@ There are two ways of doing this:
   An IDE will automatically generate a virtual environment, and any time you
   use the IDE, it will "transfer" you to that virtual environment.
   It is also helps to execute and debug your scripts.
+  If PyCharm does not automatically generate a virtual environment, you
+  need to go to File --> Settings --> Project: [your project name] --> 
+  Python Interpreter, and check if
+  there is a valid interpreter in the right column next to
+  "Python Interpreter". If not, add one, using "Add Interpreter",
+  and choose for example "Add Local Interpreter". A venv will be generated.
 
 ### Install the Python requirements
 
