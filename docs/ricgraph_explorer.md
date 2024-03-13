@@ -7,7 +7,8 @@ It can be customized as needed for
 a certain application area (it is a Python Flask application).
 In this documentation, we use the application area _research information_.
 You can modify it if you use
-Ricgraph in a different application area, or if you need different queries.
+Ricgraph in a different application area, if you need different queries,
+or if you would like to have a different user interface.
 The code for *Ricgraph Explorer* can be found in
   directory [ricgraph_explorer](../ricgraph_explorer).
 
