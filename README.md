@@ -245,6 +245,8 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 
 * Read more about [Ricgraph details](docs/ricgraph_details.md),
   such as example graphs, person identifiers and the *person-root* node.
+* Read more about [Ricgraph Explorer](docs/ricgraph_explorer.md),
+  the exploration tool for Ricgraph.
 * Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
