@@ -31,6 +31,7 @@ Ricgraph Explorer will be described in a separate section:
 * [Person options page](#person-options-page).
 * [Organization options page](#organization-options-page).
 * [Results page](#results-page).
+* Read about [browsing Ricgraph](#browsing-ricgraph).
 
 [Return to main README.md file](../README.md).
 
@@ -83,7 +84,6 @@ You only get on this page if the result of your search is a person.
 The figure below shows the person options page. Click on it to enlarge.
 
 <img src="images/ricgraph_explorer_personoptions_page.jpg" width="400">
-
 
 You can use one of these exploration options:
 * Button _show personal information related to this person_.
@@ -141,10 +141,22 @@ For all of these buttons the results are shown on the [results page](#results-pa
 
 ### Results page
 The results page will look different depending what results are shown.
-The figure below shows an example of a part of the skills returned.
+The figure below shows an example of a part of the skills in an organization.
 Click on it to enlarge.
 
 <img src="images/ricgraph_explorer_result_page.jpg" width="400">
+
+### Browsing Ricgraph
+You can browse the graph that Ricgraph has obtained by harvesting source systems
+by clicking on a value in the _value_ column. 
+In the figure in section [Results page](#results-page), 
+the search was started with organization _Utrecht University_
+(in the first table). 
+The _SKILL_ neighbors of _Utrecht University_ are listed in the second table.
+By clicking on e.g. _NVivo_, you will traverse to the _NVivo_ node,
+and you will see the neighbors of this node. This can be repeated as desired.
+It is also possible to start a new search using the buttons _Home_, _Advanced search_,
+or _Broad search_ in the yellow title bar.
 
 ### Return to main README.md file
 [Return to main README.md file](../README.md).
