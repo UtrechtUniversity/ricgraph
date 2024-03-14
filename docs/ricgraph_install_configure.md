@@ -53,7 +53,9 @@ developed with Python 3.11, but there are reports that Ricgraph will work with P
 
 Other things you might want to do:
 * [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph).
-* [Restore a Neo4j Desktop database dump of Ricgraph](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop).
+* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop).
+* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
+  Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
 
 ### Install Neo4j Desktop
 
