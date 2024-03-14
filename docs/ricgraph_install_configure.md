@@ -156,7 +156,7 @@ There are two ways of doing this:
   * For every occurence of _/opt_ in
     [Create a Python virtual environment and install Ricgraph in
     it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
-    read _/home/alice_, and ignore any reference to login as user _root_ and ``chown``.
+    read _/home/alice_, and ignore any references to "login as user _root_" and ``chown``.
   * Follow the other instructions as written. 
 * Use a Python
   [Integrated development
@@ -164,7 +164,7 @@ There are two ways of doing this:
   such as [PyCharm](https://www.jetbrains.com/pycharm).
   An IDE will automatically generate a virtual environment, and any time you
   use the IDE, it will "transfer" you to that virtual environment.
-  It is also helps to execute and debug your scripts.
+  It will also help to execute and debug your scripts.
   * If PyCharm does not automatically generate a virtual environment, you
     need to go to File --> Settings --> Project: [your project name] --> 
     Python Interpreter, and check if
@@ -174,11 +174,13 @@ There are two ways of doing this:
   * Next, ``unzip`` or ``tar xf`` the downloaded file for Ricgraph (see previous section).
   * Install the Python requirements.
     Depending on the Python IDE, single or double-click on
-    file *requirements.txt*. Somewhere, there will appear a button or text
-    with something like "Install requirements". Click on it.
+    file *requirements.txt*. Probably, a button or text appears
+    that asks you to install requirements. Click on it.
 
 Notable dependencies used in Ricgraph:
-* [Py2neo](https://py2neo.org). Py2neo is (according to its author) "a client library
+* [Py2neo](https://neo4j-contrib.github.io/py2neo)
+  on [Github repository](https://github.com/technige/py2neo). 
+  Py2neo is (according to its author) "a client library
   and toolkit for working with Neo4j from within
   Python applications and from the command line.
   The library supports both Bolt and HTTP and provides a high level
