@@ -60,6 +60,9 @@ Example use cases for Ricgraph are:
 Read section
 [Example use cases in Ricgraph](#example-use-cases-in-ricgraph)
 to find out how these use cases work out using Ricgraph.
+You can explore the graph using
+[Ricgraph Explorer](docs/ricgraph_explorer.md). This web application
+has a number of build-in queries that you can access by pressing a button.
 
 To learn more about Ricgraph,
 [read why Ricgraph has been developed](#why-ricgraph), including

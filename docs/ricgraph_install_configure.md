@@ -7,6 +7,8 @@ Please read [Ricgraph as a server on Linux](ricgraph_as_server.md).
 In case you have no idea what would be the best for your situation, please 
 install Ricgraph for a single user, as described on this page.
 
+[Return to main README.md file](../README.md).
+
 ### Installation instructions for a single user
 
 Ricgraph uses [Neo4j](https://neo4j.com)
@@ -36,10 +38,13 @@ developed with Python 3.11, but there are reports that Ricgraph will work with P
 ### Steps to take
 
 1. [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
-1. [Install the Bloom configuration](#install-bloom-configuration).
-1. [Download this Ricgraph repository](#download-ricgraph).
-1. [Use a Python virtual environment](#use-a-python-virtual-environment).
-1. [Install the Python requirements](#install-the-python-requirements).
+   [Install the Bloom configuration](#install-bloom-configuration).
+   If you would like to use Neo4j Community Edition, read
+   [Install and start Neo4j Community 
+   Edition](ricgraph_as_server.md#install-and-start-neo4j-community-edition).
+1. [Download Ricgraph](#download-ricgraph).
+1. [Use a Python virtual environment and install Python 
+   requirements](#use-a-python-virtual-environment-and-install-python-requirements).
 1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file).
 1. Start 
    - harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md);
@@ -47,10 +52,8 @@ developed with Python 3.11, but there are reports that Ricgraph will work with P
 1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
 
 Other things you might want to do:
-1. [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph).
-1. [Restore a Neo4j Desktop database dump of Ricgraph](#restore-a-neo4j-desktop-database-dump-of-ricgraph).
-
-[Return to main README.md file](../README.md).
+* [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph).
+* [Restore a Neo4j Desktop database dump of Ricgraph](#restore-a-neo4j-desktop-database-dump-of-ricgraph).
 
 ### Install Neo4j Desktop
 
@@ -133,7 +136,7 @@ You can choose two types of downloads for Ricgraph:
   [GitHub page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/),
   click the green button "Code", choose tab "Local", choose "Download zip".
 
-### Use a Python virtual environment
+### Use a Python virtual environment and install Python requirements
 
 To be able to use Ricgraph, you will need a Python virtual environment.
 Virtual environments are a kind of lightweight Python environments,
@@ -143,8 +146,18 @@ an existing Python installation.
 There are two ways of doing this:
 
 * Using Python's venv module.
-  [Read this primer to learn how to do
-  this](https://realpython.com/python-virtual-environments-a-primer/).
+  Read [Create a Python virtual environment and install Ricgraph in
+  it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
+  This documentation has been written for a multi-user install of Ricgraph.
+  To use it for a single users install (as you are doing since you are on this page):
+  * Suppose you are a user with login _alice_.
+  * Suppose your home directory is _/home/alice_ (check this by typing ``cd`` followed
+    by ``pwd``).
+  * For every occurence of _/opt_ in
+    [Create a Python virtual environment and install Ricgraph in
+    it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
+    read _/home/alice_, and ignore any reference to login as user _root_ and ``chown``.
+  * Follow the other instructions as written. 
 * Use a Python
   [Integrated development
   environment (IDE)](https://en.wikipedia.org/wiki/Integrated_development_environment),
@@ -152,44 +165,31 @@ There are two ways of doing this:
   An IDE will automatically generate a virtual environment, and any time you
   use the IDE, it will "transfer" you to that virtual environment.
   It is also helps to execute and debug your scripts.
-  If PyCharm does not automatically generate a virtual environment, you
-  need to go to File --> Settings --> Project: [your project name] --> 
-  Python Interpreter, and check if
-  there is a valid interpreter in the right column next to
-  "Python Interpreter". If not, add one, using "Add Interpreter",
-  and choose for example "Add Local Interpreter". A venv will be generated.
+  * If PyCharm does not automatically generate a virtual environment, you
+    need to go to File --> Settings --> Project: [your project name] --> 
+    Python Interpreter, and check if
+    there is a valid interpreter in the right column next to
+    "Python Interpreter". If not, add one, using "Add Interpreter",
+    and choose for example "Add Local Interpreter". A venv will be generated.
+  * Next, ``unzip`` or ``tar xf`` the downloaded file for Ricgraph (see previous section).
+  * Install the Python requirements.
+    Depending on the Python IDE, single or double-click on
+    file *requirements.txt*. Somewhere, there will appear a button or text
+    with something like "Install requirements". Click on it.
 
-### Install the Python requirements
-
-Ricgraph is dependent on a number of Python modules,
-such as [Py2neo](#Py2neo) and [PyAlex](#PyAlex).
-They are listed in the file *requirements.txt*.
-You can install these in different ways:
-
-* If you use a virtual environment, in the virtual environment, type
-  `pip install -r requirements.txt`.
-* If you use a Python IDE (see previous paragraph), depending on the IDE,
-  single or double-click on
-  file *requirements.txt*. Somewhere, there will appear a button or text
-  with something like "Install requirements". Click on it.
-
-#### Py2neo
-
-Ricgraph uses [Py2neo](https://py2neo.org). Py2neo is (according to its author) "a client library
-and toolkit for working with Neo4j from within
-Python applications and from the command line.
-The library supports both Bolt and HTTP and provides a high level
-API, an OGM, admin tools, an interactive console, a
-Cypher lexer for Pygments, and many other bells and whistles."
-
-#### PyAlex
-
-Ricgraph uses [PyAlex](https://github.com/J535D165/pyalex).
-PyAlex is a Python library for [OpenAlex](https://openalex.org/).
-OpenAlex is an index of hundreds of millions of interconnected scholarly papers, authors,
-institutions, and more. OpenAlex offers a robust, open, and free [REST API](https://docs.openalex.org/)
-to extract, aggregate, or search scholarly data.
-PyAlex is a lightweight and thin Python interface to this API.
+Notable dependencies used in Ricgraph:
+* [Py2neo](https://py2neo.org). Py2neo is (according to its author) "a client library
+  and toolkit for working with Neo4j from within
+  Python applications and from the command line.
+  The library supports both Bolt and HTTP and provides a high level
+  API, an OGM, admin tools, an interactive console, a
+  Cypher lexer for Pygments, and many other bells and whistles."
+* [PyAlex](https://github.com/J535D165/pyalex).
+  PyAlex is a Python library for [OpenAlex](https://openalex.org/).
+  OpenAlex is an index of hundreds of millions of interconnected scholarly papers, authors,
+  institutions, and more. OpenAlex offers a robust, open, and free [REST API](https://docs.openalex.org/)
+  to extract, aggregate, or search scholarly data.
+  PyAlex is a lightweight and thin Python interface to this API.
 
 ### Ricgraph initialization file
 
