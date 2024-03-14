@@ -53,7 +53,7 @@ developed with Python 3.11, but there are reports that Ricgraph will work with P
 
 Other things you might want to do:
 * [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph).
-* [Restore a Neo4j Desktop database dump of Ricgraph](#restore-a-neo4j-desktop-database-dump-of-ricgraph).
+* [Restore a Neo4j Desktop database dump of Ricgraph](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop).
 
 ### Install Neo4j Desktop
 
@@ -148,12 +148,12 @@ There are two ways of doing this:
 * Using Python's venv module.
   Read [Create a Python virtual environment and install Ricgraph in
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
-  This documentation has been written for a multi-user install of Ricgraph.
+  This documentation has been written for a multi-user installation of Ricgraph.
   To use it for a single users install (as you are doing since you are on this page):
   * Suppose you are a user with login _alice_.
   * Suppose your home directory is _/home/alice_ (check this by typing ``cd`` followed
     by ``pwd``).
-  * For every occurence of _/opt_ in
+  * For every occurrence of _/opt_ in
     [Create a Python virtual environment and install Ricgraph in
     it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
     read _/home/alice_, and ignore any references to "login as user _root_" and ``chown``.
@@ -179,7 +179,7 @@ There are two ways of doing this:
 
 Notable dependencies used in Ricgraph:
 * [Py2neo](https://neo4j-contrib.github.io/py2neo)
-  on [Github repository](https://github.com/technige/py2neo). 
+  on [GitHub repository](https://github.com/technige/py2neo). 
   Py2neo is (according to its author) "a client library
   and toolkit for working with Neo4j from within
   Python applications and from the command line.

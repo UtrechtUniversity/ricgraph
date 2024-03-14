@@ -34,7 +34,7 @@ pages, we only show one as example.
 
 On this page, you can learn more about:
 * Read about [how to start_Ricgraph Explorer](#how-to-start-ricgraph-explorer).
-* The [Home page](#home-page) of Ricgraph Exploreer.
+* The [Home page](#home-page) of Ricgraph Explorer.
 * The [Person options page](#person-options-page) of Ricgraph Explorer.
 * The [Organization options page](#organization-options-page) of Ricgraph Explorer.
 * The [Results page](#results-page) of Ricgraph Explorer.
@@ -51,7 +51,7 @@ Depending on how Ricgraph has been installed, there are various ways to start it
   * Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
      It will tell you which weblink and port to use, probably
      http://127.0.0.1:3030. Open a web browser and go to that link.
-* If you use Ricgraph on a demo server, and you have used your own user id to logon to that server,
+* If you use Ricgraph on a demo server, and you have used your own user id to log on to that server,
   you very probably do not need to start Neo4j.
   * Open a web browser and go to http://127.0.0.1:3030.
 * If you have a domain name to access Ricgraph, for example _www.ricgraph-example.com_:
@@ -162,7 +162,7 @@ You can use one of these buttons:
 For all of these buttons the results are shown on the [results page](#results-page).
 
 ### Results page
-The results page will look different depending what results are shown.
+The results page will look different depending on what results are shown.
 The figure below shows an example of a part of the skills in an organization.
 Click on it to enlarge.
 

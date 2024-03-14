@@ -290,7 +290,7 @@ comments at the start of the configuration file.
   cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer.conf-apache /etc/apache2/vhosts.d/ricgraph_explorer.conf
   chmod 600 /etc/apache2/vhosts.d/ricgraph_explorer.conf
   ```
-  Change *ricgraph_explorer.conf* so it fits your situation.
+  Change *ricgraph_explorer.conf* in such a way it fits your situation.
   Make the modification to *ricgraph_explorer.conf*
   as described in the comments at the start of *ricgraph_explorer.conf*.
   Test the result.
