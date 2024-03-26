@@ -57,7 +57,8 @@ The right figure shows how three persons have contributed to one research output
 ### Example research questions
 The figure belows shows examples of research questions that can be answered using Ricgraph.
 Click the figure to enlarge.
-<img src="images/examples-of-research-questions-general.jpg">
+
+<img src="images/examples-of-research-questions-general.jpg" height="300">
 
 ### Videos of Ricgraph
 To see a demonstration of Ricgraph, you can look at 

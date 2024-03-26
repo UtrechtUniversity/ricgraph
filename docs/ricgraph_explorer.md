@@ -18,12 +18,12 @@ each with its own button, for example:
 * when a person has been found, find its identities, skills, research results.
 
 Ricgraph Explorer offers
-[Faceted navigation](https://en.wikipedia.org/wiki/Faceted_search).
+[faceted navigation](https://en.wikipedia.org/wiki/Faceted_search).
 That means, if a query results in a table with e.g. *journal articles*, *data sets*,
 and *software*, you can narrow down on one or more of these categories by
 checking or unchecking their corresponding checkbox.
 An alternative view 
-uses [Tabbed navigation](https://en.wikipedia.org/wiki/Tab_(interface)).
+uses [tabbed navigation](https://en.wikipedia.org/wiki/Tab_(interface)).
 
 This page describes what you can do with Ricgraph Explorer. It does this
 by showing the flow through the web application by listing the buttons available. 
@@ -62,7 +62,8 @@ person A” in figure (a) at the right.
 
 The screenshot at the top left is the [home page](#home-page). 
 After clicking “search for a person”,
-Ricgraph Explorer shows a search page (top right). A user types a name, and the 
+Ricgraph Explorer shows a [search page](#search-page) (top right). 
+A user types a name, and the 
 [person option page](#person-options-page) is shown (bottom
 left). After clicking “show research results related to this person”, the 
 [result page](#results-page) is shown (bottom right). In that
@@ -145,7 +146,7 @@ The home page lets the user choose between various methods to explore Ricgraph:
 
 ### Search page
 There are two search pages:
-* A broad search page that is mostly shown, having one input field.
+* A broad search page, having one input field.
   This search is a case-insensitive search.
 * An advanced search page, having three input fields.
   This search is a case-sensitive exact match search
@@ -159,17 +160,12 @@ The figure below shows these search pages. Click on any figure to enlarge.
 
 
 There are two methods for viewing the results:
-* _person_view_: only show relevant columns, results are presented in a tabbed format.
-  
-  This view presents results in 
+* _person_view_: only show relevant columns, results are presented in 
   a [tabbed format](https://en.wikipedia.org/wiki/Tab_(interface)).
-  Also, tables have less columns to reduce information overload.
-* _details_view_: show all columns, research results are presented in a table with facets.
-  
-  This view shows all columns in Ricgraph. Research results are presented in 
+  Tables have less columns to reduce information overload.
+* _details_view_: show all columns, research results are presented in 
   a [table with facets](https://en.wikipedia.org/wiki/Faceted_search).
-
-
+  This view shows all columns .
 
 ### Person options page
 You only get on this page if the result of your search is a person.
