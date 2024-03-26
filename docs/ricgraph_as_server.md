@@ -281,7 +281,11 @@ comments at the start of the configuration file.
     rpm -i apache2-mod_wsgi-python3
     a2enmod mod_wsgi-python3
     ```
-  * Debian/Ubuntu: *to be done*.
+  * Debian/Ubuntu:
+    ```
+    apt install libapache2-mod-wsgi-py3 
+    a2enmod libapache2-mod-wsgi-py3 
+    ```
 * Install the Apache *Ricgraph Explorer* configuration file:
   copy
   [ricgraph_server_config/ricgraph_explorer.conf-apache](../ricgraph_server_config/ricgraph_explorer.conf-apache)
