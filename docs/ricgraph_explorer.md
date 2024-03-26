@@ -47,9 +47,9 @@ On this page, you can learn more about:
 
 ### Working with Ricgraph Explorer
 
-| screenshots of a usage flow through Ricgraph Explorer                                 | example research questions                                                 |
-|---------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| <img src="images/ricgraph-explorer-showing-research-results-person.jpg" height="300"> | <img src="images/examples-of-research-questions-general.jpg" height="300"> |                                    |
+| screenshots of a usage flow through Ricgraph Explorer                                 | example research questions                                                                                                 |
+|---------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| <img src="images/ricgraph-explorer-showing-research-results-person.jpg" height="300"> | <img src="images/examples-of-research-questions-general.jpg" height="300"><img src="images/icons-colors.jpg" height="100"> |
 
 You can click each figure to enlarge.
 Some field values have been blurred for privacy reasons.
