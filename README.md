@@ -68,10 +68,17 @@ To learn more about Ricgraph,
 [read why Ricgraph has been developed](#why-ricgraph), including
 [examples](#examples). This is followed by
 [Ricgraph in bullet points](#ricgraph-in-bullet-points). There is also
-[a section with next steps you might want to take](#next-steps).
-You can also look at
-the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
-or the [publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
+[a section with next steps you might want to take](#next-steps),
+including [further information about 
+Ricgraph](#further-information-about-ricgraph),
+an [explanation how to install Ricgraph and harvest 
+data](#steps-to-take-if-you-would-like-to-install-ricgraph-and-harvest-data),
+an [explanation how to use Ricgraph](#steps-to-take-if-you-would-like-to-use-ricgraph), 
+and [information about extending Ricgraph](#read-this-in-case-you-would-like-to-extend-ricgraph).
+Of course there are 
+[videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
+and there is an overview of the 
+[publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
 
 Reference publication: Rik D.T. Janssen, 
 *Ricgraph: A Flexible and Extensible Graph to Explore Research in Context 
@@ -121,22 +128,24 @@ in a university context.
 
 ### Use case 1, as a journalist...
 As a journalist, I want to find researchers with
-skill S and their publications, so that I can interview them for a newspaper article.
+a certain skill S and their publications, 
+so that I can interview them for a newspaper article.
 Example skills can be: *climate change* or *stem cells*.
 
 <img src="docs/images/journalist-use-case.jpg" height="200"> 
 
 ### Use case 2, as a librarian...
-As a librarian, for researcher A, I want to enrich my
-local research information system *RIS1* with identities and
-research results that are in other systems but not in ours,
+As a librarian, I want to enrich my
+local research information system with
+research results from person A that are in other systems (in orange, *RIS2*)
+but not in ours (in green, *RIS1*),
 so that we have a more complete view of research at
 our university.
 
 <img src="docs/images/librarian-use-case.jpg" height="200"> 
 
 ### Use case 3, as a researcher...
-As researcher A, I want to find researchers from other universities
+As a researcher A, I want to find researchers from other universities
 that have co-authored publications written by the co-authors
 of my own publications, so that I can read their publications
 to find out if we share common research interests.
@@ -197,22 +206,19 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   starting with a person, its research outputs are only one
   step away by following one edge, and other contributors to that research output are
   again one step (edge) away.
-* Ricgraph is a graph with
-  nodes (sometimes called vertices)
-  and edges (sometimes called links) to represent objects and their relations.
-  It can be used to store, manipulate and read metadata of any object that
+* Ricgraph can be used to store, manipulate and read metadata of any object that
   has a relation to another object,
   as long as every object can be "represented" by at least a *name* and a *value*.
   In Ricgraph, one node represents one object, and an edge represents the
   relation between two objects.
-  It is written in Python and uses [Neo4j](https://neo4j.com)
+* Ricgraph and Ricgraph Explorer are written in Python and use [Neo4j](https://neo4j.com)
   as [graph database engine](https://en.wikipedia.org/wiki/Graph_database).
 * Metadata of an object are stored as "properties"
   in a node, i.e. as information associated with a node.
   For example, a node may store two properties, *name = PET* and
   *value = cat*. Another node may store *name = FULL_NAME* and *value = John Doe*.
   Then the edge between those two nodes means that the person with FULL_NAME John Doe
-  has a PET which is a cat.
+  has a PET which is a cat. Ricgraph can store any number of properties in a node.
 * The objective of Ricgraph is to get metadata from
   objects from a source system in a process called "harvesting".
   That means that e.g. persons and publications
@@ -229,44 +235,53 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   easily find other identifiers of that person. When new identifiers are found when
   harvesting from new systems,
   they will be added automatically. 
-* Since Ricgraph combines information from different sources in one graph, it
-  can be used as a discoverer (an aggregated search engine).
 * Ricgraph can check the consistency of information harvested. For example, ORCIDs and ISNIs
   are supposed to refer to one person, so every node representing such an identifier should have
   only one edge. This can be checked easily.
   An example script is included.
-* Ricgraph can enrich information. For example,
+* Ricgraph can enrich information in its own graph by using information from other systems. 
+  For example,
   if a person has an ORCID, but not a Scopus Author ID,
   [OpenAlex](https://openalex.org) can be used
-  to find the missing ID. If something is found, it is added to the person record.
-  An example script is included.
-* Ricgraph can store any number of properties in a node.
-  It has function calls to
-  create, read (find), update and delete (CRUD) nodes and to connect two nodes.
-* To query, visualize and explore the graph, 
-  see [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
+  to find the missing Scopus Author ID. An example script is included.
+* Ricgraph can enrich a source system based on information that is present in one
+  source system, but not in another source system. See use case 2 above.
 
 ## Next steps
 
+### Further information about Ricgraph
+* Read more about 
+  [publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
+* Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).
+* Read the reference publication: Rik D.T. Janssen,
+  *Ricgraph: A Flexible and Extensible Graph to Explore Research in Context
+  from Various Systems*. January 2024. Submitted to SoftwareX.
+  https://doi.org/10.2139/ssrn.4712466.
 * Read more about [Ricgraph details](docs/ricgraph_details.md),
   such as example graphs, person identifiers and the *person-root* node.
-* Read more about [Ricgraph Explorer](docs/ricgraph_explorer.md),
-  the exploration tool for Ricgraph. 
-* Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
+
+### Steps to take if you would like to install Ricgraph and harvest data
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
 * Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md),
   e.g. by doing a harvest for Utrecht University data sets and
   software. 
   You will observe that the information from two sources is neatly combined into one graph.
-* Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md).
-* To query, visualize and explore the graph,
-  see [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
 * Unfortunately, there is a bug, see [known bugs](docs/ricgraph_known_bugs.md).
   This bug may occur
   if you start a harvest script, and as first step in the script you want to empty Ricgraph.
   In that case, a Python error might occur while emptying Ricgraph. Follow the link
   to read more and find out how to repair that.
+
+### Steps to take if you would like to use Ricgraph
+* First, install Ricgraph (see above).
+* Use [Ricgraph Explorer](docs/ricgraph_explorer.md),
+  the exploration tool for Ricgraph. 
+* Alternatively, you might want to read
+  [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
+
+### Read this in case you would like to extend Ricgraph
+* Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md).
 * Of course, there is [future work to do](docs/ricgraph_future_work.md). Please let me know
   if you'd like to help.
 

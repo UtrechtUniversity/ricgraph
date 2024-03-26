@@ -1,5 +1,13 @@
 ## Implementation details
 
+On this page, you can find more information about:
+* [Person identifiers](#person-identifiers).
+* The [Person-root node in Ricgraph](#person-root-node-in-ricgraph).
+* [Research outputs connected to persons](#research-outputs-connected-to-persons).
+* [Example research questions](#example-research-questions).
+* [Videos of Ricgraph](#videos-of-ricgraph).
+* [Properties of nodes in Ricgraph](#properties-of-nodes-in-ricgraph).
+
 [Return to main README.md file](../README.md).
 
 ### Person identifiers
@@ -45,6 +53,10 @@ E.g. this person has two different ORCIDs and two FULL_NAMEs (with different spe
 
 The left figure shows how one person, its identifiers and research outputs are connected.
 The right figure shows how three persons have contributed to one research output.
+
+### Example research questions
+The figure belows shows examples of research questions that can be answered using Ricgraph.
+<img src="images/examples-of-research-questions-general.jpg">
 
 ### Videos of Ricgraph
 To see a demonstration of Ricgraph, you can look at 

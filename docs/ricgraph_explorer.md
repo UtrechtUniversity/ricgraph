@@ -62,7 +62,7 @@ Depending on how Ricgraph has been installed, there are various ways to start it
 The figure below shows part of the home page.
 Click on it to enlarge.
 
-<img src="images/ricgraph_explorer_home_page.jpg" width="400">
+<img src="images/ricgraph-explorer-home-page.jpg" width="400">
 
 The home page lets the user choose between various methods to explore Ricgraph:
 * Button _search for a person_.
@@ -105,7 +105,7 @@ The home page lets the user choose between various methods to explore Ricgraph:
 You only get on this page if the result of your search is a person.
 The figure below shows the person options page. Click on it to enlarge.
 
-<img src="images/ricgraph_explorer_personoptions_page.jpg" width="400">
+<img src="images/ricgraph-explorer-personoptions-page.jpg" width="400">
 
 You can use one of these exploration options:
 * Button _show personal information related to this person_.
@@ -144,7 +144,7 @@ For each of these buttons, the results are shown on the [results page](#results-
 You only get on this page if the result of your search is an organization.
 The figure below shows the organization options page. Click on it to enlarge.
 
-<img src="images/ricgraph_explorer_organizationoptions_page.jpg" width="400">
+<img src="images/ricgraph-explorer-organizationoptions-page.jpg" width="400">
 
 You can use one of these buttons:
 * Button _show persons related to this organization_.
@@ -166,7 +166,7 @@ The results page will look different depending on what results are shown.
 The figure below shows an example of a part of the skills in an organization.
 Click on it to enlarge.
 
-<img src="images/ricgraph_explorer_result_page.jpg" width="400">
+<img src="images/ricgraph-explorer-result-page.jpg" width="400">
 
 ### Browsing Ricgraph
 You can browse the graph that Ricgraph has obtained by harvesting source systems
