@@ -3,26 +3,27 @@
 Ricgraph provides an exploration tool, so users do 
 not need to learn a graph query language. This tool is called
 _Ricgraph Explorer_. 
-It can be customized as needed for
-a certain application area (it is a Python Flask application).
-In this documentation, we use the application area _research information_.
-You can modify it if you use
-Ricgraph in a different application area, if you need different queries,
-or if you would like to have a different user interface.
-The code for *Ricgraph Explorer* can be found in
-  directory [ricgraph_explorer](../ricgraph_explorer).
+As it is a Python Flask application, it can be customized as needed. 
+New queries (buttons) can be added, 
+or the user interface can
+be modified to fit a certain use case, user group, or application area.
+The code can be found in
+directory [ricgraph_explorer](../ricgraph_explorer).
 
+In this documentation and on this page, we use the application area _research information_.
 Ricgraph Explorer 
-has several pre-build queries tailored to the application area 
-research information, each with its own button, for example:
+has several pre-build queries tailored to this application area,
+each with its own button, for example:
 * find a person, a (sub-)organization, a skill;
 * when a person has been found, find its identities, skills, research results.
 
-Ricgraph Explorer also offers
+Ricgraph Explorer offers
 [Faceted navigation](https://en.wikipedia.org/wiki/Faceted_search).
 That means, if a query results in a table with e.g. *journal articles*, *data sets*,
 and *software*, you can narrow down on one or more of these categories by
 checking or unchecking their corresponding checkbox.
+An alternative view 
+uses [Tabbed navigation](https://en.wikipedia.org/wiki/Tab_(interface)).
 
 This page describes what you can do with Ricgraph Explorer. It does this
 by showing the flow through the web application by listing the buttons available. 
@@ -30,11 +31,13 @@ The text below lists
 these buttons. For some of these buttons, a more extensive description is given.
 After clicking a few buttons, and entering values in the fields
 provided, the user will get a Results page. Since there are many possible result
-pages, we only show one as example.
+pages, we only show one result page as example.
 
 On this page, you can learn more about:
-* Read about [how to start_Ricgraph Explorer](#how-to-start-ricgraph-explorer).
+* [Working with Ricgraph Explorer](#working-with-ricgraph-explorer).
+* Read about [how to start Ricgraph Explorer](#how-to-start-ricgraph-explorer).
 * The [Home page](#home-page) of Ricgraph Explorer.
+* The [Search page](#search-page) of Ricgraph Explorer.
 * The [Person options page](#person-options-page) of Ricgraph Explorer.
 * The [Organization options page](#organization-options-page) of Ricgraph Explorer.
 * The [Results page](#results-page) of Ricgraph Explorer.
@@ -42,8 +45,48 @@ On this page, you can learn more about:
 
 [Return to main README.md file](../README.md).
 
-### How to start Ricgraph Explorer
+### Working with Ricgraph Explorer
 
+| screenshots of a usage flow through Ricgraph Explorer                                 | example research questions                                                 |
+|---------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| <img src="images/ricgraph-explorer-showing-research-results-person.jpg" height="300"> | <img src="images/examples-of-research-questions-general.jpg" height="300"> |                                    |
+
+You can click each figure to enlarge.
+Some field values have been blurred for privacy reasons.
+
+#### Research question “What are the research results of person A” 
+The left
+figure above shows screenshots of web pages of Ricgraph Explorer for 
+answering the research question “What are the research results of
+person A” in figure (a) at the right.
+
+The screenshot at the top left is the [home page](#home-page). 
+After clicking “search for a person”,
+Ricgraph Explorer shows a search page (top right). A user types a name, and the 
+[person option page](#person-options-page) is shown (bottom
+left). After clicking “show research results related to this person”, the 
+[result page](#results-page) is shown (bottom right). In that
+page, the rows in the second table are (in this case) the journal article neighbors of 
+the item in the first table (the
+person the user searched). This person also has other types of research results: 
+book chapters, data sets, other
+contributions, books, reviews, and software (cf. row with orange rectangle, this is an
+example of the tabbed navigation). The “comment” column contains the titles of
+the journal articles. By clicking on an entry in the “value” column, in this case a 
+DOI value, the user will go to this
+neighbor. Ricgraph Explorer will show a page with persons who have contributed to 
+that journal article. 
+
+#### Other research questions
+In the left figure above,
+after a click on a value in the “value” column in the bottom right result
+page, the user will get the persons who have contributed to that research 
+result, as in figure (b) at the right. Clicking “find
+persons that share any result types with this person” in the bottom left 
+person option page corresponds to figure (c),
+and clicking “show personal information related to this person” corresponds to figure (e).
+
+### How to start Ricgraph Explorer
 Depending on how Ricgraph has been installed, there are various ways to start it.
 * If you have installed Ricgraph yourself, using your own user id,
   you have to follow the following steps:
@@ -58,7 +101,6 @@ Depending on how Ricgraph has been installed, there are various ways to start it
   * Open a web browser and go to https://www.ricgraph-example.com.
 
 ### Home page
-
 The figure below shows part of the home page.
 Click on it to enlarge.
 
@@ -66,27 +108,27 @@ Click on it to enlarge.
 
 The home page lets the user choose between various methods to explore Ricgraph:
 * Button _search for a person_.
-  * in the webpage that is shown after you have clicked this button, 
+  * in the [search page](#search-page) that is shown after you have clicked this button, 
     to search, type a full name or substring of a name.
   * if there is more than one result, select one person.
   * this person is shown on the [person options page](#person-options-page)
     for further exploration.
 * Button _search for a (sub-)organization_. 
-  * in the webpage that is shown after you have clicked this button, 
+  * in the [search page](#search-page) that is shown after you have clicked this button, 
     to search, type a full organization name or substring of an organization name.
   * if there is more than one result, select one organization.
   * this organization is shown on the [organization options page](#organization-options-page)
     for further exploration.
 * Button _search for a skill, expertise area or research area_
   [only available if you have nodes of category _competence_ in Ricgraph]:
-  * in the webpage that is shown after you have clicked this button, 
+  * in the [search page](#search-page) that is shown after you have clicked this button, 
     to search, type a skill, expertise area or research area, or
     substring of one of these.
   * if there is more than one result, select one.
   * the results are shown on the [results page](#results-page).
 * Button _search for anything (broad search)_ or
   button _advanced search_.
-  * in the webpage that is shown after you have clicked this button, 
+  * in the [search page](#search-page) that is shown after you have clicked this button, 
     type something to search, the advanced search is a 
     case-sensitive exact match search 
     on one or more of the Ricgraph fields _name_, _category_, or _value_.
@@ -100,6 +142,34 @@ The home page lets the user choose between various methods to explore Ricgraph:
       for further exploration.
     * for all other results,
       the results are shown on the [results page](#results-page).
+
+### Search page
+There are two search pages:
+* A broad search page that is mostly shown, having one input field.
+  This search is a case-insensitive search.
+* An advanced search page, having three input fields.
+  This search is a case-sensitive exact match search
+  on one or more of the Ricgraph fields _name_, _category_, or _value_.
+  
+The figure below shows these search pages. Click on any figure to enlarge.
+
+| broad search page                                                       | advanced search page                                                       |
+|-------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| <img src="images/ricgraph-explorer-search-page-broad.jpg" height="200"> | <img src="images/ricgraph-explorer-search-page-advanced.jpg" height="200"> |
+
+
+There are two methods for viewing the results:
+* _person_view_: only show relevant columns, results are presented in a tabbed format.
+  
+  This view presents results in 
+  a [tabbed format](https://en.wikipedia.org/wiki/Tab_(interface)).
+  Also, tables have less columns to reduce information overload.
+* _details_view_: show all columns, research results are presented in a table with facets.
+  
+  This view shows all columns in Ricgraph. Research results are presented in 
+  a [table with facets](https://en.wikipedia.org/wiki/Faceted_search).
+
+
 
 ### Person options page
 You only get on this page if the result of your search is a person.
