@@ -64,9 +64,9 @@ The screenshot at the top left is the [home page](#home-page).
 After clicking “search for a person”,
 Ricgraph Explorer shows a [search page](#search-page) (top right). 
 A user types a name, and the 
-[person option page](#person-options-page) is shown (bottom
+[person options page](#person-options-page) is shown (bottom
 left). After clicking “show research results related to this person”, the 
-[result page](#results-page) is shown (bottom right). In that
+[results page](#results-page) is shown (bottom right). In that
 page, the rows in the second table are (in this case) the journal article neighbors of 
 the item in the first table (the
 person the user searched). This person also has other types of research results: 
