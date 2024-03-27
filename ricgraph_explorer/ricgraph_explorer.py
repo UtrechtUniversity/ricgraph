@@ -59,7 +59,7 @@
 #
 # ##############################################################################
 #
-# Explanation why sometimes Cypher query are used.
+# Explanation why sometimes Cypher queries are used.
 # In some cases, Ricgraph Explorer uses a Cypher query instead of function calls
 # that go from node to edges to neighbor nodes and so on.
 # Sometimes, these calls can be slow, especially if:
@@ -70,7 +70,7 @@
 #   or 'patent' nodes).
 #
 # I assume Cypher is faster because Python is an interpreted language, so loops
-# may be a bit slow. In case a loop runs done over a large number of nodes or edges,
+# may be a bit slow. In case a loop runs over a large number of nodes or edges,
 # many calls to the graph database backend are done, which may take a lot of time.
 # A cypher query is one call to the graph database backend. Also, there are
 # many query optimizations in that backend, and the backend is a compiled application.
@@ -1606,8 +1606,22 @@ def find_organization_additional_info(parent_node: Node,
         second_neighbor_category_list += '"]'
 
     # Prepare and execute Cypher query.
-    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE node._key = '
-    cypher_query += '"' + parent_node['_key'] + '"' + ' AND neighbor.name = "person-root" '
+    # ### Explanation of different options for WHERE clause.
+    # Note the two variants of the WHERE clause below. The first is on _key, which does
+    # a search in the graph database, while the second is using the function id(),
+    # which does a direct lookup for a node with that id. The latter is of course much faster.
+    # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
+    # PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
+    #
+    # However, id() is deprecated and should be replaced with elementid(). But this
+    # cannot be done, since module py2neo (which is end-of-life) does not have this
+    # elementid.
+    # ###
+    # cypher_query = 'MATCH (node)-[]->(neighbor) WHERE node._key = '
+    # cypher_query += '"' + parent_node['_key'] + '"' + ' AND neighbor.name = "person-root" '
+    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE id(node) = '
+    cypher_query += str(parent_node.identity) + ' AND neighbor.name = "person-root" '
+
     cypher_query += 'MATCH (neighbor)-[]->(second_neighbor) '
     if len(name_list) > 0 or len(category_list) > 0:
         cypher_query += 'WHERE '
