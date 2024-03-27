@@ -1616,6 +1616,8 @@ def find_organization_additional_info(parent_node: Node,
     # However, id() is deprecated and should be replaced with elementid(). But this
     # cannot be done, since module py2neo (which is end-of-life) does not have this
     # elementid.
+    # Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
+    # https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
     # ###
     # cypher_query = 'MATCH (node)-[]->(neighbor) WHERE node._key = '
     # cypher_query += '"' + parent_node['_key'] + '"' + ' AND neighbor.name = "person-root" '
