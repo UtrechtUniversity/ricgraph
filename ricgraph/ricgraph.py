@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023 Rik D.T. Janssen
+# Copyright (c) 2023, 2024 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@
 # This file is the main file for Ricgraph.
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
-# Updated Rik D.T. Janssen, February 2024.
+# Updated Rik D.T. Janssen, February 2024, March 2024.
 #
 # ########################################################################
 
@@ -40,7 +40,8 @@
 
 This is Ricgraph - Research in context graph, a graph structure with nodes and edges
 to represent information (as properties in the nodes)
-and their relations (the edges).
+and their relations (the edges). You can find the code and documentation on
+https://github.com/UtrechtUniversity/ricgraph/.
 
 Ricgraph uses Neo4j as graph database, https://neo4j.com.
 Neo4j only allows directed graphs, so Ricgraph is a directed graph.
@@ -52,9 +53,9 @@ They have several products. Their free products are:
 
 Neo4j Desktop includes Bloom, which allows exploring the graph in a more
 intuitive way. Community Edition allows only Cypher queries.
-Therefore, Neo4j Desktop is recommended.
 
 To be able to access neo4j from python, py2neo is used (https://py2neo.org).
+Py2neo is end-of-life (last version v2021.2.4), but Ricgraph still uses it.
 
 Ricgraph can be extended for other brands of graph databases
 by changing minor bits of the code.
