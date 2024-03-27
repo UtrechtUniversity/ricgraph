@@ -1650,6 +1650,144 @@ def get_all_neighbor_nodes(node: Node,
     if node is None:
         return []
 
+    # If 'name_want' etc. are strings, convert them to lists.
+    if isinstance(name_want, str):
+        if name_want == '':
+            name_want_list = []
+        else:
+            name_want_list = [name_want]
+    else:
+        name_want_list = name_want
+
+    if isinstance(name_dontwant, str):
+        if name_dontwant == '':
+            name_dontwant_list = []
+        else:
+            name_dontwant_list = [name_dontwant]
+    else:
+        name_dontwant_list = name_dontwant
+
+    if isinstance(category_want, str):
+        if category_want == '':
+            category_want_list = []
+        else:
+            category_want_list = [category_want]
+    else:
+        category_want_list = category_want
+
+    if isinstance(category_dontwant, str):
+        if category_dontwant == '':
+            category_dontwant_list = []
+        else:
+            category_dontwant_list = [category_dontwant]
+    else:
+        category_dontwant_list = category_dontwant
+
+    if len(name_dontwant_list) > 0 \
+       and len(category_dontwant_list) > 0:
+        # This is a special case in which the Cypher below produces unexpected results.
+        neighbor_nodes = get_all_neighbor_nodes_loop(node=node,
+                                                     name_want=name_want,
+                                                     name_dontwant=name_dontwant,
+                                                     category_want=category_want,
+                                                     category_dontwant=category_dontwant,
+                                                     max_nr_neighbor_nodes=max_nr_neighbor_nodes)
+        return neighbor_nodes
+
+    neighbor_name_want_list = ''
+    neighbor_name_dontwant_list = ''
+    neighbor_category_want_list = ''
+    neighbor_category_dontwant_list = ''
+    if len(name_want_list) > 0:
+        neighbor_name_want_list = '["'
+        neighbor_name_want_list += '", "'.join(str(item) for item in name_want_list)
+        neighbor_name_want_list += '"]'
+    if len(name_dontwant_list) > 0:
+        neighbor_name_dontwant_list = '["'
+        neighbor_name_dontwant_list += '", "'.join(str(item) for item in name_dontwant_list)
+        neighbor_name_dontwant_list += '"]'
+    if len(category_want_list) > 0:
+        neighbor_category_want_list = '["'
+        neighbor_category_want_list += '", "'.join(str(item) for item in category_want_list)
+        neighbor_category_want_list += '"]'
+    if len(category_dontwant_list) > 0:
+        neighbor_category_dontwant_list = '["'
+        neighbor_category_dontwant_list += '", "'.join(str(item) for item in category_dontwant_list)
+        neighbor_category_dontwant_list += '"]'
+
+    # Note the WHERE clause below. It uses the function id(),
+    # which does a direct lookup for a node with that id. That is much faster
+    # compared to a WHERE clause on node['_key']. In the latter case a search is done.
+    # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
+    # PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
+    #
+    # However, id() is deprecated and should be replaced with elementid(). But this
+    # cannot be done, since module py2neo (which is end-of-life) does not have this
+    # elementid.
+    # Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
+    # https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
+    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE id(node)=' + str(node.identity) + ' '
+
+    if len(name_want_list) > 0:
+        cypher_query += 'AND (neighbor.name IN ' + neighbor_name_want_list + ') '
+    if len(name_dontwant_list) > 0:
+        cypher_query += 'AND (NOT neighbor.name IN ' + neighbor_name_dontwant_list + ') '
+    if len(category_want_list) > 0:
+        cypher_query += 'AND (neighbor.category IN ' + neighbor_category_want_list + ') '
+    if len(category_dontwant_list) > 0:
+        cypher_query += 'AND (NOT neighbor.category IN ' + neighbor_category_dontwant_list + ') '
+    cypher_query += 'RETURN DISTINCT neighbor '
+
+    if max_nr_neighbor_nodes > 0:
+        cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
+    print(cypher_query)
+    neighbor_nodes = _graph.run(cypher_query).to_series().to_list()
+
+    if len(neighbor_nodes) == 0:
+        return []
+    else:
+        return neighbor_nodes
+
+
+def get_all_neighbor_nodes_loop(node: Node,
+                                name_want: Union[str, list] = '',
+                                name_dontwant: Union[str, list] = '',
+                                category_want: Union[str, list] = '',
+                                category_dontwant: Union[str, list] = '',
+                                max_nr_neighbor_nodes: int = 0) -> list:
+    """Get all the neighbors of 'node' in a list.
+    You can restrict the nodes returned by specifying one or more of the
+    other parameters. If more than one is specified, the result is an AND.
+
+    This is the same function as get_all_neighbor_nodes() but it is much slower
+    sinces it uses a loop. We need this in case
+    len(name_dontwant_list) > 0 and len(category_dontwant_list) > 0.
+
+    :param node: the node we need neighbors from.
+    :param name_want: either a string which indicates that we only want neighbor
+      nodes where the property 'name' is equal to 'name_want'
+      (e.g. 'ORCID'),
+      or a list containing several node names, indicating
+      that we want all neighbor nodes where the property 'name' equals
+      one of the names in the list 'name_want'
+      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    :param name_dontwant: similar, but for property 'name' and nodes we don't want.
+      If empty (empty string), all nodes are 'wanted'.
+    :param category_want: similar to 'name_want', but now for the property 'category'.
+    :param category_dontwant: similar, but for property 'category' and nodes we don't want.
+    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
+    :return: the list of neighboring nodes satisfying all these criteria.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nget_all_neighbor_nodes_loop(): Error: graph has not been initialized or opened.\n\n')
+        return []
+
+    if node is None:
+        return []
+
     edges = get_edges(node)
     if len(edges) == 0:
         return []
