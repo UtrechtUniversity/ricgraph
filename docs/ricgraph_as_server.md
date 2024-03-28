@@ -379,7 +379,7 @@ Then, follow the following steps, and also watch the video below:
   * Select the collaborative organization that you want to use for running
     Ricgraph.
   * Select your wallet.
-  * Select the cloud provide. 
+  * Select the cloud provider. 
     In the video we use "SURF HPC Cloud volume".
   * Allocate storage, make sure you allocate enough volume.
     In the video we use "100GB".
