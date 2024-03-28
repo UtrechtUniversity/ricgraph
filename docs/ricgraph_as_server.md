@@ -51,7 +51,6 @@ the following steps:
 
  
 ### Install and start Neo4j Community Edition
-
 * Login as user *root*.
 * Install Neo4j Community Edition. 
   To do this, go to the 
@@ -103,7 +102,6 @@ the following steps:
     (this saves you from entering a new password in that file).
  
 ### Create a ricgraph user and group
-
 * Login as user *root*.
 * Create group and user *ricgraph*. First check if they exist:
   ```
@@ -119,7 +117,6 @@ the following steps:
 * Exit from user *root*.
   
 ### Create a Python virtual environment and install Ricgraph in it
-
 * Suppose you are a user with login *alice* and you are in Linux group *users*.
 * Login as user *root*.
 * Go to directory */opt*: ``cd /opt``
@@ -203,7 +200,6 @@ Examples of commands you can use are:
   ```
   
 ### Use a service unit file to run Ricgraph Explorer
-
 Using a service unit file to run
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is very useful if you would like to set up a virtual machine that you want to use as
@@ -247,7 +243,6 @@ the outside world. All data will only be accessible in the virtual machine.
   the virtual machine).
 
 ### Use Apache and WSGI to make Ricgraph Explorer accessible from outside your virtual machine
-
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is written in Flask, a framework for Python to build web interfaces.
 Flask contains a development web server, and if you start Ricgraph Explorer by typing
@@ -324,7 +319,6 @@ comments at the start of the configuration file.
   [http://[your hostname]](http://[your_hostname). 
 
 ### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
-
 To read how this can be done, read
 [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
 Edition](ricgraph_install_configure.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
@@ -386,12 +380,12 @@ Then, follow the following steps, and also watch the video below:
 The next steps are to install Ricgraph. Start reading from 
 [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition) above.
 
-_To be done: insert the GitHub link to the video._
-
-Download the [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
+For more explanation, please watch the 
+[video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
 (2m14s) (click to download)](videos/ricgraph_howto_install_on_SURFResearchCloud.mp4).
 
-### Return to main README.md file
+https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b
 
+### Return to main README.md file
 [Return to main README.md file](../README.md).
 
