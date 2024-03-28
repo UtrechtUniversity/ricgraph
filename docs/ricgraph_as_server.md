@@ -97,10 +97,10 @@ the following steps:
   * In your web browser, go to
     [http://localhost:7474/browser](http://localhost:7474/browser).
   * Neo4j will ask you to login, use username *neo4j* and password *neo4j*.
-  * Neo4j will ask you to change your password,
-    for the new password, enter the password you have specified in
-    the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file)
-    (this saves you from entering a new password in that file).
+  * Neo4j will ask you to change your password. Change it.
+    You will need this new password in section
+    [Create a Python virtual environment and install Ricgraph in
+    it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) below.
  
 ### Create a ricgraph user and group
 
@@ -122,11 +122,21 @@ the following steps:
 
 * Suppose you are a user with login *alice* and you are in Linux group *users*.
 * Login as user *root*.
-* Go to directory */opt*: ``cd /opt``
+* For Debian/Ubuntu: type: 
+  ```
+  apt install python3-venv
+  ``` 
+* Go to directory */opt*, type: 
+  ```
+  cd /opt
+  ```
 * Create a Python virtual environment:
-  in */opt*, type ``python3 -m venv ricgraph_venv``
-* Change the owner and group to your own user *alice* and group *users*:
-  in */opt*, type
+  in */opt*, type:
+  ```
+  python3 -m venv ricgraph_venv
+  ```
+* Change the owner and group to your own user *alice* and group *users*,
+  in */opt*, type:
   ```
   chown -R alice:users /opt/ricgraph_venv
   ```
@@ -137,8 +147,11 @@ the following steps:
   to directory */opt/ricgraph_venv*.
   Get the ``tar.gz`` version.
 * Install Ricgraph: 
-  go to */opt/ricgraph_venv*, type ``tar xf /opt/ricgraph-X.YY.tar.gz`` (X.YY 
-  is the version number you downloaded). You will get a directory 
+  go to */opt/ricgraph_venv*, type: 
+  ```
+  tar xf /opt/ricgraph-X.YY.tar.gz 
+  ```
+  (X.YY is the version number you downloaded). You will get a directory 
   */opt/ricgraph_venv/ricgraph-X.YY*.
 * Merge the Ricgraph you have extracted with *tar* with the virtual environment,
   and do some cleanup:
@@ -149,22 +162,34 @@ the following steps:
   rm /opt/ricgraph_venv/ricgraph-X.YY.tar.gz
   ```
 * Activate the Python virtual environment: 
-  in */opt/ricgraph_venv*, type 
-  ``source bin/activate``
+  in */opt/ricgraph_venv*, type: 
+  ```
+  source bin/activate
+  ```
 * Install the standard Python requirements:
-  in */opt/ricgraph_venv*, type
-  ``pip install setuptools pip wheel``
+  in */opt/ricgraph_venv*, type:
+  ```
+  pip install setuptools pip wheel
+  ```
 * Install the Python requirements for Ricgraph:
-  in */opt/ricgraph_venv*, type 
-  ``pip install -r requirements.txt``
+  in */opt/ricgraph_venv*, type:
+  ```
+  pip install -r requirements.txt
+  ```
 * Create a Ricgraph initialization file, 
   read [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 * In *ricgraph.ini*, find the section
   "Choose either the parameters for Neo4j Desktop or Neo4j Community Edition".
   Make sure you disable the parameters for Neo4j Desktop (by commenting them)
   and enable the parameter for Neo4j Community Edition.
+* In *ricgraph.ini*, enter the new password for Neo4j from section
+  [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
+  at the parameter _neo4j_password_.
 * Deactivate the Python virtual environment: 
-  type ``deactivate``
+  type 
+  ```
+  deactivate
+  ```
 * Login as user *root*.
 * Change the owner and group to ricgraph of directory */opt/ricgraph_venv*.
   In */opt*, type 
