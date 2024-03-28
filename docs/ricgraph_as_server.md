@@ -41,7 +41,14 @@ the following steps:
 [Return to main README.md file](../README.md).
 
 ### Check the requirements
+* You will need access to a Linux virtual machine.
+  You can use your own, or one provided by your organization, or you might
+  want to use SURF Research Cloud.
+* For SURF Research Cloud, 
+  read [How to install Ricgraph and Ricgraph Explorer on SURF Research
+  Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud).
 * Please check the [Requirements for Ricgraph](ricgraph_install_configure.md#requirements).
+
  
 ### Install and start Neo4j Community Edition
 
@@ -321,6 +328,68 @@ comments at the start of the configuration file.
 To read how this can be done, read
 [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
 Edition](ricgraph_install_configure.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
+
+### How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
+[SURF Research Cloud](https://www.surf.nl/en/services/surf-research-cloud)
+is a portal where you can easily build a virtual research environment. 
+You can use preconfigured workspaces or you can add them yourself.
+A _virtual research environment_ or _workspace_ is a 
+virtual machine that you can use to install Ricgraph.
+Please follow these steps if you would like
+to install Ricgraph and Ricgraph Explorer on SURF Research Cloud.
+
+Preliminaries:
+* Make sure you have access to SURF Research Cloud and that you have a wallet
+  available. A _wallet_ is a budget.
+  A wallet has _credits_, and these credits are used to pay for the
+  SURF computing resources. 
+  The more resources you use, the more you have to pay. For _resources_, think
+  of disk space, the number of CPUs, the amount of memory, and the time the
+  virtual machine is running.
+* If you do not have access to SURF Research Cloud or you do not have a wallet,
+  please contact the SURF Research Cloud contact person at your organization.
+  These persons may be at the Research Data Management Support desk, 
+  service desk, or help desk of your organization, or they might be persons like
+  research engineers, data stewards, data managers, or data consultants.
+
+Then, follow the following steps, and also watch the video below:
+* Go to the [SURF Research Cloud portal](https://portal.live.surfresearchcloud.nl)
+  and log in.
+* Allocate storage:
+  * Click on "Create new storage".
+  * Select the collaborative organization that you want to use for running
+    Ricgraph.
+  * Select your wallet.
+  * Select the cloud provide. 
+    In the video we use "SURF HPC Cloud volume".
+  * Allocate storage, make sure you allocate enough volume.
+    In the video we use "100GB".
+    The larger, the more credits it will cost.
+  * Enter a name and a description.
+  * After a few moments your storage will be created and available.
+* Create a workspace (that is, a virtual machine to run Ricgraph in):
+  * Click on "Create new workspace".
+  * Select the collaborative organization that you want to use for running
+    Ricgraph (as above).
+  * Select your wallet (as above).
+  * Now select a "catalogue item", that is, a pre-installed virtual machine. 
+    Choose "Ubuntu Desktop 2004".
+  * Select a configuration.
+    In the video we use "1 Core - 8 GB RAM".
+    The larger, the more credits it will cost.
+  * Select storage, choose the one you created above.
+  * Rename your workspace.
+  * After a few moments your workspace will be created and available.
+  * Start up your workspace.
+* Done.
+
+The next steps are to install Ricgraph. Start reading from 
+[Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition) above.
+
+_To be done: insert the GitHub link to the video._
+
+Download the [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
+(2m14s) (click to download)](videos/ricgraph_howto_install_on_SURFResearchCloud.mp4).
 
 ### Return to main README.md file
 
