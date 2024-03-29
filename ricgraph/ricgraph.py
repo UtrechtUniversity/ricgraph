@@ -781,6 +781,7 @@ def read_all_nodes_containing_value(name: str = '', category: str = '', value: s
     if lcategory != '':
         cypher_query += '(node.category = "' + lcategory + '") AND '
     cypher_query += '(toLower(node.value) CONTAINS toLower("' + lvalue + '")) '
+    cypher_query += 'RETURN node'
     # print(cypher_query)
 
     all_nodes = _graph.run(cypher_query).to_series().to_list()

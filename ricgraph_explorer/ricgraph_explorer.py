@@ -537,7 +537,6 @@ def optionspage() -> str:
         html += html_body_end
         return html
 
-    # node = result.first()
     node = result[0]
     key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
     nodes_cache[key] = node
@@ -922,8 +921,7 @@ def create_results_page(view_mode: str,
                 message = 'Ricgraph Explorer found too many nodes. '
             message += 'This should not happen. '
             return get_message(message=message)
-        node = result.first()
-        nodes_cache[key] = node
+        nodes_cache[key] = result[0]
 
     if discoverer_mode == 'details_view':
         table_columns_ids = DETAIL_COLUMNS
@@ -1720,7 +1718,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             message += 'of the neighbor nodes of more than one node in get_overlap_in_source_systems().'
             return get_message(message=message)
 
-        parent_node = nodes.first()
+        parent_node = nodes[0]
         if parent_node['category'] == 'person':
             personroot = rcg.get_personroot_node(node=parent_node)
             if personroot is None:
@@ -1996,7 +1994,7 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
             message += 'in find_overlap_in_source_systems_records().'
             return get_message(message=message)
 
-        node = result.first()
+        node = result[0]
         if node['category'] == 'person':
             personroot = rcg.get_personroot_node(node)
             if personroot is None:
