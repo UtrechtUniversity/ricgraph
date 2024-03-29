@@ -1593,26 +1593,11 @@ def get_all_personroot_nodes(node: Node) -> list:
     if node is None:
         return []
 
-    personroot_nodes = []
     if node['name'] == 'person-root':
-        personroot_nodes.append(node)
-        return personroot_nodes
+        return [node]
 
-    edges = get_edges(node)
-    if len(edges) == 0:
-        if node['category'] == 'person':
-            print('get_personroot_node(): warning, "person" node with _key "' + node['_key'] + '"')
-            print('  has 0 neighbors, that should not happen, continuing...')
-        return []
-
-    for edge in edges:
-        next_node = edge.end_node
-        if node == next_node:
-            continue
-        if next_node['name'] == 'person-root':
-            personroot_nodes.append(next_node)
-            continue
-
+    personroot_nodes = get_all_neighbor_nodes(node=node,
+                                              name_want='person-root')
     return personroot_nodes
 
 
@@ -1651,42 +1636,58 @@ def get_all_neighbor_nodes(node: Node,
     if node is None:
         return []
 
-    # If 'name_want' etc. are strings, convert them to lists.
+    # Note the WHERE clause below. It uses the function id(),
+    # which does a _direct_ lookup for a node with that id. That is the fastest way possible,
+    # compared to a WHERE clause on node['_key'], which is a search.
+    # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
+    # PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
+    #
+    # However, id() is deprecated in Neo4j and should be replaced with elementid(). But this
+    # cannot be done, since module py2neo (which is end-of-life) does not have this
+    # elementid.
+    # Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
+    # https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
+    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE (id(node)=' + str(node.identity) + ') '
+
+    nr_of_not_clauses = 0
     if isinstance(name_want, str):
-        if name_want == '':
-            name_want_list = []
-        else:
-            name_want_list = [name_want]
+        if name_want != '':
+            cypher_query += 'AND (neighbor.name IN ["' + name_want + '"]) '
     else:
-        name_want_list = name_want
+        if len(name_want) > 0:
+            string_list = '["' + '", "'.join(str(item) for item in name_want) + '"]'
+            cypher_query += 'AND (neighbor.name IN ' + string_list + ') '
 
     if isinstance(name_dontwant, str):
-        if name_dontwant == '':
-            name_dontwant_list = []
-        else:
-            name_dontwant_list = [name_dontwant]
+        if name_dontwant != '':
+            cypher_query += 'AND (NOT neighbor.name IN ["' + name_dontwant + '"]) '
+            nr_of_not_clauses += 1
     else:
-        name_dontwant_list = name_dontwant
+        if len(name_dontwant) > 0:
+            string_list = '["' + '", "'.join(str(item) for item in name_dontwant) + '"]'
+            cypher_query += 'AND (NOT neighbor.name IN ' + string_list + ') '
+            nr_of_not_clauses += 1
 
     if isinstance(category_want, str):
-        if category_want == '':
-            category_want_list = []
-        else:
-            category_want_list = [category_want]
+        if category_want != '':
+            cypher_query += 'AND (neighbor.category IN ["' + category_want + '"]) '
     else:
-        category_want_list = category_want
+        if len(category_want) > 0:
+            string_list = '["' + '", "'.join(str(item) for item in category_want) + '"]'
+            cypher_query += 'AND (neighbor.category IN ' + string_list + ') '
 
     if isinstance(category_dontwant, str):
-        if category_dontwant == '':
-            category_dontwant_list = []
-        else:
-            category_dontwant_list = [category_dontwant]
+        if category_dontwant != '':
+            cypher_query += 'AND (NOT neighbor.category IN ["' + category_dontwant + '"]) '
+            nr_of_not_clauses += 1
     else:
-        category_dontwant_list = category_dontwant
+        if len(category_dontwant) > 0:
+            string_list = '["' + '", "'.join(str(item) for item in category_dontwant) + '"]'
+            cypher_query += 'AND (NOT neighbor.category IN ' + string_list + ') '
+            nr_of_not_clauses += 1
 
-    if len(name_dontwant_list) > 0 \
-       and len(category_dontwant_list) > 0:
-        # This is a special case in which the Cypher below produces unexpected results.
+    if nr_of_not_clauses >= 2:
+        # This is a special case in which the Cypher produces unexpected results.
         neighbor_nodes = get_all_neighbor_nodes_loop(node=node,
                                                      name_want=name_want,
                                                      name_dontwant=name_dontwant,
@@ -1695,55 +1696,12 @@ def get_all_neighbor_nodes(node: Node,
                                                      max_nr_neighbor_nodes=max_nr_neighbor_nodes)
         return neighbor_nodes
 
-    neighbor_name_want_list = ''
-    neighbor_name_dontwant_list = ''
-    neighbor_category_want_list = ''
-    neighbor_category_dontwant_list = ''
-    if len(name_want_list) > 0:
-        neighbor_name_want_list = '["'
-        neighbor_name_want_list += '", "'.join(str(item) for item in name_want_list)
-        neighbor_name_want_list += '"]'
-    if len(name_dontwant_list) > 0:
-        neighbor_name_dontwant_list = '["'
-        neighbor_name_dontwant_list += '", "'.join(str(item) for item in name_dontwant_list)
-        neighbor_name_dontwant_list += '"]'
-    if len(category_want_list) > 0:
-        neighbor_category_want_list = '["'
-        neighbor_category_want_list += '", "'.join(str(item) for item in category_want_list)
-        neighbor_category_want_list += '"]'
-    if len(category_dontwant_list) > 0:
-        neighbor_category_dontwant_list = '["'
-        neighbor_category_dontwant_list += '", "'.join(str(item) for item in category_dontwant_list)
-        neighbor_category_dontwant_list += '"]'
-
-    # Note the WHERE clause below. It uses the function id(),
-    # which does a direct lookup for a node with that id. That is much faster
-    # compared to a WHERE clause on node['_key']. In the latter case a search is done.
-    # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
-    # PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
-    #
-    # However, id() is deprecated and should be replaced with elementid(). But this
-    # cannot be done, since module py2neo (which is end-of-life) does not have this
-    # elementid.
-    # Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
-    # https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
-    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE id(node)=' + str(node.identity) + ' '
-
-    if len(name_want_list) > 0:
-        cypher_query += 'AND (neighbor.name IN ' + neighbor_name_want_list + ') '
-    if len(name_dontwant_list) > 0:
-        cypher_query += 'AND (NOT neighbor.name IN ' + neighbor_name_dontwant_list + ') '
-    if len(category_want_list) > 0:
-        cypher_query += 'AND (neighbor.category IN ' + neighbor_category_want_list + ') '
-    if len(category_dontwant_list) > 0:
-        cypher_query += 'AND (NOT neighbor.category IN ' + neighbor_category_dontwant_list + ') '
     cypher_query += 'RETURN DISTINCT neighbor '
-
     if max_nr_neighbor_nodes > 0:
         cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
-    # print(cypher_query)
-    neighbor_nodes = _graph.run(cypher_query).to_series().to_list()
+    print(cypher_query)
 
+    neighbor_nodes = _graph.run(cypher_query).to_series().to_list()
     if len(neighbor_nodes) == 0:
         return []
     else:

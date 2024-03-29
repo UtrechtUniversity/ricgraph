@@ -1469,8 +1469,7 @@ def find_person_organization_collaborations(parent_node: Node,
             continue
 
         # Now next_node is a research result. Find persons connected to that research result.
-        persons = rcg.get_all_neighbor_nodes(node=next_node,
-                                             name_want='person-root')
+        persons = rcg.get_all_personroot_nodes(node=next_node)
         for person in persons:
             if person['_key'] == personroot_node['_key']:
                 # Note: we do not include ourselves.
