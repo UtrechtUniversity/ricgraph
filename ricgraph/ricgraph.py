@@ -1699,7 +1699,7 @@ def get_all_neighbor_nodes(node: Node,
     cypher_query += 'RETURN DISTINCT neighbor '
     if max_nr_neighbor_nodes > 0:
         cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
-    print(cypher_query)
+    # print(cypher_query)
 
     neighbor_nodes = _graph.run(cypher_query).to_series().to_list()
     if len(neighbor_nodes) == 0:
