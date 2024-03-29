@@ -123,7 +123,7 @@ def get_missing_personal_ids(we_have_id: str, we_want_id: str) -> dict:
         return personal_ids
 
     nodes = rcg.read_all_nodes(name=we_have_id)
-    if nodes is None:
+    if len(nodes) == 0:
         return personal_ids
 
     print('There are ' + str(len(nodes)) + ' ' + we_have_id + 's, trying to enrich with '

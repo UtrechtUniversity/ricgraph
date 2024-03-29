@@ -697,8 +697,8 @@ def read_node(name: str = '', value: str = '') -> Node:
     :param value: 'value' property of node.
     :return: the node read, or None if no node was found.
     """
-    first_node = read_all_nodes(name=name, value=value)
-    return first_node[0]
+    all_nodes = read_all_nodes(name=name, value=value)
+    return all_nodes[0]
 
 
 def read_all_nodes(name: str = '', category: str = '', value: str = '',
