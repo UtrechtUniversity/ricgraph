@@ -714,7 +714,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
       on field 'value', if False, then a case-insensitive match is done.
       Note that a case-insensitive match is more expensive.
     :param max_nr_nodes: return at most this number of nodes, 0 = all nodes.
-    :return: list of nodes read, or empty list if nothing found
+    :return: list of nodes read, or empty list if nothing found.
     """
     global _graph
 
