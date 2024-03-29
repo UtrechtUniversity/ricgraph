@@ -701,14 +701,20 @@ def read_node(name: str = '', value: str = '') -> Node:
     return first_node[0]
 
 
-def read_all_nodes(name: str = '', category: str = '', value: str = '') -> list:
+def read_all_nodes(name: str = '', category: str = '', value: str = '',
+                   value_is_exact_match: bool = True,
+                   max_nr_nodes: int = 0) -> list:
     """Read a number of nodes based on name, category or value.
     Any of these parameters can be specified.
 
     :param name: 'name' property of node.
     :param category: idem.
     :param value: idem.
-    :return: list of nodes read, or None if nothing found
+    :param value_is_exact_match: if True, then an exact match search is done
+      on field 'value', if False, then a case-insensitive match is done.
+      Note that a case-insensitive match is more expensive.
+    :param max_nr_nodes: return at most this number of nodes, 0 = all nodes.
+    :return: list of nodes read, or empty list if nothing found
     """
     global _graph
 
@@ -716,72 +722,34 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '') -> list:
         print('\nread_all_nodes(): Error: graph has not been initialized or opened.\n\n')
         return []
 
-    lname = str(name)
-    lcategory = str(category)
-    lvalue = str(value)
-
-    if lname == 'nan' or lcategory == 'nan' or lvalue == 'nan':
+    if not isinstance(name, str) \
+       or not isinstance(category, str) \
+       or not isinstance(value, str):
         return []
 
-    # We don't allow a search for everything.
-    if lname == '' and lcategory == '' and lvalue == '':
+    # Don't allow a search for everything.
+    if name == '' and category == '' and value == '':
         return []
 
     cypher_query = 'MATCH (node) WHERE '
-    if lname != '':
-        cypher_query += '(node.name = "' + lname + '") AND '
-    if lcategory != '':
-        cypher_query += '(node.category = "' + lcategory + '") AND '
-    if lvalue != '':
-        cypher_query += '(node.value = "' + lvalue + '") AND '
+    if name != '':
+        cypher_query += '(node.name = "' + name + '") AND '
+    if category != '':
+        cypher_query += '(node.category = "' + category + '") AND '
+    if value != '':
+        if value_is_exact_match:
+            # Exact match search.
+            cypher_query += '(node.value = "' + value + '") AND '
+        else:
+            # Case-insensitive search.
+            cypher_query += '(toLower(node.value) CONTAINS toLower("' + value + '")) AND '
 
     # Remove last AND.
     cypher_query = cypher_query.removesuffix('AND ')
     cypher_query += 'RETURN node'
-    # print(cypher_query)
 
-    all_nodes = _graph.run(cypher_query).to_series().to_list()
-    if len(all_nodes) == 0:
-        return []
-    else:
-        return all_nodes
-
-
-# Note the similarity with read_all_nodes().
-# I only implemented this for property 'value'.
-def read_all_nodes_containing_value(name: str = '', category: str = '', value: str = '') -> list:
-    """Read a number of nodes where property 'value' contains a certain value (a string search).
-    If you also specify 'name' and/or 'category', they will be used to restrict the results.
-
-    :param name: 'name' property of node, exact match.
-    :param category: 'category' property of node, exact match.
-    :param value: 'value' property of node, string search on this property only.
-    :return: list of nodes read, or None if nothing found
-    """
-    global _graph
-
-    if _graph is None:
-        print('\nread_all_nodes_containing_value(): Error: graph has not been initialized or opened.\n\n')
-        return []
-
-    lname = str(name)
-    lcategory = str(category)
-    lvalue = str(value)
-
-    if lname == 'nan' or lcategory == 'nan' or lvalue == 'nan':
-        return []
-
-    # We don't allow a search for everything.
-    if lname == '' and lcategory == '' and lvalue == '':
-        return []
-
-    cypher_query = 'MATCH (node) WHERE '
-    if lname != '':
-        cypher_query += '(node.name = "' + lname + '") AND '
-    if lcategory != '':
-        cypher_query += '(node.category = "' + lcategory + '") AND '
-    cypher_query += '(toLower(node.value) CONTAINS toLower("' + lvalue + '")) '
-    cypher_query += 'RETURN node'
+    if max_nr_nodes > 0:
+        cypher_query += 'LIMIT ' + str(max_nr_nodes)
     # print(cypher_query)
 
     all_nodes = _graph.run(cypher_query).to_series().to_list()
@@ -1628,7 +1596,8 @@ def get_all_neighbor_nodes(node: Node,
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param category_dontwant: similar, but for property 'category' and nodes we don't want.
     :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
-    :return: the list of neighboring nodes satisfying all these criteria.
+    :return: the list of neighboring nodes satisfying all these criteria, or
+      empty list if nothing found.
     """
     global _graph
 

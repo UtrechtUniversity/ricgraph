@@ -523,7 +523,8 @@ def optionspage() -> str:
             html += get_message(message='The search string should be at least three characters.')
             html += html_body_end
             return html
-        result = rcg.read_all_nodes_containing_value(name=name, category=category, value=value)
+        result = rcg.read_all_nodes(name=name, category=category, value=value,
+                                    value_is_exact_match=False)
     if len(result) == 0:
         # We didn't find anything.
         html += get_message(message='Ricgraph Explorer could not find anything.')
@@ -1706,7 +1707,8 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     nodes = rcg.read_all_nodes(name=name, category=category, value=value)
     if len(nodes) == 0:
         # Let's try again, assuming we did a broad search instead of an exact match search.
-        nodes = rcg.read_all_nodes_containing_value(value=value)
+        nodes = rcg.read_all_nodes(value=value,
+                                   value_is_exact_match = False)
         if len(nodes) == 0:
             return get_message(message='Ricgraph Explorer could not find anything.')
 
@@ -1978,7 +1980,8 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
     result = rcg.read_all_nodes(name=name, category=category, value=value)
     if len(result) == 0:
         # Let's try again, assuming we did a broad search instead of an exact match search.
-        result = rcg.read_all_nodes_containing_value(value=value)
+        result = rcg.read_all_nodes(value=value,
+                                    value_is_exact_match = False)
         if len(result) == 0:
             # No, we really didn't find anything.
             message = 'Unexpected result in find_overlap_in_source_systems_records(): '
