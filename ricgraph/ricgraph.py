@@ -688,7 +688,7 @@ def create_node(name: str, category: str, value: str,
 
 
 @ricgraph_lru_cache(maxsize=CACHE_SIZE_READ_NODE)
-def read_node(name: str = '', value: str = '') -> Node:
+def read_node(name: str = '', value: str = '') -> Union[Node, None]:
     """Read a node based on name and value.
     Since all nodes are supposed to be unique if both are
     specified, return the first one found.
@@ -698,7 +698,10 @@ def read_node(name: str = '', value: str = '') -> Node:
     :return: the node read, or None if no node was found.
     """
     all_nodes = read_all_nodes(name=name, value=value)
-    return all_nodes[0]
+    if len(all_nodes) == 0:
+        return None
+    else:
+        return all_nodes[0]
 
 
 def read_all_nodes(name: str = '', category: str = '', value: str = '',
