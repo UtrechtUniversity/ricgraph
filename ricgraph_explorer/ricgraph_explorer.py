@@ -537,7 +537,8 @@ def optionspage() -> str:
         html += html_body_end
         return html
 
-    node = result.first()
+    # node = result.first()
+    node = result[0]
     key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
     nodes_cache[key] = node
     html += create_options_page(node=node, discoverer_mode=discoverer_mode)

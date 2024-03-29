@@ -697,95 +697,97 @@ def read_node(name: str = '', value: str = '') -> Node:
     :param value: 'value' property of node.
     :return: the node read, or None if no node was found.
     """
-    first_node = read_all_nodes(name=name, value=value).first()
-    return first_node
+    first_node = read_all_nodes(name=name, value=value)
+    return first_node[0]
 
 
-def read_all_nodes(name: str = '', category: str = '', value: str = '') -> Union[NodeMatch, None]:
+def read_all_nodes(name: str = '', category: str = '', value: str = '') -> list:
     """Read a number of nodes based on name, category or value.
     Any of these parameters can be specified.
 
     :param name: 'name' property of node.
     :param category: idem.
     :param value: idem.
-    :return: NodeMatch object, which is a kind of list of nodes read, or None if nothing found
+    :return: list of nodes read, or None if nothing found
     """
     global _graph
 
     if _graph is None:
         print('\nread_all_nodes(): Error: graph has not been initialized or opened.\n\n')
-        return None
+        return []
 
     lname = str(name)
     lcategory = str(category)
     lvalue = str(value)
 
     if lname == 'nan' or lcategory == 'nan' or lvalue == 'nan':
-        return None
+        return []
+
+    # We don't allow a search for everything.
     if lname == '' and lcategory == '' and lvalue == '':
-        return None
+        return []
 
-    # Use NodeMatch for more advanced node matching.
-    nodes_in_graph = NodeMatcher(_graph)
-    if lname != '' and lcategory == '' and lvalue != '':
-        # I assume this is faster than querying on both property 'name' and 'value'.
-        # You can limit the number nodes by using something like nodes_in_graph.match().limit(1000)
-        all_nodes = nodes_in_graph.match('RicgraphNode', _key=create_ricgraph_key(name=lname, value=lvalue))
-        return all_nodes
-
-    node_properties = {}
+    cypher_query = 'MATCH (node) WHERE '
     if lname != '':
-        node_properties['name'] = lname
+        cypher_query += '(node.name = "' + lname + '") AND '
     if lcategory != '':
-        node_properties['category'] = lcategory
+        cypher_query += '(node.category = "' + lcategory + '") AND '
     if lvalue != '':
-        node_properties['value'] = lvalue
+        cypher_query += '(node.value = "' + lvalue + '") AND '
 
-    # You can limit the number nodes by using something like nodes_in_graph.match().limit(1000)
-    all_nodes = nodes_in_graph.match('RicgraphNode', **node_properties)
-    return all_nodes
+    # Remove last AND.
+    cypher_query = cypher_query.removesuffix('AND ')
+    cypher_query += 'RETURN node'
+    # print(cypher_query)
+
+    all_nodes = _graph.run(cypher_query).to_series().to_list()
+    if len(all_nodes) == 0:
+        return []
+    else:
+        return all_nodes
 
 
 # Note the similarity with read_all_nodes().
 # I only implemented this for property 'value'.
-def read_all_nodes_containing_value(name: str = '', category: str = '', value: str = '') -> Union[NodeMatch, None]:
+def read_all_nodes_containing_value(name: str = '', category: str = '', value: str = '') -> list:
     """Read a number of nodes where property 'value' contains a certain value (a string search).
     If you also specify 'name' and/or 'category', they will be used to restrict the results.
 
     :param name: 'name' property of node, exact match.
     :param category: 'category' property of node, exact match.
     :param value: 'value' property of node, string search on this property only.
-    :return: NodeMatch object, which is a kind of list of nodes read, or None if nothing found
+    :return: list of nodes read, or None if nothing found
     """
     global _graph
 
     if _graph is None:
         print('\nread_all_nodes_containing_value(): Error: graph has not been initialized or opened.\n\n')
-        return None
+        return []
 
     lname = str(name)
-    if lname == 'nan':
-        lname = ''
     lcategory = str(category)
-    if lcategory == 'nan':
-        lcategory = ''
     lvalue = str(value)
-    if lvalue == 'nan':
-        return None
-    if lvalue == '':
-        return None
 
-    # Prepare Cypher query. String search on property 'value'
-    cypher_query = 'toLower(_.value) CONTAINS toLower("' + lvalue + '")'
+    if lname == 'nan' or lcategory == 'nan' or lvalue == 'nan':
+        return []
+
+    # We don't allow a search for everything.
+    if lname == '' and lcategory == '' and lvalue == '':
+        return []
+
+    cypher_query = 'MATCH (node) WHERE '
     if lname != '':
-        # Exact match on property 'name', if present.
-        cypher_query += ' AND (_.name) = "' + lname + '"'
+        cypher_query += '(node.name = "' + lname + '") AND '
     if lcategory != '':
-        # Exact match on property 'category', if present.
-        cypher_query += ' AND (_.category) = "' + lcategory + '"'
-    nodes_in_graph = NodeMatch(_graph)
-    all_nodes = nodes_in_graph.where(cypher_query)
-    return all_nodes
+        cypher_query += '(node.category = "' + lcategory + '") AND '
+    cypher_query += '(toLower(node.value) CONTAINS toLower("' + lvalue + '")) '
+    # print(cypher_query)
+
+    all_nodes = _graph.run(cypher_query).to_series().to_list()
+    if len(all_nodes) == 0:
+        return []
+    else:
+        return all_nodes
 
 
 def read_all_values_of_property(node_property: str = '') -> Union[list, None]:
