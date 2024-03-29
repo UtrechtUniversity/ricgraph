@@ -747,8 +747,8 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
             # Case-insensitive search.
             cypher_query += '(toLower(node.value) CONTAINS toLower("' + value + '")) AND '
 
-    # Remove last AND.
-    cypher_query = cypher_query.removesuffix('AND ')
+    # Remove last 'AND ', is of length -4.
+    cypher_query = cypher_query[:-4]
     cypher_query += 'RETURN node'
 
     if max_nr_nodes > 0:
