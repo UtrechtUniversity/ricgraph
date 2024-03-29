@@ -135,7 +135,6 @@ rcg.get_all_personroot_nodes()       # get all 'person-root' nodes (there should
 rcg.get_all_neighbor_nodes()         # get all neighbor nodes connected to a node. 
                                      # it is possible to restrict to nodes having
                                      # a certain property 'name' or 'category'
-rcg.get_all_neighbor_nodes_person()  # get all neighbor nodes connected to a 'person' node
 ```
 
 ### Return to main README.md file

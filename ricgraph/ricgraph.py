@@ -982,7 +982,7 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
         return personroot
 
     personroot_nodes = get_all_personroot_nodes(node=person_node)
-    if personroot_nodes is None or len(personroot_nodes) == 0:
+    if len(personroot_nodes) == 0:
         # Should have been caught above.
         print('get_or_create_personroot_node(): not anticipated: person_node "'
               + person_node['_key'] + '" has zero person-root nodes.')
@@ -1694,7 +1694,7 @@ def get_all_neighbor_nodes_loop(node: Node,
     other parameters. If more than one is specified, the result is an AND.
 
     This is the same function as get_all_neighbor_nodes() but it is much slower
-    sinces it uses a loop. We need this in case
+    since it uses a loop. We need this in case
     len(name_dontwant_list) > 0 and len(category_dontwant_list) > 0.
 
     :param node: the node we need neighbors from.
@@ -1792,30 +1792,6 @@ def get_all_neighbor_nodes_loop(node: Node,
             count += 1
             continue
         # Any other next_node we do not want.
-
-    return neighbor_nodes
-
-
-def get_all_neighbor_nodes_person(node: Node,
-                                  max_nr_neighbor_nodes: int = 0) -> list:
-    """Get all the 'person' neighbor nodes connected to 'node',
-    also including 'node'.
-
-    :param node: the node.
-    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
-    :return: all person nodes connected to 'node'.
-    """
-    if node is None:
-        return []
-
-    personroot = get_personroot_node(node)
-    if personroot is None:
-        return []
-
-    neighbor_nodes = get_all_neighbor_nodes(node=personroot,
-                                            category_want='person',
-                                            max_nr_neighbor_nodes=max_nr_neighbor_nodes)
-    neighbor_nodes.append(personroot)
 
     return neighbor_nodes
 
