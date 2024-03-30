@@ -338,7 +338,7 @@ def empty_ricgraph(answer: str = '') -> None:
     # Apparently, the community edition of Neo4j does not have a
     # "CREATE OR REPLACE DATABASE customers" command.
     print('Deleting all nodes and edges in Ricgraph...\n')
-    _graph.delete_all()                     # Equivalent to "MATCH (a) DETACH DELETE a".
+    _graph.run('MATCH (node) DETACH DELETE node')
 
     # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
     # Don't use the call from py2neo, since it generates a B-tree index and that does not seem to exist
@@ -346,17 +346,17 @@ def empty_ricgraph(answer: str = '') -> None:
     # types (Range, Point, and Text)."
     # Indexes will be generated on the fly.
     # If I understand correctly there can be at most 3 indexes, while I would like to have 4.
-    # I decide not use a ValueIndex
+    # I decide not use a CategoryIndex.
     _graph.run('DROP INDEX KeyIndex IF EXISTS')
     _graph.run('DROP INDEX NameIndex IF EXISTS')
-    _graph.run('DROP INDEX CategoryIndex IF EXISTS')
-    # graph.run('DROP INDEX ValueIndex IF EXISTS')
+    # _graph.run('DROP INDEX CategoryIndex IF EXISTS')
+    _graph.run('DROP INDEX ValueIndex IF EXISTS')
 
     print('Creating indexes...')
-    _graph.run('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR(n: RicgraphNode) ON(n._key)')
-    _graph.run('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR(n: RicgraphNode) ON(n.name)')
-    _graph.run('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR(n: RicgraphNode) ON(n.category)')
-    # graph.run('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR(n: RicgraphNode) ON(n.value)')
+    _graph.run('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node._key)')
+    _graph.run('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.name)')
+    # _graph.run('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR(node: RicgraphNode) ON (node.category)')
+    _graph.run('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.value)')
 
     print('These indexes have been created (column "state" indicates if they have been generated yet):')
     out = _graph.run('SHOW INDEXES')
@@ -364,46 +364,46 @@ def empty_ricgraph(answer: str = '') -> None:
     return
 
 
-def ricgraph_nr_nodes() -> Union[int, None]:
+def ricgraph_nr_nodes() -> int:
     """Count the number of nodes in Ricgraph.
 
-    :return: the number of nodes.
+    :return: the number of nodes, or -1 on error.
     """
     global _graph
 
     if _graph is None:
         print('\nricgraph_nr_nodes(): Error: graph has not been initialized or opened.\n\n')
-        return None
+        return -1
 
-    cypher_query = 'MATCH () RETURN COUNT(*) AS count'
+    cypher_query = 'MATCH () RETURN COUNT (*) AS count'
     result = _graph.run(cypher_query).data()
     if len(result) == 0:
-        return None
+        return -1
     result = result[0]
     if 'count' not in result:
-        return None
+        return -1
     result = int(result['count'])
     return result
 
 
-def ricgraph_nr_edges() -> Union[int, None]:
+def ricgraph_nr_edges() -> int:
     """Count the number of edges in Ricgraph.
 
-    :return: the number of edges.
+    :return: the number of nodes, or -1 on error.
     """
     global _graph
 
     if _graph is None:
         print('\nricgraph_nr_edges(): Error: graph has not been initialized or opened.\n\n')
-        return None
+        return -1
 
-    cypher_query = 'MATCH() -[r]->() RETURN COUNT(r) AS count'
+    cypher_query = 'MATCH() -[r]->() RETURN COUNT (r) AS count'
     result = _graph.run(cypher_query).data()
     if len(result) == 0:
-        return None
+        return -1
     result = result[0]
     if 'count' not in result:
-        return None
+        return -1
     result = int(result['count'])
     return result
 
@@ -762,35 +762,35 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
         return all_nodes
 
 
-def read_all_values_of_property(node_property: str = '') -> Union[list, None]:
+def read_all_values_of_property(node_property: str = '') -> list:
     """Read all the values of a certain property.
 
     :param node_property: the property to find all values.
-    :return: a sorted list with all the values.
+    :return: a sorted list with all the values, or empty list on error.
     """
     global _graph
 
     if _graph is None:
         print('\nread_all_values_of_property(): Error: graph has not been initialized or opened.\n\n')
-        return None
+        return []
 
     if node_property != 'name' \
        and node_property != 'category' \
        and node_property != '_source':
         print('\nread_all_values_of_property(): Error: function does not work for property "'
               + node_property + '".\n\n')
-        return None
+        return []
 
-    cypher_query = 'MATCH (p:RicgraphNode) RETURN COLLECT(DISTINCT p.' + node_property + ') AS entries'
+    cypher_query = 'MATCH (node) RETURN COLLECT (DISTINCT node.' + node_property + ') AS entries'
     result = _graph.run(cypher_query).data()
     if len(result) == 0:
-        return None
+        return []
     result = result[0]
     if 'entries' not in result:
-        return None
+        return []
     result_list = result['entries']
     if len(result_list) == 0:
-        return None
+        return []
     if node_property == '_source':
         # This is a special case, we have a list of lists that we need to untangle.
         list_of_lists = result_list

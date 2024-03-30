@@ -2777,17 +2777,17 @@ def initialize_ricgraph_explorer():
         exit(2)
 
     name_all = rcg.read_all_values_of_property('name')
-    if name_all is None:
+    if len(name_all) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "name".')
         print('Continuing with an empty list. This might give unexpected results.')
         name_all = []
     category_all = rcg.read_all_values_of_property('category')
-    if category_all is None:
+    if len(category_all) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "category".')
         print('Continuing with an empty list. This might give unexpected results.')
         category_all = []
     source_all = rcg.read_all_values_of_property('_source')
-    if source_all is None:
+    if len(source_all) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "_source".')
         print('Continuing with an empty list. This might give unexpected results.')
         source_all = []

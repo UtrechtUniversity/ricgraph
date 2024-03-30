@@ -87,7 +87,7 @@ if sort_organization == '':
         exit(1)
 
 category_all = rcg.read_all_values_of_property('category')
-if category_all is None:
+if len(category_all) == 0 :
     print('Error in obtaining list with all property values for property "category".')
     exit(2)
 
