@@ -249,8 +249,11 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
         lambda row: rcg.lookup_resout_type(research_output_type=row['resourceType'],
                                            research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
     datacite_data['DOI'] = datacite_data['DOI'].str.lower()
-    datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='', inplace=True)
-    datacite_data['ISNI'].replace(regex=r'[ ]*', value='', inplace=True)
+    # The next two statements will result in an 'behaviour will change in pandas 3.0' warning.
+    # datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='', inplace=True)
+    # datacite_data['ISNI'].replace(regex=r'[ ]*', value='', inplace=True)
+    datacite_data['ORCID'] = datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='')
+    datacite_data['ISNI'] = datacite_data['ISNI'].replace(regex=r'[ ]*', value='')
 
     yoda_data = datacite_data[['DOI', 'contributorName', 'DAI',
                                'ORCID', 'Author identifier (Scopus)',

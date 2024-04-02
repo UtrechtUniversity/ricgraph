@@ -114,11 +114,11 @@ from functools import lru_cache, wraps
 import configparser
 
 from py2neo import *
-from py2neo.matching import *
+# from py2neo.matching import *
 
 
 __author__ = 'Rik D.T. Janssen'
-__copyright__ = 'Copyright (c) 2023 Rik D.T. Janssen'
+__copyright__ = 'Copyright (c) 2023, 2024 Rik D.T. Janssen'
 __email__ = ''
 __license__ = 'MIT License'
 __package__ = 'Ricgraph'
@@ -221,6 +221,10 @@ ROTYPE_ALL = [ROTYPE_ABSTRACT,
 global _graph
 
 
+# ##############################################################################
+# Cache function.
+# ##############################################################################
+
 # Values will only be stored in the cache if the function does not return None
 # Used is the property that the standard @lru_cache doesn't do caching when
 # an exception is raised within the wrapped function.
@@ -265,6 +269,27 @@ def ricgraph_lru_cache(maxsize: int = 128, typed: bool = False):
 
     return decorator
 
+
+# ##############################################################################
+# Cypher functions.
+# ##############################################################################
+# These are also functions with cypher:
+# - read_all_nodes()
+# - get_edges()
+# - get_all_neighbor_nodes()
+# ##############################################################################
+# Note the use of some WHERE clauses below. Some of them uses the function id(),
+# which does a _direct_ lookup for a node with that id. That is the fastest way possible,
+# compared to a WHERE clause on node['_key'], which is a search.
+# To observe this difference, prefix a Cypher query with PROFILE, e.g.:
+# PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
+#
+# However, id() is deprecated in Neo4j and should be replaced with elementid(). But this
+# cannot be done, since module py2neo (which is end-of-life) does not have this
+# elementid.
+# Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
+# https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
+# ##############################################################################
 
 def open_ricgraph() -> Graph:
     """Open Ricgraph.
@@ -397,7 +422,7 @@ def ricgraph_nr_edges() -> int:
         print('\nricgraph_nr_edges(): Error: graph has not been initialized or opened.\n\n')
         return -1
 
-    cypher_query = 'MATCH() -[r]->() RETURN COUNT (r) AS count'
+    cypher_query = 'MATCH ()-[r]->() RETURN COUNT (r) AS count'
     result = _graph.run(cypher_query).data()
     if len(result) == 0:
         return -1
@@ -407,6 +432,101 @@ def ricgraph_nr_edges() -> int:
     result = int(result['count'])
     return result
 
+
+def cypher_create_node(node_properties: dict) -> Union[Node, None]:
+    """
+    Create a node in the graph database.
+    Create means: the node will be created, regardless if it is already
+    present or not. No test for presence of a node is done.
+    The properties and their values in 'node_properties' will be added
+    as properties & values of the node.
+    The 'name', 'category', and 'value' properties are expected to be
+    in 'node_properties'.
+
+    :param node_properties: the properties of the node.
+    :return: the node updated, or None on error.
+    """
+    # There are several methods for creating a node in the graph database.
+    # This would be an alternative, but it seems to use more memory than the
+    # one used now, according to 'PROFILE <cypher query>'.
+    # cypher_query = 'CREATE (node:RicgraphNode) SET node=$node_properties ' [etc]
+    cypher_query = 'CREATE (node:RicgraphNode $node_properties) '
+    cypher_query += 'RETURN node'
+
+    # print('cypher_create_node(): cypher_query: ' + cypher_query)
+    # print('                      node_properties: ' + str(node_properties))
+
+    result = _graph.run(cypher_query,
+                        node_properties=node_properties).to_series().to_list()
+    if len(result) == 0:
+        return None
+    else:
+        return result[0]
+
+
+def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
+    """
+    Merge (update) a node in the graph database.
+    Merge means: if it is already there, no new node will be created.
+    Only the properties and their values in 'node_properties' will be changed (if
+    a property is present in the node) or added (if the property is not present).
+
+    :param node_id: the id of the node.
+    :param node_properties: the properties of the node.
+    :return: the node updated, or None on error.
+    """
+    cypher_query = 'MATCH (node) WHERE id(node)=$node_id '
+    cypher_query += 'SET node+=$node_properties '
+    cypher_query += 'RETURN node'
+
+    # print('cypher_merge_node(): node_id: ' + str(node_id) + ', cypher_query: ' + cypher_query)
+    # print('                     node_properties: ' + str(node_properties))
+
+    result = _graph.run(cypher_query,
+                        node_id=node_id,
+                        node_properties=node_properties).to_series().to_list()
+    if len(result) == 0:
+        return None
+    else:
+        return result[0]
+
+
+def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
+    """Connect two nodes using a Cypher query.
+
+    :param left_node_id: the id of the left node.
+    :param right_node_id: the id of the right node.
+    :return: None.
+    """
+    # There are several methods for getting the nodes in the graph database.
+    # This one takes the most time.
+    # It amounts to 4 database hits according to 'PROFILE <cypher query>', using 'AllNodesScan'.
+    # cypher_query = 'MATCH (left_node {ID:' + str(left_node.identity) + '}) ' [etc]
+    # The next one takes average time.
+    # It amounts to 23 database hits according to 'PROFILE', using 'AllNodesScan'.
+    # cypher_query = 'MATCH (left_node) WHERE left_node._key="' + str(left_node['_key']) + '" ' [etc]
+    # The next one is the fastest.
+    # It amounts to 1 database hits according to 'PROFILE' using 'NodeByIdSeek'.
+    cypher_query = 'MATCH (left_node) WHERE id(left_node)=$left_node_id '
+    cypher_query += 'MATCH (right_node) WHERE id(right_node)=$right_node_id '
+
+    # We could use 'CREATE', but then we may get multiple edges for the same direction.
+    # cypher_query += 'CREATE (left_node)-[:LINKS_TO]->(right_node), ' [etc]
+    cypher_query += 'MERGE (left_node)-[:LINKS_TO]->(right_node) '
+    cypher_query += 'MERGE (left_node)<-[:LINKS_TO]-(right_node) '
+
+    # print('cypher_merge_edge(): left_node_id: ' + str(left_node_id) + ', right_node_id: '
+    #       + str(right_node_id) + ', cypher_query: ' + cypher_query)
+
+    _graph.run(cypher_query,
+               left_node_id=left_node_id,
+               right_node_id=right_node_id)
+    return
+
+
+# ##############################################################################
+# General Ricgraph functions.
+# ##############################################################################
 
 def create_ricgraph_key(name: str, value: str) -> str:
     """Create a key for a node.
@@ -506,23 +626,27 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
         timestamp = now.strftime("%Y%m%d-%H%M%S")
         if isinstance(personroot['comment'], str):
             if personroot['comment'] == '':
-                old_value = str(personroot['comment'])
-                personroot['comment'] = []
-                personroot['comment'].append(node['value'])
+                old_value = str(personroot['comment'])      # Not necessary, for symmetry.
+                node_properties = {'comment': [node['value']]}
                 history_line = create_history_line(property_name='comment',
                                                    old_value=old_value,
-                                                   new_value=str(personroot['comment']))
-                personroot['_history'].append(timestamp + ': ' + history_line)
-                _graph.push(personroot)
+                                                   new_value=str(node_properties['comment']))
+                node_properties['_history'] = personroot['_history'].copy()
+                node_properties['_history'].append(timestamp + ': ' + history_line)
+                cypher_merge_node(node_id=personroot.identity,
+                                  node_properties=node_properties)
         elif isinstance(personroot['comment'], list):
             if node['value'] not in personroot['comment']:
                 old_value = str(personroot['comment'])
-                personroot['comment'].append(node['value'])
+                node_properties = {'comment': personroot['comment'].copy()}
+                node_properties['comment'].append(node['value'])
                 history_line = create_history_line(property_name='comment',
                                                    old_value=old_value,
-                                                   new_value=str(personroot['comment']))
-                personroot['_history'].append(timestamp + ': ' + history_line)
-                _graph.push(personroot)
+                                                   new_value=str(node_properties['comment']))
+                node_properties['_history'] = personroot['_history'].copy()
+                node_properties['_history'].append(timestamp + ': ' + history_line)
+                cypher_merge_node(node_id=personroot.identity,
+                                  node_properties=node_properties)
         # In all other cases: it is already in the cache,
         # or leave it as it is: 'comment' seems to be used for something we don't know.
 
@@ -555,76 +679,94 @@ def recreate_name_cache_in_personroot(personroot: Node):
             history_line = create_history_line(property_name='comment',
                                                old_value=str(personroot['comment']),
                                                new_value=str(name_cache))
-            personroot['_history'].append(timestamp + ': Cleaned and recreated name cache. ' + history_line)
-            personroot['comment'] = name_cache.copy()
-            _graph.push(personroot)
+            node_properties = {'comment': name_cache.copy(),
+                               '_history': personroot['_history'].copy()}
+            node_properties['_history'].append(timestamp + ': Cleaned and recreated name cache. ' + history_line)
+            cypher_merge_node(node_id=personroot.identity,
+                              node_properties=node_properties)
         # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
     return
 
 
-# _history should be an ordered list:
-# "[...] that the items have a defined order, and that order will not change.
-# If you add new items to a list, the new items will be placed at the end of the list."
-# https://www.w3schools.com/python/python_lists.asp
-# That means, list or tuple, or with python 3.7 (OpenSUSE 15.4 has 3.6), a dictionary.
-# However, we cannot use a dict, because neo4j requires:
-# "Property values can only be of primitive types or arrays thereof"
-# This might change if another graph database is going to be used.
-def create_node(name: str, category: str, value: str,
-                **other_properties: dict) -> Union[Node, None]:
-    """Create a node.
-    For now all properties will have string value, except for _history, which is a list.
+def create_update_node(name: str, category: str, value: str,
+                       other_properties: dict = None) -> Union[Node, None]:
+    """Create a node, or update its values if is already present.
+    The new/updated node will have values 'name', 'category', and 'value', and
+    the values in other_properties.
+    For now all properties will have a string value, except for '_source'
+    (a sorted list), and '_history' (a list).
+    For now, we do not allow to change the 'name' or 'value' properties
+    (and, subsequently, the '_key' value),
+    since that would be a "move" of the node to another node,
+    and I have no idea how the graph database will handle this.
 
-    :param name: 'name' property of node.
-    :param category: idem.
-    :param value: idem.
+    :param name: 'name' property of node to create or update.
+    :param category: 'category' property of node.
+    :param value: 'value' property of node.
     :param other_properties: a dictionary of all the other properties.
     :return: the node created, or None if this was not possible
     """
+    if other_properties is None:
+        other_properties = {}
     global _graph
 
     if _graph is None:
-        print('\ncreate_node(): Error: graph has not been initialized or opened.\n\n')
+        print('\ncreate_update_node(): Error: graph has not been initialized or opened.\n\n')
         return None
+
+    if not isinstance(name, str) \
+       or not isinstance(category, str) \
+       or not isinstance(value, str):
+        return None
+
+    if other_properties is None:
+        other_properties = {}
 
     lname = str(name)
     lcategory = str(category)
     lvalue = str(value)
 
-    if lname == '' or lcategory == '' or lvalue == '' \
-       or lname == 'nan' or lcategory == 'nan' or lvalue == 'nan':
+    if lname == '' or lcategory == '' or lvalue == '':
         return None
 
-    url = create_well_known_url(name=lname, value=lvalue)
     node_properties = {}
     now = datetime.now()
     timestamp = now.strftime("%Y%m%d-%H%M%S")
     node = read_node(name=lname, value=lvalue)
     if node is None:
-        # Create from CRUD
+        # Create a node.
+        # First do the properties in RICGRAPH_PROPERTIES_STANDARD.
+        node_properties['name'] = lname
+        node_properties['category'] = lcategory
+        node_properties['value'] = lvalue
+
+        # Then do the properties in RICGRAPH_PROPERTIES_ADDITIONAL.
         for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
-            node_properties[prop_name] = ''
-            for other_name, other_value in other_properties.items():
-                if prop_name == other_name:
-                    node_properties[prop_name] = str(other_value)
-                    break
+            if prop_name in other_properties:
+                node_properties[prop_name] = str(other_properties[prop_name])
+            else:
+                node_properties[prop_name] = ''
 
         # If no url_main has been passed, insert an ISNI, DOI, etc. url if category is ISNI, DOI, etc.
+        url = create_well_known_url(name=lname, value=lvalue)
         if node_properties['url_main'] == '' and url != '':
             node_properties['url_main'] = url
 
+        # Then do the properties in RICGRAPH_PROPERTIES_HIDDEN.
+        node_properties['_key'] = create_ricgraph_key(name=lname, value=lvalue)
         if node_properties['source_event'] == '':
-            source = []
+            node_properties['_source'] = []
         else:
-            source = [node_properties['source_event']]
-        node_properties['source_event'] = ''
+            node_properties['_source'] = [node_properties['source_event']]
+            node_properties['source_event'] = ''
 
-        history = [timestamp + ': Created. ' + node_properties['history_event']]
-        node_properties['history_event'] = ''
-        new_node = Node('RicgraphNode', _key=create_ricgraph_key(name=lname, value=lvalue),
-                        _source=source, _history=history,
-                        name=lname, category=lcategory, value=lvalue, **node_properties)
-        _graph.create(new_node)
+        if node_properties['history_event'] == '':
+            node_properties['_history'] = [timestamp + ': Created. ']
+        else:
+            node_properties['_history'] = [timestamp + ': Created. ' + node_properties['history_event']]
+            node_properties['history_event'] = ''
+
+        new_node = cypher_create_node(node_properties=node_properties)
         return new_node
 
     if RICGRAPH_NODEADD_MODE == 'strict' and node['name'] == 'FULL_NAME':
@@ -637,54 +779,54 @@ def create_node(name: str, category: str, value: str,
         # So don't do this if we are in NODEADD_MODE 'strict'.
         return None
 
-    # Update from CRUD
+    # Update a node.
     history_line = ''
+
+    # First do the properties in RICGRAPH_PROPERTIES_STANDARD.
+    # We do not allow update on 'name' or 'value'.
     if node['category'] != lcategory:
-        # Not necessary to do similar tests for lname, lvalue or _key, since changing one of these
-        # means that a new node will be created, which is done in the "if" part above.
-        history_line += create_history_line(property_name='category', old_value=node['category'], new_value=lcategory)
-        node['category'] = lcategory
+        history_line += create_history_line(property_name='category',
+                                            old_value=node['category'],
+                                            new_value=lcategory)
+        node_properties['category'] = lcategory
 
+    # First do the properties in RICGRAPH_PROPERTIES_ADDITIONAL.
     for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
-        old_val = str(node[prop_name])
-        # Note: if a property is not present in other_properties, its value does not change
-        for other_name, other_value in other_properties.items():
-            other_value_str = str(other_value)
-            if prop_name == other_name:
-                if old_val != other_value_str:
-                    if prop_name != 'history_event' and prop_name != 'source_event':
-                        # Do not enter (changes to) property history_event or source_event in _history
-                        history_line += create_history_line(property_name=prop_name,
-                                                            old_value=node[prop_name], new_value=other_value_str)
-                    # Note: for now all properties (except _source and _history) will have string value
-                    node[prop_name] = other_value_str
-                break
+        if prop_name not in other_properties:
+            continue
+        if prop_name == 'history_event' or prop_name == 'source_event':
+            # Do not add these to node_properties, and don't add them to _history.
+            continue
+        # Only in case a property is in other_properties, its value may change.
+        present_val = str(node[prop_name])
+        if present_val != str(other_properties[prop_name]):
+            # But its value is only changed if it is different then the old value.
+            node_properties[prop_name] = str(other_properties[prop_name])
+            history_line += create_history_line(property_name=prop_name,
+                                                old_value=present_val,
+                                                new_value=str(other_properties[prop_name]))
 
-    if node['url_main'] == '' and url != '':
-        # If no url_main has been passed, insert an ISNI, DOI, etc. url if category is ISNI, DOI, etc.
-        history_line += create_history_line(property_name='url_main', old_value=node['url_main'], new_value=url)
-        node['url_main'] = url
-
-    if node['source_event'] != '':
-        if node['source_event'] not in node['_source']:
-            old_list = node['_source'].copy()
-            node['_source'].append(node['source_event'])
-            node['_source'].sort()
-            history_line += create_history_line(property_name='_source',
-                                                old_value=str(old_list), new_value=str(node['_source']))
-    node['source_event'] = ''
+    # Then do the properties in RICGRAPH_PROPERTIES_HIDDEN.
+    # We do not allow update on '_key'.
+    if 'source_event' in other_properties:
+        if other_properties['source_event'] != '':
+            if other_properties['source_event'] not in node['_source']:
+                node_properties['_source'] = node['_source'].copy()
+                node_properties['_source'].append(other_properties['source_event'])
+                node_properties['_source'].sort()
+                history_line += create_history_line(property_name='_source',
+                                                    old_value=str(node['_source']),
+                                                    new_value=str(node_properties['_source']))
 
     if history_line == '':
-        # No changes, clear property history_event
-        node['history_event'] = ''
+        # No changes.
         return node
 
-    node['_history'].append(timestamp + ': Updated. ' + history_line)
-    node['history_event'] = ''
-    # The push() only works after a graph has been created, merge() does not update
-    _graph.push(node)
-
-    return node
+    node_properties['_history'] = node['_history'].copy()
+    node_properties['_history'].append(timestamp + ': Updated. ' + history_line)
+    updated_node = cypher_merge_node(node_id=node.identity,
+                                     node_properties=node_properties)
+    return updated_node
 
 
 @ricgraph_lru_cache(maxsize=CACHE_SIZE_READ_NODE)
@@ -807,20 +949,6 @@ def read_all_values_of_property(node_property: str = '') -> list:
     return result_list_sorted
 
 
-def update_node(name: str, category: str, value: str,
-                **other_properties: dict) -> Node:
-    """Update a node.
-
-    :param name: 'name' property of node.
-    :param category: idem.
-    :param value: idem.
-    :param other_properties: a dictionary of all the other properties.
-    :return: the node updated, or None if this was not possible
-    """
-    node = create_node(name=name, category=category, value=value, **other_properties)
-    return node
-
-
 def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, None]:
     """Update a node, change the value property.
     This is a special case of update_node() because we change the key. Therefore,
@@ -834,19 +962,23 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     :param new_value: old 'value' property of node.
     :return: the node updated, or None if this was not possible
     """
-    # A lot of the code below is copied from create_node().
+    # A lot of the code below is copied from create_update_node().
     global _graph
 
     if _graph is None:
         print('\nupdate_node_value(): Error: graph has not been initialized or opened.\n\n')
         return None
 
+    if not isinstance(name, str) \
+       or not isinstance(old_value, str) \
+       or not isinstance(new_value, str):
+        return None
+
     lname = str(name)
     loldvalue = str(old_value)
     lnewvalue = str(new_value)
 
-    if lname == '' or loldvalue == '' or lnewvalue == '' \
-       or lname == 'nan' or loldvalue == 'nan' or lnewvalue == 'nan':
+    if lname == '' or loldvalue == '' or lnewvalue == '':
         return None
 
     now = datetime.now()
@@ -866,19 +998,19 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
         print('Nothing has been changed.')
         return None
 
-    # Create from CRUD
-    node['value'] = lnewvalue
+    node_properties = {'value': lnewvalue}
     oldkey = node['_key']
     newkey = create_ricgraph_key(name=lname, value=lnewvalue)
-    node['_key'] = newkey
+    node_properties['_key'] = newkey
     history_line = create_history_line(property_name='value', old_value=loldvalue, new_value=lnewvalue)
     history_line += create_history_line(property_name='_key', old_value=oldkey, new_value=newkey)
-    node['_history'].append(timestamp + ': Updated. ' + history_line)
+    node_properties['_history'] = node['_history'].copy()
+    node_properties['_history'].append(timestamp + ': Updated. ' + history_line)
+    updated_node = cypher_merge_node(node_id=node.identity,
+                                     node_properties=node_properties)
 
-    # The push() only works after a graph has been created, merge() does not update
-    _graph.push(node)
-    if node['name'] == 'FULL_NAME':
-        personroot = get_or_create_personroot_node(person_node=node)
+    if updated_node['name'] == 'FULL_NAME':
+        personroot = get_or_create_personroot_node(person_node=updated_node)
         recreate_name_cache_in_personroot(personroot=personroot)
     return node
 
@@ -917,38 +1049,44 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
                 if prop_name == other_name:
                     node_properties[prop_name] = getattr(row, other_name)
 
-        update_node(name=row.name, category=row.category, value=row.value,
-                    **node_properties)
+        create_update_node(name=row.name, category=row.category, value=row.value,
+                           other_properties=node_properties)
 
     print(count, '\n', end='', flush=True)
     print('Cache used at end of function: ' + str(read_node.cache_info()) + '.')
     return
 
 
-def delete_node(name: str, value: str) -> None:
-    """Delete a node based on name and value.
-
-    :param name: 'name' property of node.
-    :param value: idem.
-    """
-    global _graph
-
-    if _graph is None:
-        print('\ndelete_node(): Error: graph has not been initialized or opened.\n\n')
-        return
-
-    lname = str(name)
-    lvalue = str(value)
-
-    if lname == '' or lvalue == '' or lname == 'nan' or lvalue == 'nan':
-        return
-
-    node = read_node(name=lname, value=lvalue)
-    if node is None:
-        return
-
-    _graph.delete(node)
-    return
+# ######
+# The following function is not used at the moment (March 2023) and
+# has not been tested. They contain parts of py2neo.
+# If you would like to use it, please rewrite first and then test carefully.
+# ######
+# def delete_node(name: str, value: str) -> None:
+#     """Delete a node based on name and value.
+#
+#     :param name: 'name' property of node.
+#     :param value: idem.
+#     """
+#     global _graph
+#
+#     if _graph is None:
+#         print('\ndelete_node(): Error: graph has not been initialized or opened.\n\n')
+#         return
+#
+#     lname = str(name)
+#     lvalue = str(value)
+#
+#     if lname == '' or lvalue == '' or lname == 'nan' or lvalue == 'nan':
+#         return
+#
+#     node = read_node(name=lname, value=lvalue)
+#     if node is None:
+#         return
+#
+#     _graph.delete(node)
+#     return
+# ######
 
 
 def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
@@ -971,22 +1109,14 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
     if person_node['name'] == 'person-root':
         return person_node
 
-    nr_edges = len(get_edges(node=person_node))
-    if nr_edges == 0:
-        # Create the 'person-root' node with a unique value.
-        value = str(uuid.uuid4())
-        personroot = create_node(name='person-root', category='person', value=value)
-        edge1 = LINKS_TO(person_node, personroot)
-        edge2 = LINKS_TO(personroot, person_node)
-        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
-        return personroot
-
     personroot_nodes = get_all_personroot_nodes(node=person_node)
     if len(personroot_nodes) == 0:
-        # Should have been caught above.
-        print('get_or_create_personroot_node(): not anticipated: person_node "'
-              + person_node['_key'] + '" has zero person-root nodes.')
-        return None
+        # Create the 'person-root' node with a unique value.
+        value = str(uuid.uuid4())
+        personroot = create_update_node(name='person-root', category='person', value=value)
+        cypher_merge_edge(left_node_id=person_node.identity,
+                          right_node_id=personroot.identity)
+        return personroot
 
     if len(personroot_nodes) > 1:
         print('get_or_create_personroot_node(): not anticipated: person_node "'
@@ -1025,137 +1155,142 @@ def connect_person_and_non_person_node(person_node: Node,
         if personroot is None:
             return
 
-    edge1 = LINKS_TO(non_person_node, personroot)
-    edge2 = LINKS_TO(personroot, non_person_node)
-    _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
+    cypher_merge_edge(left_node_id=non_person_node.identity,
+                      right_node_id=personroot.identity)
     return
 
 
-def merge_two_personroot_nodes(left_personroot_node: Node, right_personroot_node: Node) -> None:
-    """Merge two 'person-root' nodes. Or do nothing if they are the same.
-
-    :param left_personroot_node: the left person-root node.
-    :param right_personroot_node: the right person-root node.
-    :return: None.
-    """
-    global _graph
-
-    if left_personroot_node is None or right_personroot_node is None:
-        print('merge_two_personroot_nodes(): Error: (one of the) nodes is None.')
-        return
-
-    if left_personroot_node['name'] != 'person-root' \
-       or right_personroot_node['name'] != 'person-root':
-        print('merge_two_personroot_nodes(): not anticipated: (one of the) nodes '
-              + 'are not "person-root".')
-        return
-
-    if left_personroot_node == right_personroot_node:
-        # They are already connected, we are done.
-        return
-
-    # There are two possible reasons why it can happen that two person-root nodes
-    # of two nodes to insert are different:
-    # (1) It can happen e.g. in case a personal ID (ISNI, ORCID, etc.) is assigned
-    #     to two or more different persons.
-    #     Of course, that should not happen. Most probably this in a typo in a source system.
-    # (2) The two nodes refer to the same person, but originate from different source
-    #     systems.
-    #     E.g. harvest of system 1 results in ORCID and ISNI of the same person, which have a
-    #     common person-root. Harvest of system 2 results in EMAIL with another person-root.
-    #     Now a subsequent harvest results in ORCID and EMAIL of the same person. Then there
-    #     are two different person-roots which need to be merged.
-    # Both can happen, but we cannot know if it is either (1) or (2).
-
-    now = datetime.now()
-    timestamp = now.strftime('%Y%m%d-%H%M%S')
-    count = 0
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
-    what_happened += 'Merged person-root node "'
-    what_happened += right_personroot_node['_key'] + '" to this person-root node '
-    what_happened += 'and then deleted it. This was the history of the deleted node:'
-    left_personroot_node['_history'].append(what_happened)
-    for history in right_personroot_node['_history']:
-        count += 1
-        what_happened = timestamp + '-' + format(count, '02d') + ': '
-        what_happened += history
-        left_personroot_node['_history'].append(what_happened)
-
-    count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
-    what_happened += 'End of history of the deleted node.'
-    left_personroot_node['_history'].append(what_happened)
-
-    count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
-    what_happened += 'These were the neighbors of the deleted node, '
-    what_happened += 'now merged with the neighbors of this node:'
-    left_personroot_node['_history'].append(what_happened)
-
-    count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
-    for edge_from_right_node in get_edges(right_personroot_node):
-        right_node = edge_from_right_node.end_node
-        if right_node is None:
-            continue
-        if right_node == right_personroot_node:
-            continue
-
-        what_happened += '"' + str(right_node['_key']) + '" '
-        edge_delete1 = LINKS_TO(right_personroot_node, right_node)
-        edge_delete2 = LINKS_TO(right_node, right_personroot_node)
-        edge_create1 = LINKS_TO(left_personroot_node, right_node)
-        edge_create2 = LINKS_TO(right_node, left_personroot_node)
-        # _graph.delete() also deletes 'right_personroot_node'.
-        # TODO: There seems to be a bug here. It does not only delete 'right_personroot_node', but sometimes it also
-        #   deletes other nodes which have more than one edge, such as an 'organization' node connected to multiple
-        #   person-root nodes (including right_personroot_node).
-        #   The problem is that _graph.separate() does not seem to work, which seems to be the 'best' function
-        #   since it only deletes edges. Use with caution (or don't use).
-        _graph.delete(edge_delete1)
-        _graph.delete(edge_delete2)
-        _graph.merge(edge_create1 | edge_create2, 'RicgraphNode', '_key')
-
-    what_happened += '.'
-    left_personroot_node['_history'].append(what_happened)
-
-    count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
-    what_happened += 'End of list of neighbors of the deleted node.'
-    left_personroot_node['_history'].append(what_happened)
-    _graph.push(left_personroot_node)
-    return
-
-
-def merge_personroots_of_two_nodes(name1: str, value1: str,
-                                   name2: str, value2: str) -> None:
-
-    """Merge two 'person-root' nodes, by specifying one of its neighbors.
-    Or do nothing if their person-roots are already the same node.
-
-    :param name1: 'name' property of left node.
-    :param value1: 'value' property of left node.
-    :param name2: 'name' property of right node.
-    :param value2: 'value' property of right node.
-    :return: None.
-    """
-    left_node = read_node(name=name1, value=value1)
-    right_node = read_node(name=name2, value=value2)
-    if left_node is None or right_node is None:
-        return
-
-    left_personroot_node = get_or_create_personroot_node(person_node=left_node)
-    right_personroot_node = get_or_create_personroot_node(person_node=right_node)
-    if left_personroot_node is None or right_personroot_node is None:
-        return
-
-    if left_personroot_node == right_personroot_node:
-        # They are already connected, we are done.
-        return
-
-    merge_two_personroot_nodes(left_personroot_node=left_personroot_node,
-                               right_personroot_node=right_personroot_node)
-    return
+# ######
+# The following two functions are not used at the moment (March 2023) and
+# have not been tested. They contain parts of py2neo.
+# If you would like to use them, please rewrite first and then test carefully.
+# ######
+# def merge_two_personroot_nodes(left_personroot_node: Node, right_personroot_node: Node) -> None:
+#     """Merge two 'person-root' nodes. Or do nothing if they are the same.
+#
+#     :param left_personroot_node: the left person-root node.
+#     :param right_personroot_node: the right person-root node.
+#     :return: None.
+#     """
+#     global _graph
+#
+#     if left_personroot_node is None or right_personroot_node is None:
+#         print('merge_two_personroot_nodes(): Error: (one of the) nodes is None.')
+#         return
+#
+#     if left_personroot_node['name'] != 'person-root' \
+#        or right_personroot_node['name'] != 'person-root':
+#         print('merge_two_personroot_nodes(): not anticipated: (one of the) nodes '
+#               + 'are not "person-root".')
+#         return
+#
+#     if left_personroot_node == right_personroot_node:
+#         # They are already connected, we are done.
+#         return
+#
+#     # There are two possible reasons why it can happen that two person-root nodes
+#     # of two nodes to insert are different:
+#     # (1) It can happen e.g. in case a personal ID (ISNI, ORCID, etc.) is assigned
+#     #     to two or more different persons.
+#     #     Of course, that should not happen. Most probably this in a typo in a source system.
+#     # (2) The two nodes refer to the same person, but originate from different source
+#     #     systems.
+#     #     E.g. harvest of system 1 results in ORCID and ISNI of the same person, which have a
+#     #     common person-root. Harvest of system 2 results in EMAIL with another person-root.
+#     #     Now a subsequent harvest results in ORCID and EMAIL of the same person. Then there
+#     #     are two different person-roots which need to be merged.
+#     # Both can happen, but we cannot know if it is either (1) or (2).
+#
+#     now = datetime.now()
+#     timestamp = now.strftime('%Y%m%d-%H%M%S')
+#     count = 0
+#     what_happened = timestamp + '-' + format(count, '02d') + ': '
+#     what_happened += 'Merged person-root node "'
+#     what_happened += right_personroot_node['_key'] + '" to this person-root node '
+#     what_happened += 'and then deleted it. This was the history of the deleted node:'
+#     left_personroot_node['_history'].append(what_happened)
+#     for history in right_personroot_node['_history']:
+#         count += 1
+#         what_happened = timestamp + '-' + format(count, '02d') + ': '
+#         what_happened += history
+#         left_personroot_node['_history'].append(what_happened)
+#
+#     count += 1
+#     what_happened = timestamp + '-' + format(count, '02d') + ': '
+#     what_happened += 'End of history of the deleted node.'
+#     left_personroot_node['_history'].append(what_happened)
+#
+#     count += 1
+#     what_happened = timestamp + '-' + format(count, '02d') + ': '
+#     what_happened += 'These were the neighbors of the deleted node, '
+#     what_happened += 'now merged with the neighbors of this node:'
+#     left_personroot_node['_history'].append(what_happened)
+#
+#     count += 1
+#     what_happened = timestamp + '-' + format(count, '02d') + ': '
+#     for edge_from_right_node in get_edges(right_personroot_node):
+#         right_node = edge_from_right_node.end_node
+#         if right_node is None:
+#             continue
+#         if right_node == right_personroot_node:
+#             continue
+#
+#         what_happened += '"' + str(right_node['_key']) + '" '
+#         edge_delete1 = LINKS_TO(right_personroot_node, right_node)
+#         edge_delete2 = LINKS_TO(right_node, right_personroot_node)
+#         edge_create1 = LINKS_TO(left_personroot_node, right_node)
+#         edge_create2 = LINKS_TO(right_node, left_personroot_node)
+#         # _graph.delete() also deletes 'right_personroot_node'.
+#         # TODO: There seems to be a bug here. It does not only delete 'right_personroot_node', but sometimes it also
+#         #   deletes other nodes which have more than one edge, such as an 'organization' node connected to multiple
+#         #   person-root nodes (including right_personroot_node).
+#         #   The problem is that _graph.separate() does not seem to work, which seems to be the 'best' function
+#         #   since it only deletes edges. Use with caution (or don't use).
+#         _graph.delete(edge_delete1)
+#         _graph.delete(edge_delete2)
+#         _graph.merge(edge_create1 | edge_create2, 'RicgraphNode', '_key')
+#
+#     what_happened += '.'
+#     left_personroot_node['_history'].append(what_happened)
+#
+#     count += 1
+#     what_happened = timestamp + '-' + format(count, '02d') + ': '
+#     what_happened += 'End of list of neighbors of the deleted node.'
+#     left_personroot_node['_history'].append(what_happened)
+#     _graph.push(left_personroot_node)
+#     return
+#
+#
+# def merge_personroots_of_two_nodes(name1: str, value1: str,
+#                                    name2: str, value2: str) -> None:
+#
+#     """Merge two 'person-root' nodes, by specifying one of its neighbors.
+#     Or do nothing if their person-roots are already the same node.
+#
+#     :param name1: 'name' property of left node.
+#     :param value1: 'value' property of left node.
+#     :param name2: 'name' property of right node.
+#     :param value2: 'value' property of right node.
+#     :return: None.
+#     """
+#     left_node = read_node(name=name1, value=value1)
+#     right_node = read_node(name=name2, value=value2)
+#     if left_node is None or right_node is None:
+#         return
+#
+#     left_personroot_node = get_or_create_personroot_node(person_node=left_node)
+#     right_personroot_node = get_or_create_personroot_node(person_node=right_node)
+#     if left_personroot_node is None or right_personroot_node is None:
+#         return
+#
+#     if left_personroot_node == right_personroot_node:
+#         # They are already connected, we are done.
+#         return
+#
+#     merge_two_personroot_nodes(left_personroot_node=left_personroot_node,
+#                                right_personroot_node=right_personroot_node)
+#     return
+# ######
 
 
 def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
@@ -1187,9 +1322,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=left_node)
         if personroot is None:
             return
-        edge1 = LINKS_TO(right_node, personroot)
-        edge2 = LINKS_TO(personroot, right_node)
-        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
+        cypher_merge_edge(left_node_id=right_node.identity,
+                          right_node_id=personroot.identity)
         return
 
     if nr_edges_left_node > 0 and nr_edges_right_node == 0:
@@ -1197,9 +1331,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=left_node)
         if personroot is None:
             return
-        edge1 = LINKS_TO(right_node, personroot)
-        edge2 = LINKS_TO(personroot, right_node)
-        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
+        cypher_merge_edge(left_node_id=right_node.identity,
+                          right_node_id=personroot.identity)
         return
 
     if nr_edges_left_node == 0 and nr_edges_right_node > 0:
@@ -1207,9 +1340,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=right_node)
         if personroot is None:
             return
-        edge1 = LINKS_TO(left_node, personroot)
-        edge2 = LINKS_TO(personroot, left_node)
-        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
+        cypher_merge_edge(left_node_id=left_node.identity,
+                          right_node_id=personroot.identity)
         return
 
     left_personroot_node = get_or_create_personroot_node(person_node=left_node)
@@ -1228,11 +1360,10 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         return
 
     # Connect crosswise.
-    edge1 = LINKS_TO(left_node, right_personroot_node)
-    edge2 = LINKS_TO(right_personroot_node, left_node)
-    edge3 = LINKS_TO(right_node, left_personroot_node)
-    edge4 = LINKS_TO(left_personroot_node, right_node)
-    _graph.merge(edge1 | edge2 | edge3 | edge4, 'RicgraphNode', '_key')
+    cypher_merge_edge(left_node_id=left_node.identity,
+                      right_node_id=right_personroot_node.identity)
+    cypher_merge_edge(left_node_id=right_node.identity,
+                      right_node_id=left_personroot_node.identity)
 
     now = datetime.now()
     timestamp = now.strftime('%Y%m%d-%H%M%S')
@@ -1246,10 +1377,14 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
     timestamped_message = timestamp + ': ' + message
 
     print('\nconnect_person_and_person_node(): ' + message)
-    left_node['_history'].append(timestamped_message)
-    right_node['_history'].append(timestamped_message)
-    _graph.push(left_node)
-    _graph.push(right_node)
+    node_property = {'_history': left_node['_history'].copy()}
+    node_property['_history'].append(timestamped_message)
+    cypher_merge_node(node_id=left_node.identity,
+                      node_properties=node_property)
+    node_property = {'_history': right_node['_history'].copy()}
+    node_property['_history'].append(timestamped_message)
+    cypher_merge_node(node_id=right_node.identity,
+                      node_properties=node_property)
     return
 
 
@@ -1272,11 +1407,8 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
 
     if left_node['category'] != 'person' and right_node['category'] != 'person':
         # This is not a person to person link, link directly
-        edge1 = LINKS_TO(left_node, right_node)
-        edge2 = LINKS_TO(right_node, left_node)
-
-        # Do a "merge" instead of a "create" to prevent double edges.
-        _graph.merge(edge1 | edge2, 'RicgraphNode', '_key')
+        cypher_merge_edge(left_node_id=left_node.identity,
+                          right_node_id=right_node.identity)
         return
 
     # At least one of the nodes is a 'person' link. These should be linked via their 'person-root' node.
@@ -1322,8 +1454,10 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
             if prop_name + '2' == other_name:
                 node_properties2.update({prop_name: other_value})
 
-    node1 = create_node(name=name1, category=category1, value=value1, **node_properties1)
-    node2 = create_node(name=name2, category=category2, value=value2, **node_properties2)
+    node1 = create_update_node(name=name1, category=category1, value=value1,
+                               other_properties=node_properties1)
+    node2 = create_update_node(name=name2, category=category2, value=value2,
+                               other_properties=node_properties2)
     if node1 is None or node2 is None:
         return
 
@@ -1526,16 +1660,21 @@ def print_node_values(node: Node) -> None:
 # The difference is that "get_" functions work in constant time (starting from
 # a node) while the "read_" functions read (aka search, find) the whole graph.
 # ##############################################################################
-def get_edges(node: Node) -> RelationshipMatch:
+def get_edges(node: Node) -> list:
     """Get the edges attached to a node.
 
     :param node: the node.
-    :return: the edges.
+    :return: a list of the edges, or empty list if no edges are connected.
     """
     global _graph
 
-    edges_connected_to_node = _graph.match((node,), r_type='LINKS_TO')
-    return edges_connected_to_node
+    cypher_query = 'MATCH (node)-[edge]->() WHERE id(node)=$node_id RETURN edge'
+    edges = _graph.run(cypher_query,
+                       node_id=node.identity).to_series().to_list()
+    if len(edges) == 0:
+        return []
+    else:
+        return edges
 
 
 def get_personroot_node(node: Node) -> Union[Node, None]:
@@ -1611,17 +1750,6 @@ def get_all_neighbor_nodes(node: Node,
     if node is None:
         return []
 
-    # Note the WHERE clause below. It uses the function id(),
-    # which does a _direct_ lookup for a node with that id. That is the fastest way possible,
-    # compared to a WHERE clause on node['_key'], which is a search.
-    # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
-    # PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
-    #
-    # However, id() is deprecated in Neo4j and should be replaced with elementid(). But this
-    # cannot be done, since module py2neo (which is end-of-life) does not have this
-    # elementid.
-    # Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
-    # https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
     cypher_query = 'MATCH (node)-[]->(neighbor) WHERE (id(node)=' + str(node.identity) + ') '
 
     nr_of_not_clauses = 0

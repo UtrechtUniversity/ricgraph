@@ -113,11 +113,10 @@ to create, read, update and delete (CRUD) nodes. "Read" is used as term for "Fin
 ```python
 import ricgraph as rcg
 
-rcg.create_node()       # create a node
-rcg.read_node()         # read (find) a node and return one
-rcg.read_all_nodes()    # read (find) nodes and return all nodes found
-rcg.update_node()       # update the values in a node
-rcg.delete_node()       # delete a node
+rcg.create_update_node()  # create or update a node
+rcg.read_node()  # read (find) a node and return one
+rcg.read_all_nodes()  # read (find) nodes and return all nodes found
+rcg.delete_node()  # delete a node
 ```
 
 ### Function calls to get neighbors of nodes
