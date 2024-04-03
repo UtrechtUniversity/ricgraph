@@ -1283,11 +1283,15 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                            lambda row: create_urlother(type_id=row['name1'],
                                                        uuid_value=row['RESOUT_UUID']), axis=1)
     # Now replace all empty strings in column DOI for NaNs
-    resout['DOI'].replace('', numpy.nan, inplace=True)
+    # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
+    # resout['DOI'].replace('', numpy.nan, inplace=True)
+    resout['DOI'] = resout['DOI'].replace('', numpy.nan)
     # Then fill the column 'value1' with the value from column DOI, unless the value is NaN,
     # then fill with the value from column RESOUT_UUID.
     resout['value1'] = resout['DOI'].copy(deep=True)
-    resout.value1.fillna(resout['RESOUT_UUID'], inplace=True)
+    # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
+    # resout.value1.fillna(resout['RESOUT_UUID'], inplace=True)
+    resout['RESOUT_UUID'] = resout.value1.fillna(resout['RESOUT_UUID'])
 
     if HARVEST_PROJECTS:
         # This is only necessary if we are going to harvest projects later on.
@@ -1321,7 +1325,9 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # find these while parsing research outputs, not while parsing persons.
     resout = parsed_content[['AUTHOR_UUID', 'FULL_NAME']].copy(deep=True)
     # Replace all empty strings in column FULL_NAME for NaNs
-    resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
+    # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
+    # resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
+    resout['FULL_NAME'] = resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
     resout.dropna(axis=0, how='any', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     resout.rename(columns={'AUTHOR_UUID': 'value1',
