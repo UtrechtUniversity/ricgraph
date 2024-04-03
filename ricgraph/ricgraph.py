@@ -125,11 +125,9 @@ __version__ = ''
 # ########################################################################
 # Start of constants section
 # ########################################################################
-# LINKS_TO = Relationship.type('LINKS_TO')
 RICGRAPH_INI_FILE = '../ricgraph.ini'
 RICGRAPH_KEY_SEPARATOR = '|'
 GRAPHDB_NAME = 'neo4j'
-
 
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
 A_LARGE_NUMBER = 9999999999
@@ -289,7 +287,6 @@ def ricgraph_lru_cache(maxsize: int = 128, typed: bool = False):
 # https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
 # ##############################################################################
 
-# def open_ricgraph() -> Graph:
 def open_ricgraph() -> Driver:
     """Open Ricgraph.
 
@@ -298,7 +295,6 @@ def open_ricgraph() -> Driver:
     global _graph
 
     print('Opening ricgraph.\n')
-    # with GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD)) as driver:
     with GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD)) as _graph:
         _graph.verify_connectivity()
     return _graph
