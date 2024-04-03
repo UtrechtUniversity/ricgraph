@@ -127,7 +127,6 @@ __version__ = ''
 # ########################################################################
 RICGRAPH_INI_FILE = '../ricgraph.ini'
 RICGRAPH_KEY_SEPARATOR = '|'
-GRAPHDB_NAME = 'neo4j'
 
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
 A_LARGE_NUMBER = 9999999999
@@ -295,7 +294,7 @@ def open_ricgraph() -> Driver:
     global _graph
 
     print('Opening ricgraph.\n')
-    with GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD)) as _graph:
+    with GraphDatabase.driver(GRAPHDB_URL, auth=(GRAPHDB_USER, GRAPHDB_PASSWORD)) as _graph:
         _graph.verify_connectivity()
     return _graph
 
@@ -308,6 +307,12 @@ def close_ricgraph() -> None:
     print('Closing ricgraph.\n')
     _graph.close()
     return
+
+
+def ricgraph_databasename() -> str:
+    """Return the Ricgraph database name.
+    """
+    return GRAPHDB_DATABASENAME
 
 
 def empty_ricgraph(answer: str = '') -> None:
@@ -349,29 +354,29 @@ def empty_ricgraph(answer: str = '') -> None:
     # Apparently, the community edition of Neo4j does not have a
     # "CREATE OR REPLACE DATABASE customers" command.
     print('Deleting all nodes and edges in Ricgraph...\n')
-    _graph.execute_query('MATCH (node) DETACH DELETE node', database_=GRAPHDB_NAME)
+    _graph.execute_query('MATCH (node) DETACH DELETE node', database_=GRAPHDB_DATABASENAME)
 
     # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
     # If I understand correctly there can be at most 3 indexes, while I would like to have 4.
     # I decide not use a CategoryIndex.
-    _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=GRAPHDB_NAME)
-    _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=GRAPHDB_NAME)
-    # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=GRAPHDB_NAME)
-    _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=GRAPHDB_NAME)
+    _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
+    _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
+    # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
+    _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
 
     print('Creating indexes...')
     _graph.execute_query('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node._key)',
-                         database_=GRAPHDB_NAME)
+                         database_=GRAPHDB_DATABASENAME)
     _graph.execute_query('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.name)',
-                         database_=GRAPHDB_NAME)
+                         database_=GRAPHDB_DATABASENAME)
     # _graph.execute_query('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.category)',
-    #                      database_=GRAPHDB_NAME)
+    #                      database_=GRAPHDB_DATABASENAME)
     _graph.execute_query('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.value)',
-                         database_=GRAPHDB_NAME)
+                         database_=GRAPHDB_DATABASENAME)
 
     print('These indexes have been created:')
     records, summary, keys = _graph.execute_query('SHOW INDEXES',
-                                                  database_=GRAPHDB_NAME)
+                                                  database_=GRAPHDB_DATABASENAME)
     index_table = pandas.DataFrame(data=records, columns=keys)
     print(index_table.to_string(index=False))
     print('')
@@ -391,8 +396,8 @@ def ricgraph_nr_nodes() -> int:
 
     cypher_query = 'MATCH () RETURN COUNT (*) AS count'
     result = _graph.execute_query(cypher_query,
-                                 result_transformer_=Result.data,
-                                 database_=GRAPHDB_NAME)
+                                  result_transformer_=Result.data,
+                                  database_=GRAPHDB_DATABASENAME)
     if len(result) == 0:
         return -1
     result = result[0]
@@ -416,7 +421,7 @@ def ricgraph_nr_edges() -> int:
     cypher_query = 'MATCH ()-[r]->() RETURN COUNT (r) AS count'
     result = _graph.execute_query(cypher_query,
                                   result_transformer_=Result.data,
-                                  database_=GRAPHDB_NAME)
+                                  database_=GRAPHDB_DATABASENAME)
     if len(result) == 0:
         return -1
     result = result[0]
@@ -452,7 +457,7 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     nodes = _graph.execute_query(cypher_query,
                                  node_properties=node_properties,
                                  result_transformer_=Result.value,
-                                 database_=GRAPHDB_NAME)
+                                 database_=GRAPHDB_DATABASENAME)
     if len(nodes) == 0:
         return None
     else:
@@ -481,7 +486,7 @@ def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
                                  node_id=node_id,
                                  node_properties=node_properties,
                                  result_transformer_=Result.value,
-                                 database_=GRAPHDB_NAME)
+                                 database_=GRAPHDB_DATABASENAME)
     if len(nodes) == 0:
         return None
     else:
@@ -518,7 +523,7 @@ def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
     _graph.execute_query(cypher_query,
                          left_node_id=left_node_id,
                          right_node_id=right_node_id,
-                         database_=GRAPHDB_NAME)
+                         database_=GRAPHDB_DATABASENAME)
     return
 
 
@@ -897,7 +902,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
 
     nodes = _graph.execute_query(cypher_query,
                                  result_transformer_=Result.value,
-                                 database_=GRAPHDB_NAME)
+                                 database_=GRAPHDB_DATABASENAME)
     if len(nodes) == 0:
         return []
     else:
@@ -926,7 +931,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
     cypher_query = 'MATCH (node) RETURN COLLECT (DISTINCT node.' + node_property + ') AS entries'
     result = _graph.execute_query(cypher_query,
                                   result_transformer_=Result.data,
-                                  database_=GRAPHDB_NAME)
+                                  database_=GRAPHDB_DATABASENAME)
     if len(result) == 0:
         return []
     result = result[0]
@@ -1674,7 +1679,7 @@ def get_edges(node: Node) -> list:
     edges = _graph.execute_query(cypher_query,
                                  node_id=node.id,
                                  result_transformer_=Result.value,
-                                 database_=GRAPHDB_NAME)
+                                 database_=GRAPHDB_DATABASENAME)
     if len(edges) == 0:
         return []
     else:
@@ -1811,7 +1816,7 @@ def get_all_neighbor_nodes(node: Node,
     neighbor_nodes = _graph.execute_query(cypher_query,
                                           node_id=node.id,
                                           result_transformer_=Result.value,
-                                          database_=GRAPHDB_NAME)
+                                          database_=GRAPHDB_DATABASENAME)
     if len(neighbor_nodes) == 0:
         return []
     else:
@@ -2317,19 +2322,20 @@ except KeyError:
     exit(1)
 
 try:
-    NEO4J_HOSTNAME = config['Neo4j']['neo4j_hostname']
-    NEO4J_USER = config['Neo4j']['neo4j_user']
-    NEO4J_PASSWORD = config['Neo4j']['neo4j_password']
-    NEO4J_SCHEME = config['Neo4j']['neo4j_scheme']
-    NEO4J_PORT = config['Neo4j']['neo4j_port']
-    if NEO4J_HOSTNAME == '' or NEO4J_USER == '' or NEO4J_PASSWORD == '' \
-       or NEO4J_SCHEME == '' or NEO4J_PORT == '':
-        print('Ricgraph initialization: error, one or more of Neo4j parameters '
+    GRAPHDB_HOSTNAME = config['GraphDB']['graphdb_hostname']
+    GRAPHDB_DATABASENAME = config['GraphDB']['graphdb_databasename']
+    GRAPHDB_USER = config['GraphDB']['graphdb_user']
+    GRAPHDB_PASSWORD = config['GraphDB']['graphdb_password']
+    GRAPHDB_SCHEME = config['GraphDB']['graphdb_scheme']
+    GRAPHDB_PORT = config['GraphDB']['graphdb_port']
+    if GRAPHDB_HOSTNAME == '' or GRAPHDB_USER == '' or GRAPHDB_PASSWORD == '' \
+       or GRAPHDB_SCHEME == '' or GRAPHDB_PORT == '':
+        print('Ricgraph initialization: error, one or more of the GraphDB parameters '
               + 'empty in Ricgraph ini file, exiting.')
         exit(1)
-    NEO4J_URL = '{scheme}://{hostname}:{port}'.format(scheme=NEO4J_SCHEME, hostname=NEO4J_HOSTNAME, port=NEO4J_PORT)
+    GRAPHDB_URL = '{scheme}://{hostname}:{port}'.format(scheme=GRAPHDB_SCHEME, hostname=GRAPHDB_HOSTNAME, port=GRAPHDB_PORT)
 except KeyError:
-    print('Ricgraph initialization: error, one or more of Neo4j parameters '
+    print('Ricgraph initialization: error, one or more of GraphDB parameters '
           + 'not found in Ricgraph ini file, exiting.')
     exit(1)
 

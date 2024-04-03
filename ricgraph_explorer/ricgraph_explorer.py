@@ -90,7 +90,10 @@ import ricgraph as rcg
 
 ricgraph_explorer = Flask(__name__)
 
-GRAPHDB_NAME = 'neo4j'
+
+# ########################################################################
+# Start of constants section
+# ########################################################################
 
 # Ricgraph Explorer is also a "discoverer". This parameter gives the
 # default mode. Possibilities are:
@@ -160,7 +163,7 @@ VIEW_MODE_ALL = ['view_regular_table_personal',
 nodes_cache = {}
 
 # These will be defined in initialize_ricgraph_explorer()
-global graph
+global graph, graph_databasename
 global name_all, category_all, source_all, resout_types_all
 global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
 global personal_types_all, remainder_types_all
@@ -1542,6 +1545,8 @@ def find_organization_additional_info(parent_node: Node,
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
+    global graph_databasename
+
     if parent_node is None:
         message = 'Unexpected result in find_organization_additional_info(): '
         message += 'This organization cannot be found in Ricgraph.'
@@ -1629,7 +1634,7 @@ def find_organization_additional_info(parent_node: Node,
     relevant_result = graph.execute_query(cypher_query,
                                           node_id=parent_node.id,
                                           result_transformer_=Result.value,
-                                          database_=GRAPHDB_NAME)
+                                          database_=graph_databasename)
 
     if len(relevant_result) == 0:
         message = 'Could not find any persons or results for this organization'
@@ -2759,7 +2764,7 @@ def initialize_ricgraph_explorer():
     """Initialize Ricgraph Explorer.
     :return: None.
     """
-    global graph
+    global graph, graph_databasename
     global name_all, category_all, source_all, resout_types_all
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
@@ -2768,6 +2773,8 @@ def initialize_ricgraph_explorer():
     if graph is None:
         print('Ricgraph could not be opened.')
         exit(2)
+
+    graph_databasename = rcg.ricgraph_databasename()
 
     name_all = rcg.read_all_values_of_property('name')
     if len(name_all) == 0:
