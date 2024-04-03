@@ -11,12 +11,5 @@
   [OpenAIRE](https://explore.openaire.eu), 
   [DataCite Commons](https://commons.datacite.org), 
   [GitHub](https://github.com) (and other Gits), etc.  
-* Function `merge_two_personroot_nodes()` in *ricgraph.py* now uses `_graph.delete()`
-  from *py2neo*, but that call has the side effect of removing nodes with more than one edge, 
-  e.g. the organization nodes in *harvest_uustaffpages_to_ricgraph.py* 
-  (after the call to `rcg.merge_personroots_of_two_nodes()` 
-  and then `merge_two_personroot_nodes()`
-  there is only one organization node left).
-  It should use `_graph.separate()`, but the author did not get it working.
 
 [Return to main README.md file](../README.md).

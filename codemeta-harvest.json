@@ -18,7 +18,6 @@
         "neo4j",
         "numpy",
         "pandas",
-        "py2neo",
         "pyalex",
         "requests",
         "ratelimit",

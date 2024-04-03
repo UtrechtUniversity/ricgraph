@@ -7,20 +7,21 @@ While deleting nodes and edges in Ricgraph you might get a Python error, similar
 Deleting all nodes and edges in Ricgraph...
 
 Traceback (most recent call last):
-  File "[path]/ricgraph-master/harvest_to_ricgraph_examples/harvest_pure_to_ricgraph.py", 
+  File "[path]/harvest_to_ricgraph_examples/harvest_pure_to_ricgraph.py", 
     line 729, in <module> rcg.empty_ricgraph()
-  File "[path]/ricgraph-master/ricgraph/ricgraph.py", line 223, in empty_ricgraph
-    _graph.delete_all()   # Equivalent to "MATCH (a) DETACH DELETE a".
+  File "[path]/ricgraph/ricgraph.py", line [number], in empty_ricgraph
+    _graph.execute_query('MATCH (node) DETACH DELETE node', database_=GRAPHDB_NAME)
   […]
-  py2neo.errors.TransientError: [General.MemoryPoolOutOfMemoryError] 
+  [module].errors.TransientError: [General.MemoryPoolOutOfMemoryError] 
     The allocation of an extra 2.0 MiB would use more than the limit 716.8 MiB. Currently 
     using 715.0 MiB. dbms.memory.transaction.total.max threshold reached.
 ```
 
-This is caused by that Neo4j Desktop does not have a statement similar to `DROP [database]`.
-Py2neo, the library that Ricgraph uses, needs to delete every node and edge and this fails
-when there are a lot of nodes and edges. This does not happen when you are using 
-Neo4j Community Edition.
+This is caused by the free-to-use version of Neo4j, which does not have a 
+statement similar to `DROP [database]`.
+If you empty the graph database, it needs to delete every node and edge and this fails
+when there are a lot of nodes and edges. This happens when you use
+Neo4j Desktop, but does not happen when you are using Neo4j Community Edition.
 
 You can do the following to be able to use Neo4j Desktop and Ricgraph:
 1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop) if it is not running yet.

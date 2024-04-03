@@ -180,14 +180,6 @@ There are two ways of doing this:
     that asks you to install requirements. Click on it.
 
 Notable dependencies used in Ricgraph:
-* [Py2neo](https://neo4j-contrib.github.io/py2neo)
-  on [GitHub repository](https://github.com/technige/py2neo). 
-  Py2neo is (according to its author) "a client library
-  and toolkit for working with Neo4j from within
-  Python applications and from the command line.
-  The library supports both Bolt and HTTP and provides a high level
-  API, an OGM, admin tools, an interactive console, a
-  Cypher lexer for Pygments, and many other bells and whistles."
 * [PyAlex](https://github.com/J535D165/pyalex).
   PyAlex is a Python library for [OpenAlex](https://openalex.org/).
   OpenAlex is an index of hundreds of millions of interconnected scholarly papers, authors,

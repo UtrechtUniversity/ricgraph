@@ -54,9 +54,6 @@ They have several products. Their free products are:
 Neo4j Desktop includes Bloom, which allows exploring the graph in a more
 intuitive way. Community Edition allows only Cypher queries.
 
-To be able to access neo4j from python, py2neo is used (https://py2neo.org).
-Py2neo is end-of-life (last version v2021.2.4), but Ricgraph still uses it.
-
 Ricgraph can be extended for other brands of graph databases
 by changing minor bits of the code.
 
@@ -113,9 +110,9 @@ from collections import defaultdict
 from functools import lru_cache, wraps
 import configparser
 
-from py2neo import *
-# from py2neo.matching import *
-
+# import neo4j
+from neo4j import GraphDatabase, Driver, Result
+from neo4j.graph import Node
 
 __author__ = 'Rik D.T. Janssen'
 __copyright__ = 'Copyright (c) 2023, 2024 Rik D.T. Janssen'
@@ -128,9 +125,10 @@ __version__ = ''
 # ########################################################################
 # Start of constants section
 # ########################################################################
-LINKS_TO = Relationship.type('LINKS_TO')
+# LINKS_TO = Relationship.type('LINKS_TO')
 RICGRAPH_INI_FILE = '../ricgraph.ini'
 RICGRAPH_KEY_SEPARATOR = '|'
+GRAPHDB_NAME = 'neo4j'
 
 
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
@@ -275,6 +273,7 @@ def ricgraph_lru_cache(maxsize: int = 128, typed: bool = False):
 # ##############################################################################
 # These are also functions with cypher:
 # - read_all_nodes()
+# - read_all_values_of_property()
 # - get_edges()
 # - get_all_neighbor_nodes()
 # ##############################################################################
@@ -284,14 +283,14 @@ def ricgraph_lru_cache(maxsize: int = 128, typed: bool = False):
 # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
 # PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
 #
-# However, id() is deprecated in Neo4j and should be replaced with elementid(). But this
-# cannot be done, since module py2neo (which is end-of-life) does not have this
-# elementid.
+# Note: id() is deprecated in Neo4j and should be replaced with elementid().
+# Maybe this is not true for other graph databases, I leave it as it is now.
 # Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
 # https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
 # ##############################################################################
 
-def open_ricgraph() -> Graph:
+# def open_ricgraph() -> Graph:
+def open_ricgraph() -> Driver:
     """Open Ricgraph.
 
     :return: graph that has been opened.
@@ -299,16 +298,9 @@ def open_ricgraph() -> Graph:
     global _graph
 
     print('Opening ricgraph.\n')
-    try:
-        _graph = Graph(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD))
-    except:
-        print('open_ricgraph(): Error opening neo4j graph database using these parameters:')
-        print('NEO4J_URL: ' + NEO4J_URL)
-        print('NEO4J_USER: ' + NEO4J_USER)
-        print('NEO4J_PASSWORD: ' + NEO4J_PASSWORD)
-        print('\nAre these parameters correct and did you start neo4j?')
-        print('Exiting.')
-        exit(1)
+    # with GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD)) as driver:
+    with GraphDatabase.driver(NEO4J_URL, auth=(NEO4J_USER, NEO4J_PASSWORD)) as _graph:
+        _graph.verify_connectivity()
     return _graph
 
 
@@ -318,8 +310,7 @@ def close_ricgraph() -> None:
     global _graph
 
     print('Closing ricgraph.\n')
-    # Seems to be done automatically, so no actual call.
-    # In this way it is nicely symmetrical to open_ricgraph().
+    _graph.close()
     return
 
 
@@ -356,36 +347,38 @@ def empty_ricgraph(answer: str = '') -> None:
             print('\nRicgraph has not been emptied, exiting.\n')
             exit(1)
 
-    # Sometimes the following statement fails if there are many nodes, see e.g.
+    # Sometimes the following statement fails with Neo4j Desktop if there are many nodes, see e.g.
     # https://stackoverflow.com/questions/23310114/how-to-reset-clear-delete-neo4j-database.
-    # If this happens, delete all Neo4j Desktop files and run the AppImage again to fully
-    # start over again.
+    # Delete the database and start over again.
     # Apparently, the community edition of Neo4j does not have a
     # "CREATE OR REPLACE DATABASE customers" command.
     print('Deleting all nodes and edges in Ricgraph...\n')
-    _graph.run('MATCH (node) DETACH DELETE node')
+    _graph.execute_query('MATCH (node) DETACH DELETE node', database_=GRAPHDB_NAME)
 
     # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
-    # Don't use the call from py2neo, since it generates a B-tree index and that does not seem to exist
-    # anymore according to that webpage: "The B-tree index type has been replaced by more specific index
-    # types (Range, Point, and Text)."
-    # Indexes will be generated on the fly.
     # If I understand correctly there can be at most 3 indexes, while I would like to have 4.
     # I decide not use a CategoryIndex.
-    _graph.run('DROP INDEX KeyIndex IF EXISTS')
-    _graph.run('DROP INDEX NameIndex IF EXISTS')
-    # _graph.run('DROP INDEX CategoryIndex IF EXISTS')
-    _graph.run('DROP INDEX ValueIndex IF EXISTS')
+    _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=GRAPHDB_NAME)
+    _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=GRAPHDB_NAME)
+    # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=GRAPHDB_NAME)
+    _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=GRAPHDB_NAME)
 
     print('Creating indexes...')
-    _graph.run('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node._key)')
-    _graph.run('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.name)')
-    # _graph.run('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR(node: RicgraphNode) ON (node.category)')
-    _graph.run('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.value)')
+    _graph.execute_query('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node._key)',
+                         database_=GRAPHDB_NAME)
+    _graph.execute_query('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.name)',
+                         database_=GRAPHDB_NAME)
+    # _graph.execute_query('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.category)',
+    #                      database_=GRAPHDB_NAME)
+    _graph.execute_query('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.value)',
+                         database_=GRAPHDB_NAME)
 
-    print('These indexes have been created (column "state" indicates if they have been generated yet):')
-    out = _graph.run('SHOW INDEXES')
-    print(out)
+    print('These indexes have been created:')
+    records, summary, keys = _graph.execute_query('SHOW INDEXES',
+                                                  database_=GRAPHDB_NAME)
+    index_table = pandas.DataFrame(data=records, columns=keys)
+    print(index_table.to_string(index=False))
+    print('')
     return
 
 
@@ -401,7 +394,9 @@ def ricgraph_nr_nodes() -> int:
         return -1
 
     cypher_query = 'MATCH () RETURN COUNT (*) AS count'
-    result = _graph.run(cypher_query).data()
+    result = _graph.execute_query(cypher_query,
+                                 result_transformer_=Result.data,
+                                 database_=GRAPHDB_NAME)
     if len(result) == 0:
         return -1
     result = result[0]
@@ -423,7 +418,9 @@ def ricgraph_nr_edges() -> int:
         return -1
 
     cypher_query = 'MATCH ()-[r]->() RETURN COUNT (r) AS count'
-    result = _graph.run(cypher_query).data()
+    result = _graph.execute_query(cypher_query,
+                                  result_transformer_=Result.data,
+                                  database_=GRAPHDB_NAME)
     if len(result) == 0:
         return -1
     result = result[0]
@@ -449,19 +446,21 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     # There are several methods for creating a node in the graph database.
     # This would be an alternative, but it seems to use more memory than the
     # one used now, according to 'PROFILE <cypher query>'.
-    # cypher_query = 'CREATE (node:RicgraphNode) SET node=$node_properties ' [etc]
+    # cypher_query = 'CREATE (node:RicgraphNode) SET node=$node_properties ' [etc.]
     cypher_query = 'CREATE (node:RicgraphNode $node_properties) '
     cypher_query += 'RETURN node'
 
     # print('cypher_create_node(): cypher_query: ' + cypher_query)
     # print('                      node_properties: ' + str(node_properties))
 
-    result = _graph.run(cypher_query,
-                        node_properties=node_properties).to_series().to_list()
-    if len(result) == 0:
+    nodes = _graph.execute_query(cypher_query,
+                                 node_properties=node_properties,
+                                 result_transformer_=Result.value,
+                                 database_=GRAPHDB_NAME)
+    if len(nodes) == 0:
         return None
     else:
-        return result[0]
+        return nodes[0]
 
 
 def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
@@ -482,13 +481,15 @@ def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
     # print('cypher_merge_node(): node_id: ' + str(node_id) + ', cypher_query: ' + cypher_query)
     # print('                     node_properties: ' + str(node_properties))
 
-    result = _graph.run(cypher_query,
-                        node_id=node_id,
-                        node_properties=node_properties).to_series().to_list()
-    if len(result) == 0:
+    nodes = _graph.execute_query(cypher_query,
+                                 node_id=node_id,
+                                 node_properties=node_properties,
+                                 result_transformer_=Result.value,
+                                 database_=GRAPHDB_NAME)
+    if len(nodes) == 0:
         return None
     else:
-        return result[0]
+        return nodes[0]
 
 
 def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
@@ -501,26 +502,27 @@ def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
     # There are several methods for getting the nodes in the graph database.
     # This one takes the most time.
     # It amounts to 4 database hits according to 'PROFILE <cypher query>', using 'AllNodesScan'.
-    # cypher_query = 'MATCH (left_node {ID:' + str(left_node.identity) + '}) ' [etc]
+    # cypher_query = 'MATCH (left_node {ID:' + str(left_node.identity) + '}) ' [etc.]
     # The next one takes average time.
     # It amounts to 23 database hits according to 'PROFILE', using 'AllNodesScan'.
-    # cypher_query = 'MATCH (left_node) WHERE left_node._key="' + str(left_node['_key']) + '" ' [etc]
+    # cypher_query = 'MATCH (left_node) WHERE left_node._key="' + str(left_node['_key']) + '" ' [etc.]
     # The next one is the fastest.
     # It amounts to 1 database hits according to 'PROFILE' using 'NodeByIdSeek'.
     cypher_query = 'MATCH (left_node) WHERE id(left_node)=$left_node_id '
     cypher_query += 'MATCH (right_node) WHERE id(right_node)=$right_node_id '
 
     # We could use 'CREATE', but then we may get multiple edges for the same direction.
-    # cypher_query += 'CREATE (left_node)-[:LINKS_TO]->(right_node), ' [etc]
+    # cypher_query += 'CREATE (left_node)-[:LINKS_TO]->(right_node), ' [etc.]
     cypher_query += 'MERGE (left_node)-[:LINKS_TO]->(right_node) '
     cypher_query += 'MERGE (left_node)<-[:LINKS_TO]-(right_node) '
 
     # print('cypher_merge_edge(): left_node_id: ' + str(left_node_id) + ', right_node_id: '
     #       + str(right_node_id) + ', cypher_query: ' + cypher_query)
 
-    _graph.run(cypher_query,
-               left_node_id=left_node_id,
-               right_node_id=right_node_id)
+    _graph.execute_query(cypher_query,
+                         left_node_id=left_node_id,
+                         right_node_id=right_node_id,
+                         database_=GRAPHDB_NAME)
     return
 
 
@@ -633,7 +635,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                                    new_value=str(node_properties['comment']))
                 node_properties['_history'] = personroot['_history'].copy()
                 node_properties['_history'].append(timestamp + ': ' + history_line)
-                cypher_merge_node(node_id=personroot.identity,
+                cypher_merge_node(node_id=personroot.id,
                                   node_properties=node_properties)
         elif isinstance(personroot['comment'], list):
             if node['value'] not in personroot['comment']:
@@ -645,7 +647,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                                    new_value=str(node_properties['comment']))
                 node_properties['_history'] = personroot['_history'].copy()
                 node_properties['_history'].append(timestamp + ': ' + history_line)
-                cypher_merge_node(node_id=personroot.identity,
+                cypher_merge_node(node_id=personroot.id,
                                   node_properties=node_properties)
         # In all other cases: it is already in the cache,
         # or leave it as it is: 'comment' seems to be used for something we don't know.
@@ -682,7 +684,7 @@ def recreate_name_cache_in_personroot(personroot: Node):
             node_properties = {'comment': name_cache.copy(),
                                '_history': personroot['_history'].copy()}
             node_properties['_history'].append(timestamp + ': Cleaned and recreated name cache. ' + history_line)
-            cypher_merge_node(node_id=personroot.identity,
+            cypher_merge_node(node_id=personroot.id,
                               node_properties=node_properties)
         # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
     return
@@ -824,7 +826,7 @@ def create_update_node(name: str, category: str, value: str,
 
     node_properties['_history'] = node['_history'].copy()
     node_properties['_history'].append(timestamp + ': Updated. ' + history_line)
-    updated_node = cypher_merge_node(node_id=node.identity,
+    updated_node = cypher_merge_node(node_id=node.id,
                                      node_properties=node_properties)
     return updated_node
 
@@ -897,11 +899,13 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
         cypher_query += 'LIMIT ' + str(max_nr_nodes)
     # print(cypher_query)
 
-    all_nodes = _graph.run(cypher_query).to_series().to_list()
-    if len(all_nodes) == 0:
+    nodes = _graph.execute_query(cypher_query,
+                                 result_transformer_=Result.value,
+                                 database_=GRAPHDB_NAME)
+    if len(nodes) == 0:
         return []
     else:
-        return all_nodes
+        return nodes
 
 
 def read_all_values_of_property(node_property: str = '') -> list:
@@ -924,7 +928,9 @@ def read_all_values_of_property(node_property: str = '') -> list:
         return []
 
     cypher_query = 'MATCH (node) RETURN COLLECT (DISTINCT node.' + node_property + ') AS entries'
-    result = _graph.run(cypher_query).data()
+    result = _graph.execute_query(cypher_query,
+                                  result_transformer_=Result.data,
+                                  database_=GRAPHDB_NAME)
     if len(result) == 0:
         return []
     result = result[0]
@@ -1006,7 +1012,7 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     history_line += create_history_line(property_name='_key', old_value=oldkey, new_value=newkey)
     node_properties['_history'] = node['_history'].copy()
     node_properties['_history'].append(timestamp + ': Updated. ' + history_line)
-    updated_node = cypher_merge_node(node_id=node.identity,
+    updated_node = cypher_merge_node(node_id=node.id,
                                      node_properties=node_properties)
 
     if updated_node['name'] == 'FULL_NAME':
@@ -1059,7 +1065,7 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
 
 # ######
 # The following function is not used at the moment (March 2023) and
-# has not been tested. They contain parts of py2neo.
+# has not been tested. It contains parts of py2neo.
 # If you would like to use it, please rewrite first and then test carefully.
 # ######
 # def delete_node(name: str, value: str) -> None:
@@ -1114,8 +1120,8 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
         # Create the 'person-root' node with a unique value.
         value = str(uuid.uuid4())
         personroot = create_update_node(name='person-root', category='person', value=value)
-        cypher_merge_edge(left_node_id=person_node.identity,
-                          right_node_id=personroot.identity)
+        cypher_merge_edge(left_node_id=person_node.id,
+                          right_node_id=personroot.id)
         return personroot
 
     if len(personroot_nodes) > 1:
@@ -1155,8 +1161,8 @@ def connect_person_and_non_person_node(person_node: Node,
         if personroot is None:
             return
 
-    cypher_merge_edge(left_node_id=non_person_node.identity,
-                      right_node_id=personroot.identity)
+    cypher_merge_edge(left_node_id=non_person_node.id,
+                      right_node_id=personroot.id)
     return
 
 
@@ -1322,8 +1328,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=left_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_id=right_node.identity,
-                          right_node_id=personroot.identity)
+        cypher_merge_edge(left_node_id=right_node.id,
+                          right_node_id=personroot.id)
         return
 
     if nr_edges_left_node > 0 and nr_edges_right_node == 0:
@@ -1331,8 +1337,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=left_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_id=right_node.identity,
-                          right_node_id=personroot.identity)
+        cypher_merge_edge(left_node_id=right_node.id,
+                          right_node_id=personroot.id)
         return
 
     if nr_edges_left_node == 0 and nr_edges_right_node > 0:
@@ -1340,8 +1346,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=right_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_id=left_node.identity,
-                          right_node_id=personroot.identity)
+        cypher_merge_edge(left_node_id=left_node.id,
+                          right_node_id=personroot.id)
         return
 
     left_personroot_node = get_or_create_personroot_node(person_node=left_node)
@@ -1360,10 +1366,10 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         return
 
     # Connect crosswise.
-    cypher_merge_edge(left_node_id=left_node.identity,
-                      right_node_id=right_personroot_node.identity)
-    cypher_merge_edge(left_node_id=right_node.identity,
-                      right_node_id=left_personroot_node.identity)
+    cypher_merge_edge(left_node_id=left_node.id,
+                      right_node_id=right_personroot_node.id)
+    cypher_merge_edge(left_node_id=right_node.id,
+                      right_node_id=left_personroot_node.id)
 
     now = datetime.now()
     timestamp = now.strftime('%Y%m%d-%H%M%S')
@@ -1379,11 +1385,11 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
     print('\nconnect_person_and_person_node(): ' + message)
     node_property = {'_history': left_node['_history'].copy()}
     node_property['_history'].append(timestamped_message)
-    cypher_merge_node(node_id=left_node.identity,
+    cypher_merge_node(node_id=left_node.id,
                       node_properties=node_property)
     node_property = {'_history': right_node['_history'].copy()}
     node_property['_history'].append(timestamped_message)
-    cypher_merge_node(node_id=right_node.identity,
+    cypher_merge_node(node_id=right_node.id,
                       node_properties=node_property)
     return
 
@@ -1407,8 +1413,8 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
 
     if left_node['category'] != 'person' and right_node['category'] != 'person':
         # This is not a person to person link, link directly
-        cypher_merge_edge(left_node_id=left_node.identity,
-                          right_node_id=right_node.identity)
+        cypher_merge_edge(left_node_id=left_node.id,
+                          right_node_id=right_node.id)
         return
 
     # At least one of the nodes is a 'person' link. These should be linked via their 'person-root' node.
@@ -1669,8 +1675,10 @@ def get_edges(node: Node) -> list:
     global _graph
 
     cypher_query = 'MATCH (node)-[edge]->() WHERE id(node)=$node_id RETURN edge'
-    edges = _graph.run(cypher_query,
-                       node_id=node.identity).to_series().to_list()
+    edges = _graph.execute_query(cypher_query,
+                                 node_id=node.id,
+                                 result_transformer_=Result.value,
+                                 database_=GRAPHDB_NAME)
     if len(edges) == 0:
         return []
     else:
@@ -1750,7 +1758,7 @@ def get_all_neighbor_nodes(node: Node,
     if node is None:
         return []
 
-    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE (id(node)=' + str(node.identity) + ') '
+    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE (id(node)=$node_id) '
 
     nr_of_not_clauses = 0
     if isinstance(name_want, str):
@@ -1804,7 +1812,10 @@ def get_all_neighbor_nodes(node: Node,
         cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
     # print(cypher_query)
 
-    neighbor_nodes = _graph.run(cypher_query).to_series().to_list()
+    neighbor_nodes = _graph.execute_query(cypher_query,
+                                          node_id=node.id,
+                                          result_transformer_=Result.value,
+                                          database_=GRAPHDB_NAME)
     if len(neighbor_nodes) == 0:
         return []
     else:

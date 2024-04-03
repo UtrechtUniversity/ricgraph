@@ -82,12 +82,15 @@ import os
 import sys
 import urllib.parse
 from typing import Union
-from py2neo import Node, NodeMatch
+from neo4j import Result
+from neo4j.graph import Node
 from flask import Flask, request, url_for, send_from_directory
 from markupsafe import escape
 import ricgraph as rcg
 
 ricgraph_explorer = Flask(__name__)
+
+GRAPHDB_NAME = 'neo4j'
 
 # Ricgraph Explorer is also a "discoverer". This parameter gives the
 # default mode. Possibilities are:
@@ -923,6 +926,7 @@ def create_results_page(view_mode: str,
             message += 'This should not happen. '
             return get_message(message=message)
         nodes_cache[key] = result[0]
+        node = result[0]
 
     if discoverer_mode == 'details_view':
         table_columns_ids = DETAIL_COLUMNS
@@ -1116,7 +1120,7 @@ def create_results_page(view_mode: str,
     return html
 
 
-def view_personal_information(nodes_list: Union[list, NodeMatch],
+def view_personal_information(nodes_list: list,
                               discoverer_mode: str = '') -> str:
     """Create a person page of the node.
     This page shows the name variants, a photo (if present),
@@ -1605,23 +1609,9 @@ def find_organization_additional_info(parent_node: Node,
         second_neighbor_category_list += '"]'
 
     # Prepare and execute Cypher query.
-    # ### Explanation of different options for WHERE clause.
-    # Note the two variants of the WHERE clause below. The first is on _key, which does
-    # a search in the graph database, while the second is using the function id(),
-    # which does a direct lookup for a node with that id. The latter is of course much faster.
-    # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
-    # PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
-    #
-    # However, id() is deprecated and should be replaced with elementid(). But this
-    # cannot be done, since module py2neo (which is end-of-life) does not have this
-    # elementid.
-    # Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
-    # https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
-    # ###
-    # cypher_query = 'MATCH (node)-[]->(neighbor) WHERE node._key = '
-    # cypher_query += '"' + parent_node['_key'] + '"' + ' AND neighbor.name = "person-root" '
-    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE id(node) = '
-    cypher_query += str(parent_node.identity) + ' AND neighbor.name = "person-root" '
+    # For explanation read text below comment 'Cypher functions' in file ricgraph.py.
+    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE id(node)=$node_id '
+    cypher_query += ' AND neighbor.name = "person-root" '
 
     cypher_query += 'MATCH (neighbor)-[]->(second_neighbor) '
     if len(name_list) > 0 or len(category_list) > 0:
@@ -1636,7 +1626,10 @@ def find_organization_additional_info(parent_node: Node,
     if max_nr_neighbor_nodes > 0:
         cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
     # print(cypher_query)
-    relevant_result = graph.run(cypher_query).to_series().to_list()
+    relevant_result = graph.execute_query(cypher_query,
+                                          node_id=parent_node.id,
+                                          result_transformer_=Result.value,
+                                          database_=GRAPHDB_NAME)
 
     if len(relevant_result) == 0:
         message = 'Could not find any persons or results for this organization'
@@ -1708,7 +1701,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     if len(nodes) == 0:
         # Let's try again, assuming we did a broad search instead of an exact match search.
         nodes = rcg.read_all_nodes(value=value,
-                                   value_is_exact_match = False)
+                                   value_is_exact_match=False)
         if len(nodes) == 0:
             return get_message(message='Ricgraph Explorer could not find anything.')
 
@@ -1981,7 +1974,7 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
     if len(result) == 0:
         # Let's try again, assuming we did a broad search instead of an exact match search.
         result = rcg.read_all_nodes(value=value,
-                                    value_is_exact_match = False)
+                                    value_is_exact_match=False)
         if len(result) == 0:
             # No, we really didn't find anything.
             message = 'Unexpected result in find_overlap_in_source_systems_records(): '
@@ -2279,7 +2272,7 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
 # ##############################################################################
 # The HTML for the regular, tabbed and faceted tables is generated here.
 # ##############################################################################
-def get_regular_table(nodes_list: Union[list, NodeMatch],
+def get_regular_table(nodes_list: list,
                       table_header: str = '',
                       table_columns: list = None,
                       discoverer_mode: str = '') -> str:
@@ -2335,7 +2328,7 @@ def get_regular_table(nodes_list: Union[list, NodeMatch],
 
 
 def get_faceted_table(parent_node: Node,
-                      neighbor_nodes: Union[list, NodeMatch, None],
+                      neighbor_nodes: Union[list, None],
                       table_header: str = '',
                       table_columns: list = None,
                       view_mode: str = '',
@@ -2384,7 +2377,7 @@ def get_faceted_table(parent_node: Node,
     return html
 
 
-def get_tabbed_table(nodes_list: Union[list, NodeMatch, None],
+def get_tabbed_table(nodes_list: Union[list, None],
                      table_header: str = '',
                      table_columns: list = None,
                      tabs_on: str = '',
