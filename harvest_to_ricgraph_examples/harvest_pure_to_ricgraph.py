@@ -1327,7 +1327,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # Replace all empty strings in column FULL_NAME for NaNs
     # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
     # resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
-    resout['FULL_NAME'] = resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
+    resout['FULL_NAME'] = resout['FULL_NAME'].replace('', numpy.nan)
     resout.dropna(axis=0, how='any', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     resout.rename(columns={'AUTHOR_UUID': 'value1',
