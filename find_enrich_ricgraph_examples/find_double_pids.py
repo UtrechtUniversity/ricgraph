@@ -55,25 +55,24 @@ for pid_type in ('DAI', 'EMPLOYEE_ID', 'ISNI', 'ORCID', 'SCOPUS_AUTHOR_ID'):
     result = rcg.read_all_nodes(name=pid_type)
 
     for node in result:
-        edges_connected_to_node = rcg.get_edges(node)
-        number_of_edges = len(edges_connected_to_node)
+        neighbors_nodes = rcg.get_all_neighbor_nodes(node=node)
+        number_of_edges = len(neighbors_nodes)
         if number_of_edges > 1:
             print('---------------')
             print('From node with name: ' + node['name'] + ', value: ' + node['value']
                   + ' (' + node['url_main']
                   + '),\nthere are ' + str(number_of_edges) + ' outgoing edges, to nodes:')
-            for edge in edges_connected_to_node:
-                next_node = edge.end_node
-                if node == next_node:
+            for neighbor in neighbors_nodes:
+                if node == neighbor:
                     continue
-                personroot_node = rcg.get_personroot_node(next_node)
+                personroot_node = rcg.get_personroot_node(neighbor)
                 fullname_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
                                                             name_want='FULL_NAME')
                 if len(fullname_nodes) == 0:
                     res = '[no FULL_NAME found]'
                 else:
                     res = fullname_nodes[0]['value']
-                print('- name: ' + next_node['name'] + ', value: ' + next_node['value']
+                print('- name: ' + neighbor['name'] + ', value: ' + neighbor['value']
                       + '. This node\n  is connected to a node with FULL_NAME: ' + res + '.')
 
 rcg.close_ricgraph()

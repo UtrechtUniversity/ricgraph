@@ -1238,28 +1238,24 @@ def find_person_share_resouts(parent_node: Node,
         return get_message(message=message)
 
     personroot_node = rcg.get_personroot_node(node=parent_node)
-    edges = rcg.get_edges(personroot_node)
-    if len(edges) == 0:
-        message = 'Unexpected result in find_person_share_resouts(): '
-        message += 'personroot_node does not have neighbors.'
-        return get_message(message=message)
-
+    neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node)
     connected_persons = []
     count = 0
     if max_nr_neighbor_nodes == 0:
         max_nr_neighbor_nodes = rcg.A_LARGE_NUMBER
-    for edge in edges:
+    for neighbor in neighbor_nodes:
         if count >= max_nr_neighbor_nodes:
             break
-        next_node = edge.end_node
-        if personroot_node == next_node:
+        if personroot_node == neighbor:
             continue
-        if len(category_want_list) != 0 and next_node['category'] not in category_want_list:
+        if len(category_want_list) > 0 \
+           and neighbor['category'] not in category_want_list:
             continue
-        if len(category_dontwant_list) > 0 and next_node['category'] in category_dontwant_list:
+        if len(category_dontwant_list) > 0 \
+           and neighbor['category'] in category_dontwant_list:
             continue
 
-        persons = rcg.get_all_neighbor_nodes(node=next_node,
+        persons = rcg.get_all_neighbor_nodes(node=neighbor,
                                              name_want='person-root',
                                              max_nr_neighbor_nodes=max_nr_neighbor_nodes - count)
         for person in persons:
@@ -1459,24 +1455,19 @@ def find_person_organization_collaborations(parent_node: Node,
         return get_message(message=message)
 
     personroot_node = rcg.get_personroot_node(node=parent_node)
-    edges = rcg.get_edges(personroot_node)
-    if len(edges) == 0:
-        message = 'Unexpected result in find_person_organization_collaborations(): '
-        message += 'personroot_node does not have neighbors.'
-        return get_message(message=message)
+    neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node)
 
     # 'connected_persons' will be a list of persons connected to 'personroot_node'
     # via a research result. 'connected_persons' will not contain duplicates.
     connected_persons = []
-    for edge in edges:
-        next_node = edge.end_node
-        if personroot_node == next_node:
+    for neighbor in neighbor_nodes:
+        if personroot_node == neighbor:
             continue
-        if next_node['category'] not in resout_types_all:
+        if neighbor['category'] not in resout_types_all:
             continue
 
         # Now next_node is a research result. Find persons connected to that research result.
-        persons = rcg.get_all_personroot_nodes(node=next_node)
+        persons = rcg.get_all_personroot_nodes(node=neighbor)
         for person in persons:
             if person['_key'] == personroot_node['_key']:
                 # Note: we do not include ourselves.

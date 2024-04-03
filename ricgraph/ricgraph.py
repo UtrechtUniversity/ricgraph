@@ -271,7 +271,6 @@ def ricgraph_lru_cache(maxsize: int = 128, typed: bool = False):
 # These are also functions with cypher:
 # - read_all_nodes()
 # - read_all_values_of_property()
-# - get_edges()
 # - get_all_neighbor_nodes()
 # ##############################################################################
 # Note the use of some WHERE clauses below. Some of them uses the function id(),
@@ -420,6 +419,34 @@ def ricgraph_nr_edges() -> int:
 
     cypher_query = 'MATCH ()-[r]->() RETURN COUNT (r) AS count'
     result = _graph.execute_query(cypher_query,
+                                  result_transformer_=Result.data,
+                                  database_=GRAPHDB_DATABASENAME)
+    if len(result) == 0:
+        return -1
+    result = result[0]
+    if 'count' not in result:
+        return -1
+    result = int(result['count'])
+    return result
+
+
+def ricgraph_nr_edges_of_node(node_id: int) -> int:
+    """Count the number of edges in Ricgraph of a given node.
+
+    :param node_id: the id of the node.
+    :return: the number of nodes, or -1 on error.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nricgraph_nr_edges_of_node(): Error: graph has not been initialized or opened.\n\n')
+        return -1
+
+    cypher_query = 'MATCH (node)-[r]->() WHERE id(node)=$node_id '
+    cypher_query += 'RETURN COUNT (r) AS count'
+
+    result = _graph.execute_query(cypher_query,
+                                  node_id=node_id,
                                   result_transformer_=Result.data,
                                   database_=GRAPHDB_DATABASENAME)
     if len(result) == 0:
@@ -1322,8 +1349,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
               + 'are "person-root" nodes.')
         return
 
-    nr_edges_left_node = len(get_edges(node=left_node))
-    nr_edges_right_node = len(get_edges(node=right_node))
+    nr_edges_left_node = ricgraph_nr_edges_of_node(node_id=left_node.id)
+    nr_edges_right_node = ricgraph_nr_edges_of_node(node_id=right_node.id)
     if nr_edges_left_node == 0 and nr_edges_right_node == 0:
         # None of the nodes have a 'person-root' node, create one and connect.
         personroot = get_or_create_personroot_node(person_node=left_node)
@@ -1667,23 +1694,32 @@ def print_node_values(node: Node) -> None:
 # The difference is that "get_" functions work in constant time (starting from
 # a node) while the "read_" functions read (aka search, find) the whole graph.
 # ##############################################################################
-def get_edges(node: Node) -> list:
-    """Get the edges attached to a node.
 
-    :param node: the node.
-    :return: a list of the edges, or empty list if no edges are connected.
-    """
-    global _graph
 
-    cypher_query = 'MATCH (node)-[edge]->() WHERE id(node)=$node_id RETURN edge'
-    edges = _graph.execute_query(cypher_query,
-                                 node_id=node.id,
-                                 result_transformer_=Result.value,
-                                 database_=GRAPHDB_DATABASENAME)
-    if len(edges) == 0:
-        return []
-    else:
-        return edges
+# ######
+# This function does not seem necessary. Use get_all_neighbor_nodes() or
+# ricgraph_nr_edges_of_node().
+# Note that this function returns a list of edges, but you cannot get the next node
+# directly from an edge in that list.
+# ######
+# def get_edges(node: Node) -> list:
+#     """Get the edges attached to a node.
+#
+#     :param node: the node.
+#     :return: a list of the edges, or empty list if no edges are connected.
+#     """
+#     global _graph
+#
+#     cypher_query = 'MATCH (node)-[edge]->() WHERE id(node)=$node_id RETURN edge'
+#     edges = _graph.execute_query(cypher_query,
+#                                  node_id=node.id,
+#                                  result_transformer_=Result.value,
+#                                  database_=GRAPHDB_DATABASENAME)
+#     if len(edges) == 0:
+#         return []
+#     else:
+#         return edges
+# ######
 
 
 def get_personroot_node(node: Node) -> Union[Node, None]:
@@ -1862,8 +1898,8 @@ def get_all_neighbor_nodes_loop(node: Node,
     if node is None:
         return []
 
-    edges = get_edges(node)
-    if len(edges) == 0:
+    candidate_neighbor_nodes = get_all_neighbor_nodes(node=node)
+    if len(candidate_neighbor_nodes) == 0:
         return []
 
     # If 'name_want' etc. are strings, convert them to lists.
@@ -1904,31 +1940,30 @@ def get_all_neighbor_nodes_loop(node: Node,
     if max_nr_neighbor_nodes == 0:
         max_nr_neighbor_nodes = all_nodes
     neighbor_nodes = []
-    for edge in edges:
+    for neighbor in candidate_neighbor_nodes:
         if count >= max_nr_neighbor_nodes:
             break
-        next_node = edge.end_node
-        if node == next_node:
+        if node == neighbor:
             continue
-        if next_node['name'] in name_dontwant_list:
+        if neighbor['name'] in name_dontwant_list:
             continue
-        if next_node['category'] in category_dontwant_list:
+        if neighbor['category'] in category_dontwant_list:
             continue
         if len(name_want) == 0 and len(category_want) == 0:
-            neighbor_nodes.append(next_node)
+            neighbor_nodes.append(neighbor)
             count += 1
             continue
-        if next_node['name'] in name_want_list \
-           and next_node['category'] in category_want_list:
-            neighbor_nodes.append(next_node)
+        if neighbor['name'] in name_want_list \
+           and neighbor['category'] in category_want_list:
+            neighbor_nodes.append(neighbor)
             count += 1
             continue
-        if next_node['name'] in name_want_list and len(category_want_list) == 0:
-            neighbor_nodes.append(next_node)
+        if neighbor['name'] in name_want_list and len(category_want_list) == 0:
+            neighbor_nodes.append(neighbor)
             count += 1
             continue
-        if len(name_want_list) == 0 and next_node['category'] in category_want_list:
-            neighbor_nodes.append(next_node)
+        if len(name_want_list) == 0 and neighbor['category'] in category_want_list:
+            neighbor_nodes.append(neighbor)
             count += 1
             continue
         # Any other next_node we do not want.
@@ -2333,7 +2368,9 @@ try:
         print('Ricgraph initialization: error, one or more of the GraphDB parameters '
               + 'empty in Ricgraph ini file, exiting.')
         exit(1)
-    GRAPHDB_URL = '{scheme}://{hostname}:{port}'.format(scheme=GRAPHDB_SCHEME, hostname=GRAPHDB_HOSTNAME, port=GRAPHDB_PORT)
+    GRAPHDB_URL = '{scheme}://{hostname}:{port}'.format(scheme=GRAPHDB_SCHEME,
+                                                        hostname=GRAPHDB_HOSTNAME,
+                                                        port=GRAPHDB_PORT)
 except KeyError:
     print('Ricgraph initialization: error, one or more of GraphDB parameters '
           + 'not found in Ricgraph ini file, exiting.')
