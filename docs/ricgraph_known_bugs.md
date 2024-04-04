@@ -6,6 +6,10 @@ While deleting nodes and edges in Ricgraph you might get a Python error, similar
 ```
 Deleting all nodes and edges in Ricgraph...
 
+Transaction failed and will be retried in [number]s (The allocation of an extra [number] MiB 
+  would use more than the limit [number] MiB. Currently using [number] MiB. 
+  dbms.memory.transaction.total.max threshold reached)
+
 Traceback (most recent call last):
   File "[path]/harvest_to_ricgraph_examples/harvest_pure_to_ricgraph.py", 
     line 729, in <module> rcg.empty_ricgraph()
