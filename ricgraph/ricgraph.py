@@ -217,6 +217,33 @@ global _graph
 
 
 # ##############################################################################
+# Modification for Python module neo4j.
+# ##############################################################################
+
+def node_eq(self, other):
+    """Modified __eq__ method for Python module neo4j.
+
+    The __eq__ method of class Node does not work as expected (as of April 2024).
+
+    I would like to be able to test if a 'node' of type Node is in a list called
+    'mylist' with an 'if' statement like this:
+    'if node in mylist ...' or 'if node not in mylist ...',
+    but it does not work: even if Nodes are in that list, the 'if' fails.
+    I could have made my own class and extended it with an __eq__ method, but
+    I choose this hack. It is called a 'Monkey patch': A Monkey patch is a piece
+    of Python code which extends or modifies other code at runtime
+    (typically at startup).
+
+    :return: True on equality, or False if not.
+    """
+    return isinstance(other, Node) and self.id == other.id
+
+
+# Modified __eq__ method for Python module neo4j (also see above).
+Node.__eq__ = node_eq
+
+
+# ##############################################################################
 # Cache function.
 # ##############################################################################
 
