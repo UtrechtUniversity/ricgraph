@@ -339,17 +339,18 @@ def empty_ricgraph(answer: str = '') -> None:
             print('\nRicgraph has not been emptied, exiting.\n')
             exit(1)
 
-    # Sometimes the following statement fails with Neo4j Desktop if there are many nodes, see e.g.
-    # https://stackoverflow.com/questions/23310114/how-to-reset-clear-delete-neo4j-database.
     # Delete the database and start over again.
+    # Sometimes the following statement fails with Neo4j Desktop graph database backend
+    # if there are many nodes, see e.g.
+    # https://stackoverflow.com/questions/23310114/how-to-reset-clear-delete-neo4j-database.
     # Apparently, the community edition of Neo4j does not have a
     # "CREATE OR REPLACE DATABASE customers" command.
     print('Deleting all nodes and edges in Ricgraph...\n')
     _graph.execute_query('MATCH (node) DETACH DELETE node', database_=GRAPHDB_DATABASENAME)
 
     # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
-    # If I understand correctly there can be at most 3 indexes, while I would like to have 4.
-    # I decide not use a CategoryIndex.
+    # If I understand correctly there, the graph database backend Neo4j can be at most 3 indexes,
+    # while I would like to have 4. I decide not use a CategoryIndex.
     _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
     _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
     # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
