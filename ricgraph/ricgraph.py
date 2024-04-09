@@ -107,10 +107,7 @@ import uuid
 import json
 from typing import Union
 from collections import defaultdict
-from functools import lru_cache, wraps
 import configparser
-
-# import neo4j
 from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
 
@@ -131,9 +128,13 @@ RICGRAPH_KEY_SEPARATOR = '|'
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
 A_LARGE_NUMBER = 9999999999
 
-# Cache size for read_node() function (in number of elements in cache). This
-# cannot be read from the config file since it will be read too late.
-CACHE_SIZE_READ_NODE = 15000
+# This dict is used as a cache for node id's. If we have a node id, we can
+# do a direct lookup for a node in O(1), instead of a search in O(log n).
+# The dict has the format: [Ricgraph _key]: [Node id].
+nodes_cache_key_id = {}
+# Cache size. 'nodes_cache_key_id' will be emptied if it has this number of elements.
+MAX_NODES_CACHE_KEY_ID = 15000
+
 
 # ########################################################################
 # Research output types used in Ricgraph.
@@ -224,6 +225,7 @@ def node_eq(self, other):
     """Modified __eq__ method for Python module neo4j.
 
     The __eq__ method of class Node does not work as expected (as of April 2024).
+    Two Nodes are supposed to be equal if their Node.id's are equal.
 
     I would like to be able to test if a 'node' of type Node is in a list called
     'mylist' with an 'if' statement like this:
@@ -241,55 +243,6 @@ def node_eq(self, other):
 
 # Modified __eq__ method for Python module neo4j (also see above).
 Node.__eq__ = node_eq
-
-
-# ##############################################################################
-# Cache function.
-# ##############################################################################
-
-# Values will only be stored in the cache if the function does not return None
-# Used is the property that the standard @lru_cache doesn't do caching when
-# an exception is raised within the wrapped function.
-# This code is taken from
-# https://stackoverflow.com/questions/71175293/make-built-in-lru-cache-skip-caching-when-function-returns-none.
-# For extensive documentation of @lru_cache see
-# https://docs.python.org/3/library/functools.html#functools.lru_cache.
-def ricgraph_lru_cache(maxsize: int = 128, typed: bool = False):
-    """This decorator is an LRU cache. It is similar to @lru_cache, with the
-    difference that this function does not store values in the cache when
-    the function returns None.
-
-    :param maxsize: maximum size of the cache.
-    :param typed: if True, function arguments of different types will be cached separately.
-    :return: object.
-    """
-    class FunctionReturnsNoneException(Exception):
-        pass
-
-    def decorator(func):
-        @lru_cache(maxsize=maxsize, typed=typed)
-        def raise_exception_wrapper(*args, **kwargs):
-            value = func(*args, **kwargs)
-            if value is None:
-                raise FunctionReturnsNoneException
-            return value
-
-        @wraps(func)
-        def handle_exception_wrapper(*args, **kwargs):
-            try:
-                return raise_exception_wrapper(*args, **kwargs)
-            except FunctionReturnsNoneException:
-                return None
-
-        handle_exception_wrapper.cache_info = raise_exception_wrapper.cache_info
-        handle_exception_wrapper.cache_clear = raise_exception_wrapper.cache_clear
-        return handle_exception_wrapper
-
-    if callable(maxsize):
-        user_function, maxsize = maxsize, 128
-        return decorator(user_function)
-
-    return decorator
 
 
 # ##############################################################################
@@ -320,8 +273,20 @@ def open_ricgraph() -> Driver:
     global _graph
 
     print('Opening ricgraph.\n')
-    with GraphDatabase.driver(GRAPHDB_URL, auth=(GRAPHDB_USER, GRAPHDB_PASSWORD)) as _graph:
+    try:
+        _graph = GraphDatabase.driver(GRAPHDB_URL,
+                                      auth=(GRAPHDB_USER, GRAPHDB_PASSWORD))
         _graph.verify_connectivity()
+    except:
+        print('open_ricgraph(): Error opening graph database backend using these parameters:')
+        print('GRAPHDB_URL: ' + GRAPHDB_URL)
+        print('GRAPHDB_DATABASENAME: ' + GRAPHDB_DATABASENAME)
+        print('GRAPHDB_USER: ' + GRAPHDB_USER)
+        print('GRAPHDB_PASSWORD: [see ricgraph.ini file]')
+        print('\nAre these parameters correct and did you start your graph database backend "' + GRAPHDB + '"?')
+        print('Exiting.')
+        exit(1)
+
     return _graph
 
 
@@ -391,13 +356,13 @@ def empty_ricgraph(answer: str = '') -> None:
     _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
 
     print('Creating indexes...')
-    _graph.execute_query('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node._key)',
+    _graph.execute_query('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node._key)',
                          database_=GRAPHDB_DATABASENAME)
-    _graph.execute_query('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.name)',
+    _graph.execute_query('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.name)',
                          database_=GRAPHDB_DATABASENAME)
-    # _graph.execute_query('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.category)',
+    # _graph.execute_query('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.category)',
     #                      database_=GRAPHDB_DATABASENAME)
-    _graph.execute_query('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node: RicgraphNode) ON (node.value)',
+    _graph.execute_query('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.value)',
                          database_=GRAPHDB_DATABASENAME)
 
     print('These indexes have been created:')
@@ -469,7 +434,7 @@ def ricgraph_nr_edges_of_node(node_id: int) -> int:
         print('\nricgraph_nr_edges_of_node(): Error: graph has not been initialized or opened.\n\n')
         return -1
 
-    cypher_query = 'MATCH (node)-[r]->() WHERE id(node)=$node_id '
+    cypher_query = 'MATCH (node:RicgraphNode)-[r]->() WHERE id(node)=$node_id '
     cypher_query += 'RETURN COUNT (r) AS count'
 
     result = _graph.execute_query(cypher_query,
@@ -502,8 +467,7 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     # This would be an alternative, but it seems to use more memory than the
     # one used now, according to 'PROFILE <cypher query>'.
     # cypher_query = 'CREATE (node:RicgraphNode) SET node=$node_properties ' [etc.]
-    cypher_query = 'CREATE (node:RicgraphNode $node_properties) '
-    cypher_query += 'RETURN node'
+    cypher_query = 'CREATE (node:RicgraphNode $node_properties) RETURN node'
 
     # print('cypher_create_node(): cypher_query: ' + cypher_query)
     # print('                      node_properties: ' + str(node_properties))
@@ -529,8 +493,7 @@ def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
     :param node_properties: the properties of the node.
     :return: the node updated, or None on error.
     """
-    cypher_query = 'MATCH (node) WHERE id(node)=$node_id '
-    cypher_query += 'SET node+=$node_properties '
+    cypher_query = 'MATCH (node:RicgraphNode) WHERE id(node)=$node_id SET node+=$node_properties '
     cypher_query += 'RETURN node'
 
     # print('cypher_merge_node(): node_id: ' + str(node_id) + ', cypher_query: ' + cypher_query)
@@ -563,8 +526,8 @@ def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
     # cypher_query = 'MATCH (left_node) WHERE left_node._key="' + str(left_node['_key']) + '" ' [etc.]
     # The next one is the fastest.
     # It amounts to 1 database hits according to 'PROFILE' using 'NodeByIdSeek'.
-    cypher_query = 'MATCH (left_node) WHERE id(left_node)=$left_node_id '
-    cypher_query += 'MATCH (right_node) WHERE id(right_node)=$right_node_id '
+    cypher_query = 'MATCH (left_node:RicgraphNode) WHERE id(left_node)=$left_node_id '
+    cypher_query += 'MATCH (right_node:RicgraphNode) WHERE id(right_node)=$right_node_id '
 
     # We could use 'CREATE', but then we may get multiple edges for the same direction.
     # cypher_query += 'CREATE (left_node)-[:LINKS_TO]->(right_node), ' [etc.]
@@ -886,7 +849,6 @@ def create_update_node(name: str, category: str, value: str,
     return updated_node
 
 
-@ricgraph_lru_cache(maxsize=CACHE_SIZE_READ_NODE)
 def read_node(name: str = '', value: str = '') -> Union[Node, None]:
     """Read a node based on name and value.
     Since all nodes are supposed to be unique if both are
@@ -896,11 +858,49 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
     :param value: 'value' property of node.
     :return: the node read, or None if no node was found.
     """
-    all_nodes = read_all_nodes(name=name, value=value)
-    if len(all_nodes) == 0:
+    global _graph
+    global nodes_cache_key_id
+
+    if _graph is None:
+        print('\nread_node(): Error: graph has not been initialized or opened.\n\n')
         return None
+
+    if not isinstance(name, str) or not isinstance(value, str):
+        return None
+
+    if name == '' or value == '':
+        return None
+
+    key = create_ricgraph_key(name=name, value=value)
+    if key in nodes_cache_key_id:
+        node_id = nodes_cache_key_id[key]
+        cypher_query = 'MATCH (node:RicgraphNode) WHERE id(node)=$node_id RETURN node'
+        nodes = _graph.execute_query(cypher_query,
+                                     node_id=node_id,
+                                     result_transformer_=Result.value,
+                                     database_=GRAPHDB_DATABASENAME)
+        if len(nodes) == 0:
+            return None
+        else:
+            return nodes[0]
     else:
-        return all_nodes[0]
+        if len(nodes_cache_key_id) > MAX_NODES_CACHE_KEY_ID:
+            # Empty cache.
+            nodes_cache_key_id = {}
+
+        cypher_query = 'MATCH (node:RicgraphNode) WHERE (node.name=$node_name) AND (node.value=$node_value) '
+        cypher_query += 'RETURN node'
+        nodes = _graph.execute_query(cypher_query,
+                                     node_name=name,
+                                     node_value=value,
+                                     result_transformer_=Result.value,
+                                     database_=GRAPHDB_DATABASENAME)
+        if len(nodes) == 0:
+            return None
+        else:
+            node = nodes[0]
+            nodes_cache_key_id[key] = node.id
+            return node
 
 
 def read_all_nodes(name: str = '', category: str = '', value: str = '',
@@ -929,22 +929,39 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
        or not isinstance(value, str):
         return []
 
+    # Special case, for speed.
+    if value_is_exact_match and name != '' and category == '' and value != '':
+        # Ignore 'max_nr_nodes'.
+        cypher_query = 'MATCH (node:RicgraphNode) WHERE (node.name=$node_name) AND (node.value=$node_value) '
+        cypher_query += 'RETURN node'
+        nodes = _graph.execute_query(cypher_query,
+                                     node_name=name,
+                                     node_value=value,
+                                     result_transformer_=Result.value,
+                                     database_=GRAPHDB_DATABASENAME)
+        if len(nodes) == 0:
+            return []
+        else:
+            return nodes
+
+    # Now all other cases.
     # Don't allow a search for everything.
     if name == '' and category == '' and value == '':
         return []
 
-    cypher_query = 'MATCH (node) WHERE '
+    cypher_query = 'MATCH (node:RicgraphNode) WHERE '
     if name != '':
-        cypher_query += '(node.name = "' + name + '") AND '
+        cypher_query += '(node.name="' + name + '") AND '
     if category != '':
-        cypher_query += '(node.category = "' + category + '") AND '
+        cypher_query += '(node.category="' + category + '") AND '
     if value != '':
+        # Value may contain special characters.
         if value_is_exact_match:
             # Exact match search.
-            cypher_query += '(node.value = "' + value + '") AND '
+            cypher_query += '(node.value=$node_value) AND '
         else:
             # Case-insensitive search.
-            cypher_query += '(toLower(node.value) CONTAINS toLower("' + value + '")) AND '
+            cypher_query += '(toLower(node.value) CONTAINS toLower($node_value)) AND '
 
     # Remove last 'AND ', is of length -4.
     cypher_query = cypher_query[:-4]
@@ -954,9 +971,17 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
         cypher_query += 'LIMIT ' + str(max_nr_nodes)
     # print(cypher_query)
 
-    nodes = _graph.execute_query(cypher_query,
-                                 result_transformer_=Result.value,
-                                 database_=GRAPHDB_DATABASENAME)
+    if value != '':
+        # Value may contain special characters.
+        nodes = _graph.execute_query(cypher_query,
+                                     node_value=value,
+                                     result_transformer_=Result.value,
+                                     database_=GRAPHDB_DATABASENAME)
+    else:
+        nodes = _graph.execute_query(cypher_query,
+                                     result_transformer_=Result.value,
+                                     database_=GRAPHDB_DATABASENAME)
+
     if len(nodes) == 0:
         return []
     else:
@@ -982,7 +1007,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
               + node_property + '".\n\n')
         return []
 
-    cypher_query = 'MATCH (node) RETURN COLLECT (DISTINCT node.' + node_property + ') AS entries'
+    cypher_query = 'MATCH (node:RicgraphNode) RETURN COLLECT (DISTINCT node.' + node_property + ') AS entries'
     result = _graph.execute_query(cypher_query,
                                   result_transformer_=Result.data,
                                   database_=GRAPHDB_DATABASENAME)
@@ -1093,7 +1118,6 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
     nodes_clean.dropna(axis=0, how='any', inplace=True)
     nodes_clean.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('\nCache used at start of function: ' + str(read_node.cache_info()) + '.')
     print('There are ' + str(len(nodes_clean)) + ' nodes, updating node: 0  ', end='')
     count = 0
     columns = nodes_clean.columns
@@ -1114,7 +1138,6 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
                            other_properties=node_properties)
 
     print(count, '\n', end='', flush=True)
-    print('Cache used at end of function: ' + str(read_node.cache_info()) + '.')
     return
 
 
@@ -1544,8 +1567,6 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: pandas.DataFrame) ->
     :param left_and_right_nodepairs: the node pairs in a DataFrame.
     :return: None.
     """
-    # read_node.cache_clear()           # Optional, we don't need this for now.
-    print('\nCache used at start of function: ' + str(read_node.cache_info()) + '.')
     print('There are ' + str(len(left_and_right_nodepairs)) + ' rows, creating nodes and edges for row: 0  ', end='')
     count = 0
     columns = left_and_right_nodepairs.columns
@@ -1569,7 +1590,6 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: pandas.DataFrame) ->
                                   name2=row.name2, category2=row.category2, value2=row.value2,
                                   **node_properties)
     print(count, '\n', end='', flush=True)
-    print('Cache used at end of function: ' + str(read_node.cache_info()) + '.')
     return
 
 
@@ -1822,8 +1842,7 @@ def get_all_neighbor_nodes(node: Node,
     if node is None:
         return []
 
-    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE (id(node)=$node_id) '
-
+    cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) WHERE (id(node)=$node_id) '
     nr_of_not_clauses = 0
     if isinstance(name_want, str):
         if name_want != '':
@@ -1862,7 +1881,7 @@ def get_all_neighbor_nodes(node: Node,
             nr_of_not_clauses += 1
 
     if nr_of_not_clauses >= 2:
-        # This is a special case in which the Cypher produces unexpected results.
+        # This is a special case in which the Cypher query produces unexpected results.
         neighbor_nodes = get_all_neighbor_nodes_loop(node=node,
                                                      name_want=name_want,
                                                      name_dontwant=name_dontwant,
@@ -2384,14 +2403,16 @@ except KeyError:
     exit(1)
 
 try:
+    GRAPHDB = config['GraphDB']['graphdb']
     GRAPHDB_HOSTNAME = config['GraphDB']['graphdb_hostname']
     GRAPHDB_DATABASENAME = config['GraphDB']['graphdb_databasename']
     GRAPHDB_USER = config['GraphDB']['graphdb_user']
     GRAPHDB_PASSWORD = config['GraphDB']['graphdb_password']
     GRAPHDB_SCHEME = config['GraphDB']['graphdb_scheme']
     GRAPHDB_PORT = config['GraphDB']['graphdb_port']
-    if GRAPHDB_HOSTNAME == '' or GRAPHDB_USER == '' or GRAPHDB_PASSWORD == '' \
-       or GRAPHDB_SCHEME == '' or GRAPHDB_PORT == '':
+    if GRAPHDB == '' or GRAPHDB_HOSTNAME == '' or GRAPHDB_DATABASENAME == '' \
+       or GRAPHDB_USER == '' \
+       or GRAPHDB_PASSWORD == '' or GRAPHDB_SCHEME == '' or GRAPHDB_PORT == '':
         print('Ricgraph initialization: error, one or more of the GraphDB parameters '
               + 'empty in Ricgraph ini file, exiting.')
         exit(1)
