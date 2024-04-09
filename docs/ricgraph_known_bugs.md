@@ -36,7 +36,7 @@ You can do the following to be able to use Neo4j Desktop and Ricgraph:
    next to it and select "Local DBMS". Leave the name as it is ("Graph DBMS") and fill in a password. Choose
    an easy to type and short one
    since the DBMS will only be accessible from your own machine. Click "Create".
-   Also, insert the password in field *neo4j_password* in
+   Also, insert the password in field *graphdb_password* in
    the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 1. Ready.
 

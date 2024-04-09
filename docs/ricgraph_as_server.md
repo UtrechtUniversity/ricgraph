@@ -181,7 +181,7 @@ the following steps:
   and enable the parameter for Neo4j Community Edition.
 * In *ricgraph.ini*, enter the new password for Neo4j from section
   [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
-  at the parameter _neo4j_password_.
+  at the parameter _graphdb_password_.
 * Deactivate the Python virtual environment: 
   type 
   ```

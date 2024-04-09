@@ -76,7 +76,7 @@ Other things you might want to do:
    next to it and select "Local DBMS". Leave the name as it is ("Graph DBMS") and fill in a password. Choose
    an easy to type and short one
    since the DBMS will only be accessible from your own machine. Click "Create".
-   Also, insert the password in field *neo4j_password* in
+   Also, insert the password in field *graphdb_password* in
    the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
 1. Exit Neo4j Desktop using the "File" menu and select "Quit". If your database was active
    a message similar to "Your DBMS [name] is running, are you sure you want to quit" appears,
@@ -90,7 +90,7 @@ Now we need to find the port number which Neo4j Desktop is using:
    depending on the width of the Neo4j Desktop window) a new screen appears.
    Look at the tab "Details". Note the port number next to "Bolt port" (the default
    value is 7687).
-   Insert this port number in field *neo4j_port* in
+   Insert this port number in field *graphdb_port* in
    the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
 1. Ready.
 

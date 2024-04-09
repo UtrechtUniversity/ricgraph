@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023 Rik D.T. Janssen
+# Copyright (c) 2023, 2024 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -118,28 +118,44 @@ organization_ror_VU =
 
 [GraphDB]
 # ###############################################################
-# Ricgraph uses Neo4j as graph database, https://neo4j.com.
-# They have several products. Their free products are Neo4j Desktop
-# and Neo4j Community Edition. You can also use other graph databases.
-# The values below are useful values for Neo4j.
-# Graph database parameters:
+# You can use various graph databases as backend. This section 
+# lists the configuration parameters for each graph database.
+# Fill the parameters for the graph database you use, and
+# specify the name of that database in this parameter:
+graphdb = neo4j
+# graphdb = memgraph
+# ###############################################################
+
+# ###############################################################
+# Neo4j graph database backend, https://neo4j.com.
+# ###############################################################
+# For both Neo4j Desktop and Neo4j Community Editions, fill these:
 graphdb_hostname = localhost
 graphdb_databasename = neo4j
 graphdb_user = neo4j
 graphdb_password =
+
+# ### These additional parameters are for Neo4j Desktop ###
+# Neo4j desktop may tell you which port to use, default is 7687.
+graphdb_scheme = bolt
+graphdb_port = 7687
+# ### End of additional parameters for Neo4j Desktop ###
+# ### These additional parameters are for Neo4j Community Edition ###
+#graphdb_scheme = neo4j
+#graphdb_port = 7687
+# ### End of additional parameters for Neo4j Community Edition ###
 # ###############################################################
 
 # ###############################################################
-# Choose either the parameters for Neo4j Desktop or Neo4j Community Edition.
-# ### These parameters are for Neo4j Desktop ###
-# Neo4j desktop may tell you which port to use, default is 7687.
-graphdb_scheme = bolt
-graphdb_port = 7689
-# ### End of parameters for Neo4j Desktop ###
-# ### These parameters are for Neo4j Community Edition ###
+# Memgraph graph database backend, https://memgraph.com.
+# ###############################################################
+# For Memgraph Platform, or the individual Memgraph packages, fill these:
+#graphdb_hostname = localhost
+#graphdb_databasename = memgraph
+#graphdb_user = 
+#graphdb_password = 
 #graphdb_scheme = neo4j
 #graphdb_port = 7687
-# ### End of parameters for Neo4j Community Edition ###
 # ###############################################################
 
 
