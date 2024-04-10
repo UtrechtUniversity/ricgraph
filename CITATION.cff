@@ -2,8 +2,8 @@ cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
 message: "If you use Ricgraph, please cite it."
 type: software
-version: "v1.14"
-date-released: "2024-01-25"
+version: "v2.0"
+date-released: "2024-04-10"
 authors:
   - given-names: "Rik D.T."
     family-names: Janssen
@@ -61,6 +61,9 @@ identifiers:
   - description: "Ricgraph DOI v1.14"
     type: doi
     value: "10.5281/zenodo.10567922"
+  - description: "Ricgraph DOI v2.0"
+    type: doi
+    value: "10.5281/zenodo.XXXXXXXX"
 abstract: >-
   With Ricgraph (Research in context graph), you can create a graph from
   research information that is stored in various source systems. This can be
