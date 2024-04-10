@@ -1445,6 +1445,7 @@ def find_person_organization_collaborations(parent_node: Node,
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
+    global graph, graph_databasename
     global resout_types_all
 
     html = ''
@@ -1454,40 +1455,87 @@ def find_person_organization_collaborations(parent_node: Node,
         message += '" node.'
         return get_message(message=message)
 
+    # ### Start.
+    # I use a Cypher query instead of the much slower code commented below.
+    # See 'Explanation why sometimes Cypher query are used.' at the start of this file.
+    #
+    # personroot_node = rcg.get_personroot_node(node=parent_node)
+    # neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node)
+    #
+    # # 'connected_persons' will be a list of persons connected to 'personroot_node'
+    # # via a research result. 'connected_persons' will not contain duplicates.
+    # connected_persons = []
+    # for neighbor in neighbor_nodes:
+    #     if personroot_node == neighbor:
+    #         continue
+    #     if neighbor['category'] not in resout_types_all:
+    #         continue
+    #
+    #     # Now next_node is a research result. Find persons connected to that research result.
+    #     persons = rcg.get_all_personroot_nodes(node=neighbor)
+    #     for person in persons:
+    #         if person['_key'] == personroot_node['_key']:
+    #             # Note: we do not include ourselves.
+    #             continue
+    #         if person not in connected_persons:
+    #             connected_persons.append(person)
+    #
+    # # Get the organizations, first from 'personroot_node'.
+    # personroot_node_organizations = rcg.get_all_neighbor_nodes(node=personroot_node,
+    #                                                            category_want='organization')
+    #
+    # # And then organizations from all other nodes connected via a research result.
+    # collaborating_organizations = []
+    # for person in connected_persons:
+    #     person_organizations = rcg.get_all_neighbor_nodes(node=person,
+    #                                                       category_want='organization')
+    #     for organization in person_organizations:
+    #         if organization not in personroot_node_organizations \
+    #            and organization not in collaborating_organizations:
+    #             collaborating_organizations.append(organization)
+    # ### End.
+
+    cypher_query = 'MATCH (startnode:RicgraphNode)-[]->(startnode_personroot:RicgraphNode)-[]'
+    cypher_query += '->(neighbor:RicgraphNode)-[]->(neighbor_personroot:RicgraphNode)-[]'
+    cypher_query += '->(neighbor_organization:RicgraphNode) '
+    cypher_query += 'WHERE '
+    cypher_query += 'id(startnode)=$startnode_id AND '
+    cypher_query += 'startnode_personroot.name = "person-root" AND '
+    cypher_query += 'neighbor.category IN $resout_types_all AND '
+    cypher_query += 'neighbor_personroot.name = "person-root" AND '
+    cypher_query += 'id(neighbor_personroot) <> id(startnode_personroot) AND '
+    cypher_query += 'neighbor_organization.category = "organization" '
+    cypher_query += 'RETURN DISTINCT neighbor_organization'
+    # print(cypher_query)
+    # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
+    # as the collaborating researchers (in 'neighbor_personroot') and the common research
+    # results (in 'neighbor'). We don't use them at the moment.
+
+    # Note that 'cypher_result' will contain _all_ organizations that 'parent_node'
+    # collaborates with, very probably also the organizations this person works for.
+    cypher_result = graph.execute_query(cypher_query,
+                                        startnode_id=parent_node.id,
+                                        resout_types_all=resout_types_all,
+                                        result_transformer_=Result.data,
+                                        database_=graph_databasename)
+
+    # Get the organizations from 'parent_node'.
     personroot_node = rcg.get_personroot_node(node=parent_node)
-    neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node)
-
-    # 'connected_persons' will be a list of persons connected to 'personroot_node'
-    # via a research result. 'connected_persons' will not contain duplicates.
-    connected_persons = []
-    for neighbor in neighbor_nodes:
-        if personroot_node == neighbor:
-            continue
-        if neighbor['category'] not in resout_types_all:
-            continue
-
-        # Now next_node is a research result. Find persons connected to that research result.
-        persons = rcg.get_all_personroot_nodes(node=neighbor)
-        for person in persons:
-            if person['_key'] == personroot_node['_key']:
-                # Note: we do not include ourselves.
-                continue
-            if person not in connected_persons:
-                connected_persons.append(person)
-
-    # Get the organizations, first from 'personroot_node'.
     personroot_node_organizations = rcg.get_all_neighbor_nodes(node=personroot_node,
                                                                category_want='organization')
+    # Now get the organizations that 'parent_node' collaborates with, excluding
+    # this person's own organizations. Note that the types of 'cypher_result'
+    # and 'personroot_node_organizations' are not the same.
+    personroot_node_organizations_key = []
+    for organization in personroot_node_organizations:
+        personroot_node_organizations_key.append(organization['_key'])
 
-    # And then organizations from all other nodes connected via a research result.
     collaborating_organizations = []
-    for person in connected_persons:
-        person_organizations = rcg.get_all_neighbor_nodes(node=person,
-                                                          category_want='organization')
-        for organization in person_organizations:
-            if organization not in personroot_node_organizations \
-               and organization not in collaborating_organizations:
-                collaborating_organizations.append(organization)
+    for organization_node in cypher_result:
+        organization = organization_node['neighbor_organization']
+        organization_key = organization['_key']
+        if organization_key not in personroot_node_organizations_key:
+            collaborating_organizations.append(organization)
 
     if discoverer_mode == 'details_view':
         table_columns = DETAIL_COLUMNS
@@ -1536,7 +1584,7 @@ def find_organization_additional_info(parent_node: Node,
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
-    global graph_databasename
+    global graph, graph_databasename
 
     if parent_node is None:
         message = 'Unexpected result in find_organization_additional_info(): '
