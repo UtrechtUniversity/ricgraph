@@ -62,7 +62,6 @@ import os.path
 import sys
 import re
 import pandas
-from datetime import datetime
 from typing import Union
 import configparser
 import pathlib
@@ -177,14 +176,15 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
     """
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
-    print('There are ' + str(len(harvest)) + ' person and research output records, parsing record: 0  ', end='')
+    print('There are ' + str(len(harvest)) + ' person and research output records ('
+          + rcg.timestamp() + '), parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
         count += 1
         if count % 1000 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 20000 == 0:
-            print('\n', end='', flush=True)
+        if count % 10000 == 0:
+            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
         if 'authorships' not in harvest_item:
             # There must be authors, otherwise skip.
@@ -272,7 +272,7 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                                                                 research_output_mapping=ROTYPE_MAPPING_OPENALEX))
             parse_chunk.append(parse_line)
 
-    print(count, '\n', end='', flush=True)
+    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
@@ -326,9 +326,9 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting persons from ' + HARVEST_SOURCE + ' in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    timestamp = rcg.datetimestamp()
+    print('Inserting persons from ' + HARVEST_SOURCE + ' in Ricgraph at '
+          + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' persons at ' + timestamp + '.'
 
     # The order of the columns in the DataFrame below is not random.
@@ -343,7 +343,8 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(person_identifiers)
     rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
                                    source_event=HARVEST_SOURCE,
@@ -368,10 +369,11 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                    'name2', 'category2', 'value2',
                                    'source_event2', 'history_event2']]
 
-    print('The following organizations from persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+    print('The following organizations from persons from ' + HARVEST_SOURCE
+          + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(organizations)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
-    print('\nDone.\n')
+    print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
 
@@ -381,9 +383,9 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting research outputs from ' + HARVEST_SOURCE + ' in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    timestamp = rcg.datetimestamp()
+    print('Inserting research outputs from ' + HARVEST_SOURCE + ' in Ricgraph at '
+          + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' research outputs at ' + timestamp + '.'
 
     resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
@@ -404,10 +406,11 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                      'source_event1', 'history_event1',
                      'name2', 'category2', 'value2']]
 
-    print('The following research outputs from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+    print('The following research outputs from ' + HARVEST_SOURCE
+          + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(resout)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
-    print('\nDone.\n')
+    print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
 

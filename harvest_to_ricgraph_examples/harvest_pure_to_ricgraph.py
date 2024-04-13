@@ -80,7 +80,6 @@ import sys
 import re
 import pandas
 import numpy
-from datetime import datetime
 from typing import Union
 import configparser
 import requests
@@ -396,7 +395,8 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
     # harvested persons to be returned.
     parse_chunk_final = []
     parse_result = pandas.DataFrame()
-    print('There are ' + str(len(harvest)) + ' person records, parsing record: 0  ', end='')
+    print('There are ' + str(len(harvest)) + ' person records ('
+          + rcg.timestamp() + '), parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
         # parse_chunk: things of this loop we might want to put in the DataFrame with
@@ -406,8 +406,8 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
         count += 1
         if count % 1000 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 20000 == 0:
-            print('\n', end='', flush=True)
+        if count % 10000 == 0:
+            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
         if 'uuid' not in harvest_item:
             # There must be an uuid, otherwise skip
@@ -490,7 +490,7 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                 # Put in the DataFrame with harvested persons to be returned.
                 parse_chunk_final.extend(parse_chunk)
 
-    print(count, '\n', end='', flush=True)
+    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
     parse_chunk_df = pandas.DataFrame(parse_chunk_final)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
@@ -529,14 +529,15 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
     organization_names = {}
-    print('There are ' + str(len(harvest)) + ' organization records, parsing record: 0  ', end='')
+    print('There are ' + str(len(harvest)) + ' organization records ('
+          + rcg.timestamp() + '), parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
         count += 1
         if count % 1000 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 20000 == 0:
-            print('\n', end='', flush=True)
+        if count % 10000 == 0:
+            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
         if 'uuid' not in harvest_item:
             # There must be an uuid, otherwise skip
@@ -623,7 +624,7 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
             # Only necessary to add the top level organization to the dict with organization names.
             organization_names[str(harvest_item['uuid'])] = org_type_name + ': ' + org_name
 
-    print(count, '\n', end='', flush=True)
+    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
@@ -649,14 +650,15 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
 
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
-    print('There are ' + str(len(harvest)) + ' research output records, parsing record: 0  ', end='')
+    print('There are ' + str(len(harvest)) + ' research output records ('
+          + rcg.timestamp() + '), parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
         count += 1
         if count % 1000 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 20000 == 0:
-            print('\n', end='', flush=True)
+        if count % 10000 == 0:
+            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
         if 'uuid' not in harvest_item:
             # There must be an uuid, otherwise skip
@@ -769,7 +771,7 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                               'FULL_NAME': author_name}
                 parse_chunk.append(parse_line)
 
-    print(count, '\n', end='', flush=True)
+    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
     if len(parse_chunk) == 0 \
        and PURE_API_VERSION == PURE_CRUD_API_VERSION:
@@ -800,14 +802,15 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
 
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
-    print('There are ' + str(len(harvest)) + ' project records, parsing record: 0  ', end='')
+    print('There are ' + str(len(harvest)) + ' project records ('
+          + rcg.timestamp() + '), parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
         count += 1
         if count % 1000 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 20000 == 0:
-            print('\n', end='', flush=True)
+        if count % 10000 == 0:
+            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
         if 'uuid' in harvest_item:
             uuid = str(harvest_item['uuid'])
@@ -943,7 +946,7 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
                               'PURE_PROJECT_RELATEDPROJECT_UUID': related_project_uuid}
                 parse_chunk.append(parse_line)
 
-    print(count, '\n', end='', flush=True)
+    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
@@ -1030,9 +1033,9 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting persons from ' + HARVEST_SOURCE + ' in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    timestamp = rcg.datetimestamp()
+    print('Inserting persons from ' + HARVEST_SOURCE + ' in Ricgraph at '
+          + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' persons at ' + timestamp + '.'
 
     # Since Pure is the first system we harvest, the order of the columns in
@@ -1051,7 +1054,8 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(person_identifiers)
     rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
                                    source_event=HARVEST_SOURCE,
@@ -1161,10 +1165,9 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
       followed by nothing if no parent for organization UUID exists.
     :return: None.
     """
+    timestamp = rcg.datetimestamp()
     print('\nInserting organizations and persons from organizations from '
-          + HARVEST_SOURCE + ' in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+          + HARVEST_SOURCE + ' in Ricgraph at ' + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' organizations at ' + timestamp + '.'
 
     print('Determining all links between persons and all of their organizations... ', end='', flush=True)
@@ -1245,10 +1248,10 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
                                  'source_event2', 'history_event2']]
 
     print('The following organizations and persons from organizations from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(persorgnodes)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=persorgnodes)
-    print('\nDone.\n')
+    print('\nDone at ' + rcg.timestamp() + '.\n')
 
     return
 
@@ -1261,9 +1264,9 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     """
     global resout_uuid_or_doi
 
-    print('Inserting research outputs from ' + HARVEST_SOURCE + ' in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    timestamp = rcg.datetimestamp()
+    print('Inserting research outputs from ' + HARVEST_SOURCE + ' in Ricgraph at '
+          + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' research outputs at ' + timestamp + '.'
 
     resout = parsed_content[['RESOUT_UUID', 'TITLE', 'YEAR', 'TYPE', 'DOI', 'AUTHOR_UUID']].copy(deep=True)
@@ -1317,7 +1320,8 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                      'name2', 'category2', 'value2',
                      'source_event2', 'history_event2']]
 
-    print('The following research outputs from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+    print('The following research outputs from ' + HARVEST_SOURCE
+          + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(resout)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
 
@@ -1344,11 +1348,11 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                      'source_event2', 'history_event2']]
 
     print('The following external persons and author collaborations from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(resout)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
 
-    print('\nDone.\n')
+    print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
 
@@ -1362,22 +1366,26 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
       followed by nothing if no parent for organization UUID exists.
     :return: None.
     """
-    print('Inserting projects from ' + HARVEST_SOURCE + ' in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    timestamp = rcg.datetimestamp()
+    print('Inserting projects from ' + HARVEST_SOURCE + ' in Ricgraph at '
+          + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' projects at ' + timestamp + '.'
 
     # ##### Insert projects and related participants.
     project_identifiers = parsed_content[['PURE_UUID_PROJECT',
                                           'PURE_UUID_PROJECT_URL',
-                                          'PURE_PROJECT_TITLE',
-                                          'PURE_PROJECT_PARTICIPANT_UUID']].copy(deep=True)
+                                          'PURE_PROJECT_TITLE']].copy(deep=True)
+    if 'PURE_PROJECT_PARTICIPANT_UUID' in parsed_content.columns:
+        project_identifiers['PURE_PROJECT_PARTICIPANT_UUID'] = parsed_content[['PURE_PROJECT_PARTICIPANT_UUID']].copy(deep=True)
+    else:
+        project_identifiers['PURE_PROJECT_PARTICIPANT_UUID'] = ''
+
     # dropna(how='all'): drop row if all row values contain NaN
     project_identifiers.dropna(axis=0, how='any', inplace=True)
     project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
     print('The following projects connected to persons from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(project_identifiers)
     project_identifiers.rename(columns={'PURE_UUID_PROJECT': 'value1',
                                         'PURE_UUID_PROJECT_URL': 'url_main1',
@@ -1398,80 +1406,82 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
                                                'source_event2']]
 
     print('The following projects connected to persons from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(project_identifiers)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
 
     # ##### Insert projects and related organizations (that is, where their participants work).
-    print('Determining all links between projects and all of their organizations... ', end='', flush=True)
-    project_identifiers = parsed_content[['PURE_UUID_PROJECT',
-                                          'PURE_PROJECT_PARTICIPANT_ORG']].copy(deep=True)
-    project_identifiers.dropna(axis=0, how='any', inplace=True)
-    project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    project_organization = {}
-    for index in range(len(project_identifiers)):
-        projectid = project_identifiers.iloc[index, 0]
-        orgid = project_identifiers.iloc[index, 1]
-        if projectid in project_organization:
-            # This projectid seems to be in more than one org.
-            project_organization[projectid].append(orgid)
-            continue
-        project_organization.setdefault(projectid, [])
-        project_organization[projectid].append(orgid)
-
-    parse_chunk = []                # list of dictionaries
-    for projectid in project_organization:
-        orgidlist = project_organization[projectid]
-        # This person may be in several organizations in 'orgidlist'.
-        for orgid in orgidlist:
-            if orgid not in organization_and_all_parents:
+    if 'PURE_PROJECT_PARTICIPANT_ORG' in parsed_content.columns:
+        print('Determining all links between projects and all of their organizations at '
+              + rcg.timestamp() + '... ', end='', flush=True)
+        project_identifiers = parsed_content[['PURE_UUID_PROJECT',
+                                              'PURE_PROJECT_PARTICIPANT_ORG']].copy(deep=True)
+        project_identifiers.dropna(axis=0, how='any', inplace=True)
+        project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        project_organization = {}
+        for index in range(len(project_identifiers)):
+            projectid = project_identifiers.iloc[index, 0]
+            orgid = project_identifiers.iloc[index, 1]
+            if projectid in project_organization:
+                # This projectid seems to be in more than one org.
+                project_organization[projectid].append(orgid)
                 continue
-            orgid_name_and_parentslist = organization_and_all_parents[orgid]
-            orgid_name = orgid_name_and_parentslist[0]
+            project_organization.setdefault(projectid, [])
+            project_organization[projectid].append(orgid)
 
-            # First connect this person and 'orgid'.
-            parse_line = {'PURE_UUID_PROJECT': str(projectid),
-                          'PURE_UUID_ORG': orgid,
-                          'FULL_ORG_NAME': orgid_name}
-            parse_chunk.append(parse_line)
-
-            # Now get all parents of orgid.
-            # Then connect this person with the parents of 'orgid'.
-            for index in range(len(orgid_name_and_parentslist)):
-                if index == 0:
-                    # Remember: first entry in list is the name of the org.
+        parse_chunk = []                # list of dictionaries
+        for projectid in project_organization:
+            orgidlist = project_organization[projectid]
+            # This person may be in several organizations in 'orgidlist'.
+            for orgid in orgidlist:
+                if orgid not in organization_and_all_parents:
                     continue
-                parse_line = {'PURE_UUID_PROJECT': str(projectid)}
-                parent_orgid = str(orgid_name_and_parentslist[index])
-                parent_name = str(organization_and_all_parents[parent_orgid][0])
-                parse_line['PURE_UUID_ORG'] = parent_orgid
-                parse_line['FULL_ORG_NAME'] = parent_name
+                orgid_name_and_parentslist = organization_and_all_parents[orgid]
+                orgid_name = orgid_name_and_parentslist[0]
+
+                # First connect this person and 'orgid'.
+                parse_line = {'PURE_UUID_PROJECT': str(projectid),
+                              'PURE_UUID_ORG': orgid,
+                              'FULL_ORG_NAME': orgid_name}
                 parse_chunk.append(parse_line)
 
-    print('Done.\n')
+                # Now get all parents of orgid.
+                # Then connect this person with the parents of 'orgid'.
+                for index in range(len(orgid_name_and_parentslist)):
+                    if index == 0:
+                        # Remember: first entry in list is the name of the org.
+                        continue
+                    parse_line = {'PURE_UUID_PROJECT': str(projectid)}
+                    parent_orgid = str(orgid_name_and_parentslist[index])
+                    parent_name = str(organization_and_all_parents[parent_orgid][0])
+                    parse_line['PURE_UUID_ORG'] = parent_orgid
+                    parse_line['FULL_ORG_NAME'] = parent_name
+                    parse_chunk.append(parse_line)
 
-    projorgnodes = pandas.DataFrame()
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
-    projorgnodes = pandas.concat([projorgnodes, parse_chunk_df], ignore_index=True)
+        print('Done at ' + rcg.timestamp() + '.\n')
 
-    projorgnodes.drop(labels='PURE_UUID_ORG', axis='columns', inplace=True)
-    projorgnodes.dropna(axis=0, how='any', inplace=True)
-    projorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    projorgnodes.rename(columns={'PURE_UUID_PROJECT': 'value1',
-                                 'FULL_ORG_NAME': 'value2'}, inplace=True)
-    new_projorgnodes_columns = {'name1': 'PURE_UUID_PROJECT',
-                                'category1': 'project',
-                                'name2': 'ORGANIZATION_NAME',
-                                'category2': 'organization'}
-    projorgnodes = projorgnodes.assign(**new_projorgnodes_columns)
-    projorgnodes = projorgnodes[['name1', 'category1', 'value1',
-                                 'name2', 'category2', 'value2']]
+        projorgnodes = pandas.DataFrame()
+        parse_chunk_df = pandas.DataFrame(parse_chunk)
+        projorgnodes = pandas.concat([projorgnodes, parse_chunk_df], ignore_index=True)
 
-    print('The following projects and their organizations from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(projorgnodes)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=projorgnodes)
-    # ##### end of Insert projects and related organizations.
+        projorgnodes.drop(labels='PURE_UUID_ORG', axis='columns', inplace=True)
+        projorgnodes.dropna(axis=0, how='any', inplace=True)
+        projorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        projorgnodes.rename(columns={'PURE_UUID_PROJECT': 'value1',
+                                     'FULL_ORG_NAME': 'value2'}, inplace=True)
+        new_projorgnodes_columns = {'name1': 'PURE_UUID_PROJECT',
+                                    'category1': 'project',
+                                    'name2': 'ORGANIZATION_NAME',
+                                    'category2': 'organization'}
+        projorgnodes = projorgnodes.assign(**new_projorgnodes_columns)
+        projorgnodes = projorgnodes[['name1', 'category1', 'value1',
+                                     'name2', 'category2', 'value2']]
+
+        print('The following projects and their organizations from '
+              + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+        print(projorgnodes)
+        rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=projorgnodes)
+        # ##### end of Insert projects and related organizations.
 
     # ##### Insert projects and related research outputs.
     project_identifiers = parsed_content[['PURE_UUID_PROJECT',
@@ -1483,7 +1493,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
     project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
     print('The following projects connected to research outputs from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(project_identifiers)
     project_identifiers.rename(columns={'PURE_UUID_PROJECT': 'value1',
                                         'PURE_PROJECT_RESOUT_NAME': 'name2',
@@ -1498,7 +1508,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
                                                'source_event2']]
 
     print('The following projects connected to research outputs from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(project_identifiers)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
 
@@ -1510,7 +1520,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
         project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
         print('The following projects connected to related projects from '
-              + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+              + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
         print(project_identifiers)
         project_identifiers.rename(columns={'PURE_UUID_PROJECT': 'value1',
                                             'PURE_PROJECT_RELATEDPROJECT_UUID': 'value2'}, inplace=True)
@@ -1525,13 +1535,13 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
                                                    'source_event2']]
 
         print('The following projects connected to related projects from '
-              + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+              + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
         print(project_identifiers)
         rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
     else:
         print('\nThere are no projects connected to related projects from ' + HARVEST_SOURCE + '.')
 
-    print('\nDone.\n')
+    print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
 
@@ -1556,6 +1566,18 @@ if organization == '':
         print('Exiting.\n')
         exit(1)
 
+harvest_projects = rcg.get_commandline_argument(argument='--harvest_projects',
+                                                argument_list=sys.argv)
+if harvest_projects == '':
+    print('\nYou may want to specify whether you want to harvest projects.')
+    print('Only if enter "yes", this script will harvest projects.')
+    harvest_projects = input('Do you want to harvest projects? ')
+
+if harvest_projects == 'yes':
+    HARVEST_PROJECTS = True
+else:
+    HARVEST_PROJECTS = False
+
 config = configparser.ConfigParser()
 config.read(rcg.RICGRAPH_INI_FILE)
 pure_url = 'pure_url_' + organization
@@ -1575,6 +1597,8 @@ except KeyError:
           + pure_url + '" or "' + pure_api_key
           + '" not found in Ricgraph ini file, exiting.')
     exit(1)
+
+print('\n')
 
 # Find out if we should harvest Pure according to the Pure READ API or the Pure CRUD API.
 read_url = PURE_URL + '/' + PURE_READ_API_VERSION + '/' + PURE_READ_PERSONS_ENDPOINT
@@ -1626,12 +1650,6 @@ if empty_graph == '':
 else:
     rcg.empty_ricgraph(answer=empty_graph)
 
-harvest_projects = rcg.get_commandline_argument(argument='--harvest_projects',
-                                                argument_list=sys.argv)
-if harvest_projects == 'yes':
-    HARVEST_PROJECTS = True
-else:
-    HARVEST_PROJECTS = False
 resout_uuid_or_doi = {}
 
 # ########################################################################

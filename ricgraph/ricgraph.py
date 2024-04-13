@@ -549,6 +549,34 @@ def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
 # General Ricgraph functions.
 # ##############################################################################
 
+def timestamp(seconds: bool = False) -> str:
+    """Get a timestamp only consisting of a time.
+
+    :param seconds: If True, also show seconds in the timestamp.
+    :return: the timestamp.
+    """
+    now = datetime.now()
+    if seconds:
+        time_stamp = now.strftime("%H:%M:%S")
+    else:
+        time_stamp = now.strftime("%H:%M")
+    return time_stamp
+
+
+def datetimestamp(seconds: bool = False) -> str:
+    """Get a timestamp consisting of a date and a time.
+
+    :param seconds: If True, also show seconds in the timestamp.
+    :return: the timestamp.
+    """
+    now = datetime.now()
+    if seconds:
+        datetime_stamp = now.strftime("%Y-%m-%d %H:%M:%S")
+    else:
+        datetime_stamp = now.strftime("%Y-%m-%d %H:%M")
+    return datetime_stamp
+
+
 def create_ricgraph_key(name: str, value: str) -> str:
     """Create a key for a node.
     This function generates a composite key for a node in a graph.
@@ -643,8 +671,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
     if personroot is None:
         return
     if node['name'] == 'FULL_NAME':
-        now = datetime.now()
-        timestamp = now.strftime("%Y%m%d-%H%M%S")
+        time_stamp = datetimestamp()
         if isinstance(personroot['comment'], str):
             if personroot['comment'] == '':
                 old_value = str(personroot['comment'])      # Not necessary, for symmetry.
@@ -653,7 +680,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                                    old_value=old_value,
                                                    new_value=str(node_properties['comment']))
                 node_properties['_history'] = personroot['_history'].copy()
-                node_properties['_history'].append(timestamp + ': ' + history_line)
+                node_properties['_history'].append(time_stamp + ': ' + history_line)
                 cypher_merge_node(node_id=personroot.id,
                                   node_properties=node_properties)
         elif isinstance(personroot['comment'], list):
@@ -665,7 +692,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                                    old_value=old_value,
                                                    new_value=str(node_properties['comment']))
                 node_properties['_history'] = personroot['_history'].copy()
-                node_properties['_history'].append(timestamp + ': ' + history_line)
+                node_properties['_history'].append(time_stamp + ': ' + history_line)
                 cypher_merge_node(node_id=personroot.id,
                                   node_properties=node_properties)
         # In all other cases: it is already in the cache,
@@ -695,14 +722,13 @@ def recreate_name_cache_in_personroot(personroot: Node):
     if len(name_cache) != 0:
         if (isinstance(personroot['comment'], str) and personroot['comment'] == '') \
            or isinstance(personroot['comment'], list):
-            now = datetime.now()
-            timestamp = now.strftime("%Y%m%d-%H%M%S")
+            time_stamp = datetimestamp()
             history_line = create_history_line(property_name='comment',
                                                old_value=str(personroot['comment']),
                                                new_value=str(name_cache))
             node_properties = {'comment': name_cache.copy(),
                                '_history': personroot['_history'].copy()}
-            node_properties['_history'].append(timestamp + ': Cleaned and recreated name cache. ' + history_line)
+            node_properties['_history'].append(time_stamp + ': Cleaned and recreated name cache. ' + history_line)
             cypher_merge_node(node_id=personroot.id,
                               node_properties=node_properties)
         # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
@@ -751,8 +777,7 @@ def create_update_node(name: str, category: str, value: str,
         return None
 
     node_properties = {}
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    time_stamp = datetimestamp()
     node = read_node(name=lname, value=lvalue)
     if node is None:
         # Create a node.
@@ -782,9 +807,9 @@ def create_update_node(name: str, category: str, value: str,
             node_properties['source_event'] = ''
 
         if node_properties['history_event'] == '':
-            node_properties['_history'] = [timestamp + ': Created. ']
+            node_properties['_history'] = [time_stamp + ': Created. ']
         else:
-            node_properties['_history'] = [timestamp + ': Created. ' + node_properties['history_event']]
+            node_properties['_history'] = [time_stamp + ': Created. ' + node_properties['history_event']]
             node_properties['history_event'] = ''
 
         new_node = cypher_create_node(node_properties=node_properties)
@@ -844,7 +869,7 @@ def create_update_node(name: str, category: str, value: str,
         return node
 
     node_properties['_history'] = node['_history'].copy()
-    node_properties['_history'].append(timestamp + ': Updated. ' + history_line)
+    node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
     updated_node = cypher_merge_node(node_id=node.id,
                                      node_properties=node_properties)
     return updated_node
@@ -1068,8 +1093,7 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     if lname == '' or loldvalue == '' or lnewvalue == '':
         return None
 
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    time_stamp = datetimestamp()
     node = read_node(name=lname, value=loldvalue)
     if node is None:
         # Node we want to change does not exist.
@@ -1092,7 +1116,7 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     history_line = create_history_line(property_name='value', old_value=loldvalue, new_value=lnewvalue)
     history_line += create_history_line(property_name='_key', old_value=oldkey, new_value=newkey)
     node_properties['_history'] = node['_history'].copy()
-    node_properties['_history'].append(timestamp + ': Updated. ' + history_line)
+    node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
     updated_node = cypher_merge_node(node_id=node.id,
                                      node_properties=node_properties)
 
@@ -1119,15 +1143,16 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
     nodes_clean.dropna(axis=0, how='any', inplace=True)
     nodes_clean.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('There are ' + str(len(nodes_clean)) + ' nodes, updating node: 0  ', end='')
+    print('There are ' + str(len(nodes_clean)) + ' nodes ('
+          + timestamp() + '), updating node: 0  ', end='')
     count = 0
     columns = nodes_clean.columns
     for row in nodes_clean.itertuples():
         count += 1
         if count % 250 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            print('\n', end='', flush=True)
+        if count % 2500 == 0:
+            print('(' + timestamp() + ')\n', end='', flush=True)
 
         node_properties = {}
         for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
@@ -1138,7 +1163,7 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
         create_update_node(name=row.name, category=row.category, value=row.value,
                            other_properties=node_properties)
 
-    print(count, '\n', end='', flush=True)
+    print(count, '(' + timestamp() + ')\n', end='', flush=True)
     return
 
 
@@ -1450,8 +1475,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
     cypher_merge_edge(left_node_id=right_node.id,
                       right_node_id=left_personroot_node.id)
 
-    now = datetime.now()
-    timestamp = now.strftime('%Y%m%d-%H%M%S')
+    time_stamp = datetimestamp()
     message = 'The node pair "'
     message += left_node['_key'] + '" and "' + right_node['_key']
     message += '" caused this node to have more than one neighbor. '
@@ -1459,7 +1483,7 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
     message += left_personroot_node['_key'] + '" and "'
     message += right_personroot_node['_key'] + '". '
     message += 'This might be caused by a mislabeling in a harvested system.'
-    timestamped_message = timestamp + ': ' + message
+    timestamped_message = time_stamp + ': ' + message
 
     print('\nconnect_person_and_person_node(): ' + message)
     node_property = {'_history': left_node['_history'].copy()}
@@ -1568,15 +1592,16 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: pandas.DataFrame) ->
     :param left_and_right_nodepairs: the node pairs in a DataFrame.
     :return: None.
     """
-    print('There are ' + str(len(left_and_right_nodepairs)) + ' rows, creating nodes and edges for row: 0  ', end='')
+    print('There are ' + str(len(left_and_right_nodepairs)) + ' rows ('
+          + timestamp() + '), creating nodes and edges for row: 0  ', end='')
     count = 0
     columns = left_and_right_nodepairs.columns
     for row in left_and_right_nodepairs.itertuples():
         count += 1
         if count % 250 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            print('\n', end='', flush=True)
+        if count % 2500 == 0:
+            print('(' + timestamp() + ')\n', end='', flush=True)
 
         node_properties = {}
         for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
@@ -1590,7 +1615,7 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: pandas.DataFrame) ->
         create_two_nodes_and_edge(name1=row.name1, category1=row.category1, value1=row.value1,
                                   name2=row.name2, category2=row.category2, value2=row.value2,
                                   **node_properties)
-    print(count, '\n', end='', flush=True)
+    print(count, '(' + timestamp() + ')\n', end='', flush=True)
     return
 
 
@@ -1684,7 +1709,8 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
             j += 1
             if i >= j:
                 continue
-            print('\nUnifying personal identifiers ' + column1 + ' and ' + column2 + '...')
+            print('\nUnifying personal identifiers ' + column1 + ' and ' + column2
+                  + ' at ' + timestamp() + '...')
             identifiers = personal_identifiers[[column1, column2]].copy(deep=True)
 
             # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
@@ -1710,6 +1736,7 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
                                               name2=column2, category2='person', value2=identifiers[column2],
                                               source_event1=source_event, source_event2=source_event,
                                               history_event1=history_event, history_event2=history_event)
+    print('\nDone at ' + timestamp() + '.\n')
     return
 
 
@@ -2093,7 +2120,7 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
         body = []
 
     print('Harvesting json data from ' + url + '.')
-    print('Getting data...')
+    print('Getting data at ' + datetimestamp() + '...')
 
     all_records = A_LARGE_NUMBER
     if max_recs_to_harvest == 0:
@@ -2188,13 +2215,13 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
 
         json_data += json_items
         print(records_harvested, ' ', end='', flush=True)
-        if page_nr % 20 == 0:
+        if page_nr % 10 == 0:
             if page_nr != 0:
-                print('\n', end='', flush=True)
+                print('(' + timestamp() + ')\n', end='', flush=True)
         records_harvested += chunksize
         page_nr += 1
 
-    print(' Done.\n', end='', flush=True)
+    print(' Done at ' + timestamp() + '.\n')
     return json_data
 
 

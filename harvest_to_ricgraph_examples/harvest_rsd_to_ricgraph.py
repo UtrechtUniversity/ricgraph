@@ -60,7 +60,6 @@
 
 import os.path
 import sys
-from datetime import datetime
 import json
 import pandas
 import numpy
@@ -223,9 +222,9 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting software packages from ' + HARVEST_SOURCE + ' in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    timestamp = rcg.datetimestamp()
+    print('Inserting software packages from ' + HARVEST_SOURCE + ' in Ricgraph at '
+          + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' at ' + timestamp + '.'
 
     person_identifiers = parsed_content[['orcid', 'FULL_NAME']].copy(deep=True)
@@ -265,7 +264,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     print('The following software packages from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(software)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=software)
-    print('\nDone.\n')
+    print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
 

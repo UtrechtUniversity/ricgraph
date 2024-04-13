@@ -355,9 +355,9 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting datasets from Yoda (harvested from datacite) in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    timestamp = rcg.datetimestamp()
+    print('Inserting datasets from Yoda (harvested from datacite) in Ricgraph at '
+          + timestamp + '...')
     history_event = 'Source: Harvest Yoda-datacite at ' + timestamp + '.'
 
     # The order of the columns in the DataFrame below is not random.
@@ -382,7 +382,7 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     print('The following datasets (DOIs) from Yoda will be inserted in Ricgraph:')
     print(parsed_content)
-    print('\nAdding DOIs and ORCIDs...')
+    print('\nAdding DOIs and ORCIDs at ' + rcg.timestamp() + '...')
     rcg.create_nodepairs_and_edges_params(name1='DOI',
                                           category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
@@ -395,35 +395,35 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                           value2=parsed_content['ORCID'])
     # Don't need to add a source_event to the following calls, since we have already inserted
     # each source above, here we are connecting them.
-    print('\nAdding DOIs and DIGITAL_AUTHOR_IDs...')
+    print('\nAdding DOIs and DIGITAL_AUTHOR_IDs at ' + rcg.timestamp() + '...')
     rcg.create_nodepairs_and_edges_params(name1='DOI',
                                           category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
                                           name2='DIGITAL_AUTHOR_ID',
                                           category2='person',
                                           value2=parsed_content['DIGITAL_AUTHOR_ID'])
-    print('\nAdding DOIs and SCOPUS_AUTHOR_IDs...')
+    print('\nAdding DOIs and SCOPUS_AUTHOR_IDs at ' + rcg.timestamp() + '...')
     rcg.create_nodepairs_and_edges_params(name1='DOI',
                                           category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
                                           name2='SCOPUS_AUTHOR_ID',
                                           category2='person',
                                           value2=parsed_content['SCOPUS_AUTHOR_ID'])
-    print('\nAdding DOIs and RESEARCHER_IDs...')
+    print('\nAdding DOIs and RESEARCHER_IDs at ' + rcg.timestamp() + '...')
     rcg.create_nodepairs_and_edges_params(name1='DOI',
                                           category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
                                           name2='RESEARCHER_ID',
                                           category2='person',
                                           value2=parsed_content['RESEARCHER_ID'])
-    print('\nAdding DOIs and ISNIs...')
+    print('\nAdding DOIs and ISNIs at ' + rcg.timestamp() + '...')
     rcg.create_nodepairs_and_edges_params(name1='DOI',
                                           category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
                                           name2='ISNI',
                                           category2='person',
                                           value2=parsed_content['ISNI'])
-    print('\nDone.\n')
+    print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
 

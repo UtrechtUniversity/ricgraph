@@ -56,7 +56,6 @@ import os.path
 import sys
 import re
 import pandas
-from datetime import datetime
 from typing import Union
 import requests
 import pathlib
@@ -122,14 +121,15 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
     """
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
-    print('There are ' + str(len(harvest)) + ' person records, parsing record: 0  ', end='')
+    print('There are ' + str(len(harvest)) + ' person records ('
+          + rcg.timestamp() + '), parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
         count += 1
         if count % 1000 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 20000 == 0:
-            print('\n', end='', flush=True)
+        if count % 10000 == 0:
+            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
         if 'Employee_Url' in harvest_item:
             path = pathlib.PurePath(harvest_item['Employee_Url'])
@@ -238,7 +238,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
                                   'SKILL_URL': UU_WEBSITE + str(skill['Url'])}
                     parse_chunk.append(parse_line)
 
-    print(count, '\n', end='', flush=True)
+    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
@@ -270,8 +270,8 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
     for faculty_nr in range(UUSTAFF_MAX_FACULTY_NR):
         if count >= max_recs_to_harvest:
             break
-        print('[faculty nr ' + str(faculty_nr) + ']')
-        # 'l-EN' ensures that phone numbers are preceeded with "+31".
+        print('[faculty nr ' + str(faculty_nr) + ' at ' + rcg.timestamp() + ']')
+        # 'l-EN' ensures that phone numbers are preceded with "+31".
         # 'fullresult=true' or '=false' only differ in 'Guid' field value.
         faculty_url = url + UUSTAFF_FACULTY_ENDPOINT + str(faculty_nr) + '&l=EN&fullresult=true'
         faculty_response = requests.get(faculty_url)
@@ -325,11 +325,11 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
 
             count += 1
             if count % 50 == 0:
-                print(count, ' ', end='', flush=True)
-            if count % 1000 == 0:
+                print(count, '(' + rcg.timestamp() + ')  ', end='', flush=True)
+            if count % 500 == 0:
                 print('\n', end='', flush=True)
 
-    print(' Done.\n', end='', flush=True)
+    print(' Done at ' + rcg.timestamp() + '.\n')
     return json_data
 
 
@@ -387,9 +387,9 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    print('Inserting persons from UU staff pages in Ricgraph...')
-    now = datetime.now()
-    timestamp = now.strftime('%Y%m%d-%H%M%S')
+    timestamp = rcg.datetimestamp()
+    print('Inserting persons from UU staff pages in Ricgraph at '
+          + timestamp + '...')
     history_event = 'Source: Harvest UU staff pages persons at ' + timestamp + '.'
 
     # The order of the columns in the DataFrame below is not random.
@@ -414,7 +414,8 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('The following persons from UU staff pages will be inserted in Ricgraph:')
+    print('The following persons from UU staff pages will be inserted in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(person_identifiers)
     rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
                                    source_event='UU staff pages',
@@ -428,7 +429,8 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                'category': 'person'}
     nodes_to_update = nodes_to_update.assign(**nodes_to_update_columns)
     nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main']]
-    print('\nThe following page nodes will be updated in Ricgraph:')
+    print('\nThe following page nodes will be updated in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(nodes_to_update)
     rcg.update_nodes_df(nodes=nodes_to_update)
 
@@ -440,7 +442,8 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                'category': 'person'}
     nodes_to_update = nodes_to_update.assign(**nodes_to_update_columns)
     nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main']]
-    print('\nThe following photo nodes will be updated in Ricgraph:')
+    print('\nThe following photo nodes will be updated in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(nodes_to_update)
     rcg.update_nodes_df(nodes=nodes_to_update)
 
@@ -460,7 +463,8 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     organizations = organizations[['name1', 'category1', 'value1',
                                    'name2', 'category2', 'value2',
                                    'source_event2', 'history_event2']]
-    print('The following organizations from UU staff pages will be inserted in Ricgraph:')
+    print('The following organizations from UU staff pages will be inserted in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(organizations)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
 
@@ -470,7 +474,8 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     organizations = organizations[['name1', 'category1', 'value1',
                                    'name2', 'category2', 'value2',
                                    'source_event2', 'history_event2']]
-    print('"Utrecht University" will be connected to anyone from UU staff pages in Ricgraph:')
+    print('"Utrecht University" will be connected to anyone from UU staff pages in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(organizations)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
 
@@ -492,7 +497,8 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     expertises = expertises[['name1', 'category1', 'value1',
                              'name2', 'category2', 'value2',
                              'url_main2', 'source_event2', 'history_event2']]
-    print('The following expertises from UU staff pages will be inserted in Ricgraph:')
+    print('The following expertises from UU staff pages will be inserted in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(expertises)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=expertises)
 
@@ -514,7 +520,8 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     research_areas = research_areas[['name1', 'category1', 'value1',
                                      'name2', 'category2', 'value2',
                                      'url_main2', 'source_event2', 'history_event2']]
-    print('The following research areas from UU staff pages will be inserted in Ricgraph:')
+    print('The following research areas from UU staff pages will be inserted in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(research_areas)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=research_areas)
 
@@ -535,11 +542,12 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     skills = skills[['name1', 'category1', 'value1',
                      'name2', 'category2', 'value2',
                      'url_main2', 'source_event2', 'history_event2']]
-    print('The following skills from UU staff pages will be inserted in Ricgraph:')
+    print('The following skills from UU staff pages will be inserted in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(skills)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=skills)
 
-    print('\nDone.\n')
+    print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
 
@@ -551,7 +559,8 @@ def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
     :param url: url to the UU staff pages.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-    print('Connect Pure SolisIDs with corresponding persons from UU staff pages...')
+    print('Connect Pure SolisIDs with corresponding persons from UU staff pages at '
+          + rcg.datetimestamp() + '...')
     nodes_with_solisid = rcg.read_all_nodes(name='EMPLOYEE_ID')
     print('There are ' + str(len(nodes_with_solisid)) + ' SolisID records, parsing record: 0  ', end='')
     parse_result = pandas.DataFrame()
@@ -561,8 +570,8 @@ def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
         count += 1
         if count % 50 == 0:
             print(count, ' ', end='', flush=True)
-        if count % 1000 == 0:
-            print('\n', end='', flush=True)
+        if count % 500 == 0:
+            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
         solis_id = node['value']
         solis_url = url + UUSTAFF_SOLISID_ENDPOINT + solis_id
@@ -590,7 +599,7 @@ def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
         parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
-    print('Done.\n')
+    print('Done at ' + rcg.timestamp() + '.\n')
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
@@ -605,8 +614,7 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    now = datetime.now()
-    timestamp = now.strftime('%Y%m%d-%H%M%S')
+    timestamp = rcg.datetimestamp()
     history_event = 'Source: Harvest UU staff pages connect EMPLOYEE_ID and UUSTAFF_PAGE_ID at ' + timestamp + '.'
 
     solisids_staffids = parsed_content[['EMPLOYEE_ID', 'UUSTAFF_PAGE_ID']].copy(deep=True)
@@ -623,11 +631,12 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
                                            'name2', 'category2', 'value2',
                                            'source_event2', 'history_event2']]
 
-    print('The following Pure SolisIDs and corresponding persons from UU staff pages will be inserted in Ricgraph:')
+    print('The following Pure SolisIDs and corresponding persons from UU staff pages will be inserted in Ricgraph at '
+          + rcg.timestamp() + ':')
     print(solisids_staffids)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=solisids_staffids)
 
-    print('Done.\n')
+    print('Done at ' + rcg.timestamp() + '.\n')
     return
 
 
