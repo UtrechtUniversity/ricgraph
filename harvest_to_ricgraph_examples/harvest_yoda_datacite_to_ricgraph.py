@@ -54,7 +54,6 @@
 
 import os.path
 import sys
-from datetime import datetime
 import pandas
 import xmltodict
 from sickle import Sickle
@@ -463,6 +462,8 @@ if empty_graph == '':
 else:
     rcg.empty_ricgraph(answer=empty_graph)
 
+rcg.graphdb_nr_accesses_print()
+
 parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
                                                        headers=YODA_HEADERS,
                                                        harvest_filename=YODA_HARVEST_FILENAME)
@@ -473,4 +474,5 @@ else:
                                df=parse_yoda_data)
     parsed_yoda_datacite_to_ricgraph(parsed_content=parse_yoda_data)
 
+rcg.graphdb_nr_accesses_print()
 rcg.close_ricgraph()

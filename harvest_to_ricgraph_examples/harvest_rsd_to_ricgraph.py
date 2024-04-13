@@ -324,6 +324,8 @@ if empty_graph == '':
 else:
     rcg.empty_ricgraph(answer=empty_graph)
 
+rcg.graphdb_nr_accesses_print()
+
 harvest_file = RSD_HARVEST_FILENAME.split('.')[0] \
                + '-' + organization + '.' \
                + RSD_HARVEST_FILENAME.split('.')[1]
@@ -340,4 +342,5 @@ else:
                                df=rsd_data)
     parsed_software_to_ricgraph(parsed_content=rsd_data)
 
+rcg.graphdb_nr_accesses_print()
 rcg.close_ricgraph()

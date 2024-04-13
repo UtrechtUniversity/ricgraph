@@ -136,6 +136,14 @@ nodes_cache_key_id = {}
 MAX_NODES_CACHE_KEY_ID = 15000
 
 
+# These counters are used to count the number of accesses to the
+# graph database backend.
+graphdb_nr_creates = 0
+graphdb_nr_reads = 0
+graphdb_nr_updates = 0
+graphdb_nr_deletes = 0
+
+
 # ########################################################################
 # Research output types used in Ricgraph.
 # Harvested sources most often have a type for a research output.
@@ -464,6 +472,8 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     :param node_properties: the properties of the node.
     :return: the node updated, or None on error.
     """
+    global graphdb_nr_creates
+
     # There are several methods for creating a node in the graph database.
     # This would be an alternative, but it seems to use more memory than the
     # one used now, according to 'PROFILE <cypher query>'.
@@ -477,6 +487,7 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
                                  node_properties=node_properties,
                                  result_transformer_=Result.value,
                                  database_=GRAPHDB_DATABASENAME)
+    graphdb_nr_creates += 1
     if len(nodes) == 0:
         return None
     else:
@@ -494,6 +505,8 @@ def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
     :param node_properties: the properties of the node.
     :return: the node updated, or None on error.
     """
+    global graphdb_nr_reads, graphdb_nr_updates
+
     cypher_query = 'MATCH (node:RicgraphNode) WHERE id(node)=$node_id SET node+=$node_properties '
     cypher_query += 'RETURN node'
 
@@ -505,6 +518,8 @@ def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
                                  node_properties=node_properties,
                                  result_transformer_=Result.value,
                                  database_=GRAPHDB_DATABASENAME)
+    graphdb_nr_reads += 1
+    graphdb_nr_updates += 1
     if len(nodes) == 0:
         return None
     else:
@@ -518,6 +533,8 @@ def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
     :param right_node_id: the id of the right node.
     :return: None.
     """
+    global graphdb_nr_reads, graphdb_nr_updates
+
     # There are several methods for getting the nodes in the graph database.
     # This one takes the most time.
     # It amounts to 4 database hits according to 'PROFILE <cypher query>', using 'AllNodesScan'.
@@ -542,6 +559,8 @@ def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
                          left_node_id=left_node_id,
                          right_node_id=right_node_id,
                          database_=GRAPHDB_DATABASENAME)
+    graphdb_nr_reads += 2             # one for left_node, one for right_node
+    graphdb_nr_updates += 2           # one for ->, one for <-.
     return
 
 
@@ -575,6 +594,47 @@ def datetimestamp(seconds: bool = False) -> str:
     else:
         datetime_stamp = now.strftime("%Y-%m-%d %H:%M")
     return datetime_stamp
+
+
+def graphdb_nr_accesses_reset() -> None:
+    """Reset the counters that are used to count the number of accesses
+    to the graph database backend.
+
+    :return: None.
+    """
+    global graphdb_nr_creates, graphdb_nr_reads
+    global graphdb_nr_updates, graphdb_nr_deletes
+
+    graphdb_nr_creates = 0
+    graphdb_nr_reads = 0
+    graphdb_nr_updates = 0
+    graphdb_nr_deletes = 0
+    return
+
+
+def graphdb_nr_accesses_print() -> None:
+    """Print the values of the counters for the number of accesses to
+    the graph database backend.
+
+    :return: None.
+    """
+    # These counters are used to count the number of accesses to the graph database.
+    global graphdb_nr_creates, graphdb_nr_reads, graphdb_nr_updates, graphdb_nr_deletes
+
+    graphdb_total_accesses = graphdb_nr_creates + graphdb_nr_reads
+    graphdb_total_accesses += (2 * graphdb_nr_updates) + graphdb_nr_deletes
+
+    print('\n')
+    print('These are the number of accesses to the graph database backend at ' + datetimestamp() + ':')
+    print('- total number of creates:  {:>10}'.format(graphdb_nr_creates))
+    print('- total number of reads:    {:>10}'.format(graphdb_nr_reads))
+    print('- total number of updates:  {:>10}'.format(graphdb_nr_updates))
+    print('- total number of deletes:  {:>10}'.format(graphdb_nr_deletes))
+    print('- total number of accesses: {:>10}'.format(graphdb_total_accesses))
+    print('Please note that for the total number of accesses, an "update" counts twice: '
+          + 'one for the read and one for the update of the values.')
+    print('\n')
+    return
 
 
 def create_ricgraph_key(name: str, value: str) -> str:
@@ -697,7 +757,6 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                   node_properties=node_properties)
         # In all other cases: it is already in the cache,
         # or leave it as it is: 'comment' seems to be used for something we don't know.
-
     return
 
 
@@ -886,6 +945,7 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
     """
     global _graph
     global nodes_cache_key_id
+    global graphdb_nr_reads
 
     if _graph is None:
         print('\nread_node(): Error: graph has not been initialized or opened.\n\n')
@@ -897,6 +957,7 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
     if name == '' or value == '':
         return None
 
+    graphdb_nr_reads += 1
     key = create_ricgraph_key(name=name, value=value)
     if key in nodes_cache_key_id:
         node_id = nodes_cache_key_id[key]
@@ -945,6 +1006,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
     :return: list of nodes read, or empty list if nothing found.
     """
     global _graph
+    global graphdb_nr_reads
 
     if _graph is None:
         print('\nread_all_nodes(): Error: graph has not been initialized or opened.\n\n')
@@ -965,7 +1027,10 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
                                      node_value=value,
                                      result_transformer_=Result.value,
                                      database_=GRAPHDB_DATABASENAME)
-        if len(nodes) == 0:
+        nr_nodes = len(nodes)
+        # Unsure what to count here, this seems reasonable. '+ 1' for first node.
+        graphdb_nr_reads += nr_nodes + 1
+        if nr_nodes == 0:
             return []
         else:
             return nodes
@@ -1008,7 +1073,10 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
                                      result_transformer_=Result.value,
                                      database_=GRAPHDB_DATABASENAME)
 
-    if len(nodes) == 0:
+    nr_nodes = len(nodes)
+    # Unsure what to count here, this seems reasonable. '+ 1' for first node.
+    graphdb_nr_reads += nr_nodes + 1
+    if nr_nodes == 0:
         return []
     else:
         return nodes
@@ -1862,6 +1930,7 @@ def get_all_neighbor_nodes(node: Node,
       empty list if nothing found.
     """
     global _graph
+    global graphdb_nr_reads
 
     if _graph is None:
         print('\nget_all_neighbor_nodes(): Error: graph has not been initialized or opened.\n\n')
@@ -1927,7 +1996,10 @@ def get_all_neighbor_nodes(node: Node,
                                           node_id=node.id,
                                           result_transformer_=Result.value,
                                           database_=GRAPHDB_DATABASENAME)
-    if len(neighbor_nodes) == 0:
+    nr_neighbors = len(neighbor_nodes)
+    # Unsure what to count here, this seems reasonable. '+ 1' for 'node'.
+    graphdb_nr_reads += nr_neighbors + 1
+    if nr_neighbors == 0:
         return []
     else:
         return neighbor_nodes
@@ -1964,6 +2036,7 @@ def get_all_neighbor_nodes_loop(node: Node,
     :return: the list of neighboring nodes satisfying all these criteria.
     """
     global _graph
+    global graphdb_nr_reads
 
     if _graph is None:
         print('\nget_all_neighbor_nodes_loop(): Error: graph has not been initialized or opened.\n\n')
@@ -2042,6 +2115,8 @@ def get_all_neighbor_nodes_loop(node: Node,
             continue
         # Any other next_node we do not want.
 
+    # Unsure what to count here, this seems reasonable. '+ 1' for 'node'.
+    graphdb_nr_reads += len(neighbor_nodes) + 1
     return neighbor_nodes
 
 

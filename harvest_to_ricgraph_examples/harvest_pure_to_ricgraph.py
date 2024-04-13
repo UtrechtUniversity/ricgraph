@@ -1666,6 +1666,8 @@ data_file = PURE_PERSONS_DATA_FILENAME.split('.')[0] \
             + '-' + organization + '.' \
             + PURE_PERSONS_DATA_FILENAME.split('.')[1]
 
+rcg.graphdb_nr_accesses_print()
+
 # if False:
 if True:
     harvest_file = PURE_PERSONS_HARVEST_FILENAME.split('.')[0] \
@@ -1682,6 +1684,9 @@ if True:
         rcg.write_dataframe_to_csv(filename=data_file,
                                    df=parse_persons)
         parsed_persons_to_ricgraph(parsed_content=parse_persons)
+
+    rcg.graphdb_nr_accesses_print()
+
 
 # ########################################################################
 # Code for harvesting organizations. This is dependent on harvested persons.
@@ -1711,6 +1716,7 @@ if True:
         org_and_all_parents = determine_all_parent_organizations(parsed_content_organizations=parse_organizations)
         parsed_organizations_to_ricgraph(parsed_content_persons=parse_persons,
                                          organization_and_all_parents=org_and_all_parents)
+    rcg.graphdb_nr_accesses_print()
 
 
 # ########################################################################
@@ -1740,6 +1746,8 @@ if True:
                                        df=parse_resout)
             parsed_resout_to_ricgraph(parsed_content=parse_resout)
 
+        rcg.graphdb_nr_accesses_print()
+
 
 # ########################################################################
 # Code for harvesting projects.
@@ -1767,6 +1775,6 @@ if HARVEST_PROJECTS:
                                    df=parse_projects)
         parsed_projects_to_ricgraph(parsed_content=parse_projects,
                                     organization_and_all_parents=org_and_all_parents)
-
+    rcg.graphdb_nr_accesses_print()
 
 rcg.close_ricgraph()

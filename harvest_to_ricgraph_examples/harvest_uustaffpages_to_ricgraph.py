@@ -673,6 +673,8 @@ else:
     rcg.empty_ricgraph(answer=empty_graph)
 
 
+rcg.graphdb_nr_accesses_print()
+
 # ########## Code block A ##########
 # You can use 'True' or 'False' depending on your needs to harvest.
 # This might be handy if you are testing your parsing.
@@ -693,6 +695,8 @@ if True:              # Comment this line to comment out code block A
     else:
         parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_CONNECT_FILENAME)
         parsed_pure_uustaffpages_to_ricgraph(parsed_content=parsed_results)
+
+    rcg.graphdb_nr_accesses_print()
 # ########## End of code block A ##########
 
 
@@ -716,5 +720,6 @@ if True:
     # For inspiration see harvest_pure_to_ricgraph.py.
     parsed_uustaff_persons_to_ricgraph(parsed_content=parse_uustaff)
 
+    rcg.graphdb_nr_accesses_print()
 
 rcg.close_ricgraph()

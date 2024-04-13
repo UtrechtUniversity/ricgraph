@@ -485,6 +485,8 @@ if empty_graph == '':
 else:
     rcg.empty_ricgraph(answer=empty_graph)
 
+rcg.graphdb_nr_accesses_print()
+
 for year in OPENALEX_RESOUT_YEARS:
     print('Harvesting persons and research outputs from ' + HARVEST_SOURCE + ' for year ' + year + '.')
     harvest_file_year = OPENALEX_HARVEST_FILENAME.split('.')[0] \
@@ -504,5 +506,7 @@ for year in OPENALEX_RESOUT_YEARS:
                                    df=parse_persons_resout)
         parsed_persons_to_ricgraph(parsed_content=parse_persons_resout)
         parsed_resout_to_ricgraph(parsed_content=parse_persons_resout)
+
+    rcg.graphdb_nr_accesses_print()
 
 rcg.close_ricgraph()
