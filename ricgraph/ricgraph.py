@@ -623,6 +623,8 @@ def graphdb_nr_accesses_print() -> None:
 
     graphdb_total_accesses = graphdb_nr_creates + graphdb_nr_reads
     graphdb_total_accesses += (2 * graphdb_nr_updates) + graphdb_nr_deletes
+    nr_nodes = ricgraph_nr_nodes()
+    nr_edges = ricgraph_nr_edges()
 
     print('\n')
     print('These are the number of accesses to the graph database backend at ' + datetimestamp() + ':')
@@ -632,7 +634,11 @@ def graphdb_nr_accesses_print() -> None:
     print('- total number of deletes:  {:>10}'.format(graphdb_nr_deletes))
     print('- total number of accesses: {:>10}'.format(graphdb_total_accesses))
     print('Please note that for the total number of accesses, an "update" counts twice: '
-          + 'one for the read and one for the update of the values.')
+          + 'one for the read and one for the update of the value.')
+    print('\n')
+    print('These are the number of nodes and edges in Ricgraph:')
+    print('- total number of nodes: {:>8}'.format(nr_nodes))
+    print('- total number of edges: {:>8}'.format(nr_edges))
     print('\n')
     return
 
