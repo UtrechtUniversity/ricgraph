@@ -1237,8 +1237,6 @@ def find_person_share_resouts(parent_node: Node,
         message += '" node.'
         return get_message(message=message)
 
-    rcg.graphdb_nr_accesses_reset()
-
     # ### Start.
     # I use a Cypher query instead of the much slower code commented below.
     # See 'Explanation why sometimes Cypher query are used.' at the start of this file.
@@ -1561,7 +1559,6 @@ def find_person_organization_collaborations(parent_node: Node,
     # Note that 'cypher_result' will contain _all_ organizations that 'parent_node'
     # collaborates with, very probably also the organizations this person works for.
     cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              # startnode_id=parent_node.id,
                                               startnode_personroot_id=personroot_node.id,
                                               resout_types_all=resout_types_all,
                                               database_=graph_databasename)
