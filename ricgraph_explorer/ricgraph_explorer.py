@@ -512,7 +512,7 @@ def optionspage() -> str:
         html += html_body_end
         return html
 
-    # First check if the node is in 'node_cache'.
+    # First check if the node is in 'nodes_cache'.
     if name != '' and value != '':
         key = rcg.create_ricgraph_key(name=name, value=value)
         if key in nodes_cache:
@@ -816,7 +816,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
         explanation += 'collaborates with a person <em>Y</em> from '
         explanation += 'organization <em>B</em> if <em>X</em> and <em>Y</em> have both contributed to '
         explanation += 'the same research result.'
-        button_text = 'find organizations that this person collaborates with (this may take some time)'
+        button_text = 'find organizations that this person collaborates with'
         html += create_html_form(destination='resultspage',
                                  button_text=button_text,
                                  explanation=explanation,
@@ -1237,34 +1237,78 @@ def find_person_share_resouts(parent_node: Node,
         message += '" node.'
         return get_message(message=message)
 
-    personroot_node = rcg.get_personroot_node(node=parent_node)
-    neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node)
-    connected_persons = []
-    count = 0
-    if max_nr_neighbor_nodes == 0:
-        max_nr_neighbor_nodes = rcg.A_LARGE_NUMBER
-    for neighbor in neighbor_nodes:
-        if count >= max_nr_neighbor_nodes:
-            break
-        if personroot_node == neighbor:
-            continue
-        if len(category_want_list) > 0 \
-           and neighbor['category'] not in category_want_list:
-            continue
-        if len(category_dontwant_list) > 0 \
-           and neighbor['category'] in category_dontwant_list:
-            continue
+    rcg.graphdb_nr_accesses_reset()
 
-        persons = rcg.get_all_neighbor_nodes(node=neighbor,
-                                             name_want='person-root',
-                                             max_nr_neighbor_nodes=max_nr_neighbor_nodes - count)
-        for person in persons:
-            if person['_key'] == personroot_node['_key']:
-                # Note: we do not include ourselves.
-                continue
-            if person not in connected_persons:
-                connected_persons.append(person)
-                count += 1
+    # ### Start.
+    # I use a Cypher query instead of the much slower code commented below.
+    # See 'Explanation why sometimes Cypher query are used.' at the start of this file.
+    #
+    # personroot_node = rcg.get_personroot_node(node=parent_node)
+    # neighbor_nodes = rcg.get_all_neighbor_nodes(node=personroot_node)
+    # connected_persons = []
+    # count = 0
+    # if max_nr_neighbor_nodes == 0:
+    #     max_nr_neighbor_nodes = rcg.A_LARGE_NUMBER
+    # for neighbor in neighbor_nodes:
+    #     if count >= max_nr_neighbor_nodes:
+    #         break
+    #     if personroot_node == neighbor:
+    #         continue
+    #     if len(category_want_list) > 0 \
+    #        and neighbor['category'] not in category_want_list:
+    #         continue
+    #     if len(category_dontwant_list) > 0 \
+    #        and neighbor['category'] in category_dontwant_list:
+    #         continue
+    #
+    #     persons = rcg.get_all_neighbor_nodes(node=neighbor,
+    #                                          name_want='person-root',
+    #                                          max_nr_neighbor_nodes=max_nr_neighbor_nodes - count)
+    #     for person in persons:
+    #         if person['_key'] == personroot_node['_key']:
+    #             # Note: we do not include ourselves.
+    #             continue
+    #         if person not in connected_persons:
+    #             connected_persons.append(person)
+    #             count += 1
+    # ### End.
+
+    # By using the following statement we can start with both a node and its person-root node.
+    personroot_node = rcg.get_personroot_node(node=parent_node)
+    cypher_query = 'MATCH (startnode_personroot:RicgraphNode)-[]'
+    cypher_query += '->(neighbor:RicgraphNode)-[]->(neighbor_personroot:RicgraphNode)'
+    cypher_query += 'WHERE '
+    cypher_query += 'id(startnode_personroot)=$startnode_personroot_id AND '
+    # The following statement is really necessary for speed reasons.
+    cypher_query += 'startnode_personroot.name="person-root" AND '
+    if len(category_want_list) > 0:
+        cypher_query += 'neighbor.category IN $category_want_list AND '
+    if len(category_dontwant_list) > 0:
+        cypher_query += 'NOT neighbor.category IN $category_dontwant_list AND '
+    cypher_query += 'neighbor_personroot.name="person-root" AND '
+    cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
+    cypher_query += 'RETURN DISTINCT neighbor_personroot '
+    if max_nr_neighbor_nodes > 0:
+        cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
+    # print(cypher_query)
+
+    # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
+    # as the common research results (in 'neighbor'). We don't use them at the moment.
+    cypher_result, _, _ = graph.execute_query(cypher_query,
+                                              startnode_personroot_id=personroot_node.id,
+                                              category_want_list=category_want_list,
+                                              category_dontwant_list=category_dontwant_list,
+                                              database_=graph_databasename)
+
+    # Convert 'cypher_result' to a list of Node's.
+    # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
+    # have gotten a list of dicts, which messes up 'nodes_cache'.
+    connected_persons = []
+    for neighbor_node in cypher_result:
+        if len(neighbor_node) == 0:
+            continue
+        person = neighbor_node[0]
+        connected_persons.append(person)
 
     if discoverer_mode == 'details_view':
         table_columns = DETAIL_COLUMNS
@@ -1495,16 +1539,19 @@ def find_person_organization_collaborations(parent_node: Node,
     #             collaborating_organizations.append(organization)
     # ### End.
 
-    cypher_query = 'MATCH (startnode:RicgraphNode)-[]->(startnode_personroot:RicgraphNode)-[]'
+    # By using the following statement we can start with both a node and its person-root node.
+    personroot_node = rcg.get_personroot_node(node=parent_node)
+    cypher_query = 'MATCH (startnode_personroot:RicgraphNode)-[]'
     cypher_query += '->(neighbor:RicgraphNode)-[]->(neighbor_personroot:RicgraphNode)-[]'
     cypher_query += '->(neighbor_organization:RicgraphNode) '
     cypher_query += 'WHERE '
-    cypher_query += 'id(startnode)=$startnode_id AND '
-    cypher_query += 'startnode_personroot.name = "person-root" AND '
+    cypher_query += 'id(startnode_personroot)=$startnode_personroot_id AND '
+    # The following statement is really necessary for speed reasons.
+    cypher_query += 'startnode_personroot.name="person-root" AND '
     cypher_query += 'neighbor.category IN $resout_types_all AND '
-    cypher_query += 'neighbor_personroot.name = "person-root" AND '
-    cypher_query += 'id(neighbor_personroot) <> id(startnode_personroot) AND '
-    cypher_query += 'neighbor_organization.category = "organization" '
+    cypher_query += 'neighbor_personroot.name="person-root" AND '
+    cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) AND '
+    cypher_query += 'neighbor_organization.category="organization" '
     cypher_query += 'RETURN DISTINCT neighbor_organization'
     # print(cypher_query)
     # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
@@ -1513,11 +1560,11 @@ def find_person_organization_collaborations(parent_node: Node,
 
     # Note that 'cypher_result' will contain _all_ organizations that 'parent_node'
     # collaborates with, very probably also the organizations this person works for.
-    cypher_result = graph.execute_query(cypher_query,
-                                        startnode_id=parent_node.id,
-                                        resout_types_all=resout_types_all,
-                                        result_transformer_=Result.data,
-                                        database_=graph_databasename)
+    cypher_result, _, _ = graph.execute_query(cypher_query,
+                                              # startnode_id=parent_node.id,
+                                              startnode_personroot_id=personroot_node.id,
+                                              resout_types_all=resout_types_all,
+                                              database_=graph_databasename)
 
     # Get the organizations from 'parent_node'.
     personroot_node = rcg.get_personroot_node(node=parent_node)
@@ -1530,9 +1577,14 @@ def find_person_organization_collaborations(parent_node: Node,
     for organization in personroot_node_organizations:
         personroot_node_organizations_key.append(organization['_key'])
 
+    # Convert 'cypher_result' to a list of Node's.
+    # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
+    # have gotten a list of dicts, which messes up 'nodes_cache'.
     collaborating_organizations = []
     for organization_node in cypher_result:
-        organization = organization_node['neighbor_organization']
+        if len(organization_node) == 0:
+            continue
+        organization = organization_node[0]
         organization_key = organization['_key']
         if organization_key not in personroot_node_organizations_key:
             collaborating_organizations.append(organization)
