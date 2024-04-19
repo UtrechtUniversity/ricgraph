@@ -111,7 +111,7 @@ and therefore faster than Neo4j. However,
 it has not been tested extensively with Ricgraph yet.
 * Login as user *root*.
 * Make sure you have Docker. If not, install it:
-  * Debian/Ubuntu: Follow [Install Docker using the apt 
+  * Debian/Ubuntu: follow [Install Docker using the apt 
     repository](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository).
 * Install Memgraph Platform.
   To do this, follow the instructions on 
@@ -129,7 +129,7 @@ it has not been tested extensively with Ricgraph yet.
 * In the log printed on the terminal, you might get a message like:
   ``Max virtual memory areas vm.max_map_count 65530 is too low, increase to at least 262144``.
   To resolve this, create a file in _/etc/sysctl.d_ with the name _90-local.conf_
-  and the following contents:
+  and the following content:
   ```
   vm.max_map_count=262144 
   ```
