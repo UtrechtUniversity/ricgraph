@@ -356,30 +356,59 @@ def empty_ricgraph(answer: str = '') -> None:
     print('Deleting all nodes and edges in Ricgraph...\n')
     _graph.execute_query('MATCH (node) DETACH DELETE node', database_=GRAPHDB_DATABASENAME)
 
-    # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
-    # If I understand correctly there, the graph database backend Neo4j can be at most 3 indexes,
-    # while I would like to have 4. I decide not use a CategoryIndex.
-    _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
-    _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
-    # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
-    _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
+    if GRAPHDB == 'neo4j':
+        # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
+        # If I understand correctly there, the graph database backend Neo4j can be at most 3 indexes,
+        # while I would like to have 4. I decide not use a CategoryIndex.
+        _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
+        _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
+        # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
+        _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
 
-    print('Creating indexes...')
-    _graph.execute_query('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node._key)',
-                         database_=GRAPHDB_DATABASENAME)
-    _graph.execute_query('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.name)',
-                         database_=GRAPHDB_DATABASENAME)
-    # _graph.execute_query('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.category)',
-    #                      database_=GRAPHDB_DATABASENAME)
-    _graph.execute_query('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.value)',
-                         database_=GRAPHDB_DATABASENAME)
+        print('Creating indexes...')
+        _graph.execute_query('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node._key)',
+                             database_=GRAPHDB_DATABASENAME)
+        _graph.execute_query('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.name)',
+                             database_=GRAPHDB_DATABASENAME)
+        # _graph.execute_query('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.category)',
+        #                      database_=GRAPHDB_DATABASENAME)
+        _graph.execute_query('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.value)',
+                             database_=GRAPHDB_DATABASENAME)
 
-    print('These indexes have been created:')
-    records, summary, keys = _graph.execute_query('SHOW INDEXES',
-                                                  database_=GRAPHDB_DATABASENAME)
-    index_table = pandas.DataFrame(data=records, columns=keys)
-    print(index_table.to_string(index=False))
-    print('')
+        print('These indexes have been created:')
+        records, summary, keys = _graph.execute_query('SHOW INDEXES',
+                                                      database_=GRAPHDB_DATABASENAME)
+        index_table = pandas.DataFrame(data=records, columns=keys)
+        print(index_table.to_string(index=False))
+        print('')
+    elif GRAPHDB == 'memgraph':
+        # For Memgraph, we need to create indexes in the following way, otherwise we get an
+        # 'Index manipulation not allowed in multicommand transactions'
+        # error. We should use implicit (or auto-commit) transactions.
+        # See https://memgraph.com/docs/client-libraries/python#transaction-management.
+        with _graph.session(database=GRAPHDB) as session:
+            # These also work in case they do not exist.
+            session.run('DROP INDEX ON :RicgraphNode;')
+            session.run('DROP INDEX ON :RicgraphNode(_key);')
+            session.run('DROP INDEX ON :RicgraphNode(name);')
+            session.run('DROP INDEX ON :RicgraphNode(value);')
+
+            print('Creating indexes...')
+            session.run('CREATE INDEX ON :RicgraphNode;')
+            session.run('CREATE INDEX ON :RicgraphNode(_key);')
+            session.run('CREATE INDEX ON :RicgraphNode(name);')
+            session.run('CREATE INDEX ON :RicgraphNode(value);')
+
+            print('These indexes have been created:')
+            for index_line in session.run('SHOW INDEX INFO;'):
+                print(index_line)
+            print('')
+
+        # session.close() is done automatically because of 'with'.
+    else:
+        print('empty_ricgraph(): Unknown graph database backend "' + GRAPHDB + '".')
+        print('Exiting.')
+        exit(1)
     return
 
 

@@ -213,6 +213,8 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   relation between two objects.
 * Ricgraph and Ricgraph Explorer are written in Python and use [Neo4j](https://neo4j.com)
   as [graph database engine](https://en.wikipedia.org/wiki/Graph_database).
+  You can also use [Memgraph](https://memgraph.com) as graph database backend, 
+  but this has not been tested extensively.
 * Metadata of an object are stored as "properties"
   in a node, i.e. as information associated with a node.
   For example, a node may store two properties, *name = PET* and

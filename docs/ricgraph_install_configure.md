@@ -25,6 +25,11 @@ They have several products:
   to explore the graph using
   [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
 
+You can also use [Memgraph](https://memgraph.com). It is an in memory graph database
+and therefore faster than Neo4j. However,
+it has not been tested extensively with Ricgraph yet.
+Read [Install and start Memgraph](ricgraph_as_server.md#install-and-start-memgraph).
+
 ### Requirements
 The easiest method for using Ricgraph is by using a virtual machine (VM) such as
 [VirtualBox](https://www.virtualbox.org). A VM of size 25GB with 4GB memory will work.

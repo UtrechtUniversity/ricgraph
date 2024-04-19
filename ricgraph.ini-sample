@@ -152,9 +152,9 @@ graphdb_port = 7687
 # For Memgraph Platform, or the individual Memgraph packages, fill these:
 #graphdb_hostname = localhost
 #graphdb_databasename = memgraph
-#graphdb_user = 
+#graphdb_user = memgraph
 #graphdb_password = 
-#graphdb_scheme = neo4j
+#graphdb_scheme = bolt
 #graphdb_port = 7687
 # ###############################################################
 

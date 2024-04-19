@@ -26,6 +26,7 @@ To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
 * [Check the requirements](#check-the-requirements).
 * [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition).
+* [Install and start Memgraph](#install-and-start-memgraph).
 * [Create a ricgraph user and group](#create-a-ricgraph-user-and-group).
 * [Create a Python virtual environment and install Ricgraph in 
   it](#create-a-python-virtual-environment-and-install-ricgraph-in-it).
@@ -100,7 +101,47 @@ the following steps:
     You will need this new password in section
     [Create a Python virtual environment and install Ricgraph in
     it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) below.
+  
+
+### Install and start Memgraph
+As an alternative to Neo4j, you can also use
+[Memgraph](https://memgraph.com).
+Memgraph is an in memory graph database 
+and therefore faster than Neo4j. However,
+it has not been tested extensively with Ricgraph yet.
+* Login as user *root*.
+* Make sure you have Docker. If not, install it:
+  * Debian/Ubuntu: Follow [Install Docker using the apt 
+    repository](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository).
+* Install Memgraph Platform.
+  To do this, follow the instructions on 
+  the [Memgraph download page](https://memgraph.com/download) in the block 'Memgraph Platform'.
+  Memgraph will be started automatically. Stop it by typing _Control-C_.
+* To start Memgraph, go to the directory _memgraph-platform_:
+  ```
+  cd memgraph-platform
+  ```
+  and type:
+  ```
+  docker compose up
+  ```
+  If you want to stop Memgraph, type _Control-C_.
+* In the log printed on the terminal, you might get a message like:
+  ``Max virtual memory areas vm.max_map_count 65530 is too low, increase to at least 262144``.
+  To resolve this, create a file in _/etc/sysctl.d_ with the name _90-local.conf_
+  and the following contents:
+  ```
+  vm.max_map_count=262144 
+  ```
+  After you have done that, type:
+  ```
+  sysctl --system
+  ```
+  and the message should be gone. Start Memgraph as above.
+* To use Memgraph Platform, go to [http://localhost:3000](http://localhost:3000).
+* How to start Memgraph automatically at system startup, is a 'to be done'.
  
+
 ### Create a ricgraph user and group
 * Login as user *root*.
 * Create group and user *ricgraph*. First check if they exist:
@@ -351,7 +392,7 @@ Edition](ricgraph_install_configure.md#restore-a-neo4j-desktop-database-dump-of-
 ### How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
 [SURF Research Cloud](https://www.surf.nl/en/services/surf-research-cloud)
 is a portal where you can easily build a virtual research environment. 
-You can use preconfigured workspaces or you can add them yourself.
+You can use preconfigured workspaces, or you can add them yourself.
 A _virtual research environment_ or _workspace_ is a 
 virtual machine that you can use to install Ricgraph.
 Please follow these steps if you would like
