@@ -9,7 +9,7 @@ and password, and that each person will be able to use Ricgraph by using a
 web link in their web browser.
 
 The reason that a multi-user environment for Ricgraph is different from installing and using
-Ricgraph on your own user id, is that you will need to run Neo4j and
+Ricgraph on your own user id, is that you will need to run the graph database backend and
 [Ricgraph Explorer](ricgraph_explorer.md) 
 as a system user instead of running it using your own user id.
 If you run Ricgraph with your own user id, you will be the only user able to use it.
@@ -269,15 +269,17 @@ Examples of commands you can use are:
 Using a service unit file to run
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is very useful if you would like to set up a virtual machine that you want to use as
-a demo server. After the steps in this section, both Neo4j Community Edition
-and Ricgraph Explorer are run
+a demo server. After the steps in this section, 
+Ricgraph Explorer is run
 automatically at the start of the virtual machine, so you can immediately start giving the demo.
 
-For comparison, if you had installed Neo4j and Ricgraph for a single user, as
+For comparison, if you had installed the graph database backend
+and Ricgraph for a single user, as
 described in 
 [the documentation describing the installation and configuration
 of Ricgraph for a single user](ricgraph_install_configure.md), 
-after the start of the virtual machine, you would need to start Neo4j, the virtual environment,
+after the start of the virtual machine, you would need to start the graph database
+backend, the virtual environment,
 and *ricgraph_explorer.py* by hand.
 
 Using a service unit file will *not* expose Ricgraph Explorer and Ricgraph data to 
@@ -444,7 +446,9 @@ Then, follow the following steps, and also watch the video below:
 * Done.
 
 The next steps are to install Ricgraph. Start reading from 
-[Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition) above.
+[Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
+or [Install and start Memgraph](#install-and-start-memgraph)
+above.
 
 For more explanation, please watch the 
 [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud

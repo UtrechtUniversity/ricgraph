@@ -1,6 +1,6 @@
 ## Ricgraph known bugs
 
-### Error while emptying Ricgraph
+### Error while emptying Ricgraph with Neo4j
 While deleting nodes and edges in Ricgraph you might get a Python error, similar to:
 
 ```

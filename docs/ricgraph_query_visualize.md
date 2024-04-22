@@ -2,13 +2,12 @@
 
 To query and visualize Ricgraph nodes and edges, there are several possibilities:
 
-* First you have to [start Neo4j Desktop](#start-neo4j-desktop).
-* Then you can query and visualize using:
-    * Ricgraph Explorer, read 
-      more on the [Ricgraph Explorer page](ricgraph_explorer.md).
-    * Bloom, read [How to use Bloom](#How-to-use-bloom).
-    * Other methods for querying and visualization are
-      [Future work](ricgraph_future_work.md).
+* Use Ricgraph Explorer, read 
+  more on the [Ricgraph Explorer page](ricgraph_explorer.md).
+* Use Neo4j Desktop Bloom, read [How to use Bloom](#How-to-use-bloom).
+  First you have to [start Neo4j Desktop](#start-neo4j-desktop).
+* Other methods for querying and visualization are
+  [Future work](ricgraph_future_work.md).
 
 [Return to main README.md file](../README.md).
 
