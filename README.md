@@ -211,10 +211,10 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   as long as every object can be "represented" by at least a *name* and a *value*.
   In Ricgraph, one node represents one object, and an edge represents the
   relation between two objects.
-* Ricgraph and Ricgraph Explorer are written in Python and use [Neo4j](https://neo4j.com)
-  as [graph database engine](https://en.wikipedia.org/wiki/Graph_database).
-  You can also use [Memgraph](https://memgraph.com) as graph database backend, 
-  but this has not been tested extensively.
+* Ricgraph and Ricgraph Explorer are written in Python. You can use two different
+  [graph database backends](https://en.wikipedia.org/wiki/Graph_database):
+  * [Neo4j](https://neo4j.com) (either Neo4j Desktop or Neo4j Community Edition);
+  * [Memgraph](https://memgraph.com).
 * Metadata of an object are stored as "properties"
   in a node, i.e. as information associated with a node.
   For example, a node may store two properties, *name = PET* and

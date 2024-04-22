@@ -25,8 +25,9 @@ of Ricgraph for a single user](ricgraph_install_configure.md).
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
 * [Check the requirements](#check-the-requirements).
-* [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition).
-* [Install and start Memgraph](#install-and-start-memgraph).
+* Install a graph database backend:
+  * [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition).
+  * [Install and start Memgraph](#install-and-start-memgraph).
 * [Create a ricgraph user and group](#create-a-ricgraph-user-and-group).
 * [Create a Python virtual environment and install Ricgraph in 
   it](#create-a-python-virtual-environment-and-install-ricgraph-in-it).
@@ -107,8 +108,8 @@ the following steps:
 As an alternative to Neo4j, you can also use
 [Memgraph](https://memgraph.com).
 Memgraph is an in memory graph database 
-and therefore faster than Neo4j. However,
-it has not been tested extensively with Ricgraph yet.
+and therefore (much) faster than Neo4j. 
+However, it has not been tested extensively with Ricgraph yet.
 * Login as user *root*.
 * Make sure you have Docker. If not, install it:
   * Debian/Ubuntu: follow [Install Docker using the apt 
@@ -216,13 +217,12 @@ it has not been tested extensively with Ricgraph yet.
   ```
 * Create a Ricgraph initialization file, 
   read [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
-* In *ricgraph.ini*, find the section
-  "Choose either the parameters for Neo4j Desktop or Neo4j Community Edition".
-  Make sure you disable the parameters for Neo4j Desktop (by commenting them)
-  and enable the parameter for Neo4j Community Edition.
-* In *ricgraph.ini*, enter the new password for Neo4j from section
-  [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
-  at the parameter _graphdb_password_.
+  This is also the
+  place where you specify which graph database backend you use.
+  You can find these settings in section *GraphDB*.
+  * For Neo4j, enter the new password for Neo4j from section
+    [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
+    at the parameter _graphdb_password_.
 * Deactivate the Python virtual environment: 
   type 
   ```

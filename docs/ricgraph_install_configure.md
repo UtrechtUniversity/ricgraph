@@ -11,9 +11,12 @@ install Ricgraph for a single user, as described on this page.
 
 ### Installation instructions for a single user
 
-Ricgraph uses [Neo4j](https://neo4j.com)
-as [graph database engine](https://en.wikipedia.org/wiki/Graph_database).
-They have several products:
+Ricgraph can use two [graph database 
+backends](https://en.wikipedia.org/wiki/Graph_database):
+[Neo4j](https://neo4j.com) and [Memgraph](https://memgraph.com). 
+
+#### Neo4j 
+Neo4j has several products:
 
 * [Neo4j Desktop](https://neo4j.com/download-center/#desktop);
 * [Neo4j Bloom graph visualization tool](https://neo4j.com/product/bloom),
@@ -25,7 +28,8 @@ They have several products:
   to explore the graph using
   [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
 
-You can also use [Memgraph](https://memgraph.com). It is an in memory graph database
+#### Memgraph
+[Memgraph](https://memgraph.com) is an in memory graph database
 and therefore faster than Neo4j. However,
 it has not been tested extensively with Ricgraph yet.
 Read [Install and start Memgraph](ricgraph_as_server.md#install-and-start-memgraph).
@@ -42,21 +46,24 @@ developed with Python 3.11, but there are reports that Ricgraph will work with P
 
 ### Steps to take
 
-1. [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
-   [Install the Bloom configuration](#install-bloom-configuration).
-   If you would like to use Neo4j Community Edition, read
-   [Install and start Neo4j Community 
-   Edition](ricgraph_as_server.md#install-and-start-neo4j-community-edition).
+1. Install your graph database backend:
+   * [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
+     [Install the Bloom configuration](#install-bloom-configuration).
+     If you would like to use Neo4j Community Edition, read
+     [Install and start Neo4j Community 
+     Edition](ricgraph_as_server.md#install-and-start-neo4j-community-edition).
+   * [Install and start Memgraph](ricgraph_as_server.md#install-and-start-memgraph).
 1. [Download Ricgraph](#download-ricgraph).
 1. [Use a Python virtual environment and install Python 
    requirements](#use-a-python-virtual-environment-and-install-python-requirements).
-1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file).
+1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file). This is also the
+   place where you specify which graph database backend you use.
 1. Start 
    - harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md);
    - writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md).
 1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
 
-Other things you might want to do:
+Other things you might want to do, if you use Neo4j:
 * [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph).
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop).
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
@@ -195,8 +202,19 @@ Notable dependencies used in Ricgraph:
 ### Ricgraph initialization file
 
 Ricgraph requires an initialization file. A sample file is included as *ricgraph.ini-sample*.
-You need to copy this file to *ricgraph.ini* and modify it by including a password and
-a port number for Neo4j Desktop, and API keys or email addresses for other systems you plan to use.
+You need to copy this file to *ricgraph.ini* and modify it
+to include settings for your graph database backend, and
+API keys and/or email addresses for other systems you plan to use.
+
+#### Settings for graph database backend
+Ricgraph has a *[GraphDB]* section where you have to specify the graph database
+backend that you will be using. First, you will need to set 
+the parameter *graphdb* to the graph database backend name (you can
+choose between *neo4j* and *memgraph*). Further down that section, you will have
+to fill in six parameters for hostname, port number, username, etc. The comments
+in the initialization file explain how to do that.
+
+#### Extending Ricgraph with nieuw properties in the nodes
 Optionally, you can extend Ricgraph by adding new
 [properties of nodes](ricgraph_details.md#Properties-of-nodes-in-Ricgraph).
 Before you can do this, [download Ricgraph](#download-ricgraph).
