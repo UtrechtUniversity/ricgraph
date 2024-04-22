@@ -41,8 +41,8 @@ the following steps:
   Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research 
   Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
-* [How to solve an AttributeError: 'Neo4jDriver' object has no attribute 
-  'execute_query'](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
+* [How to solve an AttributeError: Neo4jDriver object has no attribute 
+  executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
 
 [Return to main README.md file](../README.md).
 
@@ -468,7 +468,7 @@ For more explanation, please watch the
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b
 
 
-### How to solve an AttributeError: 'Neo4jDriver' object has no attribute 'execute_query'
+### How to solve an AttributeError: Neo4jDriver object has no attribute executequery
 If, at some point while running Ricgraph scripts or Ricgraph Explorer in a
 virtual environment, you get an error message like:
 ```
