@@ -46,6 +46,7 @@ the following steps:
 
 [Return to main README.md file](../README.md).
 
+
 ### Check the requirements
 * You will need access to a Linux virtual machine.
   You can use your own, or one provided by your organization, or you might
@@ -162,6 +163,7 @@ However, it has not been tested extensively with Ricgraph yet.
   ```
 * Exit from user *root*.
   
+  
 ### Create a Python virtual environment and install Ricgraph in it
 * Suppose you are a user with login *alice* and you are in Linux group *users*.
 * Login as user *root*.
@@ -240,6 +242,7 @@ However, it has not been tested extensively with Ricgraph yet.
   ```
 * Exit from user *root*.
 
+
 ### Run Ricgraph scripts from the command line or as a cronjob
 After following the steps in [Create a Python virtual environment and install Ricgraph in
 it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
@@ -268,8 +271,7 @@ Examples of commands you can use are:
   ```
   cd /opt/ricgraph_venv/ricgraph_explorer; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
   ```
-
-
+  
   
 ### Use a service unit file to run Ricgraph Explorer
 Using a service unit file to run
@@ -315,6 +317,7 @@ the outside world. All data will only be accessible in the virtual machine.
 * Now you can use Ricgraph Explorer by typing
   [http://localhost:3030](http://localhost:3030) in your web browser (i.e., the web browser of
   the virtual machine).
+  
 
 ### Use Apache and WSGI to make Ricgraph Explorer accessible from outside your virtual machine
 [Ricgraph Explorer](ricgraph_explorer.md) 
@@ -392,10 +395,12 @@ comments at the start of the configuration file.
   [http://[your IP address]](http://[your_IP_address) or
   [http://[your hostname]](http://[your_hostname). 
 
+
 ### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
 To read how this can be done, read
 [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
 Edition](ricgraph_install_configure.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
+
 
 ### How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
 [SURF Research Cloud](https://www.surf.nl/en/services/surf-research-cloud)
