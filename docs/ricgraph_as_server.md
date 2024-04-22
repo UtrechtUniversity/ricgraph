@@ -37,8 +37,12 @@ the following steps:
   Explorer](#use-a-service-unit-file-to-run-ricgraph-explorer).
 * [Use Apache and WSGI to make Ricgraph Explorer accessible from outside your virtual 
   machine](#use-apache-and-wsgi-to-make-ricgraph-explorer-accessible-from-outside-your-virtual-machine).
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
+* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community
   Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
+* [How to install Ricgraph and Ricgraph Explorer on SURF Research 
+  Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
+* [How to solve an AttributeError: 'Neo4jDriver' object has no attribute 
+  'execute_query'](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
 
 [Return to main README.md file](../README.md).
 
@@ -264,6 +268,8 @@ Examples of commands you can use are:
   ```
   cd /opt/ricgraph_venv/ricgraph_explorer; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
   ```
+
+
   
 ### Use a service unit file to run Ricgraph Explorer
 Using a service unit file to run
@@ -455,6 +461,39 @@ For more explanation, please watch the
 (2m14s) (click to download)](videos/ricgraph_howto_install_on_SURFResearchCloud.mp4).
 
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b
+
+
+### How to solve an AttributeError: 'Neo4jDriver' object has no attribute 'execute_query'
+If, at some point while running Ricgraph scripts or Ricgraph Explorer in a
+virtual environment, you get an error message like:
+```
+Traceback (most recent call last):
+  File "ricgraph_explorer.py", line 2930, in <module>
+    initialize_ricgraph_explorer()
+  File "ricgraph_explorer.py", line 2867, in initialize_ricgraph_explorer
+    name_all = rcg.read_all_values_of_property('name')
+  File "/opt/ricgraph_venv/ricgraph/ricgraph.py", line 1140, in read_all_values_of_property
+    result = _graph.execute_query(cypher_query,
+AttributeError: 'Neo4jDriver' object has no attribute 'execute_query'
+```
+then this means that your version of the Python module *neo4j* is too old.
+Note that this is related to the Python module *neo4j*, not to the graph database backend
+Neo4j Desktop or Neo4j Community Edition.
+You need at least version 5.8 of the Python module *neo4j*.
+With an "old" version of Python (3.6 and earlier), an old version
+of module *neo4j* will be used. The only way to solve this is using a new version of
+Python while creating the Python virtual environment. You can do this by using the
+following command:
+* Create a Python virtual environment:
+  in */opt*, type:
+  ```
+  python3.11 -m venv ricgraph_venv
+  ```
+in section
+[Create a Python virtual environment and install Ricgraph in
+it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) above. For *python3.11* you can take any Python version that is installed
+on your computer.
+
 
 ### Return to main README.md file
 [Return to main README.md file](../README.md).
