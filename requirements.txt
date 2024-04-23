@@ -1,6 +1,6 @@
 flask
 markupsafe
-neo4j
+neo4j >= 5.8
 numpy
 pandas
 pyalex
