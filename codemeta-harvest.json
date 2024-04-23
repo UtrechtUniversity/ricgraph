@@ -75,12 +75,19 @@
     ],
     "referencePublication": [
         {
-            "@type": "Report",
-            "sameAs": "https://doi.org/10.2139/ssrn.4712466",
-            "name": "Ricgraph: A Flexible and Extensible Graph to Explore Research in Context from Various Systems",
+            "@type": "ScholarlyArticle",
+            "name": "Ricgraph: A flexible and extensible graph to explore research in context from various systems",
             "author": [ "Rik D.T. Janssen" ],
-            "url": "https://doi.org/10.2139/ssrn.4712466"
-	},
+            "sameAs": "https://doi.org/10.1016/j.softx.2024.101736",
+            "isPartOf": {
+                "@type": "PublicationVolume",
+                "datePublished": "2024",
+                "name": "SoftwareX",
+                "volumeNumber": 26,
+                "issueNumber": 101736
+            },
+            "url": "https://doi.org/10.1016/j.softx.2024.101736"
+	    },
         {
             "@type": "Report",
             "sameAs": "https://doi.org/10.5281/zenodo.10057997",

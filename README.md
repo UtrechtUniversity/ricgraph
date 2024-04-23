@@ -18,55 +18,87 @@ Note, the lines 'DOI reference publication' and
 
 ## What is Ricgraph?
 
-What if... we look at research information as a graph? We would have relations 
-between objects, we would be able to “walk”
-from one object to another, and related objects would be neighbors. 
-For example, starting with a researcher, the publications
-of this person are only one step away by following one edge, 
-and other contributors to that publication are again
-one step (edge) away.
+Ricgraph, also known as Research in context graph, enables the exploration of researchers, 
+teams, their results,
+collaborations, skills, projects, and the relations between these items.
 
-With Ricgraph, you can create a 
-[graph](https://en.wikipedia.org/wiki/Graph_theory)
-from research information that
-is stored in various source systems. You can
-explore this graph and discover relations you were not aware of. 
-We have developed Ricgraph (Research in context graph)
-because our university had a need to be able to show our researchers, 
-their skills, (child) organizations (e.g. unit, department, faculty, university),
-projects and research outputs (e.g. publications, 
-datasets, software packages) in relation to each other.
-This information is stored in different systems, such as Pure, OpenAlex, Yoda, 
-the Research Software Directory, and our
-organization’s employee pages.
+Ricgraph can store many types of items into a single graph. 
+These items can be obtained from various systems and from
+multiple organizations. Ricgraph facilitates reasoning about these 
+items because it infers new relations between items,
+relations that are not present in any of the separate source systems. 
+Ricgraph is flexible and extensible, and can be
+adapted to new application areas.
 
-By combining this information in one graph, it is possible to show 
-research in context (hence the name). Ricgraph is a
-graph that uses nodes and edges to represent objects and their relations. 
-It can be used to store, manipulate and read
-metadata of any object that has a relation to another object.
+Throughout this documentation, we illustrate how Ricgraph works by applying 
+it to the application area research information. 
 
-Example use cases for Ricgraph are:
-* As a journalist, I want to find researchers with a certain skill 
+### Motivation
+
+Ricgraph, also known as Research in context graph, is software that is about
+relations between items. These items can be collected from various source 
+systems and from multiple organizations. We
+explain how Ricgraph works by applying it to the application area 
+*research information*. We show the insights that can be
+obtained by combining information from various source systems, 
+insight arising from new relations that are not present
+in each separate source system.
+
+*Research information* is about anything related to research: research 
+results, the persons in a research team, their
+collaborations, their skills, projects in which they have 
+participated, as well as the relations between these entities.
+Examples of *research results* are publications, data sets, and software.
+
+Example use cases from the application area research information are:
+* As a journalist, I want to find researchers with a certain skill
   and their publications, so that I can interview them for a newspaper article.
-* As a librarian, I want to enrich my local research information system 
-  with research results that are in other systems but not in ours, 
+* As a librarian, I want to enrich my local research information system
+  with research results that are in other systems but not in ours,
   so that we have a more complete view of research at our university.
-* As a researcher, I want to find researchers from other universities 
-  that have co-authored publications written by the co-authors 
-  of my own publications, so that I can read their publications 
+* As a researcher, I want to find researchers from other universities
+  that have co-authored publications written by the co-authors
+  of my own publications, so that I can read their publications
   to find out if we share common research interests.
 
-Read section
+These use cases use different types of information (called *items*):
+researchers, skills, publications,
+etc. Most often, these types of information are not stored in 
+one system, so the use cases may be difficult or
+time-consuming to answer. However, by using Ricgraph, these 
+use cases (and many others) are easy to answer, as will be
+explained throughout this documentation.
+
+Although this documentation illustrates Ricgraph in the application area 
+research information, the principle “relations
+between items from various source systems” is general, 
+so Ricgraph can be used in other application areas.
+
+### Main contributions of Ricgraph
+
+* Ricgraph can store many types of items in a single graph.
+* Ricgraph harvests multiple source systems into a single graph.
+* Ricgraph Explorer is the exploration tool for Ricgraph.
+* Ricgraph facilitates reasoning about items because it infers new relations between items.
+* Ricgraph can be tailored for an application area.
+
+### Read more about Ricgraph
+
+For a gentle introduction in Ricgraph, read the reference publication: 
+Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
+context from various systems. *SoftwareX*, 26(101736).
+https://doi.org/10.1016/j.softx.2024.101736
+
+More details can be found in section
 [Example use cases in Ricgraph](#example-use-cases-in-ricgraph)
-to find out how these use cases work out using Ricgraph.
+where you can read how the use cases above work out using Ricgraph.
 You can explore the graph using
 [Ricgraph Explorer](docs/ricgraph_explorer.md). This web application
 has a number of build-in queries that you can access by pressing a button.
 
 To learn more about Ricgraph,
-[read why Ricgraph has been developed](#why-ricgraph), including
-[examples](#examples). This is followed by
+[read why Ricgraph has been developed](#why-ricgraph).
+This is followed by
 [Ricgraph in bullet points](#ricgraph-in-bullet-points). There is also
 [a section with next steps you might want to take](#next-steps),
 including [further information about 
@@ -80,10 +112,6 @@ Of course there are
 and there is an overview of the 
 [publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
 
-Reference publication: Rik D.T. Janssen, 
-*Ricgraph: A Flexible and Extensible Graph to Explore Research in Context 
-from Various Systems*. January 2024. Submitted to SoftwareX. 
-https://doi.org/10.2139/ssrn.4712466.
 
 ## Why Ricgraph?
 
@@ -252,13 +280,13 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 ## Next steps
 
 ### Further information about Ricgraph
+* For a gentle introduction in Ricgraph, read the reference publication:
+  Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
+  context from various systems. *SoftwareX*, 26(101736).
+  https://doi.org/10.1016/j.softx.2024.101736
 * Read more about 
   [publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
 * Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).
-* Read the reference publication: Rik D.T. Janssen,
-  *Ricgraph: A Flexible and Extensible Graph to Explore Research in Context
-  from Various Systems*. January 2024. Submitted to SoftwareX.
-  https://doi.org/10.2139/ssrn.4712466.
 * Read more about [Ricgraph details](docs/ricgraph_details.md),
   such as example graphs, person identifiers and the *person-root* node.
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
