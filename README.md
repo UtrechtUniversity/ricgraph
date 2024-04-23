@@ -1,5 +1,5 @@
 [![Static Badge](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
-[![Static Badge](https://img.shields.io/badge/DOI%20reference%20publication-10.2139%2Fssrn.4712466-blue)](https://doi.org/10.2139/ssrn.4712466)  
+[![Static Badge](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph)
 ![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=green)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest?color=green)
@@ -35,7 +35,7 @@ it to the application area research information.
 
 ### Motivation
 
-Ricgraph, also known as Research in context graph, is software that is about
+Ricgraph, also known as Research in Context graph, is software that is about
 relations between items. These items can be collected from various source 
 systems and from multiple organizations. We
 explain how Ricgraph works by applying it to the application area 
@@ -87,10 +87,10 @@ so Ricgraph can be used in other application areas.
 For a gentle introduction in Ricgraph, read the reference publication: 
 Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
 context from various systems. *SoftwareX*, 26(101736).
-https://doi.org/10.1016/j.softx.2024.101736
+https://doi.org/10.1016/j.softx.2024.101736.
 
 More details can be found in section
-[Example use cases in Ricgraph](#example-use-cases-in-ricgraph)
+[Example use cases in Ricgraph](#example-use-cases-in-ricgraph),
 where you can read how the use cases above work out using Ricgraph.
 You can explore the graph using
 [Ricgraph Explorer](docs/ricgraph_explorer.md). This web application
@@ -283,7 +283,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 * For a gentle introduction in Ricgraph, read the reference publication:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).
-  https://doi.org/10.1016/j.softx.2024.101736
+  https://doi.org/10.1016/j.softx.2024.101736.
 * Read more about 
   [publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
 * Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).

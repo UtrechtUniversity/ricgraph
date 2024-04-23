@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
-message: "If you use Ricgraph, please cite it."
+message: "If you use Ricgraph, please cite it using the reference publication"
 type: software
 version: "v2.0"
 date-released: "2024-04-10"
@@ -95,7 +95,7 @@ abstract: >-
   results, the persons in a research team, their
   collaborations, their skills, projects in which they have
   participated, as well as the relations between these entities.
-  Examples of *research results* are publications, data sets, and software.
+  Examples of research results are publications, data sets, and software.
   
   Example use cases from the application area research information are:
   
@@ -112,8 +112,8 @@ abstract: >-
   to answer.
   
   Although this text illustrates Ricgraph in the application area
-  research information, the principle “relations between items from various
-  source systems” is general, so Ricgraph can be used in other application areas.
+  research information, the principle "relations between items from various
+  source systems" is general, so Ricgraph can be used in other application areas.
   
   
   Main contributions of Ricgraph
