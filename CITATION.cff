@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
-message: "If you use Ricgraph, please cite it using the reference publication"
+message: "If you use Ricgraph, please cite it using the reference publication."
 type: software
 version: "v2.0"
 date-released: "2024-04-10"
@@ -65,7 +65,7 @@ identifiers:
     type: doi
     value: "10.5281/zenodo.10952538"
 abstract: >-
-  Ricgraph, also known as Research in context graph, enables the exploration of
+  Ricgraph, also known as Research in Context graph, enables the exploration of
   researchers, teams, their results, collaborations, skills, projects, and the
   relations between these items.
   
