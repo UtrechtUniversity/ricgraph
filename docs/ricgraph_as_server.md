@@ -221,6 +221,13 @@ However, it has not been tested extensively with Ricgraph yet.
   ```
   pip install -r requirements.txt
   ```
+  If you get an error message 
+  ```
+  ERROR: Could not find a version that satisfies the requirement neo4j>=5.8
+  ```
+  then your Python version is too old. Please read
+  [How to solve an AttributeError: Neo4jDriver object has no attribute
+  executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
 * Create a Ricgraph initialization file, 
   read [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
   This is also the
@@ -481,6 +488,10 @@ Traceback (most recent call last):
     result = _graph.execute_query(cypher_query,
 AttributeError: 'Neo4jDriver' object has no attribute 'execute_query'
 ```
+or, after typing ``pip install -r requirements.txt``, you get an error message:
+  ```
+  ERROR: Could not find a version that satisfies the requirement neo4j>=5.8
+  ```
 then this means that your version of the Python module *neo4j* is too old.
 Note that this is related to the Python module *neo4j*, not to the graph database backend
 Neo4j Desktop or Neo4j Community Edition.
@@ -497,7 +508,7 @@ following command:
 in section
 [Create a Python virtual environment and install Ricgraph in
 it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) above. For *python3.11* you can take any Python version that is installed
-on your computer.
+on your computer, as long as it is newer than Python 3.6.
 
 
 ### Return to main README.md file
