@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
 type: software
-version: "v2.0"
+version: "v2.1"
 date-released: "2024-04-24"
 authors:
   - given-names: "Rik D.T."
@@ -13,6 +13,7 @@ preferred-citation:
   authors:
     - family-names: Janssen
       given-names: "Rik D.T."
+      orcid: "https://orcid.org/0000-0001-9510-0802"
   title: "Ricgraph: A flexible and extensible graph to explore research in context from various systems"
   type: article
   journal: "SoftwareX"
