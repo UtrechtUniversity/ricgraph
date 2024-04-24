@@ -133,6 +133,7 @@ graphdb = neo4j
 graphdb_hostname = localhost
 graphdb_databasename = neo4j
 graphdb_user = neo4j
+# Default password for Neo4j is 'neo4j' (without quotes).
 graphdb_password =
 
 # ### These additional parameters are for Neo4j Desktop ###
@@ -153,7 +154,8 @@ graphdb_port = 7687
 #graphdb_hostname = localhost
 #graphdb_databasename = memgraph
 #graphdb_user = memgraph
-#graphdb_password = 
+# Default password for Memgraph is 'memgraph' (without quotes).
+#graphdb_password =
 #graphdb_scheme = bolt
 #graphdb_port = 7687
 # ###############################################################
