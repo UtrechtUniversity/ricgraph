@@ -21,15 +21,6 @@ preferred-citation:
   number: 101736
   url: "https://doi.org/10.1016/j.softx.2024.101736"
   doi: "10.1016/j.softx.2024.101736"
-references:
-  authors:
-    - family-names: Janssen
-      given-names: "Rik D.T."
-  title: "Ricgraph - Research in context graph"
-  type: software
-  year: 2024
-  url: "https://github.com/UtrechtUniversity/ricgraph"
-  doi: "10.5281/zenodo.7524314"
 identifiers:
   - description: "Ricgraph concept DOI (latest version)"
     type: doi
