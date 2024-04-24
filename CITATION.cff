@@ -8,7 +8,7 @@ authors:
     family-names: Janssen
     orcid: "https://orcid.org/0000-0001-9510-0802"
     affiliation: "Utrecht University"
-message: "If you use Ricgraph, please cite both the article from preferred-citation and the software itself."
+message: "If you use Ricgraph, please cite both the reference publication and the software itself."
 preferred-citation:
   authors:
     - family-names: Janssen
@@ -87,7 +87,7 @@ identifiers:
     value: "10.5281/zenodo.10952538"
   - description: "Ricgraph DOI v2.1"
     type: doi
-    value: "10.5281/zenodo.XXXXXXXX"
+    value: "10.5281/zenodo.11057540"
 abstract: >-
   Ricgraph, also known as Research in context graph, enables the exploration of
   researchers, teams, their results, collaborations, skills, projects, and the
