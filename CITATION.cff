@@ -1,6 +1,5 @@
 cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
-message: "If you use Ricgraph, please cite it using the reference publication."
 type: software
 version: "v2.0"
 date-released: "2024-04-10"
@@ -9,6 +8,28 @@ authors:
     family-names: Janssen
     orcid: "https://orcid.org/0000-0001-9510-0802"
     affiliation: "Utrecht University"
+message: "If you use Ricgraph, please cite both the article from preferred-citation and the software itself."
+preferred-citation:
+  authors:
+    - family-names: Janssen
+      given-names: "Rik D.T."
+  title: "Ricgraph: A flexible and extensible graph to explore research in context from various systems"
+  type: article
+  journal: "SoftwareX"
+  year: 2024
+  volume: 26
+  number: 101736
+  url: "https://doi.org/10.1016/j.softx.2024.101736"
+  doi: "10.1016/j.softx.2024.101736"
+references:
+  authors:
+    - family-names: Janssen
+      given-names: "Rik D.T."
+  title: "Ricgraph - Research in context graph"
+  type: software
+  year: 2024
+  url: "https://github.com/UtrechtUniversity/ricgraph"
+  doi: "10.5281/zenodo.7524314"
 identifiers:
   - description: "Ricgraph concept DOI (latest version)"
     type: doi
@@ -65,7 +86,7 @@ identifiers:
     type: doi
     value: "10.5281/zenodo.10952538"
 abstract: >-
-  Ricgraph, also known as Research in Context graph, enables the exploration of
+  Ricgraph, also known as Research in context graph, enables the exploration of
   researchers, teams, their results, collaborations, skills, projects, and the
   relations between these items.
   
