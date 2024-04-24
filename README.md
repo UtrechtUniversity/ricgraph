@@ -35,7 +35,7 @@ it to the application area research information.
 
 ### Motivation
 
-Ricgraph, also known as Research in Context graph, is software that is about
+Ricgraph, also known as Research in context graph, is software that is about
 relations between items. These items can be collected from various source 
 systems and from multiple organizations. We
 explain how Ricgraph works by applying it to the application area 
