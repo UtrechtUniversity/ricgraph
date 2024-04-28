@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
 type: software
-version: "v2.1"
-date-released: "2024-04-24"
+version: "v2.1.1"
+date-released: "2024-04-28"
 authors:
   - given-names: "Rik D.T."
     family-names: Janssen
@@ -80,6 +80,9 @@ identifiers:
   - description: "Ricgraph DOI v2.1"
     type: doi
     value: "10.5281/zenodo.11057540"
+  - description: "Ricgraph DOI v2.1.1"
+    type: doi
+    value: "10.5281/zenodo.XXXXXXX"
 abstract: >-
   Ricgraph, also known as Research in context graph, enables the exploration of
   researchers, teams, their results, collaborations, skills, projects, and the
