@@ -73,29 +73,6 @@
             "url": "https://github.com/UtrechtUniversity/ricgraph/blob/master/README.md"
         }
     ],
-    "referencePublication": [
-        {
-            "@type": "ScholarlyArticle",
-            "name": "Ricgraph: A flexible and extensible graph to explore research in context from various systems",
-            "author": [ "Rik D.T. Janssen" ],
-            "sameAs": "https://doi.org/10.1016/j.softx.2024.101736",
-            "isPartOf": {
-                "@type": "PublicationVolume",
-                "datePublished": "2024",
-                "name": "SoftwareX",
-                "volumeNumber": 26,
-                "issueNumber": 101736
-            },
-            "url": "https://doi.org/10.1016/j.softx.2024.101736"
-	    },
-        {
-            "@type": "Report",
-            "sameAs": "https://doi.org/10.5281/zenodo.10057997",
-            "name": "Ricgraph: showcasing research in context using Pure and other sources",
-            "author": [ "Rik D.T. Janssen", "Arjan Sieverink" ],
-            "url": "https://doi.org/10.5281/zenodo.10057997"
-	}
-    ],
     "applicationCategory": [
     	"https://vocabs.dariah.eu/tadirah/analyzing",
         "https://vocabs.dariah.eu/tadirah/browsing",
