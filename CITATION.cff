@@ -14,20 +14,16 @@ preferred-citation:
     - family-names: Janssen
       given-names: "Rik D.T."
       orcid: "https://orcid.org/0000-0001-9510-0802"
+      affiliation: "Utrecht University"
   title: "Ricgraph: A flexible and extensible graph to explore research in context from various systems"
   type: article
   journal: "SoftwareX"
+  issn: "2352-7110"
   year: 2024
   volume: 26
   number: 101736
   url: "https://doi.org/10.1016/j.softx.2024.101736"
   doi: "10.1016/j.softx.2024.101736"
-references:
-  authors:
-    - family-names: Janssen
-      given-names: "Rik D.T."
-      orcid: "https://orcid.org/0000-0001-9510-0802"
-  title: "Ricgraph: Showcasing research in context using Pure and other sources"
 identifiers:
   - description: "Ricgraph concept DOI (latest version)"
     type: doi
