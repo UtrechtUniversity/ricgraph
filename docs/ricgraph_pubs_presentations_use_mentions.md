@@ -34,7 +34,7 @@
 
 | When                 | Description                                                                                                                       |
 |----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| March - August, 2023 | Ricgraph has been used in the NWO PID graph pilot project, with SURF and six Dutch universities                                   |
+| March - August, 2023 | Ricgraph has been used in the NWO PID graph pilot project, with SURF and six Dutch universities, [NWO PID graph pilot Project report](https://doi.org/10.5281/zenodo.10610929) |
 | June 2023            | Ricgraph has been used to test the [NWO NWOpen-API](https://www.nwo.nl/en/news/nwo-makes-data-on-projects-more-readily-available) |
 | July 2023            | Ricgraph has been used to test the [Elsevier Data Monitor](https://www.elsevier.com/products/data-monitor)                        |
 | July 2023            | Ricgraph has been used to test the [Elsevier Grant Award API](https://epdos.nl/pilots/grants-monitor)                             |
