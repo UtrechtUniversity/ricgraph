@@ -27,7 +27,7 @@ These items can be obtained from various systems and from
 multiple organizations. Ricgraph facilitates reasoning about these 
 items because it infers new relations between items,
 relations that are not present in any of the separate source systems. 
-Ricgraph is flexible and extensible, and can be
+It is flexible and extensible, and can be
 adapted to new application areas.
 
 Throughout this documentation, we illustrate how Ricgraph works by applying 
