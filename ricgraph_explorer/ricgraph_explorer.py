@@ -77,10 +77,11 @@
 #
 # ##############################################################################
 
-
+import json
 import os
 import sys
 import urllib.parse
+import uuid
 from typing import Union
 from neo4j import Result
 from neo4j.graph import Node
@@ -278,6 +279,10 @@ html_body_start += page_header
 
 # The last part of the html page, from page_footer (not included) to script inclusion.
 html_body_end = '<script src="/static/ricgraph_sorttable.js"></script>'
+# Required for the Observable D3 and Observable Plot framework for data visualization,
+# https://d3js.org and https://observablehq.com/plot.
+html_body_end += '<script src="/static/d3.min.js"></script>'
+html_body_end += '<script src="/static/plot.min.js"></script>'
 html_body_end += '</body>'
 html_body_end += '</html>'
 
@@ -1135,12 +1140,19 @@ def view_personal_information(nodes_list: list,
     :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
+    global nodes_cache
+
     if len(nodes_list) == 0:
         return get_message('No neighbors found.')
 
     html = get_html_for_cardstart()
     names = []
     for node in nodes_list:
+        # Add node to nodes_cache if it is not there already.
+        key = node['_key']
+        if key not in nodes_cache:
+            nodes_cache[key] = node
+
         if node['name'] != 'FULL_NAME':
             continue
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
@@ -1188,7 +1200,7 @@ def view_personal_information(nodes_list: list,
             research_areas.append(item)
         if node['name'] == 'EXPERTISE_AREA':
             expertise_areas.append(item)
-        continue
+
     html_list = ''
     if len(skills) > 0:
         html_list += '<li>Skills: ' + ', '.join(str(item) for item in skills) + '</li>'
@@ -2377,6 +2389,8 @@ def get_regular_table(nodes_list: list,
     :param discoverer_mode: the discoverer_mode to use.
     :return: html to be rendered.
     """
+    global nodes_cache
+
     if table_columns is None:
         if discoverer_mode == 'details_view':
             table_columns = DETAIL_COLUMNS
@@ -2409,6 +2423,7 @@ def get_regular_table(nodes_list: list,
         html += get_html_for_tablerow(node=node,
                                       table_columns=table_columns,
                                       discoverer_mode=discoverer_mode)
+
         # Add node to nodes_cache if it is not there already.
         key = node['_key']
         if key not in nodes_cache:
@@ -2502,6 +2517,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
             histogram[node[tabs_on]] += 1
 
     if len(histogram) == 1:
+        # Note: len(histogram) cannot be 0, that has been caught above.
         # If we have only one thing to show tabs on, we do a regular table.
         html = get_regular_table(nodes_list=nodes_list,
                                  table_header=table_header,
@@ -2511,6 +2527,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
 
     histogram_sort = sorted(histogram, key=histogram.get, reverse=True)
 
+    histogram_list = []
     first_iteration = True
     tab_names_html = '<div class="w3-bar uu-yellow">'
     for tab_name in histogram_sort:
@@ -2522,6 +2539,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
         else:
             tab_names_html += ''
         tab_names_html += '" onclick="openTab(event,\'' + tab_name + '\')">' + tab_text + '</button>'
+        histogram_list.append({'name': tab_name, 'value': histogram[tab_name]})
     tab_names_html += '</div>'
 
     first_iteration = True
@@ -2575,12 +2593,37 @@ def get_tabbed_table(nodes_list: Union[list, None],
     elif len(nodes_list) >= 2:
         nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this tabbed table.'
 
-    html = get_html_for_cardstart()
-    html += '<span style="float:left;">' + table_header + '</span>'
-    html += '<span style="float:right;">' + nr_rows_in_table_message + '</span>'
-    html += tab_names_html + tab_contents_html + tab_javascript
-    html += nr_rows_in_table_message
-    html += get_html_for_cardend()
+    table_html = get_html_for_cardstart()
+    table_html += '<span style="float:left;">' + table_header + '</span>'
+    table_html += '<span style="float:right;">' + nr_rows_in_table_message + '</span>'
+
+    table_html += tab_names_html + tab_contents_html + tab_javascript
+    table_html += nr_rows_in_table_message
+    table_html += get_html_for_cardend()
+
+    # Note that len(histogram) and subsequently len(histogram_list) is always > 1.
+    histogram_html = get_html_for_cardstart()
+    histogram_html += get_html_for_histogram(histogram_list=histogram_list,
+                                             histogram_width=200,
+                                             histogram_title='Histogram')
+    histogram_html += get_html_for_cardend()
+
+    # The following is partly copied from get_faceted_table().
+    # We could split this function similar to get_faceted_table(), i.e. in a function
+    # that shows the left panel (histogram) and right panel (tabbed table),
+    # and a function that generates the tabbed table, but this will not work since
+    # the function that generates the histogram needs the histogram computed in the
+    # function that generates the tabbed table.
+    html = ''
+    # Divide space between histogram panel and table.
+    html += '<div class="w3-row-padding w3-stretch" >'
+    html += '<div class="w3-col" style="width:20em" >'
+    html += histogram_html
+    html += '</div>'
+    html += '<div class="w3-rest" >'
+    html += table_html
+    html += '</div>'
+    html += '</div>'
 
     return html
 
@@ -2621,6 +2664,8 @@ def get_facets_from_nodes(parent_node: Node,
         # We have only one facet, so don't show the facet panel.
         return ''
 
+    name_list = []
+    category_list = []
     faceted_form = get_html_for_cardstart()
     faceted_form += '<div class="facetedform">'
     faceted_form += '<form method="get" action="' + url_for('resultspage') + '">'
@@ -2644,6 +2689,7 @@ def get_facets_from_nodes(parent_node: Node,
             faceted_form += '<input class="w3-check" type="checkbox" name="name_list" value="'
             faceted_form += bucket + '" checked>'
             faceted_form += '<label>&nbsp;' + name_label + '</label><br/>'
+            name_list.append({'name': bucket, 'value': name_histogram[bucket]})
         faceted_form += '</div>'
         faceted_form += '</div><br/>'
 
@@ -2662,6 +2708,7 @@ def get_facets_from_nodes(parent_node: Node,
             faceted_form += '<input class="w3-check" type="checkbox" name="category_list" value="'
             faceted_form += bucket + '" checked>'
             faceted_form += '<label>&nbsp;' + category_label + '</label><br/>'
+            category_list.append({'name': bucket, 'value': category_histogram[bucket]})
         faceted_form += '</div>'
         faceted_form += '</div><br/>'
 
@@ -2670,7 +2717,107 @@ def get_facets_from_nodes(parent_node: Node,
     faceted_form += '</form>'
     faceted_form += '</div>'
     faceted_form += get_html_for_cardend()
+
+    if len(name_list) > 1:
+        faceted_form += get_html_for_cardstart()
+        faceted_form += get_html_for_histogram(histogram_list=name_list,
+                                               histogram_width=200,
+                                               histogram_title='Histogram on "name"')
+        faceted_form += get_html_for_cardend()
+    if len(category_list) > 1:
+        faceted_form += get_html_for_cardstart()
+        faceted_form += get_html_for_histogram(histogram_list=category_list,
+                                               histogram_width=200,
+                                               histogram_title='Histogram on "category"')
+        faceted_form += get_html_for_cardend()
+
     html = faceted_form
+    return html
+
+
+def get_html_for_histogram(histogram_list: list,
+                           histogram_width: int = 200,
+                           histogram_title: str = ''):
+    """This function creates an histogram using the Observable D3 and Observable Plot framework
+     for data visualization. See https://d3js.org and https://observablehq.com/plot.
+
+    :param histogram_list: A list of histogram data to be plotted in the histogram.
+      Each element in the list has a 'name' and 'value'.
+      The histogram will be in the order as specified in the list. It is assumed that
+      the largest value of the histogram is in the first element of the list. This
+      value is used to compute whether a histogram label should be shown in the histogram
+      bar or next to it.
+    :param histogram_width: The width of the histogram, in pixels.
+    :param histogram_title: The title of the histogram.
+    :return: html to be rendered.
+    """
+    # The required js files for Observable are included in html_body_end above.
+    # The code below is inspired by an example from
+    # https://observablehq.com/@observablehq/plot-labelled-horizontal-bar-chart-variants.
+
+    if len(histogram_list) == 0:
+        message = 'Unexpected result in get_html_for_histogram(): '
+        message += 'The histogram list is empty.'
+        return get_message(message=message)
+
+    # Note: 'histogram_list' is expected to be sorted with the largest value first.
+    bar_label_threshold = histogram_list[0]['value']
+    histogram_json = json.dumps(histogram_list)
+
+    # The plot name should be unique, otherwise we get strange side effects.
+    plot_name = 'myplot' + '_' + str(uuid.uuid4())
+
+    html = '<div class="w3-card-4">'
+    if histogram_title != '':
+        html += '<div class="w3-container uu-yellow">'
+        html += '<b>' + histogram_title + '</b>'
+        html += '</div>'
+    html += '</br>'
+    html += '<div id="' + plot_name + '"></div>'
+    html += '</br></div>'
+
+    html += '<script type="module">'
+    html += 'const brands = ' + histogram_json + '; '
+    html += 'const plot = Plot.plot({ '
+    html += 'width: ' + str(histogram_width) + ', '
+    html += """axis: null,
+                x: { insetRight: 10 },
+                marks: [
+                  Plot.axisX({anchor: "bottom"}),
+                  Plot.barX(brands, {
+                    x: "value",
+                    y: "name",
+                    // uu-yellow
+                    fill: "#ffcd00",
+                    // no ordering
+                    sort: { y: "x", order: null }
+                }),
+                // labels for larger bars
+                Plot.text(brands, {
+                  text: (d) => `${d.name} (${d.value})`,
+                  y: "name",
+                  frameAnchor: "left",
+                  dx: 3,
+            """
+    html += 'filter: (d) => d.value >= ' + str(bar_label_threshold/2) + ', '
+    html += """}),
+                // labels for smaller bars
+                Plot.text(brands, {
+                  text: (d) => `${d.name} (${d.value})`,
+                  y: "name",
+                  x: "value",
+                  textAnchor: "start",
+                  dx: 3,
+            """
+    html += 'filter: (d) => d.value < ' + str(bar_label_threshold/2) + ', '
+    html += """})
+            ]           // End of marks
+            });         // End of Plot.plot()
+            """
+    html += 'const div = document.querySelector("#' + plot_name + '");'
+    html += 'div.append(plot);'
+    html += '</script>'
+
     return html
 
 

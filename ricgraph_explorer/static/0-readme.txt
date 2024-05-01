@@ -28,3 +28,12 @@ From: https://fontawesome.com/icons/circle-info?f=classic&s=solid
 Original file: circle_info_solid.svg
 Date copied: December 1, 2023
 Changes: changed color from black to UU yellow (#ffcd00)
+
+
+Required for the Observable D3 and Observable Plot framework for data visualization,
+  https://d3js.org and https://observablehq.com/plot.
+Files: d3.min.j3 and plot.min.js
+From: https://observablehq.com/plot/getting-started
+Date copied: May 1, 2024
+Changes: none
+Note: These are the minified files, for the original files see the link.
