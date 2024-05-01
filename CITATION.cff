@@ -1,8 +1,8 @@
 cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
 type: software
-version: "v2.1.3"
-date-released: "2024-04-30"
+version: "v2.2"
+date-released: "2024-05-01"
 authors:
   - given-names: "Rik D.T."
     family-names: Janssen
@@ -82,7 +82,7 @@ identifiers:
   - description: "Ricgraph DOI v2.1"
     type: doi
     value: "10.5281/zenodo.11057540"
-  - description: "Ricgraph DOI v2.1.1"
+  - description: "Ricgraph DOI v2.2"
     type: doi
     value: "10.5281/zenodo.XXXXXXX"
 abstract: >-
@@ -94,7 +94,7 @@ abstract: >-
   obtained from various systems and from multiple organizations. Ricgraph
   facilitates reasoning about these items because it infers new relations between
   items, relations that are not present in any of the separate source systems.
-  Ricgraph is flexible and extensible, and can be adapted to new application
+  It is flexible and extensible, and can be adapted to new application
   areas.
   
   Throughout this text, we illustrate how Ricgraph works by applying
@@ -120,11 +120,11 @@ abstract: >-
   
   Example use cases from the application area research information are:
   
-  - As a journalist, I want to find researchers with a certain skill and their publications, so that I can interview them for a newspaper article.
+  (1) As a journalist, I want to find researchers with a certain skill and their publications, so that I can interview them for a newspaper article.
   
-  - As a librarian, I want to enrich my local research information system with research results that are in other systems but not in ours, so that we have a more complete view of research at our university.
+  (2) As a librarian, I want to enrich my local research information system with research results that are in other systems but not in ours, so that we have a more complete view of research at our university.
   
-  - As a researcher, I want to find researchers from other universities that have co-authored publications written by the co-authors of my own publications, so that I can read their publications to find out if we share common research interests.
+  (3) As a researcher, I want to find researchers from other universities that have co-authored publications written by the co-authors of my own publications, so that I can read their publications to find out if we share common research interests.
   
   These use cases use different types of information (called items): researchers,
   skills, publications, etc. Most often, these types of information are not
@@ -139,15 +139,15 @@ abstract: >-
   
   Main contributions of Ricgraph
   
-  - Ricgraph can store many types of items in a single graph.
+  (1) Ricgraph can store many types of items in a single graph.
   
-  - Ricgraph harvests multiple source systems into a single graph.
+  (2) Ricgraph harvests multiple source systems into a single graph.
   
-  - Ricgraph Explorer is the exploration tool for Ricgraph.
+  (3) Ricgraph Explorer is the exploration tool for Ricgraph.
   
-  - Ricgraph facilitates reasoning about items because it infers new relations between items.
+  (4) Ricgraph facilitates reasoning about items because it infers new relations between items.
   
-  - Ricgraph can be tailored for an application area.
+  (5) Ricgraph can be tailored for an application area.
   
   
   Read more about Ricgraph
