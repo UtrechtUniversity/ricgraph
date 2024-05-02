@@ -1026,6 +1026,7 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
 
 
 def read_all_nodes(name: str = '', category: str = '', value: str = '',
+                   name_is_exact_match: bool = True,
                    value_is_exact_match: bool = True,
                    max_nr_nodes: int = 0) -> list:
     """Read a number of nodes based on name, category or value.
@@ -1034,6 +1035,9 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
     :param name: 'name' property of node.
     :param category: idem.
     :param value: idem.
+    :param name_is_exact_match: if True, then an exact match search is done
+      on field 'name', if False, then a case-insensitive match is done.
+      Note that a case-insensitive match is more expensive.
     :param value_is_exact_match: if True, then an exact match search is done
       on field 'value', if False, then a case-insensitive match is done.
       Note that a case-insensitive match is more expensive.
@@ -1077,7 +1081,10 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
 
     cypher_query = 'MATCH (node:RicgraphNode) WHERE '
     if name != '':
-        cypher_query += '(node.name="' + name + '") AND '
+        if name_is_exact_match:
+            cypher_query += '(node.name="' + name + '") AND '
+        else:
+            cypher_query += '(toLower(node.name) CONTAINS toLower("' + name + '")) AND '
     if category != '':
         cypher_query += '(node.category="' + category + '") AND '
     if value != '':

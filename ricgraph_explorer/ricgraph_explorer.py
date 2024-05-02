@@ -499,10 +499,11 @@ def optionspage() -> str:
     key = get_url_parameter_value(parameter='key', use_escape=False)
     if key != '':
         # We prefer the URL parameter 'key' above 'name' & 'value'
+        # Note that get_namepart...() returns lowercase name, same for value.
         name = rcg.get_namepart_from_ricgraph_key(key=key)
         category = ''
         value = rcg.get_valuepart_from_ricgraph_key(key=key)
-        search_mode = 'exact_match'
+        search_mode = 'value_search'
     else:
         name = get_url_parameter_value(parameter='name')
         category = get_url_parameter_value(parameter='category')
@@ -535,6 +536,7 @@ def optionspage() -> str:
             html += html_body_end
             return html
         result = rcg.read_all_nodes(name=name, category=category, value=value,
+
                                     value_is_exact_match=False)
     if len(result) == 0:
         # We didn't find anything.
@@ -924,8 +926,11 @@ def create_results_page(view_mode: str,
     if key in nodes_cache:
         node = nodes_cache[key]
     else:
+        # Note that get_namepart...() returns lowercase name, same for value.
         result = rcg.read_all_nodes(name=rcg.get_namepart_from_ricgraph_key(key=key),
-                                    value=rcg.get_valuepart_from_ricgraph_key(key=key))
+                                    value=rcg.get_valuepart_from_ricgraph_key(key=key),
+                                    name_is_exact_match=False,
+                                    value_is_exact_match=False)
         if len(result) == 0 or len(result) > 1:
             if len(result) == 0:
                 message = 'Ricgraph Explorer could not find anything. '
