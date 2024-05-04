@@ -83,7 +83,6 @@ import sys
 import urllib.parse
 import uuid
 from typing import Union
-from neo4j import Result
 from neo4j.graph import Node
 from flask import Flask, request, url_for, send_from_directory
 from markupsafe import escape
@@ -1322,7 +1321,7 @@ def find_person_share_resouts(parent_node: Node,
     for neighbor_node in cypher_result:
         if len(neighbor_node) == 0:
             continue
-        person = neighbor_node[0]
+        person = neighbor_node['neighbor_personroot']
         connected_persons.append(person)
 
     if discoverer_mode == 'details_view':
@@ -1598,7 +1597,7 @@ def find_person_organization_collaborations(parent_node: Node,
     for organization_node in cypher_result:
         if len(organization_node) == 0:
             continue
-        organization = organization_node[0]
+        organization = organization_node['neighbor_organization']
         organization_key = organization['_key']
         if organization_key not in personroot_node_organizations_key:
             collaborating_organizations.append(organization)
@@ -1732,16 +1731,16 @@ def find_organization_additional_info(parent_node: Node,
         cypher_query += 'AND '
     if len(category_list) > 0:
         cypher_query += 'second_neighbor.category IN ' + second_neighbor_category_list + ' '
-    cypher_query += 'RETURN DISTINCT second_neighbor '
+    cypher_query += 'RETURN DISTINCT second_neighbor, count(second_neighbor) as count_second_neighbor '
+    cypher_query += 'ORDER BY count_second_neighbor DESC '
     if max_nr_neighbor_nodes > 0:
         cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
     # print(cypher_query)
-    relevant_result = graph.execute_query(cypher_query,
-                                          node_id=parent_node.id,
-                                          result_transformer_=Result.value,
-                                          database_=graph_databasename)
+    cypher_result, _, _ = graph.execute_query(cypher_query,
+                                              node_id=parent_node.id,
+                                              database_=graph_databasename)
 
-    if len(relevant_result) == 0:
+    if len(cypher_result) == 0:
         message = 'Could not find any persons or results for this organization'
         if name_str != '' and category_str != '':
             message += ', using search terms '
@@ -1755,6 +1754,29 @@ def find_organization_additional_info(parent_node: Node,
         else:
             message += '.'
         return get_message(message=message)
+
+    relevant_result = []
+    expertise_area_list = []
+    research_area_list = []
+    skill_list = []
+    if 'competence' in category_list:
+        we_have_competence = True
+    else:
+        we_have_competence = False
+
+    for result in cypher_result:
+        node = result['second_neighbor']
+        relevant_result.append(node)
+        if we_have_competence:
+            if node['name'] == 'EXPERTISE_AREA':
+                expertise_area_list.append({'name': node['value'],
+                                            'value': result['count_second_neighbor']})
+            elif node['name'] == 'RESEARCH_AREA':
+                research_area_list.append({'name': node['value'],
+                                           'value': result['count_second_neighbor']})
+            elif node['name'] == 'SKILL':
+                skill_list.append({'name': node['value'],
+                                   'value': result['count_second_neighbor']})
 
     if discoverer_mode == 'details_view':
         table_columns = DETAIL_COLUMNS
@@ -1778,11 +1800,41 @@ def find_organization_additional_info(parent_node: Node,
     else:
         table_header += 'shared '
     table_header += 'items of this organization:'
-    html += get_tabbed_table(nodes_list=relevant_result,
-                             table_header=table_header,
-                             table_columns=table_columns,
-                             tabs_on='category',
-                             discoverer_mode=discoverer_mode)
+    table_html = get_tabbed_table(nodes_list=relevant_result,
+                                  table_header=table_header,
+                                  table_columns=table_columns,
+                                  tabs_on='category',
+                                  discoverer_mode=discoverer_mode)
+
+    if we_have_competence:
+        histogram_html = get_html_for_cardstart()
+        histogram_html += get_html_for_histogram(histogram_list=expertise_area_list,
+                                                 histogram_width=250,
+                                                 histogram_title='Histogram of "expertise area":')
+        histogram_html += get_html_for_cardend()
+        histogram_html += get_html_for_cardstart()
+        histogram_html += get_html_for_histogram(histogram_list=research_area_list,
+                                                 histogram_width=250,
+                                                 histogram_title='Histogram of "research area":')
+        histogram_html += get_html_for_cardend()
+        histogram_html += get_html_for_cardstart()
+        histogram_html += get_html_for_histogram(histogram_list=skill_list,
+                                                 histogram_width=250,
+                                                 histogram_title='Histogram of "skill":')
+        histogram_html += get_html_for_cardend()
+
+        # Divide space between histogram and table.
+        html += '<div class="w3-row-padding w3-stretch" >'
+        html += '<div class="w3-col" style="width:23em" >'
+        html += histogram_html
+        html += '</div>'
+        html += '<div class="w3-rest" >'
+        html += table_html
+        html += '</div>'
+        html += '</div>'
+    else:
+        html += table_html
+
     return html
 
 
@@ -2743,7 +2795,7 @@ def get_facets_from_nodes(parent_node: Node,
 def get_html_for_histogram(histogram_list: list,
                            histogram_width: int = 200,
                            histogram_title: str = ''):
-    """This function creates an histogram using the Observable D3 and Observable Plot framework
+    """This function creates a histogram using the Observable D3 and Observable Plot framework
      for data visualization. See https://d3js.org and https://observablehq.com/plot.
 
     :param histogram_list: A list of histogram data to be plotted in the histogram.
@@ -2786,6 +2838,9 @@ def get_html_for_histogram(histogram_list: list,
     html += 'const plot = Plot.plot({ '
     html += 'width: ' + str(histogram_width) + ', '
     html += """axis: null,
+                // Make height dependent on the number of items in brands.
+                // The "+ 40" is for the horizontal scale.
+                height: brands.length * 20 + 40,
                 x: { insetRight: 10 },
                 marks: [
                   Plot.axisX({anchor: "bottom"}),
