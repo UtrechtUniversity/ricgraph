@@ -130,9 +130,9 @@ A_LARGE_NUMBER = 9999999999
 
 # This dict is used as a cache for node id's. If we have a node id, we can
 # do a direct lookup for a node in O(1), instead of a search in O(log n).
-# The dict has the format: [Ricgraph _key]: [Node id].
-nodes_cache_key_id = {}
-# Cache size. 'nodes_cache_key_id' will be emptied if it has this number of elements.
+# The dict has the format: [Ricgraph _key]: [Node element_id].
+nodes_cache_key_element_id = {}
+# Cache size. 'nodes_cache_key_element_id' will be emptied if it has this number of elements.
 MAX_NODES_CACHE_KEY_ID = 15000
 
 
@@ -233,7 +233,7 @@ def node_eq(self, other):
     """Modified __eq__ method for Python module neo4j.
 
     The __eq__ method of class Node does not work as expected (as of April 2024).
-    Two Nodes are supposed to be equal if their Node.id's are equal.
+    Two Nodes are supposed to be equal if their Node.element_id's are equal.
 
     I would like to be able to test if a 'node' of type Node is in a list called
     'mylist' with an 'if' statement like this:
@@ -246,7 +246,7 @@ def node_eq(self, other):
 
     :return: True on equality, or False if not.
     """
-    return isinstance(other, Node) and self.id == other.id
+    return isinstance(other, Node) and self.element_id == other.element_id
 
 
 # Modified __eq__ method for Python module neo4j (also see above).
@@ -261,16 +261,17 @@ Node.__eq__ = node_eq
 # - read_all_values_of_property()
 # - get_all_neighbor_nodes()
 # ##############################################################################
-# Note the use of some WHERE clauses below. Some of them uses the function id(),
+# Note the use of some WHERE clauses below. Some of them uses the function elementId(),
 # which does a _direct_ lookup for a node with that id. That is the fastest way possible,
 # compared to a WHERE clause on node['_key'], which is a search.
 # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
-# PROFILE MATCH (n) WHERE id(n)=[a number here] RETURN *
+# PROFILE MATCH (n) WHERE elementId(n)=[a string here] RETURN *
 #
-# Note: id() is deprecated in Neo4j and should be replaced with elementid().
-# Maybe this is not true for other graph databases, I leave it as it is now.
-# Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-id and
-# https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-id-seek.
+# Read: https://neo4j.com/docs/cypher-manual/current/functions/scalar/#functions-elementid
+# https://neo4j.com/docs/cypher-manual/current/planning-and-tuning/operators/operators-detail/#query-plan-node-by-elementid-seek
+#
+# [May 6, 2024] Note however, that memgraph on does not have elementId() but only id():
+# https://memgraph.com/docs/querying/differences-in-cypher-implementations.
 # ##############################################################################
 
 def open_ricgraph() -> Driver:
@@ -288,7 +289,7 @@ def open_ricgraph() -> Driver:
     except:
         print('open_ricgraph(): Error opening graph database backend using these parameters:')
         print('GRAPHDB_URL: ' + GRAPHDB_URL)
-        print('GRAPHDB_DATABASENAME: ' + GRAPHDB_DATABASENAME)
+        print('GRAPHDB_DATABASENAME: ' + ricgraph_databasename())
         print('GRAPHDB_USER: ' + GRAPHDB_USER)
         print('GRAPHDB_PASSWORD: [see ricgraph.ini file]')
         print('\nAre these parameters correct and did you start your graph database backend "' + GRAPHDB + '"?')
@@ -308,8 +309,14 @@ def close_ricgraph() -> None:
     return
 
 
+def ricgraph_database() -> str:
+    """Return the name of the Ricgraph database backend.
+    """
+    return GRAPHDB
+
+
 def ricgraph_databasename() -> str:
-    """Return the Ricgraph database name.
+    """Return the name of the database in the Ricgraph database backend.
     """
     return GRAPHDB_DATABASENAME
 
@@ -347,6 +354,9 @@ def empty_ricgraph(answer: str = '') -> None:
             print('\nRicgraph has not been emptied, exiting.\n')
             exit(1)
 
+    graphdb_name = ricgraph_database()
+    graphdb_databasename = ricgraph_databasename()
+
     # Delete the database and start over again.
     # Sometimes the following statement fails with Neo4j Desktop graph database backend
     # if there are many nodes, see e.g.
@@ -354,34 +364,34 @@ def empty_ricgraph(answer: str = '') -> None:
     # Apparently, the community edition of Neo4j does not have a
     # "CREATE OR REPLACE DATABASE customers" command.
     print('Deleting all nodes and edges in Ricgraph...\n')
-    _graph.execute_query('MATCH (node) DETACH DELETE node', database_=GRAPHDB_DATABASENAME)
+    _graph.execute_query('MATCH (node) DETACH DELETE node', database_=graphdb_databasename)
 
-    if GRAPHDB == 'neo4j':
+    if graphdb_name == 'neo4j':
         # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
         # If I understand correctly there, the graph database backend Neo4j can be at most 3 indexes,
         # while I would like to have 4. I decide not use a CategoryIndex.
-        _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
-        _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
-        # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
-        _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=GRAPHDB_DATABASENAME)
+        _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=graphdb_databasename)
+        _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=graphdb_databasename)
+        # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=graphdb_databasename)
+        _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=graphdb_databasename)
 
         print('Creating indexes...')
         _graph.execute_query('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node._key)',
-                             database_=GRAPHDB_DATABASENAME)
+                             database_=graphdb_databasename)
         _graph.execute_query('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.name)',
-                             database_=GRAPHDB_DATABASENAME)
+                             database_=graphdb_databasename)
         # _graph.execute_query('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.category)',
-        #                      database_=GRAPHDB_DATABASENAME)
+        #                      database_=graphdb_databasename())
         _graph.execute_query('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.value)',
-                             database_=GRAPHDB_DATABASENAME)
+                             database_=graphdb_databasename)
 
         print('These indexes have been created:')
         records, summary, keys = _graph.execute_query('SHOW INDEXES',
-                                                      database_=GRAPHDB_DATABASENAME)
+                                                      database_=graphdb_databasename)
         index_table = pandas.DataFrame(data=records, columns=keys)
         print(index_table.to_string(index=False))
         print('')
-    elif GRAPHDB == 'memgraph':
+    elif graphdb_name == 'memgraph':
         # For Memgraph, we need to create indexes in the following way, otherwise we get an
         # 'Index manipulation not allowed in multicommand transactions'
         # error. We should use implicit (or auto-commit) transactions.
@@ -406,7 +416,7 @@ def empty_ricgraph(answer: str = '') -> None:
 
         # session.close() is done automatically because of 'with'.
     else:
-        print('empty_ricgraph(): Unknown graph database backend "' + GRAPHDB + '".')
+        print('empty_ricgraph(): Unknown graph database backend "' + graphdb_name + '".')
         print('Exiting.')
         exit(1)
     return
@@ -423,10 +433,10 @@ def ricgraph_nr_nodes() -> int:
         print('\nricgraph_nr_nodes(): Error: graph has not been initialized or opened.\n\n')
         return -1
 
-    cypher_query = 'MATCH () RETURN COUNT (*) AS count'
+    cypher_query = 'MATCH () RETURN count(*) AS count'
     result = _graph.execute_query(cypher_query,
                                   result_transformer_=Result.data,
-                                  database_=GRAPHDB_DATABASENAME)
+                                  database_=ricgraph_databasename())
     if len(result) == 0:
         return -1
     result = result[0]
@@ -439,7 +449,7 @@ def ricgraph_nr_nodes() -> int:
 def ricgraph_nr_edges() -> int:
     """Count the number of edges in Ricgraph.
 
-    :return: the number of nodes, or -1 on error.
+    :return: the number of edges, or -1 on error.
     """
     global _graph
 
@@ -447,10 +457,10 @@ def ricgraph_nr_edges() -> int:
         print('\nricgraph_nr_edges(): Error: graph has not been initialized or opened.\n\n')
         return -1
 
-    cypher_query = 'MATCH ()-[r]->() RETURN COUNT (r) AS count'
+    cypher_query = 'MATCH ()-[r]->() RETURN count(r) AS count'
     result = _graph.execute_query(cypher_query,
                                   result_transformer_=Result.data,
-                                  database_=GRAPHDB_DATABASENAME)
+                                  database_=ricgraph_databasename())
     if len(result) == 0:
         return -1
     result = result[0]
@@ -460,10 +470,10 @@ def ricgraph_nr_edges() -> int:
     return result
 
 
-def ricgraph_nr_edges_of_node(node_id: int) -> int:
+def ricgraph_nr_edges_of_node(node_element_id: str) -> int:
     """Count the number of edges in Ricgraph of a given node.
 
-    :param node_id: the id of the node.
+    :param node_element_id: the element_id of the node.
     :return: the number of nodes, or -1 on error.
     """
     global _graph
@@ -472,13 +482,17 @@ def ricgraph_nr_edges_of_node(node_id: int) -> int:
         print('\nricgraph_nr_edges_of_node(): Error: graph has not been initialized or opened.\n\n')
         return -1
 
-    cypher_query = 'MATCH (node:RicgraphNode)-[r]->() WHERE id(node)=$node_id '
-    cypher_query += 'RETURN COUNT (r) AS count'
+    cypher_query = 'MATCH (node:RicgraphNode)-[r]->() '
+    if ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE elementId(node)=$node_element_id '
+    else:
+        cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
+    cypher_query += 'RETURN count(r) AS count'
 
     result = _graph.execute_query(cypher_query,
-                                  node_id=node_id,
+                                  node_element_id=node_element_id,
                                   result_transformer_=Result.data,
-                                  database_=GRAPHDB_DATABASENAME)
+                                  database_=ricgraph_databasename())
     if len(result) == 0:
         return -1
     result = result[0]
@@ -515,7 +529,7 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     nodes = _graph.execute_query(cypher_query,
                                  node_properties=node_properties,
                                  result_transformer_=Result.value,
-                                 database_=GRAPHDB_DATABASENAME)
+                                 database_=ricgraph_databasename())
     graphdb_nr_creates += 1
     if len(nodes) == 0:
         return None
@@ -523,30 +537,34 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
         return nodes[0]
 
 
-def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
+def cypher_merge_node(node_element_id: str, node_properties: dict) -> Union[Node, None]:
     """
     Merge (update) a node in the graph database.
     Merge means: if it is already there, no new node will be created.
     Only the properties and their values in 'node_properties' will be changed (if
     a property is present in the node) or added (if the property is not present).
 
-    :param node_id: the id of the node.
+    :param node_element_id: the element_id of the node.
     :param node_properties: the properties of the node.
     :return: the node updated, or None on error.
     """
     global graphdb_nr_reads, graphdb_nr_updates
 
-    cypher_query = 'MATCH (node:RicgraphNode) WHERE id(node)=$node_id SET node+=$node_properties '
-    cypher_query += 'RETURN node'
+    cypher_query = 'MATCH (node:RicgraphNode) '
+    if ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE elementId(node)=$node_element_id '
+    else:
+        cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
+    cypher_query += 'SET node+=$node_properties RETURN node'
 
-    # print('cypher_merge_node(): node_id: ' + str(node_id) + ', cypher_query: ' + cypher_query)
+    # print('cypher_merge_node(): node_element_id: ' + str(node_element_id) + ', cypher_query: ' + cypher_query)
     # print('                     node_properties: ' + str(node_properties))
 
     nodes = _graph.execute_query(cypher_query,
-                                 node_id=node_id,
+                                 node_element_id=node_element_id,
                                  node_properties=node_properties,
                                  result_transformer_=Result.value,
-                                 database_=GRAPHDB_DATABASENAME)
+                                 database_=ricgraph_databasename())
     graphdb_nr_reads += 1
     graphdb_nr_updates += 1
     if len(nodes) == 0:
@@ -555,26 +573,36 @@ def cypher_merge_node(node_id: int, node_properties: dict) -> Union[Node, None]:
         return nodes[0]
 
 
-def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
+def cypher_merge_edge(left_node_element_id: str, right_node_element_id: str) -> None:
     """Connect two nodes using a Cypher query.
 
-    :param left_node_id: the id of the left node.
-    :param right_node_id: the id of the right node.
+    :param left_node_element_id: the element_id of the left node.
+    :param right_node_element_id: the element_id of the right node.
     :return: None.
     """
     global graphdb_nr_reads, graphdb_nr_updates
 
+    graphdb_name = ricgraph_database()
+
     # There are several methods for getting the nodes in the graph database.
     # This one takes the most time.
     # It amounts to 4 database hits according to 'PROFILE <cypher query>', using 'AllNodesScan'.
-    # cypher_query = 'MATCH (left_node {ID:' + str(left_node.identity) + '}) ' [etc.]
+    # cypher_query = 'MATCH (left_node {ID:' + str(left_node.element_id) + '}) ' [etc.]
     # The next one takes average time.
     # It amounts to 23 database hits according to 'PROFILE', using 'AllNodesScan'.
     # cypher_query = 'MATCH (left_node) WHERE left_node._key="' + str(left_node['_key']) + '" ' [etc.]
     # The next one is the fastest.
     # It amounts to 1 database hits according to 'PROFILE' using 'NodeByIdSeek'.
-    cypher_query = 'MATCH (left_node:RicgraphNode) WHERE id(left_node)=$left_node_id '
-    cypher_query += 'MATCH (right_node:RicgraphNode) WHERE id(right_node)=$right_node_id '
+    cypher_query = 'MATCH (left_node:RicgraphNode) '
+    if graphdb_name == 'neo4j':
+        cypher_query += 'WHERE elementId(left_node)=$left_node_element_id '
+    else:
+        cypher_query += 'WHERE id(left_node)=toInteger($left_node_element_id) '
+    cypher_query += 'MATCH (right_node:RicgraphNode) '
+    if graphdb_name == 'neo4j':
+        cypher_query += 'WHERE elementId(right_node)=$right_node_element_id '
+    else:
+        cypher_query += 'WHERE id(right_node)=toInteger($right_node_element_id) '
 
     # We could use 'CREATE', but then we may get multiple edges for the same direction.
     # cypher_query += 'CREATE (left_node)-[:LINKS_TO]->(right_node), ' [etc.]
@@ -585,9 +613,9 @@ def cypher_merge_edge(left_node_id: int, right_node_id: int) -> None:
     #       + str(right_node_id) + ', cypher_query: ' + cypher_query)
 
     _graph.execute_query(cypher_query,
-                         left_node_id=left_node_id,
-                         right_node_id=right_node_id,
-                         database_=GRAPHDB_DATABASENAME)
+                         left_node_element_id=left_node_element_id,
+                         right_node_element_id=right_node_element_id,
+                         database_=ricgraph_databasename())
     graphdb_nr_reads += 2             # one for left_node, one for right_node
     graphdb_nr_updates += 2           # one for ->, one for <-.
     return
@@ -776,7 +804,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                                    new_value=str(node_properties['comment']))
                 node_properties['_history'] = personroot['_history'].copy()
                 node_properties['_history'].append(time_stamp + ': ' + history_line)
-                cypher_merge_node(node_id=personroot.id,
+                cypher_merge_node(node_element_id=personroot.element_id,
                                   node_properties=node_properties)
         elif isinstance(personroot['comment'], list):
             if node['value'] not in personroot['comment']:
@@ -788,7 +816,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                                    new_value=str(node_properties['comment']))
                 node_properties['_history'] = personroot['_history'].copy()
                 node_properties['_history'].append(time_stamp + ': ' + history_line)
-                cypher_merge_node(node_id=personroot.id,
+                cypher_merge_node(node_element_id=personroot.element_id,
                                   node_properties=node_properties)
         # In all other cases: it is already in the cache,
         # or leave it as it is: 'comment' seems to be used for something we don't know.
@@ -823,7 +851,7 @@ def recreate_name_cache_in_personroot(personroot: Node):
             node_properties = {'comment': name_cache.copy(),
                                '_history': personroot['_history'].copy()}
             node_properties['_history'].append(time_stamp + ': Cleaned and recreated name cache. ' + history_line)
-            cypher_merge_node(node_id=personroot.id,
+            cypher_merge_node(node_element_id=personroot.element_id,
                               node_properties=node_properties)
         # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
     return
@@ -964,7 +992,7 @@ def create_update_node(name: str, category: str, value: str,
 
     node_properties['_history'] = node['_history'].copy()
     node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
-    updated_node = cypher_merge_node(node_id=node.id,
+    updated_node = cypher_merge_node(node_element_id=node.element_id,
                                      node_properties=node_properties)
     return updated_node
 
@@ -979,7 +1007,7 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
     :return: the node read, or None if no node was found.
     """
     global _graph
-    global nodes_cache_key_id
+    global nodes_cache_key_element_id
     global graphdb_nr_reads
 
     if _graph is None:
@@ -994,21 +1022,26 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
 
     graphdb_nr_reads += 1
     key = create_ricgraph_key(name=name, value=value)
-    if key in nodes_cache_key_id:
-        node_id = nodes_cache_key_id[key]
-        cypher_query = 'MATCH (node:RicgraphNode) WHERE id(node)=$node_id RETURN node'
+    if key in nodes_cache_key_element_id:
+        node_element_id = nodes_cache_key_element_id[key]
+        cypher_query = 'MATCH (node:RicgraphNode) WHERE '
+        if ricgraph_database() == 'neo4j':
+            cypher_query += 'elementId(node)=$node_element_id '
+        else:
+            cypher_query += 'id(node)=toInteger($node_element_id) '
+        cypher_query += 'RETURN node'
         nodes = _graph.execute_query(cypher_query,
-                                     node_id=node_id,
+                                     node_element_id=node_element_id,
                                      result_transformer_=Result.value,
-                                     database_=GRAPHDB_DATABASENAME)
+                                     database_=ricgraph_databasename())
         if len(nodes) == 0:
             return None
         else:
             return nodes[0]
     else:
-        if len(nodes_cache_key_id) > MAX_NODES_CACHE_KEY_ID:
+        if len(nodes_cache_key_element_id) > MAX_NODES_CACHE_KEY_ID:
             # Empty cache.
-            nodes_cache_key_id = {}
+            nodes_cache_key_element_id = {}
 
         cypher_query = 'MATCH (node:RicgraphNode) WHERE (node.name=$node_name) AND (node.value=$node_value) '
         cypher_query += 'RETURN node'
@@ -1016,12 +1049,12 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
                                      node_name=name,
                                      node_value=value,
                                      result_transformer_=Result.value,
-                                     database_=GRAPHDB_DATABASENAME)
+                                     database_=ricgraph_databasename())
         if len(nodes) == 0:
             return None
         else:
             node = nodes[0]
-            nodes_cache_key_id[key] = node.id
+            nodes_cache_key_element_id[key] = node.element_id
             return node
 
 
@@ -1065,7 +1098,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
                                      node_name=name,
                                      node_value=value,
                                      result_transformer_=Result.value,
-                                     database_=GRAPHDB_DATABASENAME)
+                                     database_=ricgraph_databasename())
         nr_nodes = len(nodes)
         # Unsure what to count here, this seems reasonable. '+ 1' for first node.
         graphdb_nr_reads += nr_nodes + 1
@@ -1109,11 +1142,11 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
         nodes = _graph.execute_query(cypher_query,
                                      node_value=value,
                                      result_transformer_=Result.value,
-                                     database_=GRAPHDB_DATABASENAME)
+                                     database_=ricgraph_databasename())
     else:
         nodes = _graph.execute_query(cypher_query,
                                      result_transformer_=Result.value,
-                                     database_=GRAPHDB_DATABASENAME)
+                                     database_=ricgraph_databasename())
 
     nr_nodes = len(nodes)
     # Unsure what to count here, this seems reasonable. '+ 1' for first node.
@@ -1146,7 +1179,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
     cypher_query = 'MATCH (node:RicgraphNode) RETURN COLLECT (DISTINCT node.' + node_property + ') AS entries'
     result = _graph.execute_query(cypher_query,
                                   result_transformer_=Result.data,
-                                  database_=GRAPHDB_DATABASENAME)
+                                  database_=ricgraph_databasename())
     if len(result) == 0:
         return []
     result = result[0]
@@ -1227,7 +1260,7 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     history_line += create_history_line(property_name='_key', old_value=oldkey, new_value=newkey)
     node_properties['_history'] = node['_history'].copy()
     node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
-    updated_node = cypher_merge_node(node_id=node.id,
+    updated_node = cypher_merge_node(node_element_id=node.element_id,
                                      node_properties=node_properties)
 
     if updated_node['name'] == 'FULL_NAME':
@@ -1334,8 +1367,8 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
         # Create the 'person-root' node with a unique value.
         value = str(uuid.uuid4())
         personroot = create_update_node(name='person-root', category='person', value=value)
-        cypher_merge_edge(left_node_id=person_node.id,
-                          right_node_id=personroot.id)
+        cypher_merge_edge(left_node_element_id=person_node.element_id,
+                          right_node_element_id=personroot.element_id)
         return personroot
 
     if len(personroot_nodes) > 1:
@@ -1375,8 +1408,8 @@ def connect_person_and_non_person_node(person_node: Node,
         if personroot is None:
             return
 
-    cypher_merge_edge(left_node_id=non_person_node.id,
-                      right_node_id=personroot.id)
+    cypher_merge_edge(left_node_element_id=non_person_node.element_id,
+                      right_node_element_id=personroot.element_id)
     return
 
 
@@ -1535,15 +1568,15 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
               + 'are "person-root" nodes.')
         return
 
-    nr_edges_left_node = ricgraph_nr_edges_of_node(node_id=left_node.id)
-    nr_edges_right_node = ricgraph_nr_edges_of_node(node_id=right_node.id)
+    nr_edges_left_node = ricgraph_nr_edges_of_node(node_element_id=left_node.element_id)
+    nr_edges_right_node = ricgraph_nr_edges_of_node(node_element_id=right_node.element_id)
     if nr_edges_left_node == 0 and nr_edges_right_node == 0:
         # None of the nodes have a 'person-root' node, create one and connect.
         personroot = get_or_create_personroot_node(person_node=left_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_id=right_node.id,
-                          right_node_id=personroot.id)
+        cypher_merge_edge(left_node_element_id=right_node.element_id,
+                          right_node_element_id=personroot.element_id)
         return
 
     if nr_edges_left_node > 0 and nr_edges_right_node == 0:
@@ -1551,8 +1584,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=left_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_id=right_node.id,
-                          right_node_id=personroot.id)
+        cypher_merge_edge(left_node_element_id=right_node.element_id,
+                          right_node_element_id=personroot.element_id)
         return
 
     if nr_edges_left_node == 0 and nr_edges_right_node > 0:
@@ -1560,8 +1593,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=right_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_id=left_node.id,
-                          right_node_id=personroot.id)
+        cypher_merge_edge(left_node_element_id=left_node.element_id,
+                          right_node_element_id=personroot.element_id)
         return
 
     left_personroot_node = get_or_create_personroot_node(person_node=left_node)
@@ -1580,10 +1613,10 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         return
 
     # Connect crosswise.
-    cypher_merge_edge(left_node_id=left_node.id,
-                      right_node_id=right_personroot_node.id)
-    cypher_merge_edge(left_node_id=right_node.id,
-                      right_node_id=left_personroot_node.id)
+    cypher_merge_edge(left_node_element_id=left_node.element_id,
+                      right_node_element_id=right_personroot_node.element_id)
+    cypher_merge_edge(left_node_element_id=right_node.element_id,
+                      right_node_element_id=left_personroot_node.element_id)
 
     time_stamp = datetimestamp()
     message = 'The node pair "'
@@ -1598,11 +1631,11 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
     print('\nconnect_person_and_person_node(): ' + message)
     node_property = {'_history': left_node['_history'].copy()}
     node_property['_history'].append(timestamped_message)
-    cypher_merge_node(node_id=left_node.id,
+    cypher_merge_node(node_element_id=left_node.element_id,
                       node_properties=node_property)
     node_property = {'_history': right_node['_history'].copy()}
     node_property['_history'].append(timestamped_message)
-    cypher_merge_node(node_id=right_node.id,
+    cypher_merge_node(node_element_id=right_node.element_id,
                       node_properties=node_property)
     return
 
@@ -1626,8 +1659,8 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
 
     if left_node['category'] != 'person' and right_node['category'] != 'person':
         # This is not a person to person link, link directly
-        cypher_merge_edge(left_node_id=left_node.id,
-                          right_node_id=right_node.id)
+        cypher_merge_edge(left_node_element_id=left_node.element_id,
+                          right_node_element_id=right_node.element_id)
         return
 
     # At least one of the nodes is a 'person' link. These should be linked via their 'person-root' node.
@@ -1895,11 +1928,11 @@ def print_node_values(node: Node) -> None:
 #     """
 #     global _graph
 #
-#     cypher_query = 'MATCH (node)-[edge]->() WHERE id(node)=$node_id RETURN edge'
+#     cypher_query = 'MATCH (node)-[edge]->() WHERE elementId(node)=$node_element_id RETURN edge'
 #     edges = _graph.execute_query(cypher_query,
-#                                  node_id=node.id,
+#                                  node_element_id=node.element_id,
 #                                  result_transformer_=Result.value,
-#                                  database_=GRAPHDB_DATABASENAME)
+#                                  database_=ricgraph_databasename())
 #     if len(edges) == 0:
 #         return []
 #     else:
@@ -1981,7 +2014,12 @@ def get_all_neighbor_nodes(node: Node,
     if node is None:
         return []
 
-    cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) WHERE (id(node)=$node_id) '
+    cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) '
+    if ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE (elementId(node)=$node_element_id) '
+    else:
+        cypher_query += 'WHERE (id(node)=toInteger($node_element_id)) '
+
     nr_of_not_clauses = 0
     if isinstance(name_want, str):
         if name_want != '':
@@ -2035,9 +2073,9 @@ def get_all_neighbor_nodes(node: Node,
     # print(cypher_query)
 
     neighbor_nodes = _graph.execute_query(cypher_query,
-                                          node_id=node.id,
+                                          node_element_id=node.element_id,
                                           result_transformer_=Result.value,
-                                          database_=GRAPHDB_DATABASENAME)
+                                          database_=ricgraph_databasename())
     nr_neighbors = len(neighbor_nodes)
     # Unsure what to count here, this seems reasonable. '+ 1' for 'node'.
     graphdb_nr_reads += nr_neighbors + 1

@@ -1292,7 +1292,10 @@ def find_person_share_resouts(parent_node: Node,
     cypher_query = 'MATCH (startnode_personroot:RicgraphNode)-[]'
     cypher_query += '->(neighbor:RicgraphNode)-[]->(neighbor_personroot:RicgraphNode)'
     cypher_query += 'WHERE '
-    cypher_query += 'id(startnode_personroot)=$startnode_personroot_id AND '
+    if rcg.ricgraph_database() == 'neo4j':
+        cypher_query += 'elementId(startnode_personroot)=$startnode_personroot_element_id AND '
+    else:
+        cypher_query += 'id(startnode_personroot)=toInteger($startnode_personroot_element_id) AND '
     # The following statement is really necessary for speed reasons.
     cypher_query += 'startnode_personroot.name="person-root" AND '
     if len(category_want_list) > 0:
@@ -1300,7 +1303,11 @@ def find_person_share_resouts(parent_node: Node,
     if len(category_dontwant_list) > 0:
         cypher_query += 'NOT neighbor.category IN $category_dontwant_list AND '
     cypher_query += 'neighbor_personroot.name="person-root" AND '
-    cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
+    # cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
+    if rcg.ricgraph_database() == 'neo4j':
+        cypher_query += 'elementId(neighbor_personroot)<>elementId(startnode_personroot) '
+    else:
+        cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
     cypher_query += 'RETURN DISTINCT neighbor_personroot '
     if max_nr_neighbor_nodes > 0:
         cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
@@ -1309,7 +1316,7 @@ def find_person_share_resouts(parent_node: Node,
     # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
     # as the common research results (in 'neighbor'). We don't use them at the moment.
     cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              startnode_personroot_id=personroot_node.id,
+                                              startnode_personroot_element_id=personroot_node.element_id,
                                               category_want_list=category_want_list,
                                               category_dontwant_list=category_dontwant_list,
                                               database_=graph_databasename)
@@ -1559,12 +1566,18 @@ def find_person_organization_collaborations(parent_node: Node,
     cypher_query += '->(neighbor:RicgraphNode)-[]->(neighbor_personroot:RicgraphNode)-[]'
     cypher_query += '->(neighbor_organization:RicgraphNode) '
     cypher_query += 'WHERE '
-    cypher_query += 'id(startnode_personroot)=$startnode_personroot_id AND '
+    if rcg.ricgraph_database() == 'neo4j':
+        cypher_query += 'elementId(startnode_personroot)=$startnode_personroot_element_id AND '
+    else:
+        cypher_query += 'id(startnode_personroot)=toInteger($startnode_personroot_element_id) AND '
     # The following statement is really necessary for speed reasons.
     cypher_query += 'startnode_personroot.name="person-root" AND '
     cypher_query += 'neighbor.category IN $resout_types_all AND '
     cypher_query += 'neighbor_personroot.name="person-root" AND '
-    cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) AND '
+    if rcg.ricgraph_database() == 'neo4j':
+        cypher_query += 'elementId(neighbor_personroot)<>elementId(startnode_personroot) AND '
+    else:
+        cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) AND '
     cypher_query += 'neighbor_organization.category="organization" '
     cypher_query += 'RETURN DISTINCT neighbor_organization'
     # print(cypher_query)
@@ -1575,7 +1588,7 @@ def find_person_organization_collaborations(parent_node: Node,
     # Note that 'cypher_result' will contain _all_ organizations that 'parent_node'
     # collaborates with, very probably also the organizations this person works for.
     cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              startnode_personroot_id=personroot_node.id,
+                                              startnode_personroot_element_id=personroot_node.element_id,
                                               resout_types_all=resout_types_all,
                                               database_=graph_databasename)
 
@@ -1719,7 +1732,11 @@ def find_organization_additional_info(parent_node: Node,
 
     # Prepare and execute Cypher query.
     # For explanation read text below comment 'Cypher functions' in file ricgraph.py.
-    cypher_query = 'MATCH (node)-[]->(neighbor) WHERE id(node)=$node_id '
+    cypher_query = 'MATCH (node)-[]->(neighbor) '
+    if rcg.ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE elementId(node)=$node_element_id '
+    else:
+        cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += ' AND neighbor.name = "person-root" '
 
     cypher_query += 'MATCH (neighbor)-[]->(second_neighbor) '
@@ -1737,7 +1754,7 @@ def find_organization_additional_info(parent_node: Node,
         cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
     # print(cypher_query)
     cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              node_id=parent_node.id,
+                                              node_element_id=parent_node.element_id,
                                               database_=graph_databasename)
 
     if len(cypher_result) == 0:
