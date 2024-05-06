@@ -163,7 +163,7 @@ VIEW_MODE_ALL = ['view_regular_table_personal',
 nodes_cache = {}
 
 # These will be defined in initialize_ricgraph_explorer()
-global graph, graph_databasename
+global graph
 global name_all, category_all, source_all, resout_types_all
 global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
 global personal_types_all, remainder_types_all
@@ -1319,7 +1319,7 @@ def find_person_share_resouts(parent_node: Node,
                                               startnode_personroot_element_id=personroot_node.element_id,
                                               category_want_list=category_want_list,
                                               category_dontwant_list=category_dontwant_list,
-                                              database_=graph_databasename)
+                                              database_=rcg.ricgraph_databasename())
 
     # Convert 'cypher_result' to a list of Node's.
     # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
@@ -1510,7 +1510,7 @@ def find_person_organization_collaborations(parent_node: Node,
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
-    global graph, graph_databasename
+    global graph
     global resout_types_all
 
     html = ''
@@ -1590,7 +1590,7 @@ def find_person_organization_collaborations(parent_node: Node,
     cypher_result, _, _ = graph.execute_query(cypher_query,
                                               startnode_personroot_element_id=personroot_node.element_id,
                                               resout_types_all=resout_types_all,
-                                              database_=graph_databasename)
+                                              database_=rcg.ricgraph_databasename())
 
     # Get the organizations from 'parent_node'.
     personroot_node = rcg.get_personroot_node(node=parent_node)
@@ -1662,7 +1662,7 @@ def find_organization_additional_info(parent_node: Node,
     :param discoverer_mode: as usual.
     :return: html to be rendered.
     """
-    global graph, graph_databasename
+    global graph
 
     if parent_node is None:
         message = 'Unexpected result in find_organization_additional_info(): '
@@ -1755,7 +1755,7 @@ def find_organization_additional_info(parent_node: Node,
     # print(cypher_query)
     cypher_result, _, _ = graph.execute_query(cypher_query,
                                               node_element_id=parent_node.element_id,
-                                              database_=graph_databasename)
+                                              database_=rcg.ricgraph_databasename())
 
     if len(cypher_result) == 0:
         message = 'Could not find any persons or results for this organization'
@@ -3076,7 +3076,7 @@ def initialize_ricgraph_explorer():
     """Initialize Ricgraph Explorer.
     :return: None.
     """
-    global graph, graph_databasename
+    global graph
     global name_all, category_all, source_all, resout_types_all
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
@@ -3085,8 +3085,6 @@ def initialize_ricgraph_explorer():
     if graph is None:
         print('Ricgraph could not be opened.')
         exit(2)
-
-    graph_databasename = rcg.ricgraph_databasename()
 
     name_all = rcg.read_all_values_of_property('name')
     if len(name_all) == 0:
