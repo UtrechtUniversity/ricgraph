@@ -121,10 +121,10 @@ ORGANIZATION_COLUMNS = ['name', 'value', 'comment', 'url_main']
 ID_COLUMNS = ['name', 'value', 'comment', 'url_main']
 
 # When we do a query, we return at most this number of nodes.
-MAX_RESULTS = 50
+MAX_ITEMS = '250'
 
 # If we render a table, we return at most this number of rows in that table.
-MAX_ROWS_IN_TABLE = 250
+MAX_ROWS_IN_TABLE = '250'
 
 # If we search for neighbors of an 'organization' node, in the first filter
 # in filterorganization(), we restrict it to return at most this number of nodes.
@@ -399,6 +399,16 @@ def searchpage() -> str:
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=['details_view', 'person_view'],
                                               default_value=DEFAULT_DISCOVERER_MODE)
+    max_nr_items = get_url_parameter_value(parameter='max_nr_items',
+                                           default_value=MAX_ITEMS)
+    if not max_nr_items.isnumeric():
+        # This also catches negative numbers, they contain a '-' and are not numeric.
+        # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
+        max_nr_items = MAX_ITEMS
+    max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
+                                                default_value=MAX_ROWS_IN_TABLE)
+    if not max_nr_table_rows.isnumeric():
+        max_nr_table_rows = MAX_ROWS_IN_TABLE
     html = html_body_start
     html += get_html_for_cardstart()
 
@@ -462,6 +472,28 @@ def searchpage() -> str:
     form += '>' + radio_details_text
     form += '<label class="w3-tooltip">' + radio_details_tooltip + '</label><br/>'
 
+    form += '</br>'
+    tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
+    tooltip += '<div class="w3-text" style="margin-left:60px;"> '
+    tooltip += 'More items will take more time, since they all have to be processed. '
+    tooltip += '</div>'
+    form += 'You might want to specify the maximum number of items to  return, '
+    form += 'or 0 to return all items (the more items, the more time it will take): '
+    form += '<label class="w3-tooltip">' + tooltip + '</label><br/>'
+    form += '<input class="w3-input w3-border" type=text value=' + max_nr_items + ' name=max_nr_items>'
+
+    form += '</br>'
+    tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
+    tooltip += '<div class="w3-text" style="margin-left:60px;"> '
+    tooltip += 'More rows will take more time, since HTML needs to be generated for every row. '
+    tooltip += 'If the number of items returned is very large, and the number of rows in a table '
+    tooltip += 'is also very large or 0 (i.e. all rows), your browser may crash. '
+    tooltip += '</div>'
+    form += 'You might want to specify the maximum number of rows in a table to  return, '
+    form += 'or 0 to return all rows (the more rows, the more time it will take): '
+    form += '<label class="w3-tooltip">' + tooltip + '</label><br/>'
+    form += '<input class="w3-input w3-border" type=text value=' + max_nr_table_rows + ' name=max_nr_table_rows>'
+
     form += '<br/><input class="' + button_style + '" ' + button_width + ' type=submit value=search>'
     form += '</form>'
     html += form
@@ -487,6 +519,8 @@ def optionspage() -> str:
       or 'person_view' to have a nicer layout.
     - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
       search on field 'value').
+    - extra_url_parameters: a dict containing url parameters to be passed with each
+      url generated. This dict can be extended as desired.
 
     returns html to parse.
     """
@@ -510,7 +544,19 @@ def optionspage() -> str:
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=['details_view', 'person_view'],
                                               default_value=DEFAULT_DISCOVERER_MODE)
-
+    extra_url_parameters = {}
+    max_nr_items = get_url_parameter_value(parameter='max_nr_items',
+                                           default_value=MAX_ITEMS)
+    if not max_nr_items.isnumeric():
+        # This also catches negative numbers, they contain a '-' and are not numeric.
+        # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
+        max_nr_items = MAX_ITEMS
+    extra_url_parameters['max_nr_items'] = max_nr_items
+    max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
+                                                default_value=MAX_ROWS_IN_TABLE)
+    if not max_nr_table_rows.isnumeric():
+        max_nr_table_rows = MAX_ROWS_IN_TABLE
+    extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
     html = html_body_start
     if name == '' and category == '' and value == '':
         html += get_message(message='Ricgraph Explorer could not find anything.')
@@ -522,7 +568,9 @@ def optionspage() -> str:
         key = rcg.create_ricgraph_key(name=name, value=value)
         if key in nodes_cache:
             node = nodes_cache[key]
-            html += create_options_page(node=node, discoverer_mode=discoverer_mode)
+            html += create_options_page(node=node,
+                                        discoverer_mode=discoverer_mode,
+                                        extra_url_parameters=extra_url_parameters)
             html += html_body_end
             return html
 
@@ -535,7 +583,7 @@ def optionspage() -> str:
             html += html_body_end
             return html
         result = rcg.read_all_nodes(name=name, category=category, value=value,
-
+                                    name_is_exact_match=False,
                                     value_is_exact_match=False)
     if len(result) == 0:
         # We didn't find anything.
@@ -546,14 +594,17 @@ def optionspage() -> str:
         table_header = 'Your search resulted in more than one item. Please choose one item to continue:'
         html += get_regular_table(nodes_list=result,
                                   table_header=table_header,
-                                  discoverer_mode=discoverer_mode)
+                                  discoverer_mode=discoverer_mode,
+                                  extra_url_parameters=extra_url_parameters)
         html += html_body_end
         return html
 
     node = result[0]
     key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
     nodes_cache[key] = node
-    html += create_options_page(node=node, discoverer_mode=discoverer_mode)
+    html += create_options_page(node=node,
+                                discoverer_mode=discoverer_mode,
+                                extra_url_parameters=extra_url_parameters)
     html += html_body_end
     return html
 
@@ -581,6 +632,8 @@ def resultspage() -> str:
     - category_list: similar to 'name_list', but now for the property 'category'.
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
+    - extra_url_parameters: a dict containing url parameters to be passed with each
+      url generated. This dict can be extended as desired.
 
     returns html to parse.
     """
@@ -591,6 +644,19 @@ def resultspage() -> str:
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=['details_view', 'person_view'],
                                               default_value=DEFAULT_DISCOVERER_MODE)
+    extra_url_parameters = {}
+    max_nr_items = get_url_parameter_value(parameter='max_nr_items',
+                                           default_value=MAX_ITEMS)
+    if not max_nr_items.isnumeric():
+        # This also catches negative numbers, they contain a '-' and are not numeric.
+        # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
+        max_nr_items = MAX_ITEMS
+    extra_url_parameters['max_nr_items'] = max_nr_items
+    max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
+                                                default_value=MAX_ROWS_IN_TABLE)
+    if not max_nr_table_rows.isnumeric():
+        max_nr_table_rows = MAX_ROWS_IN_TABLE
+    extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
     name_list = request.args.getlist('name_list')
     category_list = request.args.getlist('category_list')
     # HTML forms with an empty field named e.g. 'aa' will result in a URL parameter '...&aa=&...'.
@@ -622,7 +688,8 @@ def resultspage() -> str:
         html += find_overlap_in_source_systems_records(name=name, category=category, value=value,
                                                        system1=system1, system2=system2,
                                                        discoverer_mode=discoverer_mode,
-                                                       overlap_mode=overlap_mode)
+                                                       overlap_mode=overlap_mode,
+                                                       extra_url_parameters=extra_url_parameters)
         html += html_body_end
         return html
 
@@ -630,7 +697,8 @@ def resultspage() -> str:
                                 key=key,
                                 name_list=name_list,
                                 category_list=category_list,
-                                discoverer_mode=discoverer_mode)
+                                discoverer_mode=discoverer_mode,
+                                extra_url_parameters=extra_url_parameters)
 
     html += html_body_end
     return html
@@ -640,7 +708,9 @@ def resultspage() -> str:
 # This is where the work is done.
 # ##############################################################################
 
-def create_options_page(node: Node, discoverer_mode: str = '') -> str:
+def create_options_page(node: Node,
+                        discoverer_mode: str = '',
+                        extra_url_parameters: dict = None) -> str:
     """This function creates the page with options to choose from, depending on the
     choice the user has made on the index page.
     The 'view_mode' that is used, is caught first in resultspage() and then
@@ -648,10 +718,14 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
 
     :param node: the node that is found and that determines the possible choices.
     :param discoverer_mode: as usual.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
     global name_all_datalist, category_all_datalist, source_all_datalist
     global category_all, resout_types_all, resout_types_all_datalist
+
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
 
     html = ''
     if node is None:
@@ -659,9 +733,12 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
 
     if discoverer_mode == 'details_view':
         html += get_you_searched_for_card(key=node['_key'],
-                                          discoverer_mode=discoverer_mode)
+                                          discoverer_mode=discoverer_mode,
+                                          extra_url_parameters=extra_url_parameters)
     key = node['_key']
-    html += get_found_message(node=node, discoverer_mode=discoverer_mode)
+    html += get_found_message(node=node,
+                              discoverer_mode=discoverer_mode,
+                              extra_url_parameters=extra_url_parameters)
     if node['category'] == 'organization':
         html += get_html_for_cardstart()
         html += '<h4>What would you like to see from this organization?</h4>'
@@ -671,7 +748,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'discoverer_mode': discoverer_mode,
                                                 'name_list': 'person-root',
                                                 'view_mode': 'view_regular_table_persons_of_org'
-                                                })
+                                                } | extra_url_parameters)
         html += '<p/>'
 
         html += create_html_form(destination='resultspage',
@@ -679,7 +756,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_unspecified_table_organizations'
-                                                })
+                                                } | extra_url_parameters)
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
@@ -694,7 +771,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': resout_types_all,
                                                 'view_mode': 'view_regular_table_organization_addinfo'
-                                                })
+                                                } | extra_url_parameters)
         html += '<p/>'
 
         if 'competence' in category_all:
@@ -704,7 +781,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                     'discoverer_mode': discoverer_mode,
                                                     'category_list': 'competence',
                                                     'view_mode': 'view_regular_table_organization_addinfo'
-                                                    })
+                                                    } | extra_url_parameters)
             html += '<p/>'
 
         button_text = 'find any information from persons or their results '
@@ -714,7 +791,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_organization_addinfo'
-                                                })
+                                                } | extra_url_parameters)
         html += '<br/>'
 
         explanation = 'By using the fields below, you can choose '
@@ -733,7 +810,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_organization_addinfo'
-                                                })
+                                                } | extra_url_parameters)
         html += get_html_for_cardend()
         html += get_html_for_cardend()
 
@@ -747,7 +824,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': 'person',
                                                 'view_mode': 'view_regular_table_personal'
-                                                })
+                                                } | extra_url_parameters)
         html += '<p/>'
 
         html += create_html_form(destination='resultspage',
@@ -756,7 +833,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': 'organization',
                                                 'view_mode': 'view_regular_table_organizations'
-                                                })
+                                                } | extra_url_parameters)
         html += '<p/>'
 
         html += create_html_form(destination='resultspage',
@@ -765,7 +842,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': resout_types_all,
                                                 'view_mode': 'view_unspecified_table_resouts'
-                                                })
+                                                } | extra_url_parameters)
         html += '<p/>'
 
         everything_except_ids = category_all.copy()
@@ -776,7 +853,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': everything_except_ids,
                                                 'view_mode': 'view_unspecified_table_everything_except_ids'
-                                                })
+                                                } | extra_url_parameters)
         html += '<p/>'
 
         html += create_html_form(destination='resultspage',
@@ -785,7 +862,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'discoverer_mode': discoverer_mode,
                                                 'category_list': remainder_types_all,
                                                 'view_mode': 'view_unspecified_table_everything'
-                                                })
+                                                } | extra_url_parameters)
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
@@ -798,7 +875,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                                 'category_list': resout_types_all,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_person_share_resouts'
-                                                })
+                                                } | extra_url_parameters)
 
         html += '<br/>'
         label_text = 'By entering a value in the field below, '
@@ -810,7 +887,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_person_share_resouts'
-                                                })
+                                                } | extra_url_parameters)
 
         html += get_html_for_cardend()
 
@@ -829,7 +906,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_person_organization_collaborations'
-                                                })
+                                                } | extra_url_parameters)
 
         html += get_html_for_cardend()
 
@@ -854,7 +931,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_person_enrich_source_system'
-                                                })
+                                                } | extra_url_parameters)
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
@@ -870,7 +947,7 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'view_mode': 'view_regular_table_overlap'
-                                                })
+                                                } | extra_url_parameters)
         html += get_html_for_cardend()
 
         html += get_html_for_cardend()
@@ -881,7 +958,8 @@ def create_options_page(node: Node, discoverer_mode: str = '') -> str:
     else:
         html = create_results_page(view_mode='view_regular_table_category',
                                    key=key,
-                                   discoverer_mode=discoverer_mode)
+                                   discoverer_mode=discoverer_mode,
+                                   extra_url_parameters=extra_url_parameters)
 
     return html
 
@@ -890,7 +968,8 @@ def create_results_page(view_mode: str,
                         key: str,
                         name_list: list = None,
                         category_list: list = None,
-                        discoverer_mode: str = '') -> str:
+                        discoverer_mode: str = '',
+                        extra_url_parameters: dict = None) -> str:
     """This function creates the page with results to show to the user.
     What is produced depends on 'view_mode'.
     The 'view_mode' that is used, is first set in create_options_page(), and then
@@ -904,6 +983,7 @@ def create_results_page(view_mode: str,
       If empty , return all nodes.
     :param category_list: as name_str, but for category.
     :param discoverer_mode: as usual.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
     global resout_types_all, personal_types_all, remainder_types_all, nodes_cache
@@ -920,7 +1000,10 @@ def create_results_page(view_mode: str,
     # category_list_str = ''
     # if len(category_list) == 1:
     #     category_list_str = category_list[0]
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
 
+    max_nr_items = int(extra_url_parameters['max_nr_items'])
     html = ''
     if key in nodes_cache:
         node = nodes_cache[key]
@@ -949,14 +1032,17 @@ def create_results_page(view_mode: str,
                                               name_list=name_list,
                                               category_list=category_list,
                                               view_mode=view_mode,
-                                              discoverer_mode=discoverer_mode)
+                                              discoverer_mode=discoverer_mode,
+                                              extra_url_parameters=extra_url_parameters)
     else:
         table_columns_ids = ID_COLUMNS
         table_columns_org = ORGANIZATION_COLUMNS
         table_columns_resout = RESEARCH_OUTPUT_COLUMNS
 
     # We need this multiple times.
-    node_found = get_found_message(node=node, discoverer_mode=discoverer_mode)
+    node_found = get_found_message(node=node,
+                                   discoverer_mode=discoverer_mode,
+                                   extra_url_parameters=extra_url_parameters)
 
     if view_mode == 'view_regular_table_personal':
         personroot_node = rcg.get_personroot_node(node=node)
@@ -967,10 +1053,12 @@ def create_results_page(view_mode: str,
             html += get_regular_table(nodes_list=neighbor_nodes_personal,
                                       table_header='This is personal information related to this person:',
                                       table_columns=table_columns_ids,
-                                      discoverer_mode=discoverer_mode)
+                                      discoverer_mode=discoverer_mode,
+                                      extra_url_parameters=extra_url_parameters)
         else:
             html += view_personal_information(nodes_list=neighbor_nodes_personal,
-                                              discoverer_mode=discoverer_mode)
+                                              discoverer_mode=discoverer_mode,
+                                              extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_organizations' \
             or view_mode == 'view_regular_table_category':
@@ -991,7 +1079,8 @@ def create_results_page(view_mode: str,
         html += get_regular_table(nodes_list=neighbor_nodes,
                                   table_header=table_header,
                                   table_columns=table_columns,
-                                  discoverer_mode=discoverer_mode)
+                                  discoverer_mode=discoverer_mode,
+                                  extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_persons_of_org':
         # Some organizations have a large number of neighbors, but we will only show
@@ -1001,14 +1090,15 @@ def create_results_page(view_mode: str,
         neighbor_nodes = rcg.get_all_neighbor_nodes(node=node,
                                                     name_want=name_list,
                                                     category_want=category_list,
-                                                    max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE)
+                                                    max_nr_neighbor_nodes=max_nr_items)
         table_header = 'These are persons related to this organization:'
         table_columns = table_columns_ids
         html += node_found
         html += get_regular_table(nodes_list=neighbor_nodes,
                                   table_header=table_header,
                                   table_columns=table_columns,
-                                  discoverer_mode=discoverer_mode)
+                                  discoverer_mode=discoverer_mode,
+                                  extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_unspecified_table_organizations':
         # Some organizations have a large number of neighbors, but we will only show
@@ -1018,7 +1108,7 @@ def create_results_page(view_mode: str,
         neighbor_nodes = rcg.get_all_neighbor_nodes(node=node,
                                                     name_want=name_list,
                                                     category_want=category_list,
-                                                    max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE)
+                                                    max_nr_neighbor_nodes=max_nr_items)
         table_header = 'This is all information related to this organization:'
         html += node_found
         if discoverer_mode == 'details_view':
@@ -1027,13 +1117,15 @@ def create_results_page(view_mode: str,
                                       table_header=table_header,
                                       table_columns=table_columns_resout,
                                       view_mode=view_mode,
-                                      discoverer_mode=discoverer_mode)
+                                      discoverer_mode=discoverer_mode,
+                                      extra_url_parameters=extra_url_parameters)
         else:
             html += get_tabbed_table(nodes_list=neighbor_nodes,
                                      table_header=table_header,
                                      table_columns=table_columns_resout,
                                      tabs_on='category',
-                                     discoverer_mode=discoverer_mode)
+                                     discoverer_mode=discoverer_mode,
+                                     extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_unspecified_table_resouts' \
             or view_mode == 'view_unspecified_table_everything_except_ids':
@@ -1052,13 +1144,15 @@ def create_results_page(view_mode: str,
                                       table_header=table_header,
                                       table_columns=table_columns_resout,
                                       view_mode=view_mode,
-                                      discoverer_mode=discoverer_mode)
+                                      discoverer_mode=discoverer_mode,
+                                      extra_url_parameters=extra_url_parameters)
         else:
             html += get_tabbed_table(nodes_list=neighbor_nodes,
                                      table_header=table_header,
                                      table_columns=table_columns_resout,
                                      tabs_on='category',
-                                     discoverer_mode=discoverer_mode)
+                                     discoverer_mode=discoverer_mode,
+                                     extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_unspecified_table_everything':
         personroot_node = rcg.get_personroot_node(node=node)
@@ -1072,29 +1166,33 @@ def create_results_page(view_mode: str,
             html += get_regular_table(nodes_list=neighbor_nodes_personal,
                                       table_header='This is personal information related to this person:',
                                       table_columns=table_columns_ids,
-                                      discoverer_mode=discoverer_mode)
+                                      discoverer_mode=discoverer_mode,
+                                      extra_url_parameters=extra_url_parameters)
             html += get_faceted_table(parent_node=node,
                                       neighbor_nodes=neighbor_nodes_remainder,
                                       table_header='This is other information related to this person:',
                                       table_columns=table_columns_resout,
                                       view_mode=view_mode,
-                                      discoverer_mode=discoverer_mode)
+                                      discoverer_mode=discoverer_mode,
+                                      extra_url_parameters=extra_url_parameters)
         else:
             html += view_personal_information(nodes_list=neighbor_nodes_personal,
-                                              discoverer_mode=discoverer_mode)
+                                              discoverer_mode=discoverer_mode,
+                                              extra_url_parameters=extra_url_parameters)
             html += get_tabbed_table(nodes_list=neighbor_nodes_remainder,
                                      table_header='This is other information related to this person:',
                                      table_columns=table_columns_resout,
                                      tabs_on='category',
-                                     discoverer_mode=discoverer_mode)
+                                     discoverer_mode=discoverer_mode,
+                                     extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_person_share_resouts':
         # Note the hard limit.
         html += find_person_share_resouts(parent_node=node,
                                           category_want_list=category_list,
                                           category_dontwant_list=['person', 'competence', 'organization'],
-                                          max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE,
-                                          discoverer_mode=discoverer_mode)
+                                          discoverer_mode=discoverer_mode,
+                                          extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_person_enrich_source_system':
         # Note: we misuse the field 'category_list' to pass the name of the source system
@@ -1105,25 +1203,28 @@ def create_results_page(view_mode: str,
             source_system = str(category_list[0])
         html += find_enrich_candidates(parent_node=node,
                                        source_system=source_system,
-                                       discoverer_mode=discoverer_mode)
+                                       discoverer_mode=discoverer_mode,
+                                       extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_person_organization_collaborations':
         html += find_person_organization_collaborations(parent_node=node,
-                                                        discoverer_mode=discoverer_mode)
+                                                        discoverer_mode=discoverer_mode,
+                                                        extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_organization_addinfo':
         # Note the hard limit.
         html += find_organization_additional_info(parent_node=node,
                                                   name_list=name_list,
                                                   category_list=category_list,
-                                                  max_nr_neighbor_nodes=MAX_ROWS_IN_TABLE,
-                                                  discoverer_mode=discoverer_mode)
+                                                  discoverer_mode=discoverer_mode,
+                                                  extra_url_parameters=extra_url_parameters)
     elif view_mode == 'view_regular_table_overlap':
         html += find_overlap_in_source_systems(name=node['name'],
                                                category=node['category'],
                                                value=node['value'],
                                                discoverer_mode=discoverer_mode,
-                                               overlap_mode='neighbornodes')
+                                               overlap_mode='neighbornodes',
+                                               extra_url_parameters=extra_url_parameters)
 
     # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
 
@@ -1133,7 +1234,8 @@ def create_results_page(view_mode: str,
 
 
 def view_personal_information(nodes_list: list,
-                              discoverer_mode: str = '') -> str:
+                              discoverer_mode: str = '',
+                              extra_url_parameters: dict = None) -> str:
     """Create a person page of the node.
     This page shows the name variants, a photo (if present),
     and a list of competences (if present). Then a table with the other identities.
@@ -1142,9 +1244,13 @@ def view_personal_information(nodes_list: list,
 
     :param nodes_list: the nodes to create a table from.
     :param discoverer_mode: the discoverer_mode to use.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
     global nodes_cache
+
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
 
     if len(nodes_list) == 0:
         return get_message('No neighbors found.')
@@ -1162,7 +1268,8 @@ def view_personal_information(nodes_list: list,
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('optionspage') + '?'
         item += urllib.parse.urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}) + '>'
+                                        'discoverer_mode': discoverer_mode}
+                                       | extra_url_parameters) + '>'
         item += node['value'] + '</a>'
         names.append(item)
     if len(names) == 1:
@@ -1180,7 +1287,8 @@ def view_personal_information(nodes_list: list,
         html += '&nbsp;&nbsp;'
         html += '<a href=' + url_for('optionspage') + '?'
         html += urllib.parse.urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}) + '>'
+                                        'discoverer_mode': discoverer_mode}
+                                       | extra_url_parameters) + '>'
         html += '<img src="' + node['url_main'] + '" alt="' + node['value']
         html += '" title="' + node['value'] + '" height="100"></a>'
     html += '</p>'
@@ -1196,7 +1304,8 @@ def view_personal_information(nodes_list: list,
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('optionspage') + '?'
         item += urllib.parse.urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}) + '>'
+                                        'discoverer_mode': discoverer_mode}
+                                       | extra_url_parameters) + '>'
         item += node['value'] + '</a>'
         if node['name'] == 'SKILL':
             skills.append(item)
@@ -1228,30 +1337,36 @@ def view_personal_information(nodes_list: list,
                              table_header='These are the identities related to this person:',
                              table_columns=ID_COLUMNS,
                              tabs_on='name',
-                             discoverer_mode=discoverer_mode)
+                             discoverer_mode=discoverer_mode,
+                             extra_url_parameters=extra_url_parameters)
     return html
 
 
 def find_person_share_resouts(parent_node: Node,
                               category_want_list: list = None,
                               category_dontwant_list: list = None,
-                              max_nr_neighbor_nodes: int = 0,
-                              discoverer_mode: str = '') -> str:
+                              discoverer_mode: str = '',
+                              extra_url_parameters: dict = None) -> str:
     """Function that finds with whom a person shares research results.
 
     :param parent_node: the starting node for finding shared research result types.
     :param category_want_list: the category list used for selection, or [] if any category.
     :param category_dontwant_list: the category list used for selection (i.e. not these).
-    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :param discoverer_mode: as usual.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
+
     html = ''
     if parent_node['category'] != 'person':
         message = 'Unexpected result in find_person_share_resouts(): '
         message += 'You have not passed an "person" node, but a "' + parent_node['category']
         message += '" node.'
         return get_message(message=message)
+
+    max_nr_items = int(extra_url_parameters['max_nr_items'])
 
     # ### Start.
     # I use a Cypher query instead of the much slower code commented below.
@@ -1309,8 +1424,8 @@ def find_person_share_resouts(parent_node: Node,
     else:
         cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
     cypher_query += 'RETURN DISTINCT neighbor_personroot '
-    if max_nr_neighbor_nodes > 0:
-        cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
+    if max_nr_items > 0:
+        cypher_query += 'LIMIT ' + str(max_nr_items)
     # print(cypher_query)
 
     # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
@@ -1340,7 +1455,8 @@ def find_person_share_resouts(parent_node: Node,
     html += get_regular_table(nodes_list=[parent_node],
                               table_header=table_header,
                               table_columns=table_columns,
-                              discoverer_mode=discoverer_mode)
+                              discoverer_mode=discoverer_mode,
+                              extra_url_parameters=extra_url_parameters)
     if len(connected_persons) == 0:
         if len(category_want_list) == 1:
             message = 'This person does not share research result type "' + category_want_list[0] + '" '
@@ -1357,13 +1473,15 @@ def find_person_share_resouts(parent_node: Node,
     html += get_regular_table(nodes_list=connected_persons,
                               table_header=table_header,
                               table_columns=table_columns,
-                              discoverer_mode=discoverer_mode)
+                              discoverer_mode=discoverer_mode,
+                              extra_url_parameters=extra_url_parameters)
     return html
 
 
 def find_enrich_candidates(parent_node: Union[Node, None],
                            source_system: str,
-                           discoverer_mode: str = '') -> str:
+                           discoverer_mode: str = '',
+                           extra_url_parameters: dict = None) -> str:
     """This function tries to find nodes to enrich source system 'source_system'.
     It is built around 'person-root' nodes. For each person-root node (in case there are
     more than one) we check if we can enrich that node.
@@ -1378,8 +1496,12 @@ def find_enrich_candidates(parent_node: Union[Node, None],
       you want to find enrichments for all 'person-root' nodes in Ricgraph.
     :param source_system: the source system to find enrichments for.
     :param discoverer_mode: as usual.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
+
     html = ''
     if parent_node is None:
         personroot_list = rcg.read_all_nodes(name='person-root')
@@ -1431,7 +1553,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
         table_header += source_system + '":'
         html += get_regular_table(nodes_list=[personroot],
                                   table_header=table_header,
-                                  table_columns=table_columns)
+                                  table_columns=table_columns,
+                                  extra_url_parameters=extra_url_parameters)
 
         person_nodes = []
         for node_source in node_in_source_system:
@@ -1448,14 +1571,16 @@ def find_enrich_candidates(parent_node: Union[Node, None],
             table_header += source_system + '":'
             html += get_regular_table(nodes_list=person_nodes,
                                       table_header=table_header,
-                                      table_columns=table_columns)
+                                      table_columns=table_columns,
+                                      extra_url_parameters=extra_url_parameters)
 
         table_header = 'You could enrich source system "' + source_system + '" '
         table_header += 'by using this information harvested from other source systems. '
         table_header += 'This information is not in source system "' + source_system + '".'
         html += get_regular_table(nodes_list=node_not_in_source_system,
                                   table_header=table_header,
-                                  table_columns=table_columns)
+                                  table_columns=table_columns,
+                                  extra_url_parameters=extra_url_parameters)
         html += get_html_for_cardend()
 
     if something_found:
@@ -1485,7 +1610,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
             table_header += source_system + '":'
             html += get_regular_table(nodes_list=[personroot_node],
                                       table_header=table_header,
-                                      table_columns=table_columns)
+                                      table_columns=table_columns,
+                                      extra_url_parameters=extra_url_parameters)
             html += '</br>Ricgraph could not find any information in other source systems '
             html += 'to enrich source system "' + source_system + '".'
             html += get_html_for_cardend()
@@ -1496,7 +1622,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
 
 
 def find_person_organization_collaborations(parent_node: Node,
-                                            discoverer_mode: str = '') -> str:
+                                            discoverer_mode: str = '',
+                                            extra_url_parameters: dict = None) -> str:
     """Function that finds with which organization a person collaborates.
 
     A person X from organization A collaborates with a person Y from
@@ -1508,10 +1635,14 @@ def find_person_organization_collaborations(parent_node: Node,
 
     :param parent_node: the starting node for finding collaborating organizations.
     :param discoverer_mode: as usual.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
     global graph
     global resout_types_all
+
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
 
     html = ''
     if parent_node['category'] != 'person':
@@ -1624,7 +1755,8 @@ def find_person_organization_collaborations(parent_node: Node,
     html += get_regular_table(nodes_list=[parent_node],
                               table_header=table_header,
                               table_columns=table_columns,
-                              discoverer_mode=discoverer_mode)
+                              discoverer_mode=discoverer_mode,
+                              extra_url_parameters=extra_url_parameters)
 
     if len(personroot_node_organizations) == 0:
         html += get_message(message='This person does not work at any organization.',
@@ -1634,7 +1766,8 @@ def find_person_organization_collaborations(parent_node: Node,
         html += get_regular_table(nodes_list=personroot_node_organizations,
                                   table_header=table_header,
                                   table_columns=table_columns,
-                                  discoverer_mode=discoverer_mode)
+                                  discoverer_mode=discoverer_mode,
+                                  extra_url_parameters=extra_url_parameters)
 
     if len(collaborating_organizations) == 0:
         message = 'This person has no collaborations with other organizations.'
@@ -1644,25 +1777,29 @@ def find_person_organization_collaborations(parent_node: Node,
     html += get_regular_table(nodes_list=collaborating_organizations,
                               table_header=table_header,
                               table_columns=table_columns,
-                              discoverer_mode=discoverer_mode)
+                              discoverer_mode=discoverer_mode,
+                              extra_url_parameters=extra_url_parameters)
     return html
 
 
 def find_organization_additional_info(parent_node: Node,
                                       name_list: list = None,
                                       category_list: list = None,
-                                      max_nr_neighbor_nodes: int = 0,
-                                      discoverer_mode: str = '') -> str:
+                                      discoverer_mode: str = '',
+                                      extra_url_parameters: dict = None) -> str:
     """Function that finds additional information connected to a (sub-)organization.
 
     :param parent_node: the starting node for finding additional information.
     :param name_list: the name list used for selection.
     :param category_list: the category list used for selection.
-    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :param discoverer_mode: as usual.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
     global graph
+
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
 
     if parent_node is None:
         message = 'Unexpected result in find_organization_additional_info(): '
@@ -1685,6 +1822,8 @@ def find_organization_additional_info(parent_node: Node,
         name_str = name_list[0]
     if len(category_list) == 1:
         category_str = category_list[0]
+
+    max_nr_items = int(extra_url_parameters['max_nr_items'])
 
     # ### Start.
     # I use a Cypher query instead of the much slower code commented below.
@@ -1750,8 +1889,8 @@ def find_organization_additional_info(parent_node: Node,
         cypher_query += 'second_neighbor.category IN ' + second_neighbor_category_list + ' '
     cypher_query += 'RETURN DISTINCT second_neighbor, count(second_neighbor) as count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
-    if max_nr_neighbor_nodes > 0:
-        cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
+    if max_nr_items > 0:
+        cypher_query += 'LIMIT ' + str(max_nr_items)
     # print(cypher_query)
     cypher_result, _, _ = graph.execute_query(cypher_query,
                                               node_element_id=parent_node.element_id,
@@ -1806,7 +1945,8 @@ def find_organization_additional_info(parent_node: Node,
     html += get_regular_table(nodes_list=[parent_node],
                               table_header=table_header,
                               table_columns=table_columns,
-                              discoverer_mode=discoverer_mode)
+                              discoverer_mode=discoverer_mode,
+                              extra_url_parameters=extra_url_parameters)
     table_header = 'These are all the '
     if name_str != '' and category_str != '':
         table_header += '"' + name_str + '" and "' + category_str + '" '
@@ -1821,34 +1961,43 @@ def find_organization_additional_info(parent_node: Node,
                                   table_header=table_header,
                                   table_columns=table_columns,
                                   tabs_on='category',
-                                  discoverer_mode=discoverer_mode)
+                                  discoverer_mode=discoverer_mode,
+                                  extra_url_parameters=extra_url_parameters)
 
     if we_have_competence:
-        histogram_html = get_html_for_cardstart()
-        histogram_html += get_html_for_histogram(histogram_list=expertise_area_list,
-                                                 histogram_width=250,
-                                                 histogram_title='Histogram of "expertise area":')
-        histogram_html += get_html_for_cardend()
-        histogram_html += get_html_for_cardstart()
-        histogram_html += get_html_for_histogram(histogram_list=research_area_list,
-                                                 histogram_width=250,
-                                                 histogram_title='Histogram of "research area":')
-        histogram_html += get_html_for_cardend()
-        histogram_html += get_html_for_cardstart()
-        histogram_html += get_html_for_histogram(histogram_list=skill_list,
-                                                 histogram_width=250,
-                                                 histogram_title='Histogram of "skill":')
-        histogram_html += get_html_for_cardend()
+        histogram_html = ''
+        if len(expertise_area_list) > 1:
+            histogram_html += get_html_for_cardstart()
+            histogram_html += get_html_for_histogram(histogram_list=expertise_area_list,
+                                                     histogram_width=250,
+                                                     histogram_title='Histogram of "expertise area":')
+            histogram_html += get_html_for_cardend()
+        if len(research_area_list) > 1:
+            histogram_html += get_html_for_cardstart()
+            histogram_html += get_html_for_histogram(histogram_list=research_area_list,
+                                                     histogram_width=250,
+                                                     histogram_title='Histogram of "research area":')
+            histogram_html += get_html_for_cardend()
+        if len(skill_list) > 1:
+            histogram_html += get_html_for_cardstart()
+            histogram_html += get_html_for_histogram(histogram_list=skill_list,
+                                                     histogram_width=250,
+                                                     histogram_title='Histogram of "skill":')
+            histogram_html += get_html_for_cardend()
 
-        # Divide space between histogram and table.
-        html += '<div class="w3-row-padding w3-stretch" >'
-        html += '<div class="w3-col" style="width:23em" >'
-        html += histogram_html
-        html += '</div>'
-        html += '<div class="w3-rest" >'
-        html += table_html
-        html += '</div>'
-        html += '</div>'
+        if histogram_html == '':
+            # No data for any of the histograms.
+            html += table_html
+        else:
+            # Divide space between histogram and table.
+            html += '<div class="w3-row-padding w3-stretch" >'
+            html += '<div class="w3-col" style="width:23em" >'
+            html += histogram_html
+            html += '</div>'
+            html += '<div class="w3-rest" >'
+            html += table_html
+            html += '</div>'
+            html += '</div>'
     else:
         html += table_html
 
@@ -1857,7 +2006,8 @@ def find_organization_additional_info(parent_node: Node,
 
 def find_overlap_in_source_systems(name: str = '', category: str = '', value: str = '',
                                    discoverer_mode: str = '',
-                                   overlap_mode: str = 'neighbornodes') -> str:
+                                   overlap_mode: str = 'neighbornodes',
+                                   extra_url_parameters: dict = None) -> str:
     """Get the overlap in items from source systems.
     We do need a 'name', 'category' and/or 'value', otherwise we won't be able
     to find overlap in source systems for a list of items. That list can only be
@@ -1872,9 +2022,13 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     :param value: value of the node(s) to find.
     :param discoverer_mode: the discoverer_mode to use.
     :param overlap_mode: which overlap to compute: from this node ('thisnode')
-    or from the neighbors of this node ('neighbornodes').
+      or from the neighbors of this node ('neighbornodes').
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
+
     html = ''
     nodes = rcg.read_all_nodes(name=name, category=category, value=value)
     if len(nodes) == 0:
@@ -2002,7 +2156,8 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
                                             'system2': 'singlesource',
                                             'view_mode': 'view_regular_table_overlap_records',
                                             'discoverer_mode': discoverer_mode,
-                                            'overlap_mode': overlap_mode})
+                                            'overlap_mode': overlap_mode}
+                                           | extra_url_parameters)
             html += '">'
             html += str(recs_from_one_source[system])
             html += '</a>'
@@ -2019,7 +2174,8 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
                                             'system2': 'multiplesource',
                                             'view_mode': 'view_regular_table_overlap_records',
                                             'discoverer_mode': discoverer_mode,
-                                            'overlap_mode': overlap_mode})
+                                            'overlap_mode': overlap_mode}
+                                           | extra_url_parameters)
             html += '">'
             html += str(recs_from_multiple_sources[system])
             html += '</a>'
@@ -2079,7 +2235,8 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
                                             'system2': 'multiplesource',
                                             'view_mode': 'view_regular_table_overlap_records',
                                             'discoverer_mode': discoverer_mode,
-                                            'overlap_mode': overlap_mode})
+                                            'overlap_mode': overlap_mode}
+                                           | extra_url_parameters)
             html += '">'
             html += str(recs_from_multiple_sources[system1])
             html += '</a>'
@@ -2098,7 +2255,8 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
                                                 'system2': system2,
                                                 'view_mode': 'view_regular_table_overlap_records',
                                                 'discoverer_mode': discoverer_mode,
-                                                'overlap_mode': overlap_mode})
+                                                'overlap_mode': overlap_mode}
+                                               | extra_url_parameters)
                 html += '">'
                 html += str(recs_from_multiple_sources_histogram[system1][system2])
                 percent = recs_from_multiple_sources_histogram[system1][system2]/recs_from_multiple_sources[system1]
@@ -2121,7 +2279,8 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
 def find_overlap_in_source_systems_records(name: str = '', category: str = '', value: str = '',
                                            system1: str = '', system2: str = '',
                                            discoverer_mode: str = '',
-                                           overlap_mode: str = '') -> str:
+                                           overlap_mode: str = '',
+                                           extra_url_parameters: dict = None) -> str:
     """Show the overlap items in a html table.
     This function is tightly connected to find_overlap_in_source_systems().
     We do need a 'name', 'category' and/or 'value', otherwise we won't be able
@@ -2134,9 +2293,13 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
     :param system2: source system 2 used to compute the overlap.
     :param discoverer_mode: the discoverer_mode to use.
     :param overlap_mode: which overlap to compute: from this node ('thisnode')
-    or from the neighbors of this node ('neighbornodes').
+      or from the neighbors of this node ('neighbornodes').
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
+
     html = ''
     if system1 == '' and system2 != '':
         # swap
@@ -2211,14 +2374,16 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
                                           discoverer_mode=discoverer_mode,
                                           overlap_mode=overlap_mode,
                                           system1=system1,
-                                          system2=system2)
+                                          system2=system2,
+                                          extra_url_parameters=extra_url_parameters)
     else:
         table_columns = RESEARCH_OUTPUT_COLUMNS
 
     html += get_regular_table(nodes_list=relevant_result,
                               table_header='These items conform to your selection:',
                               table_columns=table_columns,
-                              discoverer_mode=discoverer_mode)
+                              discoverer_mode=discoverer_mode,
+                              extra_url_parameters=extra_url_parameters)
     return html
 
 
@@ -2281,14 +2446,19 @@ def get_message(message: str, please_try_again: bool = True) -> str:
 
 def get_found_message(node: Node,
                       table_header: str = '',
-                      discoverer_mode: str = '') -> str:
+                      discoverer_mode: str = '',
+                      extra_url_parameters: dict = None) -> str:
     """This function creates a html table containing 'node'.
 
     :param node: the node to put in the table.
     :param table_header: header for the table.
     :param discoverer_mode: as usual.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
+
     if table_header == '':
         header = 'Ricgraph Explorer found item:'
     else:
@@ -2296,15 +2466,16 @@ def get_found_message(node: Node,
 
     html = get_regular_table(nodes_list=[node],
                              table_header=header,
-                             discoverer_mode=discoverer_mode)
+                             discoverer_mode=discoverer_mode,
+                             extra_url_parameters=extra_url_parameters)
     return html
 
 
 def create_html_form(destination: str,
                      button_text: str,
                      explanation: str = '',
-                     input_fields: dict = '',
-                     hidden_fields: dict = '') -> str:
+                     input_fields: dict = None,
+                     hidden_fields: dict = None) -> str:
     """Creates a form according to a specification.
 
     'input_fields' is a dict according to this specification:
@@ -2327,6 +2498,10 @@ def create_html_form(destination: str,
     :param hidden_fields: see above.
     :return: html for the form.
     """
+    if input_fields is None:
+        input_fields = {}
+    if hidden_fields is None:
+        hidden_fields = {}
     form = explanation
     form += '<form method="get" action="/' + destination + '">'
     for item in input_fields:
@@ -2381,7 +2556,8 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
                               system2: str = 'None',
                               source_system: str = 'None',
                               name_filter: str = 'None',
-                              category_filter: str = 'None') -> str:
+                              category_filter: str = 'None',
+                              extra_url_parameters: dict = None) -> str:
     """Get the html for the "You searched for" card.
     If you do not pass a str parameter, such as 'key', the default value will
     be 'None', which indicates that that value has not been passed.
@@ -2404,12 +2580,15 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
     :param source_system: source_system.
     :param name_filter: name_filter.
     :param category_filter: category_filter.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
     if name_list is None:
         name_list = []
     if category_list is None:
         category_list = []
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
 
     html = get_html_for_cardstart()
     html += '<details><summary>Click for information about your search</summary><ul>'
@@ -2441,6 +2620,8 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
         html += '<li>name_filter: <i>"' + str(name_filter) + '"</i>'
     if category_filter != 'None':
         html += '<li>category_filter: <i>"' + str(category_filter) + '"</i>'
+    for item in extra_url_parameters:
+        html += '<li>extra_url_parameters["' + item + '"]: <i>"' + extra_url_parameters[item] + '"</i>'
     html += '</ul>'
     html += '</details>'
     html += get_html_for_cardend()
@@ -2454,17 +2635,21 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
 def get_regular_table(nodes_list: list,
                       table_header: str = '',
                       table_columns: list = None,
-                      discoverer_mode: str = '') -> str:
+                      discoverer_mode: str = '',
+                      extra_url_parameters: dict = None) -> str:
     """Create a html table for all nodes in the list.
 
     :param nodes_list: the nodes to create a table from.
     :param table_header: the html to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param discoverer_mode: the discoverer_mode to use.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
     global nodes_cache
 
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
     if table_columns is None:
         if discoverer_mode == 'details_view':
             table_columns = DETAIL_COLUMNS
@@ -2473,16 +2658,18 @@ def get_regular_table(nodes_list: list,
     if len(nodes_list) == 0:
         return get_message(table_header + '</br>Nothing found.')
 
+    len_nodes_list = len(nodes_list)
     nr_rows_in_table_message = ''
-    if len(nodes_list) > MAX_ROWS_IN_TABLE:
-        nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this table, showing first '
-        nr_rows_in_table_message += str(MAX_ROWS_IN_TABLE) + '.'
-    elif len(nodes_list) == MAX_ROWS_IN_TABLE:
+    max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
+    if 0 < max_nr_table_rows < len_nodes_list:
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table, showing first '
+        nr_rows_in_table_message += str(max_nr_table_rows) + '.'
+    elif len_nodes_list == max_nr_table_rows:
         # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
         # so we have no idea how many search results there are.
-        nr_rows_in_table_message = 'This table shows the first ' + str(MAX_ROWS_IN_TABLE) + ' rows.'
-    elif len(nodes_list) >= 2:
-        nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this table.'
+        nr_rows_in_table_message = 'This table shows the first ' + str(max_nr_table_rows) + ' rows.'
+    elif len_nodes_list >= 2:
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table.'
 
     html = get_html_for_cardstart()
     html += '<span style="float:left;">' + table_header + '</span>'
@@ -2492,11 +2679,12 @@ def get_regular_table(nodes_list: list,
     count = 0
     for node in nodes_list:
         count += 1
-        if count > MAX_ROWS_IN_TABLE:
+        if 0 < max_nr_table_rows < count:
             break
         html += get_html_for_tablerow(node=node,
                                       table_columns=table_columns,
-                                      discoverer_mode=discoverer_mode)
+                                      discoverer_mode=discoverer_mode,
+                                      extra_url_parameters=extra_url_parameters)
 
         # Add node to nodes_cache if it is not there already.
         key = node['_key']
@@ -2514,7 +2702,8 @@ def get_faceted_table(parent_node: Node,
                       table_header: str = '',
                       table_columns: list = None,
                       view_mode: str = '',
-                      discoverer_mode: str = '') -> str:
+                      discoverer_mode: str = '',
+                      extra_url_parameters: dict = None) -> str:
     """Create a faceted html table for all neighbor_nodes in the list.
 
     :param parent_node: the parent of the nodes to construct the facets from.
@@ -2523,8 +2712,11 @@ def get_faceted_table(parent_node: Node,
     :param table_columns: a list of columns to show in the table.
     :param view_mode: which view to use.
     :param discoverer_mode: the discoverer_mode to use.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
     if table_columns is None:
         if discoverer_mode == 'details_view':
             table_columns = DETAIL_COLUMNS
@@ -2536,11 +2728,13 @@ def get_faceted_table(parent_node: Node,
     faceted_html = get_facets_from_nodes(parent_node=parent_node,
                                          neighbor_nodes=neighbor_nodes,
                                          view_mode=view_mode,
-                                         discoverer_mode=discoverer_mode)
+                                         discoverer_mode=discoverer_mode,
+                                         extra_url_parameters=extra_url_parameters)
     table_html = get_regular_table(nodes_list=neighbor_nodes,
                                    table_header=table_header,
                                    table_columns=table_columns,
-                                   discoverer_mode=discoverer_mode)
+                                   discoverer_mode=discoverer_mode,
+                                   extra_url_parameters=extra_url_parameters)
     html = ''
     if faceted_html == '':
         # Faceted navigation not useful, don't show the panel.
@@ -2563,7 +2757,8 @@ def get_tabbed_table(nodes_list: Union[list, None],
                      table_header: str = '',
                      table_columns: list = None,
                      tabs_on: str = '',
-                     discoverer_mode: str = '') -> str:
+                     discoverer_mode: str = '',
+                     extra_url_parameters: dict = None) -> str:
     """Create a html table with tabs for all nodes in the list.
 
     :param nodes_list: the nodes to create a table from.
@@ -2571,8 +2766,11 @@ def get_tabbed_table(nodes_list: Union[list, None],
     :param table_columns: a list of columns to show in the table.
     :param tabs_on: the name of the field in Ricgraph you'd like to have tabs on.
     :param discoverer_mode: the discoverer_mode to use.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
     if table_columns is None:
         if discoverer_mode == 'details_view':
             table_columns = DETAIL_COLUMNS
@@ -2596,7 +2794,8 @@ def get_tabbed_table(nodes_list: Union[list, None],
         html = get_regular_table(nodes_list=nodes_list,
                                  table_header=table_header,
                                  table_columns=table_columns,
-                                 discoverer_mode=discoverer_mode)
+                                 discoverer_mode=discoverer_mode,
+                                 extra_url_parameters=extra_url_parameters)
         return html
 
     histogram_sort = sorted(histogram, key=histogram.get, reverse=True)
@@ -2635,7 +2834,8 @@ def get_tabbed_table(nodes_list: Union[list, None],
         table = get_regular_table(nodes_list=nodes_of_tab_name,
                                   table_header=table_title,
                                   table_columns=table_columns,
-                                  discoverer_mode=discoverer_mode)
+                                  discoverer_mode=discoverer_mode,
+                                  extra_url_parameters=extra_url_parameters)
         tab_contents_html += table
         tab_contents_html += '</div>'
 
@@ -2656,16 +2856,18 @@ def get_tabbed_table(nodes_list: Union[list, None],
                         }
                         </script>"""
 
+    len_nodes_list = len(nodes_list)
     nr_rows_in_table_message = ''
-    if len(nodes_list) > MAX_ROWS_IN_TABLE:
-        nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this tabbed table, showing first '
-        nr_rows_in_table_message += str(MAX_ROWS_IN_TABLE) + '.'
-    elif len(nodes_list) == MAX_ROWS_IN_TABLE:
+    max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
+    if 0 < max_nr_table_rows < len_nodes_list:
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table, showing first '
+        nr_rows_in_table_message += str(max_nr_table_rows) + '.'
+    elif len_nodes_list == max_nr_table_rows:
         # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
         # so we have no idea how many search results there are.
-        nr_rows_in_table_message = 'This tabbed table shows the first ' + str(MAX_ROWS_IN_TABLE) + ' rows.'
-    elif len(nodes_list) >= 2:
-        nr_rows_in_table_message = 'There are ' + str(len(nodes_list)) + ' rows in this tabbed table.'
+        nr_rows_in_table_message = 'This tabbed table shows the first ' + str(max_nr_table_rows) + ' rows.'
+    elif len_nodes_list >= 2:
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table.'
 
     table_html = get_html_for_cardstart()
     table_html += '<span style="float:left;">' + table_header + '</span>'
@@ -2705,7 +2907,8 @@ def get_tabbed_table(nodes_list: Union[list, None],
 def get_facets_from_nodes(parent_node: Node,
                           neighbor_nodes: list,
                           view_mode: str = '',
-                          discoverer_mode: str = '') -> str:
+                          discoverer_mode: str = '',
+                          extra_url_parameters: dict = None) -> str:
     """Do facet navigation in Ricgraph.
     The facets will be constructed based on 'name' and 'category'.
     Facets chosen will be "caught" in function search().
@@ -2715,9 +2918,12 @@ def get_facets_from_nodes(parent_node: Node,
     :param neighbor_nodes: the nodes to construct the facets from.
     :param view_mode: which view to use.
     :param discoverer_mode: the discoverer_mode to use.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered, or empty string ('') if faceted navigation is
       not useful because there is only one facet.
     """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
     if len(neighbor_nodes) == 0:
         return ''
 
@@ -2746,6 +2952,8 @@ def get_facets_from_nodes(parent_node: Node,
     faceted_form += '<input type="hidden" name="key" value="' + str(parent_node['_key']) + '">'
     faceted_form += '<input type="hidden" name="view_mode" value="' + str(view_mode) + '">'
     faceted_form += '<input type="hidden" name="discoverer_mode" value="' + str(discoverer_mode) + '">'
+    for item in extra_url_parameters:
+        faceted_form += '<input type="hidden" name="' + item + '" value="' + extra_url_parameters[item] + '">'
     if len(name_histogram) == 1:
         # Get the first (and only) element in the dict, pass it as hidden field to search().
         name_key = str(list(name_histogram.keys())[0])
@@ -2943,16 +3151,20 @@ def get_html_for_tableheader(table_columns: list = None) -> str:
 
 def get_html_for_tablerow(node: Node,
                           table_columns: list = None,
-                          discoverer_mode: str = '') -> str:
+                          discoverer_mode: str = '',
+                          extra_url_parameters: dict = None) -> str:
     """Get the html required for a row of a html table.
 
     :param node: the node to show in the table.
     :param table_columns: a list of columns to show in the table.
     :param discoverer_mode: the discoverer_mode to use.
+    :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
     if table_columns is None:
         table_columns = []
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
     html = '<tr class="item">'
     if 'name' in table_columns:
         # Name can never be empty, it is part of _key.
@@ -2967,7 +3179,8 @@ def get_html_for_tablerow(node: Node,
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
         html += '<td><a href=' + url_for('optionspage') + '?'
         html += urllib.parse.urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}) + '>'
+                                        'discoverer_mode': discoverer_mode}
+                                       | extra_url_parameters) + '>'
         html += node['value'] + '</a></td>'
     if 'comment' in table_columns:
         if isinstance(node['comment'], str):
