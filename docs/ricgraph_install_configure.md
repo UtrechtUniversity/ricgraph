@@ -42,7 +42,7 @@ capabilities of your computer. The more, the better. The author uses a VM of 35G
 10GB memory and 3 vCPUs on an 11th gen Intel i7 mobile processor. 
 
 Ricgraph has been
-developed with Python 3.11, but there are reports that Ricgraph will work with Python 3.6.9.
+developed with Python 3.11. For some features you need at least Python 3.9.
 
 ### Steps to take
 
