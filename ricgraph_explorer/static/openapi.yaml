@@ -1,0 +1,362 @@
+# ########################################################################
+#
+# Ricgraph - Research in context graph
+#
+# ########################################################################
+#
+# MIT License
+#
+# Copyright (c) 2024 Rik D.T. Janssen
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# ########################################################################
+#
+# This file is the OpenAPI specification file, the REST API
+# for Ricgraph and Ricgraph Explorer.
+#
+# Original version Rik D.T. Janssen, May 2024.
+#
+# ########################################################################
+
+openapi: 3.0.0
+info:
+  title: "Ricgraph REST API"
+  version: 1.0.0
+  description: "## Introduction
+   
+                This API gives access to functions both in ricgraph_explorer.py and in ricgraph.py. 
+                
+                ## More information
+                
+                For a gentle introduction in Ricgraph, read the reference publication: 
+                Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
+                context from various systems. *SoftwareX*, 26(101736).
+                [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
+                
+                Extensive documentation, publications, videos and source code can be found in the GitHub repository
+                [https://github.com/UtrechtUniversity/ricgraph](https://github.com/UtrechtUniversity/ricgraph).
+                "
+  contact:
+    name: Support for questions or improvements
+    url: https://github.com/UtrechtUniversity/ricgraph/issues
+  license:
+    name: MIT License
+    url: https://github.com/UtrechtUniversity/ricgraph/blob/main/LICENSE
+
+externalDocs:
+  url: https://doi.org/10.1016/j.softx.2024.101736
+  description: "Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to
+                explore research in context from various systems. SoftwareX, 26(101736)."
+
+servers:
+  - url: "/api"
+
+components:
+  parameters:
+    name:
+      name: "name"
+      description: "Search for a value in Ricgraph field *name*:"
+      in: query
+      required: False
+      schema:
+        type: "string"
+    category:
+      name: "category"
+      description: "Search for a value in Ricgraph field *category*:"
+      in: query
+      required: False
+      schema:
+        type: "string"
+    value:
+      name: "value"
+      description: "Search for a value in Ricgraph field *value*:"
+      # in: path
+      in: query
+      required: False
+      schema:
+        type: "string"
+    key:
+      name: "key"
+      description: "Search for a value in Ricgraph field *_key*:"
+      in: query
+      required: True
+      schema:
+        type: "string"
+    max_nr_items:
+      name: "max_nr_items"
+      description: "You might want to specify the maximum number of items 
+                    to return, or 0 to return all items:"
+      in: query
+      required: False
+      schema:
+        type: "string"
+        example: "250"      # This is MAX_ITEMS from ricgraph_explorer.py.
+    source_system:
+      name: "source_system"
+      description: "The name of the source system you would like to enrich:"
+      in: query
+      required: True
+      schema:
+        type: "string"
+    name_want:
+      name: "name_want"
+      description: "You might want to specify that you only want neighbor nodes
+                    whose property *name* is in this list:"
+      in: query
+      required: False
+      schema:
+        type: "array"
+        items:
+          type: "string"
+    name_dontwant:
+      name: "name_dontwant"
+      description: "You might want to specify that you only want neighbor nodes
+                    whose property *name* is not in this list:"
+      in: query
+      required: False
+      schema:
+        type: "array"
+        items:
+          type: "string"
+    category_want:
+      name: "category_want"
+      description: "You might want to specify that you only want neighbor nodes
+                    whose property *category* is in this list:"
+      in: query
+      required: False
+      schema:
+        type: "array"
+        items:
+          type: "string"
+    category_dontwant:
+      name: "category_dontwant"
+      description: "You might want to specify that you only want neighbor nodes
+                    whose property *category* is not in this list:"
+      in: query
+      required: False
+      schema:
+        type: "array"
+        items:
+          type: "string"
+
+tags:
+  - name: Person
+    description: "Everything related to persons in Ricgraph."
+  - name: Organization
+    description: "Everything related to organizations in Ricgraph."
+  - name: Skill, expertise area or research area
+    description: "Everything related to skills, expertise areas or research 
+                  areas in Ricgraph (only if Ricgraph contains these entities)."
+  - name: Advanced
+    description: "REST API access to advanced Ricgraph functions."
+
+paths:
+  /person/search:
+    get:
+      operationId: "ricgraph_explorer.api_search_person"
+      tags:
+        - Person
+      summary: "Search for a person"
+      parameters:
+        - $ref: "#/components/parameters/value"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /person/all_information:
+    get:
+      operationId: "ricgraph_explorer.api_person_all_information"
+      tags:
+        - Person
+      summary: "Show all information related to this person"
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /person/share_research_results:
+    get:
+      operationId: "ricgraph_explorer.api_person_share_research_results"
+      tags:
+        - Person
+      summary: "Find persons that share any share research result types with this person"
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /person/collaborating_organizations:
+    get:
+      operationId: "ricgraph_explorer.api_person_collaborating_organizations"
+      tags:
+        - Person
+      summary: "Find organizations that this person collaborates with"
+      description: "With this call you will get an overview of organizations that his person 
+                    collaborates with. A person *X* from organization *A* collaborates with 
+                    a person *Y* from organization *B* if *X* and *Y* have both contributed to 
+                    the same research result."
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /person/enrich:
+    get:
+      operationId: "ricgraph_explorer.api_person_enrich"
+      tags:
+        - Person
+      summary: "Find information harvested from other source systems,
+                not present in this source system"
+      description: "The process of improving or enhancing information in a source 
+                    system is called *enriching* that source system. This is only 
+                    possible if you have harvested more than one source system. 
+                    By using information found in one or more other harvested systems, 
+                    information in this source system can be improved or enhanced.
+                    With this call you can enter a name of one of your source systems. 
+                    Ricgraph will show what information can be added to 
+                    this source system, based on the information harvested from other 
+                    source systems."
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/source_system"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /organization/search:
+    get:
+      operationId: "ricgraph_explorer.api_search_organization"
+      tags:
+        - Organization
+      summary: "Search for a (sub-)organization"
+      parameters:
+        - $ref: "#/components/parameters/value"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /organization/all_information:
+    get:
+      operationId: "ricgraph_explorer.api_organization_all_information"
+      tags:
+        - Organization
+      summary: "Show all information related to this organization"
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /organization/information_persons_results:
+    get:
+      operationId: "ricgraph_explorer.api_organization_information_persons_results"
+      tags:
+        - Organization
+      summary: "Find any information from persons or their results in this organization"
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /competence/search:
+    get:
+      operationId: "ricgraph_explorer.api_search_competence"
+      tags:
+        - Skill, expertise area or research area
+      summary: "Search for a skill, expertise area or research area"
+      parameters:
+        - $ref: "#/components/parameters/value"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /competence/all_information:
+    get:
+      operationId: "ricgraph_explorer.api_competence_all_information"
+      tags:
+        - Skill, expertise area or research area
+      summary: "Show all information related to this competence"
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /broad_search:
+    get:
+      operationId: "ricgraph_explorer.api_broad_search"
+      tags:
+        - Advanced
+      summary: "Search for anything (broad search)"
+      parameters:
+        - $ref: "#/components/parameters/value"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /advanced_search:
+    get:
+      operationId: "ricgraph_explorer.api_advanced_search"
+      tags:
+        - Advanced
+      summary: "Advanced search"
+      description: "The fields you enter are case-sensitive and use exact match search. 
+                    If you enter values in more than one field, these fields are 
+                    combined using AND."
+      parameters:
+        - $ref: "#/components/parameters/name"
+        - $ref: "#/components/parameters/category"
+        - $ref: "#/components/parameters/value"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /get_all_personroot_nodes:
+    get:
+      operationId: "ricgraph_explorer.api_get_all_personroot_nodes"
+      tags:
+        - Advanced
+      summary: "Find all person-root nodes of this node"
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+  /get_all_neighbor_nodes:
+    get:
+      operationId: "ricgraph_explorer.api_get_all_neighbor_nodes"
+      tags:
+        - Advanced
+      summary: "Find all neighbor nodes of this node"
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/name_want"
+        - $ref: "#/components/parameters/name_dontwant"
+        - $ref: "#/components/parameters/category_want"
+        - $ref: "#/components/parameters/category_dontwant"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"

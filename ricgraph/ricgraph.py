@@ -128,6 +128,14 @@ RICGRAPH_KEY_SEPARATOR = '|'
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
 A_LARGE_NUMBER = 9999999999
 
+# For the REST API, we need to return a HTTP response status code. These are
+# listed on https://developer.mozilla.org/en-US/docs/Web/HTTP/Status.
+# For Ricgraph, we only use one HTTP response status code:
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/200.
+# We also use this if an item cannot be found, since in that case we still
+# return a valid HTTP response.
+HTTP_RESPONSE_OK = 200
+
 # This dict is used as a cache for node id's. If we have a node id, we can
 # do a direct lookup for a node in O(1), instead of a search in O(log n).
 # The dict has the format: [Ricgraph _key]: [Node element_id].
@@ -1059,15 +1067,21 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
 
 
 def read_all_nodes(name: str = '', category: str = '', value: str = '',
+                   key: str = '',
                    name_is_exact_match: bool = True,
                    value_is_exact_match: bool = True,
                    max_nr_nodes: int = 0) -> list:
     """Read a number of nodes based on name, category or value.
     Any of these parameters can be specified.
+    It is also possible to read a number of nodes based on key.
+    But not name, category, value, and key at the same time.
+    If key has been specified, the values of name_is_exact_match and
+    value_is_exact_match are not used.
 
     :param name: 'name' property of node.
     :param category: idem.
     :param value: idem.
+    :param key: idem.
     :param name_is_exact_match: if True, then an exact match search is done
       on field 'name', if False, then a case-insensitive match is done.
       Note that a case-insensitive match is more expensive.
@@ -1086,7 +1100,8 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
 
     if not isinstance(name, str) \
        or not isinstance(category, str) \
-       or not isinstance(value, str):
+       or not isinstance(value, str) \
+       or not isinstance(key, str):
         return []
 
     # Special case, for speed.
@@ -1109,8 +1124,24 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
 
     # Now all other cases.
     # Don't allow a search for everything.
-    if name == '' and category == '' and value == '':
+    if name == '' and category == '' and value == '' and key == '':
         return []
+
+    if key != '' and name == '' and category == '' and value == '':
+        # Ignore 'max_nr_nodes'.
+        cypher_query = 'MATCH (node:RicgraphNode) WHERE (node._key=$node_key) '
+        cypher_query += 'RETURN node'
+        nodes = _graph.execute_query(cypher_query,
+                                     node_key=key,
+                                     result_transformer_=Result.value,
+                                     database_=ricgraph_databasename())
+        nr_nodes = len(nodes)
+        # Unsure what to count here, this seems reasonable. '+ 1' for first node.
+        graphdb_nr_reads += nr_nodes + 1
+        if nr_nodes == 0:
+            return []
+        else:
+            return nodes
 
     cypher_query = 'MATCH (node:RicgraphNode) WHERE '
     if name != '':
@@ -1131,7 +1162,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
 
     # Remove last 'AND ', is of length -4.
     cypher_query = cypher_query[:-4]
-    cypher_query += 'RETURN node'
+    cypher_query += 'RETURN node '
 
     if max_nr_nodes > 0:
         cypher_query += 'LIMIT ' + str(max_nr_nodes)
@@ -2490,6 +2521,60 @@ def write_dataframe_to_csv(filename: str, df: pandas.DataFrame) -> None:
               index=False)
     print('Done.')
     return
+
+
+def convert_nodes_to_list_of_dict(nodes_list: list,
+                                  max_nr_items: str = '0') -> list:
+    """Convert a list of nodes to a list of dict.
+
+    :param nodes_list: The list of nodes.
+    :param max_nr_items: The maximum number of items to return.
+    :return: A list of dicts
+    """
+    if max_nr_items == '0':
+        max_nr_nodes = A_LARGE_NUMBER
+    else:
+        max_nr_nodes = int(max_nr_items)
+
+    result_list = []
+    count = 0
+    for node in nodes_list:
+        count += 1
+        if count > max_nr_nodes:
+            break
+        result = {}
+        for item in node:
+            result[item] = node[item]
+        result_list.append(result)
+    return result_list
+
+
+def create_http_response(result_list: list = None,
+                         message: str = '',
+                         http_status: int = HTTP_RESPONSE_OK) -> dict:
+    """Create an HTTP response.
+
+    :param result_list: A list of dicts, to be put in the 'result' section of
+      the response.
+    :param message: An optional message to be put in the 'meta' section of
+      the response.
+    :param http_status: The HTTP status code to be put in the 'meta' section of
+      the response.
+    :return: The HTTP response in dict format.
+    """
+    if result_list is None:
+        result_list = []
+
+    meta = {'count': len(result_list),
+            'page': 1,                      # More pages not implemented yet.
+            'per_page': len(result_list),   # Should be page length, not implemented yet.
+            'status': http_status}
+    if message != '':
+        meta['message'] = message
+
+    response = {'meta': meta,
+                'results': result_list}
+    return response
 
 
 def print_commandline_arguments(argument_list: list) -> None:
