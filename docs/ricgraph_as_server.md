@@ -508,7 +508,7 @@ following command:
 in section
 [Create a Python virtual environment and install Ricgraph in
 it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) above. For *python3.11* you can take any Python version that is installed
-on your computer, as long as it is newer than Python 3.6.
+on your computer, as long as it is at least Python 3.9.
 
 
 ### Return to main README.md file
