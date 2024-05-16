@@ -3269,6 +3269,7 @@ def get_html_for_cardline() -> str:
 
 # ##############################################################################
 # REST API functions.
+# Ricgraph uses the OpenAPI format: https://www.openapis.org.
 # We use Connexion: https://connexion.readthedocs.io/en/latest.
 # ##############################################################################
 def api_search_person(value: str = '',

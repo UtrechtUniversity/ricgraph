@@ -30,6 +30,8 @@
 #
 # This file is the OpenAPI specification file, the REST API
 # for Ricgraph and Ricgraph Explorer.
+# For the OpenAPI format specification,
+# see https://spec.openapis.org/oas/latest.html.
 #
 # Original version Rik D.T. Janssen, May 2024.
 #
@@ -109,7 +111,6 @@ components:
     value:
       name: "value"
       description: "Search for a value in Ricgraph field *value*:"
-      # in: path
       in: query
       required: False
       schema:
@@ -123,13 +124,12 @@ components:
         type: "string"
     max_nr_items:
       name: "max_nr_items"
-      description: "You might want to specify the maximum number of items 
-                    to return, or 0 to return all items:"
+      description: "The maximum number of items to return, or 0 to return all items:"
       in: query
       required: False
       schema:
         type: "string"
-        example: "250"      # This is MAX_ITEMS from ricgraph_explorer.py.
+        default: "250"      # This is MAX_ITEMS from ricgraph_explorer.py.
     source_system:
       name: "source_system"
       description: "The name of the source system you would like to enrich:"
@@ -139,44 +139,52 @@ components:
         type: "string"
     name_want:
       name: "name_want"
-      description: "You might want to specify that you only want neighbor nodes
-                    whose property *name* is in this list:"
+      description: "Return only neighbor nodes whose field *name* matches any value 
+                    in the provided list; if the list is empty, return all neighbor nodes 
+                    regardless of their field *name*:"
       in: query
       required: False
       schema:
         type: "array"
         items:
           type: "string"
+          default: ""          # To prevent the word 'string' in the input field.
     name_dontwant:
       name: "name_dontwant"
-      description: "You might want to specify that you only want neighbor nodes
-                    whose property *name* is not in this list:"
+      description: "Return only neighbor nodes whose field *name* does *not* match any value 
+                    in the provided list; if the list is empty, return all neighbor nodes 
+                    regardless of their field *name*:"
       in: query
       required: False
       schema:
         type: "array"
         items:
           type: "string"
+          default: ""          # To prevent the word 'string' in the input field.
     category_want:
       name: "category_want"
-      description: "You might want to specify that you only want neighbor nodes
-                    whose property *category* is in this list:"
+      description: "Return only neighbor nodes whose field *category* matches any value 
+                    in the provided list; if the list is empty, return all neighbor nodes 
+                    regardless of their field *category*:"
       in: query
       required: False
       schema:
         type: "array"
         items:
           type: "string"
+          default: ""          # To prevent the word 'string' in the input field.
     category_dontwant:
       name: "category_dontwant"
-      description: "You might want to specify that you only want neighbor nodes
-                    whose property *category* is not in this list:"
+      description: "Return only neighbor nodes whose field *category* does *not* match any value 
+                    in the provided list; if the list is empty, return all neighbor nodes 
+                    regardless of their field *category*:"
       in: query
       required: False
       schema:
         type: "array"
         items:
           type: "string"
+          default: ""          # To prevent the word 'string' in the input field.
 
 tags:
   - name: Person

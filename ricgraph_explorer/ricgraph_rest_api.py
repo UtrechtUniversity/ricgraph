@@ -43,11 +43,11 @@ app = connexion.App(__name__, specification_dir="./static/")
 app.add_api("openapi.yaml")
 
 # RICGRAPH_PATH = '/opt/ricgraph_venv'
-RICGRAPH_PATH = '..'
-sys.path.insert(0, RICGRAPH_PATH)
-sys.path.insert(0, RICGRAPH_PATH + '/ricgraph')
-sys.path.insert(0, RICGRAPH_PATH + '/ricgraph_explorer')
-os.chdir(RICGRAPH_PATH + '/ricgraph_explorer')
+# RICGRAPH_PATH = '..'
+# sys.path.insert(0, RICGRAPH_PATH)
+# sys.path.insert(0, RICGRAPH_PATH + '/ricgraph')
+# sys.path.insert(0, RICGRAPH_PATH + '/ricgraph_explorer')
+# os.chdir(RICGRAPH_PATH + '/ricgraph_explorer')
 
 application = create_ricgraph_explorer_app()
 
