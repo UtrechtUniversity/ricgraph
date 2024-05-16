@@ -37,22 +37,43 @@
 
 openapi: 3.0.0
 info:
-  title: "Ricgraph REST API"
+  title: "Ricgraph - Research in context graph REST API"
   version: 1.0.0
-  description: "## Introduction
+  description: "
+              ### What is Ricgraph?
+              
+              Ricgraph, also known as Research in context graph, enables the exploration of researchers, 
+              teams, their results,
+              collaborations, skills, projects, and the relations between these items.
+              
+              Ricgraph can store many types of items into a single graph. 
+              These items can be obtained from various systems and from
+              multiple organizations. Ricgraph facilitates reasoning about these 
+              items because it infers new relations between items,
+              relations that are not present in any of the separate source systems. 
+              It is flexible and extensible, and can be
+              adapted to new application areas.
+              
+              ### What can you find here?
    
-                This API gives access to functions both in ricgraph_explorer.py and in ricgraph.py. 
+              This is the [Swagger user interface](https://swagger.io/tools/swagger-ui)
+              to the Ricgraph REST API. The Ricgraph REST API uses 
+              the [OpenAPI standard](https://www.openapis.org).
+              It gives access to functions both in ricgraph_explorer.py and in ricgraph.py. 
+              
+              [Read more about REST (representational state transfer)](https://en.wikipedia.org/wiki/REST), or
+              [read more about API (application programming interface)](https://en.wikipedia.org/wiki/API).
                 
-                ## More information
+              ### More information
                 
-                For a gentle introduction in Ricgraph, read the reference publication: 
-                Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
-                context from various systems. *SoftwareX*, 26(101736).
-                [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
+              For a gentle introduction in Ricgraph, read the reference publication: 
+              Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
+              context from various systems. *SoftwareX*, 26(101736).
+              [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
                 
-                Extensive documentation, publications, videos and source code can be found in the GitHub repository
-                [https://github.com/UtrechtUniversity/ricgraph](https://github.com/UtrechtUniversity/ricgraph).
-                "
+              Extensive documentation, publications, videos and source code can be found in the GitHub repository
+              [https://github.com/UtrechtUniversity/ricgraph](https://github.com/UtrechtUniversity/ricgraph).
+              "
   contact:
     name: Support for questions or improvements
     url: https://github.com/UtrechtUniversity/ricgraph/issues
@@ -62,8 +83,9 @@ info:
 
 externalDocs:
   url: https://doi.org/10.1016/j.softx.2024.101736
-  description: "Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to
-                explore research in context from various systems. SoftwareX, 26(101736)."
+  description: "Reference publication: Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to
+                explore research in context from various systems. SoftwareX, 26(101736).
+                https://doi.org/10.1016/j.softx.2024.101736."
 
 servers:
   - url: "/api"
