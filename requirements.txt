@@ -1,5 +1,5 @@
 flask
-connexion[swagger-ui]
+connexion[swagger-ui,flask,uvicorn]
 markupsafe
 neo4j >= 5.8
 numpy
