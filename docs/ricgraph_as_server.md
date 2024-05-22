@@ -292,7 +292,7 @@ Examples of commands you can use are:
 Using a service unit file to run
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is very useful if you would like to set up a virtual machine that you want to use as
-a demo server. Or if you would like to use the Ricgraph REST API.
+a demo server, or if you would like to use the [Ricgraph REST API](ricgraph_restapi.md).
 After the steps in this section, 
 Ricgraph Explorer and the Ricgraph REST API are run
 automatically at the start of the virtual machine, so you can immediately start giving the demo.
@@ -332,9 +332,11 @@ the outside world. All data will only be accessible in the virtual machine.
   journalctl -u ricgraph_explorer_gunicorn.service
   ```
 * Exit from user *root*.
-* Now you can use Ricgraph Explorer and the Ricgraph REST API by typing
+* Now you can use Ricgraph Explorer by typing
   [http://localhost:3030](http://localhost:3030) in your web browser (i.e., the web browser of
   the virtual machine).
+  You can use the Ricgraph REST API by using the path
+  *http://localhost:3030/api* followed by a REST API endpoint.
 
 
 ### Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
@@ -344,15 +346,16 @@ Flask contains a development web server, and if you start Ricgraph Explorer by t
 *ricgraph_explorer.py*, it will be started using that development web server. As this development
 web server is sufficient for development and demoing, it is certainly *not* sufficient
 for exposing Ricgraph data to the outside world (that is, to users outside your own virtual machine).
-The same holds for the Ricgraph REST API.
+The same holds for the [Ricgraph REST API](ricgraph_restapi.md).
 
 For this, you will need a web server and a WSGI environment. 
 For the REST API, you will need an ASGI environment.
 This section describes how
 to do that with Apache and *gunicorn*. 
-However, the example configuration file for Apache exposes Ricgraph Explorer
+Note that the example configuration file for Apache exposes Ricgraph Explorer
 to the outside world on a http (unencrypted) connection, without any form of authentication.
 Certainly, this is not the way to do it. At least you should expose Ricgraph Explorer
+and the REST API
 using a https (encrypted) connection, possibly with additional authentication.
 
 Therefore, the configuration file provided is an example for further development.
@@ -410,7 +413,13 @@ and Ricgraph data to the outside world.*
   [http://localhost](http://localhost) in your web browser in the virtual machine, or 
   from outside your virtual machine by going to
   [http://[your IP address]](http://[your_IP_address) or
-  [http://[your hostname]](http://[your_hostname). 
+  [http://[your hostname]](http://[your_hostname).
+* You can use the Ricgraph REST API from inside your virtual machine by
+  using the path *http://localhost:3030/api* followed by a REST API endpoint, or
+  from outside your virtual machine by
+  using the path *http://[your IP address/api* or
+  *http://[your hostname]/api*,
+  both followed by a REST API endpoint.
 
 
 ### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition

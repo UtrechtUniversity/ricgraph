@@ -21,8 +21,7 @@ On this page, you can learn more about:
 
 
 ### Installation of the Ricgraph REST API
-The Ricgraph REST API is part of Ricgraph Explorer.
-* Read [how to start Ricgraph 
+The Ricgraph REST API is part of Ricgraph Explorer. Read [how to start Ricgraph 
   Explorer](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
 
 Depending on your needs, you might also want to read:
@@ -41,7 +40,7 @@ For example, in
 ```
 http://127.0.0.1:3030/api/person/search?value=John+Doe
 ```
-*/person/search* is the endpoint, *value* a query parameter to the REST API,
+*/person/search* is the endpoint, *value* the name of a query parameter to the REST API,
 and *John+Doe* the value for the query parameter.
 
 You can use the online documentation in Ricgraph Explorer
@@ -53,7 +52,7 @@ Ricgraph Explorer, and you will get an explation how to do this.
 You can also read the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md).
 This page is auto generated using 
 [openapi-to-md](https://github.com/SoraKumo001/openapi-to-md).
-To do this, follow these steps:
+To auto generate that documentation page, follow these steps:
 * If not installed, as root user, install *npm* using the package installer of your Linux.
 * Go to your home directory, type:
   ```
