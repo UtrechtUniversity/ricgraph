@@ -82,6 +82,17 @@ so Ricgraph can be used in other application areas.
 * Ricgraph facilitates reasoning about items because it infers new relations between items.
 * Ricgraph can be tailored for an application area.
 
+### How to use Ricgraph (very short)
+
+* [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
+* Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md).
+* Use [Ricgraph Explorer](docs/ricgraph_explorer.md),
+  the exploration tool for Ricgraph. 
+* Use the [Ricgraph REST API](docs/ricgraph_restapi.md),
+  the REST API for Ricgraph.
+
+For more details, see the remainder of this documentation.
+  
 ### Read more about Ricgraph
 
 For a gentle introduction in Ricgraph, read the reference publication: 
@@ -92,10 +103,6 @@ https://doi.org/10.1016/j.softx.2024.101736.
 More details can be found in section
 [Example use cases in Ricgraph](#example-use-cases-in-ricgraph),
 where you can read how the use cases above work out using Ricgraph.
-You can explore the graph using
-[Ricgraph Explorer](docs/ricgraph_explorer.md). This web application
-has a number of build-in queries that you can access by pressing a button.
-
 To learn more about Ricgraph,
 [read why Ricgraph has been developed](#why-ricgraph).
 This is followed by
@@ -307,6 +314,8 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 * First, install Ricgraph (see above).
 * Use [Ricgraph Explorer](docs/ricgraph_explorer.md),
   the exploration tool for Ricgraph. 
+* Use the [Ricgraph REST API](docs/ricgraph_restapi.md),
+  the REST API for Ricgraph.
 * Alternatively, you might want to read
   [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
 

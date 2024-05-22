@@ -33,14 +33,15 @@ the following steps:
   it](#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * [Run Ricgraph scripts from the command 
   line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob).
-* [Use a service unit file to run Ricgraph 
-  Explorer](#use-a-service-unit-file-to-run-ricgraph-explorer).
-* [Use Apache and WSGI to make Ricgraph Explorer accessible from outside your virtual 
-  machine](#use-apache-and-wsgi-to-make-ricgraph-explorer-accessible-from-outside-your-virtual-machine).
+* [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST 
+  API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
+* [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph 
+  REST API accessible from outside your virtual 
+  machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community
   Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research 
-  Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
+  Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud).
 * [How to solve an AttributeError: Neo4jDriver object has no attribute 
   executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
 
@@ -185,6 +186,13 @@ However, it has not been tested extensively with Ricgraph yet.
   ```
   chown -R alice:users /opt/ricgraph_venv
   ```
+* The path */opt/ricgraph_venv* is hardwired in the configuration files
+  [ricgraph_server_config/ricgraph_explorer_gunicorn.service
+  ](../ricgraph_server_config/ricgraph_explorer_gunicorn.service)
+  and
+  [ricgraph_server_config/ricgraph_explorer.conf-apache](../ricgraph_server_config/ricgraph_explorer.conf-apache).
+  This is done for security reasons. If you change the path, also change it
+  in these files.
 * Exit from user *root*. Do the following steps as your own user.
 * Download the latest release of Ricgraph from the
   [Ricgraph downloads
@@ -280,12 +288,13 @@ Examples of commands you can use are:
   ```
   
   
-### Use a service unit file to run Ricgraph Explorer
+### Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API
 Using a service unit file to run
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is very useful if you would like to set up a virtual machine that you want to use as
-a demo server. After the steps in this section, 
-Ricgraph Explorer is run
+a demo server. Or if you would like to use the Ricgraph REST API.
+After the steps in this section, 
+Ricgraph Explorer and the Ricgraph REST API are run
 automatically at the start of the virtual machine, so you can immediately start giving the demo.
 
 For comparison, if you had installed the graph database backend
@@ -297,7 +306,8 @@ after the start of the virtual machine, you would need to start the graph databa
 backend, the virtual environment,
 and *ricgraph_explorer.py* by hand.
 
-Using a service unit file will *not* expose Ricgraph Explorer and Ricgraph data to 
+Using a service unit file will *not* expose Ricgraph Explorer,
+the Ricgraph REST API, and Ricgraph data to 
 the outside world. All data will only be accessible in the virtual machine.
 
 * Follow the steps in [Create a Python virtual environment and install Ricgraph in 
@@ -305,37 +315,41 @@ the outside world. All data will only be accessible in the virtual machine.
 * Login as user *root*.
 * Install the *Ricgraph Explorer* service unit file:
   copy
-  [ricgraph_server_config/ricgraph_explorer.service](../ricgraph_server_config/ricgraph_explorer.service)
+  [ricgraph_server_config/ricgraph_explorer_gunicorn.service
+  ](../ricgraph_server_config/ricgraph_explorer_gunicorn.service)
   to /etc/systemd/system, type:
   ```
-  cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer.service /etc/systemd/system
+  cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer_gunicorn.service /etc/systemd/system
   ```
   Make it run by typing:
   ``` 
-  systemctl enable ricgraph_explorer.service
-  systemctl start ricgraph_explorer.service
+  systemctl enable ricgraph_explorer_gunicorn.service
+  systemctl start ricgraph_explorer_gunicorn.service
   ```
   Check the log for any errors, use one of:
   ```
-  systemctl -l status ricgraph_explorer.service
-  journalctl -u ricgraph_explorer.service
+  systemctl -l status ricgraph_explorer_gunicorn.service
+  journalctl -u ricgraph_explorer_gunicorn.service
   ```
 * Exit from user *root*.
-* Now you can use Ricgraph Explorer by typing
+* Now you can use Ricgraph Explorer and the Ricgraph REST API by typing
   [http://localhost:3030](http://localhost:3030) in your web browser (i.e., the web browser of
   the virtual machine).
-  
 
-### Use Apache and WSGI to make Ricgraph Explorer accessible from outside your virtual machine
+
+### Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is written in Flask, a framework for Python to build web interfaces.
 Flask contains a development web server, and if you start Ricgraph Explorer by typing
 *ricgraph_explorer.py*, it will be started using that development web server. As this development
 web server is sufficient for development and demoing, it is certainly *not* sufficient
 for exposing Ricgraph data to the outside world (that is, to users outside your own virtual machine).
+The same holds for the Ricgraph REST API.
 
-For this, you will need a web server and a WSGI environment. This section describes how
-to do that with Apache and WSGI. 
+For this, you will need a web server and a WSGI environment. 
+For the REST API, you will need an ASGI environment.
+This section describes how
+to do that with Apache and *gunicorn*. 
 However, the example configuration file for Apache exposes Ricgraph Explorer
 to the outside world on a http (unencrypted) connection, without any form of authentication.
 Certainly, this is not the way to do it. At least you should expose Ricgraph Explorer
@@ -346,32 +360,28 @@ There is no example code for a https connection, nor for authentication, nor for
 automatically obtaining and renewing SSL certificates, because these
 are specific to a certain situation (such as your external IP address, hostname,
 web server, domain name, SSL certificate provider, authentication source, etc.). 
-So only expose Ricgraph Explorer and the data in Ricgraph
+So only expose Ricgraph Explorer, the Ricgraph REST API, and the data in Ricgraph
 to the outside world if you have considered these subjects, and have made an informed
 decision what is best for your situation.
 
-To prevent accidental exposure of Ricgraph Explorer and the data in Ricgraph
+To prevent accidental exposure of Ricgraph Explorer, the REST API, and the data in Ricgraph
 to the outside world, you will have to modify the Apache configuration file. You
 need to make a small modification to make it work. How to do this is described in the
 comments at the start of the configuration file.
 
-*Using Apache and WSGI will expose Ricgraph Explorer and Ricgraph data to the outside world.*
+*Using Apache, WSGI, and ASGI will expose Ricgraph Explorer, the Ricgraph REST API,
+and Ricgraph data to the outside world.*
 
 * Follow the steps in [Create a Python virtual environment and install Ricgraph in
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Apache has been installed.
-* Install and enable Apache's WSGI module:
-  * OpenSUSE: 
-    ```
-    rpm -i apache2-mod_wsgi-python3
-    a2enmod mod_wsgi-python3
-    ```
-  * Debian/Ubuntu:
-    ```
-    apt install libapache2-mod-wsgi-py3 
-    a2enmod libapache2-mod-wsgi-py3 
-    ```
+* *Gunicorn* has already been installed when you installed the Python requirements.
+* Enable two Apache modules (they have already been installed when you installed Apache):
+  ```
+  a2enmod mod_proxy
+  a2enmod mod_proxy_http
+  ```
 * Install the Apache *Ricgraph Explorer* configuration file:
   copy
   [ricgraph_server_config/ricgraph_explorer.conf-apache](../ricgraph_server_config/ricgraph_explorer.conf-apache)
