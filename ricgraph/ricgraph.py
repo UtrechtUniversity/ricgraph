@@ -105,7 +105,7 @@ import requests
 import csv
 import uuid
 import json
-from typing import Union
+from typing import Union, Tuple
 from collections import defaultdict
 import configparser
 from neo4j import GraphDatabase, Driver, Result
@@ -128,13 +128,16 @@ RICGRAPH_KEY_SEPARATOR = '|'
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
 A_LARGE_NUMBER = 9999999999
 
-# For the REST API, we need to return a HTTP response status code. These are
-# listed on https://developer.mozilla.org/en-US/docs/Web/HTTP/Status.
+# For the REST API, we need to return an HTTP response status code. These are
+# listed on https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml.
 # For Ricgraph, we only use one HTTP response status code:
-# https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/200.
-# We also use this if an item cannot be found, since in that case we still
-# return a valid HTTP response.
+# https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok.
 HTTP_RESPONSE_OK = 200
+# We use these if an item cannot be found. They should be in the 2xx series
+# since we still return a valid HTTP response. These are in the "unassigned" range,
+# which may be freely used.
+HTTP_RESPONSE_NOTHING_FOUND = 250
+HTTP_RESPONSE_INVALID_SEARCH = 251
 
 # This dict is used as a cache for node id's. If we have a node id, we can
 # do a direct lookup for a node in O(1), instead of a search in O(log n).
@@ -269,7 +272,7 @@ Node.__eq__ = node_eq
 # - read_all_values_of_property()
 # - get_all_neighbor_nodes()
 # ##############################################################################
-# Note the use of some WHERE clauses below. Some of them uses the function elementId(),
+# Note the use of WHERE clauses below. Some of them uses the function elementId(),
 # which does a _direct_ lookup for a node with that id. That is the fastest way possible,
 # compared to a WHERE clause on node['_key'], which is a search.
 # To observe this difference, prefix a Cypher query with PROFILE, e.g.:
@@ -2551,7 +2554,7 @@ def convert_nodes_to_list_of_dict(nodes_list: list,
 
 def create_http_response(result_list: list = None,
                          message: str = '',
-                         http_status: int = HTTP_RESPONSE_OK) -> dict:
+                         http_status: int = HTTP_RESPONSE_OK) -> Tuple[dict, int]:
     """Create an HTTP response.
 
     :param result_list: A list of dicts, to be put in the 'result' section of
@@ -2560,7 +2563,8 @@ def create_http_response(result_list: list = None,
       the response.
     :param http_status: The HTTP status code to be put in the 'meta' section of
       the response.
-    :return: The HTTP response in dict format.
+    :return: An HTTP response (as dict, to be translated to json)
+      and an HTTP response code.
     """
     if result_list is None:
         result_list = []
@@ -2574,7 +2578,7 @@ def create_http_response(result_list: list = None,
 
     response = {'meta': meta,
                 'results': result_list}
-    return response
+    return response, http_status
 
 
 def print_commandline_arguments(argument_list: list) -> None:

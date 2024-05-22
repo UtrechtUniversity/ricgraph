@@ -84,11 +84,22 @@ import urllib.parse
 import uuid
 from typing import Union, Tuple
 from neo4j.graph import Node
-from flask import Flask, request, url_for, send_from_directory
+import connexion.options
+from flask import request, url_for, send_from_directory, current_app
 from markupsafe import escape
 import ricgraph as rcg
 
-ricgraph_explorer = Flask(__name__)
+# We don't show the Swagger REST API page, we use RapiDoc for that (see restapidocpage()
+# endpoint below). 'swagger_ui_options' is taken from
+# https://connexion.readthedocs.io/en/latest/swagger_ui.html#connexion.options.SwaggerUIOptions.
+# 'swagger_ui_config' options are on this page:
+# https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration
+swagger_ui_options = connexion.options.SwaggerUIOptions(swagger_ui=False)
+ricgraph_explorer = connexion.FlaskApp(import_name=__name__,
+                                       specification_dir='./static/',
+                                       swagger_ui_options=swagger_ui_options)
+ricgraph_explorer.add_api(specification='openapi.yaml',
+                          swagger_ui_options=swagger_ui_options)
 
 
 # ########################################################################
@@ -228,7 +239,11 @@ stylesheet += ':not(.sorttable_nosort):after{content:"\u00a0\u25b4\u00a0\u25be"}
 stylesheet += '</style>'
 
 # The html preamble
-html_preamble = '<meta name="viewport" content="width=device-width, initial-scale=1">'
+html_preamble = '<meta charset="utf-8">'
+html_preamble += '<meta name="author" content="Rik D.T. Janssen">'
+html_preamble += '<meta name="description" content="Ricgraph - Research in context graph">'
+html_preamble += '<meta name="keywords" content="Ricgraph, Ricgraph Explorer, Ricgraph REST API">'
+html_preamble += '<meta name="viewport" content="width=device-width, initial-scale=1">'
 # The W3.css style file is at https://www.w3schools.com/w3css/4/w3.css. I use the "pro" version.
 # The pro version is identical to the standard version except for it has no colors defined.
 html_preamble += '<link rel="stylesheet" href="/static/w3pro.css">'
@@ -237,22 +252,28 @@ html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?
 # The html page header.
 page_header = '<header class="w3-container uu-yellow">'
 page_header += '<div class="w3-bar uu-yellow">'
-page_header += '<div class="w3-bar-item w3-mobile" style="padding-left:0em; padding-right:4em;">'
+page_header += '<div class="w3-bar-item w3-mobile" style="padding-left:0em; padding-right:2em;">'
 page_header += '<a href="/" style="text-decoration:none; color:#000000; font-size:130%;">'
 page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right:3em;">'
 page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right:0.5em;">Explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item'
-page_header += button_style_border + '" style="min-width:12em;">Home</a>'
-page_header += '<a href="/searchpage?search_mode=exact_match" class="w3-bar-item'
-page_header += button_style_border + '" style="min-width:12em;">Advanced search</a>'
-page_header += '<a href="/searchpage?search_mode=value_search" class="w3-bar-item'
-page_header += button_style_border + '" style="min-width:12em;">Broad search</a>'
+page_header += button_style_border + '" style="min-width:10em;">Home</a>'
+page_header += '<a href="/searchpage/?search_mode=exact_match" class="w3-bar-item'
+page_header += button_style_border + '" style="min-width:10em;">Advanced search</a>'
+page_header += '<a href="/searchpage/?search_mode=value_search" class="w3-bar-item'
+page_header += button_style_border + '" style="min-width:10em;">Broad search</a>'
+page_header += '<a href="/restapidocpage/" class="w3-bar-item'
+page_header += button_style_border + '" style="min-width:10em;margin-left:2em;">REST API doc</a>'
 page_header += '</div>'
 page_header += '</header>'
 
 # The html page footer.
-page_footer_general = 'For more information about Ricgraph and Ricgraph Explorer, see '
+page_footer_general = 'For more information about Ricgraph and Ricgraph Explorer, '
+page_footer_general += 'please read the reference publication '
+page_footer_general += '<a href="https://doi.org/10.1016/j.softx.2024.101736">'
+page_footer_general += 'https://doi.org/10.1016/j.softx.2024.101736</a> '
+page_footer_general += 'or go to the GitHub repository '
 page_footer_general += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
 page_footer_general += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
 
@@ -270,10 +291,12 @@ page_footer_wsgi += '</footer>'
 # The first part of the html page, up to stylesheet and page_header.
 html_body_start = '<!DOCTYPE html>'
 html_body_start += '<html>'
+html_body_start += '<head>'
 html_body_start += html_preamble
-html_body_start += '<title>Ricgraph Explorer</title>'
-html_body_start += '<body>'
 html_body_start += stylesheet
+html_body_start += '<title>Ricgraph Explorer</title>'
+html_body_start += '</head>'
+html_body_start += '<body>'
 html_body_start += page_header
 
 # The last part of the html page, from page_footer (not included) to script inclusion.
@@ -291,19 +314,22 @@ html_body_end += '</html>'
 # ##############################################################################
 @ricgraph_explorer.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(ricgraph_explorer.root_path, 'static'),
+    return send_from_directory(os.path.join(ricgraph_explorer.app.root_path, 'static'),
                                path='favicon.ico',
                                mimetype='image/png')
 
 
 # ##############################################################################
 # Entry functions.
-# Ricgraph Explorer has three web pages:
+# Ricgraph Explorer has these web pages:
 # 1. homepage.
-# 2. searchpage.
-# 3a. if there is more than one result: optionspage with a list of nodes to choose from.
-# 3b. if there is just one result: optionspage, this page depends on the node type found.
-# 4. resultspage, this page depends on what the user would like to see.
+# 2. searchpage:
+# 2a. if there is more than one result: select a node from a list of nodes,
+#     go to optionspage.
+# 2b. if there is just one result: go to optionspage.
+# 3. optionspage, this page depends on the node type found.
+# 3. resultspage, this page depends on what the user would like to see.
+# 4. restapidocpage, this page shows the documentation of the REST API.
 # ##############################################################################
 @ricgraph_explorer.route(rule='/')
 def homepage() -> str:
@@ -314,9 +340,23 @@ def homepage() -> str:
     global html_body_start, html_body_end, page_footer
     global source_all, category_all
 
+    get_all_globals_from_app_context()
     html = html_body_start
     html += get_html_for_cardstart()
-    html += '<h3>This is Ricgraph Explorer</h3>'
+    html += '<h3>Ricgraph - Research in context graph</h3>'
+    html += 'Ricgraph, also known as Research in context graph, enables the exploration of researchers, '
+    html += 'teams, their results, '
+    html += 'collaborations, skills, projects, and the relations between these items. '
+    html += '<p/>'
+    html += 'Ricgraph can store many types of items into a single graph (network). '
+    html += 'These items can be obtained from various systems and from '
+    html += 'multiple organizations (see below for the sources of the items in this instance '
+    html += 'of Ricgraph). Ricgraph facilitates reasoning about these '
+    html += 'items because it infers new relations between items, '
+    html += 'relations that are not present in any of the separate source systems. '
+    html += 'It is flexible and extensible, and can be adapted to new application areas. '
+
+    html += '<p/>'
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
     html += 'There are various methods to start exploring:'
     html += '<p/>'
@@ -354,6 +394,14 @@ def homepage() -> str:
     html += get_html_for_cardstart()
     nr_nodes = rcg.ricgraph_nr_nodes()
     nr_edges = rcg.ricgraph_nr_edges()
+    html += '<h4>More information</h4>'
+    html += 'For a gentle introduction in Ricgraph, please read the reference publication: '
+    html += 'Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in '
+    html += 'context from various systems. <em>SoftwareX</em>, 26(101736). '
+    html += '<a href="https://doi.org/10.1016/j.softx.2024.101736">https://doi.org/10.1016/j.softx.2024.101736</a>. '
+    html += 'Extensive documentation, publications, videos and source code can be found in the GitHub repository '
+    html += '<a href="https://github.com/UtrechtUniversity/ricgraph">'
+    html += 'https://github.com/UtrechtUniversity/ricgraph</a>. '
     html += '<h4>Statistics</h4>'
     html += '<ul>'
     html += '<li>'
@@ -390,6 +438,7 @@ def searchpage() -> str:
     global html_body_start, html_body_end, page_footer
     global name_all_datalist, category_all, category_all_datalist
 
+    get_all_globals_from_app_context()
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
     search_mode = get_url_parameter_value(parameter='search_mode',
@@ -411,7 +460,7 @@ def searchpage() -> str:
     html = html_body_start
     html += get_html_for_cardstart()
 
-    form = '<form method="get" action="/optionspage">'
+    form = '<form method="get" action="/optionspage/">'
     if search_mode == 'exact_match':
         form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
         form += '<input class="w3-input w3-border" list="name_all_datalist"'
@@ -525,6 +574,7 @@ def optionspage() -> str:
     """
     global html_body_start, html_body_end, page_footer, nodes_cache
 
+    get_all_globals_from_app_context()
     search_mode = get_url_parameter_value(parameter='search_mode',
                                           allowed_values=['exact_match', 'value_search'],
                                           default_value=DEFAULT_SEARCH_MODE)
@@ -585,14 +635,16 @@ def optionspage() -> str:
     if key != '':
         result = rcg.read_all_nodes(key=key)
     elif search_mode == 'exact_match':
-        result = rcg.read_all_nodes(name=name, category=category, value=value)
+        result = rcg.read_all_nodes(name=name, category=category, value=value,
+                                    max_nr_nodes=int(extra_url_parameters['max_nr_items']))
     else:
         if len(value) < 3:
             html += get_message(message='The search string should be at least three characters.')
             html += page_footer + html_body_end
             return html
         result = rcg.read_all_nodes(name=name, category=category, value=value,
-                                    value_is_exact_match=False)
+                                    value_is_exact_match=False,
+                                    max_nr_nodes=int(extra_url_parameters['max_nr_items']))
     if len(result) == 0:
         # We didn't find anything.
         html += get_message(message='Ricgraph Explorer could not find anything.')
@@ -647,6 +699,7 @@ def resultspage() -> str:
     """
     global html_body_start, html_body_end, page_footer
 
+    get_all_globals_from_app_context()
     view_mode = get_url_parameter_value(parameter='view_mode')
     key = get_url_parameter_value(parameter='key', use_escape=False)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
@@ -709,6 +762,47 @@ def resultspage() -> str:
                                 extra_url_parameters=extra_url_parameters)
 
     html += page_footer + html_body_end
+    return html
+
+
+@ricgraph_explorer.route(rule='/restapidocpage/', methods=['GET'])
+def restapidocpage() -> str:
+    """Show the documentation for the Ricgraph REST API. Ricgraph uses RapiDoc.
+
+    :return: html to be rendered.
+    """
+    # For more information, see: https://rapidocweb.com and https://github.com/rapi-doc/RapiDoc.
+    # For options see: https://rapidocweb.com/api.html.
+    html = '<!DOCTYPE html>'
+    html += '<html>'
+    html += '<head>'
+    html += html_preamble
+    html += '<script type="module" src="/static/rapidoc-min.js"></script>'
+    html += '<title>Ricgraph REST API</title>'
+    html += '</head>'
+    html += """<body>
+              <style>
+                rapi-doc { --font-regular:"Open Sans",sans-serif; }
+                rapi-doc::part(section-navbar) { /* <<< targets navigation bar */
+                    background:#ffcd00;              /* uu-yellow */
+                }
+              </style>
+              <rapi-doc
+                show-header="false"
+                spec-url="/static/openapi.yaml"
+                nav-text-color="#000000"        /* black */
+                nav-hover-text-color="#5287c6"  /* uu-blue */
+                sort-endpoints-by="none"
+              > 
+              <div slot="nav-logo">
+                <img slot="nav-logo" src="/static/ricgraph_logo.png" width="200" 
+                  style="vertical-align:middle;padding-right:0.5em;">REST API</img>
+                <p/>
+                <a href="/">Return to Ricgraph Explorer</a>
+              </div>
+              </rapi-doc>
+              </body>
+              </html>"""
     return html
 
 
@@ -1530,7 +1624,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
 
     html = ''
     if parent_node is None:
-        personroot_list = rcg.read_all_nodes(name='person-root')
+        personroot_list = rcg.read_all_nodes(name='person-root',
+                                             max_nr_nodes=int(extra_url_parameters['max_nr_items']))
         personroot_node = None
         message = 'You have chosen to enrich <em>all</em> nodes in Ricgraph for source system "'
         message += source_system + '". '
@@ -2485,7 +2580,7 @@ def create_html_form(destination: str,
     if hidden_fields is None:
         hidden_fields = {}
     form = explanation
-    form += '<form method="get" action="/' + destination + '">'
+    form += '<form method="get" action="/' + destination + '/">'
     for item in input_fields:
         if input_fields[item][0] == 'list':
             if len(input_fields[item]) != 4:
@@ -2930,7 +3025,7 @@ def get_facets_from_nodes(parent_node: Node,
     category_list = []
     faceted_form = get_html_for_cardstart()
     faceted_form += '<div class="facetedform">'
-    faceted_form += '<form method="get" action="' + url_for('resultspage') + '">'
+    faceted_form += '<form method="get" action="' + url_for('resultspage') + '/">'
     faceted_form += '<input type="hidden" name="key" value="' + str(parent_node['_key']) + '">'
     faceted_form += '<input type="hidden" name="view_mode" value="' + str(view_mode) + '">'
     faceted_form += '<input type="hidden" name="discoverer_mode" value="' + str(discoverer_mode) + '">'
@@ -3297,13 +3392,17 @@ def api_person_all_information(key: str = '',
       and an HTTP response code.
     """
     # This implements view_mode = 'view_unspecified_table_everything'.
+    # graph = current_app.config.get('graph')
+    get_all_globals_from_app_context()
     if key == '':
-        response = rcg.create_http_response(message='You have not specified a search key')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     nodes = rcg.read_all_nodes(key=key)
     if len(nodes) == 0:
-        response = rcg.create_http_response(message='Node not found')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     personroot_node = rcg.get_personroot_node(node=nodes[0])
     # Now we have the person-root, and we can reuse api_all_information_general().
     response, status = api_all_information_general(key=personroot_node['_key'],
@@ -3322,15 +3421,18 @@ def api_person_share_research_results(key: str = '',
     """
     # This implements view_mode = 'view_regular_table_person_share_resouts'.
     # See function find_person_share_resouts().
+    get_all_globals_from_app_context()
     if key == '':
-        response = rcg.create_http_response(message='You have not specified a search key')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = MAX_ITEMS
     nodes = rcg.read_all_nodes(key=key)
     if len(nodes) == 0:
-        response = rcg.create_http_response(message='Node not found')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
 
     connected_persons = \
         find_person_share_resouts_cypher(parent_node=nodes[0],
@@ -3339,14 +3441,16 @@ def api_person_share_research_results(key: str = '',
     if len(connected_persons) == 0:
         message = 'Could not find persons that share any share research result types '
         message += 'with this person'
-        response = rcg.create_http_response(message=message)
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message=message,
+                                                    http_status=rcg.HTTP_RESPONSE_OK)
+        return response, status
 
     result_list = rcg.convert_nodes_to_list_of_dict(connected_persons,
                                                     max_nr_items=max_nr_items)
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 def api_person_collaborating_organizations(key: str = '',
@@ -3360,15 +3464,18 @@ def api_person_collaborating_organizations(key: str = '',
     """
     # This implements view_mode = 'view_regular_table_person_organization_collaborations'.
     # See function find_person_organization_collaborations().
+    get_all_globals_from_app_context()
     if key == '':
-        response = rcg.create_http_response(message='You have not specified a search key')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = MAX_ITEMS
     nodes = rcg.read_all_nodes(key=key)
     if len(nodes) == 0:
-        response = rcg.create_http_response(message='Node not found')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
 
     personroot_node_organizations, collaborating_organizations = \
         find_person_organization_collaborations_cypher(parent_node=nodes[0],
@@ -3394,9 +3501,10 @@ def api_person_collaborating_organizations(key: str = '',
               'person_works_at': person_worksat_list,
               'person_collaborates_with': person_collaborates_list}
     result_list = [result]
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 def api_person_enrich(key: str = '',
@@ -3412,18 +3520,22 @@ def api_person_enrich(key: str = '',
     """
     # This implements view_mode = 'view_regular_table_person_enrich_source_system'.
     # See function find_enrich_candidates().
+    get_all_globals_from_app_context()
     if key == '':
-        response = rcg.create_http_response(message='You have not specified a search key')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if source_system == '':
-        response = rcg.create_http_response(message='You have not specified a source system')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a source system',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = MAX_ITEMS
     nodes = rcg.read_all_nodes(key=key)
     if len(nodes) == 0:
-        response = rcg.create_http_response(message='Node not found')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     personroot_node = rcg.get_personroot_node(node=nodes[0])
 
     person_nodes, nodes_not_in_source_system = \
@@ -3432,8 +3544,9 @@ def api_person_enrich(key: str = '',
     if len(nodes_not_in_source_system) == 0:
         message = 'Ricgraph could not find any information in other source systems '
         message += 'to enrich source system "' + source_system + '"'
-        response = rcg.create_http_response(message=message)
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message=message,
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
 
     message = ''
     if len(person_nodes) == 0:
@@ -3460,9 +3573,10 @@ def api_person_enrich(key: str = '',
               'person_identifying_nodes': person_identifying_nodes_list,
               'person_enrich_nodes': person_enrich_nodes_list}
     result_list = [result]
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 def api_search_organization(value: str = '',
@@ -3506,23 +3620,27 @@ def api_organization_information_persons_results(key: str = '',
     """
     # This implements view_mode = 'view_regular_table_organization_addinfo'.
     # See function find_organization_additional_info().
+    get_all_globals_from_app_context()
     if key == '':
-        response = rcg.create_http_response(message='You have not specified a search key')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = MAX_ITEMS
     nodes = rcg.read_all_nodes(key=key)
     if len(nodes) == 0:
-        response = rcg.create_http_response(message='Node not found')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
 
     cypher_result = find_organization_additional_info_cypher(parent_node=nodes[0],
                                                              max_nr_items=max_nr_items)
     if len(cypher_result) == 0:
         message = 'Could not find any information from persons or '
         message += 'their results in this organization'
-        response = rcg.create_http_response(message=message)
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message=message,
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     relevant_result = []
     for result in cypher_result:
         node = result['second_neighbor']
@@ -3530,9 +3648,10 @@ def api_organization_information_persons_results(key: str = '',
 
     result_list = rcg.convert_nodes_to_list_of_dict(relevant_result,
                                                     max_nr_items=max_nr_items)
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 def api_search_competence(value: str = '',
@@ -3589,9 +3708,11 @@ def api_advanced_search(name: str = '', category: str = '', value: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
+    get_all_globals_from_app_context()
     if name == '' and category == '' and value == '':
-        response = rcg.create_http_response(message='You have not specified any search string')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified any search string',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = MAX_ITEMS
     nodes = rcg.read_all_nodes(name=name,
@@ -3599,11 +3720,16 @@ def api_advanced_search(name: str = '', category: str = '', value: str = '',
                                value=value,
                                value_is_exact_match=True,
                                max_nr_nodes=int(max_nr_items))
+    if len(nodes) == 0:
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     result_list = rcg.convert_nodes_to_list_of_dict(nodes,
                                                     max_nr_items=max_nr_items)
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 def api_search_general(value: str = '',
@@ -3619,12 +3745,15 @@ def api_search_general(value: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
+    get_all_globals_from_app_context()
     if value == '':
-        response = rcg.create_http_response(message='You have not specified a search string')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search string',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if len(value) < 3:
-        response = rcg.create_http_response(message='The search string should be at least three characters.')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='The search string should be at least three characters',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = MAX_ITEMS
     nodes = rcg.read_all_nodes(name=name_restriction,
@@ -3632,11 +3761,16 @@ def api_search_general(value: str = '',
                                value=value,
                                value_is_exact_match=False,
                                max_nr_nodes=int(max_nr_items))
+    if len(nodes) == 0:
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     result_list = rcg.convert_nodes_to_list_of_dict(nodes,
                                                     max_nr_items=max_nr_items)
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 def api_all_information_general(key: str = '',
@@ -3648,22 +3782,26 @@ def api_all_information_general(key: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
+    get_all_globals_from_app_context()
     if key == '':
-        response = rcg.create_http_response(message='You have not specified a search key')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = MAX_ITEMS
     nodes = rcg.read_all_nodes(key=key)
-    if len(nodes) == 0:
-        response = rcg.create_http_response(message='Node not found')
-        return response, rcg.HTTP_RESPONSE_OK
     neighbor_nodes = rcg.get_all_neighbor_nodes(node=nodes[0],
                                                 max_nr_neighbor_nodes=int(max_nr_items))
     result_list = rcg.convert_nodes_to_list_of_dict(neighbor_nodes,
                                                     max_nr_items=max_nr_items)
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    if len(result_list) == 0:
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 def api_get_all_personroot_nodes(key: str = '',
@@ -3675,19 +3813,27 @@ def api_get_all_personroot_nodes(key: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
+    get_all_globals_from_app_context()
     if key == '':
-        response = rcg.create_http_response(message='You have not specified a search key')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     nodes = rcg.read_all_nodes(key=key)
     if len(nodes) == 0:
-        response = rcg.create_http_response(message='Node not found')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     personroot_nodes = rcg.get_all_personroot_nodes(node=nodes[0])
+    if len(personroot_nodes) == 0:
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     result_list = rcg.convert_nodes_to_list_of_dict(personroot_nodes,
                                                     max_nr_items=max_nr_items)
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 def api_get_all_neighbor_nodes(key: str = '',
@@ -3712,6 +3858,7 @@ def api_get_all_neighbor_nodes(key: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
+    get_all_globals_from_app_context()
     if name_want is None:
         name_want = []
     if name_dontwant is None:
@@ -3722,28 +3869,117 @@ def api_get_all_neighbor_nodes(key: str = '',
         category_dontwant = []
 
     if key == '':
-        response = rcg.create_http_response(message='You have not specified a search key')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     nodes = rcg.read_all_nodes(key=key)
     if len(nodes) == 0:
-        response = rcg.create_http_response(message='Node not found')
-        return response, rcg.HTTP_RESPONSE_OK
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     neighbor_nodes = rcg.get_all_neighbor_nodes(node=nodes[0],
                                                 name_want=name_want,
                                                 name_dontwant=name_dontwant,
                                                 category_want=category_want,
                                                 category_dontwant=category_dontwant,
                                                 max_nr_neighbor_nodes=int(max_nr_items))
+    if len(neighbor_nodes) == 0:
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     result_list = rcg.convert_nodes_to_list_of_dict(neighbor_nodes,
                                                     max_nr_items=max_nr_items)
-    response = rcg.create_http_response(result_list=result_list,
-                                        message=str(len(result_list)) + ' items found')
-    return response, rcg.HTTP_RESPONSE_OK
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
 
 
 # ################################################
 # Ricgraph Explorer initialization.
 # ################################################
+def store_global_in_app_context(name: str, value) -> None:
+    """Stores a global variable in the app context.
+    This is required, otherwise we don't have them if we e.g. do
+    a second REST API call.
+
+    :param name: the name of the global.
+    :param value: the value of the global.
+    :return: None.
+    """
+    with ricgraph_explorer.app.app_context():
+        ricgraph_explorer.app.config[name] = value
+    return
+
+
+def get_all_globals_from_app_context() -> None:
+    """Get all global variables from the app context.
+
+    :return: None.
+    """
+    global graph
+    global name_all, category_all, source_all, resout_types_all
+    global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
+    global personal_types_all, remainder_types_all
+
+    if 'graph' in current_app.config:
+        graph = current_app.config.get('graph')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "graph".')
+        exit(2)
+    if 'name_all' in current_app.config:
+        name_all = current_app.config.get('name_all')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "name_all".')
+        exit(2)
+    if 'category_all' in current_app.config:
+        category_all = current_app.config.get('category_all')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "category_all".')
+        exit(2)
+    if 'source_all' in current_app.config:
+        source_all = current_app.config.get('source_all')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "source_all".')
+        exit(2)
+    if 'resout_types_all' in current_app.config:
+        resout_types_all = current_app.config.get('resout_types_all')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "resout_types_all".')
+        exit(2)
+    if 'name_all_datalist' in current_app.config:
+        name_all_datalist = current_app.config.get('name_all_datalist')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "name_all_datalist".')
+        exit(2)
+    if 'category_all_datalist' in current_app.config:
+        category_all_datalist = current_app.config.get('category_all_datalist')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "category_all_datalist".')
+        exit(2)
+    if 'source_all_datalist' in current_app.config:
+        source_all_datalist = current_app.config.get('source_all_datalist')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "source_all_datalist".')
+        exit(2)
+    if 'resout_types_all_datalist' in current_app.config:
+        resout_types_all_datalist = current_app.config.get('resout_types_all_datalist')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "resout_types_all_datalist".')
+        exit(2)
+    if 'personal_types_all' in current_app.config:
+        personal_types_all = current_app.config.get('personal_types_all')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "personal_types_all".')
+        exit(2)
+    if 'remainder_types_all' in current_app.config:
+        remainder_types_all = current_app.config.get('remainder_types_all')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "remainder_types_all".')
+        exit(2)
+    return
+
+
 def initialize_ricgraph_explorer():
     """Initialize Ricgraph Explorer.
     :return: None.
@@ -3753,10 +3989,11 @@ def initialize_ricgraph_explorer():
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
 
-    graph = rcg.open_ricgraph()         # Should probably be done in a Session
+    graph = rcg.open_ricgraph()
     if graph is None:
         print('Ricgraph could not be opened.')
         exit(2)
+    store_global_in_app_context(name='graph', value=graph)
 
     name_all = rcg.read_all_values_of_property('name')
     if len(name_all) == 0:
@@ -3773,19 +4010,25 @@ def initialize_ricgraph_explorer():
         print('Warning (possibly Error) in obtaining list with all property values for property "_source".')
         print('Continuing with an empty list. This might give unexpected results.')
         source_all = []
+    store_global_in_app_context(name='name_all', value=name_all)
+    store_global_in_app_context(name='category_all', value=category_all)
+    store_global_in_app_context(name='source_all', value=source_all)
 
     name_all_datalist = '<datalist id="name_all_datalist">'
     for property_item in name_all:
         name_all_datalist += '<option value="' + property_item + '">'
     name_all_datalist += '</datalist>'
+    store_global_in_app_context(name='name_all_datalist', value=name_all_datalist)
 
-    resout_types_all = []
     if 'competence' in category_all:
         personal_types_all = ['person', 'competence']
     else:
         personal_types_all = ['person']
-    remainder_types_all = []
+    store_global_in_app_context(name='personal_types_all', value=personal_types_all)
+
+    resout_types_all = []
     resout_types_all_datalist = '<datalist id="resout_types_all_datalist">'
+    remainder_types_all = []
     category_all_datalist = '<datalist id="category_all_datalist">'
     for property_item in category_all:
         if property_item in rcg.ROTYPE_ALL:
@@ -3794,14 +4037,18 @@ def initialize_ricgraph_explorer():
         if property_item not in personal_types_all:
             remainder_types_all.append(property_item)
         category_all_datalist += '<option value="' + property_item + '">'
-    category_all_datalist += '</datalist>'
     resout_types_all_datalist += '</datalist>'
+    category_all_datalist += '</datalist>'
+    store_global_in_app_context(name='resout_types_all', value=resout_types_all)
+    store_global_in_app_context(name='resout_types_all_datalist', value=resout_types_all_datalist)
+    store_global_in_app_context(name='remainder_types_all', value=remainder_types_all)
+    store_global_in_app_context(name='category_all_datalist', value=category_all_datalist)
 
     source_all_datalist = '<datalist id="source_all_datalist">'
     for property_item in source_all:
         source_all_datalist += '<option value="' + property_item + '">'
     source_all_datalist += '</datalist>'
-
+    store_global_in_app_context(name='source_all_datalist', value=source_all_datalist)
     return
 
 

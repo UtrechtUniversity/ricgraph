@@ -37,3 +37,12 @@ From: https://observablehq.com/plot/getting-started
 Date copied: May 1, 2024
 Changes: none
 Note: These are the minified files, for the original files see the link.
+
+
+Required for the RapiDoc framework, used for documentation of the Ricgraph
+  REST API, https://rapidocweb.com and https://github.com/rapi-doc/RapiDoc.
+Files: rapidoc-min.js
+From: https://github.com/rapi-doc/RapiDoc/tree/master/dist
+Date copied: May 21, 2024
+Changes: none
+Note: This is the minified file, for the original file see the link.
