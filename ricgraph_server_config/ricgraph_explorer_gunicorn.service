@@ -1,0 +1,19 @@
+[Unit]
+Description=Ricgraph Explorer and Ricgraph REST API via WSGI Gunicorn server using Uvicorn for ASGI applications
+After=network-online.target
+
+[Service]
+Type=exec
+User=ricgraph
+Group=ricgraph
+WorkingDirectory=/opt/ricgraph_venv/ricgraph_explorer
+Environment="PYTHONPATH=/opt/ricgraph_venv"
+ExecStart=/opt/ricgraph_venv/venv/bin/gunicorn --bind 127.0.0.1:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker ricgraph_explorer:create_ricgraph_explorer_app
+StartLimitIntervalSec=1
+StartLimitBurst=100
+Restart=always
+TimeoutSec=120
+
+[Install]
+WantedBy=multi-user.target
+

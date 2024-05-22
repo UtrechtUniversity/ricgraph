@@ -29,14 +29,20 @@
 # ########################################################################
 #
 # This file is an example Apache configuration file, containing a
-# VirtualHost on port 80 (standard http port) for Ricgraph Explorer, 
-# a web based tool to access nodes in Ricgraph.
-# It uses WSGI, please install and enable its Apache module,
-# for example 'apache2-mod_wsgi-python3'.
-# 
+# VirtualHost on port 80 (standard http port) for both Ricgraph Explorer, 
+# a web based tool to access Ricgraph, and the Ricgraph REST API.
+# To be able to use this, enable the Apache modules mod_proxy and
+# mod_proxy_http.
+#
+# Apache proxies to a local host and port (see below). On that host/port 
+# runs the WSGI Gunicorn server using Uvicorn for ASGI applications.
+# That is done, since a ASGI application server is good practise for 
+# a REST API.
+#
 # WARNING: 
-# Note that this file, as it is now, serves Ricgraph Explorer on a 
-# http connection, not secured (no https), and without authentication.
+# Note that this file, as it is now, serves Ricgraph Explorer and the
+# Ricgraph REST API on a http connection, not secured (no https), 
+# and without authentication.
 # At least you should change this file to use https.
 # You have to make modifications yourself, since there are too many
 # site specific settings to give example code.
@@ -45,11 +51,11 @@
 #
 # READ THIS:
 # To prevent accidental exposure of data in Ricgraph to the outside world, 
-# the line starting with 'WSGIScriptAlias' has been commented.
+# the lines starting with 'ProxyPass' have been commented.
 # Please read the warning above and take appropriate
 # measures before uncommenting it and starting Apache.
 #
-# Original version Rik D.T. Janssen, February 2024.
+# Original version Rik D.T. Janssen, February, May 2024.
 #
 # ########################################################################
 
@@ -59,40 +65,36 @@ Define APACHE_LOGDIR "/var/log/apache2"
 
 # You might want to change the '*' to the IP address Apache is listening on.
 <VirtualHost *:80>
-        DocumentRoot "${RICGRAPH_PATH}/ricgraph_explorer"
+	DocumentRoot "${RICGRAPH_PATH}/ricgraph_explorer"
 
 	# Replace with your domain name
-        #ServerName www.example.com 
+	#ServerName www.example.com 
 	# Replace with your email address
-        #ServerAdmin webmaster@example.com 
+	#ServerAdmin webmaster@example.com 
 
 	# Loose some time with IP address lookups
 	HostnameLookups On
 
 	# Performance improvement: make Apache serve static files, 
 	# because that is faster than WSGI serving static files.
-        Alias /static/ "${RICGRAPH_PATH}/ricgraph_explorer/static/"
-        <Directory "${RICGRAPH_PATH}/ricgraph_explorer/static/">
-             Require all granted
-        </Directory>
+	Alias /static/ "${RICGRAPH_PATH}/ricgraph_explorer/static/"
+	<Directory "${RICGRAPH_PATH}/ricgraph_explorer/static/">
+		Require all granted
+	</Directory>
 
-	# Note: Python module search paths are set in ricgraph_explorer.wsgi
-	# Do not specify 'user' & 'group' because this should be run as the
-	# same user that Apache is run, unless Apache is run as root.
-        WSGIDaemonProcess ricgraph_explorer threads=3 python-home="${RICGRAPH_PATH}" display-name=%{GROUP}
+	# The hostname (127.0.0.1) and port (3030) below correspond to the
+	# hostname and port where Gunicorn is running. These parameters
+	# are set in file 'ricgraph_explorer_gunicorn.service'.
+	# If you change these, also change them in that file.
 
 	# ########## Please modify
-	# To prevent accidental use, the line with 'WSGIScriptAlias' 
-	# has been commented. Remove the comment to make it work.
+	# To prevent accidental use, the lines with 'ProxyPass' 
+	# have been commented. Remove the comment to make it work.
 	# See 'Warning' and 'Read this' at the start of this file.
-	#WSGIScriptAlias / "${RICGRAPH_PATH}/ricgraph_explorer/ricgraph_explorer.wsgi"
+	#ProxyPass / http://127.0.0.1:3030/
+	#ProxyPassReverse / http://127.0.0.1:3030/
 	# ########## End of please modify
-
-        <Directory "${RICGRAPH_PATH}/ricgraph_explorer/">
-            WSGIProcessGroup ricgraph_explorer
-            WSGIApplicationGroup %{GLOBAL}
-            Require all granted
-        </Directory>
+	ProxyPreserveHost On
 
 	CustomLog ${APACHE_LOGDIR}/ricgraph_explorer.log ssl_combined
 	ErrorLog ${APACHE_LOGDIR}/ricgraph_explorer-error.log
