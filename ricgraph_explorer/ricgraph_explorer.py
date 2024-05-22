@@ -3404,6 +3404,10 @@ def api_person_all_information(key: str = '',
                                                     http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
     personroot_node = rcg.get_personroot_node(node=nodes[0])
+    if personroot_node is None:
+        response, status = rcg.create_http_response(message='No person-root node found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
     # Now we have the person-root, and we can reuse api_all_information_general().
     response, status = api_all_information_general(key=personroot_node['_key'],
                                                    max_nr_items=max_nr_items)
@@ -3537,6 +3541,10 @@ def api_person_enrich(key: str = '',
                                                     http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
     personroot_node = rcg.get_personroot_node(node=nodes[0])
+    if personroot_node is None:
+        response, status = rcg.create_http_response(message='No person-root node found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
 
     person_nodes, nodes_not_in_source_system = \
         find_enrich_candidates_one_person(personroot=personroot_node,
@@ -3790,14 +3798,18 @@ def api_all_information_general(key: str = '',
     if not max_nr_items.isnumeric():
         max_nr_items = MAX_ITEMS
     nodes = rcg.read_all_nodes(key=key)
-    neighbor_nodes = rcg.get_all_neighbor_nodes(node=nodes[0],
-                                                max_nr_neighbor_nodes=int(max_nr_items))
-    result_list = rcg.convert_nodes_to_list_of_dict(neighbor_nodes,
-                                                    max_nr_items=max_nr_items)
-    if len(result_list) == 0:
+    if len(nodes) == 0:
         response, status = rcg.create_http_response(message='Nothing found',
                                                     http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
+    neighbor_nodes = rcg.get_all_neighbor_nodes(node=nodes[0],
+                                                max_nr_neighbor_nodes=int(max_nr_items))
+    if len(neighbor_nodes) == 0:
+        response, status = rcg.create_http_response(message='Nothing found',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
+    result_list = rcg.convert_nodes_to_list_of_dict(neighbor_nodes,
+                                                    max_nr_items=max_nr_items)
     response, status = rcg.create_http_response(result_list=result_list,
                                                 message=str(len(result_list)) + ' items found',
                                                 http_status=rcg.HTTP_RESPONSE_OK)
