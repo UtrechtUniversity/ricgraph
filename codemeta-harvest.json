@@ -80,6 +80,11 @@
             "@type": "WebApplication",
             "name": "Ricgraph Explorer"
         }
+        },
+        {
+            "@type": "WebApplication",
+            "name": "Ricgraph REST API"
+        }
     ],
     "softwareHelp": [
         {
