@@ -47,18 +47,29 @@ You can use the online documentation in Ricgraph Explorer
 for the REST API. It lists the various endpoints
 and parameters, and you can try out each endpoint with values for parameters as you like.
 To do this, click the "REST API doc" button in the top bar of 
-Ricgraph Explorer, and you will get an explation how to do this.
+Ricgraph Explorer, and you will get an explanation how to do this.
+See the figure below, that shows part of the Home page of Ricgraph Explorer 
+(click on it to enlarge).
 
-You can also read the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md).
+<img src="images/ricgraph-explorer-home-page.jpg" width="400">
+
+As an alternative, you can also read 
+the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md),
+that is auto generated from the OpenAPI yaml specification file, but
+it only lists the end points and parameters available and there is no
+try out feature.
+
+
+#### How to generate the Ricgraph REST API documentation page
 This page is auto generated using 
 [openapi-to-md](https://github.com/SoraKumo001/openapi-to-md).
-To auto generate that documentation page, follow these steps:
+To auto generate it, follow these steps:
 * If not installed, as root user, install *npm* using the package installer of your Linux.
 * Go to your home directory, type:
   ```
   cd
   ```
-* As a normal (non root) user, install *openapi-to-md*, type:
+* As a normal (non-root) user, install *openapi-to-md*, type:
   ```
   npm i openapi-to-md
   ```

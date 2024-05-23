@@ -146,6 +146,15 @@ The home page lets the user choose between various methods to explore Ricgraph:
     * for all other results,
       the results are shown on the [results page](#results-page).
 
+In the yellow top bar, there are more buttons:
+* Button _Home_. This button returns the user to the [home page](#home-page).
+* Button _Advanced search_. This leads to the advanced search page, see section
+  [search page](#search-page).
+* Button _Broad search_. This leads to the broad search page, see section
+  [search page](#search-page).
+* Button _REST API doc_. This leads to the documentation and try out page of
+  the [Ricgraph REST API](ricgraph_restapi.md).
+
 ### Search page
 There are two search pages:
 * A broad search page, having one input field.
@@ -156,15 +165,15 @@ There are two search pages:
   
 The figure below shows these search pages. Click on any figure to enlarge.
 
-| broad search page                                                       | advanced search page                                                       |
-|-------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| <img src="images/ricgraph-explorer-search-page-broad.jpg" height="200"> | <img src="images/ricgraph-explorer-search-page-advanced.jpg" height="200"> |
+| broad search page                                                      | advanced search page                                                      |
+|------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| <img src="images/ricgraph-explorer-search-page-broad.jpg" width="300"> | <img src="images/ricgraph-explorer-search-page-advanced.jpg" width="300"> |
 
 
 There are two methods for viewing the results:
 * _person_view_: only show relevant columns, results are presented in 
   a [tabbed format](https://en.wikipedia.org/wiki/Tab_(interface)).
-  Tables have less columns to reduce information overload.
+  Tables have fewer columns to reduce information overload.
 * _details_view_: show all columns, research results are presented in 
   a [table with facets](https://en.wikipedia.org/wiki/Faceted_search).
   This view shows all columns .
