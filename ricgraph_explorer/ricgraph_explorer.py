@@ -284,7 +284,8 @@ page_footer_development += page_footer_general
 page_footer_development += '</footer>'
 
 page_footer_wsgi = '<footer class="w3-container rj-gray" style="font-size:80%">'
-page_footer_wsgi += 'You are using Ricgraph Explorer in an Apache WSGI environment. '
+page_footer_wsgi += 'You are using Ricgraph Explorer with a '
+page_footer_wsgi += 'WSGI Gunicorn server using Uvicorn for ASGI applications. '
 page_footer_wsgi += page_footer_general
 page_footer_wsgi += '</footer>'
 
@@ -4065,10 +4066,12 @@ def initialize_ricgraph_explorer():
 
 
 # ################################################
-# ################### for WSGI ###################
+# #### Entry point for WSGI Gunicorn server   ####
+# #### using Uvicorn for ASGI applications    ####
 # ################################################
 def create_ricgraph_explorer_app():
     global page_footer, page_footer_wsgi
+    global ricgraph_explorer
 
     initialize_ricgraph_explorer()
     page_footer = page_footer_wsgi
