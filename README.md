@@ -92,7 +92,7 @@ so Ricgraph can be used in other application areas.
   the REST API for Ricgraph.
 * Optional: modify code to fit Ricgraph to your specific use case.
 
-For more details, see the remainder of this documentation.
+For more details, read the remainder of this documentation.
   
 ### Read more about Ricgraph
 
