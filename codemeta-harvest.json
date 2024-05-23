@@ -79,7 +79,6 @@
         {
             "@type": "WebApplication",
             "name": "Ricgraph Explorer"
-        }
         },
         {
             "@type": "WebApplication",
