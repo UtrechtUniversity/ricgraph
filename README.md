@@ -90,6 +90,7 @@ so Ricgraph can be used in other application areas.
   the exploration tool for Ricgraph. 
 * Use the [Ricgraph REST API](docs/ricgraph_restapi.md),
   the REST API for Ricgraph.
+* Optional: modify code to fit Ricgraph to your specific use case.
 
 For more details, see the remainder of this documentation.
   
