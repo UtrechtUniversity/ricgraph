@@ -186,6 +186,31 @@ components:
         items:
           type: "string"
           default: ""          # To prevent the word 'string' in the input field.
+    ricgraph_list_name:
+      name: "ricgraph_list_name"
+      description: > 
+        Return the values in the specified internal Ricgraph list.
+        These are dependent on the data in your Ricgraph instance and on the
+        systems you have harvested.
+        Allowed Ricgraph lists are:
+        
+        * name_all: all possible values of the *name* field in a Ricgraph node.
+        
+        * category_all: all possible values of the *category* field in a Ricgraph node.
+        
+        * personal_types_all: all category values in list *category_all* that are applicable to a person.
+        
+        * remainder_types_all: all other category values in list *category_all*, that is
+          all values in list *category_all* minus those in *personal_types_all*.
+        
+        * source_all: the names of all the harvested source systems.
+        
+        * resout_types_all: all research result types defined in file *ricgraph.py*.
+      in: query
+      required: True
+      schema:
+        type: "string"
+        enum: [name_all, category_all, personal_types_all, remainder_types_all, source_all, resout_types_all]
 
 tags:
   - name: Person
@@ -440,6 +465,21 @@ paths:
         - $ref: "#/components/parameters/category_want"
         - $ref: "#/components/parameters/category_dontwant"
         - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+        "250":
+          description: "Nothing found"
+        "251":
+          description: "Invalid search"
+  /get_ricgraph_list:
+    get:
+      operationId: "ricgraph_explorer.api_get_ricgraph_list"
+      tags:
+        - Advanced
+      summary: "Get the values of an internal global Ricgraph list"
+      parameters:
+        - $ref: "#/components/parameters/ricgraph_list_name"
       responses:
         "200":
           description: "OK"

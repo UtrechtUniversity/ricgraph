@@ -3908,6 +3908,46 @@ def api_get_all_neighbor_nodes(key: str = '',
     return response, status
 
 
+def api_get_ricgraph_list(ricgraph_list_name: str = '') -> Tuple[dict, int]:
+    """REST API Get values of a specified Ricgraph global list.
+
+    :param ricgraph_list_name: name of the Ricgraph global list.
+    :return: An HTTP response (as dict, to be translated to json)
+      and an HTTP response code.
+    """
+    global name_all, category_all, source_all, resout_types_all
+    global personal_types_all, remainder_types_all
+
+    get_all_globals_from_app_context()
+    if ricgraph_list_name == '':
+        response, status = rcg.create_http_response(message='You have not specified a name of a Ricgraph list',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
+
+    result_list = []
+    if ricgraph_list_name == 'name_all':
+        result_list = name_all.copy()
+    if ricgraph_list_name == 'category_all':
+        result_list = category_all.copy()
+    if ricgraph_list_name == 'source_all':
+        result_list = source_all.copy()
+    if ricgraph_list_name == 'resout_types_all':
+        result_list = resout_types_all.copy()
+    if ricgraph_list_name == 'personal_types_all':
+        result_list = personal_types_all.copy()
+    if ricgraph_list_name == 'remainder_types_all':
+        result_list = remainder_types_all.copy()
+
+    if len(result_list) == 0:
+        response, status = rcg.create_http_response(message='You have not specified a valid name of a Ricgraph list',
+                                                    http_status=rcg.HTTP_RESPONSE_NOTHING_FOUND)
+        return response, status
+    response, status = rcg.create_http_response(result_list=result_list,
+                                                message=str(len(result_list)) + ' items found',
+                                                http_status=rcg.HTTP_RESPONSE_OK)
+    return response, status
+
+
 # ################################################
 # Ricgraph Explorer initialization.
 # ################################################
