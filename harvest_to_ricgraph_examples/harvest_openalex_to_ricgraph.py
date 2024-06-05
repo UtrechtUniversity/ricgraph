@@ -90,7 +90,7 @@ OPENALEX_ENDPOINT = 'works'
 OPENALEX_HARVEST_FROM_FILE = False
 OPENALEX_HARVEST_FILENAME = 'openalex_harvest.json'
 OPENALEX_DATA_FILENAME = 'openalex_data.csv'
-OPENALEX_RESOUT_YEARS = ['2020', '2021', '2022', '2023']
+OPENALEX_RESOUT_YEARS = ['2021', '2022', '2023', '2024']
 # This number is the max recs to harvest per year, not total
 OPENALEX_MAX_RECS_TO_HARVEST = 0                             # 0 = all records
 OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships'
