@@ -1,5 +1,6 @@
 [![Static Badge](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
-[![Static Badge](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)  
+[![Static Badge](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
+[![Static Badge](https://img.shields.io/badge/Website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph)
 ![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=green)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest?color=green)
@@ -9,7 +10,7 @@
 [![Technology Readiness Level 6/9 - Late Prototype - Technology demonstrated in target setting, end-users adopt it for testing purposes](https://w3id.org/research-technology-readiness-levels/Level6LatePrototype.svg)](https://github.com/CLARIAH/clariah-plus/blob/main/requirements/software-metadata-requirements.md#15--you-should-express-a-technology-readiness-level)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=32110&r=123)
 <!---
-Note, the lines 'DOI reference publication' and
+Note, the lines 'Website' and
 'GitHub last commit' end in two spaces, to force a line break but not a paragraph break.
 --->
 <img src="docs/images/ricgraph_logo.jpg" height="30"> 
@@ -325,3 +326,19 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 * Of course, there is [future work to do](docs/ricgraph_future_work.md). Please let me know
   if you'd like to help.
 
+### Ricgraph website
+Ricgraph has a main Ricgraph website on www.ricgraph.eu. 
+Alternative sites are www.ricgraph.nl and www.ricgraph.com.
+The sources for this website are on GitHub in repository
+https://github.com/UtrechtUniversity/ricgraph-website.
+
+## Contact
+Ricgraph has been created and is being maintained by 
+[Rik D.T. Janssen from Utrecht University in the Netherlands](https://www.uu.nl/staff/DTJanssen)
+[(ORCID 0000-0001-9510-0802)](https://orcid.org/0000-0001-9510-0802).
+
+If you like Ricgraph, please give it a GitHub Star by clicking on the top right 
+*Star* button on this page. If you have any suggestions or improvements, 
+please let me know by creating a GitHub *Issue* at the top left of this page. 
+
+.
