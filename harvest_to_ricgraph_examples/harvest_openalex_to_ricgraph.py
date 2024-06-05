@@ -116,10 +116,13 @@ ROTYPE_MAPPING_OPENALEX = {
             # https://docs.openalex.org/api-entities/works/work-object.
     'peer-review': rcg.ROTYPE_REVIEW,
     'posted-content': rcg.ROTYPE_PREPRINT,
+    'preprint': rcg.ROTYPE_PREPRINT,
     'proceedings': rcg.ROTYPE_CONFERENCE_ARTICLE,
     'proceedings-article': rcg.ROTYPE_CONFERENCE_ARTICLE,
     'reference-entry': rcg.ROTYPE_ENTRY,
-    'report': rcg.ROTYPE_REPORT
+    'report': rcg.ROTYPE_REPORT,
+    'review': rcg.ROTYPE_REVIEW,
+    'supplementary-materials': rcg.ROTYPE_OTHER_CONTRIBUTION
 }
 
 
