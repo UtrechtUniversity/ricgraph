@@ -7,6 +7,20 @@ Please read [Ricgraph as a server on Linux](ricgraph_as_server.md).
 In case you have no idea what would be the best for your situation, please 
 install Ricgraph for a single user, as described on this page.
 
+On this page you can find:
+* [Installation instructions for a single user](#installation-instructions-for-a-single-user)
+* [Requirements](#requirements)
+* [Steps to take](#steps-to-take)
+* [Install Neo4j Desktop](#install-neo4j-desktop)
+* [Install Bloom configuration](#install-bloom-configuration)
+* [Download Ricgraph](#download-ricgraph)
+* [Use a Python virtual environment and install Python requirements](#use-a-python-virtual-environment-and-install-python-requirements)
+* [Ricgraph initialization file](#ricgraph-initialization-file)
+* [Using Ricgraph](#using-ricgraph)
+* [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
+* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
+* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
+
 [Return to main README.md file](../README.md).
 
 ### Installation instructions for a single user
@@ -43,6 +57,16 @@ capabilities of your computer. The more, the better. The author uses a VM of 35G
 
 Ricgraph has been
 developed with Python 3.11. For some features you need at least Python 3.9.
+
+If you have Ubuntu 20.04 (such as on SURF Research Cloud), you can install
+Python 3.11 as follows:
+* Login as user *root*.
+* Type the following commands:
+  ```
+  add-apt-repository ppa:deadsnakes/ppa
+  apt install python3.11
+  ```
+* Exit from user *root*.
 
 ### Steps to take
 
