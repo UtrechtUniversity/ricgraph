@@ -378,22 +378,25 @@ def empty_ricgraph(answer: str = '') -> None:
     _graph.execute_query('MATCH (node) DETACH DELETE node', database_=graphdb_databasename)
 
     if graphdb_name == 'neo4j':
-        # More info on indexes: https://neo4j.com/docs/cypher-manual/current/indexes-for-search-performance.
-        # If I understand correctly there, the graph database backend Neo4j can be at most 3 indexes,
-        # while I would like to have 4. I decide not use a CategoryIndex.
+        # Do not use TEXT indexes, use RANGE indexes, these are much faster during harvesting
+        # (but they do not support a CONTAINS substring search which is being used for a broad search
+        # in read_all_nodes()). The RANGE index is the default in Neo4j. More info:
+        # https://neo4j.com/docs/cypher-manual/current/indexes/search-performance-indexes/managing-indexes
+        # [Jan. 2023] The graph database backend Neo4j can have at most 3 indexes.
+        # [June 5, 2024] This is not true anymore. I use 4 indexes.
         _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=graphdb_databasename)
         _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=graphdb_databasename)
-        # _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=graphdb_databasename)
+        _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=graphdb_databasename)
         _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=graphdb_databasename)
 
         print('Creating indexes...')
-        _graph.execute_query('CREATE TEXT INDEX KeyIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node._key)',
+        _graph.execute_query('CREATE INDEX KeyIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node._key)',
                              database_=graphdb_databasename)
-        _graph.execute_query('CREATE TEXT INDEX NameIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.name)',
+        _graph.execute_query('CREATE INDEX NameIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.name)',
                              database_=graphdb_databasename)
-        # _graph.execute_query('CREATE TEXT INDEX CategoryIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.category)',
-        #                      database_=graphdb_databasename())
-        _graph.execute_query('CREATE TEXT INDEX ValueIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.value)',
+        _graph.execute_query('CREATE INDEX CategoryIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.category)',
+                             database_=graphdb_databasename)
+        _graph.execute_query('CREATE INDEX ValueIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.value)',
                              database_=graphdb_databasename)
 
         print('These indexes have been created:')
@@ -412,12 +415,14 @@ def empty_ricgraph(answer: str = '') -> None:
             session.run('DROP INDEX ON :RicgraphNode;')
             session.run('DROP INDEX ON :RicgraphNode(_key);')
             session.run('DROP INDEX ON :RicgraphNode(name);')
+            session.run('DROP INDEX ON :RicgraphNode(category);')
             session.run('DROP INDEX ON :RicgraphNode(value);')
 
             print('Creating indexes...')
             session.run('CREATE INDEX ON :RicgraphNode;')
             session.run('CREATE INDEX ON :RicgraphNode(_key);')
             session.run('CREATE INDEX ON :RicgraphNode(name);')
+            session.run('CREATE INDEX ON :RicgraphNode(category);')
             session.run('CREATE INDEX ON :RicgraphNode(value);')
 
             print('These indexes have been created:')
