@@ -3026,7 +3026,7 @@ def get_facets_from_nodes(parent_node: Node,
     category_list = []
     faceted_form = get_html_for_cardstart()
     faceted_form += '<div class="facetedform">'
-    faceted_form += '<form method="get" action="' + url_for('resultspage') + '/">'
+    faceted_form += '<form method="get" action="' + url_for('resultspage') + '">'
     faceted_form += '<input type="hidden" name="key" value="' + str(parent_node['_key']) + '">'
     faceted_form += '<input type="hidden" name="view_mode" value="' + str(view_mode) + '">'
     faceted_form += '<input type="hidden" name="discoverer_mode" value="' + str(discoverer_mode) + '">'
