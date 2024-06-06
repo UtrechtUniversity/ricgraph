@@ -29,6 +29,7 @@ Read more about [REST (representational state transfer)](https://en.wikipedia.or
 | GET | [/advanced_search](#getadvanced_search) | Advanced search |
 | GET | [/get_all_personroot_nodes](#getget_all_personroot_nodes) | Find all person-root nodes of this node |
 | GET | [/get_all_neighbor_nodes](#getget_all_neighbor_nodes) | Find all neighbor nodes of this node |
+| GET | [/get_ricgraph_list](#getget_ricgraph_list) | Get the values of an internal global Ricgraph list |
 
 ## Reference Table
 
@@ -44,6 +45,16 @@ Read more about [REST (representational state transfer)](https://en.wikipedia.or
 | name_dontwant | [#/components/parameters/name_dontwant](#componentsparametersname_dontwant) | Return only neighbor nodes whose field *name* does *not* match any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
 | category_want | [#/components/parameters/category_want](#componentsparameterscategory_want) | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
 | category_dontwant | [#/components/parameters/category_dontwant](#componentsparameterscategory_dontwant) | Return only neighbor nodes whose field *category* does *not* match any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
+| ricgraph_list_name | [#/components/parameters/ricgraph_list_name](#componentsparametersricgraph_list_name) | Return the values in the specified internal Ricgraph list. These are dependent on the data in your Ricgraph instance and on the systems you have harvested. Allowed Ricgraph lists are:
+* name_all: all possible values of the *name* field in a Ricgraph node.
+* category_all: all possible values of the *category* field in a Ricgraph node.
+* personal_types_all: all category values in list *category_all* that are applicable to a person.
+* remainder_types_all: all other category values in list *category_all*, that is
+  all values in list *category_all* minus those in *personal_types_all*.
+
+* source_all: the names of all the harvested source systems.
+* resout_types_all: all research result types defined in file *ricgraph.py*.
+ |
 
 ## Path Details
 
@@ -434,6 +445,27 @@ max_nr_items?: string //default: 250
 
 - 251 Invalid search
 
+***
+
+### [GET]/get_ricgraph_list
+
+- Summary  
+Get the values of an internal global Ricgraph list
+
+#### Parameters(Query)
+
+```ts
+ricgraph_list_name: enum[name_all, category_all, personal_types_all, remainder_types_all, source_all, resout_types_all]
+```
+
+#### Responses
+
+- 200 OK
+
+- 250 Nothing found
+
+- 251 Invalid search
+
 ## References
 
 ### #/components/parameters/name
@@ -494,4 +526,10 @@ category_want?: string[]
 
 ```ts
 category_dontwant?: string[]
+```
+
+### #/components/parameters/ricgraph_list_name
+
+```ts
+ricgraph_list_name: enum[name_all, category_all, personal_types_all, remainder_types_all, source_all, resout_types_all]
 ```

@@ -1,9 +1,22 @@
 ## Ricgraph REST API
 
-You can use the Ricgraph REST API to programmatically get items from Ricgraph, 
+
+data or predefined queries in Ricgraph, 
+in such a way that your code is not dependent on any Ricgraph 
+code. In your own code, you do not need to include any of the Ricgraph dependencies, nor 
+include *ricgraph.py* or *ricgraph_explorer.py*.
+You can use the Ricgraph REST API to programmatically get items from Ricgraph,
 as an alternative to using the user
 interface [Ricgraph Explorer](ricgraph_explorer.md). 
-You will get these items in a [JSON format](https://en.wikipedia.org/wiki/JSON).
+
+Note that this will only work if someone has a running Ricgraph and
+Ricgraph Explorer instance available, which you can access over the web.
+That someone can be yourself, who has Ricgraph and
+Ricgraph Explorer running on your own computer or e.g. on SURF Research Cloud,
+or can be someone else, who has done that.
+
+If you use the Ricgraph REST API, will get these results 
+in a [JSON format](https://en.wikipedia.org/wiki/JSON).
 The Ricgraph REST API uses 
 the [OpenAPI standard](https://www.openapis.org).
 It gives access to Ricgraph function calls both in *ricgraph.py* 
