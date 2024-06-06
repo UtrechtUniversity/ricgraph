@@ -1,7 +1,7 @@
 ## Ricgraph REST API
 
-
-data or predefined queries in Ricgraph, 
+You can use the Ricgraph REST API to get data from Ricgraph, or 
+to execute predefined queries in Ricgraph and Ricgraph Explorer, 
 in such a way that your code is not dependent on any Ricgraph 
 code. In your own code, you do not need to include any of the Ricgraph dependencies, nor 
 include *ricgraph.py* or *ricgraph_explorer.py*.
@@ -11,9 +11,11 @@ interface [Ricgraph Explorer](ricgraph_explorer.md).
 
 Note that this will only work if someone has a running Ricgraph and
 Ricgraph Explorer instance available, which you can access over the web.
-That someone can be yourself, who has Ricgraph and
-Ricgraph Explorer running on your own computer or e.g. on SURF Research Cloud,
-or can be someone else, who has done that.
+That someone can be yourself, where you run Ricgraph and
+Ricgraph Explorer on your own computer or use a cloud service 
+such as SURF Research Cloud,
+or it can be someone else, who is doing that for you or for a 
+community of users.
 
 If you use the Ricgraph REST API, will get these results 
 in a [JSON format](https://en.wikipedia.org/wiki/JSON).
