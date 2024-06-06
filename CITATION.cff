@@ -164,6 +164,7 @@ abstract: >-
 keywords:
   - "Ricgraph"
   - "Ricgraph Explorer"
+  - "Ricgraph REST API"
   - "Research in context graph"
   - "Graph"
   - "Graph database"
