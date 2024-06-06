@@ -159,6 +159,8 @@ abstract: >-
 
   Extensive documentation, publications, videos and source code can be found in
   the Github repository https://github.com/UtrechtUniversity/ricgraph
+
+  The website for Ricgraph can be found at https://www.ricgraph.eu
 keywords:
   - "Ricgraph"
   - "Ricgraph Explorer"
@@ -174,4 +176,4 @@ keywords:
   - "Utrecht University"
 license: MIT
 repository-code: "https://github.com/UtrechtUniversity/ricgraph"
-url: "https://github.com/UtrechtUniversity/ricgraph"
+url: "https://www.ricgraph.eu"
