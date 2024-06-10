@@ -336,6 +336,7 @@ https://github.com/UtrechtUniversity/ricgraph-website.
 Ricgraph has been created and is being maintained by 
 [Rik D.T. Janssen from Utrecht University in the Netherlands](https://www.uu.nl/staff/DTJanssen)
 [(ORCID 0000-0001-9510-0802)](https://orcid.org/0000-0001-9510-0802).
+You can contact him for presentations, demos and workshops.
 
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right 
 *Star* button on this page. If you have any suggestions or improvements, 
