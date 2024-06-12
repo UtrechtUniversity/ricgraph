@@ -1,11 +1,13 @@
 ## Install and configure Ricgraph
 
-This page describes how to install Ricgraph for a single user.
+This page describes how to install Ricgraph for a single user on Linux.
 If you would like to use Ricgraph in a multi-user environment
 on Linux, you will need to install Ricgraph differently.
 Please read [Ricgraph as a server on Linux](ricgraph_as_server.md).
 In case you have no idea what would be the best for your situation, please 
-install Ricgraph for a single user, as described on this page.
+install Ricgraph for a single user on Linux, as described on this page.
+[Continue reading here if you would like to install Ricgraph on 
+Windows](#ricgraph-on-windows) (not recommended).
 
 On this page you can find:
 * [Installation instructions for a single user](#installation-instructions-for-a-single-user)
@@ -49,7 +51,8 @@ it has not been tested extensively with Ricgraph yet.
 Read [Install and start Memgraph](ricgraph_as_server.md#install-and-start-memgraph).
 
 ### Requirements
-The easiest method for using Ricgraph is by using a virtual machine (VM) such as
+The easiest method for using Ricgraph is by using a Linux virtual machine (VM) such as
+you can create using 
 [VirtualBox](https://www.virtualbox.org). A VM of size 25GB with 4GB memory will work.
 Of course, this depends on the (size of the) sources you plan to harvest and the
 capabilities of your computer. The more, the better. The author uses a VM of 35GB with
@@ -396,6 +399,16 @@ in Neo4j Community Edition, follow these steps:
    cd /var/lib/neo4j
    rm -r data-old
    ```
+
+### Ricgraph on Windows
+If you would like to install Ricgraph on Windows, you are very probably the first
+person to do so, as far as known. The creator of Ricgraph has no experience
+in developing software on Windows. So please let me know which steps you have
+taken, so I can add them to this documentation. If you are a Windows user,
+I would recommend to create a Linux virtual machine using e.g.
+[VirtualBox](https://www.virtualbox.org), and install Ricgraph in that 
+virtual machine as described above.
+
 
 ### Return to main README.md file
 

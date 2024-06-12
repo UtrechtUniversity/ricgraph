@@ -3,12 +3,12 @@ This page describes how to install and run Ricgraph in a multi-user environment 
 If you would like to use Ricgraph in such an environment, you will
 need to install Ricgraph differently than described in 
 [Install and configure Ricgraph](ricgraph_install_configure.md).
-*Multi-user environment* means that you install Ricgraph on a (virtual) machine, 
+*Multi-user environment* means that you install Ricgraph on a Linux (virtual) machine, 
 and that various persons can log on to that machine, each with his own user id
 and password, and that each person will be able to use Ricgraph by using a
 web link in their web browser.
 
-The reason that a multi-user environment for Ricgraph is different from installing and using
+The reason that a Linux multi-user environment for Ricgraph is different from installing and using
 Ricgraph on your own user id, is that you will need to run the graph database backend and
 [Ricgraph Explorer](ricgraph_explorer.md) 
 as a system user instead of running it using your own user id.
@@ -21,6 +21,9 @@ it can be used by any user on that machine.
 
 [Go to the documentation describing the installation and configuration
 of Ricgraph for a single user](ricgraph_install_configure.md).
+
+[Continue reading here if you would like to install Ricgraph on
+Windows](ricgraph_install_configure.md#ricgraph-on-windows) (not recommended).
 
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
