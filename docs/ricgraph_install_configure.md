@@ -22,7 +22,8 @@ On this page you can find:
 * [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
-
+* [Ricgraph on Windows](#ricgraph-on-windows)
+ 
 [Return to main README.md file](../README.md).
 
 ### Installation instructions for a single user
