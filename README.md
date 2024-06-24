@@ -208,7 +208,7 @@ Two articles and one data set are from
 the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
 (their color is green),
 one data set is from
-the data repository [Yoda](https://search.datacite.org/repositories/delft.uu)
+the data repository [Yoda](https://www.uu.nl/en/research/yoda)
 (in orange), 
 one article is from [OpenAlex](https://openalex.org) (in purple),
 and
@@ -267,7 +267,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   harvesting scripts. Example scripts are included to
   harvest from the [OpenAlex](https://openalex.org), 
   the [Research Information System Pure](https://www.elsevier.com/solutions/pure),
-  the data repository [Yoda](https://search.datacite.org/repositories/delft.uu),
+  the data repository [Yoda](https://www.uu.nl/en/research/yoda),
   the [Research Software Directory](https://research-software-directory.org), and 
   for the [Utrecht University staff pages](https://www.uu.nl/staff/search).
 * Ricgraph can be used as an ID resolver. It can, given an identifier of a person,
