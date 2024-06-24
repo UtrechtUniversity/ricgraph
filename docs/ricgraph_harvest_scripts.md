@@ -208,7 +208,7 @@ and your project may have research outputs from before 2020.
 
 To harvest Utrecht University data sets
 from the data repository 
-[Yoda](https://search.datacite.org/repositories/delft.uu),
+[Yoda](https://www.uu.nl/en/research/yoda),
 use the script
 *harvest_yoda_datacite_to_ricgraph.py*.
 ```
