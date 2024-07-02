@@ -6,10 +6,15 @@
 * See where [Ricgraph has been mentioned](#ricgraph-mentions).
 * Watch a video where [Arjan Sieverink presents Ricgraph at Pure International Conference 
   2023](#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023).
-  
+
+Please let us know if you publish, present, use, or mention Ricgraph, then we
+can add that to this page. 
+
 [Return to main README.md file](../README.md).
 
 ### Ricgraph publications
+
+If you publish about Ricgraph, please let us know so that we can add it to this page.
 
 | When             | Authors                                                                                                             | Title and link to pdf                                                                                                                                                                                                                                                                                | Weblink                                                                        |
 |------------------|---------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
@@ -18,6 +23,8 @@
 | April 22, 2024   | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802)                                                           | [Ricgraph: A flexible and extensible graph to explore research in context from various systems, *SoftwareX*, 26(101736)](publications/240422-RDTJanssen-Ricgraph_A_flexible_and_extensible_graph.pdf)                                                                                                | [DOI 10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736) |
 
 ### Ricgraph presentations
+
+If you present Ricgraph, please let us know so that we can add it to this page.
 
 | When              | Where                                                                                 | Title and link to pdf                                                                                                                                                                                                             |
 |-------------------|---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -33,6 +40,8 @@
 
 ### Ricgraph use
 
+If you use Ricgraph, please let us know so that we can add it to this page.
+
 | When                 | Description                                                                                                                       |
 |----------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | March - August, 2023 | Ricgraph has been used in the NWO PID graph pilot project, with SURF and six Dutch universities, [NWO PID graph pilot Project report](https://doi.org/10.5281/zenodo.10610929) |
@@ -42,6 +51,8 @@
 
 
 ### Ricgraph mentions
+
+If you mention Ricgraph, please let us know so that we can add it to this page.
 
 | When             | Where                                                | Title and link to pdf                                                                                                                                                                  | Weblink                                                                                                                                                                                  |
 |------------------|------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
