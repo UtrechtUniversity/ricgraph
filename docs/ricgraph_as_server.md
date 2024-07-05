@@ -63,7 +63,7 @@ the following steps:
  
 ### Install and start Neo4j Community Edition
 * Login as user *root*.
-* Install Neo4j Community Edition. 
+* Install Neo4j Community Edition (it is free). 
   To do this, go to the 
   [Neo4j Deployment Center](https://neo4j.com/deployment-center). 
   Go to section "Graph Database Self-Managed", choose "Community".
