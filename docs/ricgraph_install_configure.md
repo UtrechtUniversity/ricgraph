@@ -99,8 +99,11 @@ Other things you might want to do, if you use Neo4j:
 
 ### Install Neo4j Desktop
 
-1. Download [Neo4j Desktop](https://neo4j.com/download-center/#desktop) for your
-   operating system. For linux it is an [AppImage](https://en.wikipedia.org/wiki/AppImage),
+1. Install Neo4j Desktop Edition (it is free). 
+   To do this, go to the 
+   [Neo4j Deployment Center](https://neo4j.com/deployment-center). 
+   Go to section "Neo4j Desktop". Choose the latest version of Neo4j Desktop.
+   Download the Linux version. It is an [AppImage](https://en.wikipedia.org/wiki/AppImage),
    so it can be installed and used without root permissions. You will be asked to fill in a form before
    you can download. In the following screen you will be given a "Neo4j Desktop Activation Key". Save it.
 1. The downloaded file is called something
