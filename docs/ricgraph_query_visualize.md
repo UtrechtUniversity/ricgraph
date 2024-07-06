@@ -4,6 +4,8 @@ To query and visualize Ricgraph nodes and edges, there are several possibilities
 
 * Use Ricgraph Explorer, read 
   more on the [Ricgraph Explorer page](ricgraph_explorer.md).
+* Use the Ricgraph REST API, read 
+  more on the [Ricgraph REST API page](ricgraph_restapi.md).
 * Use Neo4j Desktop Bloom, read [How to use Bloom](#How-to-use-bloom).
   First you have to [start Neo4j Desktop](#start-neo4j-desktop).
 * Other methods for querying and visualization are
@@ -27,7 +29,7 @@ To query and visualize Ricgraph nodes and edges, there are several possibilities
 
 ### How to use Bloom
 
-[Bloom is Neo4j's graph visualization tool](https://neo4j.com/product/bloom).
+[Bloom is Neo4j Desktop's graph visualization tool](https://neo4j.com/product/bloom).
 It is included with Neo4j Desktop.
 According to Neo4j it is:
 "A beautiful and expressive data visualization tool to quickly explore and freely interact with
@@ -37,6 +39,11 @@ Neo4j has
 and a
 [Bloom overview](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/bloom-overview).
 Below are some examples for a quick start.
+
+#### Install the Bloom configuration file
+
+If you have not installed the Bloom configuration file yet, read
+[Install Bloom configuration](ricgraph_install_configure.md#install-bloom-configuration).
 
 #### Open Bloom
 
