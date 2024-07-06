@@ -74,11 +74,10 @@ Python 3.11 as follows:
 
 ### Steps to take
 
-1. Install your graph database backend:
+1. Install your graph database backend (choose one of these):
    * [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
-     [Install the Bloom configuration](#install-bloom-configuration).
-     If you would like to use Neo4j Community Edition, read
-     [Install and start Neo4j Community 
+     Optional: [Install the Bloom configuration](#install-bloom-configuration).
+   * [Install and start Neo4j Community 
      Edition](ricgraph_as_server.md#install-and-start-neo4j-community-edition).
    * [Install and start Memgraph](ricgraph_as_server.md#install-and-start-memgraph).
 1. [Download Ricgraph](#download-ricgraph).
@@ -138,6 +137,9 @@ Now we need to find the port number which Neo4j Desktop is using:
 1. Ready.
 
 ### Install Bloom configuration
+
+This is only necessary if you plan to use Bloom. If you don't know, skip this step for now,
+you can come back to it later.
 
 1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
 1. Click on the icon <img src="images/neo4j1.jpg" height="20">
