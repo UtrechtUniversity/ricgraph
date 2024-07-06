@@ -341,5 +341,3 @@ You can contact him for presentations, demos and workshops.
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right 
 *Star* button on this page. If you have any suggestions or improvements, 
 please let me know by creating a GitHub *Issue* at the top left of this page. 
-
-.
