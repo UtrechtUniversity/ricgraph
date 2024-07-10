@@ -27,12 +27,12 @@ In the videos, you will observe nodes of several colors and sizes:
 None of these videos have sound.
 
 For other illustrations of Ricgraph, see the
-[publications](ricgraph_pubs_pres_news_use_ment#ricgraph-publications),
-[presentations](ricgraph_pubs_pres_news_use_ment#ricgraph-presentations),
-[newsletters](ricgraph_pubs_pres_news_use_ment#ricgraph-newsletters)
+[publications](ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
+[presentations](ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
+[newsletters](ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
 (to subscribe, go to [Ricgraph Contact](../README.md#contact)),
-[use](ricgraph_pubs_pres_news_use_ment#ricgraph-use), and
-[mentions](ricgraph_pubs_pres_news_use_ment#ricgraph-mentions)
+[use](ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
+[mentions](ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
 of Ricgraph.
 
 [Return to main README.md file](../README.md).
