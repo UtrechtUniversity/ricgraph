@@ -102,6 +102,20 @@ Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore re
 context from various systems. *SoftwareX*, 26(101736).
 https://doi.org/10.1016/j.softx.2024.101736.
 
+For a further introduction, you might want to read these two presentations:
+* A general presentation about Ricgraph, presenting Ricgraph in a visual manner: 
+  https://doi.org/10.5281/zenodo.12634234.
+* A presentation explaining how to enrich 
+  the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
+  (and other source systems) using Ricgraph 
+  and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
+  https://doi.org/10.5281/zenodo.12634658.
+  This presentation explains that after harvesting serveral Pure's 
+  (from different institutions)  and other source systems,
+  such as [OpenAlex](https://openalex.org), 
+  one can enrich its own Pure _A_ by using information in other source
+  systems, not present in one's own Pure _A_.
+  
 More details can be found in section
 [Example use cases in Ricgraph](#example-use-cases-in-ricgraph),
 where you can read how the use cases above work out using Ricgraph.
@@ -301,6 +315,20 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).
   https://doi.org/10.1016/j.softx.2024.101736.
+* For a further introduction, you might want to read these two presentations:
+  * A general presentation about Ricgraph, presenting Ricgraph in a visual manner:
+    https://doi.org/10.5281/zenodo.12634234.
+  * A presentation explaining how to enrich
+    the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
+    (and other source systems) using Ricgraph
+    and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
+    https://doi.org/10.5281/zenodo.12634658.
+    This presentation explains that after harvesting serveral Pure's
+    (from different institutions)  and other source systems,
+    such as [OpenAlex](https://openalex.org),
+    one can enrich its own Pure _A_ by using information in other source
+    systems, not present in one's own Pure _A_.
+
 * Read more about
   [publications](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
   [presentations](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
