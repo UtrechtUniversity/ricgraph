@@ -224,7 +224,7 @@ There are two ways of doing this:
     file *requirements.txt*. Probably, a button or text appears
     that asks you to install requirements. Click on it.
   
-    If this does not work, in the IDE (PyCharm) Terminal, type:
+    If this does not work, type in the IDE (PyCharm) Terminal:
     ```
     pip3.11 install -r requirements.txt
     ```
