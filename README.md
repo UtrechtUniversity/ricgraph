@@ -52,15 +52,13 @@ participated, as well as the relations between these entities.
 Examples of *research results* are publications, data sets, and software.
 
 Example use cases from the application area research information are:
-* As a journalist, I want to find researchers with a certain skill
-  and their publications, so that I can interview them for a newspaper article.
-* As a librarian, I want to enrich my local research information system
-  with research results that are in other systems but not in ours,
-  so that we have a more complete view of research at our university.
-* As a researcher, I want to find researchers from other universities
-  that have co-authored publications written by the co-authors
-  of my own publications, so that I can read their publications
-  to find out if we share common research interests.
+
+| Use case | Image (click to enlarge)                                                        |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| As a journalist, I want to find researchers with a certain skill S and their publications, so that I can interview them for a newspaper article. Example skills can be: *climate change* or *stem cells*.                                                       | <img src="docs/images/journalist-use-case.jpg" width="600">                     |
+| As a librarian, I want to enrich my local research information system with research results from person A that are in other systems (in orange, *RIS2*) but not in ours (in green, *RIS1*), so that we have a more complete view of research at our university. | <img src="docs/images/librarian-use-case.jpg" width="600">                      |
+| As a researcher A, I want to find researchers from other universities that have co-authored publications written by the co-authors of my own publications, so that I can read their publications to find out if we share common research interests.             | <img src="docs/images/researcher-use-case.jpg" width="600"> |
+
 
 These use cases use different types of information (called *items*):
 researchers, skills, publications,
@@ -116,9 +114,6 @@ For a further introduction, you might want to read these two presentations:
   one can enrich its own Pure _A_ by using information in other source
   systems, not present in one's own Pure _A_.
   
-More details can be found in section
-[Example use cases in Ricgraph](#example-use-cases-in-ricgraph),
-where you can read how the use cases above work out using Ricgraph.
 To learn more about Ricgraph,
 [read why Ricgraph has been developed](#why-ricgraph).
 This is followed by
@@ -182,34 +177,6 @@ Scripts for other sources can be written easily.
 In the remainder of this text, Ricgraph is described in the use case of
 showing people, organizations and research outputs in relation to each other
 in a university context.
-
-## Example use cases in Ricgraph
-
-### Use case 1, as a journalist...
-As a journalist, I want to find researchers with
-a certain skill S and their publications, 
-so that I can interview them for a newspaper article.
-Example skills can be: *climate change* or *stem cells*.
-
-<img src="docs/images/journalist-use-case.jpg" height="200"> 
-
-### Use case 2, as a librarian...
-As a librarian, I want to enrich my
-local research information system with
-research results from person A that are in other systems (in orange, *RIS2*)
-but not in ours (in green, *RIS1*),
-so that we have a more complete view of research at
-our university.
-
-<img src="docs/images/librarian-use-case.jpg" height="200"> 
-
-### Use case 3, as a researcher...
-As a researcher A, I want to find researchers from other universities
-that have co-authored publications written by the co-authors
-of my own publications, so that I can read their publications
-to find out if we share common research interests.
-
-<img src="docs/images/researcher-use-case.jpg" height="200">
 
 ## Examples
 
@@ -306,7 +273,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   [OpenAlex](https://openalex.org) can be used
   to find the missing Scopus Author ID. An example script is included.
 * Ricgraph can enrich a source system based on information that is present in one
-  source system, but not in another source system. See use case 2 above.
+  source system, but not in another source system. See the use case above.
 
 ## Next steps
 
