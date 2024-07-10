@@ -53,7 +53,7 @@ Examples of *research results* are publications, data sets, and software.
 
 Example use cases from the application area research information are:
 
-| Use case                                                                                                                                                                                                                                                        | Image (click to enlarge)                                    |
+| Use case                                                                                                                                                                                                                                                        | In Ricgraph (click to enlarge)                              |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
 | As a journalist, I want to find researchers with a certain skill S and their publications, so that I can interview them for a newspaper article. Example skills can be: *climate change* or *stem cells*.                                                       | <img src="docs/images/journalist-use-case.jpg" width="700"> |
 | As a librarian, I want to enrich my local research information system with research results from person A that are in other systems (in orange, *RIS2*) but not in ours (in green, *RIS1*), so that we have a more complete view of research at our university. | <img src="docs/images/librarian-use-case.jpg" width="700">  |
