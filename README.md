@@ -108,7 +108,7 @@ For a further introduction, you might want to read these two presentations:
   (and other source systems) using Ricgraph 
   and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
   https://doi.org/10.5281/zenodo.12634658.
-  This presentation explains that after harvesting serveral Pure's 
+  This presentation explains that after harvesting several Pure's 
   (from different institutions)  and other source systems,
   such as [OpenAlex](https://openalex.org), 
   one can enrich its own Pure _A_ by using information in other source
@@ -141,7 +141,10 @@ of Ricgraph.
 Ricgraph can answer questions like:
 * Which researcher has contributed to which publication, dataset, software package, project, etc.?
 * Given e.g. a dataset, software package, or project, who has contributed to it?
-* What identifiers does a researcher have (e.g. ORCID, ISNI, organization employee ID, email address)?
+* What identifiers does a researcher have (e.g. 
+  [ORCID](https://en.wikipedia.org/wiki/ORCID), 
+  [ISNI](https://en.wikipedia.org/wiki/International_Standard_Name_Identifier),
+  organization employee ID, email address)?
 * What skills does a researcher have?
 * Show a network of researchers who have worked together?
 * Which organizations have worked together?
@@ -149,14 +152,16 @@ Ricgraph can answer questions like:
 Also, more elaborate information can be found using Ricgraph and 
 [Ricgraph Explorer](docs/ricgraph_explorer.md), the
 exploration tool for Ricgraph:
-* You can find information about persons or their results in a (child) 
-  organization (unit, department, faculty, university). 
+* You can find information about persons or their results in a (sub-)organization 
+  (unit, department, faculty, university). 
   For example, you can find out what data sets or software are produced in your faculty. 
   Or the skills of all persons in your department. Of course this is only possible in case you have harvested them.
 * You can find out with whom a person shares research output types. 
   For example, you can find out with whom someone shares software or data sets.
 * You can get tables showing how you can enrich a source system based on other systems you have harvested. 
-  For example, suppose you have harvested both Pure and OpenAlex, using this feature you can find out 
+  For example, suppose you have harvested both 
+  [Research Information System Pure](https://www.elsevier.com/solutions/pure) and
+  [OpenAlex](https://openalex.org), using this feature you can find out 
   which publications in OpenAlex are not in Pure. You might want to add those to Pure.
 * You can get a table that shows the overlap in harvests from different source systems. 
   For example, after a query to show all ORCID nodes, 
@@ -290,7 +295,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
     (and other source systems) using Ricgraph
     and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
     https://doi.org/10.5281/zenodo.12634658.
-    This presentation explains that after harvesting serveral Pure's
+    This presentation explains that after harvesting several Pure's
     (from different institutions)  and other source systems,
     such as [OpenAlex](https://openalex.org),
     one can enrich its own Pure _A_ by using information in other source
