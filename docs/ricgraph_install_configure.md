@@ -223,6 +223,12 @@ There are two ways of doing this:
     Depending on the Python IDE, single or double-click on
     file *requirements.txt*. Probably, a button or text appears
     that asks you to install requirements. Click on it.
+  
+    If this does not work, in the IDE (PyCharm) Terminal, type:
+    ```
+    pip3.11 install -r requirements.txt
+    ```
+    You may want to change *3.11* in *pip3.11* for the Python version you use.
 
 Notable dependencies used in Ricgraph:
 * [PyAlex](https://github.com/J535D165/pyalex).
