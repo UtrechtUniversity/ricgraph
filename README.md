@@ -119,8 +119,13 @@ and [information about extending Ricgraph](#read-this-in-case-you-would-like-to-
 Of course there are 
 [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
 and there is an overview of the 
-[publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
-
+[publications](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-publications),
+[presentations](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-presentations),
+[newsletters](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-newsletters)
+(to subscribe, go to [Ricgraph Contact](#contact)),
+[use](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-use), and
+[mentions](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-mentions)
+of Ricgraph.
 
 ## Why Ricgraph?
 
@@ -137,10 +142,13 @@ Also, more elaborate information can be found using Ricgraph and
 exploration tool for Ricgraph:
 * You can find information about persons or their results in a (child) 
   organization (unit, department, faculty, university). 
-  For example, you can find out what data sets or software are produced in your faculty. Or the skills of all persons in your department. Of course this is only possible in case you have harvested them.
+  For example, you can find out what data sets or software are produced in your faculty. 
+  Or the skills of all persons in your department. Of course this is only possible in case you have harvested them.
 * You can find out with whom a person shares research output types. 
   For example, you can find out with whom someone shares software or data sets.
-* You can get tables showing how you can enrich a source system based on other systems you have harvested. For example, suppose you have harvested both Pure and OpenAlex, using this feature you can find out which publications in OpenAlex are not in Pure. You might want to add those to Pure.
+* You can get tables showing how you can enrich a source system based on other systems you have harvested. 
+  For example, suppose you have harvested both Pure and OpenAlex, using this feature you can find out 
+  which publications in OpenAlex are not in Pure. You might want to add those to Pure.
 * You can get a table that shows the overlap in harvests from different source systems. 
   For example, after a query to show all ORCID nodes, 
   the table summarizes the number of ORCID nodes which were
@@ -293,8 +301,14 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).
   https://doi.org/10.1016/j.softx.2024.101736.
-* Read more about 
-  [publications, presentations, use and mentions of Ricgraph](docs/ricgraph_pubs_presentations_use_mentions.md).
+* Read more about
+  [publications](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-publications),
+  [presentations](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-presentations),
+  [newsletters](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-newsletters)
+  (to subscribe, go to [Ricgraph Contact](#contact)),
+  [use](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-use), and
+  [mentions](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-mentions)
+  of Ricgraph.
 * Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).
 * Read more about [Ricgraph details](docs/ricgraph_details.md),
   such as example graphs, person identifiers and the *person-root* node.
@@ -337,6 +351,14 @@ Ricgraph has been created and is being maintained by
 [Rik D.T. Janssen from Utrecht University in the Netherlands](https://www.uu.nl/staff/DTJanssen)
 [(ORCID 0000-0001-9510-0802)](https://orcid.org/0000-0001-9510-0802).
 You can contact him for presentations, demos and workshops.
+
+About three to four times a year we send out a 
+newsletter.
+[Please click here to subscribe to it. Your email program will open with
+a subscribe email text. Please complete it
+by filling in your name and email address](mailto:r.d.t.janssen@uu.nl?subject=Please%20add%20me%20to%20the%20Ricgraph%20newsletter%20email%20list&body=Hi%20Rik%2C%0D%0A%0D%0ACan%20you%20please%20add%20me%20to%20your%20Ricgraph%20newsletter%20email%20list%3F%20Thanks!%0D%0A%0D%0ABest%20regards%2C%0D%0A%0D%0A%5Bplease%20replace%20with%20your%20name%5D%0D%0A%5Bplease%20replace%20with%20your%20email%20address%5D).
+We also have a 
+[newsletter archive](docs/ricgraph_pubs_pres_news_use_ment#ricgraph-newsletters). 
 
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right 
 *Star* button on this page. If you have any suggestions or improvements, 

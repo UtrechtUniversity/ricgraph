@@ -2,6 +2,7 @@
 
 * Read [Ricgraph publications](#ricgraph-publications).
 * Read [Ricgraph presentations](#ricgraph-presentations).
+* Read [Ricgraph newsletters](#ricgraph-newsletters).
 * See where [Ricgraph has been used](#ricgraph-use).
 * See where [Ricgraph has been mentioned](#ricgraph-mentions).
 * Watch a video where [Arjan Sieverink presents Ricgraph at Pure International Conference 
@@ -40,6 +41,16 @@ If you give a presentation about Ricgraph, please let us know so that we can add
 | March 11, 2024    | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802) | Presentation at Utrecht University, Utrecht, NL                                       | Ricgraph - Research in context graph (presentation was a condensed version of the presentation of February 14, 2024)                                                                                                              |                                                                        |
 | June 27, 2024     | [Felix Weijdema](https://orcid.org/0000-0001-5150-1102)   | Presentation for Research Intelligence Network Netherlands, Maastricht, NL            | [Research in Context at Utrecht University](presentations/240627-FWeijdema+RDTJanssen-Research_in_Context_at_Utrecht_University-RINN_presentation.pdf)                                                                            |                                                                        |
 | July 4, 2024      | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802) | Presentation for Pure User Group, Utrecht, NL                                         | [Enriching Pure data using Ricgraph -Research in context graph- and BackToPure](presentations/240704-RDTJanssen-Enriching_Pure_data_using_Ricgraph+BackToPure-Presentation_2024-07-04.pdf)                                        | [DOI 10.5281/zenodo.12634658](https://doi.org/10.5281/zenodo.12634658) |
+
+### Ricgraph newsletters
+
+These are the newsletters that have been sent out to our newsletter subscribers. 
+To subscribe to the newsletter email list, go to [Ricgraph Contact](../README.md#contact).
+
+| Date       | Title                                                                                                                                                                              |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| April 2024 | [Ricgraph newsletter April 2024. Journal article - Ricgraph: A flexible and extensible graph to explore research in context](newsletters/240400-Ricgraph_newsletter_April_2024.md) |
+| July 2024  | [Ricgraph newsletter July 2024](newsletters/240700-Ricgraph_newsletter_July_2024.md)                                                                                               |
 
 ### Ricgraph use
 
