@@ -107,9 +107,14 @@ Other things you might want to do, if you use Neo4j:
    you can download. In the following screen you will be given a "Neo4j Desktop Activation Key". Save it.
 1. The downloaded file is called something
    like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
-   Make it executable using "chmod 755 \[filename\]". Then click on it.
+   Make it executable using "chmod 755 \[filename\]". 
+1. Start Neo4j Desktop by clicking on the downloaded file. 
 1. Accept the license, and then enter your activation key in the right part of the screen. Click "Activate".
    You might have to wait awhile before you can continue to the next step.
+1. Exit Neo4j Desktop using the "File" menu and select "Quit".
+
+#### Post-install steps Neo4j Desktop
+1. Start Neo4j Desktop by clicking on the downloaded file. 
 1. Move your mouse to "Example Project" in the left column.
    A red trash can icon appears. Click it to remove the Example
    Project database "Movie DBMS". Confirm.
@@ -191,7 +196,10 @@ each with their own independent set of Python packages installed
 in their site directories. A virtual environment is created on top of
 an existing Python installation.
 There are two ways of doing this:
+* Using Python's venv module;
+* Using a Python Integrated development environment (IDE).
 
+#### Using Python's venv module
 * Using Python's venv module.
   Read [Create a Python virtual environment and install Ricgraph in
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
@@ -205,7 +213,9 @@ There are two ways of doing this:
     it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
     read _/home/alice_, and ignore any references to "login as user _root_" and ``chown``.
   * Follow the other instructions as written. 
-* Use a Python
+
+#### Using a Python Integrated development environment (IDE)
+* Using a Python
   [Integrated development
   environment (IDE)](https://en.wikipedia.org/wiki/Integrated_development_environment),
   such as [PyCharm](https://www.jetbrains.com/pycharm).
@@ -230,7 +240,7 @@ There are two ways of doing this:
     ```
     You may want to change *3.11* in *pip3.11* for the Python version you use.
 
-Notable dependencies used in Ricgraph:
+#### Notable dependencies used in Ricgraph:
 * [PyAlex](https://github.com/J535D165/pyalex).
   PyAlex is a Python library for [OpenAlex](https://openalex.org/).
   OpenAlex is an index of hundreds of millions of interconnected scholarly papers, authors,

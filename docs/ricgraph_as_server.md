@@ -103,6 +103,8 @@ the following steps:
   journalctl -u neo4j.service
   ```
 * Exit from user *root*.
+
+#### Post-install steps Neo4j Community Edition
 * Change the default username and password of Neo4j:
   * In your web browser, go to
     [http://localhost:7474/browser](http://localhost:7474/browser).
@@ -393,15 +395,21 @@ and Ricgraph data to the outside world.*
   [ricgraph_server_config/ricgraph_explorer.conf-apache](../ricgraph_server_config/ricgraph_explorer.conf-apache)
   to /etc/apache2/vhosts.d, type:
   ```
-  cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer.conf-apache /etc/apache2/vhosts.d/ricgraph_explorer.conf
-  chmod 600 /etc/apache2/vhosts.d/ricgraph_explorer.conf
+  cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer.conf-apache /etc/apache2/vhosts.d
+  chmod 600 /etc/apache2/vhosts.d/ricgraph_explorer.conf-apache
+  ```
+
+#### Post-install steps Apache
+* Login as user *root*.
+* Move the Apache *Ricgraph Explorer* configuration file to its final location:
+  ```
+  mv /etc/apache2/vhosts.d/ricgraph_explorer.conf-apache /etc/apache2/vhosts.d/ricgraph_explorer.conf
   ```
   Change *ricgraph_explorer.conf* in such a way it fits your situation.
   Make the modification to *ricgraph_explorer.conf*
   as described in the comments at the start of *ricgraph_explorer.conf*.
   Test the result.
-  
-  Make it run by typing:
+* Make it run by typing:
   ``` 
   systemctl enable apache2.service
   systemctl start apache2.service
