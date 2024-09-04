@@ -41,6 +41,9 @@ the following steps:
 * [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph 
   REST API accessible from outside your virtual 
   machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+* [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph
+  REST API accessible from outside your virtual
+  machine](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community
   Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research 
@@ -345,6 +348,7 @@ the outside world. All data will only be accessible in the virtual machine.
 
 
 ### Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
+#### Introduction Apache webserver
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is written in Flask, a framework for Python to build web interfaces.
 Flask contains a development web server, and if you start Ricgraph Explorer by typing
@@ -377,6 +381,11 @@ to the outside world, you will have to modify the Apache configuration file. You
 need to make a small modification to make it work. How to do this is described in the
 comments at the start of the configuration file.
 
+Note that it is also possible to use [Nginx as a
+webserver](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+If you are using SURF Research Cloud, you will need to use Nginx.
+
+#### Installation Apache
 *Using Apache, WSGI, and ASGI will expose Ricgraph Explorer, the Ricgraph REST API,
 and Ricgraph data to the outside world.*
 
@@ -422,6 +431,75 @@ and Ricgraph data to the outside world.*
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer from inside your virtual machine by typing 
   [http://localhost](http://localhost) in your web browser in the virtual machine, or 
+  from outside your virtual machine by going to
+  [http://[your IP address]](http://[your_IP_address) or
+  [http://[your hostname]](http://[your_hostname).
+* You can use the Ricgraph REST API from inside your virtual machine by
+  using the path *http://localhost:3030/api* followed by a REST API endpoint, or
+  from outside your virtual machine by
+  using the path *http://[your IP address/api* or
+  *http://[your hostname]/api*,
+  both followed by a REST API endpoint.
+
+
+### Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
+#### Introduction Nginx webserver
+Please read the introduction of section
+[Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph
+  REST API accessible from outside your virtual
+  machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+The same explanation and words of caution as for using Apache as a webserver hold for 
+Nginx as a webserver.
+
+To prevent accidental exposure of Ricgraph Explorer, the REST API, and the data in Ricgraph
+to the outside world, you will have to modify the Nginx configuration file. You
+need to make a small modification to make it work. How to do this is described in the
+comments at the start of the configuration file.
+
+Note that it is also possible to use [Apache as a
+webserver](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+
+#### Installation Nginx
+*Using Nginx, WSGI, and ASGI will expose Ricgraph Explorer, the Ricgraph REST API,
+and Ricgraph data to the outside world.*
+
+* Follow the steps in [Create a Python virtual environment and install Ricgraph in
+  it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
+* Login as user *root*.
+* Make sure Nginx has been installed.
+* *Gunicorn* has already been installed when you installed the Python requirements.
+* Install the Nginx *Ricgraph Explorer* configuration file:
+  copy
+  [ricgraph_server_config/ricgraph_explorer.conf-nginx](../ricgraph_server_config/ricgraph_explorer.conf-nginx)
+  to /etc/nginx/vhosts.d, type:
+  ```
+  cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer.conf-nginx /etc/nginx/vhosts.d
+  chmod 600 /etc/apache2/vhosts.d/ricgraph_explorer.conf-nginx
+  ```
+
+#### Post-install steps Nginx
+* Login as user *root*.
+* Move the Nginx *Ricgraph Explorer* configuration file to its final location:
+  ```
+  mv /etc/nginx/vhosts.d/ricgraph_explorer.conf-nginx /etc/nginx/vhosts.d/ricgraph_explorer.conf
+  ```
+  Change *ricgraph_explorer.conf* in such a way it fits your situation.
+  Make the modification to *ricgraph_explorer.conf*
+  as described in the comments at the start of *ricgraph_explorer.conf*.
+  Test the result.
+* Make it run by typing:
+  ``` 
+  systemctl enable nginx.service
+  systemctl start nginx.service
+  ```
+  Check the log for any errors, use one of:
+  ```
+  systemctl -l status nginx.service
+  journalctl -u nginx.service
+  ```
+* Exit from user *root*.
+* Now you can use Ricgraph Explorer from inside your virtual machine by typing
+  [http://localhost](http://localhost) in your web browser in the virtual machine, or
   from outside your virtual machine by going to
   [http://[your IP address]](http://[your_IP_address) or
   [http://[your hostname]](http://[your_hostname).
@@ -497,6 +575,8 @@ The next steps are to install Ricgraph. Start reading from
 [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
 or [Install and start Memgraph](#install-and-start-memgraph)
 above.
+Note that if you would like to use a webserver, you will need to use
+
 
 For more explanation, please watch the 
 [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
