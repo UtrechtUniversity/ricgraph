@@ -561,10 +561,11 @@ Then, follow the following steps, and also watch the video below:
     Ricgraph (as above).
   * Select your wallet (as above).
   * Now select a "catalogue item", that is, a pre-installed virtual machine. 
-    Choose "Ubuntu Desktop 2004".
+    Choose "Ubuntu Desktop".
   * Select a configuration.
     In the video we use "1 Core - 8 GB RAM".
     The larger, the more credits it will cost.
+  * Select which version of Ubuntu you want to use. Choose "Ubuntu 22.04 Desktop".
   * Select storage, choose the one you created above.
   * Rename your workspace.
   * After a few moments your workspace will be created and available.
@@ -575,7 +576,7 @@ The next steps are to install Ricgraph. Start reading from
 [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
 or [Install and start Memgraph](#install-and-start-memgraph)
 above.
-Note that if you would like to use a webserver, you will need to use
+Note that if you would like to use a webserver, you will need to use Nginx.
 
 
 For more explanation, please watch the 
