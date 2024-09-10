@@ -26,39 +26,41 @@ On this page you can find:
 [Return to main README.md file](../README.md).
 
 ### Ricgraph Makefile
-A Ricgraph installation involves a number of steps, as described below
-and on the [Ricgraph as a server on Linux](ricgraph_as_server.md)
-page.
+A Ricgraph installation involves a number of steps.
 Ricgraph uses a *Makefile* to make installation of (parts of) Ricgraph easier.
-Such a Makefile automates a number of these steps. Sometimes, you will
-have to do some post-install steps, e.g. because you have to choose a password for the
-graph database. A Makefile command is executed by typing:
+Such a Makefile automates a number of these steps. 
+A Makefile command is executed by typing:
 ```
 make [target]
 ```
 
-The *[target]* specifies what has to be done. Execute one of these commands to 
-find the possible targets:
+To use the Ricgraph Makefile, first go to your home directory on Linux and 
+then download it, by typing:
+```
+cd
+wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
+```
+
+In the example above, the *[target]* specifies what has to be done. 
+Assuming that you are in your home directory, you can 
+execute one of these commands to find the possible targets:
 ```
 make
 make help
 make all
 ```
-To be able to use the Ricgraph Makefile, go to your home directory on Linux by typing:
-```
-cd
-```
-And then download the Makefile from the Ricgraph GitHub repository by typing:
-```
-wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
-```
-Then you can type a command like:
-```
-make help
-```
 Most often, you do not need to install the `make` command, but if you get a
 "command not found" error message, you need to install it using your Linux 
 package manager.
+
+If you read the documentation below or on page
+[Ricgraph as a server on Linux](ricgaph_as_server.md),
+you will notice that some sections start with mentioning a Makefile command. 
+That means, that if you execute that command, the steps in that section will
+be done automatically.
+Sometimes, you will
+have to do some post-install steps, e.g. because you have to choose a password for the
+graph database. 
 
 
 ### Installation instructions for a single user
