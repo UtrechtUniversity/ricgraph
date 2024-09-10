@@ -305,7 +305,7 @@ choose between *neo4j* and *memgraph*). Further down that section, you will have
 to fill in six parameters for hostname, port number, username, etc. The comments
 in the initialization file explain how to do that.
 
-#### Extending Ricgraph with nieuw properties in the nodes
+#### Extending Ricgraph with new properties in the nodes
 Optionally, you can extend Ricgraph by adding new
 [properties of nodes](ricgraph_details.md#Properties-of-nodes-in-Ricgraph).
 Before you can do this, [download Ricgraph](#download-ricgraph).
@@ -542,7 +542,7 @@ in Neo4j Community Edition, follow these steps:
    ```
    For *path to database dump directory*, specify the path, not the path and the name of the
    database dump file, it will be inferred automatically
-   by the *neo4j-admin* command).
+   by the *neo4j-admin* command.
 1. Set the correct permissions on */var/lib/neo4j/data*:
    ```
    cd /var/lib
