@@ -649,6 +649,8 @@ Note that if you would like to use a webserver, you will need to use Nginx.
 For more explanation, please watch the 
 [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
 (2m14s) (click to download)](videos/ricgraph_howto_install_on_SURFResearchCloud.mp4).
+Note that in the video, we use an old version of Ubuntu. Please use
+Ubuntu 22.04 as described above.
 
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b
 
