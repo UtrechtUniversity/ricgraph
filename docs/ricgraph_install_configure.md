@@ -50,7 +50,7 @@ cd
 ```
 And then download the Makefile from the Ricgraph GitHub repository by typing:
 ```
-wget https://github.com/UtrechtUniversity/ricgraph/blob/main/Makefile
+wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
 ```
 Then you can type a command like:
 ```
