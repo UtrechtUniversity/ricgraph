@@ -10,6 +10,7 @@ install Ricgraph for a single user on Linux, as described on this page.
 Windows](#ricgraph-on-windows) (not recommended).
 
 On this page you can find:
+* [Ricgraph Makefile](#ricgraph-makefile)
 * [Installation instructions for a single user](#installation-instructions-for-a-single-user)
 * [Requirements](#requirements)
 * [Steps to take](#steps-to-take)
@@ -19,12 +20,46 @@ On this page you can find:
 * [Use a Python virtual environment and install Python requirements](#use-a-python-virtual-environment-and-install-python-requirements)
 * [Ricgraph initialization file](#ricgraph-initialization-file)
 * [Using Ricgraph](#using-ricgraph)
-* [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
+* [Dumping and restoring the Ricgraph database](#dumping-and-restoring-the-ricgraph-database)
 * [Ricgraph on Windows](#ricgraph-on-windows)
  
 [Return to main README.md file](../README.md).
+
+### Ricgraph Makefile
+A Ricgraph installation involves a number of steps, as described below
+and on the [Ricgraph as a server on Linux](ricgraph_as_server.md)
+page.
+Ricgraph uses a *Makefile* to make installation of (parts of) Ricgraph easier.
+Such a Makefile automates a number of these steps. Sometimes, you will
+have to do some post-install steps, e.g. because you have to choose a password for the
+graph database. A Makefile command is executed by typing:
+```
+make [target]
+```
+
+The *[target]* specifies what has to be done. Execute one of these commands to 
+find the possible targets:
+```
+make
+make help
+make all
+```
+To be able to use the Ricgraph Makefile, go to your home directory on Linux by typing:
+```
+cd
+```
+And then download the Makefile from the Ricgraph GitHub repository by typing:
+```
+wget https://github.com/UtrechtUniversity/ricgraph/blob/main/Makefile
+```
+Then you can type a command like:
+```
+make help
+```
+Most often, you do not need to install the `make` command, but if you get a
+"command not found" error message, you need to install it using your Linux 
+package manager.
+
 
 ### Installation instructions for a single user
 
@@ -61,9 +96,7 @@ capabilities of your computer. The more, the better. The author uses a VM of 35G
 
 Ricgraph has been
 developed with Python 3.11. For some features you need at least Python 3.9.
-
-If you have Ubuntu 20.04 (such as on SURF Research Cloud), you can install
-Python 3.11 as follows:
+E.g., if you have Ubuntu 20.04, you can install Python 3.11 as follows:
 * Login as user *root*.
 * Type the following commands:
   ```
@@ -98,6 +131,9 @@ Other things you might want to do, if you use Neo4j:
 
 ### Install Neo4j Desktop
 
+To install, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
+command `make install_neo4j_desktop`, or follow the steps below.
+
 1. Install Neo4j Desktop Edition (it is free). 
    To do this, go to the 
    [Neo4j Deployment Center](https://neo4j.com/deployment-center). 
@@ -120,9 +156,8 @@ Other things you might want to do, if you use Neo4j:
    Project database "Movie DBMS". Confirm.
 1. The text "No projects found" will appear. Create a project by clicking the button "+ New Project".
 1. The text "Project" appears with the text "Add a DBMS to get started". Click on the "+ Add" button
-   next to it and select "Local DBMS". Leave the name as it is ("Graph DBMS") and fill in a password. Choose
-   an easy to type and short one
-   since the DBMS will only be accessible from your own machine. Click "Create".
+   next to it and select "Local DBMS". Leave the name as it is ("Graph DBMS") and fill in a password. 
+   Click "Create".
    Also, insert the password in field *graphdb_password* in
    the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
 1. Exit Neo4j Desktop using the "File" menu and select "Quit". If your database was active
@@ -179,6 +214,10 @@ you can come back to it later.
 
 ### Download Ricgraph
 
+To you use the [Ricgraph Makefile](#ricgraph-makefile),
+this will be done automatically while creating a Python virtual environment
+(see the following section).
+
 You can choose two types of downloads for Ricgraph:
 
 * The latest released version. Go to the
@@ -189,6 +228,9 @@ You can choose two types of downloads for Ricgraph:
   click the green button "Code", choose tab "Local", choose "Download zip".
 
 ### Use a Python virtual environment and install Python requirements
+
+To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
+command `make install_ricgraph_as_singleuser`, or follow the steps below.
 
 To be able to use Ricgraph, you will need a Python virtual environment.
 Virtual environments are a kind of lightweight Python environments,
@@ -324,7 +366,18 @@ see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
 After you have harvested sources, you can execute queries and visualize the results,
 see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
 
-### Create a Neo4j Desktop database dump of Ricgraph
+
+### Dumping and restoring the Ricgraph database
+Depending on your situation (whether you use Neo4j Desktop or
+Neo4j Community Edition), this section lists the methods for
+dumping and restoring the Ricgraph database:
+* [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
+* [Create a Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
+* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
+* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
+* [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
+
+#### Create a Neo4j Desktop database dump of Ricgraph
 To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
 1. Start Neo4j Desktop if it is not running, or
    stop the graph database if it is running.
@@ -335,7 +388,40 @@ To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
    is ready, a message appears.
 1. Ready.
 
-### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop
+#### Create a Neo4j Community Edition database dump of Ricgraph
+To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
+command `make dump_graphdb_neo4j_community`, or follow the steps below.
+
+To create a Neo4j Community Edition database dump of Ricgraph, follow these steps:
+1. Login as user *root*.
+1. Stop Neo4j Community Edition:
+   ```
+   systemctl stop neo4j.service
+   ```
+1. To be able to restore a Neo4j database dump you need to set several permissions
+   on */etc/neo4j*:
+   ```
+   chmod 640 /etc/neo4j/*
+   chmod 750 /etc/neo4j
+   ```
+1. Do the database dump:
+   ```
+   neo4j-admin database dump --expand-commands system --to-path=[path to database dump directory]
+   neo4j-admin database dump --expand-commands neo4j --to-path=[path to database dump directory]
+   ```
+1. Start Neo4j Community Edition:
+   ```
+   systemctl start neo4j.service
+   ```
+1. Check the log for any errors, use one of:
+   ```
+   systemctl -l status neo4j.service
+   journalctl -u neo4j.service
+   ```
+1. Exit from user *root*.
+ 
+
+#### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop
 To restore a 
 [Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph) 
 in Neo4j Desktop, follow these steps:
@@ -357,7 +443,10 @@ in Neo4j Desktop, follow these steps:
    using [Bloom](ricgraph_query_visualize.md#how-to-use-bloom)
    or [Ricgraph Explorer](ricgraph_explorer.md).
 
-### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
+#### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
+To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
+command `make restore_graphdb_neo4j_community`, or follow the steps below.
+
 To restore a
 [Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
 in Neo4j Community Edition, follow these steps:
@@ -394,7 +483,7 @@ in Neo4j Community Edition, follow these steps:
    ```
    systemctl start neo4j.service
    ```
-   Check the log for any errors, use one of:
+1. Check the log for any errors, use one of:
    ```
    systemctl -l status neo4j.service
    journalctl -u neo4j.service
@@ -411,7 +500,7 @@ in Neo4j Community Edition, follow these steps:
    ```
    systemctl start ricgraph_explorer.service
    ```
-   Check the log for any errors, use one of:
+1. Check the log for any errors, use one of:
    ```
    systemctl -l status ricgraph_explorer.service
    journalctl -u ricgraph_explorer.service
@@ -421,6 +510,70 @@ in Neo4j Community Edition, follow these steps:
    cd /var/lib/neo4j
    rm -r data-old
    ```
+1. Exit from user *root*.
+
+
+#### Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition
+To restore a
+[Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
+in Neo4j Community Edition, follow these steps:
+1. Login as user *root*.
+1. Stop Neo4j Community Edition:
+   ```
+   systemctl stop neo4j.service
+   ```
+1. To be able to restore a Neo4j database dump you need to set several permissions
+   on */etc/neo4j*:
+   ```
+   chmod 640 /etc/neo4j/*
+   chmod 750 /etc/neo4j
+   ```
+1. Save the old database:
+   ```
+   cd /var/lib
+   mv neo4j/ neo4j-old
+   mkdir /var/lib/neo4j
+   ```
+1. Go back to your working directory and restore the database dump:
+   ```
+   cd
+   neo4j-admin database load --expand-commands system --from-path=[path to database dump directory] --overwrite-destination=true
+   neo4j-admin database load --expand-commands neo4j --from-path=[path to database dump directory] --overwrite-destination=true
+   ```
+   For *path to database dump directory*, specify the path, not the path and the name of the
+   database dump file, it will be inferred automatically
+   by the *neo4j-admin* command).
+1. Set the correct permissions on */var/lib/neo4j/data*:
+   ```
+   cd /var/lib
+   chown -R neo4j:neo4j neo4j
+   ```
+1. Start Neo4j Community Edition:
+   ```
+   systemctl start neo4j.service
+   ```
+1. Check the log for any errors, use one of:
+   ```
+   systemctl -l status neo4j.service
+   journalctl -u neo4j.service
+   ```
+1. Start Ricgraph Explorer if you use
+   [Ricgraph in a multi-user environment](ricgraph_as_server.md):
+   ```
+   systemctl start ricgraph_explorer.service
+   ```
+1. Check the log for any errors, use one of:
+   ```
+   systemctl -l status ricgraph_explorer.service
+   journalctl -u ricgraph_explorer.service
+   ```
+1. Done. If all works well you might want to remove your old database:
+   ```
+   cd /var/lib
+   rm -r neo4j-old
+   ```
+1. Exit from user *root*.
+
 
 ### Ricgraph on Windows
 If you would like to install Ricgraph on Windows, you are very probably the first

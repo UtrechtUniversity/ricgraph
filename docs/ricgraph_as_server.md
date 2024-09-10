@@ -65,6 +65,9 @@ the following steps:
 
  
 ### Install and start Neo4j Community Edition
+To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+command `make install_enable_neo4j_community`, or follow the steps below.
+
 * Login as user *root*.
 * Install Neo4j Community Edition (it is free). 
   To do this, go to the 
@@ -72,13 +75,13 @@ the following steps:
   Go to section "Graph Database Self-Managed", choose "Community".
   Choose the latest version of Neo4j. Then choose your favorite package
   format:
-  * OpenSUSE: "Red Hat Linux Package (rpm)".
+  * OpenSUSE/Fedora: "Red Hat Linux Package (rpm)".
   * Debian/Ubuntu: "Debian/Ubuntu Package (deb)".
  
   Download the package and install it.
   You might get an error message about a failed dependency on *cypher-shell*,
   or on other dependencies.
-  * OpenSUSE: use either ``rpm -i <packagename>`` (first install)
+  * OpenSUSE/Fedora: use either ``rpm -i <packagename>`` (first install)
     or ``rpm -U <packagename>`` (update).
   * Debian/Ubuntu: use ``apt install <packagename>`` 
   * If you get an error message about a failed dependency on *cypher-shell*, install
@@ -158,6 +161,9 @@ However, it has not been tested extensively with Ricgraph yet.
  
 
 ### Create a ricgraph user and group
+If you use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile),
+you do not need to do this. Otherwise, follow these steps:
+
 * Login as user *root*.
 * Create group and user *ricgraph*. First check if they exist:
   ```
@@ -174,6 +180,9 @@ However, it has not been tested extensively with Ricgraph yet.
   
   
 ### Create a Python virtual environment and install Ricgraph in it
+To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+command `make install_ricgraph_as_server`, or follow the steps below.
+
 * Suppose you are a user with login *alice* and you are in Linux group *users*.
 * Login as user *root*.
 * For Debian/Ubuntu: type: 
@@ -267,6 +276,9 @@ However, it has not been tested extensively with Ricgraph yet.
 
 
 ### Run Ricgraph scripts from the command line or as a cronjob
+
+#### In case you have installed Ricgraph as a server
+
 After following the steps in [Create a Python virtual environment and install Ricgraph in
 it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
 it is possible to run Ricgraph from the command line or as a
@@ -294,9 +306,33 @@ Examples of commands you can use are:
   ```
   cd /opt/ricgraph_venv/ricgraph_explorer; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
   ```
-  
-  
+
+#### In case you have installed Ricgraph for a single user
+After following the steps in [Create a Python virtual environment and install Ricgraph in
+it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
+it is possible to run Ricgraph from the command line. You do not need to be
+user *ricgraph* and group *ricgraph*.
+The following assumes your Python virtual environment is in your Linux home directory *$HOME*.
+
+Examples of commands you can use are:
+* harvest from the Research Software Directory:
+  ```
+  cd $HOME/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python harvest_rsd_to_ricgraph.py
+  ```
+* harvest all your favorite sources:
+  ```
+  cd $HOME/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python batch_harvest.py
+  ```
+* run Ricgraph Explorer:
+  ```
+  cd $HOME/ricgraph_venv/ricgraph_explorer; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
+  ```
+
+
 ### Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API
+To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+command `make install_enable_ricgraphexplorer_restapi`, or follow the steps below.
+
 Using a service unit file to run
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is very useful if you would like to set up a virtual machine that you want to use as
@@ -348,6 +384,9 @@ the outside world. All data will only be accessible in the virtual machine.
 
 
 ### Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
+To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+command `make prepare_webserver_apache`, or follow the steps below.
+
 #### Introduction Apache webserver
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is written in Flask, a framework for Python to build web interfaces.
@@ -386,6 +425,13 @@ webserver](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-r
 If you are using SURF Research Cloud, you will need to use Nginx.
 
 #### Installation Apache
+
+Note that different Linux editions use different paths. In the steps below, path names from
+OpenSUSE Leap are used. Please adapt them to you own Linux edition:
+* OpenSUSE Leap: `apache2` and /etc/apache2/vhosts.d
+* Ubuntu: `apache2` and /etc/apache/sites-available
+* Fedora: `httpd` and /etc/httpd/conf.d
+
 *Using Apache, WSGI, and ASGI will expose Ricgraph Explorer, the Ricgraph REST API,
 and Ricgraph data to the outside world.*
 
@@ -409,10 +455,16 @@ and Ricgraph data to the outside world.*
   ```
 
 #### Post-install steps Apache
+
 * Login as user *root*.
 * Move the Apache *Ricgraph Explorer* configuration file to its final location:
   ```
   mv /etc/apache2/vhosts.d/ricgraph_explorer.conf-apache /etc/apache2/vhosts.d/ricgraph_explorer.conf
+  ```
+  However, for Ubuntu do:
+  ```
+  mv /etc/apache2/sites-available/ricgraph_explorer.conf-apache /etc/apache2/sites-available/ricgraph_explorer.conf
+  ln -s /etc/apache2/sites-enabled/ricgraph_explorer.conf /etc/apache2/sites-available/ricgraph_explorer.conf
   ```
   Change *ricgraph_explorer.conf* in such a way it fits your situation.
   Make the modification to *ricgraph_explorer.conf*
@@ -443,6 +495,9 @@ and Ricgraph data to the outside world.*
 
 
 ### Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
+To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+command `make prepare_webserver_nginx`, or follow the steps below.
+
 #### Introduction Nginx webserver
 Please read the introduction of section
 [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph
@@ -460,6 +515,13 @@ Note that it is also possible to use [Apache as a
 webserver](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 
 #### Installation Nginx
+
+Note that different Linux editions use different paths. In the steps below, path names from
+OpenSUSE Leap are used. Please adapt them to you own Linux edition:
+* OpenSUSE Leap: /etc/nginx/vhosts.d
+* Ubuntu: /etc/nginx/sites-available
+* Fedora: /etc/nginx/conf.d
+ 
 *Using Nginx, WSGI, and ASGI will expose Ricgraph Explorer, the Ricgraph REST API,
 and Ricgraph data to the outside world.*
 
@@ -474,7 +536,7 @@ and Ricgraph data to the outside world.*
   to /etc/nginx/vhosts.d, type:
   ```
   cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer.conf-nginx /etc/nginx/vhosts.d
-  chmod 600 /etc/apache2/vhosts.d/ricgraph_explorer.conf-nginx
+  chmod 600 /etc/nginx/vhosts.d/ricgraph_explorer.conf-nginx
   ```
 
 #### Post-install steps Nginx
@@ -482,6 +544,11 @@ and Ricgraph data to the outside world.*
 * Move the Nginx *Ricgraph Explorer* configuration file to its final location:
   ```
   mv /etc/nginx/vhosts.d/ricgraph_explorer.conf-nginx /etc/nginx/vhosts.d/ricgraph_explorer.conf
+  ```
+  However, for Ubuntu do:
+  ```
+  mv /etc/nginx/sites-available/ricgraph_explorer.conf-nginx /etc/nginx/sites-available/ricgraph_explorer.conf
+  ln -s /etc/nginx/sites-enabled/ricgraph_explorer.conf /etc/nginx/sites-available/ricgraph_explorer.conf
   ```
   Change *ricgraph_explorer.conf* in such a way it fits your situation.
   Make the modification to *ricgraph_explorer.conf*
