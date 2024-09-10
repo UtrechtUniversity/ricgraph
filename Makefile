@@ -52,7 +52,7 @@ else
 endif
 
 ricgraph_download := https://github.com/UtrechtUniversity/ricgraph
-ricgraph_version := 2.3
+ricgraph_version := 2.4
 ricgraph_path := $(ricgraph_download)/archive/refs/tags/v$(ricgraph_version).tar.gz
 ricgraph_cuttingedge_path := $(ricgraph_download)/archive/refs/heads/main.zip
 # This is the GitHub name of the Ricgraph release file that is downloaded
