@@ -135,8 +135,12 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
 # But we only add these persons if their endDate is within
 # PURE_PERSONS_INCLUDE_YEARS_BEFORE years before the lowest value in PURE_RESOUT_YEARS.
 # Otherwise, we may end up with far too many persons.
-# If we add such a person, we do not add its organization because it is very
-# probably outdated.
+#
+# Sept 2024: In 2023 I thought not to add the organization of such a person
+# because it seemed very probably outdated.
+# But it appears that some organizations use an endDate in the future (instead
+# of no endDate) for persons employed.
+# So we do need to add the organization of these persons.
 PURE_PERSONS_INCLUDE_YEARS_BEFORE = 5
 # For the Pure CRUD API we use this value, because we cannot filter research
 # outputs on years.
@@ -457,13 +461,21 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                         end_year = int(stafforg['period']['endDate'][:4])
                         if end_year < lowest_resout_year:
                             continue
-                        else:
-                            # Put in the DataFrame with harvested persons to be returned.
-                            # We do not add its organization because it is very # probably outdated.
-                            # No need to check if it is already there, it that is the case it will
-                            # be filtered out from the dataframe below.
-                            parse_chunk_final.extend(parse_chunk)
-                            continue
+                        # else:
+                        #     # In 2023:
+                        #     # Put in the DataFrame with harvested persons to be returned.
+                        #     # We do not add its organization because it is very probably outdated.
+                        #     # No need to check if it is already there, it that is the case it will
+                        #     # be filtered out from the dataframe below.
+                        #     #
+                        #     # Sept 2024: In 2023 I thought not to add the organization of such a person
+                        #     # because it seemed very probably outdated.
+                        #     # But it appears that some organizations use an endDate in the future (instead
+                        #     # of no endDate) for persons employed.
+                        #     # So we do need to add the organization of these persons.
+                        #     # So I commented this 'else'.
+                        #     parse_chunk_final.extend(parse_chunk)
+                        #     continue
                 else:
                     # If there is no period skip
                     continue
