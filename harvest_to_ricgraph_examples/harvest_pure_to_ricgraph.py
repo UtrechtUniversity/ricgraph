@@ -918,10 +918,11 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
                 if resout_uuid_or_doi != {} \
                    and resout_uuid in resout_uuid_or_doi:
                     resout_value = resout_uuid_or_doi[resout_uuid]
-                    if '/' in resout_value:
-                        resout_name = 'DOI'
-                    else:
-                        resout_name = 'PURE_UUID_RESOUT'
+                    if not numpy.isnan(resout_value):
+                        if '/' in resout_value:
+                            resout_name = 'DOI'
+                        else:
+                            resout_name = 'PURE_UUID_RESOUT'
                 parse_line = {'PURE_UUID_PROJECT': uuid,
                               'PURE_UUID_PROJECT_URL': create_pure_url(name='PURE_UUID_PROJECT',
                                                                        value=uuid),
@@ -1687,6 +1688,7 @@ if True:
 
     rcg.graphdb_nr_accesses_print()
 
+org_and_all_parents = {}
 
 # ########################################################################
 # Code for harvesting organizations. This is dependent on harvested persons.
