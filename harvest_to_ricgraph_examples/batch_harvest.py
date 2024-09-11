@@ -9,7 +9,15 @@
 # ########################################################################
 #
 # This file is an example to show how to run Ricgraph harvest scripts 
-# in a batch. Choose one of the available batch orders, or create your own
+# in a batch.
+#
+# You may want to start this script as follows:
+# [name of this Python file] | tee output.txt
+# In this case, output is written both to the terminal and to
+# file 'output.txt'.
+#
+#
+# Choose one of the available batch orders, or create your own
 # batch order. 'Batch order 1' is specifically created for harvesting Utrecht
 # University sources. Please adapt for your own situation, for example use
 # 'Batch order 2' or 'Batch order 3'.
