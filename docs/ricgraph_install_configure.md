@@ -446,9 +446,6 @@ in Neo4j Desktop, follow these steps:
    or [Ricgraph Explorer](ricgraph_explorer.md).
 
 #### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
-To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
-command `make restore_graphdb_neo4j_community`, or follow the steps below.
-
 To restore a
 [Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
 in Neo4j Community Edition, follow these steps:
@@ -500,12 +497,12 @@ in Neo4j Community Edition, follow these steps:
 1. Start Ricgraph Explorer if you use 
    [Ricgraph in a multi-user environment](ricgraph_as_server.md):
    ```
-   systemctl start ricgraph_explorer.service
+   systemctl start ricgraph_explorer_gunicorn.service
    ```
 1. Check the log for any errors, use one of:
    ```
-   systemctl -l status ricgraph_explorer.service
-   journalctl -u ricgraph_explorer.service
+   systemctl -l status ricgraph_explorer_gunicorn.service
+   journalctl -u ricgraph_explorer_gunicorn.service
    ```
 1. Done. If all works well you might want to remove your old database:
    ```
@@ -516,6 +513,9 @@ in Neo4j Community Edition, follow these steps:
 
 
 #### Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition
+To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
+command `make restore_graphdb_neo4j_community`, or follow the steps below.
+
 To restore a
 [Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
 in Neo4j Community Edition, follow these steps:
@@ -562,12 +562,12 @@ in Neo4j Community Edition, follow these steps:
 1. Start Ricgraph Explorer if you use
    [Ricgraph in a multi-user environment](ricgraph_as_server.md):
    ```
-   systemctl start ricgraph_explorer.service
+   systemctl start ricgraph_explorer_gunicorn.service
    ```
 1. Check the log for any errors, use one of:
    ```
-   systemctl -l status ricgraph_explorer.service
-   journalctl -u ricgraph_explorer.service
+   systemctl -l status ricgraph_explorer_gunicorn.service
+   journalctl -u ricgraph_explorer_gunicorn.service
    ```
 1. Done. If all works well you might want to remove your old database:
    ```
