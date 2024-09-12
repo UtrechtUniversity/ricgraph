@@ -494,10 +494,10 @@ in Neo4j Community Edition, follow these steps:
    for the new password, enter the password you have specified in
    the [Ricgraph initialization file](#ricgraph-initialization-file)
    (this saves you from entering a new password in that file).
-1. Start Ricgraph Explorer if you use 
+1. Restart Ricgraph Explorer if you use 
    [Ricgraph in a multi-user environment](ricgraph_as_server.md):
    ```
-   systemctl start ricgraph_explorer_gunicorn.service
+   systemctl restart ricgraph_explorer_gunicorn.service
    ```
 1. Check the log for any errors, use one of:
    ```
@@ -559,10 +559,10 @@ in Neo4j Community Edition, follow these steps:
    systemctl -l status neo4j.service
    journalctl -u neo4j.service
    ```
-1. Start Ricgraph Explorer if you use
+1. Restart Ricgraph Explorer if you use
    [Ricgraph in a multi-user environment](ricgraph_as_server.md):
    ```
-   systemctl start ricgraph_explorer_gunicorn.service
+   systemctl restart ricgraph_explorer_gunicorn.service
    ```
 1. Check the log for any errors, use one of:
    ```
