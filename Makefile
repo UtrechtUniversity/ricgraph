@@ -45,7 +45,7 @@
 ricgraph_version := 2.4
 neo4j_community_version := 5.23.0
 neo4j_desktop_version := 1.6.0
-minimal_python_minor_version := 12
+minimal_python_minor_version := 10
 
 
 # ########################################################################
