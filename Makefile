@@ -45,6 +45,7 @@
 ricgraph_version := 2.4
 neo4j_community_version := 5.23.0
 neo4j_desktop_version := 1.6.0
+minimal_python_minor_version := 12
 
 
 # ########################################################################
@@ -75,51 +76,55 @@ ricgraph := ricgraph-$(ricgraph_version)
 
 # Neo4j variable.
 # Ask https://perplexity.ai for download locations, prompt:
-# "What is the direct download link for neo4j community edition rpm version?"
+# "What is the direct download link for neo4j community edition rpm (or deb) version?"
 neo4j_download := https://dist.neo4j.org
 
 # Misc. variables.
 tmpdir := /tmp/cuttingedge_$(shell echo $$PPID)
 graphdb_backupdir := $(HOME)/graphdb_backup
-makefile_init_succeeded := yes
 
 # Determine which python command to use.
 ifeq ($(shell which python3.11 > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for OpenSUSE Leap, Fedora.
 	python_cmd := python3.11
-else ifeq ($(shell which python3 > /dev/null 2>&1 & echo $$?),0)
+	actual_python_minor_version := $(shell $(python_cmd) -c 'import sys; print(sys.version_info.minor)')
+else ifeq ($(shell which python3 > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for Ubuntu.
 	python_cmd := python3
+	actual_python_minor_version := $(shell $(python_cmd) -c 'import sys; print(sys.version_info.minor)')
 else
 	python_cmd := [not_set]
-	makefile_init_succeeded := no
+	actual_python_minor_version := [not_set]
 endif
-minimal_python_minor_version := 10
-actual_python_minor_version := $(shell $(python_cmd) -c 'import sys; print(sys.version_info.minor)')
 
 # Determine which package install command to use, and subsequently which package names to use.
+# We need a package manager that can install 'rpm' or 'deb' files (for Neo4j Community Edition).
 ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for OpenSUSE Leap & Tumbleweed, Fedora.
 	package_install_cmd := rpm -i
 	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
-else ifeq ($(shell which apt > /dev/null 2>&1 & echo $$?),0)
+else ifeq ($(shell which apt > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for Ubuntu.
 	package_install_cmd := apt install
+	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
+	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
+else ifeq ($(shell which dpkg > /dev/null 2>&1 && echo $$?),0)
+	# E.g. for Debian.
+	package_install_cmd := dpkg -i
 	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
 else
 	package_install_cmd := [not_set]
 	neo4j_community_path := [not_set]
 	neo4j_cyphershell_path := [not_set]
-	makefile_init_succeeded := no
 endif
 neo4j_desktop_path := $(neo4j_download)/neo4j-desktop/linux-offline/neo4j-desktop-$(neo4j_desktop_version)-x86_64.AppImage
 neo4j_desktop := $(shell basename $(neo4j_desktop_path))
 neo4j_community := $(shell basename $(neo4j_community_path))
 neo4j_cyphershell := $(shell basename $(neo4j_cyphershell_path))
 
-# Determine which Apache paths to use. If Apache is not installed, this will be caught later on.
+# Determine which Apache paths to use.
 ifeq ($(shell test -d /etc/apache2/vhosts.d && echo true),true)
 	# E.g. for OpenSUSE Leap & Tumbleweed.
 	apache_vhosts_dir := /etc/apache2/vhosts.d
@@ -137,7 +142,7 @@ else
 	apache_service_file := [not_set]
 endif
 
-# Determine which Apache paths to use. If Nginx is not installed, this will be caught later on.
+# Determine which Nginx paths to use.
 # Virtual hosts are called "Server blocks" in Nginx but I still use vhost for readability.
 ifeq ($(shell test -d /etc/nginx/vhosts.d && echo true),true)
 	# E.g. for OpenSUSE Leap & Tumbleweed.
@@ -209,28 +214,6 @@ help:
 	@echo "       install Ricgraph (instead of Ricgraph release version $(ricgraph_version))."
 	@echo ""
 
-check_makefile_init:
-ifeq ($(makefile_init_succeeded),no)
-	@echo ""
-	@echo "Error: Makefile init did not succeed."
-	@echo "This might be caused by an unknown Linux edition '$(linux_edition)'."
-	@echo ""
-	@echo "This Makefile has been tested on Ubuntu 22.04 and OpenSUSE Leap 15.6."
-	@echo "It will very likely work for newer versions of these Linux editions, and "
-	@echo "it may or may not work for other editions of Linux. This is caused by the"
-	@echo "difference in names for some commands, or the difference in paths names"
-	@echo "where (config) files can be found."
-	@echo ""
-	@echo "Please run 'make makefile_variables'. If you see any '[not_set]' values,"
-	@echo "you can either change this Makefile yourself, or let me know"
-	@echo "(https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md#contact)."
-	@echo "In both cases, please send me a message (including the output of"
-	@echo "'make makefile_variables'), so I can make this Makefile work"
-	@echo "for your Linux edition."
-	@echo ""
-	exit 1
-endif
-
 makefile_variables:
 	@echo ""
 	@echo "This is a list of the internal variables in this Makefile:"
@@ -254,8 +237,13 @@ makefile_variables:
 	@echo ""
 
 check_python_minor_version:
-	@if [ ! -f /usr/bin/$(python_cmd) ]; then echo "Error: $(python_cmd) has not been installed, please install Python >= 3.$(minimal_python_minor_version) using your package manager $(package_install_cmd)."; exit 1; fi
-	@if [ $(actual_python_minor_version) -lt $(minimal_python_minor_version) ]; then echo "Error: Wrong Python version 3.$(actual_python_minor_version) on your system, please install Python >= 3.$(minimal_python_minor_version) using your package manager $(package_install_cmd)."; exit 1; fi
+ifeq ($(python_cmd),[not_set])
+	@echo ""
+	@echo "Error: Python has not been installed, please install Python >= 3.$(minimal_python_minor_version) using your package manager."
+	@echo ""
+	exit 1
+endif
+	@if [ $(actual_python_minor_version) -lt $(minimal_python_minor_version) ]; then echo "Error: Wrong Python version 3.$(actual_python_minor_version) on your system, please install Python >= 3.$(minimal_python_minor_version) using your package manager."; exit 1; fi
 
 check_user_root:
 	@if [ $(shell id -u) -ne 0 ]; then echo "Error: You need to be root. Please execute 'sudo bash' and then rerun this Makefile target."; exit 1; fi
@@ -263,8 +251,36 @@ check_user_root:
 check_user_notroot:
 	@if [ $(shell id -u) -eq 0 ]; then echo "Error: You need to be a regular user. Please make sure you are and then rerun this Makefile target."; exit 1; fi
 
+check_package_install_cmd:
+ifeq ($(package_install_cmd),[not_set])
+	@echo ""
+	@echo "Error: Your package manager is unknown. Please make sure you have"
+	@echo "a package manager that can install 'rpm' or 'deb' files."
+	@echo "That is required to install Neo4j Community Edition."
+	@echo ""
+	exit 1
+endif
+
+check_webserver_apache:
+ifeq ($(shell test ! -f $(apache_service_file) && echo true),true)
+	@echo ""
+	@echo "Error: Apache webserver is not installed."
+	@echo "Please install it using your package manager."
+	@echo ""
+	exit 1
+endif
+
+check_webserver_nginx:
+ifeq ($(shell test ! -f /lib/systemd/system/nginx.service && echo true),true)
+	@echo ""
+	@echo "Error: Nginx webserver is not installed."
+	@echo "Please install it using your package manager."
+	@echo ""
+	exit 1
+endif
+
 # Only seems necessary for Ubuntu.
-install_ubuntu_python_venv: check_user_root
+install_python_venv: check_user_root check_package_install_cmd
 	$(package_install_cmd) python3-venv
 
 
@@ -275,7 +291,7 @@ create_user_group_ricgraph: check_user_root
 	@if ! getent group 'ricgraph' > /dev/null 2>&1; then groupadd --system ricgraph; echo "Created group 'ricgraph'."; fi
 	@if ! getent passwd 'ricgraph' > /dev/null 2>&1; then useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph; echo "Created user 'ricgraph'."; fi
 
-install_enable_neo4j_community: check_user_root check_makefile_init check_python_minor_version
+install_enable_neo4j_community: check_user_root check_python_minor_version check_package_install_cmd
 ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo ""
 	@echo "Starting Install and enable Neo4j Community Edition. Read documentation at:"
@@ -301,7 +317,7 @@ ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo ""
 endif
 
-install_neo4j_desktop: check_user_notroot check_makefile_init check_python_minor_version
+install_neo4j_desktop: check_user_notroot check_python_minor_version
 ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo ""
 	@echo "Starting Download and install Neo4j Desktop. Read documentation at:"
@@ -321,7 +337,7 @@ ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo ""
 endif
 
-install_ricgraph_as_server: check_user_root check_makefile_init check_python_minor_version install_enable_neo4j_community create_user_group_ricgraph
+install_ricgraph_as_server: check_user_root check_python_minor_version install_enable_neo4j_community create_user_group_ricgraph
 ifeq ($(shell test ! -d /opt/ricgraph_venv && echo true),true)
 	@echo ""
 	@echo "Starting Install Ricgraph as a server. Read documentation at:"
@@ -368,7 +384,7 @@ endif
 	@echo ""
 endif
 
-install_ricgraph_as_singleuser: check_user_notroot check_makefile_init check_python_minor_version install_neo4j_desktop
+install_ricgraph_as_singleuser: check_user_notroot check_python_minor_version install_neo4j_desktop
 ifeq ($(shell test ! -d $(HOME)/ricgraph_venv && echo true),true)
 	@echo ""
 	@echo "Starting Install Ricgraph for a single user. Read documentation at:"
@@ -437,22 +453,6 @@ ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service &
 	@echo "your web browser, or you can use the Ricgraph REST API by using"
 	@echo "the path http://localhost:3030/api followed by a REST API endpoint."
 	@echo ""
-endif
-
-check_webserver_apache:
-ifeq ($(shell test ! -f $(apache_service_file) && echo true),true)
-	@echo ""
-	@echo "Apache webserver is not installed. Please install it using your package manager $(package_install_cmd)."
-	@echo ""
-	exit 1
-endif
-
-check_webserver_nginx:
-ifeq ($(shell test ! -f /lib/systemd/system/nginx.service && echo true),true)
-	@echo ""
-	@echo "Nginx webserver is not installed. Please install it using your package manager $(package_install_cmd)."
-	@echo ""
-	exit 1
 endif
 
 prepare_webserver_apache: check_user_root check_webserver_apache install_ricgraph_as_server
@@ -524,7 +524,7 @@ download_cuttingedge_version:
 	@echo ""
 
 # Documentation for dump & restore: https://neo4j.com/docs/operations-manual/current/kubernetes/operations/dump-load
-dump_graphdb_neo4j_community: check_user_root check_makefile_init install_enable_neo4j_community
+dump_graphdb_neo4j_community: check_user_root install_enable_neo4j_community
 	@echo ""
 	@echo "Starting Dump of graph database of Neo4j Community Edition in"
 	@echo "directory $(graphdb_backupdir)."
@@ -545,7 +545,7 @@ dump_graphdb_neo4j_community: check_user_root check_makefile_init install_enable
 	@echo "in directory $(graphdb_backupdir)."
 	@echo ""
 
-restore_graphdb_neo4j_community: check_user_root check_makefile_init install_enable_neo4j_community
+restore_graphdb_neo4j_community: check_user_root install_enable_neo4j_community
 	@echo ""
 	@echo "Starting Restore of graph database of Neo4j Community Edition"
 	@echo "from directory $(graphdb_backupdir)."
