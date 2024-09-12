@@ -45,6 +45,8 @@
 ricgraph_version := 2.4
 neo4j_community_version := 5.23.0
 neo4j_desktop_version := 1.6.0
+
+# The minimal Python version required for Ricgraph.
 minimal_python_minor_version := 10
 
 
@@ -524,7 +526,14 @@ download_cuttingedge_version:
 	@echo ""
 
 # Documentation for dump & restore: https://neo4j.com/docs/operations-manual/current/kubernetes/operations/dump-load
-dump_graphdb_neo4j_community: check_user_root install_enable_neo4j_community
+dump_graphdb_neo4j_community: check_user_root
+ifneq ($(shell which neo4j-admin > /dev/null 2>&1 && echo $$?),0)
+	@echo ""
+	@echo "Error: You need the 'neo4j-admin' command to dump a graph database."
+	@echo "You can install it by running 'make install_enable_neo4j_community'."
+	@echo ""
+	exit 1
+endif
 	@echo ""
 	@echo "Starting Dump of graph database of Neo4j Community Edition in"
 	@echo "directory $(graphdb_backupdir)."
@@ -545,7 +554,14 @@ dump_graphdb_neo4j_community: check_user_root install_enable_neo4j_community
 	@echo "in directory $(graphdb_backupdir)."
 	@echo ""
 
-restore_graphdb_neo4j_community: check_user_root install_enable_neo4j_community
+restore_graphdb_neo4j_community: check_user_root
+ifneq ($(shell which neo4j-admin > /dev/null 2>&1 && echo $$?),0)
+	@echo ""
+	@echo "Error: You need the 'neo4j-admin' command to restore a graph database."
+	@echo "You can install it by running 'make install_enable_neo4j_community'."
+	@echo ""
+	exit 1
+endif
 	@echo ""
 	@echo "Starting Restore of graph database of Neo4j Community Edition"
 	@echo "from directory $(graphdb_backupdir)."
