@@ -40,19 +40,31 @@
 
 
 # ########################################################################
+# These are the versions of the software to be installed.
+# ########################################################################
+ricgraph_version := 2.4
+neo4j_community_version := 5.23.0
+neo4j_desktop_version := 1.6.0
+
+
+# ########################################################################
 # Define a number of variables.
 # ########################################################################
-linux_name := $(shell cat /etc/os-release | grep '^NAME=' | sed 's/NAME="\(.*\)"/\1/')
-ifeq ($(linux_name),Fedora Linux)
-	# Fedora does not have double quotes around the version number.
+# Determine the Linux edition and version number, for debug purposes only.
+linux_edition := $(shell cat /etc/os-release | grep '^NAME=' | sed 's/NAME="\(.*\)"/\1/')
+ifeq ($(linux_edition),Fedora Linux)
+	# Fedora does not has double quotes around the version number.
 	linux_version := $(shell cat /etc/os-release | grep '^VERSION_ID=' | sed 's/VERSION_ID=\(.*\)/\1/')
+else ifeq ($(linux_edition),Manjaro Linux)
+	# Manjaro does not has double quotes around the version number.
+	linux_version := $(shell cat /etc/os-release | grep '^BUILD_ID=' | sed 's/BUILD_ID=\(.*\)/\1/')
 else
 	# Ubuntu and OpenSUSE have double quotes around the version number.
 	linux_version := $(shell cat /etc/os-release | grep '^VERSION_ID=' | sed 's/VERSION_ID="\(.*\)"/\1/')
 endif
 
+# Ricgraph variables.
 ricgraph_download := https://github.com/UtrechtUniversity/ricgraph
-ricgraph_version := 2.4
 ricgraph_path := $(ricgraph_download)/archive/refs/tags/v$(ricgraph_version).tar.gz
 ricgraph_cuttingedge_path := $(ricgraph_download)/archive/refs/heads/main.zip
 # This is the GitHub name of the Ricgraph release file that is downloaded
@@ -60,61 +72,85 @@ ricgraph_tag_name := $(shell basename $(ricgraph_path))
 ricgraph_cuttingedge_name := $(shell basename $(ricgraph_cuttingedge_path))
 # This is the GitHub name of the Ricgraph release file that is in the downloaded tar file.
 ricgraph := ricgraph-$(ricgraph_version)
-tmpdir := /tmp/cuttingedge_$(shell echo $$PPID)
 
+# Neo4j variable.
 # Ask https://perplexity.ai for download locations, prompt:
 # "What is the direct download link for neo4j community edition rpm version?"
 neo4j_download := https://dist.neo4j.org
-neo4j_community_version := 5.23.0
-neo4j_desktop_version := 1.6.0
-graphdb_backupdir := $(HOME)/graphdb_backup
 
-python_cmd := python3
-ifeq ($(linux_name),Ubuntu)
-	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
-	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
-	package_install_cmd := apt install
-	apache_vhosts_dir := /etc/apache2/sites-available
-	apache_service_file := /usr/lib/systemd/system/apache2.service
-	# Virtual hosts are called "Server blocks" in Nginx but I still use vhost for readability.
-	nginx_vhosts_dir := /etc/nginx/sites-available
-	makefile_init_succeeded := yes
-else ifeq ($(linux_name),openSUSE Leap)
-	# In OpenSUSE 15.6 the up to date version of python3 is called python3.11.
+# Misc. variables.
+tmpdir := /tmp/cuttingedge_$(shell echo $$PPID)
+graphdb_backupdir := $(HOME)/graphdb_backup
+makefile_init_succeeded := yes
+
+# Determine which python command to use.
+ifeq ($(shell which python3.11 > /dev/null 2>&1 && echo $$?),0)
+	# E.g. for OpenSUSE Leap, Fedora.
 	python_cmd := python3.11
-	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
-	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
-	package_install_cmd := rpm -i
-	apache_vhosts_dir := /etc/apache2/vhosts.d
-	apache_service_file := /usr/lib/systemd/system/apache2.service
-	nginx_vhosts_dir := /etc/nginx/vhosts.d
-	makefile_init_succeeded := yes
-else ifeq ($(linux_name),Fedora Linux)
-	# In Fedora 40 the up to date version of python3 is called python3.11.
-	python_cmd := python3.11
-	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
-	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
-	package_install_cmd := rpm -i
-	apache_vhosts_dir := /etc/httpd/conf.d
-	apache_service_file := /usr/lib/systemd/system/httpd.service
-	nginx_vhosts_dir := /etc/nginx/conf.d
-	makefile_init_succeeded := yes
+else ifeq ($(shell which python3 > /dev/null 2>&1 & echo $$?),0)
+	# E.g. for Ubuntu.
+	python_cmd := python3
 else
-	neo4j_community_path := [not_set]
-	neo4j_cyphershell_path := [not_set]
-	package_install_cmd := [not_set]
-	apache_vhosts_dir := [not_set]
-	apache_service_file := [not_set]
-	nginx_vhosts_dir := [not_set]
+	python_cmd := [not_set]
 	makefile_init_succeeded := no
 endif
-
 minimal_python_minor_version := 10
 actual_python_minor_version := $(shell $(python_cmd) -c 'import sys; print(sys.version_info.minor)')
+
+# Determine which package install command to use, and subsequently which package names to use.
+ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
+	# E.g. for OpenSUSE Leap & Tumbleweed, Fedora.
+	package_install_cmd := rpm -i
+	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
+	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
+else ifeq ($(shell which apt > /dev/null 2>&1 & echo $$?),0)
+	# E.g. for Ubuntu.
+	package_install_cmd := apt install
+	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
+	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
+else
+	package_install_cmd := [not_set]
+	neo4j_community_path := [not_set]
+	neo4j_cyphershell_path := [not_set]
+	makefile_init_succeeded := no
+endif
 neo4j_desktop_path := $(neo4j_download)/neo4j-desktop/linux-offline/neo4j-desktop-$(neo4j_desktop_version)-x86_64.AppImage
 neo4j_desktop := $(shell basename $(neo4j_desktop_path))
 neo4j_community := $(shell basename $(neo4j_community_path))
 neo4j_cyphershell := $(shell basename $(neo4j_cyphershell_path))
+
+# Determine which Apache paths to use. If Apache is not installed, this will be caught later on.
+ifeq ($(shell test -d /etc/apache2/vhosts.d && echo true),true)
+	# E.g. for OpenSUSE Leap & Tumbleweed.
+	apache_vhosts_dir := /etc/apache2/vhosts.d
+	apache_service_file := /usr/lib/systemd/system/apache2.service
+else ifeq ($(shell test -d /etc/apache2/sites-available && echo true),true)
+	# E.g. for Ubuntu.
+	apache_vhosts_dir := /etc/apache2/sites-available
+	apache_service_file := /usr/lib/systemd/system/apache2.service
+else ifeq ($(shell test -d /etc/httpd/conf.d && echo true),true)
+	# E.g. for Fedora.
+	apache_vhosts_dir := /etc/httpd/conf.d
+	apache_service_file := /usr/lib/systemd/system/httpd.service
+else
+	apache_vhosts_dir := [not_set]
+	apache_service_file := [not_set]
+endif
+
+# Determine which Apache paths to use. If Nginx is not installed, this will be caught later on.
+# Virtual hosts are called "Server blocks" in Nginx but I still use vhost for readability.
+ifeq ($(shell test -d /etc/nginx/vhosts.d && echo true),true)
+	# E.g. for OpenSUSE Leap & Tumbleweed.
+	nginx_vhosts_dir := /etc/nginx/vhosts.d
+else ifeq ($(shell test -d /etc/nginx/sites-available && echo true),true)
+	# E.g. for Ubuntu.
+	nginx_vhosts_dir := /etc/nginx/sites-available
+else ifeq ($(shell test -d /etc/nginx/conf.d && echo true),true)
+	# E.g. for Fedora.
+	nginx_vhosts_dir := /etc/nginx/conf.d
+else
+	nginx_vhosts_dir := [not_set]
+endif
 
 
 # ########################################################################
@@ -177,7 +213,7 @@ check_makefile_init:
 ifeq ($(makefile_init_succeeded),no)
 	@echo ""
 	@echo "Error: Makefile init did not succeed."
-	@echo "This might be caused by an unknown Linux edition '$(linux_name)'."
+	@echo "This might be caused by an unknown Linux edition '$(linux_edition)'."
 	@echo ""
 	@echo "This Makefile has been tested on Ubuntu 22.04 and OpenSUSE Leap 15.6."
 	@echo "It will very likely work for newer versions of these Linux editions, and "
@@ -198,7 +234,7 @@ endif
 makefile_variables:
 	@echo ""
 	@echo "This is a list of the internal variables in this Makefile:"
-	@echo "- linux_name: $(linux_name)"
+	@echo "- linux_name: $(linux_edition)"
 	@echo "- linux_version: $(linux_version)"
 	@echo "- HOME: $(HOME)"
 	@echo "- graphdb_backupdir: $(graphdb_backupdir)"
@@ -292,9 +328,9 @@ ifeq ($(shell test ! -d /opt/ricgraph_venv && echo true),true)
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it"
 	@if echo -n "Are you sure you want to proceed? [y/N] " && read ans && ! [ $${ans:-N} = y ]; then echo "Make stopped."; exit 1; fi
 	@echo ""
-ifeq ($(linux_name),Ubuntu)
+ifeq ($(linux_edition),Ubuntu)
 ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
-	@# Only seems necessary for Ubuntu.
+	@# Only seems necessary for Ubuntu. Note that we are user 'root'.
 	make install_ubuntu_python_venv
 endif
 endif
@@ -339,13 +375,16 @@ ifeq ($(shell test ! -d $(HOME)/ricgraph_venv && echo true),true)
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#using-pythons-venv-module"
 	@if echo -n "Are you sure you want to proceed? [y/N] " && read ans && ! [ $${ans:-N} = y ]; then echo "Make stopped."; exit 1; fi
 	@echo ""
-ifeq ($(linux_name),Ubuntu)
+ifeq ($(linux_edition),Ubuntu)
 ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
-	@# Only seems necessary for Ubuntu.
-	@echo "You will get an error from the next statement that you need to be 'root'."
-	@echo "Change to user root, execute 'make install_ubuntu_python_venv'"
-	@echo "and exit user root and become a regular user again."
-	make install_ubuntu_python_venv
+	@# Only seems necessary for Ubuntu. To install packages, we need to be 'root'.
+	@echo ""
+	@echo "You are missing Python package 'python3-venv'. To install, please"
+	@echo "change to user 'root' and execute 'make install_ubuntu_python_venv'."
+	@echo "After that, exit from user 'root' and become a regular user again."
+	@echo "Next, rerun 'make install_ricgraph_as_singleuser'."
+	@echo ""
+	exit 1
 endif
 endif
 	$(python_cmd) -m venv $(HOME)/ricgraph_venv
@@ -400,12 +439,23 @@ ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service &
 	@echo ""
 endif
 
-prepare_webserver_apache: check_user_root install_ricgraph_as_server
+check_webserver_apache:
 ifeq ($(shell test ! -f $(apache_service_file) && echo true),true)
 	@echo ""
 	@echo "Apache webserver is not installed. Please install it using your package manager $(package_install_cmd)."
 	@echo ""
-else
+	exit 1
+endif
+
+check_webserver_nginx:
+ifeq ($(shell test ! -f /lib/systemd/system/nginx.service && echo true),true)
+	@echo ""
+	@echo "Nginx webserver is not installed. Please install it using your package manager $(package_install_cmd)."
+	@echo ""
+	exit 1
+endif
+
+prepare_webserver_apache: check_user_root check_webserver_apache install_ricgraph_as_server
 ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf && echo true),true)
 ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && echo true),true)
 	@echo ""
@@ -425,14 +475,8 @@ ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && ec
 	@echo ""
 endif
 endif
-endif
 
-prepare_webserver_nginx: check_user_root install_ricgraph_as_server
-ifeq ($(shell test ! -f /lib/systemd/system/nginx.service && echo true),true)
-	@echo ""
-	@echo "Nginx webserver is not installed. Please install it using your package manager $(package_install_cmd)."
-	@echo ""
-else
+prepare_webserver_nginx: check_user_root check_webserver_nginx install_ricgraph_as_server
 ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf && echo true),true)
 ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo true),true)
 	@echo ""
@@ -448,7 +492,6 @@ ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo
 	@echo "Webserver Nginx has been prepared. To make it work, continue reading at:"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#post-install-steps-nginx"
 	@echo ""
-endif
 endif
 endif
 
