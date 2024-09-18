@@ -146,16 +146,20 @@ command `make install_neo4j_desktop`, or follow the steps below.
 1. The downloaded file is called something
    like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
    Make it executable using "chmod 755 \[filename\]". 
-1. Start Neo4j Desktop by clicking on the downloaded file. 
-1. Accept the license, and then enter your activation key in the right part of the screen. Click "Activate".
-   You might have to wait awhile before you can continue to the next step.
-1. Exit Neo4j Desktop using the "File" menu and select "Quit".
 
 #### Post-install steps Neo4j Desktop
 1. Start Neo4j Desktop by clicking on the downloaded file. 
+1. Accept the license. 
+1. Enter your activation key in the right part of the screen.
+   Click "Activate".
+   If you do not have a key, fill in the left part of the screen.
+   Click "Register with Email".
+   Wait awhile.
+1. Choose whether you would like to participate in anonymous reporting.
+1. You may be offered updates for Neo4j Desktop components, please update.
 1. Move your mouse to "Example Project" in the left column.
    A red trash can icon appears. Click it to remove the Example
-   Project database "Movie DBMS". Confirm.
+   Project database "Movie DBMS". Confirm. Then wait awhile.
 1. The text "No projects found" will appear. Create a project by clicking the button "+ New Project".
 1. The text "Project" appears with the text "Add a DBMS to get started". Click on the "+ Add" button
    next to it and select "Local DBMS". Leave the name as it is ("Graph DBMS") and fill in a password. 

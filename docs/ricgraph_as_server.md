@@ -610,11 +610,14 @@ Preliminaries:
 Then, follow the following steps, and also watch the video below:
 * Go to the [SURF Research Cloud portal](https://portal.live.surfresearchcloud.nl)
   and log in.
-* Allocate storage:
+* Optional: allocate storage:
+  * This step is only required if you expect to install a lot of programs on
+    the virtual research environment and expect to create or use a lot of
+    data. In the case of Ricgraph: > 100M nodes and edges.
   * Click on "Create new storage".
   * Select the collaborative organization that you want to use for running
-    Ricgraph.
-  * Select your wallet.
+    Ricgraph. If you have only one, it will be preselected.
+  * Select your wallet. If you have only one, it will be preselected.
   * Select the cloud provider. 
     In the video we use "SURF HPC Cloud volume".
   * Allocate storage, make sure you allocate enough volume.
@@ -625,15 +628,16 @@ Then, follow the following steps, and also watch the video below:
 * Create a workspace (that is, a virtual machine to run Ricgraph in):
   * Click on "Create new workspace".
   * Select the collaborative organization that you want to use for running
-    Ricgraph (as above).
-  * Select your wallet (as above).
+    Ricgraph (as above). If you have only one, it will be preselected.
+  * Select your wallet (as above). If you have only one, it will be preselected.
   * Now select a "catalogue item", that is, a pre-installed virtual machine. 
     Choose "Ubuntu Desktop".
   * Select a configuration.
     In the video we use "1 Core - 8 GB RAM".
     The larger, the more credits it will cost.
   * Select which version of Ubuntu you want to use. Choose "Ubuntu 22.04 Desktop".
-  * Select storage, choose the one you created above.
+  * By default, the workspace has ~95GB of storage on the system and home partition.
+    Optional (see above): Select additional storage, choose the one you created above. 
   * Rename your workspace.
   * After a few moments your workspace will be created and available.
   * Start up your workspace.
