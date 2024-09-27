@@ -51,6 +51,13 @@ minimal_python_minor_version := 10
 
 
 # ########################################################################
+# The name of the Ricgraph harvest script. It should be in directory
+# [Ricgraph install directory]/harvest_to_ricgraph_examples.
+# ########################################################################
+harvest_script := batch_harvest.py
+
+
+# ########################################################################
 # Define a number of variables.
 # ########################################################################
 # Determine the Linux edition and version number, for debug purposes only.
@@ -188,14 +195,16 @@ help:
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md):"
 	@echo "- make install_neo4j_desktop: Download and install Neo4j Desktop."
 	@echo "- make install_ricgraph_as_singleuser: Install Ricgraph for a single user."
-	@echo "       This will also do a 'make install_neo4j_desktop' (if not done yet)."
+	@echo "       This will be done in a Python virtual environment in $(HOME)."
+	@echo "       Also, a 'make install_neo4j_desktop' will be done (if not done yet)."
 	@echo ""
 	@echo "Commands for Ricgraph as a server (you need to be 'root') (please read"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md):"
 	@echo "- make install_enable_neo4j_community: Install, enable, and run"
 	@echo "       Neo4j Community Edition."
 	@echo "- make install_ricgraph_as_server: Install Ricgraph as a server."
-	@echo "       This will also do a 'make install_enable_neo4j_community'"
+	@echo "       This will be done in a Python virtual environment in /opt."
+	@echo "       Also, a 'make install_enable_neo4j_community' will be done"
 	@echo "       (if not done yet)."
 	@echo "- make install_enable_ricgraphexplorer_restapi: Install, enable, and run"
 	@echo "       Ricgraph Explorer and its REST API as a service."
@@ -205,8 +214,6 @@ help:
 	@echo "- make prepare_webserver_nginx: Prepare webserver Nginx for use with Ricgraph."
 	@echo "       For SURF Research Cloud you will need the Nginx webserver."
 	@echo "       This will also do a 'make install_ricgraph_as_server' (if not done yet)."
-	@echo "- make dump_graphdb_neo4j_community: dump Neo4j Community graph database."
-	@echo "- make restore_graphdb_neo4j_community: restore Neo4j Community graph database."
 	@echo ""
 	@echo "Advanced commands for this Makefile:"
 	@echo "- make makefile_variables: list all variables used in this Makefile."
@@ -215,6 +222,14 @@ help:
 	@echo "       ($(ricgraph_download)), and use that one to"
 	@echo "       install Ricgraph (instead of Ricgraph release version $(ricgraph_version) as"
 	@echo "       specified in this Makefile)."
+	@echo "- make install_ricgraphvenv_home: Install Ricgraph for a single user."
+	@echo "       This will be done in a Python virtual environment in $(HOME)."
+	@echo "- make install_ricgraphvenv_opt: Install Ricgraph as a server."
+	@echo "       This will be done in a Python virtual environment in /opt."
+	@echo "- make dump_graphdb_neo4j_community: dump Neo4j Community graph database."
+	@echo "- make restore_graphdb_neo4j_community: restore Neo4j Community graph database."
+	@echo "- make run_batchscript: run Ricgraph batch script $(harvest_script)."
+	@echo "       The location of the script will depend on the user running this Makefile."
 	@echo ""
 
 makefile_variables:
@@ -343,7 +358,10 @@ ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo ""
 endif
 
-install_ricgraph_as_server: check_user_root check_python_minor_version install_enable_neo4j_community create_user_group_ricgraph
+install_ricgraph_as_server: install_enable_neo4j_community install_ricgraphvenv_opt
+	@echo ""
+
+install_ricgraphvenv_opt: check_user_root check_python_minor_version create_user_group_ricgraph
 ifeq ($(shell test ! -d /opt/ricgraph_venv && echo true),true)
 	@echo ""
 	@echo "Starting Install Ricgraph as a server. Read documentation at:"
@@ -356,8 +374,8 @@ ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
 	make install_ubuntu_python_venv
 endif
 endif
-	$(python_cmd) -m venv /opt/ricgraph_venv
 	@if [ ! -f /opt/$(ricgraph_tag_name) ]; then cd /opt; echo "Downloading Ricgraph..."; wget $(ricgraph_path); fi
+	$(python_cmd) -m venv /opt/ricgraph_venv
 	cd /opt; tar xf /opt/$(ricgraph_tag_name)
 	mv /opt/$(ricgraph)/* /opt/ricgraph_venv
 	rm -r /opt/$(ricgraph)
@@ -390,7 +408,10 @@ endif
 	@echo ""
 endif
 
-install_ricgraph_as_singleuser: check_user_notroot check_python_minor_version install_neo4j_desktop
+install_ricgraph_as_singleuser: install_neo4j_desktop install_ricgraphvenv_home
+	@echo ""
+
+install_ricgraphvenv_home: check_user_notroot check_python_minor_version
 ifeq ($(shell test ! -d $(HOME)/ricgraph_venv && echo true),true)
 	@echo ""
 	@echo "Starting Install Ricgraph for a single user. Read documentation at:"
@@ -409,8 +430,8 @@ ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
 	exit 1
 endif
 endif
+	@if [ ! -f $(HOME)/$(ricgraph_tag_name) ]; then cd $(HOME); "Downloading Ricgraph..."; wget $(ricgraph_path); fi
 	$(python_cmd) -m venv $(HOME)/ricgraph_venv
-	@if [ ! -f $(HOME)/$(ricgraph_tag_name) ]; then echo cd $(HOME); "Downloading Ricgraph..."; wget $(ricgraph_path); fi
 	cd $(HOME); tar xf $(HOME)/$(ricgraph_tag_name)
 	mv $(HOME)/$(ricgraph)/* $(HOME)/ricgraph_venv
 	rm -r $(HOME)/$(ricgraph)
@@ -527,6 +548,8 @@ download_cuttingedge_version:
 	rm -r $(tmpdir)
 	@echo ""
 	@echo "Done."
+	@echo "The cutting edge version can be found in file:"
+	@if [ $(HOME) = '/root' ]; then echo "/opt/$(ricgraph_tag_name)."; else echo "$(HOME)/$(ricgraph_tag_name)."; fi
 	@echo ""
 
 # Documentation for dump & restore: https://neo4j.com/docs/operations-manual/current/kubernetes/operations/dump-load
@@ -597,3 +620,28 @@ endif
 	@echo "If you get a warning that the system database may contain unwanted"
 	@echo "metadata from the DBMS it was taken from, please ignore it."
 	@echo ""
+
+
+run_batchscript:
+	@if [ $(HOME) = '/root' ]; then make run_batchscript_opt; else make run_batchscript_home; fi
+
+run_batchscript_home: check_user_notroot
+	@echo ""
+	@echo "This target will run Ricgraph batch script"
+	@echo "$(HOME)/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script)."
+	@echo "If you continue, this script might delete your current graph database."
+	@if echo -n "Are you sure you want to proceed? [y/N] " && read ans && ! [ $${ans:-N} = y ]; then echo "Make stopped."; exit 1; fi
+	@echo ""
+	@if [ ! -f $(HOME)/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script) ]; then echo "Error: batch script does not exist."; exit 1; fi
+	@cd $(HOME)/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=$(HOME)/ricgraph_venv/ricgraph ../bin/python $(harvest_script)
+
+run_batchscript_opt: check_user_root
+	@echo ""
+	@echo "This target will run Ricgraph batch script"
+	@echo "/opt/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script)."
+	@echo "It will do this as user 'ricgraph'."
+	@echo "If you continue, this script might delete your current graph database."
+	@if echo -n "Are you sure you want to proceed? [y/N] " && read ans && ! [ $${ans:-N} = y ]; then echo "Make stopped."; exit 1; fi
+	@echo ""
+	@if [ ! -f /opt/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script) ]; then echo "Error: batch script does not exist."; exit 1; fi
+	@sudo -u ricgraph bash -c 'cd /opt/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python $(harvest_script)'
