@@ -328,6 +328,20 @@ Examples of commands you can use are:
   cd $HOME/ricgraph_venv/ricgraph_explorer; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
   ```
 
+#### Using the Makefile
+The [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) can also be used to execute
+a Python batch file. Such a batch file can be used to harvest the sources specific to your organization.
+This batch file is preconfigured in the variable
+`harvest_script` at the top of the Makefile. It can be modified to refer to your favorite Python script.
+If you have done this, and then execute
+command `make run_batchscript`, that script will be executed and its output will appear both
+on your screen as well as in a file. The Makefile will tell you the name of this log file.
+
+The directory of the batch file depends on the user that is running the command
+`make run_batchscript` (either a regular user or user *root*). 
+The Makefile will tell which script it will use.
+
+
 
 ### Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
