@@ -51,10 +51,11 @@ minimal_python_minor_version := 10
 
 
 # ########################################################################
-# The name of the Ricgraph harvest script. It should be in directory
-# [Ricgraph install directory]/harvest_to_ricgraph_examples.
+# The name of the Ricgraph harvest script and its log. It should be in
+# directory [Ricgraph install directory]/harvest_to_ricgraph_examples.
 # ########################################################################
 harvest_script := batch_harvest.py
+harvest_script_log := $(basename $(harvest_script))_`date +%y%m%d-%H%M`.log
 
 
 # ########################################################################
@@ -255,6 +256,8 @@ makefile_variables:
 	@echo "- neo4j_desktop: $(neo4j_desktop)"
 	@echo "- neo4j_desktop_path: $(neo4j_desktop_path)"
 	@echo "- graphdb_backupdir: $(graphdb_backupdir)"
+	@echo "- harvest_script: $(harvest_script)"
+	@echo "- harvest_script_log: $(harvest_script_log)"
 	@echo ""
 
 check_python_minor_version:
@@ -629,19 +632,29 @@ run_batchscript_home: check_user_notroot
 	@echo ""
 	@echo "This target will run Ricgraph batch script"
 	@echo "$(HOME)/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script)."
+	@echo "The output will be both on screen as well as in file"
+	@echo "$(HOME)/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script_log)."
+	@echo "It may take a while before the output appears on screen,"
+	@echo "this is due to buffering of the output."
+	@echo ""
 	@echo "If you continue, this script might delete your current graph database."
 	@if echo -n "Are you sure you want to proceed? [y/N] " && read ans && ! [ $${ans:-N} = y ]; then echo "Make stopped."; exit 1; fi
 	@echo ""
-	@if [ ! -f $(HOME)/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script) ]; then echo "Error: batch script does not exist."; exit 1; fi
-	@cd $(HOME)/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=$(HOME)/ricgraph_venv/ricgraph ../bin/python $(harvest_script)
+	@if [ ! -f $(HOME)/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script) ]; then echo "Error: batch script $(harvest_script) does not exist."; exit 1; fi
+	@cd $(HOME)/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=$(HOME)/ricgraph_venv/ricgraph ../bin/python $(harvest_script) | tee $(harvest_script_log)
 
 run_batchscript_opt: check_user_root
 	@echo ""
 	@echo "This target will run Ricgraph batch script"
 	@echo "/opt/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script)."
 	@echo "It will do this as user 'ricgraph'."
+	@echo "The output will be both on screen as well as in file"
+	@echo "/opt/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script_log)."
+	@echo "It may take a while before the output appears on screen,"
+	@echo "this is due to buffering of the output."
+	@echo ""
 	@echo "If you continue, this script might delete your current graph database."
 	@if echo -n "Are you sure you want to proceed? [y/N] " && read ans && ! [ $${ans:-N} = y ]; then echo "Make stopped."; exit 1; fi
 	@echo ""
-	@if [ ! -f /opt/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script) ]; then echo "Error: batch script does not exist."; exit 1; fi
-	@sudo -u ricgraph bash -c 'cd /opt/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python $(harvest_script)'
+	@if [ ! -f /opt/ricgraph_venv/harvest_to_ricgraph_examples/$(harvest_script) ]; then echo "Error: batch script $(harvest_script) does not exist."; exit 1; fi
+	@sudo -u ricgraph bash -c 'cd /opt/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python $(harvest_script) | tee $(harvest_script_log)'
