@@ -553,12 +553,14 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
         return nodes[0]
 
 
-def cypher_merge_node(node_element_id: str, node_properties: dict) -> Union[Node, None]:
+def cypher_update_node_properties(node_element_id: str, node_properties: dict) -> Union[Node, None]:
     """
-    Merge (update) a node in the graph database.
-    Merge means: if it is already there, no new node will be created.
+    Update node properties in a node in the graph database.
+    If the node is not present, nothing will happen.
     Only the properties and their values in 'node_properties' will be changed (if
     a property is present in the node) or added (if the property is not present).
+    All other properties (i.e. not specified properties in 'node_properties')
+    will be left as they are.
 
     :param node_element_id: the element_id of the node.
     :param node_properties: the properties of the node.
@@ -573,7 +575,8 @@ def cypher_merge_node(node_element_id: str, node_properties: dict) -> Union[Node
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += 'SET node+=$node_properties RETURN node'
 
-    # print('cypher_merge_node(): node_element_id: ' + str(node_element_id) + ', cypher_query: ' + cypher_query)
+    # print('cypher_update_node_properties(): node_element_id: ' + str(node_element_id) +
+    #       ', cypher_query: ' + cypher_query)
     # print('                     node_properties: ' + str(node_properties))
 
     nodes = _graph.execute_query(cypher_query,
@@ -820,8 +823,8 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                                    new_value=str(node_properties['comment']))
                 node_properties['_history'] = personroot['_history'].copy()
                 node_properties['_history'].append(time_stamp + ': ' + history_line)
-                cypher_merge_node(node_element_id=personroot.element_id,
-                                  node_properties=node_properties)
+                cypher_update_node_properties(node_element_id=personroot.element_id,
+                                              node_properties=node_properties)
         elif isinstance(personroot['comment'], list):
             if node['value'] not in personroot['comment']:
                 old_value = str(personroot['comment'])
@@ -832,8 +835,8 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
                                                    new_value=str(node_properties['comment']))
                 node_properties['_history'] = personroot['_history'].copy()
                 node_properties['_history'].append(time_stamp + ': ' + history_line)
-                cypher_merge_node(node_element_id=personroot.element_id,
-                                  node_properties=node_properties)
+                cypher_update_node_properties(node_element_id=personroot.element_id,
+                                              node_properties=node_properties)
         # In all other cases: it is already in the cache,
         # or leave it as it is: 'comment' seems to be used for something we don't know.
     return
@@ -867,8 +870,8 @@ def recreate_name_cache_in_personroot(personroot: Node):
             node_properties = {'comment': name_cache.copy(),
                                '_history': personroot['_history'].copy()}
             node_properties['_history'].append(time_stamp + ': Cleaned and recreated name cache. ' + history_line)
-            cypher_merge_node(node_element_id=personroot.element_id,
-                              node_properties=node_properties)
+            cypher_update_node_properties(node_element_id=personroot.element_id,
+                                          node_properties=node_properties)
         # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
     return
 
@@ -1008,8 +1011,8 @@ def create_update_node(name: str, category: str, value: str,
 
     node_properties['_history'] = node['_history'].copy()
     node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
-    updated_node = cypher_merge_node(node_element_id=node.element_id,
-                                     node_properties=node_properties)
+    updated_node = cypher_update_node_properties(node_element_id=node.element_id,
+                                                 node_properties=node_properties)
     return updated_node
 
 
@@ -1299,8 +1302,8 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     history_line += create_history_line(property_name='_key', old_value=oldkey, new_value=newkey)
     node_properties['_history'] = node['_history'].copy()
     node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
-    updated_node = cypher_merge_node(node_element_id=node.element_id,
-                                     node_properties=node_properties)
+    updated_node = cypher_update_node_properties(node_element_id=node.element_id,
+                                                 node_properties=node_properties)
 
     if updated_node['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=updated_node)
@@ -1670,12 +1673,12 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
     print('\nconnect_person_and_person_node(): ' + message)
     node_property = {'_history': left_node['_history'].copy()}
     node_property['_history'].append(timestamped_message)
-    cypher_merge_node(node_element_id=left_node.element_id,
-                      node_properties=node_property)
+    cypher_update_node_properties(node_element_id=left_node.element_id,
+                                  node_properties=node_property)
     node_property = {'_history': right_node['_history'].copy()}
     node_property['_history'].append(timestamped_message)
-    cypher_merge_node(node_element_id=right_node.element_id,
-                      node_properties=node_property)
+    cypher_update_node_properties(node_element_id=right_node.element_id,
+                                  node_properties=node_property)
     return
 
 
