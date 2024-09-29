@@ -592,8 +592,8 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
         return nodes[0]
 
 
-def cypher_merge_edge(left_node_element_id: str, right_node_element_id: str) -> None:
-    """Connect two nodes using a Cypher query.
+def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_element_id: str) -> None:
+    """Create an edge between two nodes, but only if the edge does not exist.
 
     :param left_node_element_id: the element_id of the left node.
     :param right_node_element_id: the element_id of the right node.
@@ -605,7 +605,7 @@ def cypher_merge_edge(left_node_element_id: str, right_node_element_id: str) -> 
 
     # There are several methods for getting the nodes in the graph database.
     # This one takes the most time.
-    # It amounts to 4 database hits according to 'PROFILE <cypher query>', using 'AllNodesScan'.
+    # It amounts to ?? database hits according to 'PROFILE <cypher query>', using 'AllNodesScan'.
     # cypher_query = 'MATCH (left_node {ID:' + str(left_node.element_id) + '}) ' [etc.]
     # The next one takes average time.
     # It amounts to 23 database hits according to 'PROFILE', using 'AllNodesScan'.
@@ -625,10 +625,11 @@ def cypher_merge_edge(left_node_element_id: str, right_node_element_id: str) -> 
 
     # We could use 'CREATE', but then we may get multiple edges for the same direction.
     # cypher_query += 'CREATE (left_node)-[:LINKS_TO]->(right_node), ' [etc.]
+    # A MERGE is more expensive since it first checks for presence of the edge.
     cypher_query += 'MERGE (left_node)-[:LINKS_TO]->(right_node) '
     cypher_query += 'MERGE (left_node)<-[:LINKS_TO]-(right_node) '
 
-    # print('cypher_merge_edge(): left_node_id: ' + str(left_node_id) + ', right_node_id: '
+    # print('cypher_create_edge_if_not_exists(): left_node_id: ' + str(left_node_id) + ', right_node_id: '
     #       + str(right_node_id) + ', cypher_query: ' + cypher_query)
 
     _graph.execute_query(cypher_query,
@@ -1409,8 +1410,8 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
         # Create the 'person-root' node with a unique value.
         value = str(uuid.uuid4())
         personroot = create_update_node(name='person-root', category='person', value=value)
-        cypher_merge_edge(left_node_element_id=person_node.element_id,
-                          right_node_element_id=personroot.element_id)
+        cypher_create_edge_if_not_exists(left_node_element_id=person_node.element_id,
+                                         right_node_element_id=personroot.element_id)
         return personroot
 
     if len(personroot_nodes) > 1:
@@ -1450,8 +1451,8 @@ def connect_person_and_non_person_node(person_node: Node,
         if personroot is None:
             return
 
-    cypher_merge_edge(left_node_element_id=non_person_node.element_id,
-                      right_node_element_id=personroot.element_id)
+    cypher_create_edge_if_not_exists(left_node_element_id=non_person_node.element_id,
+                                     right_node_element_id=personroot.element_id)
     return
 
 
@@ -1617,8 +1618,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=left_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_element_id=right_node.element_id,
-                          right_node_element_id=personroot.element_id)
+        cypher_create_edge_if_not_exists(left_node_element_id=right_node.element_id,
+                                         right_node_element_id=personroot.element_id)
         return
 
     if nr_edges_left_node > 0 and nr_edges_right_node == 0:
@@ -1626,8 +1627,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=left_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_element_id=right_node.element_id,
-                          right_node_element_id=personroot.element_id)
+        cypher_create_edge_if_not_exists(left_node_element_id=right_node.element_id,
+                                         right_node_element_id=personroot.element_id)
         return
 
     if nr_edges_left_node == 0 and nr_edges_right_node > 0:
@@ -1635,8 +1636,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         personroot = get_or_create_personroot_node(person_node=right_node)
         if personroot is None:
             return
-        cypher_merge_edge(left_node_element_id=left_node.element_id,
-                          right_node_element_id=personroot.element_id)
+        cypher_create_edge_if_not_exists(left_node_element_id=left_node.element_id,
+                                         right_node_element_id=personroot.element_id)
         return
 
     left_personroot_node = get_or_create_personroot_node(person_node=left_node)
@@ -1655,10 +1656,10 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         return
 
     # Connect crosswise.
-    cypher_merge_edge(left_node_element_id=left_node.element_id,
-                      right_node_element_id=right_personroot_node.element_id)
-    cypher_merge_edge(left_node_element_id=right_node.element_id,
-                      right_node_element_id=left_personroot_node.element_id)
+    cypher_create_edge_if_not_exists(left_node_element_id=left_node.element_id,
+                                     right_node_element_id=right_personroot_node.element_id)
+    cypher_create_edge_if_not_exists(left_node_element_id=right_node.element_id,
+                                     right_node_element_id=left_personroot_node.element_id)
 
     time_stamp = datetimestamp()
     message = 'The node pair "'
@@ -1701,8 +1702,8 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
 
     if left_node['category'] != 'person' and right_node['category'] != 'person':
         # This is not a person to person link, link directly
-        cypher_merge_edge(left_node_element_id=left_node.element_id,
-                          right_node_element_id=right_node.element_id)
+        cypher_create_edge_if_not_exists(left_node_element_id=left_node.element_id,
+                                         right_node_element_id=right_node.element_id)
         return
 
     # At least one of the nodes is a 'person' link. These should be linked via their 'person-root' node.
