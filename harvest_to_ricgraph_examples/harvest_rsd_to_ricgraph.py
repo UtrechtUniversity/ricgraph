@@ -74,7 +74,7 @@ RSD_DATA_FILENAME = 'rsd_data.csv'
 RSD_ENDPOINT = 'api/v1/organisation'
 RSD_FIELDS = 'software(brand_name,slug,concept_doi,' \
              + 'release(mention(doi,doi_registration_date,publication_year)),' \
-             + 'contributor(family_names,given_names,orcid))' \
+             + 'contributor(family_names,given_names,orcid,affiliation))' \
              + '&software.release.mention.order=doi_registration_date.desc'
 RSD_HEADERS = {
     'User-Agent': 'Harvesting from RSD'
@@ -264,6 +264,31 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     print('The following software packages from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(software)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=software)
+
+    # Note: not implemented yet: a person contribution to a software package, and that person
+    # is working for two different organizations. In this case, the json harvest will have a field:
+    # "affiliation": "Radboud University Nijmegen, Utrecht University".
+    # I expect this to change in RSD the near future.
+    organizations = parsed_content[['orcid', 'affiliation']].copy(deep=True)
+    organizations.dropna(axis=0, how='any', inplace=True)
+    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    organizations.rename(columns={'orcid': 'value1',
+                                  'affiliation': 'value2'}, inplace=True)
+    new_organizations_columns = {'name1': 'ORCID',
+                                 'category1': 'person',
+                                 'name2': 'ORGANIZATION_NAME',
+                                 'category2': 'organization',
+                                 'source_event2': HARVEST_SOURCE,
+                                 'history_event2': history_event}
+    organizations = organizations.assign(**new_organizations_columns)
+    organizations = organizations[['name1', 'category1', 'value1',
+                                   'name2', 'category2', 'value2', 'source_event2', 'history_event2']]
+
+    print('The following organizations and persons from organizations from '
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
+    print(organizations)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+
     print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
