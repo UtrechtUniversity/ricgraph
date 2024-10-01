@@ -190,6 +190,7 @@ ROTYPE_JOURNAL_ARTICLE = 'journal article'
 ROTYPE_LETTER = 'letter to the editor'
 ROTYPE_MEMORANDUM = 'memorandum'
 ROTYPE_METHOD_DESCRIPTION = 'method description'
+ROTYPE_MODEL = 'model'
 ROTYPE_OTHER_CONTRIBUTION = 'other contribution'
 ROTYPE_PATENT = 'patent'
 ROTYPE_PHDTHESIS = 'PhD thesis'
@@ -216,6 +217,7 @@ ROTYPE_ALL = [ROTYPE_ABSTRACT,
               ROTYPE_LETTER,
               ROTYPE_MEMORANDUM,
               ROTYPE_METHOD_DESCRIPTION,
+              ROTYPE_MODEL,
               ROTYPE_OTHER_CONTRIBUTION,
               ROTYPE_PATENT,
               ROTYPE_PHDTHESIS,

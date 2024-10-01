@@ -74,6 +74,7 @@ global YODA_URL
 ROTYPE_MAPPING_YODA = {
     'Research Data': rcg.ROTYPE_DATASET,
     'Method Description': rcg.ROTYPE_METHOD_DESCRIPTION,
+    'Model': rcg.ROTYPE_MODEL,
     'Computer code': rcg.ROTYPE_SOFTWARE,
     'Other Document': rcg.ROTYPE_OTHER_CONTRIBUTION
 }
