@@ -31,8 +31,9 @@
 # This file is the Makefile for Ricgraph.
 # For make, see https://www.gnu.org/software/make.
 #
-# This file will make installing Ricgraph on Linux easier. It also helps with
-# dumping and restoring graph databases.
+# This file will make installing Ricgraph on Linux easier. It also helps
+# e.g. with dumping and restoring graph databases, and with running
+# Ricgraph batch scripts.
 #
 # Original version Rik D.T. Janssen, September 2024.
 #
@@ -43,7 +44,7 @@
 # These are the versions of the software to be installed.
 # ########################################################################
 ricgraph_version := 2.4
-neo4j_community_version := 5.23.0
+neo4j_community_version := 5.24.0
 neo4j_desktop_version := 1.6.0
 
 # The minimal Python version required for Ricgraph.
@@ -111,6 +112,7 @@ endif
 # We need a package manager that can install 'rpm' or 'deb' files (for Neo4j Community Edition).
 ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for OpenSUSE Leap & Tumbleweed, Fedora.
+	# To update (not supported in this Makefile) you will need "rpm -iU".
 	package_install_cmd := rpm -i
 	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
@@ -177,7 +179,9 @@ help:
 	@echo ""
 	@echo "Ricgraph Makefile help."
 	@echo "You can use this Makefile to install (parts of) Ricgraph and dump/restore"
-	@echo "its graph database. The outputs will be the commands that have been executed"
+	@echo "its graph database. There are also other options as listed below."
+	@echo ""
+	@echo "The output of this script will be the commands that have been executed"
 	@echo "and their results. If you do not get any output, then nothing has been done,"
 	@echo "because the action that you requested has already been executed."
 	@echo ""
@@ -572,6 +576,8 @@ endif
 	@if echo -n "Are you sure you want to proceed? [y/N] " && read ans && ! [ $${ans:-N} = y ]; then echo "Make stopped."; exit 1; fi
 	@echo ""
 	@if [ ! -d $(graphdb_backupdir) ]; then mkdir $(graphdb_backupdir); fi
+	@if [ -f $(graphdb_backupdir)/system.dump ]; then echo "Error: Graph database dump file $(graphdb_backupdir)/system.dump does exist, you might overwrite an existing dump. Please remove it first."; exit 1; fi
+	@if [ -f $(graphdb_backupdir)/neo4j.dump ]; then echo "Error: Graph database dump file $(graphdb_backupdir)/neo4j.dump does exist, you might overwrite an existing dump. Please remove it first."; exit 1; fi
 	systemctl stop neo4j.service
 	chmod 640 /etc/neo4j/*
 	chmod 750 /etc/neo4j
