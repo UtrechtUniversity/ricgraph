@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, March 2023.
-# Updated Rik D.T. Janssen, April, October, November 2023.
+# Updated Rik D.T. Janssen, April, October, November 2023, October 2024.
 #
 # ########################################################################
 #
@@ -194,14 +194,16 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
             continue
 
         for authors in harvest_item['authorships']:
-            # We only insert authors from ORGANIZATION_ROR, we
-            # skip all other authors.
+            # Previously, we only inserted authors from ORGANIZATION_ROR.
+            # Now we insert authors from any organization.
             if 'author' not in authors \
                or 'institutions' not in authors:
                 # They must be present, otherwise skip this author.
                 continue
 
-            own_organization_found = False
+            # Only necessary to insert authors from ORGANIZATION_ROR.
+            # own_organization_found = False
+
             institution_ror = ''
             institution_display_name = ''
             for institution in authors['institutions']:
@@ -210,20 +212,22 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                 if institution['ror'] is None:
                     continue
 
-                path = pathlib.PurePath(institution['ror'])
-                if path.name != ORGANIZATION_ROR:
-                    # Skip, not our institution.
-                    continue
-                own_organization_found = True
+                # Only necessary to insert authors from ORGANIZATION_ROR.
+                # path = pathlib.PurePath(institution['ror'])
+                # if path.name != ORGANIZATION_ROR:
+                #     # Skip, not our institution.
+                #     continue
+                # own_organization_found = True
 
                 path = pathlib.PurePath(institution['ror'])
                 institution_ror = str(path.name)
                 if 'display_name' in institution and institution['display_name'] is not None:
                     institution_display_name = str(institution['display_name'])
 
-            if not own_organization_found:
-                # Note: this is a design choice. We only want records from our own institution.
-                continue
+            # Only necessary to insert authors from ORGANIZATION_ROR.
+            # if not own_organization_found:
+            #     # Note: this is a design choice. We only want records from our own institution.
+            #     continue
 
             if 'id' not in authors['author']:
                 # There must be an id, otherwise skip.
