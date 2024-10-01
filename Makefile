@@ -430,7 +430,7 @@ ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
 	@# Only seems necessary for Ubuntu. To install packages, we need to be 'root'.
 	@echo ""
 	@echo "You are missing Python package 'python3-venv'. To install, please"
-	@echo "change to user 'root' and execute 'make install_ubuntu_venv'."
+	@echo "change to user 'root' and execute 'make install_python_venv'."
 	@echo "After that, exit from user 'root' and become a regular user again."
 	@echo "Next, rerun 'make install_ricgraph_as_singleuser'."
 	@echo ""
