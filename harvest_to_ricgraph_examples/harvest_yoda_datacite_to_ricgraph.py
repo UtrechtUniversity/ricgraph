@@ -191,13 +191,43 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
                 key = identifier['@nameIdentifierScheme']
                 value = identifier['#text']
                 new_record[key] = value
+        elif item_in_names == 'affiliation':
+            affiliation_identifiers = dict_with_one_name['affiliation']
+            for identifier in affiliation_identifiers:
+                if identifier == '@affiliationIdentifierScheme':
+                    # This one is to catch XML lines like
+                    # <affiliation affiliationIdentifier="https://ror.org/04pp8hn57"
+                    #     affiliationIdentifierScheme="ROR">Utrecht University</affiliation>
+                    key = item_in_names
+                    value = affiliation_identifiers['#text']
+                    new_record[key] = value
+                    break
+
+                # This one is to catch XML lines like
+                # <affiliation>Utrecht University</affiliation>
+                key = item_in_names
+                value = dict_with_one_name[key]
+
+                if isinstance(value, dict):
+                    # A person is from multiple organizations.
+                    value = value['#text']
+
+                if isinstance(value, list):
+                    if isinstance(value[0], dict):
+                        # A person is from multiple organizations.
+                        newvalue = []
+                        for item in value:
+                            newvalue.append(item['#text'])
+                        value = newvalue.copy()
+
+                new_record[key] = value
         else:
             # All other name items
             key = item_in_names
             value = dict_with_one_name[key]
             new_record[key] = value
             if key == 'creatorName' or key == 'contributorName':
-                # Also insert it in another colomn, for convenience
+                # Also insert it in another column, for convenience
                 if not isinstance(value, str):
                     # Sometimes it is an OrderedDict
                     new_record['contributorName'] = value['#text']
@@ -244,6 +274,17 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
                     rowdict.append(newdict)
 
     datacite_data = pandas.DataFrame(rowdict)
+
+    # In column "affiliation", sometimes there is a string (when someone has one affiliation),
+    # and sometimes a list of strings (when someone has more than one affiliation).
+    # First, convert any string values in that column to single-element lists.
+    # This ensures that all values in the column are list-like.
+    datacite_data['affiliation'] = datacite_data['affiliation'].apply(lambda x: [x] if isinstance(x, str) else x)
+    # Then, use the explode() function on the that column.
+    # This will create a new row for each element in the lists, while keeping the other column values the same.
+    # Finally, a reset_index(drop=True) is used to create a new unique index for all rows.
+    datacite_data = datacite_data.explode('affiliation').reset_index(drop=True)
+
     datacite_data['DOI_TYPE'] = datacite_data[['resourceType']].apply(
         lambda row: rcg.lookup_resout_type(research_output_type=row['resourceType'],
                                            research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
@@ -257,7 +298,8 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
     yoda_data = datacite_data[['DOI', 'contributorName', 'DAI',
                                'ORCID', 'Author identifier (Scopus)',
                                'ISNI', 'ResearcherID (Web of Science)',
-                               'titles', 'DOI_TYPE', 'publicationYear'
+                               'titles', 'DOI_TYPE', 'publicationYear',
+                               'affiliation'
                                ]].copy(deep=True)
     # This does not seem to work:
     # yoda_data.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -265,7 +307,8 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
                               'Author identifier (Scopus)': 'SCOPUS_AUTHOR_ID',
                               'ResearcherID (Web of Science)': 'RESEARCHER_ID',
                               'contributorName': 'FULL_NAME',
-                              'titles': 'TITLE'
+                              'titles': 'TITLE',
+                              'affiliation': 'ORGANIZATION_NAME'
                               }, inplace=True)
 
     return yoda_data
@@ -379,6 +422,9 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                    source_event='Yoda-DataCite',
                                    history_event=history_event)
 
+    # We need to connect a dataset to a person-root. However, there is no single
+    # person identifier that every person has. So we will need to connect DOIs to
+    # every person-identifier we have.
     print('The following datasets (DOIs) from Yoda will be inserted in Ricgraph:')
     print(parsed_content)
     print('\nAdding DOIs and ORCIDs at ' + rcg.timestamp() + '...')
@@ -422,6 +468,50 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                           name2='ISNI',
                                           category2='person',
                                           value2=parsed_content['ISNI'])
+
+    # Same for organizations.
+    print('The following organizations from person from Yoda will be inserted in Ricgraph:')
+    print(parsed_content)
+    print('\nAdding organizations and ORCIDs at ' + rcg.timestamp() + '...')
+    rcg.create_nodepairs_and_edges_params(name1='ORGANIZATION_NAME',
+                                          category1='organization',
+                                          value1=parsed_content['ORGANIZATION_NAME'],
+                                          source_event1='Yoda-DataCite',
+                                          history_event1=history_event,
+                                          name2='ORCID',
+                                          category2='person',
+                                          value2=parsed_content['ORCID'])
+    # Don't need to add a source_event to the following calls, since we have already inserted
+    # each source above, here we are connecting them.
+    print('\nAdding organizations and DIGITAL_AUTHOR_IDs at ' + rcg.timestamp() + '...')
+    rcg.create_nodepairs_and_edges_params(name1='ORGANIZATION_NAME',
+                                          category1='organization',
+                                          value1=parsed_content['ORGANIZATION_NAME'],
+                                          name2='DIGITAL_AUTHOR_ID',
+                                          category2='person',
+                                          value2=parsed_content['DIGITAL_AUTHOR_ID'])
+    print('\nAdding organizations and SCOPUS_AUTHOR_IDs at ' + rcg.timestamp() + '...')
+    rcg.create_nodepairs_and_edges_params(name1='ORGANIZATION_NAME',
+                                          category1='organization',
+                                          value1=parsed_content['ORGANIZATION_NAME'],
+                                          name2='SCOPUS_AUTHOR_ID',
+                                          category2='person',
+                                          value2=parsed_content['SCOPUS_AUTHOR_ID'])
+    print('\nAdding organizations and RESEARCHER_IDs at ' + rcg.timestamp() + '...')
+    rcg.create_nodepairs_and_edges_params(name1='ORGANIZATION_NAME',
+                                          category1='organization',
+                                          value1=parsed_content['ORGANIZATION_NAME'],
+                                          name2='RESEARCHER_ID',
+                                          category2='person',
+                                          value2=parsed_content['RESEARCHER_ID'])
+    print('\nAdding organizations and ISNIs at ' + rcg.timestamp() + '...')
+    rcg.create_nodepairs_and_edges_params(name1='ORGANIZATION_NAME',
+                                          category1='organization',
+                                          value1=parsed_content['ORGANIZATION_NAME'],
+                                          name2='ISNI',
+                                          category2='person',
+                                          value2=parsed_content['ISNI'])
+
     print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
