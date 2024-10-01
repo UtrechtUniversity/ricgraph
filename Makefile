@@ -378,7 +378,7 @@ ifeq ($(shell test ! -d /opt/ricgraph_venv && echo true),true)
 ifeq ($(linux_edition),Ubuntu)
 ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
 	@# Only seems necessary for Ubuntu. Note that we are user 'root'.
-	make install_ubuntu_python_venv
+	make install_python_venv
 endif
 endif
 	@if [ ! -f /opt/$(ricgraph_tag_name) ]; then cd /opt; echo "Downloading Ricgraph..."; wget $(ricgraph_path); fi
@@ -430,7 +430,7 @@ ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
 	@# Only seems necessary for Ubuntu. To install packages, we need to be 'root'.
 	@echo ""
 	@echo "You are missing Python package 'python3-venv'. To install, please"
-	@echo "change to user 'root' and execute 'make install_ubuntu_python_venv'."
+	@echo "change to user 'root' and execute 'make install_ubuntu_venv'."
 	@echo "After that, exit from user 'root' and become a regular user again."
 	@echo "Next, rerun 'make install_ricgraph_as_singleuser'."
 	@echo ""
