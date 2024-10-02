@@ -612,7 +612,7 @@ endif
 	chmod 640 /etc/neo4j/*
 	chmod 750 /etc/neo4j
 	@# Save old database
-	mv /var/lib/neo4j /var/lib/neo4j-`date +%y%m%d-%H%M`
+	@if [ -d /var/lib/neo4j ]; then mv /var/lib/neo4j /var/lib/neo4j-`date +%y%m%d-%H%M`; fi
 	mkdir /var/lib/neo4j
 	neo4j-admin database load --expand-commands system --from-path=$(graphdb_backupdir) --overwrite-destination=true
 	neo4j-admin database load --expand-commands neo4j --from-path=$(graphdb_backupdir) --overwrite-destination=true
