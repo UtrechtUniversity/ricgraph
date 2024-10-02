@@ -197,7 +197,9 @@ ROTYPE_PHDTHESIS = 'PhD thesis'
 ROTYPE_POSTER = 'poster'
 ROTYPE_PREPRINT = 'preprint'
 ROTYPE_PRESENTATION = 'presentation'
+ROTYPE_REGISTERED_REPORT = 'registered report'
 ROTYPE_REPORT = 'report'
+ROTYPE_RETRACTION = 'retraction'
 ROTYPE_REVIEW = 'review'
 ROTYPE_SOFTWARE = 'software'
 ROTYPE_THESIS = 'thesis'
@@ -224,7 +226,9 @@ ROTYPE_ALL = [ROTYPE_ABSTRACT,
               ROTYPE_POSTER,
               ROTYPE_PREPRINT,
               ROTYPE_PRESENTATION,
+              ROTYPE_REGISTERED_REPORT,
               ROTYPE_REPORT,
+              ROTYPE_RETRACTION,
               ROTYPE_REVIEW,
               ROTYPE_SOFTWARE,
               ROTYPE_THESIS,

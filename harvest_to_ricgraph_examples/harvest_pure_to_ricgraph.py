@@ -253,6 +253,7 @@ ROTYPE_MAPPING_PURE = {
     ROTYPE_PREFIX_PURE + 'bookanthology/book': rcg.ROTYPE_BOOK,
     ROTYPE_PREFIX_PURE + 'bookanthology/commissioned': rcg.ROTYPE_BOOK,
     ROTYPE_PREFIX_PURE + 'bookanthology/inaugural': rcg.ROTYPE_BOOK,
+    ROTYPE_PREFIX_PURE + 'bookanthology/registered_report': rcg.ROTYPE_REGISTERED_REPORT,
     ROTYPE_PREFIX_PURE + 'bookanthology/valedictory': rcg.ROTYPE_BOOK,
     ROTYPE_PREFIX_PURE + 'contributiontobookanthology/case_note': rcg.ROTYPE_MEMORANDUM,
     ROTYPE_PREFIX_PURE + 'contributiontobookanthology/chapter': rcg.ROTYPE_BOOKCHAPTER,

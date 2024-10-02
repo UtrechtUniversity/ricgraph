@@ -121,6 +121,7 @@ ROTYPE_MAPPING_OPENALEX = {
     'proceedings-article': rcg.ROTYPE_CONFERENCE_ARTICLE,
     'reference-entry': rcg.ROTYPE_ENTRY,
     'report': rcg.ROTYPE_REPORT,
+    'retraction': rcg.ROTYPE_RETRACTION,
     'review': rcg.ROTYPE_REVIEW,
     'supplementary-materials': rcg.ROTYPE_OTHER_CONTRIBUTION
 }
