@@ -598,6 +598,76 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
         return nodes[0]
 
 
+def cypher_merge_nodes(node_merge_from_element_id: str,
+                       node_merge_to_element_id: str,
+                       node_merge_to_properties: dict) -> Union[Node, None]:
+    """Merge two nodes in the graph database.
+    The neighbors of 'node_merge_from' will be merged to node 'node_merge_to'
+    and 'node_merge_from' will be deleted.
+    The node properties in 'node_merge_to' will be set according to
+    'node_merge_to_properties'.
+
+    Only the properties and their values in 'node_properties' will be changed (if
+    a property is present in the node) or added (if the property is not present).
+    All other properties (i.e. not specified properties in 'node_properties')
+    will be left as they are.
+
+    :param node_merge_from_element_id: the element_id of node_merge_from.
+    :param node_merge_to_element_id: the element_id of node_merge_to.
+    :param node_merge_to_properties: the properties of node_merge_to.
+    :return: the node updated, or None on error.
+    """
+    global graphdb_nr_reads, graphdb_nr_updates
+
+    if node_merge_from_element_id == node_merge_to_element_id:
+        # We only update node properties.
+        node = cypher_update_node_properties(node_element_id=node_merge_to_element_id,
+                                             node_properties=node_merge_to_properties)
+        return node
+
+    cypher_query = 'MATCH (node_from:RicgraphNode) '
+    if ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE elementId(node_from)=$node_merge_from_element_id '
+    else:
+        cypher_query += 'WHERE id(node_from)=toInteger($node_merge_from_element_id) '
+    cypher_query += 'MATCH (node_to:RicgraphNode) '
+    if ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE elementId(node_to)=$node_merge_to_element_id '
+    else:
+        cypher_query += 'WHERE id(node_to)=toInteger($node_merge_to_element_id) '
+
+    cypher_query += 'SET node_to+=$node_merge_to_properties '
+    cypher_query += 'WITH node_from, node_to '
+    # Only test for an edge in one direction, that is sufficient.
+    cypher_query += 'MATCH (node_from)-[:LINKS_TO]->(neighbor_node) '
+    # Prevent creating a self-relationship on node_to.
+    cypher_query += 'WHERE node_to <> neighbor_node '
+    cypher_query += 'MERGE (node_to)-[:LINKS_TO]->(neighbor_node) '
+    cypher_query += 'MERGE (node_to)<-[:LINKS_TO]-(neighbor_node) '
+    cypher_query += 'DETACH DELETE node_from '
+    cypher_query += 'RETURN node_to'
+
+    # print('cypher_merge_nodes(): node_merge_from_element_id: ' + str(node_merge_from_element_id))
+    # print('                      node_merge_to_element_id: ' + str(node_merge_to_element_id))
+    # print('                      node_merge_to_properties: ' + str(node_merge_to_properties))
+    # print('                      cypher_query: ' + cypher_query)
+
+    nodes = _graph.execute_query(cypher_query,
+                                 node_merge_from_element_id=node_merge_from_element_id,
+                                 node_merge_to_element_id=node_merge_to_element_id,
+                                 node_merge_to_properties=node_merge_to_properties,
+                                 result_transformer_=Result.value,
+                                 database_=ricgraph_databasename())
+
+    nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_merge_to_element_id)
+    graphdb_nr_reads += 2 * nr_edges        # Approximation: edges are in two directions.
+    graphdb_nr_updates += 2 * nr_edges      # Approximation: edges are in two directions.
+    if len(nodes) == 0:
+        return None
+    else:
+        return nodes[0]
+
+
 def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_element_id: str) -> None:
     """Create an edge between two nodes, but only if the edge does not exist.
 
@@ -1359,38 +1429,6 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
     return
 
 
-# ######
-# The following function is not used at the moment (March 2023) and
-# has not been tested. It contains parts of py2neo.
-# If you would like to use it, please rewrite first and then test carefully.
-# ######
-# def delete_node(name: str, value: str) -> None:
-#     """Delete a node based on name and value.
-#
-#     :param name: 'name' property of node.
-#     :param value: idem.
-#     """
-#     global _graph
-#
-#     if _graph is None:
-#         print('\ndelete_node(): Error: graph has not been initialized or opened.\n\n')
-#         return
-#
-#     lname = str(name)
-#     lvalue = str(value)
-#
-#     if lname == '' or lvalue == '' or lname == 'nan' or lvalue == 'nan':
-#         return
-#
-#     node = read_node(name=lname, value=lvalue)
-#     if node is None:
-#         return
-#
-#     _graph.delete(node)
-#     return
-# ######
-
-
 def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
     """Get a 'person-root' node for a given 'person' node, if that node has
     a 'person-root'. If not, create the 'person-root' node.
@@ -1462,137 +1500,136 @@ def connect_person_and_non_person_node(person_node: Node,
     return
 
 
-# ######
-# The following two functions are not used at the moment (March 2023) and
-# have not been tested. They contain parts of py2neo.
-# If you would like to use them, please rewrite first and then test carefully.
-# ######
-# def merge_two_personroot_nodes(left_personroot_node: Node, right_personroot_node: Node) -> None:
-#     """Merge two 'person-root' nodes. Or do nothing if they are the same.
-#
-#     :param left_personroot_node: the left person-root node.
-#     :param right_personroot_node: the right person-root node.
-#     :return: None.
-#     """
-#     global _graph
-#
-#     if left_personroot_node is None or right_personroot_node is None:
-#         print('merge_two_personroot_nodes(): Error: (one of the) nodes is None.')
-#         return
-#
-#     if left_personroot_node['name'] != 'person-root' \
-#        or right_personroot_node['name'] != 'person-root':
-#         print('merge_two_personroot_nodes(): not anticipated: (one of the) nodes '
-#               + 'are not "person-root".')
-#         return
-#
-#     if left_personroot_node == right_personroot_node:
-#         # They are already connected, we are done.
-#         return
-#
-#     # There are two possible reasons why it can happen that two person-root nodes
-#     # of two nodes to insert are different:
-#     # (1) It can happen e.g. in case a personal ID (ISNI, ORCID, etc.) is assigned
-#     #     to two or more different persons.
-#     #     Of course, that should not happen. Most probably this in a typo in a source system.
-#     # (2) The two nodes refer to the same person, but originate from different source
-#     #     systems.
-#     #     E.g. harvest of system 1 results in ORCID and ISNI of the same person, which have a
-#     #     common person-root. Harvest of system 2 results in EMAIL with another person-root.
-#     #     Now a subsequent harvest results in ORCID and EMAIL of the same person. Then there
-#     #     are two different person-roots which need to be merged.
-#     # Both can happen, but we cannot know if it is either (1) or (2).
-#
-#     now = datetime.now()
-#     timestamp = now.strftime('%Y%m%d-%H%M%S')
-#     count = 0
-#     what_happened = timestamp + '-' + format(count, '02d') + ': '
-#     what_happened += 'Merged person-root node "'
-#     what_happened += right_personroot_node['_key'] + '" to this person-root node '
-#     what_happened += 'and then deleted it. This was the history of the deleted node:'
-#     left_personroot_node['_history'].append(what_happened)
-#     for history in right_personroot_node['_history']:
-#         count += 1
-#         what_happened = timestamp + '-' + format(count, '02d') + ': '
-#         what_happened += history
-#         left_personroot_node['_history'].append(what_happened)
-#
-#     count += 1
-#     what_happened = timestamp + '-' + format(count, '02d') + ': '
-#     what_happened += 'End of history of the deleted node.'
-#     left_personroot_node['_history'].append(what_happened)
-#
-#     count += 1
-#     what_happened = timestamp + '-' + format(count, '02d') + ': '
-#     what_happened += 'These were the neighbors of the deleted node, '
-#     what_happened += 'now merged with the neighbors of this node:'
-#     left_personroot_node['_history'].append(what_happened)
-#
-#     count += 1
-#     what_happened = timestamp + '-' + format(count, '02d') + ': '
-#     for edge_from_right_node in get_edges(right_personroot_node):
-#         right_node = edge_from_right_node.end_node
-#         if right_node is None:
-#             continue
-#         if right_node == right_personroot_node:
-#             continue
-#
-#         what_happened += '"' + str(right_node['_key']) + '" '
-#         edge_delete1 = LINKS_TO(right_personroot_node, right_node)
-#         edge_delete2 = LINKS_TO(right_node, right_personroot_node)
-#         edge_create1 = LINKS_TO(left_personroot_node, right_node)
-#         edge_create2 = LINKS_TO(right_node, left_personroot_node)
-#         # _graph.delete() also deletes 'right_personroot_node'.
-#         # TODO: There seems to be a bug here. It does not only delete 'right_personroot_node', but sometimes it also
-#         #   deletes other nodes which have more than one edge, such as an 'organization' node connected to multiple
-#         #   person-root nodes (including right_personroot_node).
-#         #   The problem is that _graph.separate() does not seem to work, which seems to be the 'best' function
-#         #   since it only deletes edges. Use with caution (or don't use).
-#         _graph.delete(edge_delete1)
-#         _graph.delete(edge_delete2)
-#         _graph.merge(edge_create1 | edge_create2, 'RicgraphNode', '_key')
-#
-#     what_happened += '.'
-#     left_personroot_node['_history'].append(what_happened)
-#
-#     count += 1
-#     what_happened = timestamp + '-' + format(count, '02d') + ': '
-#     what_happened += 'End of list of neighbors of the deleted node.'
-#     left_personroot_node['_history'].append(what_happened)
-#     _graph.push(left_personroot_node)
-#     return
-#
-#
-# def merge_personroots_of_two_nodes(name1: str, value1: str,
-#                                    name2: str, value2: str) -> None:
-#
-#     """Merge two 'person-root' nodes, by specifying one of its neighbors.
-#     Or do nothing if their person-roots are already the same node.
-#
-#     :param name1: 'name' property of left node.
-#     :param value1: 'value' property of left node.
-#     :param name2: 'name' property of right node.
-#     :param value2: 'value' property of right node.
-#     :return: None.
-#     """
-#     left_node = read_node(name=name1, value=value1)
-#     right_node = read_node(name=name2, value=value2)
-#     if left_node is None or right_node is None:
-#         return
-#
-#     left_personroot_node = get_or_create_personroot_node(person_node=left_node)
-#     right_personroot_node = get_or_create_personroot_node(person_node=right_node)
-#     if left_personroot_node is None or right_personroot_node is None:
-#         return
-#
-#     if left_personroot_node == right_personroot_node:
-#         # They are already connected, we are done.
-#         return
-#
-#     merge_two_personroot_nodes(left_personroot_node=left_personroot_node,
-#                                right_personroot_node=right_personroot_node)
-#     return
-# ######
+def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> None:
+    """Merge two nodes.
+    The neighbors of 'node_merge_from' will be merged to node 'node_merge_to'
+    and 'node_merge_from' will be deleted.
+
+    :param node_merge_from: the node to merge from.
+    :param node_merge_to: the node to merge to.
+    :return: None.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nmerge_two_nodes(): Error: graph has not been initialized or opened.\n\n')
+        return
+
+    if node_merge_from is None and node_merge_to is not None:
+        # Done.
+        return
+
+    if node_merge_from is None or node_merge_to is None:
+        print('merge_two_nodes(): Error: one or both of the nodes is None - cannot be found.')
+        return
+
+    if node_merge_from['name'] != node_merge_to['name'] \
+       or node_merge_from['category'] != node_merge_to['category']:
+        print('merge_two_nodes(): nodes "' + node_merge_from['_key']
+              + '" and "' + node_merge_to['_key']
+              + '" have a different "name" or "category" field: not supported.')
+        return
+
+    if node_merge_from == node_merge_to:
+        # They are already connected, done.
+        return
+
+    node_merge_to_properties = {'_history': node_merge_to['_history'].copy()}
+    node_merge_to_properties['_source'] = list(set(node_merge_from['_source'] + node_merge_to['_source']))
+    node_merge_to_properties['_source'].sort()
+
+    now = datetime.now()
+    timestamp = now.strftime('%Y%m%d-%H%M%S')
+    count = 0
+    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened += 'Merged node "'
+    what_happened += node_merge_from['_key'] + '" to this node '
+    what_happened += 'and then deleted it.'
+    node_merge_to_properties['_history'].append(what_happened)
+
+    count += 1
+    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened += '----- Start of deleted node history and neighbors -----'
+    node_merge_to_properties['_history'].append(what_happened)
+
+    count += 1
+    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened += 'Start of history of the deleted node.'
+    node_merge_to_properties['_history'].append(what_happened)
+
+    for history in node_merge_from['_history']:
+        count += 1
+        what_happened = timestamp + '-' + format(count, '02d') + ': '
+        what_happened += history
+        node_merge_to_properties['_history'].append(what_happened)
+
+    count += 1
+    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened += 'End of history of the deleted node.'
+    node_merge_to_properties['_history'].append(what_happened)
+
+    count += 1
+    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened += 'These were the neighbors of the deleted node, '
+    what_happened += 'now merged with the neighbors of this node:'
+    node_merge_to_properties['_history'].append(what_happened)
+
+    neighbornodes = get_all_neighbor_nodes(node=node_merge_from)
+    for node in neighbornodes:
+        count += 1
+        what_happened = timestamp + '-' + format(count, '02d') + ': '
+        what_happened += '"' + str(node['_key']) + '" '
+        node_merge_to_properties['_history'].append(what_happened)
+
+    count += 1
+    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened += 'End of list of neighbors of the deleted node.'
+    node_merge_to_properties['_history'].append(what_happened)
+
+    count += 1
+    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened += '----- End of deleted node history and neighbors -----'
+    node_merge_to_properties['_history'].append(what_happened)
+
+    # Note only properties '_history' and '_source' are changed.
+    to_node =cypher_merge_nodes(node_merge_from_element_id=node_merge_from.element_id,
+                                node_merge_to_element_id=node_merge_to.element_id,
+                                node_merge_to_properties=node_merge_to_properties)
+
+    if to_node['name'] == 'person-root':
+        # And property 'comment'.
+        recreate_name_cache_in_personroot(personroot=to_node)
+
+    return
+
+
+def merge_two_nodes_name_value(node_merge_from_name: str, node_merge_from_value: str,
+                               node_merge_to_name: str, node_merge_to_value: str) -> None:
+
+    """Merge two nodes, by specifying their 'name' and 'value'
+    fields.
+    The neighbors of 'node_merge_from' will be merged to node 'node_merge_to'
+    and 'node_merge_from' will be deleted.
+
+    :param node_merge_from_name: 'name' property of node_merge_from.
+    :param node_merge_from_value: 'value' property of node_merge_from.
+    :param node_merge_to_name: 'name' property of node_merge_to.
+    :param node_merge_to_value: 'value' property of node_merge_to.
+    :return: None.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nmerge_two_nodes_name_value(): Error: graph has not been initialized or opened.\n\n')
+        return
+
+    node_merge_from = read_node(name=node_merge_from_name,
+                                value=node_merge_from_value)
+    node_merge_to = read_node(name=node_merge_to_name,
+                              value=node_merge_to_value)
+    merge_two_nodes(node_merge_from=node_merge_from,
+                    node_merge_to=node_merge_to)
+    return
 
 
 def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
