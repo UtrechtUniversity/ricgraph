@@ -202,34 +202,6 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                 # They must be present, otherwise skip this author.
                 continue
 
-            # Only necessary to insert authors from ORGANIZATION_ROR.
-            # own_organization_found = False
-
-            institution_ror = ''
-            institution_display_name = ''
-            for institution in authors['institutions']:
-                if 'ror' not in institution:
-                    continue
-                if institution['ror'] is None:
-                    continue
-
-                # Only necessary to insert authors from ORGANIZATION_ROR.
-                # path = pathlib.PurePath(institution['ror'])
-                # if path.name != ORGANIZATION_ROR:
-                #     # Skip, not our institution.
-                #     continue
-                # own_organization_found = True
-
-                path = pathlib.PurePath(institution['ror'])
-                institution_ror = str(path.name)
-                if 'display_name' in institution and institution['display_name'] is not None:
-                    institution_display_name = str(institution['display_name'])
-
-            # Only necessary to insert authors from ORGANIZATION_ROR.
-            # if not own_organization_found:
-            #     # Note: this is a design choice. We only want records from our own institution.
-            #     continue
-
             if 'id' not in authors['author']:
                 # There must be an id, otherwise skip.
                 continue
@@ -250,11 +222,19 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                                   'FULL_NAME': str(authors['author']['display_name'])}
                     parse_chunk.append(parse_line)
 
-            parse_line = {'OPENALEX': openalex_id,
-                          'ROR': institution_ror}
-            if institution_display_name != '':
-                parse_line['INSTITUTION_NAME'] = institution_display_name
-            parse_chunk.append(parse_line)
+            for institution in authors['institutions']:
+                # An author can work at multiple institutions.
+                if 'ror' not in institution:
+                    continue
+                if institution['ror'] is None:
+                    continue
+
+                path = pathlib.PurePath(institution['ror'])
+                parse_line = {'OPENALEX': openalex_id,
+                              'ROR': str(path.name)}
+                if 'display_name' in institution and institution['display_name'] is not None:
+                    parse_line['INSTITUTION_NAME'] = str(institution['display_name'])
+                parse_chunk.append(parse_line)
 
             if 'doi' not in harvest_item:
                 continue
