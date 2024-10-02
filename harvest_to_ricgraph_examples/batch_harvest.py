@@ -28,13 +28,24 @@
 # ########################################################################
 
 import os
-import ricgraph as rcg
+import sys
+# Might be necessary in case you extend this script with Ricgraph calls.
+# For an example, see batch_harvest_uu.py.
+# import ricgraph as rcg
+
+# Get the name of the Python executable that is executing this script.
+PYTHON_CMD = sys.executable
 
 
 # ###########################################################
 # For these two sources you don't need an API key.
 # ###########################################################
-status = os.system('python harvest_yoda_datacite_to_ricgraph.py --empty_ricgraph yes')
-if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-status = os.system('python harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization UU')
-if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
+print('')
+print('This script is called by Python interpreter: ' + PYTHON_CMD + '.')
+print('It will also be used for the Ricgraph harvest scripts to be called from this script.')
+print('')
+
+status = os.system(PYTHON_CMD + ' harvest_yoda_datacite_to_ricgraph.py --empty_ricgraph yes')
+if status != 0: print('===>>> batch_harvest.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
+status = os.system(PYTHON_CMD + ' harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization UU')
+if status != 0: print('===>>> batch_harvest.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)

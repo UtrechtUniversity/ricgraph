@@ -22,7 +22,11 @@
 # ########################################################################
 
 import os
+import sys
 import ricgraph as rcg
+
+# Get the name of the Python executable that is executing this script.
+PYTHON_CMD = sys.executable
 
 rename_nodes_first_group = {
     'University: Delft University of Technology': 'Delft University of Technology',
@@ -40,10 +44,16 @@ def rename_nodes(name: str, rename_table: dict):
 
     return
 
+
 # ###########################################################
 # Batch order for Delft University of Technology
 # ###########################################################
-status = os.system('../bin/python harvest_pure_to_ricgraph.py --empty_ricgraph yes --organization DUT --harvest_projects yes')
+print('')
+print('This script is called by Python interpreter: ' + PYTHON_CMD + '.')
+print('It will also be used for the Ricgraph harvest scripts to be called from this script.')
+print('')
+
+status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph yes --organization DUT --harvest_projects yes')
 if status != 0: print('===>>> batch_harvest_dut.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 
 # Change the 'value' of some nodes, so they will have the same name as nodes in following harvests.
@@ -54,8 +64,7 @@ if graph is None:
 rename_nodes(name='ORGANIZATION_NAME', rename_table=rename_nodes_first_group)
 rcg.close_ricgraph()
 
-status = os.system('../bin/python harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization DUT')
+status = os.system(PYTHON_CMD + ' harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization DUT')
 if status != 0: print('===>>> batch_harvest_dut.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-status = os.system('../bin/python harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization DUT')
+status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization DUT')
 if status != 0: print('===>>> batch_harvest_dut.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-

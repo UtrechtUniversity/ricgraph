@@ -46,9 +46,11 @@
 # ########################################################################
 
 import os
+import sys
 import ricgraph as rcg
 
-PYTHON_CMD = 'python'
+# Get the name of the Python executable that is executing this script.
+PYTHON_CMD = sys.executable
 
 rename_nodes_first_group = {
     'University: Universiteit Utrecht': 'Utrecht University',
@@ -92,6 +94,11 @@ def rename_nodes(name: str, rename_table: dict):
 # ###########################################################
 # Batch order 1: Preferred batch order for Utrecht University
 # ###########################################################
+print('')
+print('This script is called by Python interpreter: ' + PYTHON_CMD + '.')
+print('It will also be used for the Ricgraph harvest scripts to be called from this script.')
+print('')
+
 status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph yes --organization UU --harvest_projects no')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 
@@ -123,8 +130,8 @@ status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgra
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 
 
-# status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph no --organization VU --harvest_projects no')
-# if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
+status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph no --organization VU --harvest_projects no')
+if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 
 # ###########################################################
 # Batch order 2: If you'd like to harvest OpenAlex
@@ -162,4 +169,3 @@ if status != 0: print('===>>> batch_harvest_uu.py: error while executing previou
 #if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 #status = os.system(PYTHON_CMD + ' harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization VU')
 #if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-
