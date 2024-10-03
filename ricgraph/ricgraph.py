@@ -749,6 +749,23 @@ def datetimestamp(seconds: bool = False) -> str:
     return datetime_stamp
 
 
+def datetimestamp_nosep(seconds: bool = False) -> str:
+    """Get a timestamp consisting of a date and a time,
+    as in datetimestamp(), but without separators in the
+    date and time field. And with a separator between
+    date and time.
+
+    :param seconds: If True, also show seconds in the timestamp.
+    :return: the timestamp.
+    """
+    now = datetime.now()
+    if seconds:
+        datetime_stamp = now.strftime("%Y%m%d-%H%M%S")
+    else:
+        datetime_stamp = now.strftime("%Y%m%d-%H%M")
+    return datetime_stamp
+
+
 def graphdb_nr_accesses_reset() -> None:
     """Reset the counters that are used to count the number of accesses
     to the graph database backend.
@@ -960,10 +977,9 @@ def create_update_node(name: str, category: str, value: str,
     the values in other_properties.
     For now all properties will have a string value, except for '_source'
     (a sorted list), and '_history' (a list).
-    For now, we do not allow to change the 'name' or 'value' properties
-    (and, subsequently, the '_key' value),
-    since that would be a "move" of the node to another node,
-    and I have no idea how the graph database will handle this.
+    Changing the 'name' or 'value' properties (and, subsequently, the '_key' value),
+    cannot be done with this function, since in that case we would not be able
+    to find it.
 
     :param name: 'name' property of node to create or update.
     :param category: 'category' property of node.
@@ -1047,14 +1063,14 @@ def create_update_node(name: str, category: str, value: str,
     history_line = ''
 
     # First do the properties in RICGRAPH_PROPERTIES_STANDARD.
-    # We do not allow update on 'name' or 'value'.
+    # It is not possible to update 'name' or 'value'.
     if node['category'] != lcategory:
         history_line += create_history_line(property_name='category',
                                             old_value=node['category'],
                                             new_value=lcategory)
         node_properties['category'] = lcategory
 
-    # First do the properties in RICGRAPH_PROPERTIES_ADDITIONAL.
+    # Then do the properties in RICGRAPH_PROPERTIES_ADDITIONAL.
     for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
         if prop_name not in other_properties:
             continue
@@ -1070,8 +1086,8 @@ def create_update_node(name: str, category: str, value: str,
                                                 old_value=present_val,
                                                 new_value=str(other_properties[prop_name]))
 
-    # Then do the properties in RICGRAPH_PROPERTIES_HIDDEN.
-    # We do not allow update on '_key'.
+    # Finally do the properties in RICGRAPH_PROPERTIES_HIDDEN.
+    # It is not possible to update '_key'.
     if 'source_event' in other_properties:
         if other_properties['source_event'] != '':
             if other_properties['source_event'] not in node['_source']:
@@ -1170,11 +1186,11 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
     :param category: idem.
     :param value: idem.
     :param key: idem.
-    :param name_is_exact_match: if True, then an exact match search is done
-      on field 'name', if False, then a case-insensitive match is done.
+    :param name_is_exact_match: if True, then do an exact match search
+      on field 'name', if False, then do a case-insensitive match.
       Note that a case-insensitive match is more expensive.
-    :param value_is_exact_match: if True, then an exact match search is done
-      on field 'value', if False, then a case-insensitive match is done.
+    :param value_is_exact_match: if True, then do an exact match search
+      on field 'value', if False, then do a case-insensitive match.
       Note that a case-insensitive match is more expensive.
     :param max_nr_nodes: return at most this number of nodes, 0 = all nodes.
     :return: list of nodes read, or empty list if nothing found.
@@ -1325,8 +1341,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
 
 def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, None]:
     """Update a node, change the value property.
-    This is a special case of update_node() because we change the key. Therefore,
-    a lot of restrictions apply which do not apply with update_node().
+    This is a special case because we change the key.
     Use carefully, because other property that contain 'old_value' (such
     as 'url_main' or 'url_other') are not being updated, so they will
     point to the wrong URL.
@@ -1334,7 +1349,7 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     :param name: 'name' property of node.
     :param old_value: old 'value' property of node.
     :param new_value: old 'value' property of node.
-    :return: the node updated, or None if this was not possible
+    :return: the node updated, or None if this was not possible.
     """
     # A lot of the code below is copied from create_update_node().
     global _graph
@@ -1363,13 +1378,11 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
 
     newnode = read_node(name=lname, value=lnewvalue)
     if newnode is not None:
-        # Node we want to change to does already exist.
-        # We should do a merge of these two nodes, but merge does not work
-        # satisfactorily (there is code for it, but it has not been tested
-        # extensively). Therefore, we do not change.
-        print('update_node_value(): Error: new node already exists, this should not happen.')
-        print('Nothing has been changed.')
-        return None
+        # The node we want to change to does already exist.
+        # So this happens to be a merge of two nodes.
+        merged_node = merge_two_nodes(node_merge_from=node,
+                                      node_merge_to=newnode)
+        return merged_node
 
     node_properties = {'value': lnewvalue}
     oldkey = node['_key']
@@ -1500,76 +1513,75 @@ def connect_person_and_non_person_node(person_node: Node,
     return
 
 
-def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> None:
+def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, None]:
     """Merge two nodes.
     The neighbors of 'node_merge_from' will be merged to node 'node_merge_to'
     and 'node_merge_from' will be deleted.
 
     :param node_merge_from: the node to merge from.
     :param node_merge_to: the node to merge to.
-    :return: None.
+    :return: the merged node, or None if this was not possible.
     """
     global _graph
 
     if _graph is None:
         print('\nmerge_two_nodes(): Error: graph has not been initialized or opened.\n\n')
-        return
+        return None
 
     if node_merge_from is None and node_merge_to is not None:
         # Done.
-        return
+        return node_merge_to
 
     if node_merge_from is None or node_merge_to is None:
         print('merge_two_nodes(): Error: one or both of the nodes is None - cannot be found.')
-        return
+        return None
 
     if node_merge_from['name'] != node_merge_to['name'] \
        or node_merge_from['category'] != node_merge_to['category']:
         print('merge_two_nodes(): nodes "' + node_merge_from['_key']
               + '" and "' + node_merge_to['_key']
               + '" have a different "name" or "category" field: not supported.')
-        return
+        return None
 
     if node_merge_from == node_merge_to:
-        # They are already connected, done.
-        return
+        # They are the same, done.
+        return node_merge_to
 
     node_merge_to_properties = {'_history': node_merge_to['_history'].copy()}
     node_merge_to_properties['_source'] = list(set(node_merge_from['_source'] + node_merge_to['_source']))
     node_merge_to_properties['_source'].sort()
 
-    now = datetime.now()
-    timestamp = now.strftime('%Y%m%d-%H%M%S')
+    time_stamp = datetimestamp_nosep(seconds=True)
     count = 0
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened = time_stamp + '-' + format(count, '02d') + ': '
     what_happened += 'Merged node "'
     what_happened += node_merge_from['_key'] + '" to this node '
     what_happened += 'and then deleted it.'
     node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened = time_stamp + '-' + format(count, '02d') + ': '
     what_happened += '----- Start of deleted node history and neighbors -----'
     node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened = time_stamp + '-' + format(count, '02d') + ': '
     what_happened += 'Start of history of the deleted node.'
     node_merge_to_properties['_history'].append(what_happened)
 
     for history in node_merge_from['_history']:
         count += 1
-        what_happened = timestamp + '-' + format(count, '02d') + ': '
+        what_happened = time_stamp + '-' + format(count, '02d') + ': '
         what_happened += history
         node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened = time_stamp + '-' + format(count, '02d') + ': '
     what_happened += 'End of history of the deleted node.'
     node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened = time_stamp + '-' + format(count, '02d') + ': '
     what_happened += 'These were the neighbors of the deleted node, '
     what_happened += 'now merged with the neighbors of this node:'
     node_merge_to_properties['_history'].append(what_happened)
@@ -1577,37 +1589,36 @@ def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> None:
     neighbornodes = get_all_neighbor_nodes(node=node_merge_from)
     for node in neighbornodes:
         count += 1
-        what_happened = timestamp + '-' + format(count, '02d') + ': '
+        what_happened = time_stamp + '-' + format(count, '02d') + ': '
         what_happened += '"' + str(node['_key']) + '" '
         node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened = time_stamp + '-' + format(count, '02d') + ': '
     what_happened += 'End of list of neighbors of the deleted node.'
     node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
-    what_happened = timestamp + '-' + format(count, '02d') + ': '
+    what_happened = time_stamp + '-' + format(count, '02d') + ': '
     what_happened += '----- End of deleted node history and neighbors -----'
     node_merge_to_properties['_history'].append(what_happened)
 
     # Note only properties '_history' and '_source' are changed.
-    to_node =cypher_merge_nodes(node_merge_from_element_id=node_merge_from.element_id,
-                                node_merge_to_element_id=node_merge_to.element_id,
-                                node_merge_to_properties=node_merge_to_properties)
+    merged_node = cypher_merge_nodes(node_merge_from_element_id=node_merge_from.element_id,
+                                     node_merge_to_element_id=node_merge_to.element_id,
+                                     node_merge_to_properties=node_merge_to_properties)
+    if merged_node is None:
+        return None
+    if merged_node['name'] == 'person-root':
+        # Property 'comment' is also updated.
+        recreate_name_cache_in_personroot(personroot=merged_node)
 
-    if to_node['name'] == 'person-root':
-        # And property 'comment'.
-        recreate_name_cache_in_personroot(personroot=to_node)
-
-    return
+    return merged_node
 
 
 def merge_two_nodes_name_value(node_merge_from_name: str, node_merge_from_value: str,
                                node_merge_to_name: str, node_merge_to_value: str) -> None:
-
-    """Merge two nodes, by specifying their 'name' and 'value'
-    fields.
+    """Merge two nodes, by specifying their 'name' and 'value' fields.
     The neighbors of 'node_merge_from' will be merged to node 'node_merge_to'
     and 'node_merge_from' will be deleted.
 
