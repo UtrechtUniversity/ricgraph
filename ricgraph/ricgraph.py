@@ -619,6 +619,8 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     """
     global graphdb_nr_reads, graphdb_nr_updates
 
+    graphdb_name = ricgraph_database()
+
     if node_merge_from_element_id == node_merge_to_element_id:
         # We only update node properties.
         node = cypher_update_node_properties(node_element_id=node_merge_to_element_id,
@@ -626,12 +628,12 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
         return node
 
     cypher_query = 'MATCH (node_from:RicgraphNode) '
-    if ricgraph_database() == 'neo4j':
+    if graphdb_name == 'neo4j':
         cypher_query += 'WHERE elementId(node_from)=$node_merge_from_element_id '
     else:
         cypher_query += 'WHERE id(node_from)=toInteger($node_merge_from_element_id) '
     cypher_query += 'MATCH (node_to:RicgraphNode) '
-    if ricgraph_database() == 'neo4j':
+    if graphdb_name == 'neo4j':
         cypher_query += 'WHERE elementId(node_to)=$node_merge_to_element_id '
     else:
         cypher_query += 'WHERE id(node_to)=toInteger($node_merge_to_element_id) '
@@ -658,6 +660,19 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
                                  node_merge_to_properties=node_merge_to_properties,
                                  result_transformer_=Result.value,
                                  database_=ricgraph_databasename())
+
+    # If merge_node_from does not have neighbors, it will not be deleted.
+    # Do another Cypher query to be sure it is gone.
+    cypher_query = 'MATCH (node_from:RicgraphNode) '
+    if graphdb_name == 'neo4j':
+        cypher_query += 'WHERE elementId(node_from)=$node_merge_from_element_id '
+    else:
+        cypher_query += 'WHERE id(node_from)=toInteger($node_merge_from_element_id) '
+    cypher_query += 'DETACH DELETE node_from'
+    _graph.execute_query(cypher_query,
+                         node_merge_from_element_id=node_merge_from_element_id,
+                         result_transformer_=Result.value,
+                         database_=ricgraph_databasename())
 
     nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_merge_to_element_id)
     graphdb_nr_reads += 2 * nr_edges        # Approximation: edges are in two directions.
@@ -746,23 +761,6 @@ def datetimestamp(seconds: bool = False) -> str:
         datetime_stamp = now.strftime("%Y-%m-%d %H:%M:%S")
     else:
         datetime_stamp = now.strftime("%Y-%m-%d %H:%M")
-    return datetime_stamp
-
-
-def datetimestamp_nosep(seconds: bool = False) -> str:
-    """Get a timestamp consisting of a date and a time,
-    as in datetimestamp(), but without separators in the
-    date and time field. And with a separator between
-    date and time.
-
-    :param seconds: If True, also show seconds in the timestamp.
-    :return: the timestamp.
-    """
-    now = datetime.now()
-    if seconds:
-        datetime_stamp = now.strftime("%Y%m%d-%H%M%S")
-    else:
-        datetime_stamp = now.strftime("%Y%m%d-%H%M")
     return datetime_stamp
 
 
@@ -1551,7 +1549,7 @@ def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, N
     node_merge_to_properties['_source'] = list(set(node_merge_from['_source'] + node_merge_to['_source']))
     node_merge_to_properties['_source'].sort()
 
-    time_stamp = datetimestamp_nosep(seconds=True)
+    time_stamp = datetimestamp(seconds=True)
     count = 0
     what_happened = time_stamp + '-' + format(count, '02d') + ': '
     what_happened += 'Merged node "'
@@ -1587,11 +1585,17 @@ def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, N
     node_merge_to_properties['_history'].append(what_happened)
 
     neighbornodes = get_all_neighbor_nodes(node=node_merge_from)
-    for node in neighbornodes:
+    if len(neighbornodes) == 0:
         count += 1
         what_happened = time_stamp + '-' + format(count, '02d') + ': '
-        what_happened += '"' + str(node['_key']) + '" '
+        what_happened += '[the node to be deleted has no neighbors]'
         node_merge_to_properties['_history'].append(what_happened)
+    else:
+        for node in neighbornodes:
+            count += 1
+            what_happened = time_stamp + '-' + format(count, '02d') + ': '
+            what_happened += '"' + str(node['_key']) + '" '
+            node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
     what_happened = time_stamp + '-' + format(count, '02d') + ': '
