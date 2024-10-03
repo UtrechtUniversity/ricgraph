@@ -423,6 +423,7 @@ if organization == '':
         print('Exiting.\n')
         exit(1)
 
+organization = organization.upper()
 config = configparser.ConfigParser()
 config.read(rcg.RICGRAPH_INI_FILE)
 org_name = 'organization_name_' + organization

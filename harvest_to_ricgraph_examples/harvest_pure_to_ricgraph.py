@@ -1580,6 +1580,7 @@ if organization == '':
         print('Exiting.\n')
         exit(1)
 
+organization = organization.upper()
 harvest_projects = rcg.get_commandline_argument(argument='--harvest_projects',
                                                 argument_list=sys.argv)
 if harvest_projects == '':

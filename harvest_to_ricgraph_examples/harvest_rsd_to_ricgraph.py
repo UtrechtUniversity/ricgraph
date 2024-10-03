@@ -314,6 +314,7 @@ if organization == '':
         print('Exiting.\n')
         exit(1)
 
+organization = organization.upper()
 config = configparser.ConfigParser()
 config.read(rcg.RICGRAPH_INI_FILE)
 rsd_url = 'rsd_url'
