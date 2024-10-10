@@ -54,7 +54,7 @@ Most often, you do not need to install the `make` command, but if you get a
 package manager.
 
 If you read the documentation below or on page
-[Ricgraph as a server on Linux](ricgaph_as_server.md),
+[Ricgraph as a server on Linux](ricgraph_as_server.md),
 you will notice that some sections start with mentioning a Makefile command. 
 That means, that if you execute that command, the steps in that section will
 be done automatically.
