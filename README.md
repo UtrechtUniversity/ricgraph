@@ -17,6 +17,9 @@ Note, the lines 'Website' and
 
 # Ricgraph - Research in context graph 
 
+[Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md) and 
+[Index of Ricgraph documentation](docs/ricgraph_index_documentation.md).
+
 ## What is Ricgraph?
 
 Ricgraph, also known as Research in context graph, enables the exploration of researchers, 
