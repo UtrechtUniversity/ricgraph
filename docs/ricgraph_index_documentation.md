@@ -1,4 +1,4 @@
-# Sorted index Ricgraph documentation
+# Index Ricgraph documentation
 This index has been generated automatically.
 
 __#__

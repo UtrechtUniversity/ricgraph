@@ -62,7 +62,7 @@ def generate_sorted_index():
         grouped_headings[first_letter].append((text, level, file_path))
     
     # Generate sorted index
-    index = ["# Sorted index Ricgraph documentation\n"]
+    index = ["# Index Ricgraph documentation\n"]
     index.append(f"This index has been generated automatically.\n")
     for letter in sorted(grouped_headings.keys()):
         # index.append(f"\n## {letter}\n")
