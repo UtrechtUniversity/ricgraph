@@ -139,6 +139,9 @@ and there is an overview of the
 [mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
 of Ricgraph.
 
+You can also use the [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md) 
+or the [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md).
+
 ## Why Ricgraph?
 
 Ricgraph can answer questions like:
@@ -284,6 +287,9 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   source system, but not in another source system. See the use case above.
 
 ## Next steps
+
+[Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md) and
+[Index of Ricgraph documentation](docs/ricgraph_index_documentation.md).
 
 ### Further information about Ricgraph
 * For a gentle introduction in Ricgraph, read the reference publication:
