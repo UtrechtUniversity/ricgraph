@@ -1,6 +1,6 @@
 # ############################################################
 # Perplexity.ai has generated this script on October 18, 2024.
-# It creates the table of contents for the Ricgraph documentaion.
+# It creates the table of contents for the Ricgraph documentation.
 #
 # Run it from the root of the Ricgraph repository tree
 # (i.e. the directory where README.md can be found).
@@ -11,6 +11,7 @@ import re
 import urllib.parse
 
 toc_file = 'docs/ricgraph_toc_documentation.md'
+
 
 def extract_headings(file_path):
     headings = []
@@ -23,6 +24,7 @@ def extract_headings(file_path):
             text = match.group(2)
             headings.append((level, text, os.path.relpath(file_path)))
     return headings
+
 
 def generate_toc():
     all_headings = []
@@ -52,6 +54,7 @@ def generate_toc():
     
     return ''.join(toc)
 
+
 def create_github_anchor(text):
     # Convert to lowercase
     anchor = text.lower()
@@ -61,12 +64,13 @@ def create_github_anchor(text):
     anchor = re.sub(r'[^\w-]', '', anchor)
     return anchor
 
+
 def write_toc(toc):
     with open(toc_file, 'w', encoding='utf-8') as file:
         file.write(toc)
     print(f"Table of Contents has been written to {toc_file}")
 
-if __name__ == "__main__":
-    toc = generate_toc()
-    write_toc(toc)
 
+if __name__ == "__main__":
+    maintoc = generate_toc()
+    write_toc(maintoc)
