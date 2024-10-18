@@ -48,7 +48,7 @@ import ricgraph as rcg
 
 rcg.open_ricgraph()
 rcg.empty_ricgraph()  # use this only if you need to empty the graph
-# some things happen
+  # some things happen
 rcg.close_ricgraph()
 ```
 
@@ -62,12 +62,12 @@ import ricgraph as rcg
 rcg.open_ricgraph()
 rcg.empty_ricgraph()  # use this only if you need to empty the graph
 
-# Harvesting code: code to get data from a system
+  # Harvesting code: code to get data from a system
 
-# Parsing code: post process the data found, and put it in a format that 
-#   can easily be processed in Python, e.g. in a DataFrame
+  # Parsing code: post process the data found, and put it in a format that 
+  #   can easily be processed in Python, e.g. in a DataFrame
 
-# Code to store the post processed results in Ricgraph
+  # Code to store the post processed results in Ricgraph
 
 rcg.close_ricgraph()
 ```
@@ -80,14 +80,14 @@ Examples of these calls are (without the opening, emptying and closing of the gr
 ```python
 import ricgraph as rcg
 
-# example 1
+  # example 1
 rcg.create_two_nodes_and_edge()  # create two nodes and connect with one edge
 
-# example 2
+  # example 2
 rcg.create_nodepairs_and_edges_df()  # the same, now using a DataFrame to insert
                                      # a number of node pairs and their edges in one go
 
-# example 3
+  # example 3
 rcg.create_nodepairs_and_edges_params()  # the same, now using Python Dicts to insert
                                          # a number of node pairs and their edges in one go
 ```
