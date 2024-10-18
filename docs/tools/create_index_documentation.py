@@ -1,6 +1,6 @@
 # ############################################################
 # Perplexity.ai has generated this script on October 18, 2024.
-# It creates the index for the Ricgraph documentation.
+# It creates the index for the Ricgraph documentation in a file.
 #
 # Run it from the root of the Ricgraph repository tree
 # (i.e. the directory where README.md can be found).
