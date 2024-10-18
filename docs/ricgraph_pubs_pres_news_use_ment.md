@@ -1,4 +1,4 @@
-## Ricgraph publications, presentations, use, and mentions
+# Ricgraph publications, presentations, use, and mentions
 
 * Read [Ricgraph publications](#ricgraph-publications).
 * Read [Ricgraph presentations](#ricgraph-presentations).
@@ -13,7 +13,7 @@ can add that to this page.
 
 [Return to main README.md file](../README.md).
 
-### Ricgraph publications
+## Ricgraph publications
 
 If you publish about Ricgraph, please let us know so that we can add it to this page.
 
@@ -23,7 +23,7 @@ If you publish about Ricgraph, please let us know so that we can add it to this 
 | January 31, 2024 | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802)                                                           | Ricgraph: A Flexible and Extensible Graph to Explore Research in Context from Various Systems, Submitted to SoftwareX [preprint]                                                                                                                                                                     | [DOI 10.2139/ssrn.4712466](https://doi.org/10.2139/ssrn.4712466)               |
 | April 22, 2024   | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802)                                                           | [Ricgraph: A flexible and extensible graph to explore research in context from various systems, *SoftwareX*, 26(101736)](publications/240422-RDTJanssen-Ricgraph_A_flexible_and_extensible_graph.pdf)                                                                                                | [DOI 10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736) |
 
-### Ricgraph presentations
+## Ricgraph presentations
 
 If you give a presentation about Ricgraph, please let us know so that we can add it to this page.
 
@@ -43,7 +43,7 @@ If you give a presentation about Ricgraph, please let us know so that we can add
 | July 4, 2024       | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802) | Presentation for Pure User Group, Utrecht, NL                                         | [Enriching Pure data using Ricgraph -Research in context graph- and BackToPure](presentations/240704-RDTJanssen-Enriching_Pure_data_using_Ricgraph+BackToPure-Presentation_2024-07-04.pdf)                                        | [DOI 10.5281/zenodo.12634658](https://doi.org/10.5281/zenodo.12634658) |
 | September 16, 2024 | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802) | Presentation at Utrecht University, Utrecht, NL                                       | Ricgraph - Research in context graph (presentation was a condensed version of the presentation of February 14 and July 4, 2024)                                                                                                   |                                                                        |
 
-### Ricgraph newsletters
+## Ricgraph newsletters
 
 These are the newsletters that have been sent out to our newsletter subscribers. 
 To subscribe to the newsletter email list, go to [Ricgraph Contact](../README.md#contact).
@@ -53,7 +53,7 @@ To subscribe to the newsletter email list, go to [Ricgraph Contact](../README.md
 | April 2024 | [Ricgraph newsletter April 2024. Journal article - Ricgraph: A flexible and extensible graph to explore research in context](newsletters/240400-Ricgraph_newsletter_April_2024.md) |
 | July 2024  | [Ricgraph newsletter July 2024](newsletters/240700-Ricgraph_newsletter_July_2024.md)                                                                                               |
 
-### Ricgraph use
+## Ricgraph use
 
 If you use Ricgraph, please let us know so that we can add it to this page.
 
@@ -65,7 +65,7 @@ If you use Ricgraph, please let us know so that we can add it to this page.
 | July 2023            | Ricgraph has been used to test the [Elsevier Grant Award API](https://epdos.nl/pilots/grants-monitor)                                                                          |
 
 
-### Ricgraph mentions
+## Ricgraph mentions
 
 If you mention Ricgraph, please let us know so that we can add it to this page.
 
@@ -82,7 +82,7 @@ If you mention Ricgraph, please let us know so that we can add it to this page.
 | April 25, 2024   | SURF communities, blog                               | [Ricgraph: A flexible and extensible graph to explore research in context from various systems](mentions/240425-SURF_communities-Journal_article_Ricgraph_SoftwareX.pdf)               | [link](https://communities.surf.nl/open-research-information/artikel/journal-article-ricgraph-a-flexible-and-extensible-graph-to)                                                        |
 | August 13, 2024  | Maastricht University Library news                   | [Recap Research Intelligence Network Netherlands symposium at Maastricht University, June 27, 2024](mentions/240813-Maastricht_University-Recap_RINN_symposium_June_27,_2024.pdf)      | [link](https://library.maastrichtuniversity.nl/news/recap-research-intelligence-network-netherlands-symposium/)                                                                          |
 
-### Arjan Sieverink presents Ricgraph at Pure International Conference 2023
+## Arjan Sieverink presents Ricgraph at Pure International Conference 2023
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/1a810def-9f51-47e7-adce-327d0e005f03
 
 In this [video of the presentation at the Pure International Conference 2023, Dubrovnik, 

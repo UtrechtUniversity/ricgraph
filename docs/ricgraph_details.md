@@ -1,4 +1,4 @@
-## Implementation details
+# Implementation details
 
 On this page, you can find more information about:
 * [Person identifiers](#person-identifiers).
@@ -10,7 +10,7 @@ On this page, you can find more information about:
 
 [Return to main README.md file](../README.md).
 
-### Person identifiers
+## Person identifiers
 
 In the research world, persons can have any number of different identifiers.
 Some of these are standard, generally accepted and more-or-less unique identifiers
@@ -27,7 +27,7 @@ Examples are:
 * company identifiers:
   [Scopus Author ID](https://www.scopus.com/freelookup/form/author.uri).
 
-### Person-root node in Ricgraph
+## Person-root node in Ricgraph
 
 Ricgraph uses a special node *person-root*. This node is connected to all the different
 person identifiers which have been harvested.
@@ -45,7 +45,7 @@ The person in the left figure has one *ORCID*, one *ISNI* and one *FULL_NAME*.
 The person in the right figure has a lot more identifiers, and some identifiers appear more than once.
 E.g. this person has two different ORCIDs and two FULL_NAMEs (with different spellings).
 
-### Research outputs connected to persons
+## Research outputs connected to persons
 
 | one person with three research outputs                      | three persons with one research output                                | symbols for type of object                  | colors for source system                            |
 |-------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------|-----------------------------------------------------|
@@ -54,17 +54,17 @@ E.g. this person has two different ORCIDs and two FULL_NAMEs (with different spe
 The left figure shows how one person, its identifiers and research outputs are connected.
 The right figure shows how three persons have contributed to one research output.
 
-### Example research questions
+## Example research questions
 The figure belows shows examples of research questions that can be answered using Ricgraph.
 Click the figure to enlarge.
 
 <img src="images/examples-of-research-questions-general.jpg" height="300">
 
-### Videos of Ricgraph
+## Videos of Ricgraph
 To see a demonstration of Ricgraph, you can look at 
 the [videos we have made to demonstrate Ricgraph](ricgraph_example_use_videos.md).
 
-### Properties of nodes in Ricgraph
+## Properties of nodes in Ricgraph
 
 All nodes in Ricgraph have the following properties:
 
@@ -89,6 +89,6 @@ In the default configuration, the following properties are included:
 * `source_event`: an event to be added to `_source`.
 * `history_event`: an event to be added to `_history`.
 
-### Return to main README.md file
+## Return to main README.md file
 
 [Return to main README.md file](../README.md).

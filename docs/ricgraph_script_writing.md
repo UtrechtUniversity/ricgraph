@@ -1,4 +1,4 @@
-## Ricgraph script writing
+# Ricgraph script writing
 
 Ricgraph scripts can be found in various places:
 * Directory [harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples):
@@ -22,7 +22,7 @@ All code is documented and hints to use it can be found in the source files.
 
 [Return to main README.md file](../README.md).
 
-### How to make your own harvesting scripts
+## How to make your own harvesting scripts
 You can make your own harvesting script of your favorite source. The easiest way to
 do so is to take one of the harvesting scripts as an example.
 For example, if you use the script *harvest_pure_to_ricgraph.py*, you'll recognize the
@@ -41,7 +41,7 @@ three parts:
 
 You can adapt each of these parts as suits the source you would like to harvest.
 
-### General program structure of a Python script using Ricgraph
+## General program structure of a Python script using Ricgraph
 
 ```python
 import ricgraph as rcg
@@ -52,7 +52,7 @@ rcg.empty_ricgraph()  # use this only if you need to empty the graph
 rcg.close_ricgraph()
 ```
 
-### Structure of a Python script that is harvesting data
+## Structure of a Python script that is harvesting data
 This structure is used in the programming examples in the directory
 [harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples).
 
@@ -72,7 +72,7 @@ rcg.empty_ricgraph()  # use this only if you need to empty the graph
 rcg.close_ricgraph()
 ```
 
-### Function calls for inserting nodes
+## Function calls for inserting nodes
 Ricgraph stores objects and relations to objects. Therefore, most calls to insert nodes
 in have two nodes as parameter that are to be connected. Or two sets of nodes.
 Examples of these calls are (without the opening, emptying and closing of the graph):
@@ -92,7 +92,7 @@ rcg.create_nodepairs_and_edges_params()  # the same, now using Python Dicts to i
                                          # a number of node pairs and their edges in one go
 ```
 
-### Function call for unifying personal identifiers
+## Function call for unifying personal identifiers
 Unification is the process of making sure that every personal identifier found for a
 certain person is connected to every other, via the
 [*person-root*](ricgraph_details.md#person-root-node-in-ricgraph) node.
@@ -106,7 +106,7 @@ import ricgraph as rcg
 rcg.unify_personal_identifiers()  # takes a DataFrame with all identifiers to be unified
 ```
 
-### Function calls to create, read (find), update and delete (CRUD) nodes
+## Function calls to create, read (find), update and delete (CRUD) nodes
 Of course, there are function calls
 to create, read, update and delete (CRUD) nodes. "Read" is used as term for "Find" or "Search".
 
@@ -119,7 +119,7 @@ rcg.read_all_nodes()  # read (find) nodes and return all nodes found
 rcg.delete_node()  # delete a node
 ```
 
-### Function calls to get neighbors of nodes
+## Function calls to get neighbors of nodes
 There are several function calls
 to get neighbors of nodes. For a more extensive description how to use these,
 see the code comments in file *ricgraph.py* in directory [ricgraph](../ricgraph)
@@ -136,7 +136,7 @@ rcg.get_all_neighbor_nodes()         # get all neighbor nodes connected to a nod
                                      # a certain property 'name' or 'category'
 ```
 
-### Return to main README.md file
+## Return to main README.md file
 
 [Return to main README.md file](../README.md).
 

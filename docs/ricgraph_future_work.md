@@ -1,4 +1,4 @@
-## Future work
+# Future work
 
 * Create a more sophisticated end user web interface. This interface should allow
   easy browsing of Ricgraph. 

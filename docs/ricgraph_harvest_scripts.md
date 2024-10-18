@@ -1,4 +1,4 @@
-## Ricgraph harvest scripts
+# Ricgraph harvest scripts
 
 Ricgraph scripts can be found in various places:
 * Directory [harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples):
@@ -23,7 +23,7 @@ All code is documented and hints to use it can be found in the source files.
 [Return to main README.md file](../README.md).
 
 
-### Introduction to harvest scripts
+## Introduction to harvest scripts
 
 One of the most useful features of Ricgraph is that
 it is possible to harvest sources that are
@@ -60,7 +60,7 @@ order](#order-of-running-the-harvest-scripts).
  
 [Return to main README.md file](../README.md).
 
-### Organization abbreviation
+## Organization abbreviation
 Ricgraph uses the term *organization abbreviation*.
 This is a string of a few letters that can be passed to some harvest
 scripts to determine for which organization such a script will harvest
@@ -78,7 +78,7 @@ You can use any (short) string and pass it to a harvest script. You only
 need to insert keys (and values) for the organization(s) you are planning
 to harvest.
 
-### Harvest of OpenAlex
+## Harvest of OpenAlex
 
 To harvest  [OpenAlex](https://openalex.org), use the script *harvest_openalex_to_ricgraph.py*.
 ```
@@ -111,7 +111,7 @@ reduce this by adjusting parameters at the start of the script. Look in the sect
 "Parameters for harvesting persons and research outputs from OpenAlex":
 *OPENALEX_RESOUT_YEARS* and *OPENALEX_MAX_RECS_TO_HARVEST*.
 
-### Harvest of Pure
+## Harvest of Pure
 
 To harvest [Pure](https://www.elsevier.com/solutions/pure), 
 use the script *harvest_pure_to_ricgraph.py*. 
@@ -144,7 +144,7 @@ the url to Pure in *pure_url_XXXX*, and the
 Pure [API](https://en.wikipedia.org/wiki/API) key in *pure_api_key_XXXX*.
 *XXXX* is your [organization abbreviation](#organization-abbreviation).
 
-#### Limit the amount of data to harvest from Pure
+### Limit the amount of data to harvest from Pure
 There is a lot of data in Pure, so your harvest may take a long time. You may
 reduce this by adjusting parameters at the start of the script. Look in the sections
 "Parameters for harvesting persons/organizations/research outputs from Pure".
@@ -152,7 +152,7 @@ E.g., for research outputs you can adjust
 the years to harvest with the parameter *PURE_RESOUT_YEARS* and the maximum number of
 records to harvest with *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
 
-#### Pure READ and Pure CRUD API
+### Pure READ and Pure CRUD API
 Pure has two APIs, a READ and a CRUD API.
 The Pure READ API ("old" API) is only for reading data from Pure.
 The Pure CRUD API ("new" API) can be used to create, read, update and delete data 
@@ -182,7 +182,7 @@ but each of them has its own advantages and disadvantages:
   unless you set *PURE_RESOUT_MAX_RECS_TO_HARVEST* in the Pure harvest script to some
   suitable value. 
 
-#### Pure harvesting of projects
+### Pure harvesting of projects
 You can also harvest projects from Pure, if your organization uses them. You will
 need to use the Pure READ API, harvesting projects with the PURE CRUD API has not
 been implemented yet.
@@ -204,7 +204,7 @@ your organization),
 and only harvests research outputs from 2020 onward,
 and your project may have research outputs from before 2020.
 
-### Harvest of Utrecht University data sets
+## Harvest of Utrecht University data sets
 
 To harvest Utrecht University data sets
 from the data repository 
@@ -225,7 +225,7 @@ Options:
 This script can be used out of the box since it doesn't need an
 [API](https://en.wikipedia.org/wiki/API) key.
 
-### Harvest of Utrecht University staff pages
+## Harvest of Utrecht University staff pages
 
 To harvest the 
 [Utrecht University staff pages](https://www.uu.nl/medewerkers), 
@@ -245,7 +245,7 @@ Options:
 This script needs the parameter *uustaff_url* to be set in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 
-### Harvest of software from the Research Software Directory
+## Harvest of software from the Research Software Directory
 
 To harvest software packages from the 
 [Research Software Directory](https://research-software-directory.org),
@@ -274,7 +274,7 @@ This script needs one parameter in the
 It can be used out of the box since it doesn't need an
 [API](https://en.wikipedia.org/wiki/API) key.
 
-### Order of running the harvest scripts
+## Order of running the harvest scripts
 The order of running the harvesting scripts does matter. The author harvests
 only records for Utrecht University and uses this order:
 1. *harvest_pure_to_ricgraph.py* (since it has a lot of data which is mostly correct);
@@ -289,13 +289,13 @@ Best practice is to start with that source that has the most data.
 If you don't have an API key for Pure, one can best start with the harvest
 script for OpenAlex.
 
-### How to make your own harvesting scripts
+## How to make your own harvesting scripts
 For making your own harvesting scripts, refer to the code used in the
 harvest scripts described above, and read 
 [How to make your own harvesting 
 scripts](ricgraph_script_writing.md#how-to-make-your-own-harvesting-scripts).
 
-### Return to main README.md file
+## Return to main README.md file
 
 [Return to main README.md file](../README.md).
 

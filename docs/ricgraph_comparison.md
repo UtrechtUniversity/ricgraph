@@ -1,4 +1,4 @@
-## Ricgraph comparison
+# Ricgraph comparison
 
 There are a number of approaches that collect research related information 
 from various sources and 
@@ -7,7 +7,7 @@ explanation of some of these approaches and how they compare to Ricgraph.
 
 [Return to main README.md file](../README.md).
 
-### General overview
+## General overview
 
 | name                                                                           | data structure               | how does it obtain data?                                                                                        | fields (entities) in system                                                                                        | maturity                           |
 |--------------------------------------------------------------------------------|------------------------------|-----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|------------------------------------|
@@ -44,7 +44,7 @@ Ricgraph can be installed on any internal or external accessible system accordin
 so the data in Ricgraph is only accessible for persons of a certain organization,
 or for anyone.
 
-### Extendability
+## Extendability
 
 | name                          | open source                                                     | extendable   | create your own visualizers or explorers | example code | harvest your own sources | additional information                                                           |
 |-------------------------------|-----------------------------------------------------------------|--------------|------------------------------------------|--------------|--------------------------|----------------------------------------------------------------------------------|
@@ -67,6 +67,6 @@ with [Ricgraph Explorer](ricgraph_explorer.md), or with any other visualizer or 
 Also, Ricgraph can contain any field (entity) by changing the Ricgraph initialization file, 
 creating a harvest script to fill this field, and modifying Ricgraph Explorer to show this field.
 
-### Return to main README.md file
+## Return to main README.md file
 
 [Return to main README.md file](../README.md).

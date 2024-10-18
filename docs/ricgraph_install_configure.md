@@ -1,4 +1,4 @@
-## Install and configure Ricgraph
+# Install and configure Ricgraph
 
 This page describes how to install Ricgraph for a single user on Linux.
 If you would like to use Ricgraph in a multi-user environment
@@ -25,7 +25,7 @@ On this page you can find:
  
 [Return to main README.md file](../README.md).
 
-### Ricgraph Makefile
+## Ricgraph Makefile
 A Ricgraph installation involves a number of steps.
 Ricgraph uses a *Makefile* to make installation of (parts of) Ricgraph easier.
 Such a Makefile automates a number of these steps. 
@@ -63,13 +63,13 @@ have to do some post-install steps, e.g. because you have to choose a password f
 graph database. 
 
 
-### Installation instructions for a single user
+## Installation instructions for a single user
 
 Ricgraph can use two [graph database 
 backends](https://en.wikipedia.org/wiki/Graph_database):
 [Neo4j](https://neo4j.com) and [Memgraph](https://memgraph.com). 
 
-#### Neo4j 
+### Neo4j 
 Neo4j has several products:
 
 * [Neo4j Desktop](https://neo4j.com/download-center/#desktop);
@@ -82,13 +82,13 @@ Neo4j has several products:
   to explore the graph using
   [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
 
-#### Memgraph
+### Memgraph
 [Memgraph](https://memgraph.com) is an in memory graph database
 and therefore faster than Neo4j. However,
 it has not been tested extensively with Ricgraph yet.
 Read [Install and start Memgraph](ricgraph_as_server.md#install-and-start-memgraph).
 
-### Requirements
+## Requirements
 The easiest method for using Ricgraph is by using a Linux virtual machine (VM) such as
 you can create using 
 [VirtualBox](https://www.virtualbox.org). A VM of size 25GB with 4GB memory will work.
@@ -107,7 +107,7 @@ E.g., if you have Ubuntu 20.04, you can install Python 3.11 as follows:
   ```
 * Exit from user *root*.
 
-### Steps to take
+## Steps to take
 
 1. Install your graph database backend (choose one of these):
    * [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
@@ -131,7 +131,7 @@ Other things you might want to do, if you use Neo4j:
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
   Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
 
-### Install Neo4j Desktop
+## Install Neo4j Desktop
 
 To install, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
 command `make install_neo4j_desktop`, or follow the steps below.
@@ -147,7 +147,7 @@ command `make install_neo4j_desktop`, or follow the steps below.
    like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
    Make it executable using "chmod 755 \[filename\]". 
 
-#### Post-install steps Neo4j Desktop
+### Post-install steps Neo4j Desktop
 1. Start Neo4j Desktop by clicking on the downloaded file. 
 1. Accept the license. 
 1. Enter your activation key in the right part of the screen.
@@ -182,7 +182,7 @@ Now we need to find the port number which Neo4j Desktop is using:
    the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
 1. Ready.
 
-### Install Bloom configuration
+## Install Bloom configuration
 
 This is only necessary if you plan to use Bloom. If you don't know, skip this step for now,
 you can come back to it later.
@@ -218,7 +218,7 @@ you can come back to it later.
    to set "Use classic search" to "on".
 1. Ready.
 
-### Download Ricgraph
+## Download Ricgraph
 
 To you use the [Ricgraph Makefile](#ricgraph-makefile),
 this will be done automatically while creating a Python virtual environment
@@ -233,7 +233,7 @@ You can choose two types of downloads for Ricgraph:
   [GitHub page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/),
   click the green button "Code", choose tab "Local", choose "Download zip".
 
-### Use a Python virtual environment and install Python requirements
+## Use a Python virtual environment and install Python requirements
 
 To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
 command `make install_ricgraph_as_singleuser`, or follow the steps below.
@@ -247,7 +247,7 @@ There are two ways of doing this:
 * Using Python's venv module;
 * Using a Python Integrated development environment (IDE).
 
-#### Using Python's venv module
+### Using Python's venv module
 * Using Python's venv module.
   Read [Create a Python virtual environment and install Ricgraph in
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
@@ -262,7 +262,7 @@ There are two ways of doing this:
     read _/home/alice_, and ignore any references to "login as user _root_" and ``chown``.
   * Follow the other instructions as written. 
 
-#### Using a Python Integrated development environment (IDE)
+### Using a Python Integrated development environment (IDE)
 * Using a Python
   [Integrated development
   environment (IDE)](https://en.wikipedia.org/wiki/Integrated_development_environment),
@@ -288,7 +288,7 @@ There are two ways of doing this:
     ```
     You may want to change *3.11* in *pip3.11* for the Python version you use.
 
-#### Notable dependencies used in Ricgraph:
+### Notable dependencies used in Ricgraph:
 * [PyAlex](https://github.com/J535D165/pyalex).
   PyAlex is a Python library for [OpenAlex](https://openalex.org/).
   OpenAlex is an index of hundreds of millions of interconnected scholarly papers, authors,
@@ -296,14 +296,14 @@ There are two ways of doing this:
   to extract, aggregate, or search scholarly data.
   PyAlex is a lightweight and thin Python interface to this API.
 
-### Ricgraph initialization file
+## Ricgraph initialization file
 
 Ricgraph requires an initialization file. A sample file is included as *ricgraph.ini-sample*.
 You need to copy this file to *ricgraph.ini* and modify it
 to include settings for your graph database backend, and
 API keys and/or email addresses for other systems you plan to use.
 
-#### Settings for graph database backend
+### Settings for graph database backend
 Ricgraph has a *[GraphDB]* section where you have to specify the graph database
 backend that you will be using. First, you will need to set 
 the parameter *graphdb* to the graph database backend name (you can
@@ -311,12 +311,12 @@ choose between *neo4j* and *memgraph*). Further down that section, you will have
 to fill in six parameters for hostname, port number, username, etc. The comments
 in the initialization file explain how to do that.
 
-#### Extending Ricgraph with new properties in the nodes
+### Extending Ricgraph with new properties in the nodes
 Optionally, you can extend Ricgraph by adding new
 [properties of nodes](ricgraph_details.md#Properties-of-nodes-in-Ricgraph).
 Before you can do this, [download Ricgraph](#download-ricgraph).
 
-#### RICGRAPH_NODEADD_MODE
+### RICGRAPH_NODEADD_MODE
 There is a parameter *RICGRAPH_NODEADD_MODE* in the initialization file 
 which influences how nodes are added to Ricgraph. Suppose we harvest a source system
 and that results in the following table:
@@ -366,14 +366,14 @@ This will have the following consequences:
 *Lenient* is advisable if the sources you harvest from do not contain errors. However, the author
 of Ricgraph has noticed that this does not occur often, therefore the default is *strict*.
 
-### Using Ricgraph
+## Using Ricgraph
 Before you can do anything with Ricgraph, you need to harvest sources,
 see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
 After you have harvested sources, you can execute queries and visualize the results,
 see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
 
 
-### Dumping and restoring the Ricgraph database
+## Dumping and restoring the Ricgraph database
 Depending on your situation (whether you use Neo4j Desktop or
 Neo4j Community Edition), this section lists the methods for
 dumping and restoring the Ricgraph database:
@@ -383,7 +383,7 @@ dumping and restoring the Ricgraph database:
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
 * [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
 
-#### Create a Neo4j Desktop database dump of Ricgraph
+### Create a Neo4j Desktop database dump of Ricgraph
 To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
 1. Start Neo4j Desktop if it is not running, or
    stop the graph database if it is running.
@@ -394,7 +394,7 @@ To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
    is ready, a message appears.
 1. Ready.
 
-#### Create a Neo4j Community Edition database dump of Ricgraph
+### Create a Neo4j Community Edition database dump of Ricgraph
 To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
 command `make dump_graphdb_neo4j_community`, or follow the steps below.
 
@@ -427,7 +427,7 @@ To create a Neo4j Community Edition database dump of Ricgraph, follow these step
 1. Exit from user *root*.
  
 
-#### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop
+### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop
 To restore a 
 [Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph) 
 in Neo4j Desktop, follow these steps:
@@ -449,7 +449,7 @@ in Neo4j Desktop, follow these steps:
    using [Bloom](ricgraph_query_visualize.md#how-to-use-bloom)
    or [Ricgraph Explorer](ricgraph_explorer.md).
 
-#### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
+### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
 To restore a
 [Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
 in Neo4j Community Edition, follow these steps:
@@ -516,7 +516,7 @@ in Neo4j Community Edition, follow these steps:
 1. Exit from user *root*.
 
 
-#### Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition
+### Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition
 To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
 command `make restore_graphdb_neo4j_community`, or follow the steps below.
 
@@ -581,7 +581,7 @@ in Neo4j Community Edition, follow these steps:
 1. Exit from user *root*.
 
 
-### Ricgraph on Windows
+## Ricgraph on Windows
 If you would like to install Ricgraph on Windows, you are very probably the first
 person to do so, as far as known. The creator of Ricgraph has no experience
 in developing software on Windows. So please let me know which steps you have
@@ -591,7 +591,7 @@ I would recommend to create a Linux virtual machine using e.g.
 virtual machine as described above.
 
 
-### Return to main README.md file
+## Return to main README.md file
 
 [Return to main README.md file](../README.md). 
 

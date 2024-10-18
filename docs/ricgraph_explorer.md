@@ -1,4 +1,4 @@
-## Ricgraph Explorer
+# Ricgraph Explorer
 
 Ricgraph provides an exploration tool, so users do 
 not need to learn a graph query language. This tool is called
@@ -45,7 +45,7 @@ On this page, you can learn more about:
 
 [Return to main README.md file](../README.md).
 
-### Working with Ricgraph Explorer
+## Working with Ricgraph Explorer
 
 | screenshots of a usage flow through Ricgraph Explorer                                 | example research questions                                                                                                 |
 |---------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
@@ -54,7 +54,7 @@ On this page, you can learn more about:
 You can click each figure to enlarge.
 Some field values have been blurred for privacy reasons.
 
-#### Research question “What are the research results of person A” 
+### Research question “What are the research results of person A” 
 The left
 figure above shows screenshots of web pages of Ricgraph Explorer for 
 answering the research question “What are the research results of
@@ -78,7 +78,7 @@ DOI value, the user will go to this
 neighbor. Ricgraph Explorer will show a page with persons who have contributed to 
 that journal article. 
 
-#### Other research questions
+### Other research questions
 In the left figure above,
 after a click on a value in the “value” column in the bottom right result
 page, the user will get the persons who have contributed to that research 
@@ -87,7 +87,7 @@ persons that share any result types with this person” in the bottom left
 person option page corresponds to figure (c),
 and clicking “show personal information related to this person” corresponds to figure (e).
 
-### How to start Ricgraph Explorer
+## How to start Ricgraph Explorer
 Depending on how Ricgraph has been installed, there are various ways to start it.
 * If you have installed Ricgraph yourself, using your own user id,
   you have to follow the following steps, depending on your graph database backend:
@@ -103,7 +103,7 @@ Depending on how Ricgraph has been installed, there are various ways to start it
 * If you have a domain name to access Ricgraph, for example _www.ricgraph-example.com_:
   * Open a web browser and go to https://www.ricgraph-example.com.
 
-### Home page
+## Home page
 The figure below shows part of the home page.
 Click on it to enlarge.
 
@@ -155,7 +155,7 @@ In the yellow top bar, there are more buttons:
 * Button _REST API doc_. This leads to the documentation and try out page of
   the [Ricgraph REST API](ricgraph_restapi.md).
 
-### Search page
+## Search page
 There are two search pages:
 * A broad search page, having one input field.
   This search is a case-insensitive search.
@@ -178,7 +178,7 @@ There are two methods for viewing the results:
   a [table with facets](https://en.wikipedia.org/wiki/Faceted_search).
   This view shows all columns .
 
-### Person options page
+## Person options page
 You only get on this page if the result of your search is a person.
 The figure below shows the person options page. Click on it to enlarge.
 
@@ -217,7 +217,7 @@ You can use one of these exploration options:
     
 For each of these buttons, the results are shown on the [results page](#results-page).
 
-### Organization options page
+## Organization options page
 You only get on this page if the result of your search is an organization.
 The figure below shows the organization options page. Click on it to enlarge.
 
@@ -238,14 +238,14 @@ You can use one of these buttons:
 
 For all of these buttons the results are shown on the [results page](#results-page).
 
-### Results page
+## Results page
 The results page will look different depending on what results are shown.
 The figure below shows an example of a part of the skills in an organization.
 Click on it to enlarge.
 
 <img src="images/ricgraph-explorer-result-page.jpg" width="400">
 
-### Browsing Ricgraph
+## Browsing Ricgraph
 You can browse the graph that Ricgraph has obtained by harvesting source systems
 by clicking on a value in the _value_ column. 
 In the figure in section [Results page](#results-page), 
@@ -257,6 +257,6 @@ and you will see the neighbors of this node. This can be repeated as desired.
 It is also possible to start a new search using the buttons _Home_, _Advanced search_,
 or _Broad search_ in the yellow title bar.
 
-### Return to main README.md file
+## Return to main README.md file
 [Return to main README.md file](../README.md).
 

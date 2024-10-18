@@ -1,4 +1,4 @@
-## Ricgraph videos
+# Ricgraph videos
 
 The following videos illustrate the possible uses of Ricgraph. 
 These are not intended to demonstrate how an interface
@@ -37,7 +37,7 @@ of Ricgraph.
 
 [Return to main README.md file](../README.md).
 
-### Video Start with ORCID to find software
+## Video Start with ORCID to find software
 https://user-images.githubusercontent.com/121875841/226639991-28f279c4-17f8-49ab-8420-1676d3db2b74.mp4
 
 This [video Start with ORCID to find 
@@ -47,7 +47,7 @@ first finds the ORCID of a specific person. The ORCID is expanded to show its
 Subsequently, from this node, we find three software packages from the Research
 Software Directory. In a next step we follow the link to the source system a node was harvested from.
 
-### Video Find persons who contributed to a publication
+## Video Find persons who contributed to a publication
 https://user-images.githubusercontent.com/121875841/226640530-7dc59d48-4050-4390-bf2c-5e5b53849f71.mp4
 
 In this [video Find persons who contributed to a 
@@ -60,7 +60,7 @@ We see that one person has three (slightly) different FULL_NAMEs.
 For non Utrecht University contributors, this information
 has not been harvested, so it cannot be shown. 
 
-### Video Find outputs and organizations from a person
+## Video Find outputs and organizations from a person
 https://user-images.githubusercontent.com/121875841/226640670-0ca613b3-8a3e-4790-aa2d-41684e335159.mp4
 
 In this [video Find outputs and organizations from 
@@ -71,7 +71,7 @@ and organizations the person is a member of.
 Then we zoom in on the 
 chair/subunit this person is a member of, and expand it to show his colleagues in the same chair/subunit.
 
-### Video Traverse Utrecht University organizations
+## Video Traverse Utrecht University organizations
 https://user-images.githubusercontent.com/121875841/226640771-ff5c0648-02d6-4428-8093-bf145c2ef238.mp4
 
 In this [video Traverse Utrecht University 
@@ -81,7 +81,7 @@ Then we expand this node to show all Utrecht University faculties.
 Next, we expand one faculty to show the people and
 sub organizations that link to this faculty.
 
-### Video Find output common to two persons
+## Video Find output common to two persons
 https://user-images.githubusercontent.com/121875841/226640906-7446aed6-c428-445b-b733-86b65aa7a070.mp4
 
 This [video Find output common to two 
@@ -92,7 +92,7 @@ Then we let Ricgraph find the
 shortest path between the two nodes. It finds one node, representing a publication. 
 This means that both people have worked together on this publication.
 
-### Video Ricgraph Explorer
+## Video Ricgraph Explorer
 https://user-images.githubusercontent.com/121875841/228465992-993dc8ec-0bd9-4985-b2d9-3200f50d558b.mp4
 
 As mentioned, the videos in the previous sections 
@@ -121,10 +121,10 @@ This includes research outputs like publications, data sets and software, as wel
 the (sub)organization this person works. We can sort columns, and we can use 
 faceted navigation (i.e. filter on *name* or *category* nodes).
 
-### Epilogue
+## Epilogue
 Intrigued by the possibilities? Do you have a specific use case you would like to see? 
 Don’t hesitate to contact us.
 
-### Return to main README.md file
+## Return to main README.md file
 
 [Return to main README.md file](../README.md).

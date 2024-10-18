@@ -1,4 +1,4 @@
-## Query and visualize Ricgraph
+# Query and visualize Ricgraph
 
 To query and visualize Ricgraph nodes and edges, there are several possibilities:
 
@@ -13,7 +13,7 @@ To query and visualize Ricgraph nodes and edges, there are several possibilities
 
 [Return to main README.md file](../README.md).
 
-### Start Neo4j Desktop
+## Start Neo4j Desktop
 
 1. Click on the downloaded AppImage. It will be called something
    like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
@@ -27,7 +27,7 @@ To query and visualize Ricgraph nodes and edges, there are several possibilities
 1. Now, next to the text "Graph DBMS" a green icon appears with
    the text "ACTIVE". Your graph database engine is active and ready for use.
 
-### How to use Bloom
+## How to use Bloom
 
 [Bloom is Neo4j Desktop's graph visualization tool](https://neo4j.com/product/bloom).
 It is included with Neo4j Desktop.
@@ -40,12 +40,12 @@ and a
 [Bloom overview](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/bloom-overview).
 Below are some examples for a quick start.
 
-#### Install the Bloom configuration file
+### Install the Bloom configuration file
 
 If you have not installed the Bloom configuration file yet, read
 [Install Bloom configuration](ricgraph_install_configure.md#install-bloom-configuration).
 
-#### Open Bloom
+### Open Bloom
 
 1. [Start Neo4j Desktop](#Start-neo4j-desktop).
 1. Click on the icon
@@ -53,7 +53,7 @@ If you have not installed the Bloom configuration file yet, read
    on the left side of Neo4j Desktop.
 1. Click on "Neo4j Bloom". A new window appears.
 
-#### Execute queries
+### Execute queries
 
 The [Ricgraph Bloom configuration file](ricgraph_install_configure.md#install-bloom-configuration)
 contains four different shortcuts for
@@ -80,7 +80,7 @@ Nodes found can be examined or expanded as described in the section
 The result will be visualized as described in section
 [Visualization of nodes](#Visualization-of-nodes).
 
-#### Actions while clicking on a node
+### Actions while clicking on a node
 
 The following are some examples of actions while clicking on a node:
 
@@ -96,7 +96,7 @@ The following are some examples of actions while clicking on a node:
 * For other actions, see
   [Bloom actions](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/search-bar/#_actions).
 
-#### Visualization of nodes
+### Visualization of nodes
 
 Nodes can be visualized in different ways, by changing e.g. their
 size or color. This can be changed as follows:
@@ -130,6 +130,6 @@ Rules which determine the size of a node:
   the [Research Software Directory](https://research-software-directory.org).
 * all other nodes: size = medium.
 
-### Return to main README.md file
+## Return to main README.md file
 
 [Return to main README.md file](../README.md).

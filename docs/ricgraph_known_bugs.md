@@ -1,6 +1,6 @@
-## Ricgraph known bugs
+# Ricgraph known bugs
 
-### Error while emptying Ricgraph with Neo4j
+## Error while emptying Ricgraph with Neo4j
 While deleting nodes and edges in Ricgraph you might get a Python error, similar to:
 
 ```
@@ -27,7 +27,7 @@ If you empty the graph database, it needs to delete every node and edge and this
 when there are a lot of nodes and edges. This happens when you use
 Neo4j Desktop, and might happen sometimes when you are using Neo4j Community Edition.
 
-#### Solution for Neo4j Desktop
+### Solution for Neo4j Desktop
 
 You can do the following for Neo4j Desktop and Ricgraph:
 1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop) if it is not running yet.
@@ -42,7 +42,7 @@ You can do the following for Neo4j Desktop and Ricgraph:
    the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 1. Ready.
 
-#### Solution for Neo4j Community Edition
+### Solution for Neo4j Community Edition
 
 You can do the following for Neo4j Community Edition and Ricgraph:
 1. Login as user *root*.
@@ -73,7 +73,7 @@ You can do the following for Neo4j Community Edition and Ricgraph:
    (this saves you from entering a new password in that file).
 1. Exit from user *root*.
 
-### Return to main README.md file
+## Return to main README.md file
 
 [Return to main README.md file](../README.md).
 

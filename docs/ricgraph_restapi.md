@@ -1,4 +1,4 @@
-## Ricgraph REST API
+# Ricgraph REST API
 
 You can use the Ricgraph REST API to get data from Ricgraph, or 
 to execute predefined queries in Ricgraph and Ricgraph Explorer, 
@@ -35,7 +35,7 @@ On this page, you can learn more about:
 [Return to main README.md file](../README.md).
 
 
-### Installation of the Ricgraph REST API
+## Installation of the Ricgraph REST API
 The Ricgraph REST API is part of Ricgraph Explorer. Read [how to start Ricgraph 
   Explorer](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
 
@@ -47,7 +47,7 @@ Depending on your needs, you might also want to read:
   machine](ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 
 
-### Use of the Ricgraph REST API
+## Use of the Ricgraph REST API
 A call to a REST API consists of a hostname, sometimes a port number, 
 the path */api/*, followed
 by a REST API endpoint.
@@ -75,7 +75,7 @@ it only lists the end points and parameters available and there is no
 try out feature.
 
 
-#### How to generate the Ricgraph REST API documentation page
+### How to generate the Ricgraph REST API documentation page
 This page is auto generated using 
 [openapi-to-md](https://github.com/SoraKumo001/openapi-to-md).
 To auto generate it, follow these steps:
@@ -97,6 +97,6 @@ To auto generate it, follow these steps:
 * Done.
 
 
-### Return to main README.md file
+## Return to main README.md file
 [Return to main README.md file](../README.md).
 
