@@ -1,4 +1,4 @@
-## Ricgraph as a server on Linux
+# Ricgraph as a server on Linux
 This page describes how to install and run Ricgraph in a multi-user environment on Linux.
 If you would like to use Ricgraph in such an environment, you will
 need to install Ricgraph differently than described in 
@@ -54,7 +54,7 @@ the following steps:
 [Return to main README.md file](../README.md).
 
 
-### Check the requirements
+## Check the requirements
 * You will need access to a Linux virtual machine.
   You can use your own, or one provided by your organization, or you might
   want to use SURF Research Cloud.
@@ -64,7 +64,7 @@ the following steps:
 * Please check the [Requirements for Ricgraph](ricgraph_install_configure.md#requirements).
 
  
-### Install and start Neo4j Community Edition
+## Install and start Neo4j Community Edition
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
 command `make install_enable_neo4j_community`, or follow the steps below.
 
@@ -110,7 +110,7 @@ command `make install_enable_neo4j_community`, or follow the steps below.
   ```
 * Exit from user *root*.
 
-#### Post-install steps Neo4j Community Edition
+### Post-install steps Neo4j Community Edition
 * Change the default username and password of Neo4j:
   * In your web browser, go to
     [http://localhost:7474/browser](http://localhost:7474/browser).
@@ -121,7 +121,7 @@ command `make install_enable_neo4j_community`, or follow the steps below.
     it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) below.
   
 
-### Install and start Memgraph
+## Install and start Memgraph
 As an alternative to Neo4j, you can also use
 [Memgraph](https://memgraph.com).
 Memgraph is an in memory graph database 
@@ -160,7 +160,7 @@ However, it has not been tested extensively with Ricgraph yet.
 * How to start Memgraph automatically at system startup, is a 'to be done'.
  
 
-### Create a ricgraph user and group
+## Create a ricgraph user and group
 If you use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile),
 you do not need to do this. Otherwise, follow these steps:
 
@@ -179,7 +179,7 @@ you do not need to do this. Otherwise, follow these steps:
 * Exit from user *root*.
   
   
-### Create a Python virtual environment and install Ricgraph in it
+## Create a Python virtual environment and install Ricgraph in it
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
 command `make install_ricgraph_as_server`, or follow the steps below.
 
@@ -275,9 +275,9 @@ command `make install_ricgraph_as_server`, or follow the steps below.
 * Exit from user *root*.
 
 
-### Run Ricgraph scripts from the command line or as a cronjob
+## Run Ricgraph scripts from the command line or as a cronjob
 
-#### In case you have installed Ricgraph as a server
+### In case you have installed Ricgraph as a server
 
 After following the steps in [Create a Python virtual environment and install Ricgraph in
 it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
@@ -307,7 +307,7 @@ Examples of commands you can use are:
   cd /opt/ricgraph_venv/ricgraph_explorer; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
   ```
 
-#### In case you have installed Ricgraph for a single user
+### In case you have installed Ricgraph for a single user
 After following the steps in [Create a Python virtual environment and install Ricgraph in
 it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
 it is possible to run Ricgraph from the command line. You do not need to be
@@ -328,7 +328,7 @@ Examples of commands you can use are:
   cd $HOME/ricgraph_venv/ricgraph_explorer; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
   ```
 
-#### Using the Makefile
+### Using the Makefile
 The [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) can also be used to execute
 a Python batch file. Such a batch file can be used to harvest the sources specific to your organization.
 This batch file is preconfigured in the variable
@@ -343,7 +343,7 @@ The Makefile will tell which script it will use.
 
 
 
-### Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API
+## Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
 command `make install_enable_ricgraphexplorer_restapi`, or follow the steps below.
 
@@ -397,11 +397,11 @@ the outside world. All data will only be accessible in the virtual machine.
   *http://localhost:3030/api* followed by a REST API endpoint.
 
 
-### Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
+## Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
 command `make prepare_webserver_apache`, or follow the steps below.
 
-#### Introduction Apache webserver
+### Introduction Apache webserver
 [Ricgraph Explorer](ricgraph_explorer.md) 
 is written in Flask, a framework for Python to build web interfaces.
 Flask contains a development web server, and if you start Ricgraph Explorer by typing
@@ -438,7 +438,7 @@ Note that it is also possible to use [Nginx as a
 webserver](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 If you are using SURF Research Cloud, you will need to use Nginx.
 
-#### Installation Apache
+### Installation Apache
 
 Note that different Linux editions use different paths. In the steps below, path names from
 OpenSUSE Leap are used. Please adapt them to you own Linux edition:
@@ -468,7 +468,7 @@ and Ricgraph data to the outside world.*
   chmod 600 /etc/apache2/vhosts.d/ricgraph_explorer.conf-apache
   ```
 
-#### Post-install steps Apache
+### Post-install steps Apache
 
 * Login as user *root*.
 * Move the Apache *Ricgraph Explorer* configuration file to its final location:
@@ -508,11 +508,11 @@ and Ricgraph data to the outside world.*
   both followed by a REST API endpoint.
 
 
-### Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
+## Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
 command `make prepare_webserver_nginx`, or follow the steps below.
 
-#### Introduction Nginx webserver
+### Introduction Nginx webserver
 Please read the introduction of section
 [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph
   REST API accessible from outside your virtual
@@ -528,7 +528,7 @@ comments at the start of the configuration file.
 Note that it is also possible to use [Apache as a
 webserver](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 
-#### Installation Nginx
+### Installation Nginx
 
 Note that different Linux editions use different paths. In the steps below, path names from
 OpenSUSE Leap are used. Please adapt them to you own Linux edition:
@@ -553,7 +553,7 @@ and Ricgraph data to the outside world.*
   chmod 600 /etc/nginx/vhosts.d/ricgraph_explorer.conf-nginx
   ```
 
-#### Post-install steps Nginx
+### Post-install steps Nginx
 * Login as user *root*.
 * Move the Nginx *Ricgraph Explorer* configuration file to its final location:
   ```
@@ -592,13 +592,13 @@ and Ricgraph data to the outside world.*
   both followed by a REST API endpoint.
 
 
-### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
+## Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
 To read how this can be done, read
 [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
 Edition](ricgraph_install_configure.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
 
 
-### How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
+## How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
 [SURF Research Cloud](https://www.surf.nl/en/services/surf-research-cloud)
 is a portal where you can easily build a virtual research environment. 
 You can use preconfigured workspaces, or you can add them yourself.
@@ -673,7 +673,7 @@ Ubuntu 22.04 as described above.
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b
 
 
-### How to solve an AttributeError: Neo4jDriver object has no attribute executequery
+## How to solve an AttributeError: Neo4jDriver object has no attribute executequery
 If, at some point while running Ricgraph scripts or Ricgraph Explorer in a
 virtual environment, you get an error message like:
 ```
@@ -709,6 +709,6 @@ it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) above. For 
 on your computer, as long as it is at least Python 3.9.
 
 
-### Return to main README.md file
+## Return to main README.md file
 [Return to main README.md file](../README.md).
 
