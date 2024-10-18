@@ -46,7 +46,9 @@ def generate_toc():
         indent = "  " * (level - 1)
         link = create_github_anchor(text)
         encoded_file_path = urllib.parse.quote(file_path)
-        toc.append(f"{indent}- [{text}]({encoded_file_path}#{link})\n")
+        # RDTJ Oct. 18, 2024, hack.
+        # toc.append(f"{indent}- [{text}]({encoded_file_path}#{link})\n")
+        toc.append(f"{indent}- [{text}](../{encoded_file_path}#{link})\n")
     
     return ''.join(toc)
 
