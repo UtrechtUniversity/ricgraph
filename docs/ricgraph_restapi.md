@@ -76,26 +76,9 @@ try out feature.
 
 
 ### How to generate the Ricgraph REST API documentation page
-This page is auto generated using 
-[openapi-to-md](https://github.com/SoraKumo001/openapi-to-md).
-To auto generate it, follow these steps:
-* If not installed, as root user, install *npm* using the package installer of your Linux.
-* Go to your home directory, type:
-  ```
-  cd
-  ```
-* As a normal (non-root) user, install *openapi-to-md*, type:
-  ```
-  npm i openapi-to-md
-  ```
-  This will install openapi-to-md in subdirectory *node_modules* of your home directory.
-* Go to your Ricgraph installation directory, probably named *[some path]/ricgraph*.
-  Type:
-  ```
-  ~/node_modules/.bin/openapi-to-md ricgraph_explorer/static/openapi.yaml > docs/ricgraph_restapi_gendoc.md
-  ```
-* Done.
-
+Run script `convert_openapi_to_mddoc.py` in directory 
+[maintenance_scripts](../maintenance_scripts).
+Use the python in the bin directory of your virtual environment.
 
 ## Return to main README.md file
 [Return to main README.md file](../README.md).

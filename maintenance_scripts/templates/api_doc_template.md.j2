@@ -1,0 +1,102 @@
+{# RDTJ, Oct. 23, 2024, modified from the original file #}
+{# [venv dir]/lib/python3.[version]/site-packages/openapi_markdown/templates/api_doc_template.md.j2 #}
+{# For the original, see https://github.com/vrerv/openapi-markdown. #}
+
+# {{ spec.info.title }}
+
+> Version {{ spec.info.version }}
+
+{{ spec.info.description }}
+
+## Base URL
+
+| URL | Description |
+|------|------|
+{% for server in spec.servers
+%}| {{ server.url }} | {{ server.description }} |
+{% endfor %}
+
+{#
+## Authentication
+
+{% with root = spec.components %}
+{% include './security_scheme.md.j2' %}
+{% endwith %}
+#}
+
+## Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+{% for path, methods in spec.paths.items() %}
+{%- for method, operation in methods.items()
+%}| {{ method.upper() }} | [{{ method.upper() }} {{ path }}](#{{ method.lower() }}-{{ path.replace('/','') }}) | {{ operation.summary }} |
+{% endfor %}{% endfor %}
+
+{% for path, methods in spec.paths.items() %}
+{% for method, operation in methods.items() %}
+
+### {{ method.upper() }} {{ path }}
+
+{{ operation.summary }}
+
+{% if operation.description and operation.description != operation.summary %}
+{{ operation.description }}
+{% endif %}
+
+{% if operation.parameters %}
+__Parameters__
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+{% for param in operation.parameters %}
+{%- set param_obj = ref_to_param(param)
+%}| {{ param_obj.name }} | {{ param_obj.schema.type }} | {{ param_obj.required }} | {{ param_obj.description }} |
+{% endfor %}
+{% endif %}
+
+{% if operation.requestBody %}
+__Request Body__
+
+{% if 'application/json' in operation.requestBody.content %}
+{{ operation.requestBody.content['application/json'].schema | ref_to_link }}
+{% endif %}
+{% if '*/*' in operation.requestBody.content %}
+{{ operation.requestBody.content['*/*'].schema | ref_to_link  }}
+{% endif %}
+
+{% endif %}
+
+__Responses__
+
+{# Originally, there was code to print the json return value. #}
+
+{% for status_code, response in operation.responses.items() %}
+* {{ status_code }}: {% if response.description %} {{ response.description }} {% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
+{#
+## Components
+
+{% if spec.components.schemas %}
+{% for schema_name, schema in spec.components.schemas.items() %}
+
+### {{ schema_name }}
+
+{% if schema.description %}
+{{ schema.description }}
+{% endif %}
+
+{% if schema.properties %}
+| Field | Type | Description |
+|-------|------|-------------|
+{% for property_name, property in schema.properties.items()
+%}| {{ property_name }} | {{ property.type }} | {% if property.description %}{{ property.description }}{% endif %} |
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+#}

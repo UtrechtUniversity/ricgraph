@@ -4,6 +4,7 @@ gunicorn
 markupsafe
 neo4j >= 5.8
 numpy
+openapi_markdown
 pandas
 pyalex
 requests
