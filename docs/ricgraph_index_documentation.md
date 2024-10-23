@@ -1,24 +1,12 @@
 # Index Ricgraph documentation
 This index has been generated automatically.
 
-__#__
-- [#/components/parameters/category](../docs/ricgraph_restapi_gendoc.md#componentsparameterscategory)
-- [#/components/parameters/category_dontwant](../docs/ricgraph_restapi_gendoc.md#componentsparameterscategory_dontwant)
-- [#/components/parameters/category_want](../docs/ricgraph_restapi_gendoc.md#componentsparameterscategory_want)
-- [#/components/parameters/key](../docs/ricgraph_restapi_gendoc.md#componentsparameterskey)
-- [#/components/parameters/max_nr_items](../docs/ricgraph_restapi_gendoc.md#componentsparametersmax_nr_items)
-- [#/components/parameters/name](../docs/ricgraph_restapi_gendoc.md#componentsparametersname)
-- [#/components/parameters/name_dontwant](../docs/ricgraph_restapi_gendoc.md#componentsparametersname_dontwant)
-- [#/components/parameters/name_want](../docs/ricgraph_restapi_gendoc.md#componentsparametersname_want)
-- [#/components/parameters/ricgraph_list_name](../docs/ricgraph_restapi_gendoc.md#componentsparametersricgraph_list_name)
-- [#/components/parameters/source_system](../docs/ricgraph_restapi_gendoc.md#componentsparameterssource_system)
-- [#/components/parameters/value](../docs/ricgraph_restapi_gendoc.md#componentsparametersvalue)
-
 __A__
 - [Actions while clicking on a node](../docs/ricgraph_query_visualize.md#actions-while-clicking-on-a-node)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_pubs_pres_news_use_ment.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
 
 __B__
+- [Base URL](../docs/ricgraph_restapi_gendoc.md#base-url)
 - [Browsing Ricgraph](../docs/ricgraph_explorer.md#browsing-ricgraph)
 
 __C__
@@ -35,6 +23,7 @@ __D__
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_install_configure.md#dumping-and-restoring-the-ricgraph-database)
 
 __E__
+- [Endpoints](../docs/ricgraph_restapi_gendoc.md#endpoints)
 - [Epilogue](../docs/ricgraph_example_use_videos.md#epilogue)
 - [Error while emptying Ricgraph with Neo4j](../docs/ricgraph_known_bugs.md#error-while-emptying-ricgraph-with-neo4j)
 - [Example research questions](../docs/ricgraph_details.md#example-research-questions)
@@ -55,6 +44,21 @@ __F__
 __G__
 - [General overview](../docs/ricgraph_comparison.md#general-overview)
 - [General program structure of a Python script using Ricgraph](../docs/ricgraph_script_writing.md#general-program-structure-of-a-python-script-using-ricgraph)
+- [GET /advanced_search](../docs/ricgraph_restapi_gendoc.md#get-advanced_search)
+- [GET /broad_search](../docs/ricgraph_restapi_gendoc.md#get-broad_search)
+- [GET /competence/all_information](../docs/ricgraph_restapi_gendoc.md#get-competenceall_information)
+- [GET /competence/search](../docs/ricgraph_restapi_gendoc.md#get-competencesearch)
+- [GET /get_all_neighbor_nodes](../docs/ricgraph_restapi_gendoc.md#get-get_all_neighbor_nodes)
+- [GET /get_all_personroot_nodes](../docs/ricgraph_restapi_gendoc.md#get-get_all_personroot_nodes)
+- [GET /get_ricgraph_list](../docs/ricgraph_restapi_gendoc.md#get-get_ricgraph_list)
+- [GET /organization/all_information](../docs/ricgraph_restapi_gendoc.md#get-organizationall_information)
+- [GET /organization/information_persons_results](../docs/ricgraph_restapi_gendoc.md#get-organizationinformation_persons_results)
+- [GET /organization/search](../docs/ricgraph_restapi_gendoc.md#get-organizationsearch)
+- [GET /person/all_information](../docs/ricgraph_restapi_gendoc.md#get-personall_information)
+- [GET /person/collaborating_organizations](../docs/ricgraph_restapi_gendoc.md#get-personcollaborating_organizations)
+- [GET /person/enrich](../docs/ricgraph_restapi_gendoc.md#get-personenrich)
+- [GET /person/search](../docs/ricgraph_restapi_gendoc.md#get-personsearch)
+- [GET /person/share_research_results](../docs/ricgraph_restapi_gendoc.md#get-personshare_research_results)
 
 __H__
 - [Harvest of OpenAlex](../docs/ricgraph_harvest_scripts.md#harvest-of-openalex)
@@ -113,23 +117,6 @@ __O__
 - [Other research questions](../docs/ricgraph_explorer.md#other-research-questions)
 
 __P__
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Parameters(Query)](../docs/ricgraph_restapi_gendoc.md#parametersquery)
-- [Path Details](../docs/ricgraph_restapi_gendoc.md#path-details)
-- [Path Table](../docs/ricgraph_restapi_gendoc.md#path-table)
 - [Person identifiers](../docs/ricgraph_details.md#person-identifiers)
 - [Person options page](../docs/ricgraph_explorer.md#person-options-page)
 - [Person-root node in Ricgraph](../docs/ricgraph_details.md#person-root-node-in-ricgraph)
@@ -147,26 +134,9 @@ __Q__
 __R__
 - [Read more about Ricgraph](../README.md#read-more-about-ricgraph)
 - [Read this in case you would like to extend Ricgraph](../README.md#read-this-in-case-you-would-like-to-extend-ricgraph)
-- [Reference Table](../docs/ricgraph_restapi_gendoc.md#reference-table)
-- [References](../docs/ricgraph_restapi_gendoc.md#references)
 - [Requirements](../docs/ricgraph_install_configure.md#requirements)
 - [Research outputs connected to persons](../docs/ricgraph_details.md#research-outputs-connected-to-persons)
 - [Research question “What are the research results of person A” ](../docs/ricgraph_explorer.md#research-question-what-are-the-research-results-of-person-a-)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
-- [Responses](../docs/ricgraph_restapi_gendoc.md#responses)
 - [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_install_configure.md#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_as_server.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_install_configure.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
@@ -251,20 +221,3 @@ __W__
 - [What is Ricgraph?](../README.md#what-is-ricgraph)
 - [Why Ricgraph?](../README.md#why-ricgraph)
 - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)
-
-__[__
-- [[GET]/advanced_search](../docs/ricgraph_restapi_gendoc.md#getadvanced_search)
-- [[GET]/broad_search](../docs/ricgraph_restapi_gendoc.md#getbroad_search)
-- [[GET]/competence/all_information](../docs/ricgraph_restapi_gendoc.md#getcompetenceall_information)
-- [[GET]/competence/search](../docs/ricgraph_restapi_gendoc.md#getcompetencesearch)
-- [[GET]/get_all_neighbor_nodes](../docs/ricgraph_restapi_gendoc.md#getget_all_neighbor_nodes)
-- [[GET]/get_all_personroot_nodes](../docs/ricgraph_restapi_gendoc.md#getget_all_personroot_nodes)
-- [[GET]/get_ricgraph_list](../docs/ricgraph_restapi_gendoc.md#getget_ricgraph_list)
-- [[GET]/organization/all_information](../docs/ricgraph_restapi_gendoc.md#getorganizationall_information)
-- [[GET]/organization/information_persons_results](../docs/ricgraph_restapi_gendoc.md#getorganizationinformation_persons_results)
-- [[GET]/organization/search](../docs/ricgraph_restapi_gendoc.md#getorganizationsearch)
-- [[GET]/person/all_information](../docs/ricgraph_restapi_gendoc.md#getpersonall_information)
-- [[GET]/person/collaborating_organizations](../docs/ricgraph_restapi_gendoc.md#getpersoncollaborating_organizations)
-- [[GET]/person/enrich](../docs/ricgraph_restapi_gendoc.md#getpersonenrich)
-- [[GET]/person/search](../docs/ricgraph_restapi_gendoc.md#getpersonsearch)
-- [[GET]/person/share_research_results](../docs/ricgraph_restapi_gendoc.md#getpersonshare_research_results)
