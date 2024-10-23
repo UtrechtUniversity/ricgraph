@@ -1,6 +1,10 @@
 # ############################################################
 # Perplexity.ai has generated this script on October 10, 2024.
 # It checks for broken internal links in .md files.
+#
+# Run it from the root of the Ricgraph repository tree
+# (i.e. the directory where README.md can be found),
+# using the python in the bin directory of your virtual environment.
 # ############################################################
 
 import os

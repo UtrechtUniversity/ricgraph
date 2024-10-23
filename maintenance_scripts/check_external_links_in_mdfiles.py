@@ -1,6 +1,10 @@
 # ############################################################
 # Perplexity.ai has generated this script on October 10, 2024.
 # It checks for broken external links in .md files.
+#
+# Run it from the root of the Ricgraph repository tree
+# (i.e. the directory where README.md can be found),
+# using the python in the bin directory of your virtual environment.
 # ############################################################
 
 import re
@@ -28,7 +32,7 @@ def check_links(file_path):
             print(f"Error checking: {url} - Exception: {str(e)}")
 
 if __name__ == "__main__":
-    markdown_files = Path('.').rglob('*.md')
+    markdown_files = Path('').rglob('*.md')
     for file in markdown_files:
         print("")
         print(f"Checking links in {file}...")

@@ -3,7 +3,8 @@
 # It creates the table of contents for the Ricgraph documentation.
 #
 # Run it from the root of the Ricgraph repository tree
-# (i.e. the directory where README.md can be found).
+# (i.e. the directory where README.md can be found),
+# using the python in the bin directory of your virtual environment.
 # ############################################################
 
 import os

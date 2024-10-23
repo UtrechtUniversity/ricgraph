@@ -221,4 +221,4 @@ This table of contents has been generated automatically.
   - [Function calls to get neighbors of nodes](../docs/ricgraph_script_writing.md#function-calls-to-get-neighbors-of-nodes)
   - [Return to main README.md file](../docs/ricgraph_script_writing.md#return-to-main-readmemd-file)
 - [Table of contents Ricgraph documentation](../docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation)
-- [Sorted index Ricgraph documentation](../docs/ricgraph_index_documentation.md#sorted-index-ricgraph-documentation)
+- [Index Ricgraph documentation](../docs/ricgraph_index_documentation.md#index-ricgraph-documentation)
