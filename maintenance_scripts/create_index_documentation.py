@@ -2,9 +2,8 @@
 # Perplexity.ai has generated this script on October 18, 2024.
 # It creates the index for the Ricgraph documentation in a file.
 #
-# Run it from the root of the Ricgraph repository tree
-# (i.e. the directory where README.md can be found),
-# using the python in the bin directory of your virtual environment.
+# Modified slightly by Rik D.T. Janssen, October 2024.
+# Note that the script does a chdir in main().
 # ############################################################
 
 import os
@@ -81,9 +80,10 @@ def generate_sorted_index():
 def write_index(index):
     with open(index_file, 'w', encoding='utf-8') as file:
         file.write(index)
-    print(f"Sorted Index has been written to {index_file}")
+    print(f"Index has been written to {index_file}")
 
 
 if __name__ == "__main__":
+    os.chdir('..')
     sorted_index = generate_sorted_index()
     write_index(sorted_index)

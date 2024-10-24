@@ -1,15 +1,17 @@
 # ############################################################
 # Perplexity.ai has generated this script on October 10, 2024.
 # It checks for broken internal links in .md files.
+# But it does not check links to anchors correctly.
+# This is a future extension.
 #
-# Run it from the root of the Ricgraph repository tree
-# (i.e. the directory where README.md can be found),
-# using the python in the bin directory of your virtual environment.
+# Modified slightly by Rik D.T. Janssen, October 2024.
 # ############################################################
 
 import os
 import re
 from pathlib import Path
+
+ROOT_PATH = '..'
 
 def check_md_links(repo_path):
     md_files = list(Path(repo_path).rglob('*.md'))
@@ -36,7 +38,8 @@ def check_md_links(repo_path):
     return broken_links
 
 if __name__ == "__main__":
-    repo_path = os.getcwd()
+    repo_path = ROOT_PATH
+    # repo_path = os.getcwd()
 
     broken_links = check_md_links(repo_path)
 
@@ -46,3 +49,6 @@ if __name__ == "__main__":
             print(f"In {file_path} (line {line_number}): {link}")
     else:
         print("No broken links found between .md files.")
+
+    print("Note that this script does not test for missing anchors yet.")
+

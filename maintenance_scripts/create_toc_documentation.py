@@ -2,9 +2,8 @@
 # Perplexity.ai has generated this script on October 18, 2024.
 # It creates the table of contents for the Ricgraph documentation.
 #
-# Run it from the root of the Ricgraph repository tree
-# (i.e. the directory where README.md can be found),
-# using the python in the bin directory of your virtual environment.
+# Modified slightly by Rik D.T. Janssen, October 2024.
+# Note that the script does a chdir in main().
 # ############################################################
 
 import os
@@ -73,5 +72,6 @@ def write_toc(toc):
 
 
 if __name__ == "__main__":
+    os.chdir('..')
     maintoc = generate_toc()
     write_toc(maintoc)
