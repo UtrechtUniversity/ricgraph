@@ -4,7 +4,7 @@ Ricgraph scripts can be found in various places:
 * Directory [harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples): 
   scripts for harvesting sources and inserting the results in Ricgraph.
   [Documentation for these scripts](ricgraph_harvest_scripts.md).
-* Directory [export_ricgraph_examples](../export_ricgraph_examples):
+* Directory [import_export](../import_export):
   scripts to export items from Ricgraph.
   [Documentation for these scripts](ricgraph_misc_scripts.md) (this file).
 * Directory [find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples):
@@ -24,7 +24,7 @@ All code is documented and hints to use it can be found in the source files.
 To count the number of organizations that contributed to a category, 
 use the script *count_organizations_contributed_to_category.py*.
 You can find this script 
-in the directory [export_ricgraph_examples](../export_ricgraph_examples).
+in the directory [import_export](../import_export).
 
 This script 
 counts the (sub-)organizations of persons who have contributed to all nodes of a
@@ -69,7 +69,7 @@ Options:
 
 ## Export nodes to a file
 There are two scripts which allow to export *person* nodes to a csv file. These can be
-found in the directory [export_ricgraph_examples](../export_ricgraph_examples).
+found in the directory [import_export](../import_export).
 * *export_person_identifiers.py*: exports
   all [person identifiers](ricgraph_details.md#person-identifiers)
   connected to a *person-root* node.
