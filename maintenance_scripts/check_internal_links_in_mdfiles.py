@@ -39,7 +39,6 @@ def check_md_links(repo_path):
 
 if __name__ == "__main__":
     repo_path = ROOT_PATH
-    # repo_path = os.getcwd()
 
     broken_links = check_md_links(repo_path)
 
