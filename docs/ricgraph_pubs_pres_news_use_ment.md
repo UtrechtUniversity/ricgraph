@@ -89,5 +89,3 @@ In this [video of the presentation at the Pure International Conference 2023, Du
 Croatia (19m27s) (click to download)](videos/231026-RDTJanssen+ASieverink-Ricgraph_Showcasing_research_in_context_using_Pure_and_other_sources-PRCN2023_video.mp4),
 Arjan Sieverink presents the abstract
 _Ricgraph: Showcasing research in context using Pure and other sources_.
-
-[Return to main README.md file](../README.md).

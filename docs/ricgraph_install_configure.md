@@ -589,9 +589,3 @@ taken, so I can add them to this documentation. If you are a Windows user,
 I would recommend to create a Linux virtual machine using e.g.
 [VirtualBox](https://www.virtualbox.org), and install Ricgraph in that 
 virtual machine as described above.
-
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md). 
-

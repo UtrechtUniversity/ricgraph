@@ -88,7 +88,3 @@ In the default configuration, the following properties are included:
 * `url_other`: other URL for a node, pointing to e.g. the originating record in the source system;
 * `source_event`: an event to be added to `_source`.
 * `history_event`: an event to be added to `_history`.
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md).

@@ -79,7 +79,3 @@ try out feature.
 Run script `convert_openapi_to_mddoc.py` in directory 
 [maintenance_scripts](../maintenance_scripts).
 Use the python in the bin directory of your virtual environment.
-
-## Return to main README.md file
-[Return to main README.md file](../README.md).
-

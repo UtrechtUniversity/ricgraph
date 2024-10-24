@@ -97,9 +97,3 @@ there are any personal identifiers that are
 pointing to two or more different persons.
 You can find this script in the directory
 [find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples).
-
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md).
-

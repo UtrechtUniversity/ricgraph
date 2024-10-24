@@ -294,8 +294,3 @@ For making your own harvesting scripts, refer to the code used in the
 harvest scripts described above, and read 
 [How to make your own harvesting 
 scripts](ricgraph_script_writing.md#how-to-make-your-own-harvesting-scripts).
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md).
-

@@ -129,7 +129,3 @@ Rules which determine the size of a node:
   This indicates which nodes have been harvested from
   the [Research Software Directory](https://research-software-directory.org).
 * all other nodes: size = medium.
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md).

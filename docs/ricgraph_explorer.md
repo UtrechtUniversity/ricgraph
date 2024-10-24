@@ -256,7 +256,3 @@ By clicking on e.g. _NVivo_, you will traverse to the _NVivo_ node,
 and you will see the neighbors of this node. This can be repeated as desired.
 It is also possible to start a new search using the buttons _Home_, _Advanced search_,
 or _Broad search_ in the yellow title bar.
-
-## Return to main README.md file
-[Return to main README.md file](../README.md).
-

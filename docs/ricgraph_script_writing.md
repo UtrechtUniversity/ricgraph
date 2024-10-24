@@ -135,8 +135,3 @@ rcg.get_all_neighbor_nodes()         # get all neighbor nodes connected to a nod
                                      # it is possible to restrict to nodes having
                                      # a certain property 'name' or 'category'
 ```
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md).
-

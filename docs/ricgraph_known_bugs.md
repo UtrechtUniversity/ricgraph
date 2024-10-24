@@ -69,11 +69,6 @@ You can do the following for Neo4j Community Edition and Ricgraph:
 1. Neo4j will ask you to login, use username *neo4j* and password *neo4j*.
 1. Neo4j will ask you to change your password,
    for the new password, enter the password you have specified in
-   the [Ricgraph initialization file](#ricgraph-initialization-file)
+   the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file)
    (this saves you from entering a new password in that file).
 1. Exit from user *root*.
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md).
-

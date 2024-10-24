@@ -124,7 +124,3 @@ faceted navigation (i.e. filter on *name* or *category* nodes).
 ## Epilogue
 Intrigued by the possibilities? Do you have a specific use case you would like to see? 
 Don’t hesitate to contact us.
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md).

@@ -66,7 +66,3 @@ Also, it is possible to traverse the graph that has been constructed, either wit
 with [Ricgraph Explorer](ricgraph_explorer.md), or with any other visualizer or explorer that someone builds.
 Also, Ricgraph can contain any field (entity) by changing the Ricgraph initialization file, 
 creating a harvest script to fill this field, and modifying Ricgraph Explorer to show this field.
-
-## Return to main README.md file
-
-[Return to main README.md file](../README.md).
