@@ -224,6 +224,15 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
 
             for institution in authors['institutions']:
                 # An author can work at multiple institutions.
+                # With the code in this for, we collect in the parse
+                # any institution connected to this author.
+                # This may or may not be a good idea, since sometimes institutions
+                # connected to an author in OpenAlex are not correct. Options are e.g.:
+                # 1. Do not collect any institution in OpenAlex to an author.
+                # 2. Collect any institution in OpenAlex to an author.
+                # 3. Only collect institutions to an author if the author is NOT
+                #    from our own organization (then path.name != ORGANIZATION_ROR).
+                # In the code below, we do (2).
                 if 'ror' not in institution:
                     continue
                 if institution['ror'] is None:
