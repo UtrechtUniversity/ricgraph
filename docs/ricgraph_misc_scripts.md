@@ -20,7 +20,7 @@ All code is documented and hints to use it can be found in the source files.
 
 [Return to main README.md file](../README.md).
 
-## Count the number of organizations that contributed to a category
+## Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)
 To count the number of organizations that contributed to a category, 
 use the script *count_organizations_contributed_to_category.py*.
 You can find this script 
@@ -67,7 +67,7 @@ Options:
 ```
 
 
-## Export nodes to a file
+## Export nodes to a file (export_person_identifiers.py and export_person_node_properties.py)
 There are two scripts which allow to export *person* nodes to a csv file. These can be
 found in the directory [import_export](../import_export).
 * *export_person_identifiers.py*: exports
@@ -81,7 +81,7 @@ Use the parameter *EXPORT_MAX_RECS* for the number of records to export and
 *EXPORT_FILENAME* for the filename to export at the start of both scripts.
 
 
-## Script to enrich persons
+## Script to enrich persons (enrich_orcids_scopusids.py)
 With the script *enrich_orcids_scopusids.py*, 
 you can enrich persons having an ORCID but no SCOPUS_AUTHOR_ID
 (using OpenAlex), or vice versa (using the Scopus API). Note that Scopus has 
@@ -91,7 +91,7 @@ You can find this script in the directory
 [find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples).
 
 
-## Script to find person identifiers pointing to different persons
+## Script to find person identifiers pointing to different persons (find_double_pids.py)
 With the script *find_double_pids.py*, you can check if 
 there are any personal identifiers that are
 pointing to two or more different persons.

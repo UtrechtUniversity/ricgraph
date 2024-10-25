@@ -12,7 +12,7 @@ __B__
 __C__
 - [Check the requirements](../docs/ricgraph_as_server.md#check-the-requirements)
 - [Contact](../README.md#contact)
-- [Count the number of organizations that contributed to a category](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category)
+- [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_categorypy)
 - [Create a Neo4j Community Edition database dump of Ricgraph](../docs/ricgraph_install_configure.md#create-a-neo4j-community-edition-database-dump-of-ricgraph)
 - [Create a Neo4j Desktop database dump of Ricgraph](../docs/ricgraph_install_configure.md#create-a-neo4j-desktop-database-dump-of-ricgraph)
 - [Create a Python virtual environment and install Ricgraph in it](../docs/ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it)
@@ -29,7 +29,7 @@ __E__
 - [Example research questions](../docs/ricgraph_details.md#example-research-questions)
 - [Examples](../README.md#examples)
 - [Execute queries](../docs/ricgraph_query_visualize.md#execute-queries)
-- [Export nodes to a file](../docs/ricgraph_misc_scripts.md#export-nodes-to-a-file)
+- [Export nodes to a file (export_person_identifiers.py and export_person_node_properties.py)](../docs/ricgraph_misc_scripts.md#export-nodes-to-a-file-export_person_identifierspy-and-export_person_node_propertiespy)
 - [Extendability](../docs/ricgraph_comparison.md#extendability)
 - [Extending Ricgraph with new properties in the nodes](../docs/ricgraph_install_configure.md#extending-ricgraph-with-new-properties-in-the-nodes)
 
@@ -61,11 +61,11 @@ __G__
 - [GET /person/share_research_results](../docs/ricgraph_restapi_gendoc.md#get-personshare_research_results)
 
 __H__
-- [Harvest of OpenAlex](../docs/ricgraph_harvest_scripts.md#harvest-of-openalex)
-- [Harvest of Pure](../docs/ricgraph_harvest_scripts.md#harvest-of-pure)
-- [Harvest of software from the Research Software Directory](../docs/ricgraph_harvest_scripts.md#harvest-of-software-from-the-research-software-directory)
-- [Harvest of Utrecht University data sets](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-data-sets)
-- [Harvest of Utrecht University staff pages](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-staff-pages)
+- [Harvest of OpenAlex (harvest_openalex_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-openalex-harvest_openalex_to_ricgraphpy)
+- [Harvest of Pure (harvest_pure_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-pure-harvest_pure_to_ricgraphpy)
+- [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraphpy)
+- [Harvest of Utrecht University data sets (harvest_yoda_datacite_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-data-sets-harvest_yoda_datacite_to_ricgraphpy)
+- [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraphpy)
 - [Home page](../docs/ricgraph_explorer.md#home-page)
 - [How to generate the Ricgraph REST API documentation page](../docs/ricgraph_restapi.md#how-to-generate-the-ricgraph-rest-api-documentation-page)
 - [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](../docs/ricgraph_as_server.md#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
@@ -168,8 +168,8 @@ __R__
 - [Run Ricgraph scripts from the command line or as a cronjob](../docs/ricgraph_as_server.md#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
 
 __S__
-- [Script to enrich persons](../docs/ricgraph_misc_scripts.md#script-to-enrich-persons)
-- [Script to find person identifiers pointing to different persons](../docs/ricgraph_misc_scripts.md#script-to-find-person-identifiers-pointing-to-different-persons)
+- [Script to enrich persons (enrich_orcids_scopusids.py)](../docs/ricgraph_misc_scripts.md#script-to-enrich-persons-enrich_orcids_scopusidspy)
+- [Script to find person identifiers pointing to different persons (find_double_pids.py)](../docs/ricgraph_misc_scripts.md#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pidspy)
 - [Search page](../docs/ricgraph_explorer.md#search-page)
 - [Settings for graph database backend](../docs/ricgraph_install_configure.md#settings-for-graph-database-backend)
 - [Solution for Neo4j Community Edition](../docs/ricgraph_known_bugs.md#solution-for-neo4j-community-edition)
