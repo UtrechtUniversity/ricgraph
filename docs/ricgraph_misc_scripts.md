@@ -36,7 +36,7 @@ it will not be created. This is due to the way Ricgraph works.
 
 This script is different compared to
 [Import nodes and edges from a csv file,
-raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy)
 and
 [Export nodes and edges to a csv file,
 raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy),
