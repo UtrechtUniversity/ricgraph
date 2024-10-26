@@ -11,12 +11,16 @@ __B__
 
 __C__
 - [Check the requirements](../docs/ricgraph_as_server.md#check-the-requirements)
+- [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv.py)](../docs/ricgraph_misc_scripts.md#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csvpy)
 - [Contact](../README.md#contact)
 - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_categorypy)
 - [Create a Neo4j Community Edition database dump of Ricgraph](../docs/ricgraph_install_configure.md#create-a-neo4j-community-edition-database-dump-of-ricgraph)
 - [Create a Neo4j Desktop database dump of Ricgraph](../docs/ricgraph_install_configure.md#create-a-neo4j-desktop-database-dump-of-ricgraph)
 - [Create a Python virtual environment and install Ricgraph in it](../docs/ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it)
 - [Create a ricgraph user and group](../docs/ricgraph_as_server.md#create-a-ricgraph-user-and-group)
+- [Create a table of contents of the Ricgraph documentation (create_toc_documentation.py)](../docs/ricgraph_misc_scripts.md#create-a-table-of-contents-of-the-ricgraph-documentation-create_toc_documentationpy)
+- [Create an index of the Ricgraph documentation (create_index_documentation.py)](../docs/ricgraph_misc_scripts.md#create-an-index-of-the-ricgraph-documentation-create_index_documentationpy)
+- [Create the Ricgraph REST API documentation (convert_openapi_to_mddoc.py)](../docs/ricgraph_misc_scripts.md#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddocpy)
 
 __D__
 - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
@@ -29,6 +33,7 @@ __E__
 - [Example research questions](../docs/ricgraph_details.md#example-research-questions)
 - [Examples](../README.md#examples)
 - [Execute queries](../docs/ricgraph_query_visualize.md#execute-queries)
+- [Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv.py)](../docs/ricgraph_misc_scripts.md#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy)
 - [Export nodes to a file (export_person_identifiers.py and export_person_node_properties.py)](../docs/ricgraph_misc_scripts.md#export-nodes-to-a-file-export_person_identifierspy-and-export_person_node_propertiespy)
 - [Extendability](../docs/ricgraph_comparison.md#extendability)
 - [Extending Ricgraph with new properties in the nodes](../docs/ricgraph_install_configure.md#extending-ricgraph-with-new-properties-in-the-nodes)
@@ -44,6 +49,7 @@ __F__
 __G__
 - [General overview](../docs/ricgraph_comparison.md#general-overview)
 - [General program structure of a Python script using Ricgraph](../docs/ricgraph_script_writing.md#general-program-structure-of-a-python-script-using-ricgraph)
+- [Generate the Ricgraph REST API documentation page](../docs/ricgraph_restapi.md#generate-the-ricgraph-rest-api-documentation-page)
 - [GET /advanced_search](../docs/ricgraph_restapi_gendoc.md#get-advanced_search)
 - [GET /broad_search](../docs/ricgraph_restapi_gendoc.md#get-broad_search)
 - [GET /competence/all_information](../docs/ricgraph_restapi_gendoc.md#get-competenceall_information)
@@ -67,7 +73,6 @@ __H__
 - [Harvest of Utrecht University data sets (harvest_yoda_datacite_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-data-sets-harvest_yoda_datacite_to_ricgraphpy)
 - [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraphpy)
 - [Home page](../docs/ricgraph_explorer.md#home-page)
-- [How to generate the Ricgraph REST API documentation page](../docs/ricgraph_restapi.md#how-to-generate-the-ricgraph-rest-api-documentation-page)
 - [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](../docs/ricgraph_as_server.md#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
 - [How to make your own harvesting scripts](../docs/ricgraph_harvest_scripts.md#how-to-make-your-own-harvesting-scripts)
 - [How to make your own harvesting scripts](../docs/ricgraph_script_writing.md#how-to-make-your-own-harvesting-scripts)
@@ -79,6 +84,7 @@ __H__
 
 __I__
 - [Implementation details](../docs/ricgraph_details.md#implementation-details)
+- [Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv.py)](../docs/ricgraph_misc_scripts.md#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)
 - [In case you have installed Ricgraph as a server](../docs/ricgraph_as_server.md#in-case-you-have-installed-ricgraph-as-a-server)
 - [In case you have installed Ricgraph for a single user](../docs/ricgraph_as_server.md#in-case-you-have-installed-ricgraph-for-a-single-user)
 - [Index Ricgraph documentation](../docs/ricgraph_index_documentation.md#index-ricgraph-documentation)

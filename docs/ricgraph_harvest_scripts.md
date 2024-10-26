@@ -79,7 +79,7 @@ to harvest.
 
 To harvest  [OpenAlex](https://openalex.org), use the script *harvest_openalex_to_ricgraph.py*.
 ```
-Usage
+Usage:
 harvest_openalex_to_ricgraph.py [options]
 
 Options:
@@ -113,7 +113,7 @@ reduce this by adjusting parameters at the start of the script. Look in the sect
 To harvest [Pure](https://www.elsevier.com/solutions/pure), 
 use the script *harvest_pure_to_ricgraph.py*. 
 ```
-Usage
+Usage:
 harvest_pure_to_ricgraph.py [options]
 
 Options:
@@ -209,7 +209,7 @@ from the data repository
 use the script
 *harvest_yoda_datacite_to_ricgraph.py*.
 ```
-Usage
+Usage:
 harvest_yoda_datacite_to_ricgraph.py [options]
 
 Options:
@@ -229,7 +229,7 @@ To harvest the
 use the script *harvest_uustaffpages_to_ricgraph.py*.
 
 ```
-Usage
+Usage:
 harvest_uustaffpages_to_ricgraph.py [options]
 
 Options:
@@ -248,7 +248,7 @@ To harvest software packages from the
 [Research Software Directory](https://research-software-directory.org),
 use the script *harvest_rsd_to_ricgraph.py*.
 ```
-Usage
+Usage:
 harvest_rsd_to_ricgraph.py [options]
 
 Options:

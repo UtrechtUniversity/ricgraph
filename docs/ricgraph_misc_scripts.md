@@ -20,6 +20,153 @@ All code is documented and hints to use it can be found in the source files.
 
 [Return to main README.md file](../README.md).
 
+
+## Construct a Ricgraph from a csv file (construct_ricgraph_from_csv.py)
+To construct a Ricgraph from a csv file,
+use the script *construct_ricgraph_from_csv.py*.
+You can find this script in the directory [import_export](../import_export).
+
+Nodes and edges are inserted with Ricgraph calls. That means,
+that nodes are inserted in pairs connected by an edge. 
+*Person-root* nodes cannot be inserted
+with this script, they will be created whenever necessary. 
+If a node in the nodes import file is not connected to another
+node by an edge in de the edge import file, 
+it will not be created. This is due to the way Ricgraph works.
+
+This script is different compared to
+[Import nodes and edges from a csv file,
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
+and
+[Export nodes and edges to a csv file,
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy),
+since the "raw" scripts import and export with Cypher queries.
+
+```
+Usage:
+construct_ricgraph_from_csv.py [options]
+
+Options:
+  --empty_ricgraph <yes|no>
+          'yes': Ricgraph will be emptied before importing.
+          'no': Ricgraph will not be emptied before importing.
+          If this option is not present, the script will prompt the user
+          what to do.
+  --filename <filename>
+          Import nodes and edges from a csv file starting with <filename>.
+          The file with nodes is <filename>-nodes.csv.
+          The file with edges is <filename>-edges.csv.
+```
+
+The import file containing nodes should be a csv file. At least the following columns should be
+present:
+* name
+* category
+* value
+
+Other fields that may be present:
+* All fields in parameter *ricgraph_properties_additional* in the
+  [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file),
+  but not the fields *source_event* and *history_event*.
+
+The import file containing edges should be a csv file containing exactly four columns:
+* name_from, value_from: the from node for the edge.
+* name_to, value_to: the to node for the edge.
+
+
+## Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv.py)
+To import nodes and edges from a csv file,
+use the script *ricgraph_import_raw_from_csv.py*.
+You can find this script in the directory [import_export](../import_export).
+
+This is a "raw" import, because *person-root* nodes are also imported, as
+are the connections between e.g. an *ORCID* node and its *person-root* node.
+When you do the import, all nodes and edges
+will be inserted directly in the graph database backend using a Cypher
+query. That means that no checking is done at all if the resulting nodes
+and edges conform to the "Ricgraph model". This may result in a graph
+not consistent with the Ricgraph model. Due to this, Ricgraph Explorer
+may not work as expected.
+
+This script forms a pair with
+[Export nodes and edges to a csv file, 
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)
+```
+Usage:
+ricgraph_import_raw_from_csv.py [options]
+
+Options:
+  --empty_ricgraph <yes|no>
+          'yes': Ricgraph will be emptied before importing.
+          'no': Ricgraph will not be emptied before importing.
+          If this option is not present, the script will prompt the user
+          what to do.
+  --filename <filename>
+          Import nodes and edges from a csv file starting with <filename>.
+          The file with nodes is <filename>-nodes.csv.
+          The file with edges is <filename>-edges.csv.
+```
+
+The import file containing nodes should be a csv file. At least the following columns should be
+present:
+* name
+* category
+* value
+* _key
+
+Other fields that may be present:
+* The remaining fields in parameter *ricgraph_properties_hidden* in the
+  [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
+* The fields in parameter *ricgraph_properties_additional* in the
+  [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
+
+The import file containing edges should be a csv file containing exactly four columns:
+* name_from, value_from: the from node for the edge.
+* name_to, value_to: the to node for the edge.
+
+For an example import file, export the nodes and edges in Ricgraph using
+[Export nodes and edges to a csv file,
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy).
+
+
+## Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv.py)
+To export nodes and edges to a csv file,
+use the script *ricgraph_export_raw_to_csv.py*.
+You can find this script in the directory [import_export](../import_export).
+
+This is a "raw" export, because person-root nodes are also exported, as
+are the connections between e.g. an ORCID node and its person-root node.
+The export is done using a Cypher query. 
+When you import the export generated by this script, all nodes and edges
+will be inserted directly in the graph database backend using a Cypher
+query. That means that no checking is done at all if the resulting nodes
+and edges conform to the "Ricgraph model". This may result in a graph
+not consistent with the Ricgraph model. Due to this, Ricgraph Explorer
+may not work as expected.
+
+This script forms a pair with 
+[Import nodes and edges from a csv file, 
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
+
+```
+Usage:
+ricgraph_export_raw_to_csv.py [options]
+
+Options:
+  --filename <filename>
+          Export all nodes and edges in Ricgraph
+          to a csv file starting with <filename>.
+          The file with nodes is <filename>-nodes.csv.
+          The file with edges is <filename>-edges.csv.
+```
+
+The export file containing nodes will be a csv file. All fields in Ricgraph will be exported.
+
+The export file containing edges will be a csv file containing exactly four columns:
+* name_from, value_from: the from node for the edge.
+* name_to, value_to: the to node for the edge.
+
+
 ## Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)
 To count the number of organizations that contributed to a category, 
 use the script *count_organizations_contributed_to_category.py*.
@@ -50,7 +197,7 @@ departments of two universities can be shown.
 
 
 ```
-Usage
+Usage:
 count_organizations_contributed_to_category.py [options]
 
 Options:
@@ -68,6 +215,10 @@ Options:
 
 
 ## Export nodes to a file (export_person_identifiers.py and export_person_node_properties.py)
+[This is an old script, you might want to use
+[Export nodes and edges to a csv file,
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)].
+
 There are two scripts which allow to export *person* nodes to a csv file. These can be
 found in the directory [import_export](../import_export).
 * *export_person_identifiers.py*: exports
@@ -97,3 +248,41 @@ there are any personal identifiers that are
 pointing to two or more different persons.
 You can find this script in the directory
 [find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples).
+
+
+## Create a table of contents of the Ricgraph documentation (create_toc_documentation.py)
+To create a table of contents of the Ricgraph documentation 
+use the script *create_toc_documentation.py*.
+You can find this script in the directory [maintenance_scripts](../maintenance_scripts).
+The table of contents will be created in file 
+[ricgraph_toc_documentation.md](ricgraph_toc_documentation.md).
+```
+Usage:
+create_toc_documentation.py
+```
+
+## Create an index of the Ricgraph documentation (create_index_documentation.py)
+To create an index of the Ricgraph documentation
+use the script *create_index_documentation.py*.
+You can find this script in the directory [maintenance_scripts](../maintenance_scripts).
+The index will be created in file
+[ricgraph_index_documentation.md](ricgraph_index_documentation.md).
+```
+Usage:
+create_index_documentation.py
+```
+
+
+## Create the Ricgraph REST API documentation (convert_openapi_to_mddoc.py)
+To create the Ricgraph REST API documentation 
+use the script *convert_openapi_to_mddoc.py*.
+This documentation is based on the Ricgraph OpenAPI yaml file *openapi.yaml*
+in the directory [ricgraph_explorer/static](../ricgraph_explorer/static).
+You can find this script in the directory [maintenance_scripts](../maintenance_scripts).
+The REST API documentation will be created in file
+[ricgraph_restapi_gendoc.md](ricgraph_restapi_gendoc.md).
+```
+Usage:
+convert_openapi_to_mddoc.py
+```
+

@@ -29,8 +29,9 @@ read more about
 [API (application programming interface)](https://en.wikipedia.org/wiki/API).
 
 On this page, you can learn more about:
-* [Installation of the Ricgraph REST API](#installation-of-the-ricgraph-rest-api).
-* [Use of the Ricgraph REST API](#use-of-the-ricgraph-rest-api).
+* [Installation of the Ricgraph REST API](#installation-of-the-ricgraph-rest-api)
+* [Use of the Ricgraph REST API](#use-of-the-ricgraph-rest-api)
+* [Generate the Ricgraph REST API documentation page](#generate-the-ricgraph-rest-api-documentation-page)
 
 [Return to main README.md file](../README.md).
 
@@ -75,7 +76,7 @@ it only lists the end points and parameters available and there is no
 try out feature.
 
 
-### How to generate the Ricgraph REST API documentation page
-Run script `convert_openapi_to_mddoc.py` in directory 
-[maintenance_scripts](../maintenance_scripts).
-Use the python in the bin directory of your virtual environment.
+## Generate the Ricgraph REST API documentation page
+Please read
+[Create the Ricgraph REST API 
+documentation](ricgraph_misc_scripts.md#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddocpy).
