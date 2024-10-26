@@ -36,10 +36,10 @@ it will not be created. This is due to the way Ricgraph works.
 
 This script is different compared to
 [Import nodes and edges from a csv file,
-raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy)
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)
 and
 [Export nodes and edges to a csv file,
-raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy),
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy),
 since the "raw" scripts import and export with Cypher queries.
 
 ```
@@ -90,7 +90,7 @@ may not work as expected.
 
 This script forms a pair with
 [Export nodes and edges to a csv file, 
-raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
 ```
 Usage:
 ricgraph_import_raw_from_csv.py [options]
@@ -126,7 +126,7 @@ The import file containing edges should be a csv file containing exactly four co
 
 For an example import file, export the nodes and edges in Ricgraph using
 [Export nodes and edges to a csv file,
-raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy).
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
 
 
 ## Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv.py)
@@ -146,7 +146,7 @@ may not work as expected.
 
 This script forms a pair with 
 [Import nodes and edges from a csv file, 
-raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy).
 
 ```
 Usage:
