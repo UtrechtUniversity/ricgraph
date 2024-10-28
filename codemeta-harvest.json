@@ -14,9 +14,12 @@
     "thumbnailUrl": "https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/master/docs/images/ricgraph_logo.jpg",
     "softwareRequirements": [
         "flask",
+        "connexion",
+        "gunicorn",
         "markupsafe",
         "neo4j",
         "numpy",
+        "openapi_markdown",
         "pandas",
         "pyalex",
         "requests",
