@@ -173,8 +173,6 @@ endif
 # ########################################################################
 # General targets.
 # ########################################################################
-all: help
-
 help:
 	@echo ""
 	@echo "Ricgraph Makefile help."
@@ -188,22 +186,22 @@ help:
 	@echo "Please be careful running this Makefile and make sure you know what"
 	@echo "you do (especially with the Apache or Nginx webserver). For some actions you"
 	@echo "will need to be user 'root', this Makefile will test for it."
-	@echo "If you use 'make --dry-run' the commands that are to be executed will be shown,"
-	@echo "but they will not be executed."
+	@echo "If you use 'make --dry-run [Makefile target]' the commands that are to be"
+	@echo "executed will be shown, but they will not be executed."
 	@echo ""
 	@echo "Informational commands for this Makefile:"
 	@echo "- make: Displays this message."
-	@echo "- make all: Displays this message."
 	@echo "- make help: Displays this message."
 	@echo ""
-	@echo "Commands for Ricgraph as a single user (please read"
+	@echo "Commands to install Ricgraph as a single user, recommended for"
+	@echo "new Ricgraph users (please read"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md):"
 	@echo "- make install_neo4j_desktop: Download and install Neo4j Desktop."
 	@echo "- make install_ricgraph_as_singleuser: Install Ricgraph for a single user."
 	@echo "       This will be done in a Python virtual environment in $(HOME)."
 	@echo "       Also, a 'make install_neo4j_desktop' will be done (if not done yet)."
 	@echo ""
-	@echo "Commands for Ricgraph as a server (you need to be 'root') (please read"
+	@echo "Commands to install Ricgraph as a server (you need to be 'root') (please read"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md):"
 	@echo "- make install_enable_neo4j_community: Install, enable, and run"
 	@echo "       Neo4j Community Edition."
@@ -235,6 +233,13 @@ help:
 	@echo "- make restore_graphdb_neo4j_community: restore Neo4j Community graph database."
 	@echo "- make run_batchscript: run Ricgraph batch script $(harvest_script)."
 	@echo "       The location of the script will depend on the user running this Makefile."
+	@echo ""
+
+all:
+	@echo ""
+	@echo "You have typed 'make all'."
+	@echo "With the Ricgraph Makefile, this will not install anything."
+	@echo "To learn about valid Makefile options (targets), type 'make help'."
 	@echo ""
 
 makefile_variables:
