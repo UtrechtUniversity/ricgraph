@@ -643,14 +643,9 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
 # ############################################
 # ################### main ###################
 # ############################################
-if not os.path.exists(rcg.RICGRAPH_INI_FILE):
-    print('Error, Ricgraph ini file "' + rcg.RICGRAPH_INI_FILE + '" not found, exiting.')
-    exit(1)
-
 rcg.print_commandline_arguments(argument_list=sys.argv)
-
 config = configparser.ConfigParser()
-config.read(rcg.RICGRAPH_INI_FILE)
+config.read(rcg.get_ricgraph_ini_file())
 try:
     UUSTAFF_URL = config['UU_staff_pages_harvesting']['uustaff_url']
     if UUSTAFF_URL == '':

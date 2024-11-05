@@ -325,12 +325,8 @@ def scopus_create_missing_ids(collected_ids: dict, we_have_id: str, we_want_id: 
 # ############################################
 # ################### main ###################
 # ############################################
-if not os.path.exists(rcg.RICGRAPH_INI_FILE):
-    print('Error, Ricgraph ini file "' + rcg.RICGRAPH_INI_FILE + '" not found, exiting.')
-    exit(1)
-
 config = configparser.ConfigParser()
-config.read(rcg.RICGRAPH_INI_FILE)
+config.read(rcg.get_ricgraph_ini_file())
 try:
     SCOPUS_API_KEY = config['Scopus_harvesting']['scopus_api_key']
     SCOPUS_INSTITUTIONAL_TOKEN = config['Scopus_harvesting']['scopus_institutional_token']

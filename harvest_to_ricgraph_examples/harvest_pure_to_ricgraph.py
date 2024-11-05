@@ -1562,12 +1562,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
 # ############################################
 # ################### main ###################
 # ############################################
-if not os.path.exists(rcg.RICGRAPH_INI_FILE):
-    print('Error, Ricgraph ini file "' + rcg.RICGRAPH_INI_FILE + '" not found, exiting.')
-    exit(1)
-
 rcg.print_commandline_arguments(argument_list=sys.argv)
-
 organization = rcg.get_commandline_argument(argument='--organization',
                                             argument_list=sys.argv)
 if organization == '':
@@ -1594,7 +1589,7 @@ else:
     HARVEST_PROJECTS = False
 
 config = configparser.ConfigParser()
-config.read(rcg.RICGRAPH_INI_FILE)
+config.read(rcg.get_ricgraph_ini_file())
 pure_url = 'pure_url_' + organization
 pure_api_key = 'pure_api_key_' + organization
 try:

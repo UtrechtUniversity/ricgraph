@@ -520,14 +520,9 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 # ############################################
 # ################### main ###################
 # ############################################
-if not os.path.exists(rcg.RICGRAPH_INI_FILE):
-    print('Error, Ricgraph ini file "' + rcg.RICGRAPH_INI_FILE + '" not found, exiting.')
-    exit(1)
-
 rcg.print_commandline_arguments(argument_list=sys.argv)
-
 config = configparser.ConfigParser()
-config.read(rcg.RICGRAPH_INI_FILE)
+config.read(rcg.get_ricgraph_ini_file())
 try:
     YODA_URL = config['Yoda_harvesting']['yoda_url']
     YODA_SET = config['Yoda_harvesting']['yoda_set']

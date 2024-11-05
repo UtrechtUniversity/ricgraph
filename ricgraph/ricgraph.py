@@ -97,7 +97,8 @@ In the default configuration of Ricgraph, the following properties are included:
 """
 
 
-import os.path
+import os
+import sys
 from datetime import datetime
 import numpy
 import pandas
@@ -122,7 +123,7 @@ __version__ = ''
 # ########################################################################
 # Start of constants section
 # ########################################################################
-RICGRAPH_INI_FILE = '../ricgraph.ini'
+RICGRAPH_INI_FILENAME = 'ricgraph.ini'
 RICGRAPH_KEY_SEPARATOR = '|'
 
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
@@ -735,6 +736,29 @@ def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_eleme
 # ##############################################################################
 # General Ricgraph functions.
 # ##############################################################################
+def get_ricgraph_ini_file() -> str:
+    """Get the location of the ricgraph ini file.
+
+    :return: the location of the ini file.
+    """
+    # Try to find RICGRAPH_INI_FILENAME in the root of the virtual environment.
+    ricgraph_ini_path = sys.prefix
+    ricgraph_ini = os.path.join(ricgraph_ini_path, RICGRAPH_INI_FILENAME)
+    if os.path.exists(ricgraph_ini):
+        return ricgraph_ini
+
+    # Try to find RICGRAPH_INI_FILENAME in the parent directory of the venv,
+    # which may happen when using a Python IDE.
+    ricgraph_ini_path_parent = os.path.dirname(ricgraph_ini_path)
+    ricgraph_ini = os.path.join(ricgraph_ini_path_parent, RICGRAPH_INI_FILENAME)
+    if os.path.exists(ricgraph_ini):
+        return ricgraph_ini
+
+    print('Ricgraph initialization: error, Ricgraph ini file "' + RICGRAPH_INI_FILENAME + '" not found in')
+    print('   directory "' + ricgraph_ini_path + '", nor in')
+    print('   directory "' + ricgraph_ini_path_parent + '", exiting.')
+    exit(1)
+
 
 def timestamp(seconds: bool = False) -> str:
     """Get a timestamp only consisting of a time.
@@ -2700,12 +2724,8 @@ def get_commandline_argument(argument: str, argument_list: list) -> str:
 # ################### main ###################
 # ############################################
 # This will be executed on module initialization
-if not os.path.exists(RICGRAPH_INI_FILE):
-    print('Ricgraph initialization: error, Ricgraph ini file "' + RICGRAPH_INI_FILE + '" not found, exiting.')
-    exit(1)
-
 config = configparser.ConfigParser()
-config.read(RICGRAPH_INI_FILE)
+config.read(get_ricgraph_ini_file())
 try:
     RICGRAPH_PROPERTIES_STANDARD = tuple(config['Ricgraph']['ricgraph_properties_standard'].split(','))
     RICGRAPH_PROPERTIES_HIDDEN = tuple(config['Ricgraph']['ricgraph_properties_hidden'].split(','))

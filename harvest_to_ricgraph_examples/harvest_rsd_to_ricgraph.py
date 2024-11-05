@@ -296,12 +296,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 # ############################################
 # ################### main ###################
 # ############################################
-if not os.path.exists(rcg.RICGRAPH_INI_FILE):
-    print('Error, Ricgraph ini file "' + rcg.RICGRAPH_INI_FILE + '" not found, exiting.')
-    exit(1)
-
 rcg.print_commandline_arguments(argument_list=sys.argv)
-
 organization = rcg.get_commandline_argument(argument='--organization',
                                             argument_list=sys.argv)
 if organization == '':
@@ -316,7 +311,7 @@ if organization == '':
 
 organization = organization.upper()
 config = configparser.ConfigParser()
-config.read(rcg.RICGRAPH_INI_FILE)
+config.read(rcg.get_ricgraph_ini_file())
 rsd_url = 'rsd_url'
 rsd_organization = 'rsd_organization_' + organization
 try:
