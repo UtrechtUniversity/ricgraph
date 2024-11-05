@@ -117,7 +117,7 @@ __copyright__ = 'Copyright (c) 2023, 2024 Rik D.T. Janssen'
 __email__ = ''
 __license__ = 'MIT License'
 __package__ = 'Ricgraph'
-__version__ = ''
+# __version__ is in __init__.py of this module.
 
 
 # ########################################################################
