@@ -43,10 +43,13 @@ fi
 
 cd ..
 
-# Possible future extension:
-# Update setup.py
-#echo "Updating setup.py..."
-#sed -i "s/version='.*'/version='${new_version}'/" setup.py
+# Update pyproject.toml
+echo "Updating pyproject.toml..."
+sed -i "s/version = \".*\"/version = \"${new_version}\"/" pyproject.toml
+
+# Update requirements.txt
+echo "Updating requirements.txt..."
+sed -i "s/ricgraph == .*/ricgraph == ${new_version}/" requirements.txt
 
 # Update ricgraph/__init__.py
 echo "Updating ricgraph/__init__.py..."
