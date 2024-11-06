@@ -7,15 +7,15 @@ packages = ["ricgraph"]
 
 [project]
 name = "ricgraph"
-version = "2.5"
+version = "2.5.1"
 authors = [
   { name="Rik D.T. Janssen" },
 ]
 description = "Ricgraph - Research in context graph"
-readme = "README.md"
+readme = "README-PyPI.md"
 requires-python = ">=3.9"
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -40,6 +40,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://www.ricgraph.eu"
+Website = "https://www.ricgraph.eu"
+Documentation = "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
 GitHub = "https://github.com/UtrechtUniversity/ricgraph"
 Issues = "https://github.com/UtrechtUniversity/ricgraph/issues"
+Download = "https://github.com/UtrechtUniversity/ricgraph/releases"
+"Release Notes" = "https://github.com/UtrechtUniversity/ricgraph/releases"
