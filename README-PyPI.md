@@ -31,9 +31,6 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-Throughout this documentation, we illustrate how Ricgraph works by applying 
-it to the application area research information. 
-
 ### Motivation
 
 Ricgraph, also known as Research in context graph, is software that is about
@@ -53,8 +50,8 @@ Examples of *research results* are publications, data sets, and software.
 
 Example use cases from the application area research information are:
 
-| Use case                                                                                                                                                                                                                                                        | In Ricgraph (click to enlarge)                              |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| Use case                                                                                                                                                                                                                                                        | In Ricgraph                                                                                                                   |
+|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
 | As a journalist, I want to find researchers with a certain skill S and their publications, so that I can interview them for a newspaper article. Example skills can be: *climate change* or *stem cells*.                                                       | <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/journalist-use-case.jpg" width="700"> |
 | As a librarian, I want to enrich my local research information system with research results from person A that are in other systems (in orange, *RIS2*) but not in ours (in green, *RIS1*), so that we have a more complete view of research at our university. | <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/librarian-use-case.jpg" width="700">  |
 | As a researcher A, I want to find researchers from other universities that have co-authored publications written by the co-authors of my own publications, so that I can read their publications to find out if we share common research interests.             | <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/researcher-use-case.jpg" width="700"> |
@@ -88,5 +85,7 @@ Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore re
 context from various systems. *SoftwareX*, 26(101736).
 https://doi.org/10.1016/j.softx.2024.101736.
 
-You can also read the documentation on 
+You might also want to read the documentation in 
 the [Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
+To use Ricgraph, installing the Ricgraph package is not sufficient. Please read the
+installation instructions in the Ricgraph GitHub repository.
