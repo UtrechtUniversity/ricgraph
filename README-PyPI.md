@@ -87,5 +87,6 @@ https://doi.org/10.1016/j.softx.2024.101736.
 
 You might also want to read the documentation in 
 the [Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
-To use Ricgraph, installing the Ricgraph package is not sufficient. Please read the
+To use Ricgraph, installing the [Ricgraph package from PyPI](https://pypi.org/project/ricgraph) 
+is not sufficient. Please read the
 installation instructions in the Ricgraph GitHub repository.
