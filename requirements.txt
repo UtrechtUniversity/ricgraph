@@ -1,5 +1,6 @@
-flask
+build
 connexion[swagger-ui,flask,uvicorn]
+flask
 gunicorn
 markupsafe
 neo4j >= 5.8
@@ -7,7 +8,9 @@ numpy
 openapi_markdown
 pandas
 pyalex
-requests
 ratelimit
-xmltodict
+requests
+ricgraph == 2.5
+twine
 Sickle
+xmltodict
