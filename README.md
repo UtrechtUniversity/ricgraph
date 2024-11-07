@@ -1,6 +1,6 @@
-[![Static Badge](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
-[![Static Badge](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
-[![Static Badge](https://img.shields.io/badge/Website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)  
+[![DOI software](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
+[![DOI reference publication](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
+[![website](https://img.shields.io/badge/website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph)
 [![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=green)](https://github.com/UtrechtUniversity/ricgraph/releases)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest?color=green)
@@ -15,7 +15,7 @@
 Note, the lines 'Website' and
 'PyPI downloads' end in two spaces, to force a line break but not a paragraph break.
 --->
-<img src="docs/images/ricgraph_logo.jpg" height="30"> 
+<img alt="Ricgraph logo" src="docs/images/ricgraph_logo.jpg" height="30"> 
 
 # Ricgraph - Research in context graph 
 
@@ -113,7 +113,7 @@ For a further introduction, you might want to read these two presentations:
   (and other source systems) using Ricgraph 
   and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
   https://doi.org/10.5281/zenodo.12634658.
-  This presentation explains that after harvesting several Pure's 
+  This presentation explains that after harvesting several Pure systems 
   (from different institutions)  and other source systems,
   such as [OpenAlex](https://openalex.org), 
   one can enrich its own Pure _A_ by using information in other source
@@ -306,7 +306,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
     (and other source systems) using Ricgraph
     and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
     https://doi.org/10.5281/zenodo.12634658.
-    This presentation explains that after harvesting several Pure's
+    This presentation explains that after harvesting several Pure systems
     (from different institutions)  and other source systems,
     such as [OpenAlex](https://openalex.org),
     one can enrich its own Pure _A_ by using information in other source

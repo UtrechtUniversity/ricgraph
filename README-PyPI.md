@@ -1,6 +1,6 @@
-[![Static Badge](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
-[![Static Badge](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
-[![Static Badge](https://img.shields.io/badge/Website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)  
+[![DOI software](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
+[![DOI reference publication](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
+[![website](https://img.shields.io/badge/website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph)
 [![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=green)](https://github.com/UtrechtUniversity/ricgraph/releases)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest?color=green)
@@ -15,7 +15,7 @@
 Note, the lines 'Website' and
 'PyPI downloads' end in two spaces, to force a line break but not a paragraph break.
 --->
-<img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/refs/heads/main/docs/images/ricgraph_logo.jpg" height="30"> 
+<img alt="Ricgraph logo" src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/refs/heads/main/docs/images/ricgraph_logo.jpg" height="30"> 
 
 # Ricgraph - Research in context graph 
 
