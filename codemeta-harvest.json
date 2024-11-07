@@ -10,11 +10,11 @@
         "name": "Utrecht University"
     },
     "programmingLanguage": "Python",
-    "developmentStatus": [ "https://w3id.org/research-technology-readiness-levels#Level6LatePrototype", "https://www.repostatus.org/#active" ],
+    "developmentStatus": [ "https://w3id.org/research-technology-readiness-levels#Level7ReleaseCandidate", "https://www.repostatus.org/#active" ],
     "thumbnailUrl": "https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/master/docs/images/ricgraph_logo.jpg",
     "softwareRequirements": [
-        "flask",
         "connexion",
+        "flask",
         "gunicorn",
         "markupsafe",
         "neo4j",
@@ -22,8 +22,9 @@
         "openapi_markdown",
         "pandas",
         "pyalex",
-        "requests",
         "ratelimit",
+        "requests",
+        "ricgraph",
         "xmltodict",
         "sickle"
     ],

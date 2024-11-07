@@ -2,16 +2,18 @@
 [![Static Badge](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
 [![Static Badge](https://img.shields.io/badge/Website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph)
-![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=green)
+[![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=green)](https://github.com/UtrechtUniversity/ricgraph/releases)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest?color=green)
-![GitHub last commit](https://img.shields.io/github/last-commit/UtrechtUniversity/ricgraph)  
+![GitHub last commit](https://img.shields.io/github/last-commit/UtrechtUniversity/ricgraph)
+[![PyPI - Version](https://img.shields.io/pypi/v/ricgraph?label=PyPI%20version&color=green)](https://pypi.org/project/ricgraph)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/ricgraph?label=PyPI%20downloads)](https://pypistats.org/packages/ricgraph)  
 [![GitHub license](https://img.shields.io/github/license/UtrechtUniversity/ricgraph)](LICENSE)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Technology Readiness Level 6/9 - Late Prototype - Technology demonstrated in target setting, end-users adopt it for testing purposes](https://w3id.org/research-technology-readiness-levels/Level6LatePrototype.svg)](https://github.com/CLARIAH/clariah-plus/blob/main/requirements/software-metadata-requirements.md#15--you-should-express-a-technology-readiness-level)
+[![Technology Readiness Level 7/9 - Release Candidate - Technology ready enough and in initial use by end-users in intended scholarly environments](https://w3id.org/research-technology-readiness-levels/Level7ReleaseCandidate.svg)](https://github.com/CLARIAH/clariah-plus/blob/main/requirements/software-metadata-requirements.md#15--you-should-express-a-technology-readiness-level)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=32110&r=123)
 <!---
 Note, the lines 'Website' and
-'GitHub last commit' end in two spaces, to force a line break but not a paragraph break.
+'PyPI downloads' end in two spaces, to force a line break but not a paragraph break.
 --->
 <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/refs/heads/main/docs/images/ricgraph_logo.jpg" height="30"> 
 
