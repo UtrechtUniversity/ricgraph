@@ -24,7 +24,7 @@ keywords = ["Ricgraph", "Ricgraph Explorer", "Ricgraph REST API", "Research in c
     "Graph", "Graph database", "Data harvesting", "Data enrichment", "Data linking",
     "Linked data", "Knowledge graph", "Metadata", "Utrecht University"]
 dependencies = [
-    "connexion[swagger-ui,flask,uvicorn]",
+    "connexion",
     "flask",
     "gunicorn",
     "markupsafe",
