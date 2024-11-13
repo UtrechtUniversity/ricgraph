@@ -256,3 +256,28 @@ By clicking on e.g. _NVivo_, you will traverse to the _NVivo_ node,
 and you will see the neighbors of this node. This can be repeated as desired.
 It is also possible to start a new search using the buttons _Home_, _Advanced search_,
 or _Broad search_ in the yellow title bar.
+
+## Showing a privacy statement or privacy measures document
+Ricgraph Explorer offers the possibility to show
+a privacy statement or privacy measures document (or both) if desired for 
+your Ricgraph production environment.
+Placeholders have been provided in the files
+[privacy_statement_placeholder.pdf](../ricgraph_explorer/static/privacy_statement_placeholder.pdf)
+and
+[privacy_measures_placeholder.pdf](../ricgraph_explorer/static/privacy_measures_placeholder.pdf).
+
+How to use a privacy statement in Ricgraph Explorer?
+* Create a privacy statement that fits your situation.
+* Use the filename `privacy_statement.[extension of your text editor]`.
+* Convert this file to a pdf file and use filename `privacy_statement.pdf`.
+* Put it in `…/ricgraph_explorer/static`.
+* In Ricgraph Explorer, in the footer you will find a link to this file.
+
+How to use a privacy measures document in Ricgraph Explorer?
+* Create a privacy measures document that fits your situation.
+* Use the filename `privacy_measures.[extension of your text editor]`.
+* Convert this file to a pdf file and use filename `privacy_measures.pdf`.
+* Put it in `…/ricgraph_explorer/static`.
+* In Ricgraph Explorer, in the footer you will find a link to this file.
+
+

@@ -146,6 +146,12 @@ MAX_ORGANIZATION_NODES_TO_RETURN = 4 * MAX_ROWS_IN_TABLE
 # is going to enrich in find_enrich_candidates().
 MAX_NR_NODES_TO_ENRICH = 20
 
+# The location of the privacy statement and privacy measures file.
+# If one or both exist, they should be in the 'static' folder.
+PRIVACY_STATEMENT_FILE = 'privacy_statement.pdf'
+PRIVACY_MEASURES_FILE = 'privacy_measures.pdf'
+
+
 # These are all the 'view_mode's that are allowed.
 VIEW_MODE_ALL = ['view_regular_table_personal',
                  'view_regular_table_organizations',
@@ -178,6 +184,7 @@ global graph
 global name_all, category_all, source_all, resout_types_all
 global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
 global personal_types_all, remainder_types_all
+global privacy_statement_link, privacy_measures_link
 global page_footer
 
 # The html 'width' of input fields or 'min-width' of buttons.
@@ -272,7 +279,8 @@ page_header += '</header>'
 page_footer_general = 'For more information about Ricgraph and Ricgraph Explorer, '
 page_footer_general += 'please read the reference publication '
 page_footer_general += '<a href="https://doi.org/10.1016/j.softx.2024.101736">'
-page_footer_general += 'https://doi.org/10.1016/j.softx.2024.101736</a> '
+page_footer_general += 'https://doi.org/10.1016/j.softx.2024.101736</a>, '
+page_footer_general += 'visit the website <a href=https://www.ricgraph.eu>www.ricgraph.eu</a>, '
 page_footer_general += 'or go to the GitHub repository '
 page_footer_general += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
 page_footer_general += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
@@ -2707,6 +2715,25 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
     return html
 
 
+def flask_check_file_exists(filename: str) -> bool:
+    """Check if a file exists in the static folder.
+
+    :param filename: The name of the file to check.
+    :return: True if it exists, otherwise False.
+    """
+    # This function is called during app initialization.
+    # We are outside the app context, because we are not in a route().
+    # That means we need to get the app context.
+    this_app = ricgraph_explorer.app
+    file_path = os.path.join(this_app.static_folder, filename)
+    if os.path.isfile(file_path):
+        # The file exists in the static folder.
+        return True
+    else:
+        # The file does not exist in the static folder.
+        return False
+
+
 # ##############################################################################
 # The HTML for the regular, tabbed and faceted tables is generated here.
 # ##############################################################################
@@ -3974,6 +4001,7 @@ def get_all_globals_from_app_context() -> None:
     global name_all, category_all, source_all, resout_types_all
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
+    global privacy_statement_link, privacy_measures_link
 
     if 'graph' in current_app.config:
         graph = current_app.config.get('graph')
@@ -4030,6 +4058,16 @@ def get_all_globals_from_app_context() -> None:
     else:
         print('get_all_globals_from_app_context(): Error, cannot find global "remainder_types_all".')
         exit(2)
+    if 'privacy_statement_link' in current_app.config:
+        privacy_statement_link = current_app.config.get('privacy_statement_link')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "privacy_statement_link".')
+        exit(2)
+    if 'privacy_measures_link' in current_app.config:
+        privacy_measures_link = current_app.config.get('privacy_measures_link')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "privacy_measures_link".')
+        exit(2)
     return
 
 
@@ -4041,6 +4079,7 @@ def initialize_ricgraph_explorer():
     global name_all, category_all, source_all, resout_types_all
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
+    global privacy_statement_link, privacy_measures_link
 
     graph = rcg.open_ricgraph()
     if graph is None:
@@ -4102,6 +4141,19 @@ def initialize_ricgraph_explorer():
         source_all_datalist += '<option value="' + property_item + '">'
     source_all_datalist += '</datalist>'
     store_global_in_app_context(name='source_all_datalist', value=source_all_datalist)
+
+    if flask_check_file_exists(filename=PRIVACY_STATEMENT_FILE):
+        privacy_statement_link = '<a href=/static/' + PRIVACY_STATEMENT_FILE + '>'
+        privacy_statement_link += 'Read the privacy statement</a>. '
+    else:
+        privacy_statement_link = ''
+    store_global_in_app_context(name='privacy_statement_link', value=privacy_statement_link)
+    if flask_check_file_exists(filename=PRIVACY_MEASURES_FILE):
+        privacy_measures_link = '<a href=/static/' + PRIVACY_MEASURES_FILE + '>'
+        privacy_measures_link += 'Read the privacy measures document</a>. '
+    else:
+        privacy_measures_link = ''
+    store_global_in_app_context(name='privacy_measures_link', value=privacy_measures_link)
     return
 
 
@@ -4114,7 +4166,13 @@ def create_ricgraph_explorer_app():
     global ricgraph_explorer
 
     initialize_ricgraph_explorer()
-    page_footer = page_footer_wsgi
+    page_footer = ''
+    if privacy_statement_link != '' or privacy_measures_link != '':
+        page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
+        page_footer += privacy_statement_link
+        page_footer += privacy_measures_link
+        page_footer += '</footer>'
+    page_footer += page_footer_wsgi
 
     return ricgraph_explorer
 
@@ -4124,6 +4182,12 @@ def create_ricgraph_explorer_app():
 # ############################################
 if __name__ == "__main__":
     initialize_ricgraph_explorer()
-    page_footer = page_footer_development
+    page_footer = ''
+    if privacy_statement_link != '' or privacy_measures_link != '':
+        page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
+        page_footer += privacy_statement_link
+        page_footer += privacy_measures_link
+        page_footer += '</footer>'
+    page_footer += page_footer_development
 
     ricgraph_explorer.run(port=3030)
