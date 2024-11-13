@@ -43,7 +43,7 @@ On this page, you can learn more about:
 * The [Results page](#results-page) of Ricgraph Explorer.
 * Read about [browsing Ricgraph](#browsing-ricgraph).
 * Learn how to [show a privacy statement or privacy measures 
-  document](#showing-a-privacy-statement-or-privacy-measures-document)
+  document](#showing-a-privacy-statement-or-privacy-measures-document).
  
 [Return to main README.md file](../README.md).
 
