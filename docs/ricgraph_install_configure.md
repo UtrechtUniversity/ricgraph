@@ -47,7 +47,6 @@ execute one of these commands to find the possible targets:
 ```
 make
 make help
-make all
 ```
 Most often, you do not need to install the `make` command, but if you get a
 "command not found" error message, you need to install it using your Linux 
