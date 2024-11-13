@@ -1703,10 +1703,12 @@ def find_enrich_candidates(parent_node: Union[Node, None],
         table_header = 'You could enrich source system "' + source_system + '" '
         table_header += 'by using this information harvested from other source systems. '
         table_header += 'This information is not in source system "' + source_system + '".'
-        html += get_regular_table(nodes_list=nodes_not_in_source_system,
-                                  table_header=table_header,
-                                  table_columns=table_columns,
-                                  extra_url_parameters=extra_url_parameters)
+        html += get_tabbed_table(nodes_list=nodes_not_in_source_system,
+                                 table_header=table_header,
+                                 table_columns=table_columns,
+                                 tabs_on='category',
+                                 discoverer_mode=discoverer_mode,
+                                 extra_url_parameters=extra_url_parameters)
         html += get_html_for_cardend()
 
     if something_found:
