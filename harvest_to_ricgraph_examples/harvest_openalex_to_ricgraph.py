@@ -58,7 +58,6 @@
 # ########################################################################
 
 
-import os.path
 import sys
 import re
 import pandas
@@ -91,8 +90,8 @@ OPENALEX_HARVEST_FROM_FILE = False
 OPENALEX_HARVEST_FILENAME = 'openalex_harvest.json'
 OPENALEX_DATA_FILENAME = 'openalex_data.csv'
 OPENALEX_RESOUT_YEARS = ['2021', '2022', '2023', '2024']
-# This number is the max recs to harvest per year, not total
-OPENALEX_MAX_RECS_TO_HARVEST = 0                             # 0 = all records
+# This number is the max recs to harvest per year, not total.
+OPENALEX_MAX_RECS_TO_HARVEST = 0                        # 0 = all records
 OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships'
 
 
@@ -314,7 +313,7 @@ def harvest_and_parse_openalex(harvest_year: str,
 
 
 # ######################################################
-# Parsed results to Ricgraph #
+# Parsed results to Ricgraph
 # ######################################################
 
 def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
@@ -347,6 +346,7 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                    source_event=HARVEST_SOURCE,
                                    history_event=history_event)
 
+    # Connect organizations to persons.
     organizations = parsed_content[['OPENALEX', 'INSTITUTION_NAME']].copy(deep=True)
     organizations['url_main1'] = organizations[['OPENALEX']].apply(
                                  lambda row: create_openalex_url(name='AUTHOR',
@@ -370,6 +370,28 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
           + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(organizations)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+
+    # Connect organization name to organization ROR.
+    organizations = parsed_content[['ROR', 'INSTITUTION_NAME']].copy(deep=True)
+    organizations.dropna(axis=0, how='any', inplace=True)
+    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    organizations.rename(columns={'ROR': 'value1', 'INSTITUTION_NAME': 'value2'}, inplace=True)
+    new_organization_columns = {'name1': 'ROR',
+                                'category1': 'organization',
+                                'source_event1': HARVEST_SOURCE,
+                                'history_event1': history_event,
+                                'name2': 'ORGANIZATION_NAME',
+                                'category2': 'organization'}
+    organizations = organizations.assign(**new_organization_columns)
+    organizations = organizations[['name1', 'category1', 'value1',
+                                   'source_event1', 'history_event1',
+                                   'name2', 'category2', 'value2']]
+
+    print('The following organization RORs to organization names from persons from ' + HARVEST_SOURCE
+          + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+    print(organizations)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+
     print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
