@@ -146,11 +146,16 @@ MAX_ORGANIZATION_NODES_TO_RETURN = 4 * MAX_ROWS_IN_TABLE
 # is going to enrich in find_enrich_candidates().
 MAX_NR_NODES_TO_ENRICH = 20
 
-# The location of the privacy statement and privacy measures file.
+# The location of the privacy statement and privacy measures file, if present.
 # If one or both exist, they should be in the 'static' folder.
+# A link is generated to this file, so it should be comprehensible to a browser.
 PRIVACY_STATEMENT_FILE = 'privacy_statement.pdf'
 PRIVACY_MEASURES_FILE = 'privacy_measures.pdf'
 
+# The location of the home page intro text, if present.
+# If it exists, it should be in the 'static' folder.
+# It is included on the home page without further processing, expected to be in html format.
+HOMEPAGE_INTRO_FILE = 'homepage_intro.html'
 
 # These are all the 'view_mode's that are allowed.
 VIEW_MODE_ALL = ['view_regular_table_personal',
@@ -185,6 +190,7 @@ global name_all, category_all, source_all, resout_types_all
 global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
 global personal_types_all, remainder_types_all
 global privacy_statement_link, privacy_measures_link
+global homepage_intro_html
 global page_footer
 
 # The html 'width' of input fields or 'min-width' of buttons.
@@ -276,14 +282,15 @@ page_header += '</div>'
 page_header += '</header>'
 
 # The html page footer.
-page_footer_general = 'For more information about Ricgraph and Ricgraph Explorer, '
+page_footer_general = 'For more information about Ricgraph, Ricgraph Explorer, and the Ricgraph REST API, '
 page_footer_general += 'please read the reference publication '
 page_footer_general += '<a href="https://doi.org/10.1016/j.softx.2024.101736">'
 page_footer_general += 'https://doi.org/10.1016/j.softx.2024.101736</a>, '
 page_footer_general += 'visit the website <a href=https://www.ricgraph.eu>www.ricgraph.eu</a>, '
 page_footer_general += 'or go to the GitHub repository '
 page_footer_general += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
-page_footer_general += 'https://github.com/UtrechtUniversity/ricgraph</a>.'
+page_footer_general += 'https://github.com/UtrechtUniversity/ricgraph</a>. '
+page_footer_general += 'This site uses Ricgraph version ' + rcg.__version__ + '.'
 
 page_footer_development = '<footer class="w3-container rj-gray" style="font-size:80%">'
 page_footer_development += 'You are using Ricgraph Explorer in development mode. '
@@ -348,6 +355,7 @@ def homepage() -> str:
     """
     global html_body_start, html_body_end, page_footer
     global source_all, category_all
+    global homepage_intro_html
 
     get_all_globals_from_app_context()
     html = html_body_start
@@ -356,16 +364,18 @@ def homepage() -> str:
     html += 'Ricgraph, also known as Research in context graph, enables the exploration of researchers, '
     html += 'teams, their results, '
     html += 'collaborations, skills, projects, and the relations between these items. '
-    html += '<p/>'
     html += 'Ricgraph can store many types of items into a single graph (network). '
     html += 'These items can be obtained from various systems and from '
-    html += 'multiple organizations (see below for the sources of the items in this instance '
-    html += 'of Ricgraph). Ricgraph facilitates reasoning about these '
+    html += 'multiple organizations. '
+    html += 'Ricgraph facilitates reasoning about these '
     html += 'items because it infers new relations between items, '
     html += 'relations that are not present in any of the separate source systems. '
     html += 'It is flexible and extensible, and can be adapted to new application areas. '
 
     html += '<p/>'
+    html += homepage_intro_html
+    html += '<p/>'
+
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
     html += 'There are various methods to start exploring:'
     html += '<p/>'
@@ -2734,6 +2744,25 @@ def flask_check_file_exists(filename: str) -> bool:
         return False
 
 
+def flask_read_file(filename: str) -> str:
+    """Read the contents of a file in the static folder.
+
+    :param filename: The name of the file to read.
+    :return: the contents of the file, or '' when the file does not exist.
+    """
+    if not flask_check_file_exists(filename=filename):
+        return ''
+
+    # This function is called during app initialization.
+    # We are outside the app context, because we are not in a route().
+    # That means we need to get the app context.
+    this_app = ricgraph_explorer.app
+    file_path = os.path.join(this_app.static_folder, filename)
+    with open(file_path, 'r') as file:
+        html = file.read()
+    return html
+
+
 # ##############################################################################
 # The HTML for the regular, tabbed and faceted tables is generated here.
 # ##############################################################################
@@ -4002,6 +4031,7 @@ def get_all_globals_from_app_context() -> None:
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
     global privacy_statement_link, privacy_measures_link
+    global homepage_intro_html
 
     if 'graph' in current_app.config:
         graph = current_app.config.get('graph')
@@ -4068,6 +4098,11 @@ def get_all_globals_from_app_context() -> None:
     else:
         print('get_all_globals_from_app_context(): Error, cannot find global "privacy_measures_link".')
         exit(2)
+    if 'homepage_intro_html' in current_app.config:
+        homepage_intro_html = current_app.config.get('homepage_intro_html')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "homepage_intro_html".')
+        exit(2)
     return
 
 
@@ -4080,6 +4115,7 @@ def initialize_ricgraph_explorer():
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
     global privacy_statement_link, privacy_measures_link
+    global homepage_intro_html
 
     graph = rcg.open_ricgraph()
     if graph is None:
@@ -4154,6 +4190,9 @@ def initialize_ricgraph_explorer():
     else:
         privacy_measures_link = ''
     store_global_in_app_context(name='privacy_measures_link', value=privacy_measures_link)
+
+    homepage_intro_html = flask_read_file(filename=HOMEPAGE_INTRO_FILE)
+    store_global_in_app_context(name='homepage_intro_html', value=homepage_intro_html)
     return
 
 
