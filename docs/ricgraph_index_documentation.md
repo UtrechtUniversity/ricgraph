@@ -178,6 +178,7 @@ __S__
 - [Script to find person identifiers pointing to different persons (find_double_pids.py)](../docs/ricgraph_misc_scripts.md#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pidspy)
 - [Search page](../docs/ricgraph_explorer.md#search-page)
 - [Settings for graph database backend](../docs/ricgraph_install_configure.md#settings-for-graph-database-backend)
+- [Showing a privacy statement or privacy measures document](../docs/ricgraph_explorer.md#showing-a-privacy-statement-or-privacy-measures-document)
 - [Solution for Neo4j Community Edition](../docs/ricgraph_known_bugs.md#solution-for-neo4j-community-edition)
 - [Solution for Neo4j Desktop](../docs/ricgraph_known_bugs.md#solution-for-neo4j-desktop)
 - [Start Neo4j Desktop](../docs/ricgraph_query_visualize.md#start-neo4j-desktop)

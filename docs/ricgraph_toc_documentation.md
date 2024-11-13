@@ -65,6 +65,7 @@ This table of contents has been generated automatically.
   - [Organization options page](../docs/ricgraph_explorer.md#organization-options-page)
   - [Results page](../docs/ricgraph_explorer.md#results-page)
   - [Browsing Ricgraph](../docs/ricgraph_explorer.md#browsing-ricgraph)
+  - [Showing a privacy statement or privacy measures document](../docs/ricgraph_explorer.md#showing-a-privacy-statement-or-privacy-measures-document)
 - [Future work](../docs/ricgraph_future_work.md#future-work)
 - [Ricgraph harvest scripts](../docs/ricgraph_harvest_scripts.md#ricgraph-harvest-scripts)
   - [Introduction to harvest scripts](../docs/ricgraph_harvest_scripts.md#introduction-to-harvest-scripts)
