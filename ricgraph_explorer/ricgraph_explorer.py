@@ -864,28 +864,34 @@ def create_options_page(node: Node,
         html += get_html_for_cardstart()
         html += '<h4>What would you like to see from this organization?</h4>'
         html += create_html_form(destination='resultspage',
+                                 button_text='show all information related to this organization',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_unspecified_table_organizations'
+                                                } | extra_url_parameters)
+        html += '<p/>'
+
+        html += create_html_form(destination='resultspage',
                                  button_text='show persons related to this organization',
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
                                                 'name_list': 'person-root',
                                                 'view_mode': 'view_regular_table_persons_of_org'
                                                 } | extra_url_parameters)
-        html += '<p/>'
-
-        html += create_html_form(destination='resultspage',
-                                 button_text='show all information related to this organization',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_unspecified_table_organizations'
-                                                } | extra_url_parameters)
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
         html += '<h4>Advanced information related to this organization</h4>'
-        # html += 'Depending on the number of persons in ' + str(node['value']) + ', '
-        # html += 'the following options may take some time before showing the result.'
         html += get_html_for_cardstart()
         html += '<h5>More information about persons or their results in this organization.</h5>'
+        html += create_html_form(destination='resultspage',
+                                 button_text='find any information from all persons in this organization',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'view_mode': 'view_regular_table_organization_addinfo'
+                                                } | extra_url_parameters)
+        html += '<p/>'
+
         html += create_html_form(destination='resultspage',
                                  button_text='find research results from all persons in this organization',
                                  hidden_fields={'key': key,
@@ -905,14 +911,6 @@ def create_options_page(node: Node,
                                                     } | extra_url_parameters)
             html += '<p/>'
 
-        button_text = 'find any information from persons or their results '
-        button_text += 'in this organization'
-        html += create_html_form(destination='resultspage',
-                                 button_text=button_text,
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_organization_addinfo'
-                                                } | extra_url_parameters)
         html += '<br/>'
 
         explanation = 'By using the fields below, you can choose '
@@ -940,6 +938,15 @@ def create_options_page(node: Node,
         html += '<h4>What would you like to see from this person?</h4>'
 
         html += create_html_form(destination='resultspage',
+                                 button_text='show all information related to this person',
+                                 hidden_fields={'key': key,
+                                                'discoverer_mode': discoverer_mode,
+                                                'category_list': remainder_types_all,
+                                                'view_mode': 'view_unspecified_table_everything'
+                                                } | extra_url_parameters)
+        html += '<p/>'
+
+        html += create_html_form(destination='resultspage',
                                  button_text='show personal information related to this person',
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
@@ -964,26 +971,19 @@ def create_options_page(node: Node,
                                                 'category_list': resout_types_all,
                                                 'view_mode': 'view_unspecified_table_resouts'
                                                 } | extra_url_parameters)
-        html += '<p/>'
 
-        everything_except_ids = category_all.copy()
-        everything_except_ids.remove('person')
-        html += create_html_form(destination='resultspage',
-                                 button_text='show everything except identities related to this person',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'category_list': everything_except_ids,
-                                                'view_mode': 'view_unspecified_table_everything_except_ids'
-                                                } | extra_url_parameters)
-        html += '<p/>'
-
-        html += create_html_form(destination='resultspage',
-                                 button_text='show all information related to this person',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'category_list': remainder_types_all,
-                                                'view_mode': 'view_unspecified_table_everything'
-                                                } | extra_url_parameters)
+        # I wonder if the following button is useful, I leave it out for now.
+        # html += '<p/>'
+        #
+        # everything_except_ids = category_all.copy()
+        # everything_except_ids.remove('person')
+        # html += create_html_form(destination='resultspage',
+        #                          button_text='show everything except identities related to this person',
+        #                          hidden_fields={'key': key,
+        #                                         'discoverer_mode': discoverer_mode,
+        #                                         'category_list': everything_except_ids,
+        #                                         'view_mode': 'view_unspecified_table_everything_except_ids'
+        #                                         } | extra_url_parameters)
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
@@ -1280,11 +1280,12 @@ def create_results_page(view_mode: str,
                                                               name_want=name_list,
                                                               category_want=category_list)
         if discoverer_mode == 'details_view':
-            html += get_regular_table(nodes_list=neighbor_nodes_personal,
-                                      table_header='This is personal information related to this person:',
-                                      table_columns=table_columns_ids,
-                                      discoverer_mode=discoverer_mode,
-                                      extra_url_parameters=extra_url_parameters)
+            html += get_tabbed_table(nodes_list=neighbor_nodes_personal,
+                                     table_header='This is personal information related to this person:',
+                                     table_columns=table_columns_ids,
+                                     tabs_on='name',
+                                     discoverer_mode=discoverer_mode,
+                                     extra_url_parameters=extra_url_parameters)
             html += get_faceted_table(parent_node=node,
                                       neighbor_nodes=neighbor_nodes_remainder,
                                       table_header='This is other information related to this person:',
