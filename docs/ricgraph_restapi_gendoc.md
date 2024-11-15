@@ -539,6 +539,7 @@ __Parameters__
 |------|------|----------|-------------|
 | ricgraph_list_name | string | True | Return the values in the specified internal Ricgraph list. These are dependent on the data in your Ricgraph instance and on the systems you have harvested. Allowed Ricgraph lists are:
 * name_all: all possible values of the *name* field in a Ricgraph node.
+* name_personal_all: all possible values of the *name* field that contain personal data in a Ricgraph node.
 * category_all: all possible values of the *category* field in a Ricgraph node.
 * personal_types_all: all category values in list *category_all* that are applicable to a person.
 * remainder_types_all: all other category values in list *category_all*, that is

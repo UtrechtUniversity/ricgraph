@@ -1317,7 +1317,11 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
 def read_all_values_of_property(node_property: str = '') -> list:
     """Read all the values of a certain property.
 
-    :param node_property: the property to find all values.
+    :param node_property: the property to find all values:
+       'name': all different name properties.
+       'category': all different category properties.
+       '_source': all different _source properties.
+       'name_personal': all different name properties that are personal identifiers.
     :return: a sorted list with all the values, or empty list on error.
     """
     global _graph
@@ -1327,13 +1331,23 @@ def read_all_values_of_property(node_property: str = '') -> list:
         return []
 
     if node_property != 'name' \
+       and node_property != 'name_personal' \
        and node_property != 'category' \
        and node_property != '_source':
         print('\nread_all_values_of_property(): Error: function does not work for property "'
               + node_property + '".\n\n')
         return []
 
-    cypher_query = 'MATCH (node:RicgraphNode) RETURN COLLECT (DISTINCT node.' + node_property + ') AS entries'
+
+    if node_property == 'name_personal':
+        # Note that the comment property of 'person-root' contains FULL_NAMEs,
+        # so it is also a name property that is a personal identifier.
+        cypher_query = 'MATCH (node:RicgraphNode) '
+        cypher_query += 'WHERE node.category = "person" '
+        cypher_query += 'RETURN COLLECT (DISTINCT node.name) AS entries'
+    else:
+        cypher_query = 'MATCH (node:RicgraphNode) '
+        cypher_query += 'RETURN COLLECT (DISTINCT node.' + node_property + ') AS entries'
     result = _graph.execute_query(cypher_query,
                                   result_transformer_=Result.data,
                                   database_=ricgraph_databasename())

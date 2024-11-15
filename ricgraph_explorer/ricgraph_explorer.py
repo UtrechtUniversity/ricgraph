@@ -186,7 +186,7 @@ nodes_cache = {}
 
 # These will be defined in initialize_ricgraph_explorer()
 global graph
-global name_all, category_all, source_all, resout_types_all
+global name_all, name_personal_all, category_all, source_all, resout_types_all
 global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
 global personal_types_all, remainder_types_all
 global privacy_statement_link, privacy_measures_link
@@ -426,6 +426,16 @@ def homepage() -> str:
     html += '<li>'
     html += 'Ricgraph contains data from the following source systems: '
     html += ', '.join([str(source) for source in source_all])
+    html += '.'
+    html += '</li>'
+    html += '<li>'
+    html += 'Ricgraph contains these types of items: '
+    html += ', '.join([str(name) for name in name_all])
+    html += '.'
+    html += '</li>'
+    html += '<li>'
+    html += 'Ricgraph contains these types of items that contain personal data: '
+    html += ', '.join([str(name_personal) for name_personal in name_personal_all])
     html += '.'
     html += '</li>'
     html += '<li>'
@@ -3974,7 +3984,7 @@ def api_get_ricgraph_list(ricgraph_list_name: str = '') -> Tuple[dict, int]:
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
-    global name_all, category_all, source_all, resout_types_all
+    global name_all, name_personal_all, category_all, source_all, resout_types_all
     global personal_types_all, remainder_types_all
 
     get_all_globals_from_app_context()
@@ -3986,6 +3996,8 @@ def api_get_ricgraph_list(ricgraph_list_name: str = '') -> Tuple[dict, int]:
     result_list = []
     if ricgraph_list_name == 'name_all':
         result_list = name_all.copy()
+    if ricgraph_list_name == 'name_personal_all':
+        result_list = name_personal_all.copy()
     if ricgraph_list_name == 'category_all':
         result_list = category_all.copy()
     if ricgraph_list_name == 'source_all':
@@ -4030,7 +4042,7 @@ def get_all_globals_from_app_context() -> None:
     :return: None.
     """
     global graph
-    global name_all, category_all, source_all, resout_types_all
+    global name_all, name_personal_all, category_all, source_all, resout_types_all
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
     global privacy_statement_link, privacy_measures_link
@@ -4045,6 +4057,11 @@ def get_all_globals_from_app_context() -> None:
         name_all = current_app.config.get('name_all')
     else:
         print('get_all_globals_from_app_context(): Error, cannot find global "name_all".')
+        exit(2)
+    if 'name_personal_all' in current_app.config:
+        name_personal_all = current_app.config.get('name_personal_all')
+    else:
+        print('get_all_globals_from_app_context(): Error, cannot find global "name_personal_all".')
         exit(2)
     if 'category_all' in current_app.config:
         category_all = current_app.config.get('category_all')
@@ -4114,7 +4131,7 @@ def initialize_ricgraph_explorer():
     :return: None.
     """
     global graph
-    global name_all, category_all, source_all, resout_types_all
+    global name_all, name_personal_all, category_all, source_all, resout_types_all
     global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
     global personal_types_all, remainder_types_all
     global privacy_statement_link, privacy_measures_link
@@ -4131,6 +4148,11 @@ def initialize_ricgraph_explorer():
         print('Warning (possibly Error) in obtaining list with all property values for property "name".')
         print('Continuing with an empty list. This might give unexpected results.')
         name_all = []
+    name_personal_all = rcg.read_all_values_of_property('name_personal')
+    if len(name_personal_all) == 0:
+        print('Warning (possibly Error) in obtaining list with all property values for property "name_personal".')
+        print('Continuing with an empty list. This might give unexpected results.')
+        name_personal_all = []
     category_all = rcg.read_all_values_of_property('category')
     if len(category_all) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "category".')
@@ -4142,6 +4164,7 @@ def initialize_ricgraph_explorer():
         print('Continuing with an empty list. This might give unexpected results.')
         source_all = []
     store_global_in_app_context(name='name_all', value=name_all)
+    store_global_in_app_context(name='name_personal_all', value=name_personal_all)
     store_global_in_app_context(name='category_all', value=category_all)
     store_global_in_app_context(name='source_all', value=source_all)
 
