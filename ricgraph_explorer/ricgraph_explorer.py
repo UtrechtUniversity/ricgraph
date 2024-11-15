@@ -2699,8 +2699,13 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
-    html = get_html_for_cardstart()
-    html += '<details><summary>Click for information about your search</summary><ul>'
+    html = '<details><summary class="uu-yellow" '
+    # Use the same amount at both 'top' and 'margin-bottom'.
+    html += 'style="position:relative; top:-3ex; text-align:right; width:100%; margin-bottom:-3ex;">'
+    html += 'Click for information about your search&nbsp;</summary>'
+    html += get_html_for_cardstart()
+    html += 'Your search consisted of these fields and values:'
+    html += '<ul>'
     if name != 'None':
         html += '<li>name: <i>"' + str(name) + '"</i>'
     if category != 'None':
@@ -2732,9 +2737,8 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
     for item in extra_url_parameters:
         html += '<li>extra_url_parameters["' + item + '"]: <i>"' + extra_url_parameters[item] + '"</i>'
     html += '</ul>'
-    html += '</details>'
     html += get_html_for_cardend()
-    html += get_html_for_cardline()
+    html += '</details>'
     return html
 
 
