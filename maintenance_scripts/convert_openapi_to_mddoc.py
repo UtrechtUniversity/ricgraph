@@ -2,11 +2,10 @@
 # This script converts the openapi.yaml file that specifies the
 # Ricgraph REST API to a markdown documentation file.
 #
-# Original version Rik D.T. Janssen, October 23, 2024.
+# Original version Rik D.T. Janssen, October 2024.
 #
 # Run it in directory 'maintenance_scripts'. It needs a template
-# file that is in subdirectory 'templates'. This is hardcoded
-# in module openapi_markdown.
+# file that is in subdirectory 'openapi_markdown_templates'.
 # Use the python in the bin directory of your virtual environment.
 # ############################################################
 
@@ -19,6 +18,8 @@ input_file = '../ricgraph_explorer/static/openapi.yaml'
 output_file = '../docs/ricgraph_restapi_gendoc.md'
 
 # Convert the OpenAPI spec to Markdown
-to_markdown(input_file, output_file)
+to_markdown(api_file=input_file,
+            output_file=output_file,
+            templates_dir='openapi_markdown_templates')
 
 print(f'Markdown documentation generated: {output_file}.')
