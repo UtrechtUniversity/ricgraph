@@ -24,16 +24,10 @@ keywords = ["Ricgraph", "Ricgraph Explorer", "Ricgraph REST API", "Research in c
     "Graph", "Graph database", "Data harvesting", "Data enrichment", "Data linking",
     "Linked data", "Knowledge graph", "Metadata", "Utrecht University"]
 dependencies = [
-    "connexion",
-    "flask",
-    "gunicorn",
-    "markupsafe",
     "neo4j >= 5.8",
     "numpy",
     "pandas",
     "requests",
-    "Sickle",
-    "xmltodict",
 ]
 
 [project.urls]
