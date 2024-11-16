@@ -2906,8 +2906,8 @@ def get_faceted_table(parent_node: Node,
         html += table_html
     else:
         # Divide space between facet panel and table.
-        html += '<div class="w3-row-padding w3-stretch" >'
-        html += '<div class="w3-col" style="width:20em" >'
+        html += '<div class="w3-row-padding w3-stretch">'
+        html += '<div class="w3-col" style="width:20em">'
         html += faceted_html
         html += '</div>'
         html += '<div class="w3-rest" >'
@@ -3128,7 +3128,7 @@ def get_facets_from_nodes(parent_node: Node,
         faceted_form += '<div class="w3-container uu-yellow">'
         faceted_form += '<b>Filter on "name"</b>'
         faceted_form += '</div>'
-        faceted_form += '<div class="w3-container">'
+        faceted_form += '<div class="w3-container" style="font-size: 90%;">'
         # Sort a dict on value:
         # https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
         for bucket in sorted(name_histogram, key=name_histogram.get, reverse=True):
@@ -3149,7 +3149,7 @@ def get_facets_from_nodes(parent_node: Node,
         faceted_form += '<div class="w3-container uu-yellow">'
         faceted_form += '<b>Filter on "category"</b>'
         faceted_form += '</div>'
-        faceted_form += '<div class="w3-container">'
+        faceted_form += '<div class="w3-container" style="font-size: 90%;">'
         for bucket in sorted(category_histogram, key=category_histogram.get, reverse=True):
             category_label = bucket + '&nbsp;<i>(' + str(category_histogram[bucket]) + ')</i>'
             faceted_form += '<input class="w3-check" type="checkbox" name="category_list" value="'
