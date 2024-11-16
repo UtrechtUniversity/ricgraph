@@ -5,7 +5,7 @@
 # Rik D.T. Janssen, November 2024.
 # ###############################################################
 
-expected_run_directory="maintenance_scripts"
+expected_run_directory="maintenance"
 
 echo "This script propagates a new version number to a number of files."
 if echo -n "Are you sure you want to proceed? [y/N] " && read ans && ! [ "${ans:-N}" = "y" ]; then

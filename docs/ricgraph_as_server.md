@@ -296,11 +296,11 @@ If you are finished with these commands, exit from user *ricgraph*.
 Examples of commands you can use are:
 * harvest from the Research Software Directory:
   ```
-  cd /opt/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python harvest_rsd_to_ricgraph.py
+  cd /opt/ricgraph_venv/harvest; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python harvest_rsd_to_ricgraph.py
   ```
 * harvest all your favorite sources:
   ```
-  cd /opt/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python batch_harvest.py
+  cd /opt/ricgraph_venv/harvest; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python batch_harvest.py
   ```
 * run Ricgraph Explorer:
   ```
@@ -317,11 +317,11 @@ The following assumes your Python virtual environment is in your Linux home dire
 Examples of commands you can use are:
 * harvest from the Research Software Directory:
   ```
-  cd $HOME/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python harvest_rsd_to_ricgraph.py
+  cd $HOME/ricgraph_venv/harvest; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python harvest_rsd_to_ricgraph.py
   ```
 * harvest all your favorite sources:
   ```
-  cd $HOME/ricgraph_venv/harvest_to_ricgraph_examples; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python batch_harvest.py
+  cd $HOME/ricgraph_venv/harvest; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python batch_harvest.py
   ```
 * run Ricgraph Explorer:
   ```

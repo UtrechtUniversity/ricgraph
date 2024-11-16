@@ -4,7 +4,7 @@
 #
 # Original version Rik D.T. Janssen, October 2024.
 #
-# Run it in directory 'maintenance_scripts'. It needs a template
+# Run it in directory 'maintenance'. It needs a template
 # file that is in subdirectory 'openapi_markdown_templates'.
 # Use the python in the bin directory of your virtual environment.
 # ############################################################

@@ -1,13 +1,13 @@
 # Ricgraph script writing
 
 Ricgraph scripts can be found in various places:
-* Directory [harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples):
+* Directory [harvest](../harvest):
   scripts for harvesting sources and inserting the results in Ricgraph.
   [Documentation for these scripts](ricgraph_harvest_scripts.md).
 * Directory [import_export](../import_export):
   scripts to export items from Ricgraph.
   [Documentation for these scripts](ricgraph_misc_scripts.md).
-* Directory [find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples):
+* Directory [enhance](../enhance):
   scripts for finding and enriching items from Ricgraph.
   [Documentation for these scripts](ricgraph_misc_scripts.md).
 * The module code *ricgraph.py* can be found in
@@ -54,7 +54,7 @@ rcg.close_ricgraph()
 
 ## Structure of a Python script that is harvesting data
 This structure is used in the programming examples in the directory
-[harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples).
+[harvest](../harvest).
 
 ```python
 import ricgraph as rcg

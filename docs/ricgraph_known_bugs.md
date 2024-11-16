@@ -11,7 +11,7 @@ Transaction failed and will be retried in [number]s (The allocation of an extra 
   dbms.memory.transaction.total.max threshold reached)
 
 Traceback (most recent call last):
-  File "[path]/harvest_to_ricgraph_examples/harvest_pure_to_ricgraph.py", 
+  File "[path]/harvest/harvest_pure_to_ricgraph.py", 
     line 729, in <module> rcg.empty_ricgraph()
   File "[path]/ricgraph/ricgraph.py", line [number], in empty_ricgraph
     _graph.execute_query('MATCH (node) DETACH DELETE node', database_=GRAPHDB_NAME)

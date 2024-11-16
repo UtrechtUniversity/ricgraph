@@ -1,13 +1,13 @@
 # Ricgraph miscellaneous scripts
 
 Ricgraph scripts can be found in various places:
-* Directory [harvest_to_ricgraph_examples](../harvest_to_ricgraph_examples): 
+* Directory [harvest](../harvest): 
   scripts for harvesting sources and inserting the results in Ricgraph.
   [Documentation for these scripts](ricgraph_harvest_scripts.md).
 * Directory [import_export](../import_export):
   scripts to export items from Ricgraph.
   [Documentation for these scripts](ricgraph_misc_scripts.md) (this file).
-* Directory [find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples):
+* Directory [enhance](../enhance):
   scripts for finding and enriching items from Ricgraph.
   [Documentation for these scripts](ricgraph_misc_scripts.md) (this file).
 * The module code *ricgraph.py* can be found in 
@@ -239,7 +239,7 @@ you can enrich persons having an ORCID but no SCOPUS_AUTHOR_ID
 a rate limit, and that 
 you have to set some parameters in *ricgraph.ini*.
 You can find this script in the directory 
-[find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples).
+[enhance](../enhance).
 
 
 ## Script to find person identifiers pointing to different persons (find_double_pids.py)
@@ -247,13 +247,13 @@ With the script *find_double_pids.py*, you can check if
 there are any personal identifiers that are
 pointing to two or more different persons.
 You can find this script in the directory
-[find_enrich_ricgraph_examples](../find_enrich_ricgraph_examples).
+[enhance](../enhance).
 
 
 ## Create a table of contents of the Ricgraph documentation (create_toc_documentation.py)
 To create a table of contents of the Ricgraph documentation 
 use the script *create_toc_documentation.py*.
-You can find this script in the directory [maintenance_scripts](../maintenance_scripts).
+You can find this script in the directory [maintenance](../maintenance).
 The table of contents will be created in file 
 [ricgraph_toc_documentation.md](ricgraph_toc_documentation.md).
 ```
@@ -264,7 +264,7 @@ create_toc_documentation.py
 ## Create an index of the Ricgraph documentation (create_index_documentation.py)
 To create an index of the Ricgraph documentation
 use the script *create_index_documentation.py*.
-You can find this script in the directory [maintenance_scripts](../maintenance_scripts).
+You can find this script in the directory [maintenance](../maintenance).
 The index will be created in file
 [ricgraph_index_documentation.md](ricgraph_index_documentation.md).
 ```
@@ -278,7 +278,7 @@ To create the Ricgraph REST API documentation
 use the script *convert_openapi_to_mddoc.py*.
 This documentation is based on the Ricgraph OpenAPI yaml file *openapi.yaml*
 in the directory [ricgraph_explorer/static](../ricgraph_explorer/static).
-You can find this script in the directory [maintenance_scripts](../maintenance_scripts).
+You can find this script in the directory [maintenance](../maintenance).
 The REST API documentation will be created in file
 [ricgraph_restapi_gendoc.md](ricgraph_restapi_gendoc.md).
 ```
