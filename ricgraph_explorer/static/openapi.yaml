@@ -309,7 +309,7 @@ paths:
                     With this call you can enter a name of one of your source systems. 
                     Ricgraph will show what information can be added to 
                     this source system, based on the information harvested from other 
-                    source systems."
+                    source systems. This call enriches persons."
       parameters:
         - $ref: "#/components/parameters/key"
         - $ref: "#/components/parameters/source_system"
@@ -386,7 +386,7 @@ paths:
                     With this call you can enter a name of one of your source systems. 
                     Ricgraph will show what information can be added to 
                     this source system, based on the information harvested from other 
-                    source systems."
+                    source systems. This call enriches organizations."
       parameters:
         - $ref: "#/components/parameters/key"
         - $ref: "#/components/parameters/name_want"
