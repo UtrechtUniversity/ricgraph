@@ -1915,16 +1915,13 @@ def find_person_organization_collaborations(parent_node: Node,
 def find_organization_additional_info_cypher(parent_node: Node,
                                              name_list: list = None,
                                              category_list: list = None,
-                                             second_neighbor_name_list: str = '',
-                                             second_neighbor_category_list: str = '',
+                                             source_system: str = '',
                                              max_nr_items: str = MAX_ITEMS) -> list:
     """For documentation, see find_organization_additional_info().
 
     :param parent_node:
     :param name_list:
     :param category_list:
-    :param second_neighbor_name_list:
-    :param second_neighbor_category_list:
     :param max_nr_items:
     :return:
     """
@@ -1932,6 +1929,17 @@ def find_organization_additional_info_cypher(parent_node: Node,
         name_list = []
     if category_list is None:
         category_list = []
+
+    second_neighbor_name_list = ''
+    second_neighbor_category_list = ''
+    if len(name_list) > 0:
+        second_neighbor_name_list = '["'
+        second_neighbor_name_list += '", "'.join(str(item) for item in name_list)
+        second_neighbor_name_list += '"]'
+    if len(category_list) > 0:
+        second_neighbor_category_list = '["'
+        second_neighbor_category_list += '", "'.join(str(item) for item in category_list)
+        second_neighbor_category_list += '"]'
 
     # Prepare and execute Cypher query.
     cypher_query = 'MATCH (node)-[]->(neighbor) '
@@ -1942,7 +1950,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
     cypher_query += ' AND neighbor.name = "person-root" '
 
     cypher_query += 'MATCH (neighbor)-[]->(second_neighbor) '
-    if len(name_list) > 0 or len(category_list) > 0:
+    if len(name_list) > 0 or len(category_list) > 0 or source_system != '':
         cypher_query += 'WHERE '
     if len(name_list) > 0:
         cypher_query += 'second_neighbor.name IN ' + second_neighbor_name_list + ' '
@@ -1950,11 +1958,15 @@ def find_organization_additional_info_cypher(parent_node: Node,
         cypher_query += 'AND '
     if len(category_list) > 0:
         cypher_query += 'second_neighbor.category IN ' + second_neighbor_category_list + ' '
+    if source_system != '':
+        if len(name_list) > 0 or len(category_list) > 0:
+            cypher_query += 'AND '
+        cypher_query += 'NOT "' + source_system + '" IN second_neighbor._source '
     cypher_query += 'RETURN DISTINCT second_neighbor, count(second_neighbor) as count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
     if int(max_nr_items) > 0:
         cypher_query += 'LIMIT ' + max_nr_items
-    # print(cypher_query)
+    print(cypher_query)
     cypher_result, _, _ = graph.execute_query(cypher_query,
                                               node_element_id=parent_node.element_id,
                                               database_=rcg.ricgraph_databasename())
@@ -2002,23 +2014,10 @@ def find_organization_additional_info(parent_node: Node,
     if len(category_list) == 1:
         category_str = category_list[0]
 
-    second_neighbor_name_list = ''
-    second_neighbor_category_list = ''
-    if len(name_list) > 0:
-        second_neighbor_name_list = '["'
-        second_neighbor_name_list += '", "'.join(str(item) for item in name_list)
-        second_neighbor_name_list += '"]'
-    if len(category_list) > 0:
-        second_neighbor_category_list = '["'
-        second_neighbor_category_list += '", "'.join(str(item) for item in category_list)
-        second_neighbor_category_list += '"]'
-
     cypher_result = \
         find_organization_additional_info_cypher(parent_node=parent_node,
                                                  name_list=name_list,
                                                  category_list=category_list,
-                                                 second_neighbor_name_list=second_neighbor_name_list,
-                                                 second_neighbor_category_list=second_neighbor_category_list,
                                                  max_nr_items=extra_url_parameters['max_nr_items'])
     if len(cypher_result) == 0:
         message = 'Could not find any persons or results for this organization'
@@ -3706,10 +3705,48 @@ def api_organization_all_information(key: str = '',
 
 
 def api_organization_information_persons_results(key: str = '',
+                                                 name_want: list = None,
+                                                 category_want: list = None,
                                                  max_nr_items: str = MAX_ITEMS):
     """REST API Find any information from persons or their results in this organization.
 
     :param key: key of the node(s) to find.
+    :param name_want: a list containing several node names, indicating
+      that we want all neighbor nodes of the person-root node of the organization
+      specified by 'key', where the property 'name' equals
+      one of the names in the list 'name_want'
+      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    :param category_want: similar to 'name_want', but now for the property 'category'.
+    :param max_nr_items: The maximum number of items to return.
+    :return: An HTTP response (as dict, to be translated to json)
+      and an HTTP response code.
+    """
+    # This implements view_mode = 'view_regular_table_organization_addinfo'.
+    # See function find_organization_additional_info().
+    response, status = api_organization_enrich(key=key,
+                                               name_want=name_want,
+                                               category_want=category_want,
+                                               max_nr_items=max_nr_items)
+    return response, status
+
+
+def api_organization_enrich(key: str = '',
+                            name_want: list = None,
+                            category_want: list = None,
+                            source_system: str = '',
+                            max_nr_items: str = MAX_ITEMS):
+    """REST API Find persons that share any share research result types with this organization.
+
+    :param key: key of the node(s) to find.
+    :param name_want: a list containing several node names, indicating
+      that we want all neighbor nodes of the person-root node of the organization
+      specified by 'key', where the property 'name' equals
+      one of the names in the list 'name_want'
+      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    :param category_want: similar to 'name_want', but now for the property 'category'.
+    :param source_system: the source system to find enrichments for.
     :param max_nr_items: The maximum number of items to return.
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
@@ -3717,6 +3754,11 @@ def api_organization_information_persons_results(key: str = '',
     # This implements view_mode = 'view_regular_table_organization_addinfo'.
     # See function find_organization_additional_info().
     get_all_globals_from_app_context()
+    if name_want is None:
+        name_want = []
+    if category_want is None:
+        category_want = []
+
     if key == '':
         response, status = rcg.create_http_response(message='You have not specified a search key',
                                                     http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
@@ -3730,6 +3772,9 @@ def api_organization_information_persons_results(key: str = '',
         return response, status
 
     cypher_result = find_organization_additional_info_cypher(parent_node=nodes[0],
+                                                             name_list=name_want,
+                                                             category_list=category_want,
+                                                             source_system=source_system,
                                                              max_nr_items=max_nr_items)
     if len(cypher_result) == 0:
         message = 'Could not find any information from persons or '

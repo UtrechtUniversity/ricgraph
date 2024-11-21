@@ -361,6 +361,37 @@ paths:
       summary: "Find any information from persons or their results in this organization"
       parameters:
         - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/name_want"
+        - $ref: "#/components/parameters/category_want"
+        - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+        "250":
+          description: "Nothing found"
+        "251":
+          description: "Invalid search"
+  /organization/enrich:
+    get:
+      operationId: "ricgraph_explorer.api_organization_enrich"
+      tags:
+        - Organization
+      summary: "Find information harvested from other source systems,
+                not present in this source system"
+      description: "The process of improving or enhancing information in a source 
+                    system is called *enriching* that source system. This is only 
+                    possible if you have harvested more than one source system. 
+                    By using information found in one or more other harvested systems, 
+                    information in this source system can be improved or enhanced.
+                    With this call you can enter a name of one of your source systems. 
+                    Ricgraph will show what information can be added to 
+                    this source system, based on the information harvested from other 
+                    source systems."
+      parameters:
+        - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/name_want"
+        - $ref: "#/components/parameters/category_want"
+        - $ref: "#/components/parameters/source_system"
         - $ref: "#/components/parameters/max_nr_items"
       responses:
         "200":
