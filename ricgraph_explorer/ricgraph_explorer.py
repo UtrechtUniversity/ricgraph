@@ -1966,7 +1966,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
     cypher_query += 'ORDER BY count_second_neighbor DESC '
     if int(max_nr_items) > 0:
         cypher_query += 'LIMIT ' + max_nr_items
-    print(cypher_query)
+    # print(cypher_query)
     cypher_result, _, _ = graph.execute_query(cypher_query,
                                               node_element_id=parent_node.element_id,
                                               database_=rcg.ricgraph_databasename())
