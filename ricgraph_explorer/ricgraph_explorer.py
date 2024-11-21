@@ -2715,7 +2715,7 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
 
     html = '<details><summary class="uu-yellow" '
     # Use the same amount at both 'top' and 'margin-bottom'.
-    html += 'style="position:relative; top:-3ex; text-align:right; width:100%; margin-bottom:-3ex;">'
+    html += 'style="position:relative; top:-3ex; text-align:right; margin-bottom:-3ex; float:right;">'
     html += 'Click for information about your search&nbsp;</summary>'
     html += get_html_for_cardstart()
     html += 'Your search consisted of these fields and values:'
