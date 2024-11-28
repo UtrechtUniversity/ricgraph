@@ -309,9 +309,15 @@ paths:
                     With this call you can enter a name of one of your source systems. 
                     Ricgraph will show what information can be added to 
                     this source system, based on the information harvested from other 
-                    source systems. This call enriches persons."
+                    source systems. This call enriches persons.
+                    Note that if you specify *category_want*, you will need to add
+                    category *person* too, since otherwise you will not be able to 
+                    find *person_identifying_nodes* (the nodes to add the
+                    newly found information to)."
       parameters:
         - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/name_want"
+        - $ref: "#/components/parameters/category_want"
         - $ref: "#/components/parameters/source_system"
         - $ref: "#/components/parameters/max_nr_items"
       responses:
@@ -386,7 +392,12 @@ paths:
                     With this call you can enter a name of one of your source systems. 
                     Ricgraph will show what information can be added to 
                     this source system, based on the information harvested from other 
-                    source systems. This call enriches organizations."
+                    source systems. This call enriches organizations.
+                    It is different compared to the REST API call /person/enrich, since
+                    that call also returns information that allows to you find the node
+                    to enrich in the source system you specify. The
+                    REST API call /organization/enrich does NOT returns
+                    that information (yet)."
       parameters:
         - $ref: "#/components/parameters/key"
         - $ref: "#/components/parameters/name_want"

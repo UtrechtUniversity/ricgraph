@@ -58,6 +58,7 @@ __G__
 - [GET /get_all_personroot_nodes](../docs/ricgraph_restapi_gendoc.md#get-get_all_personroot_nodes)
 - [GET /get_ricgraph_list](../docs/ricgraph_restapi_gendoc.md#get-get_ricgraph_list)
 - [GET /organization/all_information](../docs/ricgraph_restapi_gendoc.md#get-organizationall_information)
+- [GET /organization/enrich](../docs/ricgraph_restapi_gendoc.md#get-organizationenrich)
 - [GET /organization/information_persons_results](../docs/ricgraph_restapi_gendoc.md#get-organizationinformation_persons_results)
 - [GET /organization/search](../docs/ricgraph_restapi_gendoc.md#get-organizationsearch)
 - [GET /person/all_information](../docs/ricgraph_restapi_gendoc.md#get-personall_information)

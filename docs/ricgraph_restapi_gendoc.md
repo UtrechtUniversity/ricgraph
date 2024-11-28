@@ -39,6 +39,7 @@ Read more about [REST (representational state transfer)](https://en.wikipedia.or
 | GET | [GET /organization/search](#get-organizationsearch) | Search for a (sub-)organization |
 | GET | [GET /organization/all_information](#get-organizationall_information) | Show all information related to this organization |
 | GET | [GET /organization/information_persons_results](#get-organizationinformation_persons_results) | Find any information from persons or their results in this organization |
+| GET | [GET /organization/enrich](#get-organizationenrich) | Find information harvested from other source systems, not present in this source system |
 | GET | [GET /competence/search](#get-competencesearch) | Search for a skill, expertise area or research area |
 | GET | [GET /competence/all_information](#get-competenceall_information) | Show all information related to this competence |
 | GET | [GET /broad_search](#get-broad_search) | Search for anything (broad search) |
@@ -190,7 +191,7 @@ __Responses__
 Find information harvested from other source systems, not present in this source system
 
 
-The process of improving or enhancing information in a source system is called *enriching* that source system. This is only possible if you have harvested more than one source system. By using information found in one or more other harvested systems, information in this source system can be improved or enhanced. With this call you can enter a name of one of your source systems. Ricgraph will show what information can be added to this source system, based on the information harvested from other source systems.
+The process of improving or enhancing information in a source system is called *enriching* that source system. This is only possible if you have harvested more than one source system. By using information found in one or more other harvested systems, information in this source system can be improved or enhanced. With this call you can enter a name of one of your source systems. Ricgraph will show what information can be added to this source system, based on the information harvested from other source systems. This call enriches persons. Note that if you specify *category_want*, you will need to add category *person* too, since otherwise you will not be able to find *person_identifying_nodes* (the nodes to add the newly found information to).
 
 
 
@@ -199,6 +200,8 @@ __Parameters__
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | key | string | True | Search for a value in Ricgraph field *_key* |
+| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
+| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
 | source_system | string | True | The name of the source system you would like to enrich |
 | max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
 
@@ -299,6 +302,46 @@ __Parameters__
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | key | string | True | Search for a value in Ricgraph field *_key* |
+| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
+| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
+| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+
+
+
+
+
+__Responses__
+
+
+
+
+* 200:  OK 
+
+* 250:  Nothing found 
+
+* 251:  Invalid search 
+
+
+
+
+
+### GET /organization/enrich
+
+Find information harvested from other source systems, not present in this source system
+
+
+The process of improving or enhancing information in a source system is called *enriching* that source system. This is only possible if you have harvested more than one source system. By using information found in one or more other harvested systems, information in this source system can be improved or enhanced. With this call you can enter a name of one of your source systems. Ricgraph will show what information can be added to this source system, based on the information harvested from other source systems. This call enriches organizations. It is different compared to the REST API call /person/enrich, since that call also returns information that allows to you find the node to enrich in the source system you specify. The REST API call /organization/enrich does NOT returns that information (yet).
+
+
+
+__Parameters__
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| key | string | True | Search for a value in Ricgraph field *_key* |
+| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
+| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
+| source_system | string | True | The name of the source system you would like to enrich |
 | max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
 
 

@@ -1613,7 +1613,9 @@ def find_person_share_resouts(parent_node: Node,
 
 
 def find_enrich_candidates_one_person(personroot: Node,
-                                      source_system: str) -> Tuple[list, list]:
+                                      name_want: list = None,
+                                      category_want: list = None,
+                                      source_system: str = '') -> Tuple[list, list]:
     """For documentation, see find_enrich_candidates().
 
     :param personroot:
@@ -1622,7 +1624,9 @@ def find_enrich_candidates_one_person(personroot: Node,
     """
     nodes_in_source_system = []
     nodes_not_in_source_system = []
-    neighbors = rcg.get_all_neighbor_nodes(node=personroot)
+    neighbors = rcg.get_all_neighbor_nodes(node=personroot,
+                                           name_want=name_want,
+                                           category_want=category_want)
     for neighbor in neighbors:
         if source_system in neighbor['_source']:
             nodes_in_source_system.append(neighbor)
@@ -3599,6 +3603,8 @@ def api_person_collaborating_organizations(key: str = '',
 
 
 def api_person_enrich(key: str = '',
+                      name_want: list = None,
+                      category_want: list = None,
                       source_system: str = '',
                       max_nr_items: str = MAX_ITEMS):
     """REST API Find persons that share any share research result types with this person.
@@ -3612,8 +3618,23 @@ def api_person_enrich(key: str = '',
     # This implements view_mode = 'view_regular_table_person_enrich_source_system'.
     # See function find_enrich_candidates().
     get_all_globals_from_app_context()
+    if name_want is None:
+        name_want = []
+    if category_want is None:
+        category_want = []
+
     if key == '':
         response, status = rcg.create_http_response(message='You have not specified a search key',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
+    if result := list(set(name_want) - set(name_all)):
+        response, status = rcg.create_http_response(message='You have not specified a valid name_want: '
+                                                            + str(result) + '".',
+                                                    http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
+    if result := list(set(category_want) - set(category_all)):
+        response, status = rcg.create_http_response(message='You have not specified a valid category_want: '
+                                                            + str(result) + '".',
                                                     http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if source_system == '':
@@ -3640,6 +3661,8 @@ def api_person_enrich(key: str = '',
 
     person_nodes, nodes_not_in_source_system = \
         find_enrich_candidates_one_person(personroot=personroot_node,
+                                          name_want=name_want,
+                                          category_want=category_want,
                                           source_system=source_system)
     if len(nodes_not_in_source_system) == 0:
         message = 'Ricgraph could not find any information in other source systems '
@@ -3768,7 +3791,6 @@ def api_organization_enrich(key: str = '',
         response, status = rcg.create_http_response(message='You have not specified a search key',
                                                     http_status=rcg.HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    # if len(name_want) is empty, result will be empty so the if is skipped.
     if result := list(set(name_want) - set(name_all)):
         response, status = rcg.create_http_response(message='You have not specified a valid name_want: '
                                                             + str(result) + '".',
