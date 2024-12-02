@@ -15,7 +15,7 @@
 Note, the lines 'Website' and
 'PyPI downloads' end in two spaces, to force a line break but not a paragraph break.
 --->
-<img alt="Ricgraph logo" src="docs/images/ricgraph_logo.jpg" height="30"> 
+<img alt="Ricgraph logo" src="docs/images/ricgraph_logo.png" height="30"> 
 
 # Ricgraph - Research in context graph 
 
