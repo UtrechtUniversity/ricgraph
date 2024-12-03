@@ -43,7 +43,7 @@
 # ########################################################################
 # These are the versions of the software to be installed.
 # ########################################################################
-ricgraph_version := 2.6
+ricgraph_version := 2.7
 neo4j_community_version := 5.24.0
 neo4j_desktop_version := 1.6.0
 
