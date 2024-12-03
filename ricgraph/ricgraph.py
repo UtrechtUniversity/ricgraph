@@ -2153,6 +2153,15 @@ def get_all_neighbor_nodes(node: Node,
     if node is None:
         return []
 
+    if name_want is None:
+        name_want = []
+    if name_dontwant is None:
+        name_dontwant = []
+    if category_want is None:
+        category_want = []
+    if category_dontwant is None:
+        category_dontwant = []
+
     cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'WHERE (elementId(node)=$node_element_id) '

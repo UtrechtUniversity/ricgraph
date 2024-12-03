@@ -258,8 +258,8 @@ stylesheet += ':not(.sorttable_nosort):after{content:"\u00a0\u25b4\u00a0\u25be"}
 # To hide by default in any browser.
 stylesheet += '.firefox-only {display: none;}'
 # To show only in Firefox.
-stylesheet +='@-moz-document url-prefix() {.firefox-only'
-stylesheet +='{display:block; font-size:80%; font-style:italic;}}'
+stylesheet += '@-moz-document url-prefix() {.firefox-only'
+stylesheet += '{display:block; font-size:80%; font-style:italic;}}'
 # End of Firefox dropdown list css.
 
 stylesheet += '</style>'
@@ -1631,11 +1631,18 @@ def find_enrich_candidates_one_person(personroot: Node,
                                       name_want: list = None,
                                       category_want: list = None,
                                       source_system: str = '') -> Tuple[list, list]:
-    """For documentation, see find_enrich_candidates().
+    """This function tries to find nodes to enrich source system 'source_system'.
 
-    :param personroot:
-    :param source_system:
-    :return:
+    :param personroot: the starting node for finding enrichments for.
+    :param name_want: a list containing several node names, indicating
+      that we want all neighbor nodes of the person-root node of the organization
+      specified by 'key', where the property 'name' equals
+      one of the names in the list 'name_want'
+      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    :param category_want: similar to 'name_want', but now for the property 'category'.
+    :param source_system: the source system to find enrichments for.
+    :return: 2 lists, nodes to identify and nodes to enrich.
     """
     nodes_in_source_system = []
     nodes_not_in_source_system = []
@@ -1682,8 +1689,15 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    global source_all
+
     if extra_url_parameters is None:
         extra_url_parameters = {}
+
+    if source_system not in source_all:
+        html = get_message(message='You have not specified a valid source system "'
+                                   + source_system + '".')
+        return html
 
     html = ''
     if parent_node is None:
@@ -1941,6 +1955,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
     :param parent_node:
     :param name_list:
     :param category_list:
+    :param source_system:
     :param max_nr_items:
     :return:
     """
@@ -3626,6 +3641,13 @@ def api_person_enrich(key: str = '',
     """REST API Find persons that share any share research result types with this person.
 
     :param key: key of the node(s) to find.
+    :param name_want: a list containing several node names, indicating
+      that we want all neighbor nodes of the person-root node of the organization
+      specified by 'key', where the property 'name' equals
+      one of the names in the list 'name_want'
+      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
+      If empty (empty string), return all nodes.
+    :param category_want: similar to 'name_want', but now for the property 'category'.
     :param source_system: the source system to find enrichments for.
     :param max_nr_items: The maximum number of items to return.
     :return: An HTTP response (as dict, to be translated to json)
