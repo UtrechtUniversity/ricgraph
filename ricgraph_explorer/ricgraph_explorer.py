@@ -249,6 +249,19 @@ stylesheet += '.facetedform {font-size:90%;}'
 # For table sorting. \u00a0 is a non-breaking space.
 stylesheet += 'table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse)'
 stylesheet += ':not(.sorttable_nosort):after{content:"\u00a0\u25b4\u00a0\u25be"}'
+
+# In Firefox, dropdown lists do not have a downward triangle, as Brave, Chrome and Edge have.
+# To give the user a clue that there is a dropdown list, we show additional text.
+# This is done as follows:
+# <div class="firefox-only">Click twice to get a dropdown list.</div>
+# We need the following css to make this happen:
+# To hide by default in any browser.
+stylesheet += '.firefox-only {display: none;}'
+# To show only in Firefox.
+stylesheet +='@-moz-document url-prefix() {.firefox-only'
+stylesheet +='{display:block; font-size:80%; font-style:italic;}}'
+# End of Firefox dropdown list css.
+
 stylesheet += '</style>'
 
 # The html preamble
@@ -508,12 +521,14 @@ def searchpage() -> str:
         form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
         form += '<input class="w3-input w3-border" list="name_all_datalist"'
         form += 'name=name id=name autocomplete=off>'
+        form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
         form += name_all_datalist
         form += '<br/>'
 
         form += '<label>Search for a value in Ricgraph field <em>category</em>:</label>'
         form += '<input class="w3-input w3-border" list="category_all_datalist"'
         form += 'name=category id=category autocomplete=off>'
+        form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
         form += category_all_datalist
         form += '<br/>'
     if search_mode == 'value_search' and name != '':
@@ -2642,6 +2657,7 @@ def create_html_form(destination: str,
             form += 'name="' + input_fields[item][1] + '" '     # 1: name of field
             form += 'id="' + input_fields[item][1] + '" '       # 1: name of field
             form += 'autocomplete=off>'
+            form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
             form += input_fields[item][3]                       # 3: datalist
         if input_fields[item][0] == 'text':
             if len(input_fields[item]) != 2:
