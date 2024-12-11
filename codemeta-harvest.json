@@ -11,7 +11,7 @@
     },
     "programmingLanguage": "Python",
     "developmentStatus": [ "https://w3id.org/research-technology-readiness-levels#Level7ReleaseCandidate", "https://www.repostatus.org/#active" ],
-    "thumbnailUrl": "https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/master/docs/images/ricgraph_logo.jpg",
+    "thumbnailUrl": "https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/ricgraph_logo.jpg",
     "softwareRequirements": [
         "connexion",
         "flask",
@@ -91,10 +91,10 @@
     ],
     "softwareHelp": [
         {
-            "@id": "https://github.com/UtrechtUniversity/ricgraph/blob/master/README.md",
+            "@id": "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md",
             "@type": "CreativeWork",
             "name": "Ricgraph - Research in context graph documentation",
-            "url": "https://github.com/UtrechtUniversity/ricgraph/blob/master/README.md"
+            "url": "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
         }
     ],
     "applicationCategory": [
