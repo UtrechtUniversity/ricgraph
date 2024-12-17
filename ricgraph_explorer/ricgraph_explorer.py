@@ -2971,7 +2971,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
     :return: html to be rendered.
     """
 
-    table_id = ''.join(random.choice(string.ascii_uppercase) for _ in range(12))
+    table_id = ''.join(random.choice(string.ascii_lowercase) for _ in range(12))
 
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -3046,26 +3046,26 @@ def get_tabbed_table(nodes_list: Union[list, None],
         tab_contents_html += table
         tab_contents_html += '</div>'
 
-        # This code is from https://www.w3schools.com/w3css/w3css_tabulators.asp.
-        tab_javascript = """<script>
-                            function openTab_""" + table_id + """(evt, tabName, table_id) {
-                                var i, x, tablinks;
-                                x = document.getElementsByClassName("tabitem");
-                                for (i = 0; i < x.length; i++) {
-                                    if (x[i].className.split(' ').indexOf(table_id)!=-1) {
-                                        x[i].style.display = "none";
-                                    }
+    # This code is from https://www.w3schools.com/w3css/w3css_tabulators.asp.
+    tab_javascript = """<script>
+                        function openTab_""" + table_id + """(evt, tabName, table_id) {
+                            var i, x, tablinks;
+                            x = document.getElementsByClassName("tabitem");
+                            for (i = 0; i < x.length; i++) {
+                                if (x[i].className.split(' ').indexOf(table_id)!=-1) {
+                                    x[i].style.display = "none";
                                 }
-                                tablinks = document.getElementsByClassName("tablink");
-                                for (i = 0; i < x.length; i++) {
-                                    if (tablinks[i].className.split(' ').indexOf(table_id)!=-1) {
-                                        tablinks[i].className = tablinks[i].className.replace(" uu-orange", "");
-                                    }
-                                }
-                                document.getElementById(tabName).style.display = "block";
-                                evt.currentTarget.className += " uu-orange";
                             }
-                            </script>"""
+                            tablinks = document.getElementsByClassName("tablink");
+                            for (i = 0; i < x.length; i++) {
+                                if (tablinks[i].className.split(' ').indexOf(table_id)!=-1) {
+                                    tablinks[i].className = tablinks[i].className.replace(" uu-orange", "");
+                                }
+                            }
+                            document.getElementById(tabName).style.display = "block";
+                            evt.currentTarget.className += " uu-orange";
+                        }
+                        </script>"""
 
     len_nodes_list = len(nodes_list)
     nr_rows_in_table_message = ''
