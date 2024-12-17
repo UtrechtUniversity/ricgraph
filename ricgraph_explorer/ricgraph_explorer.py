@@ -88,6 +88,8 @@ import connexion.options
 from flask import request, url_for, send_from_directory, current_app
 from markupsafe import escape
 import ricgraph as rcg
+import random
+import string
 
 # We don't show the Swagger REST API page, we use RapiDoc for that (see restapidocpage()
 # endpoint below). 'swagger_ui_options' is taken from
@@ -2969,11 +2971,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
     :return: html to be rendered.
     """
 
-    import random
-    import string
     table_id = ''.join(random.choice(string.ascii_uppercase) for _ in range(12))
-
-
 
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -3011,13 +3009,15 @@ def get_tabbed_table(nodes_list: Union[list, None],
     tab_names_html = '<div class="w3-bar uu-yellow">'
     for tab_name in histogram_sort:
         tab_text = tab_name + '&nbsp;<i>(' + str(histogram[tab_name]) + ')</i>'
-        tab_names_html += '<button class="w3-bar-item w3-button tablink'
+        # tab_names_html += '<button class="w3-bar-item w3-button tablink'
+        tab_names_html += f'<button class="w3-bar-item w3-button tablink {table_id}'
+
         if first_iteration:
             tab_names_html += ' uu-orange'
             first_iteration = False
         else:
             tab_names_html += ''
-        tab_names_html += f'" onclick="openTab(event,\'{tab_name}\',\'{table_id}\')">{tab_text}</button>'
+        tab_names_html += f'" onclick="openTab_{table_id}(event,\'{tab_name}\',\'{table_id}\')">{tab_text}</button>'
         histogram_list.append({'name': tab_name, 'value': histogram[tab_name]})
     tab_names_html += '</div>'
 
@@ -3046,9 +3046,9 @@ def get_tabbed_table(nodes_list: Union[list, None],
         tab_contents_html += table
         tab_contents_html += '</div>'
 
-    # This code is from https://www.w3schools.com/w3css/w3css_tabulators.asp.
+        # This code is from https://www.w3schools.com/w3css/w3css_tabulators.asp.
         tab_javascript = """<script>
-                            function openTab(evt, tabName, table_id) {
+                            function openTab_""" + table_id + """(evt, tabName, table_id) {
                                 var i, x, tablinks;
                                 x = document.getElementsByClassName("tabitem");
                                 for (i = 0; i < x.length; i++) {
@@ -3058,7 +3058,9 @@ def get_tabbed_table(nodes_list: Union[list, None],
                                 }
                                 tablinks = document.getElementsByClassName("tablink");
                                 for (i = 0; i < x.length; i++) {
-                                    tablinks[i].className = tablinks[i].className.replace(" uu-orange", "");
+                                    if (tablinks[i].className.split(' ').indexOf(table_id)!=-1) {
+                                        tablinks[i].className = tablinks[i].className.replace(" uu-orange", "");
+                                    }
                                 }
                                 document.getElementById(tabName).style.display = "block";
                                 evt.currentTarget.className += " uu-orange";
