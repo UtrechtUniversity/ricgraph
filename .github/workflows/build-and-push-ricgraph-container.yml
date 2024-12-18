@@ -13,13 +13,13 @@ jobs:
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ghcr.io/${{ github.repository_owner }}
+          registry: ghcr.io/utrechtuniversity
 
       - name: Build Podman container for Ricgraph
         run: |
-          podman build -t ghcr.io/${{ github.repository_owner }}/ricgraph:latest .
+          podman build -t ghcr.io/utrechtuniversity/ricgraph:latest .
 
       - name: Push Podman container for Ricgraph
         run: |
-          podman push ghcr.io/${{ github.repository_owner }}/ricgraph:latest
+          podman push ghcr.io/utrechtuniversity/ricgraph:latest
 
