@@ -65,4 +65,8 @@ sed -i "s/date-released: .*/date-released: \"${current_date}\"/" CITATION.cff
 echo "Updating Makefile..."
 sed -i "s/ricgraph_version := .*/ricgraph_version := ${new_version}/" Makefile
 
+# Update Containerfile for Podman
+echo "Updating Podman Containerfile..."
+sed -i "s/ricgraph_version=.*/ricgraph_version=${new_version}/" Containerfile
+
 echo "Done."

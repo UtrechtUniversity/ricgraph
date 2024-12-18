@@ -42,11 +42,18 @@
 # as a server, please read 
 # https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md
 #
-# Possible podman commands:
-# - build the container: podman build -t ricgraph . [note the '.']
-# - run: podman run --name ricgraph -d -p 8092:3030 ricgraph:latest
+# Possible Podman commands:
+# - build the container locally: podman build -t ricgraph . [note the '.']
+# - build the container on GitHub: https://github.com/UtrechtUniversity/ricgraph/actions
+# - get the container from GitHub:
+#   podman pull ghcr.io/utrechtuniversity/ricgraph:latest
+# - run locally generated container:
+#   podman run --name ricgraph -d -p 8092:3030 ricgraph:latest
 #   (Ricgraph Explorer runs on internal port 3030, external port 8092)
 #   or: podman run --replace --name ricgraph -d -p 8092:3030 ricgraph:latest
+# - run GitHub generated container:
+#   podman run --name ricgraph -d -p 8092:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+#   or: podman run --replace --name ricgraph -d -p 8092:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 # - stop: podman stop -a
 # - status of all containers: podman ps
 # - list of all containers: podman images
@@ -56,7 +63,10 @@
 #   e.g. podman exec -it ricgraph /bin/bash
 #   or podman exec -it ricgraph python batch_harvest.py
 #   Note that after harvesting, you have to commit and restart the container.
-# - make changes permanent: podman commit ricgraph ricgraph:latest
+# - make changes permanent in locally generated container:
+#   podman commit ricgraph ricgraph:latest
+# - make changes permanent in GitHub generated container:
+#   podman commit ricgraph ghcr.io/utrechtuniversity/ricgraph:latest
 #
 # ######################################################################
 

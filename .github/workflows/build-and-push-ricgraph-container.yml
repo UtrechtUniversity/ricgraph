@@ -22,7 +22,6 @@ jobs:
         run: |
           pwd
           ls -la
-          ls -la ..
 
       - name: Build Podman container for Ricgraph
         run: |
