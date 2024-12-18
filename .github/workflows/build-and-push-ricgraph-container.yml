@@ -26,7 +26,7 @@ jobs:
 
       - name: Build Podman container for Ricgraph
         run: |
-          podman build -f ../Containerfile -t ghcr.io/utrechtuniversity/ricgraph:latest ../
+          podman build -f Containerfile -t ghcr.io/utrechtuniversity/ricgraph:latest .
 
       - name: Push Podman container for Ricgraph
         run: |
