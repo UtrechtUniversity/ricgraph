@@ -15,7 +15,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io/utrechtuniversity
 
-     - name: Check current directory and files
+      - name: Check current directory and files
         run: |
           pwd
           ls -la
