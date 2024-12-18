@@ -42,7 +42,7 @@
 # example configuration files.
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September 2023 to June 2024.
+# Extended Rik D.T. Janssen, February, September 2023 to December 2024.
 #
 # ########################################################################
 #
@@ -77,6 +77,8 @@
 #
 # ##############################################################################
 
+import random
+import string
 import json
 import os
 import sys
@@ -88,8 +90,6 @@ import connexion.options
 from flask import request, url_for, send_from_directory, current_app
 from markupsafe import escape
 import ricgraph as rcg
-import random
-import string
 
 # We don't show the Swagger REST API page, we use RapiDoc for that (see restapidocpage()
 # endpoint below). 'swagger_ui_options' is taken from
@@ -454,17 +454,26 @@ def homepage() -> str:
     html += '<ul>'
     html += '<li>'
     html += 'Items from the following source systems: '
-    html += ', '.join([str(source) for source in source_all])
+    if len(source_all) == 0:
+        html += '[no source systems harvested yet]'
+    else:
+        html += ', '.join([str(source) for source in source_all])
     html += '.'
     html += '</li>'
     html += '<li>'
     html += 'Types of items: '
-    html += ', '.join([str(name) for name in name_all])
+    if len(name_all) == 0:
+        html += '[no items yet]'
+    else:
+        html += ', '.join([str(name) for name in name_all])
     html += '.'
     html += '</li>'
     html += '<li>'
     html += 'Types of items that contain personal data: '
-    html += ', '.join([str(name_personal) for name_personal in name_personal_all])
+    if len(name_personal_all) == 0:
+        html += '[no items that contain personal data yet]'
+    else:
+        html += ', '.join([str(name_personal) for name_personal in name_personal_all])
     html += '.'
     html += '</li>'
     html += '<li>'
@@ -3009,7 +3018,6 @@ def get_tabbed_table(nodes_list: Union[list, None],
     tab_names_html = '<div class="w3-bar uu-yellow">'
     for tab_name in histogram_sort:
         tab_text = tab_name + '&nbsp;<i>(' + str(histogram[tab_name]) + ')</i>'
-        # tab_names_html += '<button class="w3-bar-item w3-button tablink'
         tab_names_html += f'<button class="w3-bar-item w3-button tablink {table_id}'
 
         if first_iteration:
@@ -3024,7 +3032,6 @@ def get_tabbed_table(nodes_list: Union[list, None],
     first_iteration = True
     tab_contents_html = ''
     for tab_name in histogram_sort:
-        # tab_contents_html += '<div id="' + tab_name + '" class="w3-container w3-border tabitem"'
         tab_contents_html += f'<div id="{tab_name}" class="w3-container w3-border tabitem {table_id}"'
         if first_iteration:
             tab_contents_html += ''
@@ -3046,19 +3053,19 @@ def get_tabbed_table(nodes_list: Union[list, None],
         tab_contents_html += table
         tab_contents_html += '</div>'
 
-    # This code is from https://www.w3schools.com/w3css/w3css_tabulators.asp.
+    # This code is inspired by https://www.w3schools.com/w3css/w3css_tabulators.asp.
     tab_javascript = """<script>
                         function openTab_""" + table_id + """(evt, tabName, table_id) {
                             var i, x, tablinks;
                             x = document.getElementsByClassName("tabitem");
                             for (i = 0; i < x.length; i++) {
-                                if (x[i].className.split(' ').indexOf(table_id)!=-1) {
+                                if (x[i].className.split(' ').indexOf(table_id) != -1) {
                                     x[i].style.display = "none";
                                 }
                             }
                             tablinks = document.getElementsByClassName("tablink");
                             for (i = 0; i < x.length; i++) {
-                                if (tablinks[i].className.split(' ').indexOf(table_id)!=-1) {
+                                if (tablinks[i].className.split(' ').indexOf(table_id) != -1) {
                                     tablinks[i].className = tablinks[i].className.replace(" uu-orange", "");
                                 }
                             }

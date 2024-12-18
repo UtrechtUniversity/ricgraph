@@ -304,12 +304,14 @@ def open_ricgraph() -> Driver:
         _graph = GraphDatabase.driver(GRAPHDB_URL,
                                       auth=(GRAPHDB_USER, GRAPHDB_PASSWORD))
         _graph.verify_connectivity()
-    except:
-        print('open_ricgraph(): Error opening graph database backend using these parameters:')
+    except Exception as e:
+        print('open_ricgraph(): An exception occurred. Name: ' + type(e).__name__ + ',')
+        print('  error message: ' + str(e) + '.')
+        print('Error opening graph database backend using these parameters:')
         print('GRAPHDB_URL: ' + GRAPHDB_URL)
         print('GRAPHDB_DATABASENAME: ' + ricgraph_databasename())
         print('GRAPHDB_USER: ' + GRAPHDB_USER)
-        print('GRAPHDB_PASSWORD: [see ricgraph.ini file]')
+        print('GRAPHDB_PASSWORD: [see file ' + get_ricgraph_ini_file() + ']')
         print('\nAre these parameters correct and did you start your graph database backend "' + GRAPHDB + '"?')
         print('Exiting.')
         exit(1)
@@ -1327,7 +1329,11 @@ def read_all_values_of_property(node_property: str = '') -> list:
     global _graph
 
     if _graph is None:
-        print('\nread_all_values_of_property(): Error: graph has not been initialized or opened.\n\n')
+        print('\nread_all_values_of_property(): Error: graph has not been initialized or opened.')
+        return []
+
+    if ricgraph_nr_nodes() == 0:
+        print('\nread_all_values_of_property(): Warning: graph is empty.')
         return []
 
     if node_property != 'name' \
