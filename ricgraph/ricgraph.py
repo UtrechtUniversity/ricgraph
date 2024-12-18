@@ -1344,7 +1344,6 @@ def read_all_values_of_property(node_property: str = '') -> list:
               + node_property + '".\n\n')
         return []
 
-
     if node_property == 'name_personal':
         # Note that the comment property of 'person-root' contains FULL_NAMEs,
         # so it is also a name property that is a personal identifier.
