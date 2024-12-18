@@ -15,6 +15,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io/utrechtuniversity
 
+     - name: Check current directory and files
+        run: |
+          pwd
+          ls -la
+
       - name: Build Podman container for Ricgraph
         run: |
           podman build -f Containerfile -t ghcr.io/utrechtuniversity/ricgraph:latest .
