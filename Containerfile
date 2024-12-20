@@ -29,10 +29,20 @@
 # ######################################################################
 #
 # This Containerfile produces a Podman container that runs both 
-# Neo4j Community Edition and Ricgraph. You might want to modify 
-# the version numbers below.
-# Ricgraph Explorer runs on internal port 3030, external port 8092.
-# To use it, go to http://127.0.0.1:8092.
+# Neo4j Community Edition and Ricgraph. You can run a harvest
+# script and then explore the results using Ricgraph Explorer.
+# Ricgraph Explorer runs on container internal port 3030, external
+# port 8092. To use it, go to http://127.0.0.1:8092.
+#
+# The results of the harvest are NOT stored in a separate volume
+# on the host, but they are stored inside the container. This
+# is a design decision. This means, that after harvest, you have
+# to "add" the harvest results to the container (i.e. make the
+# changes permanent to the container). After your harvest, type
+# something like (more details below):
+# podman run --replace --name ricgraph -d -p 8092:3030 [container name]
+#
+# You might want to modify the version numbers below.
 #
 # WARNING: DO NOT USE THIS PODMAN CONTAINER IN A PRODUCTION ENVIRONMENT.
 # It is meant for instructional (personal) use only, as a demonstrator
@@ -45,13 +55,14 @@
 # Possible Podman commands:
 # - build the container locally: podman build -t ricgraph . [note the '.']
 # - build the container on GitHub: https://github.com/UtrechtUniversity/ricgraph/actions
-# - get the container from GitHub:
+# - get the container from GitHub (not necessary if you
+#   use the container ghcr.io/utrechtuniversity/ricgraph:latest):
 #   podman pull ghcr.io/utrechtuniversity/ricgraph:latest
 # - run locally generated container:
 #   podman run --name ricgraph -d -p 8092:3030 ricgraph:latest
 #   (Ricgraph Explorer runs on internal port 3030, external port 8092)
 #   or: podman run --replace --name ricgraph -d -p 8092:3030 ricgraph:latest
-# - run GitHub generated container:
+# - run GitHub generated container (will also download it if you don't have it):
 #   podman run --name ricgraph -d -p 8092:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 #   or: podman run --replace --name ricgraph -d -p 8092:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 # - stop: podman stop -a
@@ -67,6 +78,9 @@
 #   podman commit ricgraph ricgraph:latest
 # - make changes permanent in GitHub generated container:
 #   podman commit ricgraph ghcr.io/utrechtuniversity/ricgraph:latest
+#
+# Note: use as least as possible RUN commands, since every RUN
+# adds a layer to the container.
 #
 # ######################################################################
 
@@ -92,21 +106,22 @@ ARG neo4j_community=neo4j_${neo4j_community_version}_all.deb
 # Misc variables, these are files in the container
 ARG package_tempfile=/tmp/package_tempfile.deb
 ARG ricgraph_tempfile=/tmp/ricgraph_tempfile.tar.gz
-# This has to be an ENV instead of ARG because we use it in "CMD []" below
+# This has to be an ENV instead of ARG because we use it in "CMD []" below.
 ENV container_startscript=/usr/local/bin/start_services.sh
 
-# Install and update packages & Neo4j Community Edition
-RUN apt-get update
-RUN apt-get install -y wget vim
-RUN wget -O ${package_tempfile} ${neo4j_cyphershell_path}
-RUN apt-get install -y ${package_tempfile}
-RUN wget -O ${package_tempfile} ${neo4j_community_path}
-RUN apt-get install -y ${package_tempfile}
-RUN rm ${package_tempfile}
-
-# Set the Neo4j DB password. 
+# Install and update packages & Neo4j Community Edition.
+# The neo4j-admin command sets the Neo4j DB password.
+# WARNING: This might not be a good idea for production use.
 # This can only be done if you have not started Neo4j yet.
-RUN /bin/neo4j-admin dbms set-initial-password SecretPassword
+RUN apt-get update && \
+    apt-get install -y wget vim && \
+    wget -O ${package_tempfile} ${neo4j_cyphershell_path} && \
+    apt-get install -y ${package_tempfile} && \
+    wget -O ${package_tempfile} ${neo4j_community_path} && \
+    apt-get install -y ${package_tempfile} && \
+    rm ${package_tempfile} && \
+    apt-get clean && \
+    /bin/neo4j-admin dbms set-initial-password SecretPassword
 
 # Only do this if you need to access Neo4j from outside the container.
 # RUN sed -i 's/#server.default_listen_address=0.0.0.0/server.default_listen_address=0.0.0.0/' /etc/neo4j/neo4j.conf
@@ -115,33 +130,37 @@ RUN /bin/neo4j-admin dbms set-initial-password SecretPassword
 WORKDIR /app
 
 # Install Ricgraph
-RUN wget $ricgraph_path -O ${ricgraph_tempfile}
-RUN tar -zxvf ${ricgraph_tempfile}
-RUN rm ${ricgraph_tempfile}
+RUN wget $ricgraph_path -O ${ricgraph_tempfile} && \
+    tar -zxvf ${ricgraph_tempfile} && \
+    rm ${ricgraph_tempfile}
 
 WORKDIR ricgraph-${ricgraph_version}
-RUN pip install --no-cache-dir -r requirements.txt
-RUN cp ricgraph.ini-sample ricgraph.ini
-# Note: Neo4j password has been set above
-RUN sed -i 's/^graphdb_password =/graphdb_password = SecretPassword/' ricgraph.ini
-RUN sed -i 's/^graphdb_scheme = bolt/###graphdb_scheme = bolt/' ricgraph.ini
-RUN sed -i 's/^graphdb_port = 7687/###graphdb_port = 7687/' ricgraph.ini
-RUN sed -i 's/^#graphdb_scheme = neo4j/graphdb_scheme = neo4j/' ricgraph.ini
-RUN sed -i 's/^#graphdb_port = 7687/graphdb_port = 7687/' ricgraph.ini
-RUN mv ricgraph.ini /usr/local
+
+# Note the setting of the fixed Neo4j password that has been defined above.
+# The 'docs' directory is removed since it is large (mostly due to
+# the videos) and we do not want a container of a large size.
+RUN pip install --no-cache-dir -r requirements.txt && \
+    rm -r docs && \
+    cp ricgraph.ini-sample ricgraph.ini && \
+    sed -i 's/^graphdb_password =/graphdb_password = SecretPassword/' ricgraph.ini && \
+    sed -i 's/^graphdb_scheme = bolt/###graphdb_scheme = bolt/' ricgraph.ini && \
+    sed -i 's/^graphdb_port = 7687/###graphdb_port = 7687/' ricgraph.ini && \
+    sed -i 's/^#graphdb_scheme = neo4j/graphdb_scheme = neo4j/' ricgraph.ini && \
+    sed -i 's/^#graphdb_port = 7687/graphdb_port = 7687/' ricgraph.ini && \
+    mv ricgraph.ini /usr/local
 
 # WARNING: DO NOT USE THIS PODMAN CONTAINER IN A PRODUCTION ENVIRONMENT.
 # Make Ricgraph Explorer accessible from anywhere.
-RUN sed -i 's/ricgraph_explorer.run(port=3030)/ricgraph_explorer.run(host="0.0.0.0", port=3030)/' ricgraph_explorer/ricgraph_explorer.py
-RUN echo "<p/><em>Note: you are running Ricgraph Explorer in a Podman container." >> ricgraph_explorer/static/homepage_intro.html
-RUN echo "Only do this for instructional (personal) use, not for production use.</em>" >> ricgraph_explorer/static/homepage_intro.html
+RUN sed -i 's/ricgraph_explorer.run(port=3030)/ricgraph_explorer.run(host="0.0.0.0", port=3030)/' ricgraph_explorer/ricgraph_explorer.py && \
+    echo "<p/><em>Note: you are running Ricgraph Explorer in a Podman container." >> ricgraph_explorer/static/homepage_intro.html && \
+    echo "Only do this for instructional (personal) use, not for production use.</em>" >> ricgraph_explorer/static/homepage_intro.html
 
 # Create wrapper start script
-RUN echo "#!/bin/bash" > ${container_startscript}
-RUN echo "neo4j start" >> ${container_startscript}
-RUN echo "python /app/ricgraph-${ricgraph_version}/ricgraph_explorer/ricgraph_explorer.py" >> ${container_startscript}
-RUN echo "while true; do sleep 60; done" >> ${container_startscript}
-RUN chmod +x ${container_startscript}
+RUN echo "#!/bin/bash" > ${container_startscript} && \
+    echo "neo4j start" >> ${container_startscript} && \
+    echo "python /app/ricgraph-${ricgraph_version}/ricgraph_explorer/ricgraph_explorer.py" >> ${container_startscript} && \
+    echo "while true; do sleep 60; done" >> ${container_startscript} && \
+    chmod +x ${container_startscript}
 
 # Expose necessary ports.
 # Port 3030: Ricgraph Explorer. Ports 7474 & 7687: Neo4j.
@@ -154,4 +173,3 @@ EXPOSE 3030
 WORKDIR harvest
 
 CMD ["sh", "-c", "${container_startscript}"]
-
