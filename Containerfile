@@ -94,13 +94,14 @@ ARG neo4j_community_version=5.24.0
 
 # Set container metadata according to
 # OCI (Open Container Initiative) image specification.
-LABEL org.opencontainers.image.title=Ricgraph
-LABEL org.opencontainers.image.description="Ricgraph - Research in context graph"
-LABEL org.opencontainers.image.authors="Rik D.T. Janssen"
-LABEL org.opencontainers.image.version=${ricgraph_version}
-LABEL org.opencontainers.image.licenses=MIT
-LABEL org.opencontainers.image.documentation="https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
-LABEL org.opencontainers.image.source="https://github.com/UtrechtUniversity/ricgraph"
+# GitHub GHCR needs a space instead of a '='.
+LABEL org.opencontainers.image.title Ricgraph
+LABEL org.opencontainers.image.description "Ricgraph - Research in context graph"
+LABEL org.opencontainers.image.authors "Rik D.T. Janssen"
+LABEL org.opencontainers.image.version ${ricgraph_version}
+LABEL org.opencontainers.image.licenses MIT
+LABEL org.opencontainers.image.documentation "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
+LABEL org.opencontainers.image.source "https://github.com/UtrechtUniversity/ricgraph"
 
 # Ricgraph paths
 ARG ricgraph_download=https://github.com/UtrechtUniversity/ricgraph
