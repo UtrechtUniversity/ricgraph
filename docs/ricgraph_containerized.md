@@ -26,6 +26,10 @@ follow these steps:
 
 ## Notes on the Ricgraph Podman container
 Warning: Do not use the Ricgraph Podman container in a production environment.
+If you want to harvest a lot of items, you are better off using 
+[Ricgraph for a single user](ricgraph_install_configure.md) or
+[Ricgraph as a server](ricgraph_as_server.md).
+The Ricgraph Podman container is ideal for instructional or personal use.
 
 The Ricgraph Podman container has been designed in such a way that it is easy to use.
 This also means that some "good container design practices" have not been followed,
