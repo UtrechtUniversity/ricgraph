@@ -31,8 +31,9 @@
 # This Containerfile produces a Podman container that runs both 
 # Neo4j Community Edition and Ricgraph. You can run a harvest
 # script and then explore the results using Ricgraph Explorer.
-# Ricgraph Explorer runs on container internal port 3030, external
-# port 8092. To use it, go to http://127.0.0.1:8092.
+# Ricgraph Explorer runs on port 3030.
+# To use it, go to http://127.0.0.1:3030 (the actual port number
+# depends on your 'podman run' command).
 #
 # The results of the harvest are NOT stored in a separate volume
 # on the host, but they are stored inside the container. This
@@ -40,7 +41,7 @@
 # to "add" the harvest results to the container (i.e. make the
 # changes permanent to the container). After your harvest, type
 # something like (more details below):
-# podman run --replace --name ricgraph -d -p 8092:3030 [container name]
+# podman run --replace --name ricgraph -d -p 3030:3030 [container name]
 #
 # You might want to modify the version numbers below.
 #
@@ -59,12 +60,12 @@
 #   use the container ghcr.io/utrechtuniversity/ricgraph:latest):
 #   podman pull ghcr.io/utrechtuniversity/ricgraph:latest
 # - run locally generated container:
-#   podman run --name ricgraph -d -p 8092:3030 ricgraph:latest
-#   (Ricgraph Explorer runs on internal port 3030, external port 8092)
-#   or: podman run --replace --name ricgraph -d -p 8092:3030 ricgraph:latest
+#   podman run --name ricgraph -d -p 3030:3030 ricgraph:latest
+#   (Ricgraph Explorer runs on port 3030)
+#   or: podman run --replace --name ricgraph -d -p 3030:3030 ricgraph:latest
 # - run GitHub generated container (will also download it if you don't have it):
-#   podman run --name ricgraph -d -p 8092:3030 ghcr.io/utrechtuniversity/ricgraph:latest
-#   or: podman run --replace --name ricgraph -d -p 8092:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+#   podman run --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+#   or: podman run --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 # - stop: podman stop -a
 # - status of all containers: podman ps
 # - list of all containers: podman images
@@ -91,6 +92,16 @@ FROM python:3.11-slim
 ARG ricgraph_version=2.7
 ARG neo4j_community_version=5.24.0
 
+# Set container metadata according to
+# OCI (Open Container Initiative) image specification.
+LABEL org.opencontainers.image.title=Ricgraph
+LABEL org.opencontainers.image.description="Ricgraph - Research in context graph"
+LABEL org.opencontainers.image.authors="Rik D.T. Janssen"
+LABEL org.opencontainers.image.version=${ricgraph_version}
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.documentation="https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
+LABEL org.opencontainers.image.source="https://github.com/UtrechtUniversity/ricgraph"
+
 # Ricgraph paths
 ARG ricgraph_download=https://github.com/UtrechtUniversity/ricgraph
 ARG ricgraph_path=${ricgraph_download}/archive/refs/tags/v${ricgraph_version}.tar.gz
@@ -103,23 +114,21 @@ ARG neo4j_community_path=${neo4j_download}/deb/neo4j_${neo4j_community_version}_
 ARG neo4j_cyphershell=cypher-shell_${neo4j_community_version}_all.deb
 ARG neo4j_community=neo4j_${neo4j_community_version}_all.deb
 
-# Misc variables, these are files in the container
-ARG package_tempfile=/tmp/package_tempfile.deb
-ARG ricgraph_tempfile=/tmp/ricgraph_tempfile.tar.gz
 # This has to be an ENV instead of ARG because we use it in "CMD []" below.
 ENV container_startscript=/usr/local/bin/start_services.sh
 
 # Install and update packages & Neo4j Community Edition.
-# The neo4j-admin command sets the Neo4j DB password.
+# The neo4j-admin command sets the Neo4j DB password to a string that can be
+# observed using 'podman inspect'.
 # WARNING: This might not be a good idea for production use.
 # This can only be done if you have not started Neo4j yet.
 RUN apt-get update && \
     apt-get install -y wget vim && \
-    wget -O ${package_tempfile} ${neo4j_cyphershell_path} && \
-    apt-get install -y ${package_tempfile} && \
-    wget -O ${package_tempfile} ${neo4j_community_path} && \
-    apt-get install -y ${package_tempfile} && \
-    rm ${package_tempfile} && \
+    wget -O /tmp/package_tempfile.deb ${neo4j_cyphershell_path} && \
+    apt-get install -y /tmp/package_tempfile.deb && \
+    wget -O /tmp/package_tempfile.deb ${neo4j_community_path} && \
+    apt-get install -y /tmp/package_tempfile.deb && \
+    rm /tmp/package_tempfile.deb && \
     apt-get clean && \
     /bin/neo4j-admin dbms set-initial-password SecretPassword
 
@@ -130,9 +139,9 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Install Ricgraph
-RUN wget $ricgraph_path -O ${ricgraph_tempfile} && \
-    tar -zxvf ${ricgraph_tempfile} && \
-    rm ${ricgraph_tempfile}
+RUN wget -O /tmp/ricgraph_tempfile.tar.gz ${ricgraph_path} && \
+    tar -zxvf /tmp/ricgraph_tempfile.tar.gz && \
+    rm /tmp/ricgraph_tempfile.tar.gz
 
 WORKDIR ricgraph-${ricgraph_version}
 

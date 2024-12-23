@@ -3,31 +3,42 @@ name: Build and push Podman container for Ricgraph
 on:
   workflow_dispatch:  # Allows manual triggering of the workflow
 
+env:
+  REGISTRY: ghcr.io/utrechtuniversity
+  RICGRAPH_VERSION: 2.7
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Log in to GitHub Container Registry
         uses: redhat-actions/podman-login@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ghcr.io/utrechtuniversity
+          registry: ${{ env.REGISTRY }}
 
       - name: Check current directory and files
         run: |
           pwd
           ls -la
+          echo "Ricgraph registry: $REGISTRY"
+          echo "Ricgraph version: $RICGRAPH_VERSION"
 
       - name: Build Podman container for Ricgraph
         run: |
-          podman build -f Containerfile -t ghcr.io/utrechtuniversity/ricgraph:latest .
+          podman build -f Containerfile -t ${{ env.REGISTRY }}/ricgraph:${{ env.RICGRAPH_VERSION }} .
 
-      - name: Push Podman container for Ricgraph
+      - name: Update 'latest' tag for Podman container for Ricgraph
         run: |
-          podman push ghcr.io/utrechtuniversity/ricgraph:latest
+          podman tag ${{ env.REGISTRY }}/ricgraph:${{ env.RICGRAPH_VERSION }} ${{ env.REGISTRY }}/ricgraph:latest
+
+      - name: Push Podman containers for Ricgraph
+        run: |
+          podman push ${{ env.REGISTRY }}/ricgraph:${{ env.RICGRAPH_VERSION }}
+          podman push ${{ env.REGISTRY }}/ricgraph:latest
 
