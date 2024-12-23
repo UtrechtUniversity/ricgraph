@@ -3,11 +3,19 @@
 This page describes how to install Ricgraph for a single user on Linux.
 If you would like to use Ricgraph in a multi-user environment
 on Linux, you will need to install Ricgraph differently.
-Please read [Ricgraph as a server on Linux](ricgraph_as_server.md).
 In case you have no idea what would be the best for your situation, please 
 install Ricgraph for a single user on Linux, as described on this page.
-[Continue reading here if you would like to install Ricgraph on 
-Windows](#ricgraph-on-windows) (not recommended).
+
+Other Ricgraph install options are:
+* [Install and configure
+  Ricgraph as a server](ricgraph_as_server.md): 
+  multi-user environment on Linux.
+* [Install and use
+  Ricgraph in a container](ricgraph_containerized.md):
+  relatively quick with limited possibilities.
+ 
+[Continue reading here if you would like to install Ricgraph on
+Windows](#ricgraph-on-windows).
 
 On this page you can find:
 * [Ricgraph Makefile](#ricgraph-makefile)
@@ -581,7 +589,14 @@ in Neo4j Community Edition, follow these steps:
 
 
 ## Ricgraph on Windows
-If you would like to install Ricgraph on Windows, you are very probably the first
+The easiest way to go is to [Install and use
+Ricgraph in a container](ricgraph_containerized.md).
+This is relatively quick but it offers limited possibilities.
+
+If you would like to go for a "full" install of Ricgraph on Windows using either 
+[Install and configure Ricgraph for a single user](ricgraph_install_configure.md) or 
+[Install and configure Ricgraph as a server](ricgraph_as_server.md),
+you are very probably the first
 person to do so, as far as known. The creator of Ricgraph has no experience
 in developing software on Windows. So please let me know which steps you have
 taken, so I can add them to this documentation. If you are a Windows user,

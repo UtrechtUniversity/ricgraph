@@ -1,8 +1,5 @@
 # Ricgraph as a server on Linux
 This page describes how to install and run Ricgraph in a multi-user environment on Linux.
-If you would like to use Ricgraph in such an environment, you will
-need to install Ricgraph differently than described in 
-[Install and configure Ricgraph](ricgraph_install_configure.md).
 *Multi-user environment* means that you install Ricgraph on a Linux (virtual) machine, 
 and that various persons can log on to that machine, each with his own user id
 and password, and that each person will be able to use Ricgraph by using a
@@ -19,11 +16,15 @@ By installing Ricgraph as a server, as described on this page,
 Ricgraph will be started automatically when your machine boots, and
 it can be used by any user on that machine.
 
-[Go to the documentation describing the installation and configuration
-of Ricgraph for a single user](ricgraph_install_configure.md).
+Other Ricgraph install options are:
+* [Install and configure
+  Ricgraph for a single user](ricgraph_install_configure.md).
+* [Install and use
+  Ricgraph in a container](ricgraph_containerized.md): 
+  relatively quick with limited possibilities.
 
 [Continue reading here if you would like to install Ricgraph on
-Windows](ricgraph_install_configure.md#ricgraph-on-windows) (not recommended).
+Windows](ricgraph_install_configure.md#ricgraph-on-windows).
 
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
