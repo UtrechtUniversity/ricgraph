@@ -99,6 +99,18 @@ command `make install_enable_neo4j_community`, or follow the steps below.
   * If you get an error message about failed other dependencies, install
     these other packages.
 
+* You need to reset the default Neo4j password. 
+  This password is necessary in section
+  [Create a Python virtual environment and install Ricgraph in
+  it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) below.
+  Run:
+  ``` 
+  /usr/bin/neo4j-admin dbms set-initial-password [the new password]
+  ``` 
+  Note that this command only works if you have not started neo4j yet.
+  Otherwise follow the steps in the next section
+  *Post-install steps Neo4j Community Edition*.
+
 * If the installation has finished, make sure it runs by typing:
   ``` 
   systemctl enable neo4j.service
@@ -110,6 +122,9 @@ command `make install_enable_neo4j_community`, or follow the steps below.
   journalctl -u neo4j.service
   ```
 * Exit from user *root*.
+ 
+* Skip the next section *Post-install steps Neo4j Community Edition* (you have
+  already reset the password above).
 
 ### Post-install steps Neo4j Community Edition
 * Change the default username and password of Neo4j:
