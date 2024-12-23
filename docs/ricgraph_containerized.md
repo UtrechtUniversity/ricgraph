@@ -79,11 +79,13 @@ If you get an error that the container name "ricgraph" is already in use, type:
 ```
 podman run --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 ```
-Starting the container takes a few seconds, after that you can find Ricgraph Explorer
-on http://localhost:3030.
+Starting the container takes about ten seconds.
+Explore items with Ricgraph Explorer,
+in your browser, go to http://localhost:3030.
 
 If you started it for the first time, 
-it does not have data in it (scroll down to the "About Ricgraph" section).
+the container does not have data in it (on the Ricgraph Explorer home page,
+scroll down to the "About Ricgraph" section).
 The easiest method for getting data in it, is to run the `batch_harvest.py` script
 that harvests from the data repository [Yoda](https://www.uu.nl/en/research/yoda)
 and the 
@@ -94,10 +96,10 @@ Type
 podman exec -it ricgraph python batch_harvest.py
 ```
 
-It is a design decision to store all harvested data in the Ricgraph container
+It is a design decision to store all harvested items in the Ricgraph container
 (see [Notes on the Ricgraph Podman 
 container](#notes-on-the-ricgraph-podman-container)),
-so make it permanent (i.e. also available after restart of the container)
+so make them permanent (i.e. also available after restart of the container)
 by typing:
 ```
 podman commit ricgraph ghcr.io/utrechtuniversity/ricgraph:latest
@@ -145,9 +147,11 @@ you will need to modify the Ricgraph Podman container. You might need to add API
 to the [Ricgraph initialization file 
 *ricgraph.ini*](ricgraph_install_configure.md#ricgraph-initialization-file).
 Follow these steps:
-* First execute a bash shell in the Ricgraph Podman container (see above).
+* First execute a `bash` shell in the Ricgraph Podman container (see above).
 * If necessary, add API keys to *ricgraph.ini*. It is in */usr/local* in the container.
-* Go to the directory with harvest scripts:
+  You can use `vim` (or `vi`) to edit it.
+* Go to the directory with harvest scripts (`[version]` is the version of Ricgraph in
+  the container, substitute it for the actual version number):
   ```
   cd /app/ricgraph-[version]/harvest
   ```
