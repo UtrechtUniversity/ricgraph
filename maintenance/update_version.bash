@@ -27,7 +27,7 @@ fi
 
 # Get the new version from the user
 echo ""
-read -p "Specify the new version number: " new_version
+read -p "Specify the new version number (use 'x.y' and not 'vx.y'): " new_version
 if [ -z "$new_version" ]; then
     echo "You have not specified a version number, exiting."
     echo ""
@@ -65,8 +65,10 @@ sed -i "s/date-released: .*/date-released: \"${current_date}\"/" CITATION.cff
 echo "Updating Makefile..."
 sed -i "s/ricgraph_version := .*/ricgraph_version := ${new_version}/" Makefile
 
-# Update Containerfile for Podman
+# Update Containerfile for Podman & GitHub Actions file to build it
 echo "Updating Podman Containerfile..."
 sed -i "s/ricgraph_version=.*/ricgraph_version=${new_version}/" Containerfile
+echo "Updating GitHub Actions file to build container..."
+sed -i "s/RICGRAPH_VERSION: .*/RICGRAPH_VERSION: ${new_version}/" .github/workflows/builld-and-push-ricgraph-container.yml
 
 echo "Done."
