@@ -3,6 +3,7 @@ This index has been generated automatically.
 
 __A__
 - [Actions while clicking on a node](../docs/ricgraph_query_visualize.md#actions-while-clicking-on-a-node)
+- [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_pubs_pres_news_use_ment.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
 
 __B__
@@ -90,10 +91,12 @@ __I__
 - [In case you have installed Ricgraph for a single user](../docs/ricgraph_as_server.md#in-case-you-have-installed-ricgraph-for-a-single-user)
 - [Index Ricgraph documentation](../docs/ricgraph_index_documentation.md#index-ricgraph-documentation)
 - [Install and configure Ricgraph](../docs/ricgraph_install_configure.md#install-and-configure-ricgraph)
+- [Install and run the Ricgraph Podman container](../docs/ricgraph_containerized.md#install-and-run-the-ricgraph-podman-container)
 - [Install and start Memgraph](../docs/ricgraph_as_server.md#install-and-start-memgraph)
 - [Install and start Neo4j Community Edition](../docs/ricgraph_as_server.md#install-and-start-neo4j-community-edition)
 - [Install Bloom configuration](../docs/ricgraph_install_configure.md#install-bloom-configuration)
 - [Install Neo4j Desktop](../docs/ricgraph_install_configure.md#install-neo4j-desktop)
+- [Install Podman](../docs/ricgraph_containerized.md#install-podman)
 - [Install the Bloom configuration file](../docs/ricgraph_query_visualize.md#install-the-bloom-configuration-file)
 - [Installation Apache](../docs/ricgraph_as_server.md#installation-apache)
 - [Installation instructions for a single user](../docs/ricgraph_install_configure.md#installation-instructions-for-a-single-user)
@@ -115,6 +118,7 @@ __N__
 - [Neo4j ](../docs/ricgraph_install_configure.md#neo4j-)
 - [Next steps](../README.md#next-steps)
 - [Notable dependencies used in Ricgraph:](../docs/ricgraph_install_configure.md#notable-dependencies-used-in-ricgraph)
+- [Notes on the Ricgraph Podman container](../docs/ricgraph_containerized.md#notes-on-the-ricgraph-podman-container)
 
 __O__
 - [Open Bloom](../docs/ricgraph_query_visualize.md#open-bloom)
@@ -155,6 +159,7 @@ __R__
 - [Ricgraph comparison](../docs/ricgraph_comparison.md#ricgraph-comparison)
 - [Ricgraph Explorer](../docs/ricgraph_explorer.md#ricgraph-explorer)
 - [Ricgraph harvest scripts](../docs/ricgraph_harvest_scripts.md#ricgraph-harvest-scripts)
+- [Ricgraph in a container](../docs/ricgraph_containerized.md#ricgraph-in-a-container)
 - [Ricgraph in bullet points](../README.md#ricgraph-in-bullet-points)
 - [Ricgraph initialization file](../docs/ricgraph_install_configure.md#ricgraph-initialization-file)
 - [Ricgraph known bugs](../docs/ricgraph_known_bugs.md#ricgraph-known-bugs)
