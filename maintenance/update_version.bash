@@ -69,6 +69,6 @@ sed -i "s/ricgraph_version := .*/ricgraph_version := ${new_version}/" Makefile
 echo "Updating Podman Containerfile..."
 sed -i "s/ricgraph_version=.*/ricgraph_version=${new_version}/" Containerfile
 echo "Updating GitHub Actions file to build container..."
-sed -i "s/RICGRAPH_VERSION: .*/RICGRAPH_VERSION: ${new_version}/" .github/workflows/builld-and-push-ricgraph-container.yml
+sed -i "s/RICGRAPH_VERSION: .*/RICGRAPH_VERSION: ${new_version}/" .github/workflows/build-and-push-ricgraph-container.yml
 
 echo "Done."
