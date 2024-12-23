@@ -5,6 +5,7 @@ If you would like to use Ricgraph in a multi-user environment
 on Linux, you will need to install Ricgraph differently.
 In case you have no idea what would be the best for your situation, please 
 install Ricgraph for a single user on Linux, as described on this page.
+Or go for Ricgraph in a container.
 
 Other Ricgraph install options are:
 * [Install and configure
