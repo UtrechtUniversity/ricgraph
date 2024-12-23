@@ -69,6 +69,7 @@
 # - stop: podman stop -a
 # - status of all containers: podman ps
 # - list of all containers: podman images
+# - get latest version of all containers: podman auto-update
 # - remove all podman containers: podman rmi -a -f
 # - other useful: podman [inspect|restart|logs] ricgraph
 # - execute command in container: podman exec -it ricgraph [command]
@@ -94,14 +95,15 @@ ARG neo4j_community_version=5.24.0
 
 # Set container metadata according to
 # OCI (Open Container Initiative) image specification.
-# GitHub GHCR needs a space instead of a '='.
-LABEL org.opencontainers.image.title Ricgraph
-LABEL org.opencontainers.image.description "Ricgraph - Research in context graph"
-LABEL org.opencontainers.image.authors "Rik D.T. Janssen"
-LABEL org.opencontainers.image.version ${ricgraph_version}
-LABEL org.opencontainers.image.licenses MIT
-LABEL org.opencontainers.image.documentation "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
-LABEL org.opencontainers.image.source "https://github.com/UtrechtUniversity/ricgraph"
+# See https://github.com/opencontainers/image-spec/blob/main/annotations.md.
+LABEL org.opencontainers.image.title=Ricgraph
+LABEL org.opencontainers.image.description="Ricgraph - Research in context graph"
+LABEL org.opencontainers.image.authors="Rik D.T. Janssen"
+LABEL org.opencontainers.image.version=${ricgraph_version}
+LABEL org.opencontainers.image.licenses=MIT
+LABEL org.opencontainers.image.documentation="https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
+LABEL org.opencontainers.image.source="https://github.com/UtrechtUniversity/ricgraph"
+LABEL org.opencontainers.image.url="https://www.ricgraph.eu"
 
 # Ricgraph paths
 ARG ricgraph_download=https://github.com/UtrechtUniversity/ricgraph
