@@ -107,7 +107,7 @@ command `make install_enable_neo4j_community`, or follow the steps below.
   ``` 
   /usr/bin/neo4j-admin dbms set-initial-password [the new password]
   ``` 
-  Note that this command only works if you have not started neo4j yet.
+  Note that this command only works if you have not started Neo4j yet.
   Otherwise follow the steps in the next section
   *Post-install steps Neo4j Community Edition*.
 
