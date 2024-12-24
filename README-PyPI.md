@@ -1,19 +1,26 @@
 [![DOI software](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
 [![DOI reference publication](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
 [![website](https://img.shields.io/badge/website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)  
-![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph?color=green)
-[![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=green)](https://github.com/UtrechtUniversity/ricgraph/releases)
-![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest?color=green)
-![GitHub last commit](https://img.shields.io/github/last-commit/UtrechtUniversity/ricgraph?color=green)
-[![PyPI version](https://img.shields.io/pypi/v/ricgraph?label=PyPI%20version&color=green)](https://pypi.org/project/ricgraph)
-[![PyPI downloads](https://img.shields.io/pypi/dm/ricgraph?label=PyPI%20downloads&color=green)](https://pypistats.org/packages/ricgraph)  
-[![GitHub license](https://img.shields.io/github/license/UtrechtUniversity/ricgraph?color=green)](LICENSE)
+![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph?color=%234c1)
+[![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=%234c1)](https://github.com/UtrechtUniversity/ricgraph/releases)
+![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest?color=%234c1)
+![GitHub last commit](https://img.shields.io/github/last-commit/UtrechtUniversity/ricgraph?color=%234c1)
+[![PyPI version](https://img.shields.io/pypi/v/ricgraph?label=PyPI%20version&color=%234c1)](https://pypi.org/project/ricgraph)
+[![PyPI downloads](https://img.shields.io/pypi/dm/ricgraph?label=PyPI%20downloads&color=%234c1)](https://pypistats.org/packages/ricgraph)  
+[![Podman container version](https://ghcr-badge.egpl.dev/utrechtuniversity/ricgraph/latest_tag?color=%234c1&label=Podman+container+version)](https://github.com/utrechtuniversity/ricgraph/pkgs/container/ricgraph)
+[![Podman container size](https://ghcr-badge.egpl.dev/utrechtuniversity/ricgraph/size?color=%234c1&label=Podman+container+size)](https://github.com/utrechtuniversity/ricgraph/pkgs/container/ricgraph)
+[![Ricgraph container doc](https://img.shields.io/badge/Ricgraph_container_doc-click_here-%234c1)](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_containerized.md)  
+[![GitHub license](https://img.shields.io/github/license/UtrechtUniversity/ricgraph?color=%234c1)](LICENSE)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Technology Readiness Level 7/9 - Release Candidate - Technology ready enough and in initial use by end-users in intended scholarly environments](https://w3id.org/research-technology-readiness-levels/Level7ReleaseCandidate.svg)](https://github.com/CLARIAH/clariah-plus/blob/main/requirements/software-metadata-requirements.md#15--you-should-express-a-technology-readiness-level)
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=32110&r=123)
+
 <!---
 Note, the lines 'Website' and
 'PyPI downloads' end in two spaces, to force a line break but not a paragraph break.
+Similar for others.
+We use color=#4c1 (green), that color is used by the 'repo status' badge.
+Documentation about the Podman badges can be found here: https://github.com/eggplants/ghcr-badge.
 --->
 
 <img alt="Ricgraph logo" src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/refs/heads/main/docs/images/ricgraph_logo.png" height="30"> 
