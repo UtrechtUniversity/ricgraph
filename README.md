@@ -8,7 +8,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/ricgraph?label=PyPI%20version&color=%234c1)](https://pypi.org/project/ricgraph)
 [![PyPI downloads](https://img.shields.io/pypi/dm/ricgraph?label=PyPI%20downloads&color=%234c1)](https://pypistats.org/packages/ricgraph)  
 [![Podman container version](https://ghcr-badge.egpl.dev/utrechtuniversity/ricgraph/latest_tag?color=%234c1&label=Podman+container+version)](https://github.com/utrechtuniversity/ricgraph/pkgs/container/ricgraph)
-[![Podman container size](https://ghcr-badge.egpl.dev/utrechtuniversity/ricgraph/size?color=%234c1&label=Podman+container+size)](https://github.com/utrechtuniversity/ricgraph/pkgs/container/ricgraph)
+![Podman container size](https://ghcr-badge.egpl.dev/utrechtuniversity/ricgraph/size?color=%234c1&label=Podman+container+size)
 [![Ricgraph container doc](https://img.shields.io/badge/Ricgraph_container_doc-click_here-%234c1)](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_containerized.md)  
 [![GitHub license](https://img.shields.io/github/license/UtrechtUniversity/ricgraph?color=%234c1)](LICENSE)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
