@@ -58,6 +58,36 @@ Choose one of the following:
     Podman](https://podman-desktop.io/docs/installation/windows-install#installing-podman).
   * [Install GUI version Podman
     Desktop](https://podman-desktop.io/docs/installation/windows-install#installing-podman-desktop).
+  
+  The following information might help you installing Podman on Windows. Note that
+  you will need *Administrator* privileges.
+  * For both the command line version as well as the GUI version of Podman, you will need
+    *Windows Subsystem for Linux (WSL) 2*. Install it as follows:
+    * Open a *PowerShell (Admin)* or *Terminal (Admin)*. 
+    * Type:
+      ```
+      dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+      wsl --install --no-distribution
+      ```
+
+  Next, for the command line version of Podman:
+  * Get Podman from the GitHub releases page https://github.com/containers/podman/releases, choose the latest
+    version with file name extension .msi.
+  * Install it as you would install programs on Windows.
+  * Exit your *Administator* privileges.
+  * Open Windows *PowerShell* or *Terminal* and use the commands in the sections below.
+
+  Or, for the GUI version of Podman:
+  * Follow the instructions from [Install GUI version Podman
+    Desktop](https://podman-desktop.io/docs/installation/windows-install#installing-podman-desktop).
+  * You might get a Windows Firewall message, asking "Do you want to allow public, private, and
+    domain networks to access this app?". Choose *Private networks* from the list and click "Allow".
+  * After installation, you will need to make a Virtual Machine to run Podman. Podman Desktop
+    will ask you to do this. Follow the instructions.
+  * I got a weird error during installation, but rebooting my Windows machine resolved it.
+    Try it, if you get a similar message.
+  * Exit your *Administator* privileges.
+  * Open Windows *PowerShell* or *Terminal* and use the commands in the sections below.
 * MacOS:
   * [Install command line version
     Podman](https://podman.io/docs/installation#macos).
