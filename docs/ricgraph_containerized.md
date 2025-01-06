@@ -101,7 +101,9 @@ Choose one of the following:
 
 ## Install and run the Ricgraph Podman container
 For the following commands, you will need a *Terminal* or *Command line* or
-*PowerShell* window.
+*PowerShell* window. If you use Windows and *Windows Subsystem for Linux (WSL) 2* 
+and the command line version of Podman, 
+first start WSL by typing `wsl` in the *Terminal* or *PowerShell* window.
 
 The Ricgraph container is hosted on the 
 GitHub Container repository https://ghcr.io/utrechtuniversity/ricgraph.
@@ -155,7 +157,9 @@ To (re)start, use the `podman run` command above.
 
 ## Advanced use of the Ricgraph Podman container
 For the following commands, you will need a *Terminal* or *Command line* or
-*PowerShell* window.
+*PowerShell* window. If you use Windows and *Windows Subsystem for Linux (WSL) 2* 
+and the command line version of Podman, 
+first start WSL by typing `wsl` in the *Terminal* or *PowerShell* window.
 
 Get the status of all containers:
 ```
