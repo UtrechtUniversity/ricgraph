@@ -89,6 +89,9 @@
 # Use the slim Python image as a base
 FROM python:3.11-slim
 
+# Set the time zone
+ENV TZ="Europe/Amsterdam"
+
 # General args
 ARG ricgraph_version=2.7
 ARG neo4j_community_version=5.24.0
