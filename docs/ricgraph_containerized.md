@@ -100,11 +100,8 @@ Choose one of the following:
 
 
 ## Install and run the Ricgraph Podman container
-The author has only used the Linux command line version of Podman on Linux.
-The commands in this section may also hold for the command line versions 
-of Podman on Windows 
-or MacOS, and they might hold for the Desktop versions of Podman,
-but this has not been tried yet.
+For the following commands, you will need a *Terminal* or *Command line* or
+*PowerShell* window.
 
 The Ricgraph container is hosted on the 
 GitHub Container repository https://ghcr.io/utrechtuniversity/ricgraph.
@@ -157,6 +154,9 @@ podman stop -a
 To (re)start, use the `podman run` command above.
 
 ## Advanced use of the Ricgraph Podman container
+For the following commands, you will need a *Terminal* or *Command line* or
+*PowerShell* window.
+
 Get the status of all containers:
 ```
 podman ps
