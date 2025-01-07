@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023, 2024 Rik D.T. Janssen
+# Copyright (c) 2023, 2024, 2025 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,8 @@
 # This file is the main file for Ricgraph.
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
-# Updated Rik D.T. Janssen, February 2024, March 2024.
+# Updated Rik D.T. Janssen, February, March 2024.
+# Updated Rik D.T. Janssen, January 2025
 #
 # ########################################################################
 
@@ -113,7 +114,7 @@ from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
 
 __author__ = 'Rik D.T. Janssen'
-__copyright__ = 'Copyright (c) 2023, 2024 Rik D.T. Janssen'
+__copyright__ = 'Copyright (c) 2023, 2024, 2025 Rik D.T. Janssen'
 __email__ = ''
 __license__ = 'MIT License'
 __package__ = 'Ricgraph'
@@ -562,6 +563,31 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
         return nodes[0]
 
 
+def cypher_delete_node(node_element_id: str) -> None:
+    """Delete a node in the graph database.
+    If it has any edges, these will also be deleted.
+
+    :param node_element_id: the element_id of the node.
+    :return: None.
+    """
+    global graphdb_nr_deletes
+
+    cypher_query = 'MATCH (node:RicgraphNode) '
+    if ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE elementId(node)=$node_element_id '
+    else:
+        cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
+    cypher_query += 'DETACH DELETE node'
+    _graph.execute_query(cypher_query,
+                         node_element_id=node_element_id,
+                         result_transformer_=Result.value,
+                         database_=ricgraph_databasename())
+
+    nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_element_id)
+    graphdb_nr_deletes += 1 + nr_edges      # '1' for node, add all of its edges.
+    return
+
+
 def cypher_update_node_properties(node_element_id: str, node_properties: dict) -> Union[Node, None]:
     """
     Update node properties in a node in the graph database.
@@ -666,16 +692,7 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
 
     # If merge_node_from does not have neighbors, it will not be deleted.
     # Do another Cypher query to be sure it is gone.
-    cypher_query = 'MATCH (node_from:RicgraphNode) '
-    if graphdb_name == 'neo4j':
-        cypher_query += 'WHERE elementId(node_from)=$node_merge_from_element_id '
-    else:
-        cypher_query += 'WHERE id(node_from)=toInteger($node_merge_from_element_id) '
-    cypher_query += 'DETACH DELETE node_from'
-    _graph.execute_query(cypher_query,
-                         node_merge_from_element_id=node_merge_from_element_id,
-                         result_transformer_=Result.value,
-                         database_=ricgraph_databasename())
+    cypher_delete_node(node_element_id=node_merge_from_element_id)
 
     nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_merge_to_element_id)
     graphdb_nr_reads += 2 * nr_edges        # Approximation: edges are in two directions.
@@ -916,7 +933,7 @@ def create_history_line(property_name: str, old_value: str, new_value: str) -> s
     return 'Updated property "' + property_name + '" from "' + old_value + '" to "' + new_value + '". '
 
 
-def create_name_cache_in_personroot(node: Node, personroot: Node):
+def create_name_cache_in_personroot(node: Node, personroot: Node) -> None:
     """This function caches the value of a node with 'name' 'FULL_NAME'
     in the 'comment' property of its person-root node 'personroot'.
     If the cache is not present, it is created.
@@ -960,7 +977,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node):
     return
 
 
-def recreate_name_cache_in_personroot(personroot: Node):
+def recreate_name_cache_in_personroot(personroot: Node) -> None:
     """This function recreates the cache of all the nodes with 'name' 'FULL_NAME'
     in the 'comment' property of its person-root node 'personroot'.
     If the cache is not present, it is created.
@@ -971,26 +988,28 @@ def recreate_name_cache_in_personroot(personroot: Node):
     """
     if personroot is None:
         return
-    neighbornodes = get_all_neighbor_nodes(node=personroot)
+    neighbornodes = get_all_neighbor_nodes(node=personroot,
+                                           name_want='FULL_NAME')
     name_cache = []
     for node in neighbornodes:
-        if node['name'] == 'FULL_NAME':
-            if node['value'] not in name_cache:
-                name_cache.append(node['value'])
+        if node['value'] not in name_cache:
+            name_cache.append(node['value'])
 
-    if len(name_cache) != 0:
-        if (isinstance(personroot['comment'], str) and personroot['comment'] == '') \
-           or isinstance(personroot['comment'], list):
-            time_stamp = datetimestamp()
-            history_line = create_history_line(property_name='comment',
-                                               old_value=str(personroot['comment']),
-                                               new_value=str(name_cache))
-            node_properties = {'comment': name_cache.copy(),
-                               '_history': personroot['_history'].copy()}
-            node_properties['_history'].append(time_stamp + ': Cleaned and recreated name cache. ' + history_line)
-            cypher_update_node_properties(node_element_id=personroot.element_id,
-                                          node_properties=node_properties)
-        # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
+    # We need to do this irrespective of the length of name_cache.
+    # If the length is 0, we might be deleting FULL_NAME nodes and that
+    # should also be reflected in the name cache.
+    if (isinstance(personroot['comment'], str) and personroot['comment'] == '') \
+       or isinstance(personroot['comment'], list):
+        time_stamp = datetimestamp()
+        history_line = create_history_line(property_name='comment',
+                                           old_value=str(personroot['comment']),
+                                           new_value=str(name_cache))
+        node_properties = {'comment': name_cache.copy(),
+                           '_history': personroot['_history'].copy()}
+        node_properties['_history'].append(time_stamp + ': Cleaned and recreated name cache. ' + history_line)
+        cypher_update_node_properties(node_element_id=personroot.element_id,
+                                      node_properties=node_properties)
+    # In all other cases: leave it as it is: 'comment' seems to be used for something we don't know.
     return
 
 
@@ -1480,6 +1499,37 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
                            other_properties=node_properties)
 
     print(count, '(' + timestamp() + ')\n', end='', flush=True)
+    return
+
+
+def delete_node(node: Node) -> None:
+    """Delete a node in the graph database.
+    If it has any edges, these will also be deleted.
+
+    :param node: the node to delete.
+    :return: None.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\ndelete_node(): Error: graph has not been initialized or opened.\n\n')
+        return
+
+    if node is None:
+        print('delete_node(): Error: node is None - cannot be found.')
+        return
+
+    if node['name'] == 'FULL_NAME':
+        # We need to recreate the name cache in the person-root node.
+        personroot = get_personroot_node(node=node)
+    else:
+        personroot = None
+
+    cypher_delete_node(node_element_id=node.element_id)
+
+    if personroot is not None:
+        recreate_name_cache_in_personroot(personroot=personroot)
+
     return
 
 
