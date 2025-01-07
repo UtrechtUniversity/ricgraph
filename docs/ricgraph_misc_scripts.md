@@ -167,6 +167,37 @@ The export file containing edges will be a csv file containing exactly four colu
 * name_to, value_to: the to node for the edge.
 
 
+## Delete personal data in ricgraph (delete_personal_data.py)
+This script deletes all personal data of one or more persons from Ricgraph.
+These persons need to be listed in a csv file.
+The script will delete all nodes of category *person* that are related with
+the person whose personal data has to be deleted (except for the *person-root* node,
+this node will not be deleted since it does not contain personal information).
+
+```
+Usage
+delete_personal_data.py [options]
+
+Options:
+  --filename <filename>
+          Specifies a csv file that has columns 'name' and 'value'.
+          Every row in this file contains a personal identifier of
+          a person whose personal data needs to be deleted from Ricgraph.
+  --are_you_sure <yes>
+          Safety check since the script will delete items from Ricgraph.
+          'yes': This script will run.
+          any other value: This script will not run.
+          If this option is not present, the script will prompt the user
+          whether to run the script.
+```
+
+The file *filename* contains identifiers for persons whose personal data have to 
+be deleted from Ricgraph.
+It contains exactly two columns and can have as many rows as necessary.
+The columns are:
+* name, value: values to identify the person in Ricgraph.
+
+
 ## Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)
 To count the number of organizations that contributed to a category, 
 use the script *count_organizations_contributed_to_category.py*.
