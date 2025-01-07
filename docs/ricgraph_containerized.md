@@ -53,6 +53,11 @@ Choose one of the following:
     Podman](https://podman.io/docs/installation#installing-on-linux).
   * [Install GUI version Podman 
     Desktop](https://podman-desktop.io/docs/installation/linux-install).
+* MacOS:
+  * [Install command line version
+    Podman](https://podman.io/docs/installation#macos).
+  * [Install GUI version Podman
+    Desktop](https://podman-desktop.io/docs/installation/macos-install).
 * Windows:
   * [Install command line version
     Podman](https://podman-desktop.io/docs/installation/windows-install#installing-podman).
@@ -92,18 +97,13 @@ Choose one of the following:
   * Open Windows *PowerShell* or *Terminal* and use the commands in the sections below.
   * Or use Podman Desktop GUI to pull the Ricgraph image (for location see below) and
     to start it.
-* MacOS:
-  * [Install command line version
-    Podman](https://podman.io/docs/installation#macos).
-  * [Install GUI version Podman
-    Desktop](https://podman-desktop.io/docs/installation/macos-install).
 
 
 ## Install and run the Ricgraph Podman container
 For the following commands, you will need a *Terminal* or *Command line* or
-*PowerShell* window. If you use Windows and *Windows Subsystem for Linux (WSL) 2* 
-and the command line version of Podman, 
-first start WSL by typing `wsl` in the *Terminal* or *PowerShell* window.
+*PowerShell* window. If you use the Podman Windows command line version, 
+first start *Windows Subsystem for Linux (WSL)* by typing `wsl` in the Windows
+*Terminal* or *PowerShell* window.
 
 The Ricgraph container is hosted on the 
 GitHub Container repository https://ghcr.io/utrechtuniversity/ricgraph.
@@ -157,9 +157,9 @@ To (re)start, use the `podman run` command above.
 
 ## Advanced use of the Ricgraph Podman container
 For the following commands, you will need a *Terminal* or *Command line* or
-*PowerShell* window. If you use Windows and *Windows Subsystem for Linux (WSL) 2* 
-and the command line version of Podman, 
-first start WSL by typing `wsl` in the *Terminal* or *PowerShell* window.
+*PowerShell* window. If you use the Podman Windows command line version, 
+first start *Windows Subsystem for Linux (WSL)* by typing `wsl` in the Windows
+*Terminal* or *PowerShell* window.
 
 Get the status of all containers:
 ```
