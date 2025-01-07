@@ -24,7 +24,7 @@ __C__
 - [Create the Ricgraph REST API documentation (convert_openapi_to_mddoc.py)](../docs/ricgraph_misc_scripts.md#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddocpy)
 
 __D__
-- [Delete personal data in ricgraph (delete_personal_data.py)](../docs/ricgraph_misc_scripts.md#delete-personal-data-in-ricgraph-delete_personal_datapy)
+- [Delete personal data from Ricgraph (delete_personal_data.py)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_datapy)
 - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_install_configure.md#dumping-and-restoring-the-ricgraph-database)
 

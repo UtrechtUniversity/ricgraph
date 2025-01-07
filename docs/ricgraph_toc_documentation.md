@@ -92,7 +92,7 @@ This table of contents has been generated automatically.
   - [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv.py)](../docs/ricgraph_misc_scripts.md#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csvpy)
   - [Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv.py)](../docs/ricgraph_misc_scripts.md#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)
   - [Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv.py)](../docs/ricgraph_misc_scripts.md#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy)
-  - [Delete personal data in ricgraph (delete_personal_data.py)](../docs/ricgraph_misc_scripts.md#delete-personal-data-in-ricgraph-delete_personal_datapy)
+  - [Delete personal data from Ricgraph (delete_personal_data.py)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_datapy)
   - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_categorypy)
   - [Export nodes to a file (export_person_identifiers.py and export_person_node_properties.py)](../docs/ricgraph_misc_scripts.md#export-nodes-to-a-file-export_person_identifierspy-and-export_person_node_propertiespy)
   - [Script to enrich persons (enrich_orcids_scopusids.py)](../docs/ricgraph_misc_scripts.md#script-to-enrich-persons-enrich_orcids_scopusidspy)
