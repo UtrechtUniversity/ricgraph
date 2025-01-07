@@ -170,6 +170,9 @@ The export file containing edges will be a csv file containing exactly four colu
 ## Delete personal data from Ricgraph (delete_personal_data.py)
 This script deletes all personal data of one or more persons from Ricgraph.
 These persons need to be listed in a csv file.
+You can find this script in the directory
+[enhance](../enhance).
+
 The script will delete all nodes of category *person* that are related with
 the person whose personal data have to be deleted (except for the *person-root* node,
 this node will not be deleted since it does not contain personal information).
