@@ -2,7 +2,7 @@
 # 
 # MIT License
 # 
-# Copyright (c) 2024 Rik D.T. Janssen
+# Copyright (c) 2024, 2025 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@
 # ######################################################################
 # 
 # Original version Rik D.T. Janssen, December 2024.
+# Updated Rik D.T. Janssen, January 2025.
 #
 # ######################################################################
 #
@@ -35,20 +36,17 @@
 # To use it, go to http://127.0.0.1:3030 (the actual port number
 # depends on your 'podman run' command).
 #
-# The results of the harvest are NOT stored in a separate volume
+# You might want to modify the version numbers below.
+#
+# The results of an harvest are NOT stored in a separate volume
 # on the host, but they are stored inside the container. This
 # is a design decision. This means, that after harvest, you have
-# to "add" the harvest results to the container (i.e. make the
-# changes permanent to the container). After your harvest, type
-# something like (more details below):
-# podman run --replace --name ricgraph -d -p 3030:3030 [container name]
-#
-# You might want to modify the version numbers below.
+# to "add" (commit) the harvest results to the container (i.e. make the
+# changes permanent to the container). See below.
 #
 # WARNING: DO NOT USE THIS PODMAN CONTAINER IN A PRODUCTION ENVIRONMENT.
 # It is meant for instructional (personal) use only, as a demonstrator
-# for Ricgraph.
-# This is because it exposes Ricgraph Explorer in a insecure way.
+# for Ricgraph. This container does not provide a web server (e.g. apache).
 # If you want to use Ricgraph in a production environment, install it
 # as a server, please read 
 # https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md
@@ -59,13 +57,17 @@
 # - get the container from GitHub (not necessary if you
 #   use the container ghcr.io/utrechtuniversity/ricgraph:latest):
 #   podman pull ghcr.io/utrechtuniversity/ricgraph:latest
-# - run locally generated container:
+# - run local container:
 #   podman run --name ricgraph -d -p 3030:3030 ricgraph:latest
 #   (Ricgraph Explorer runs on port 3030)
 #   or: podman run --replace --name ricgraph -d -p 3030:3030 ricgraph:latest
-# - run GitHub generated container (will also download it if you don't have it):
+# - run GitHub container (will also download it if you don't have it):
 #   podman run --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 #   or: podman run --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+# - run GitHub container, but use the local, possibly old, version
+#   and do not retrieve a new version:
+#   podman run --pull=never --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+#   or: podman run --pull=never --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 # - stop: podman stop -a
 # - status of all containers: podman ps
 # - list of all containers: podman images
@@ -147,9 +149,11 @@ WORKDIR /app
 # Install Ricgraph
 RUN wget -O /tmp/ricgraph_tempfile.tar.gz ${ricgraph_path} && \
     tar -zxvf /tmp/ricgraph_tempfile.tar.gz && \
-    rm /tmp/ricgraph_tempfile.tar.gz
+    rm /tmp/ricgraph_tempfile.tar.gz && \
+    mv ricgraph-${ricgraph_version} ricgraph && \
+    ln -s ricgraph ricgraph-${ricgraph_version}
 
-WORKDIR ricgraph-${ricgraph_version}
+WORKDIR ricgraph
 
 # Note the setting of the fixed Neo4j password that has been defined above.
 # The 'docs' directory is removed since it is large (mostly due to
@@ -165,15 +169,14 @@ RUN pip install --no-cache-dir -r requirements.txt && \
     mv ricgraph.ini /usr/local
 
 # WARNING: DO NOT USE THIS PODMAN CONTAINER IN A PRODUCTION ENVIRONMENT.
-# Make Ricgraph Explorer accessible from anywhere.
-RUN sed -i 's/ricgraph_explorer.run(port=3030)/ricgraph_explorer.run(host="0.0.0.0", port=3030)/' ricgraph_explorer/ricgraph_explorer.py && \
-    echo "<p/><em>Note: you are running Ricgraph Explorer in a Podman container." >> ricgraph_explorer/static/homepage_intro.html && \
+# The container does not provide a web server (e.g. apache).
+RUN echo "<p/><em>Note: you are running Ricgraph Explorer in a Podman container." >> ricgraph_explorer/static/homepage_intro.html && \
     echo "Only do this for instructional (personal) use, not for production use.</em>" >> ricgraph_explorer/static/homepage_intro.html
 
 # Create wrapper start script
 RUN echo "#!/bin/bash" > ${container_startscript} && \
     echo "neo4j start" >> ${container_startscript} && \
-    echo "python /app/ricgraph-${ricgraph_version}/ricgraph_explorer/ricgraph_explorer.py" >> ${container_startscript} && \
+    echo "gunicorn --chdir /app/ricgraph/ricgraph_explorer --bind 0.0.0.0:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker ricgraph_explorer:create_ricgraph_explorer_app" >> ${container_startscript} && \
     echo "while true; do sleep 60; done" >> ${container_startscript} && \
     chmod +x ${container_startscript}
 
