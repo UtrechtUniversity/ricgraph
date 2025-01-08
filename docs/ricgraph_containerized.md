@@ -25,8 +25,9 @@ follow these steps:
 
 
 ## Notes on the Ricgraph Podman container
-Warning: Do not use the Ricgraph Podman container in a production environment.
-If you want to harvest a lot of items, you are better off using 
+Warning: Do not use the Ricgraph Podman container in a production environment,
+since it does not provide a web server (such as Apache).
+If you would like to harvest a lot of items, you are better off using 
 [Ricgraph for a single user](ricgraph_install_configure.md) or
 [Ricgraph as a server](ricgraph_as_server.md).
 The Ricgraph Podman container is ideal for instructional or personal use.
@@ -39,9 +40,7 @@ in particular:
 * Neo4j Community Edition and Ricgraph are in the same Ricgraph Podman container
   (usually, one would use separate containers).
 
-Also, Ricgraph Explorer is run in an insecure way
-(in Python Flask development mode).
-Do not use the Ricgraph Podman container in a production environment.
+So, do not use the Ricgraph Podman container in a production environment.
 
 
 ## Install Podman
@@ -108,26 +107,48 @@ first start *Windows Subsystem for Linux (WSL)* by typing `wsl` in the Windows
 The Ricgraph container is hosted on the 
 GitHub Container repository https://ghcr.io/utrechtuniversity/ricgraph.
 
-Run the Ricgraph Podman container (and download it if you have not downloaded it before):
-```
-podman run --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
-```
-If you get an error that the container name "ricgraph" is already in use, type:
-```
-podman run --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
-```
-Starting the container takes about ten seconds.
-Explore items with Ricgraph Explorer,
-in your browser, go to http://localhost:3030.
+There are two ways to run the Ricgraph Podman container:
+1. You have not done a `podman commit` (see below).
 
-If you started it for the first time, 
-the container does not have data in it (on the Ricgraph Explorer home page,
-scroll down to the "About Ricgraph" section).
+   Run the latest (newest) version of the Ricgraph Podman container, and download it if you don't have it:
+   ```
+   podman run --pull=newer --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+   ```
+   If you get an error like 
+   *Error: creating container storage: the container name "ricgraph" is already in use*, type:
+   ```
+   podman run --pull=newer --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+   ```
+
+2. You have done a `podman commit` (see below).
+
+   Run the local version of the Ricgraph Podman container
+   (do not use the `--pull=newer` flag):
+   ```
+   podman run --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+   ```
+   If you get an error like
+   *Error: creating container storage: the container name "ricgraph" is already in use*, type:
+   ```
+   podman run --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+   ```
+
+ Starting the container takes about ten seconds.
+ Explore items with Ricgraph Explorer,
+ in your browser, go to http://localhost:3030.
+
+If you started `podman run` for the first time, 
+the container does not have data in it. You can observe this by going to the 
+Ricgraph Explorer home page (http://localhost:3030),
+and by scrolling down to the "About Ricgraph" section.
 The easiest method for getting data in it, is to run the `batch_harvest.py` script
-that harvests from the data repository [Yoda](https://www.uu.nl/en/research/yoda)
-and the 
-[Research Software Directory](https://research-software-directory.org), since these do not need authentication keys.
-This will take several minutes to complete.
+that harvests a selection of research information of Utrecht University. 
+The script harvests from both
+the data repository [Yoda](https://www.uu.nl/en/research/yoda)
+and from the 
+[Research Software Directory](https://research-software-directory.org)
+These two repositories do not need authentication keys.
+Running this script will take several minutes to complete.
 Type
 ```
 podman exec -it ricgraph python batch_harvest.py
@@ -171,11 +192,6 @@ Remove all podman containers:
 podman rmi -a -f
 ```
 
-Get the latest version of all containers: 
-```
-podman auto-update
-```
-
 Use a `bash` shell "in" the Ricgraph Podman container:
 ```
 podman exec -it ricgraph /bin/bash
@@ -189,13 +205,13 @@ you will need to modify the Ricgraph Podman container. You might need to add API
 to the [Ricgraph initialization file 
 *ricgraph.ini*](ricgraph_install_configure.md#ricgraph-initialization-file).
 Follow these steps:
-* First execute a `bash` shell in the Ricgraph Podman container (see above).
+* First execute a `bash` shell in the Ricgraph Podman container (see above). Execute the
+  following commands in the container (in the bash shell you just started).
 * If necessary, add API keys to *ricgraph.ini*. It is in */usr/local* in the container.
   You can use `vim` (or `vi`) to edit it.
-* Go to the directory with harvest scripts (`[version]` is the version of Ricgraph in
-  the container, substitute it for the actual version number):
+* Go to the directory with harvest scripts:
   ```
-  cd /app/ricgraph-[version]/harvest
+  cd /app/ricgraph/harvest
   ```
 * Run a harvest script (they start with 'harvest_'):
   ```
