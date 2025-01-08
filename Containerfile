@@ -52,36 +52,39 @@
 # https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md
 #
 # Possible Podman commands:
-# - build the container locally: podman build -t ricgraph . [note the '.']
 # - build the container on GitHub: https://github.com/UtrechtUniversity/ricgraph/actions
-# - get the container from GitHub (not necessary if you
-#   use the container ghcr.io/utrechtuniversity/ricgraph:latest):
-#   podman pull ghcr.io/utrechtuniversity/ricgraph:latest
-# - run local container:
-#   podman run --name ricgraph -d -p 3030:3030 ricgraph:latest
+# - build the container locally: podman build -t ricgraph . [note the '.']
+#
+# - run latest version of GitHub container, and download it if you don't have it:
+#   podman run --pull=newer --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+#   or: podman run --pull=newer --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 #   (Ricgraph Explorer runs on port 3030)
-#   or: podman run --replace --name ricgraph -d -p 3030:3030 ricgraph:latest
-# - run GitHub container (will also download it if you don't have it):
+# - run GitHub container, download it if you don't have it, and run local
+#   (possibly old) version if you already have it (i.e. do not update to new version):
 #   podman run --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
 #   or: podman run --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
-# - run GitHub container, but use the local, possibly old, version
-#   and do not retrieve a new version:
-#   podman run --pull=never --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
-#   or: podman run --pull=never --replace --name ricgraph -d -p 3030:3030 ghcr.io/utrechtuniversity/ricgraph:latest
+# - run local container:
+#   podman run --name ricgraph -d -p 3030:3030 ricgraph:latest
+#   or: podman run --replace --name ricgraph -d -p 3030:3030 ricgraph:latest
+#
 # - stop: podman stop -a
 # - status of all containers: podman ps
 # - list of all containers: podman images
-# - get latest version of all containers: podman auto-update
-# - remove all podman containers: podman rmi -a -f
-# - other useful: podman [inspect|restart|logs] ricgraph
+#
 # - execute command in container: podman exec -it ricgraph [command]
 #   e.g. podman exec -it ricgraph /bin/bash
 #   or podman exec -it ricgraph python batch_harvest.py
 #   Note that after harvesting, you have to commit and restart the container.
-# - make changes permanent in locally generated container:
+# - make changes permanent in local generated container:
 #   podman commit ricgraph ricgraph:latest
 # - make changes permanent in GitHub generated container:
 #   podman commit ricgraph ghcr.io/utrechtuniversity/ricgraph:latest
+# - remove all podman containers: podman rmi -a -f
+# - other useful: podman [inspect|restart|logs] ricgraph
+# - the --pull flag in Podman is used to control when and how images are
+#   pulled from remote registries. Options are:
+#   --pull=always, --pull=newer, --pull=never.
+#   For examples, see above.
 #
 # Note: use as least as possible RUN commands, since every RUN
 # adds a layer to the container.
