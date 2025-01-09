@@ -127,6 +127,9 @@ command `make install_enable_neo4j_community`, or follow the steps below.
   already reset the password above).
 
 ### Post-install steps Neo4j Community Edition
+If you use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile),
+you do not need to do this. Otherwise, follow these steps:
+
 * Change the default username and password of Neo4j:
   * In your web browser, go to
     [http://localhost:7474/browser](http://localhost:7474/browser).

@@ -172,7 +172,8 @@ command `make install_neo4j_desktop`, or follow the steps below.
 1. The text "Project" appears with the text "Add a DBMS to get started". Click on the "+ Add" button
    next to it and select "Local DBMS". Leave the name as it is ("Graph DBMS") and fill in a password. 
    Click "Create".
-   Also, insert the password in field *graphdb_password* in
+1. [This step is not necessary if you use the [Ricgraph Makefile](#ricgraph-makefile).]
+   Insert the password in field *graphdb_password* in
    the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
 1. Exit Neo4j Desktop using the "File" menu and select "Quit". If your database was active
    a message similar to "Your DBMS [name] is running, are you sure you want to quit" appears,

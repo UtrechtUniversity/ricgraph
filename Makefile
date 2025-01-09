@@ -93,6 +93,9 @@ neo4j_download := https://dist.neo4j.org
 # Misc. variables.
 tmpdir := /tmp/cuttingedge_$(shell echo $$PPID)
 graphdb_backupdir := $(HOME)/graphdb_backup
+graphdb_password_file := /tmp/0-ricgraph-password.txt
+graphdb_password_length := 12
+graphdb_password := [not_set]
 
 # Determine which python command to use.
 ifeq ($(shell which python3.11 > /dev/null 2>&1 && echo $$?),0)
@@ -265,6 +268,8 @@ makefile_variables:
 	@echo "- neo4j_desktop: $(neo4j_desktop)"
 	@echo "- neo4j_desktop_path: $(neo4j_desktop_path)"
 	@echo "- graphdb_backupdir: $(graphdb_backupdir)"
+	@echo "- graphdb_password_file: $(graphdb_password_file)"
+	@echo "- graphdb_password_length: $(graphdb_password_length)"
 	@echo "- harvest_script: $(harvest_script)"
 	@echo "- harvest_script_log: $(harvest_script_log)"
 	@echo ""
@@ -324,7 +329,7 @@ create_user_group_ricgraph: check_user_root
 	@if ! getent group 'ricgraph' > /dev/null 2>&1; then groupadd --system ricgraph; echo "Created group 'ricgraph'."; fi
 	@if ! getent passwd 'ricgraph' > /dev/null 2>&1; then useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph; echo "Created user 'ricgraph'."; fi
 
-install_enable_neo4j_community: check_user_root check_python_minor_version check_package_install_cmd
+install_enable_neo4j_community: check_user_root check_python_minor_version check_package_install_cmd generate_graphdb_password
 ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo ""
 	@echo "Starting Install and enable Neo4j Community Edition. Read documentation at:"
@@ -336,21 +341,20 @@ ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	$(package_install_cmd) $(HOME)/$(neo4j_cyphershell)
 	$(package_install_cmd) $(HOME)/$(neo4j_community)
 	@echo "If you get any errors on missing dependencies, please install them using '$(package_install_cmd)'."
+	$(call read_graphdb_password)
+	@# The following can only be done if you have not started Neo4j yet.
+	neo4j-admin dbms set-initial-password $(graphdb_password)
 	systemctl enable neo4j.service
 	systemctl start neo4j.service
 	@echo ""
 	@echo "Done."
 	@echo "Neo4j Community Edition version $(neo4j_community_version) has"
 	@echo "been installed, enabled and will be run at system start."
-	@echo "Before you can use it, please read the post-install steps at"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#post-install-steps-neo4j-community-edition"
-	@echo "If you are finished, please fill in your graph database backend"
-	@echo "password in file 'ricgraph.ini'. This can be done after the"
-	@echo "installation of Ricgraph as server or as single user."
+	@echo "The password to access it can be found in $(graphdb_password_file)."
 	@echo ""
 endif
 
-install_neo4j_desktop: check_user_notroot check_python_minor_version
+install_neo4j_desktop: check_user_notroot check_python_minor_version generate_graphdb_password
 ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo ""
 	@echo "Starting Download and install Neo4j Desktop. Read documentation at:"
@@ -364,9 +368,10 @@ ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo "Neo4j Desktop version $(neo4j_desktop_version) has been downloaded."
 	@echo "Before you can use it, please read the post-install steps at"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#post-install-steps-neo4j-desktop"
-	@echo "If you are finished, please fill in your graph database backend"
-	@echo "password in file 'ricgraph.ini'. This can be done after the"
-	@echo "installation of Ricgraph as server or as single user."
+	@echo "One of the steps is to fill in a password. Use the"
+	@echo "password in file $(graphdb_password_file)."
+	@echo "If you do this, you do not need to fill in this password in"
+	@echo "file 'ricgraph.ini' later on, this Makefile will take care of it."
 	@echo ""
 endif
 
@@ -395,6 +400,8 @@ endif
 	/opt/ricgraph_venv/bin/pip install -r /opt/ricgraph_venv/requirements.txt
 	cp /opt/ricgraph_venv/ricgraph.ini-sample /opt/ricgraph_venv/ricgraph.ini
 	@# Prepare ricgraph.ini for Neo4j Community Edition.
+	$(call read_graphdb_password)
+	sed -i 's/^graphdb_password =/graphdb_password = $(graphdb_password)/' /opt/ricgraph_venv/ricgraph.ini
 	sed -i 's/^graphdb_scheme = bolt/###graphdb_scheme = bolt/' /opt/ricgraph_venv/ricgraph.ini
 	sed -i 's/^graphdb_port = 7687/###graphdb_port = 7687/' /opt/ricgraph_venv/ricgraph.ini
 	sed -i 's/^#graphdb_scheme = neo4j/graphdb_scheme = neo4j/' /opt/ricgraph_venv/ricgraph.ini
@@ -408,8 +415,6 @@ endif
 	@echo "You may want to modify /opt/ricgraph_venv/ricgraph.ini to suit"
 	@echo "your needs, please read:"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#ricgraph-initialization-file"
-	@echo "E.g., did you fill in your graph database backend"
-	@echo "password in file 'ricgraph.ini'?"
 	@echo ""
 	@echo "Please read this to learn how to start Ricgraph scripts from the command line:"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#in-case-you-have-installed-ricgraph-as-a-server"
@@ -450,7 +455,10 @@ endif
 	$(HOME)/ricgraph_venv/bin/pip install setuptools pip wheel
 	$(HOME)/ricgraph_venv/bin/pip install -r $(HOME)/ricgraph_venv/requirements.txt
 	cp $(HOME)/ricgraph_venv/ricgraph.ini-sample $(HOME)/ricgraph_venv/ricgraph.ini
-	@# No need to prepare ricgraph.ini for Neo4j Desktop: that is the default.
+	@# Prepare ricgraph.ini for Neo4j Community Edition.
+	$(call read_graphdb_password)
+	sed -i 's/^graphdb_password =/graphdb_password = $(graphdb_password)/' $(HOME)/ricgraph_venv/ricgraph.ini
+	@# No need to set others in ricgraph.ini, Neo4j Desktop is the default.
 	chmod -R go-w $(HOME)/ricgraph_venv
 	@echo ""
 	@echo "Done."
@@ -459,8 +467,6 @@ endif
 	@echo "You may want to modify $(HOME)/ricgraph_venv/ricgraph.ini to suit"
 	@echo "your needs, please read:"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#ricgraph-initialization-file"
-	@echo "E.g., did you fill in your graph database backend"
-	@echo "password in file 'ricgraph.ini'?"
 	@echo ""
 	@echo "Please read this to learn how to start Ricgraph scripts from the command line:"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#in-case-you-have-installed-ricgraph-for-a-single-user"
@@ -669,3 +675,22 @@ run_batchscript_opt: check_user_root
 	@echo ""
 	@if [ ! -f /opt/ricgraph_venv/harvest/$(harvest_script) ]; then echo "Error: batch script $(harvest_script) does not exist."; exit 1; fi
 	@sudo -u ricgraph bash -c 'cd /opt/ricgraph_venv/harvest; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python $(harvest_script) | tee $(harvest_script_log)'
+
+
+generate_graphdb_password:
+	@if [ ! -f $(graphdb_password_file) ]; then \
+		< /dev/urandom tr -dc 'A-Za-z0-9' | head -c $(graphdb_password_length) > $(graphdb_password_file); \
+		echo "Created graphdb_password_file $(graphdb_password_file)."; \
+	fi
+
+# ########################################################################
+# Ricgraph functions.
+# ########################################################################
+define read_graphdb_password
+	@if [ ! -f $(graphdb_password_file) ]; then \
+		echo "Error: graphdb_password_file $(graphdb_password_file) not found."; \
+		echo "  You need to install Neo4j first. This will generate this file."; \
+		exit 1; \
+	fi
+	$(eval graphdb_password := $(shell cat $(graphdb_password_file)))
+endef
