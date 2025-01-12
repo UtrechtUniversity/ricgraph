@@ -73,7 +73,7 @@
 #
 # - execute command in container: podman exec -it ricgraph [command]
 #   e.g. podman exec -it ricgraph /bin/bash
-#   or podman exec -it ricgraph python batch_harvest.py
+#   or podman exec -it ricgraph python batch_harvest_demo.py
 #   Note that after harvesting, you have to commit and restart the container.
 # - make changes permanent in local generated container:
 #   podman commit ricgraph ricgraph:latest
@@ -190,7 +190,7 @@ EXPOSE 3030
 
 # Go to the directory with the harvest scripts. Then we can harvest
 # from outside the container using e.g. 
-# podman exec -it ricgraph python batch_harvest.py
+# podman exec -it ricgraph python batch_harvest_demo.py
 WORKDIR harvest
 
 CMD ["sh", "-c", "${container_startscript}"]

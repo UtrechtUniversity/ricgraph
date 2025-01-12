@@ -141,7 +141,7 @@ If you started `podman run` for the first time,
 the container does not have data in it. You can observe this by going to the 
 Ricgraph Explorer home page (http://localhost:3030),
 and by scrolling down to the "About Ricgraph" section.
-The easiest method for getting data in it, is to run the `batch_harvest.py` script
+The easiest method for getting data in it, is to run the `batch_harvest_demo.py` script
 that harvests a selection of research information of Utrecht University. 
 The script harvests from both
 the data repository [Yoda](https://www.uu.nl/en/research/yoda)
@@ -151,7 +151,7 @@ These two repositories do not need authentication keys.
 Running this script will take several minutes to complete.
 Type
 ```
-podman exec -it ricgraph python batch_harvest.py
+podman exec -it ricgraph python batch_harvest_demo.py
 ```
 
 It is a design decision to store all harvested items in the Ricgraph container

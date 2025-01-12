@@ -245,7 +245,7 @@ You can choose two types of downloads for Ricgraph:
 ## Use a Python virtual environment and install Python requirements
 
 To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
-command `make install_ricgraph_as_singleuser`, or follow the steps below.
+command `make full_singleuser_install`, or follow the steps below.
 
 To be able to use Ricgraph, you will need a Python virtual environment.
 Virtual environments are a kind of lightweight Python environments,

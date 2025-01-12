@@ -48,7 +48,7 @@ There are five examples of harvest scripts provided, for
 * [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph.py)](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraphpy)
 * [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph.py)](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraphpy)
 
-There is also a script for batch harvesting, *batch_harvest.py*. You can
+There is also a script for batch harvesting, *batch_harvest_demo.py*. You can
 use this script to run a number of harvest scripts after each other.
 It can be adapted to your needs, see the Python code in the script.
 

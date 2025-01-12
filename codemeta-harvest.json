@@ -73,7 +73,7 @@
         {
             "@type": "CommandLineApplication",
             "name": "Script to call all harvest scripts",
-            "executableName": "batch_harvest.py"
+            "executableName": "batch_harvest_demo.py"
         },
         {
             "@type": "SoftwareLibrary",

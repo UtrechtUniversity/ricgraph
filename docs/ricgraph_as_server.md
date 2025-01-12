@@ -200,7 +200,7 @@ you do not need to do this. Otherwise, follow these steps:
   
 ## Create a Python virtual environment and install Ricgraph in it
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
-command `make install_ricgraph_as_server`, or follow the steps below.
+command `make full_server_install`, or follow the steps below.
 
 * Suppose you are a user with login *alice* and you are in Linux group *users*.
 * Login as user *root*.
@@ -315,15 +315,15 @@ If you are finished with these commands, exit from user *ricgraph*.
 Examples of commands you can use are:
 * harvest from the Research Software Directory:
   ```
-  cd /opt/ricgraph_venv/harvest; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python harvest_rsd_to_ricgraph.py
+  cd /opt/ricgraph_venv/harvest; ../bin/python harvest_rsd_to_ricgraph.py
   ```
 * harvest all your favorite sources:
   ```
-  cd /opt/ricgraph_venv/harvest; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python batch_harvest.py
+  cd /opt/ricgraph_venv/harvest; ../bin/python batch_harvest_demo.py
   ```
 * run Ricgraph Explorer:
   ```
-  cd /opt/ricgraph_venv/ricgraph_explorer; PYTHONPATH=/opt/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
+  cd /opt/ricgraph_venv/ricgraph_explorer; ../bin/python ricgraph_explorer.py
   ```
 
 ### In case you have installed Ricgraph for a single user
@@ -336,15 +336,15 @@ The following assumes your Python virtual environment is in your Linux home dire
 Examples of commands you can use are:
 * harvest from the Research Software Directory:
   ```
-  cd $HOME/ricgraph_venv/harvest; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python harvest_rsd_to_ricgraph.py
+  cd $HOME/ricgraph_venv/harvest; ../bin/python harvest_rsd_to_ricgraph.py
   ```
 * harvest all your favorite sources:
   ```
-  cd $HOME/ricgraph_venv/harvest; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python batch_harvest.py
+  cd $HOME/ricgraph_venv/harvest; ../bin/python batch_harvest_demo.py
   ```
 * run Ricgraph Explorer:
   ```
-  cd $HOME/ricgraph_venv/ricgraph_explorer; PYTHONPATH=$HOME/ricgraph_venv/ricgraph ../bin/python ricgraph_explorer.py
+  cd $HOME/ricgraph_venv/ricgraph_explorer; ../bin/python ricgraph_explorer.py
   ```
 
 ### Using the Makefile
