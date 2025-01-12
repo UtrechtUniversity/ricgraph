@@ -129,7 +129,7 @@ ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
 else ifeq ($(shell which apt > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for Ubuntu and Debian.
-	package_install_cmd := apt install
+	package_install_cmd := apt-get install
 	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
 else
@@ -207,7 +207,6 @@ help:
 	@echo "       This will be done in a Python virtual environment"
 	@echo "       in $(ricgraph_singleuser_install_dir)."
 	@echo "       Also, a 'make install_neo4j_desktop' will be done (if not done yet)."
-	@echo "- make run_ricgraph_explorer: run Ricgraph Explorer in development mode."
 	@echo ""
 	@echo "Commands to install Ricgraph as a server (you need to be 'root') (please read"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md):"
@@ -227,6 +226,14 @@ help:
 	@echo "       For SURF Research Cloud you will need the Nginx webserver."
 	@echo "       This will also do a 'make full_server_install' (if not done yet)."
 	@echo ""
+	@echo "Commands to run something:"
+	@echo "- make run_batchscript: run Ricgraph batch script '$(batch_script)'."
+	@echo "       You can change the name of this script by"
+	@echo "       adding 'batch_script=my_batchscript.py' to your 'make' command."
+	@echo "       If you use Neo4j Desktop, you need to start it first."
+	@echo "- make run_ricgraph_explorer: run Ricgraph Explorer in development mode."
+	@echo "       If you use Neo4j Desktop, you need to start it first."
+	@echo ""
 	@echo "Advanced commands for this Makefile:"
 	@echo "- make makefile_variables: list all variables used in this Makefile."
 	@echo "- install the 'cutting edge' version of Ricgraph, i.e. the most current version"
@@ -243,9 +250,6 @@ help:
 	@echo "       in directory $(graphdb_backup_dir)."
 	@echo "- make restore_graphdb_neo4j_community: restore Neo4j Community graph database"
 	@echo "       from directory $(graphdb_backup_dir)."
-	@echo "- make run_batchscript: run Ricgraph batch script '$(batch_script)'."
-	@echo "       You can change the name of this script by"
-	@echo "       adding 'batch_script=my_batchscript.py' to your 'make' command."
 	@echo "- make generate_graphdb_password: generate a password for the graph database."
 	@echo "       Write it to file $(graphdb_password_file)."
 	@echo "       Only do this if the file does not exist."
