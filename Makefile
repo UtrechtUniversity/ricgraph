@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2024 Rik D.T. Janssen
+# Copyright (c) 2024, 2025 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@
 # Ricgraph batch scripts.
 #
 # Original version Rik D.T. Janssen, September 2024.
+# Updated Rik D.T. Janssen, January 2025.
 #
 # ########################################################################
 
@@ -52,7 +53,7 @@ minimal_python_minor_version := 10
 
 
 # ########################################################################
-# The name of the Ricgraph harvest script and its log. It should be in
+# The name of the Ricgraph batch script to run and its log. It should be in
 # directory [Ricgraph install directory]/harvest.
 # ########################################################################
 batch_script := batch_harvest_demo.py
