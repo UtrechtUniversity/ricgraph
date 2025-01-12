@@ -72,7 +72,7 @@ else ifeq ($(linux_edition),Manjaro Linux)
 	# Manjaro does not has double quotes around the version number.
 	linux_version := $(shell cat /etc/os-release | grep '^BUILD_ID=' | sed 's/BUILD_ID=\(.*\)/\1/')
 else
-	# Ubuntu and OpenSUSE have double quotes around the version number.
+	# Ubuntu and OpenSUSE and Debian have double quotes around the version number.
 	linux_version := $(shell cat /etc/os-release | grep '^VERSION_ID=' | sed 's/VERSION_ID="\(.*\)"/\1/')
 endif
 
@@ -128,13 +128,8 @@ ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
 	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
 else ifeq ($(shell which apt > /dev/null 2>&1 && echo $$?),0)
-	# E.g. for Ubuntu.
+	# E.g. for Ubuntu and Debian.
 	package_install_cmd := apt install
-	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
-	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
-else ifeq ($(shell which dpkg > /dev/null 2>&1 && echo $$?),0)
-	# E.g. for Debian.
-	package_install_cmd := dpkg -i
 	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
 else
@@ -153,7 +148,7 @@ ifeq ($(shell test -d /etc/apache2/vhosts.d && echo true),true)
 	apache_vhosts_dir := /etc/apache2/vhosts.d
 	apache_service_file := /usr/lib/systemd/system/apache2.service
 else ifeq ($(shell test -d /etc/apache2/sites-available && echo true),true)
-	# E.g. for Ubuntu.
+	# E.g. for Ubuntu and Debian.
 	apache_vhosts_dir := /etc/apache2/sites-available
 	apache_service_file := /usr/lib/systemd/system/apache2.service
 else ifeq ($(shell test -d /etc/httpd/conf.d && echo true),true)
@@ -171,7 +166,7 @@ ifeq ($(shell test -d /etc/nginx/vhosts.d && echo true),true)
 	# E.g. for OpenSUSE Leap & Tumbleweed.
 	nginx_vhosts_dir := /etc/nginx/vhosts.d
 else ifeq ($(shell test -d /etc/nginx/sites-available && echo true),true)
-	# E.g. for Ubuntu.
+	# E.g. for Ubuntu and Debian.
 	nginx_vhosts_dir := /etc/nginx/sites-available
 else ifeq ($(shell test -d /etc/nginx/conf.d && echo true),true)
 	# E.g. for Fedora.
@@ -356,6 +351,7 @@ endif
 
 # Only seems necessary for Ubuntu.
 install_python_venv: check_package_install_cmd
+ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
 	@if [ $(shell id -u) != 0 ]; then \
 		echo ""; \
 		echo "You are missing Python package 'python3-venv'. To install, please"; \
@@ -366,14 +362,15 @@ install_python_venv: check_package_install_cmd
 		exit 1; \
 	fi
 	$(package_install_cmd) python3-venv
+endif
 
 
 # ########################################################################
 # Ricgraph targets.
 # ########################################################################
 create_user_group_ricgraph: check_user_root
-	@if ! getent group 'ricgraph' > /dev/null 2>&1; then groupadd --system ricgraph; echo "Created group 'ricgraph'."; fi
-	@if ! getent passwd 'ricgraph' > /dev/null 2>&1; then useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph; echo "Created user 'ricgraph'."; fi
+	@if [ ! getent group 'ricgraph' > /dev/null 2>&1 ]; then groupadd --system ricgraph; echo "Created group 'ricgraph'."; fi
+	@if [ ! getent passwd 'ricgraph' > /dev/null 2>&1 ]; then useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph; echo "Created user 'ricgraph'."; fi
 
 
 install_enable_neo4j_community: check_user_root check_python_minor_version check_package_install_cmd generate_graphdb_password
@@ -664,7 +661,7 @@ define install_ricgraph
 	@if [ $(2) != "server" ] && [ $(2) != "singleuser" ]; then echo "Error: wrong value for parameter #2: '$(2)'."; exit 1; fi
 	@if [ $(3) != "neo4j_desktop" ] && [ $(3) != "neo4j_community_edition" ]; then echo "Error: wrong value for parameter #3: '$(3)'."; exit 1; fi
 	@# Only seems necessary for Ubuntu.
-	@if [ "$(linux_edition)" = "Ubuntu" ] && [ ! -e /usr/share/doc/python3-venv ]; then \
+	@if [ "$(linux_edition)" = "Ubuntu" ]; then \
 		make install_python_venv; \
 	fi
 	@if [ ! -d $(dir $(1)) ]; then mkdir -p $(dir $(1)); fi
