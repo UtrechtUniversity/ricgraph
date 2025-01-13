@@ -137,8 +137,9 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Install Neo4j and Ricgraph.
+# 'systemctl_cmd=:' disables the systemctl command in the Makefile.
 RUN wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile && \
-    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no full_server_install && \
+    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no systemctl_cmd=: full_server_install && \
     make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no clean
 
 # Only do this if you need to access Neo4j from outside the container.
