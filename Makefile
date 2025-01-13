@@ -132,7 +132,7 @@ ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
 else ifeq ($(shell which apt > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for Ubuntu and Debian.
-	package_install_cmd := apt-get install
+	package_install_cmd := apt-get install --yes
 	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
 else
