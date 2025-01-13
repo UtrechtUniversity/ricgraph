@@ -95,6 +95,8 @@ ricgraph_explorer := ricgraph_explorer.py
 neo4j_download := https://dist.neo4j.org
 
 # Misc. variables.
+readdoc_server := https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it
+readdoc_singleuser := https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#using-pythons-venv-module
 tmp_dir := /tmp/cuttingedge_$(shell echo $$PPID)
 graphdb_backup_dir := /root/graphdb_backup
 graphdb_password_file := /tmp/0-ricgraph-password.txt
@@ -104,6 +106,7 @@ systemctl_cmd := systemctl
 # This controls whether the question "Are you sure" is shown to the user or not. If it is
 # something else than "no", it will be shown. Useful when this Makefile is run from a script.
 ask_are_you_sure := yes
+
 
 # Determine which python command to use.
 ifeq ($(shell which python3.11 > /dev/null 2>&1 && echo $$?),0)
@@ -256,6 +259,10 @@ help:
 	@echo "- make specify_graphdb_password: specify (type) a password for the graph"
 	@echo "       database. Write it to file $(graphdb_password_file)."
 	@echo "       Always create this file, even if it already exists."
+	@echo "- make clean: removes files you have downloaded."
+	@echo "       If you have used command line parameters for previous make calls"
+	@echo "       (e.g. ricgraph_version=cuttingedge), you will have to call this clean"
+	@echo "       with the same command line parameters."
 	@echo ""
 
 
@@ -431,7 +438,6 @@ full_server_install: install_enable_neo4j_community install_ricgraph_server
 	@echo ""
 
 
-readdoc_server := https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it
 install_ricgraph_server: check_user_root check_python_minor_version create_user_group_ricgraph
 ifeq ($(shell test ! -d $(ricgraph_server_install_dir) && echo true),true)
 	@# This test is placed here instead of in function install_ricgraph
@@ -444,7 +450,6 @@ full_singleuser_install: install_neo4j_desktop install_ricgraph_singleuser
 	@echo ""
 
 
-readdoc_singleuser := https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#using-pythons-venv-module
 install_ricgraph_singleuser: check_user_notroot check_python_minor_version
 ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
 	@# This test is placed here instead of in function install_ricgraph
@@ -636,6 +641,15 @@ specify_graphdb_password:
 	@echo -n "Specify the graph database password you want to use: "
 	@read answer && echo -n "$$answer" > $(graphdb_password_file)
 	@echo "Created graphdb_password_file $(graphdb_password_file)."
+
+
+# Note that if you have used command line parameters for previous make calls
+# (e.g. ricgraph_version=cuttingedge), you will have to call this clean
+# with the same command line parameters.
+clean:
+	rm -f $(HOME)/$(neo4j_cyphershell) $(HOME)/$(neo4j_community)
+	rm -f $(dir $(ricgraph_server_install_dir))/$(ricgraph_tag_name)
+	rm -f $(dir $(ricgraph_singleuser_install_dir))/$(ricgraph_tag_name)
 
 
 # ########################################################################
