@@ -65,9 +65,7 @@ sed -i "s/date-released: .*/date-released: \"${current_date}\"/" CITATION.cff
 echo "Updating Makefile..."
 sed -i "s/ricgraph_version := .*/ricgraph_version := ${new_version}/" Makefile
 
-# Update Containerfile for Podman & GitHub Actions file to build it
-echo "Updating Podman Containerfile..."
-sed -i "s/ricgraph_version=.*/ricgraph_version=${new_version}/" Containerfile
+# Update GitHub Actions file to build Ricgraph Podman container
 echo "Updating GitHub Actions file to build container..."
 sed -i "s/RICGRAPH_VERSION: .*/RICGRAPH_VERSION: ${new_version}/" .github/workflows/build-and-push-ricgraph-container.yml
 
