@@ -130,7 +130,7 @@ ENV container_startscript=/usr/local/bin/start_services.sh
 
 # Install and update packages.
 RUN apt-get update && \
-    apt-get install -y wget vim make && \
+    apt-get install -y wget vim make sudo && \
     apt-get clean
 
 # Set working directory.
@@ -138,18 +138,17 @@ WORKDIR /app
 
 # Install Neo4j and Ricgraph.
 # 'systemctl_cmd=:' disables the systemctl command in the Makefile.
+# The 'docs' directory is removed since it is large (mostly due to
+# the videos) and we do not want a container of a large size.
 RUN wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile && \
     make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no systemctl_cmd=: full_server_install && \
-    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no clean
+    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no clean && \
+    rm -r ricgraph/docs
 
 # Only do this if you need to access Neo4j from outside the container.
 # RUN sed -i 's/#server.default_listen_address=0.0.0.0/server.default_listen_address=0.0.0.0/' /etc/neo4j/neo4j.conf
 
 WORKDIR ricgraph
-
-# The 'docs' directory is removed since it is large (mostly due to
-# the videos) and we do not want a container of a large size.
-RUN rm -r docs
 
 # Only temporary.
 RUN cp ../Makefile .; cd harvest; mv batch_harvest.py batch_harvest_demo.py;
