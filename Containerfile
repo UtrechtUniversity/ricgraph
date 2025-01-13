@@ -98,8 +98,8 @@ FROM python:3.11-slim
 ENV TZ="Europe/Amsterdam"
 
 # General args
-ARG ricgraph_version=2.7
-ARG neo4j_community_version=5.24.0
+#ARG ricgraph_version=2.7
+#ARG neo4j_community_version=5.24.0
 
 # Set container metadata according to
 # OCI (Open Container Initiative) image specification.
@@ -114,69 +114,53 @@ LABEL org.opencontainers.image.source="https://github.com/UtrechtUniversity/ricg
 LABEL org.opencontainers.image.url="https://www.ricgraph.eu"
 
 # Ricgraph paths
-ARG ricgraph_download=https://github.com/UtrechtUniversity/ricgraph
-ARG ricgraph_path=${ricgraph_download}/archive/refs/tags/v${ricgraph_version}.tar.gz
+#ARG ricgraph_download=https://github.com/UtrechtUniversity/ricgraph
+#ARG ricgraph_path=${ricgraph_download}/archive/refs/tags/v${ricgraph_version}.tar.gz
 
 # Neo4j paths
-ARG neo4j_download=https://dist.neo4j.org
-ARG neo4j_cyphershell_path=${neo4j_download}/cypher-shell/cypher-shell_${neo4j_community_version}_all.deb
-ARG neo4j_community_path=${neo4j_download}/deb/neo4j_${neo4j_community_version}_all.deb
+#ARG neo4j_download=https://dist.neo4j.org
+#ARG neo4j_cyphershell_path=${neo4j_download}/cypher-shell/cypher-shell_${neo4j_community_version}_all.deb
+#ARG neo4j_community_path=${neo4j_download}/deb/neo4j_${neo4j_community_version}_all.deb
 # We need these since Containerfile cannot deal easily with 'basename'.
-ARG neo4j_cyphershell=cypher-shell_${neo4j_community_version}_all.deb
-ARG neo4j_community=neo4j_${neo4j_community_version}_all.deb
+#ARG neo4j_cyphershell=cypher-shell_${neo4j_community_version}_all.deb
+#ARG neo4j_community=neo4j_${neo4j_community_version}_all.deb
 
 # This has to be an ENV instead of ARG because we use it in "CMD []" below.
 ENV container_startscript=/usr/local/bin/start_services.sh
 
-# Install and update packages & Neo4j Community Edition.
-# The neo4j-admin command sets the Neo4j DB password to a string that can be
-# observed using 'podman inspect'.
-# WARNING: This might not be a good idea for production use.
-# This can only be done if you have not started Neo4j yet.
+# Install and update packages.
 RUN apt-get update && \
-    apt-get install -y wget vim && \
-    wget -O /tmp/package_tempfile.deb ${neo4j_cyphershell_path} && \
-    apt-get install -y /tmp/package_tempfile.deb && \
-    wget -O /tmp/package_tempfile.deb ${neo4j_community_path} && \
-    apt-get install -y /tmp/package_tempfile.deb && \
-    rm /tmp/package_tempfile.deb && \
-    apt-get clean && \
-    /bin/neo4j-admin dbms set-initial-password SecretPassword
+    apt-get install -y wget vim make && \
+    apt-get clean
+
+# Set working directory.
+WORKDIR /app
+
+# Install Neo4j and Ricgraph.
+RUN wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile && \
+    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no full_server_install && \
+    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no clean
 
 # Only do this if you need to access Neo4j from outside the container.
 # RUN sed -i 's/#server.default_listen_address=0.0.0.0/server.default_listen_address=0.0.0.0/' /etc/neo4j/neo4j.conf
 
-# Set working directory
-WORKDIR /app
-
-# Install Ricgraph
-RUN wget -O /tmp/ricgraph_tempfile.tar.gz ${ricgraph_path} && \
-    tar -zxvf /tmp/ricgraph_tempfile.tar.gz && \
-    rm /tmp/ricgraph_tempfile.tar.gz && \
-    mv ricgraph-${ricgraph_version} ricgraph && \
-    ln -s ricgraph ricgraph-${ricgraph_version}
-
 WORKDIR ricgraph
 
-# Note the setting of the fixed Neo4j password that has been defined above.
 # The 'docs' directory is removed since it is large (mostly due to
 # the videos) and we do not want a container of a large size.
-RUN pip install --no-cache-dir -r requirements.txt && \
-    rm -r docs && \
-    cp ricgraph.ini-sample ricgraph.ini && \
-    sed -i 's/^graphdb_password =/graphdb_password = SecretPassword/' ricgraph.ini && \
-    sed -i 's/^graphdb_scheme = bolt/###graphdb_scheme = bolt/' ricgraph.ini && \
-    sed -i 's/^graphdb_port = 7687/###graphdb_port = 7687/' ricgraph.ini && \
-    sed -i 's/^#graphdb_scheme = neo4j/graphdb_scheme = neo4j/' ricgraph.ini && \
-    sed -i 's/^#graphdb_port = 7687/graphdb_port = 7687/' ricgraph.ini && \
+RUN rm -r docs && \
     mv ricgraph.ini /usr/local
+
+# Only temporary.
+RUN cp ../Makefile .; cd harvest; mv batch_harvest.py batch_harvest_demo.py;
+
 
 # WARNING: DO NOT USE THIS PODMAN CONTAINER IN A PRODUCTION ENVIRONMENT.
 # The container does not provide a web server (e.g. apache).
 RUN echo "<p/><em>Note: you are running Ricgraph Explorer in a Podman container." >> ricgraph_explorer/static/homepage_intro.html && \
     echo "Only do this for instructional (personal) use, not for production use.</em>" >> ricgraph_explorer/static/homepage_intro.html
 
-# Create wrapper start script
+# Create wrapper start script.
 RUN echo "#!/bin/bash" > ${container_startscript} && \
     echo "neo4j start" >> ${container_startscript} && \
     echo "gunicorn --chdir /app/ricgraph/ricgraph_explorer --bind 0.0.0.0:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker ricgraph_explorer:create_ricgraph_explorer_app" >> ${container_startscript} && \
@@ -190,7 +174,7 @@ EXPOSE 3030
 
 # Go to the directory with the harvest scripts. Then we can harvest
 # from outside the container using e.g. 
-# podman exec -it ricgraph python batch_harvest_demo.py
+# podman exec -it ricgraph python batch_harvest_demo.py.
 WORKDIR harvest
 
 CMD ["sh", "-c", "${container_startscript}"]
