@@ -97,10 +97,6 @@ FROM python:3.11-slim
 # Set the time zone
 ENV TZ="Europe/Amsterdam"
 
-# General args
-#ARG ricgraph_version=2.7
-#ARG neo4j_community_version=5.24.0
-
 # Set container metadata according to
 # OCI (Open Container Initiative) image specification.
 # See https://github.com/opencontainers/image-spec/blob/main/annotations.md.
@@ -112,18 +108,6 @@ LABEL org.opencontainers.image.licenses=MIT
 LABEL org.opencontainers.image.documentation="https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
 LABEL org.opencontainers.image.source="https://github.com/UtrechtUniversity/ricgraph"
 LABEL org.opencontainers.image.url="https://www.ricgraph.eu"
-
-# Ricgraph paths
-#ARG ricgraph_download=https://github.com/UtrechtUniversity/ricgraph
-#ARG ricgraph_path=${ricgraph_download}/archive/refs/tags/v${ricgraph_version}.tar.gz
-
-# Neo4j paths
-#ARG neo4j_download=https://dist.neo4j.org
-#ARG neo4j_cyphershell_path=${neo4j_download}/cypher-shell/cypher-shell_${neo4j_community_version}_all.deb
-#ARG neo4j_community_path=${neo4j_download}/deb/neo4j_${neo4j_community_version}_all.deb
-# We need these since Containerfile cannot deal easily with 'basename'.
-#ARG neo4j_cyphershell=cypher-shell_${neo4j_community_version}_all.deb
-#ARG neo4j_community=neo4j_${neo4j_community_version}_all.deb
 
 # This has to be an ENV instead of ARG because we use it in "CMD []" below.
 ENV container_startscript=/usr/local/bin/start_services.sh
@@ -143,16 +127,13 @@ WORKDIR /app
 RUN wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile && \
     make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no systemctl_cmd=: full_server_install && \
     make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no clean && \
-    rm -r ricgraph/docs
+    rm -r ricgraph/docs && \
+    cp Makefile ricgraph
 
 # Only do this if you need to access Neo4j from outside the container.
 # RUN sed -i 's/#server.default_listen_address=0.0.0.0/server.default_listen_address=0.0.0.0/' /etc/neo4j/neo4j.conf
 
 WORKDIR ricgraph
-
-# Only temporary.
-RUN cp ../Makefile .; cd harvest; mv batch_harvest.py batch_harvest_demo.py;
-
 
 # WARNING: DO NOT USE THIS PODMAN CONTAINER IN A PRODUCTION ENVIRONMENT.
 # The container does not provide a web server (e.g. apache).
@@ -170,10 +151,5 @@ RUN echo "#!/bin/bash" > ${container_startscript} && \
 # Port 3030: Ricgraph Explorer. Ports 7474 & 7687: Neo4j.
 # EXPOSE 3030 7474 7687
 EXPOSE 3030
-
-# Go to the directory with the harvest scripts. Then we can harvest
-# from outside the container using e.g. 
-# podman exec -it ricgraph python batch_harvest_demo.py.
-# WORKDIR harvest
 
 CMD ["sh", "-c", "${container_startscript}"]
