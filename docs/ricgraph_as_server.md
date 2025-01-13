@@ -643,18 +643,16 @@ Preliminaries:
 Then, follow the following steps, and also watch the video below:
 * Go to the [SURF Research Cloud portal](https://portal.live.surfresearchcloud.nl)
   and log in.
-* Optional: allocate storage:
-  * This step is only required if you expect to install a lot of programs on
-    the virtual research environment and expect to create or use a lot of
-    data. In the case of Ricgraph: > 100M nodes and edges.
+* Allocate storage (optional). This step is only required if you expect 
+  to install a lot of programs on
+ the virtual research environment and expect to create or use a lot of
+ data. In the case of Ricgraph: > 100M nodes and edges.
   * Click on "Create new storage".
   * Select the collaborative organization that you want to use for running
     Ricgraph. If you have only one, it will be preselected.
   * Select your wallet. If you have only one, it will be preselected.
-  * Select the cloud provider. 
-    In the video we use "SURF HPC Cloud volume".
-  * Allocate storage, make sure you allocate enough volume.
-    In the video we use "100GB".
+  * Select the cloud provider. We use "SURF HPC Cloud volume".
+  * Choose the size of your storage. In the video below we use "100GB".
     The larger, the more credits it will cost.
   * Enter a name and a description.
   * After a few moments your storage will be created and available.
@@ -665,15 +663,17 @@ Then, follow the following steps, and also watch the video below:
   * Select your wallet (as above). If you have only one, it will be preselected.
   * Now select a "catalogue item", that is, a pre-installed virtual machine. 
     Choose "Ubuntu Desktop".
-  * Select a configuration.
-    In the video we use "1 Core - 8 GB RAM".
-    The larger, the more credits it will cost.
+  * Select the cloud provider. We use "SURF HPC Cloud".
   * Select which version of Ubuntu you want to use. Choose "Ubuntu 22.04 Desktop".
+  * Select a configuration.
+    In the video below we use "1 Core - 8 GB RAM".
+    The larger, the more credits it will cost.
   * By default, the workspace has ~95GB of storage on the system and home partition.
-    Optional (see above): Select additional storage, choose the one you created above. 
+  * Optionally you can add more storage, above is explained how to allocate it. 
+    If you have done this, select this additional storage.
   * Rename your workspace.
-  * After a few moments your workspace will be created and available.
-  * Start up your workspace.
+  * After some minutes your workspace will be created and available. It will
+    be started up automatically.
 * Done.
 
 The next steps are to install Ricgraph. Start reading from 
