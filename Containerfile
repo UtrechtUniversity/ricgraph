@@ -149,8 +149,7 @@ WORKDIR ricgraph
 
 # The 'docs' directory is removed since it is large (mostly due to
 # the videos) and we do not want a container of a large size.
-RUN rm -r docs && \
-    mv ricgraph.ini /usr/local
+RUN rm -r docs
 
 # Only temporary.
 RUN cp ../Makefile .; cd harvest; mv batch_harvest.py batch_harvest_demo.py;
@@ -164,7 +163,7 @@ RUN echo "<p/><em>Note: you are running Ricgraph Explorer in a Podman container.
 # Create wrapper start script.
 RUN echo "#!/bin/bash" > ${container_startscript} && \
     echo "neo4j start" >> ${container_startscript} && \
-    echo "gunicorn --chdir /app/ricgraph/ricgraph_explorer --bind 0.0.0.0:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker ricgraph_explorer:create_ricgraph_explorer_app" >> ${container_startscript} && \
+    echo "bin/gunicorn --chdir /app/ricgraph/ricgraph_explorer --bind 0.0.0.0:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker ricgraph_explorer:create_ricgraph_explorer_app" >> ${container_startscript} && \
     echo "while true; do sleep 60; done" >> ${container_startscript} && \
     chmod +x ${container_startscript}
 
@@ -176,6 +175,6 @@ EXPOSE 3030
 # Go to the directory with the harvest scripts. Then we can harvest
 # from outside the container using e.g. 
 # podman exec -it ricgraph python batch_harvest_demo.py.
-WORKDIR harvest
+# WORKDIR harvest
 
 CMD ["sh", "-c", "${container_startscript}"]
