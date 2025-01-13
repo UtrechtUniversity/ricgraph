@@ -373,8 +373,10 @@ endif
 # Ricgraph targets.
 # ########################################################################
 create_user_group_ricgraph: check_user_root
-	@if [ ! getent group 'ricgraph' > /dev/null 2>&1 ]; then groupadd --system ricgraph; echo "Created group 'ricgraph'."; fi
-	@if [ ! getent passwd 'ricgraph' > /dev/null 2>&1 ]; then useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph; echo "Created user 'ricgraph'."; fi
+	@# Do not put '[' and ']' around the condition of the if's below, 
+	@# then it will not work.
+	@if ! getent group 'ricgraph' > /dev/null 2>&1; then groupadd --system ricgraph; echo "Created group 'ricgraph'."; fi
+	@if ! getent passwd 'ricgraph' > /dev/null 2>&1; then useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph; echo "Created user 'ricgraph'."; fi
 
 
 install_enable_neo4j_community: check_user_root check_python_minor_version check_package_install_cmd generate_graphdb_password
@@ -431,7 +433,11 @@ full_server_install: install_enable_neo4j_community install_ricgraph_server
 
 readdoc_server := https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it
 install_ricgraph_server: check_user_root check_python_minor_version create_user_group_ricgraph
+ifeq ($(shell test ! -d $(ricgraph_server_install_dir) && echo true),true)
+	@# This test is placed here instead of in function install_ricgraph
+	@# because it will keep the code of install_ricgraph more clear.
 	$(call install_ricgraph,$(ricgraph_server_install_dir),"server","neo4j_community_edition",$(ricgraph_version),$(readdoc_server))
+endif
 
 
 full_singleuser_install: install_neo4j_desktop install_ricgraph_singleuser
@@ -440,7 +446,11 @@ full_singleuser_install: install_neo4j_desktop install_ricgraph_singleuser
 
 readdoc_singleuser := https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#using-pythons-venv-module
 install_ricgraph_singleuser: check_user_notroot check_python_minor_version
+ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
+	@# This test is placed here instead of in function install_ricgraph
+	@# because it will keep the code of install_ricgraph more clear.
 	$(call install_ricgraph,$(ricgraph_singleuser_install_dir),"singleuser","neo4j_desktop",$(ricgraph_version),$(readdoc_singleuser))
+endif
 
 
 install_enable_ricgraphexplorer_restapi: check_user_root full_server_install
