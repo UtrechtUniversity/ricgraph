@@ -151,7 +151,7 @@ These two repositories do not need authentication keys.
 Running this script will take several minutes to complete.
 Type
 ```
-podman exec -it ricgraph python batch_harvest_demo.py
+podman exec -it ricgraph make run_batchscript
 ```
 
 It is a design decision to store all harvested items in the Ricgraph container
@@ -222,5 +222,7 @@ Follow these steps:
 * Make the data permanent in the container, see `podman commit` above.  
   Note that the size of your container may explode if you harvest a lot of items.
 * Restart the container, see `podman restart` above.
+
+You can also use [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) targets.
 
 For other useful commands, read the comment section of the [Containerfile](../Containerfile).

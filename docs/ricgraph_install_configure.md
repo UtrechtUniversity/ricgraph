@@ -57,6 +57,12 @@ execute one of these commands to find the possible targets:
 make
 make help
 ```
+You can add command line parameters to the `make` command, e.g. to get the
+Ricgraph *cutting edge* version, or to specify an installation path. 
+Look in the [Makefile](../Makefile) for possiblities. Any variable defined
+in the Makefile can be used as `make` command line parameter.
+For an example, see the [Podman Containerfile](../Containerfile).
+
 Most often, you do not need to install the `make` command, but if you get a
 "command not found" error message, you need to install it using your Linux 
 package manager.
