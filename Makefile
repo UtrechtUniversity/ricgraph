@@ -53,8 +53,8 @@ minimal_python_minor_version := 10
 
 
 # ########################################################################
-# The name of the Ricgraph batch script to run and its log. It should be in
-# directory [Ricgraph install directory]/harvest.
+# The name of the Ricgraph batch harvest script to run and its log.
+# It should be in directory [Ricgraph install directory]/harvest.
 # ########################################################################
 batch_script := batch_harvest_demo.py
 batch_script_log := $(basename $(batch_script))_`date +%y%m%d-%H%M`.log
@@ -83,11 +83,24 @@ ricgraph_cuttingedge_path := $(ricgraph_download)/archive/refs/heads/main.zip
 # This is the GitHub name of the Ricgraph release file that is downloaded
 ricgraph_tag_name := $(shell basename $(ricgraph_path))
 ricgraph_cuttingedge_name := $(shell basename $(ricgraph_cuttingedge_path))
-# This is the GitHub name of the Ricgraph release file that is in the downloaded tar file.
-ricgraph := ricgraph-$(ricgraph_version)
 ricgraph_server_install_dir := /opt/ricgraph_venv
 ricgraph_singleuser_install_dir := $(HOME)/ricgraph_venv
 ricgraph_explorer := ricgraph_explorer.py
+
+# This is the GitHub name of the Ricgraph release file that is in the downloaded tar file.
+ricgraph := ricgraph-$(ricgraph_version)
+
+# You can use the following two variables as command line arguments to run
+# any Ricgraph script. 'ricgraph_anyscript' should contain the path to the
+# script relative to the directory where this Makefile is. The same for
+# 'ricgraph_anyscript_log', unless it starts with a '/'.
+# If that directory or file is not writable for the user
+# executing the script, you will get an error. The values below are placeholders.
+# Example use:
+# 'make ricgraph_anyscript=[script name] ricgraph_anyscript_log=[log file] run_anyscript'
+ricgraph_anyscript := maintenance/create_toc_documentation.py
+ricgraph_anyscript_log_file := $(basename $(notdir $(ricgraph_anyscript)))_`date +%y%m%d-%H%M`.log
+ricgraph_anyscript_log := $(dir $(ricgraph_anyscript))/$(ricgraph_anyscript_log_file)
 
 # Neo4j variable.
 # Ask https://perplexity.ai for download locations, prompt:
@@ -236,6 +249,9 @@ help:
 	@echo "       If you use Neo4j Desktop, you need to start it first."
 	@echo "- make run_ricgraph_explorer: run Ricgraph Explorer in development mode."
 	@echo "       If you use Neo4j Desktop, you need to start it first."
+	@echo "- make run_anyscript: you can use this to run any Ricgraph script."
+	@echo "       You may want to use command line parameters 'ricgraph_anyscript'"
+	@echo "       and possibly 'ricgraph_anyscript_log'."
 	@echo ""
 	@echo "Advanced commands for this Makefile:"
 	@echo "- make makefile_variables: list all variables used in this Makefile."
@@ -620,13 +636,27 @@ run_ricgraph_explorer:
 	@echo ""
 	@echo "This target will run Ricgraph Explorer in development mode"
 	@echo "from ricgraph_explorer/$(ricgraph_explorer)."
+	@echo ""
+	@if [ ! -f ricgraph_explorer/$(ricgraph_explorer) ]; then echo "Error: script '$(ricgraph_explorer)' does not exist."; exit 1; fi
+	cd ricgraph_explorer; ../bin/python $(ricgraph_explorer)
+
+
+run_anyscript:
+	@echo ""
+	@echo "This target will run Ricgraph script $(ricgraph_anyscript)."
+	@echo "The output will be both on screen as well as in file"
+	@echo "$(ricgraph_anyscript_log)."
+	@echo "If you don't have write permission to this file, you will get an error."
+	@echo "It may take a while before the output appears on screen,"
+	@echo "this is due to buffering of the output."
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f ricgraph_explorer/$(ricgraph_explorer) ]; then echo "Error: script '$(ricgraph_explorer)' does not exist."; exit 1; fi
-	@if [ $(shell id -u) = 0 ]; then \
-		sudo -u ricgraph bash -c 'cd ricgraph_explorer; ../bin/python $(ricgraph_explorer)'; \
+	@# Check if the path to 'ricgraph_anyscript_log' starts with '/'. If so, it is considered a full path.
+	@if [ $(shell echo $(ricgraph_anyscript_log) | cut -c1) = '/' ]; then \
+		cd $(dir $(ricgraph_anyscript)); ../bin/python $(notdir $(ricgraph_anyscript)) | tee $(ricgraph_anyscript_log); \
 	else \
-		cd ricgraph_explorer; ../bin/python $(ricgraph_explorer); \
+		cd $(dir $(ricgraph_anyscript)); ../bin/python $(notdir $(ricgraph_anyscript)) | tee ../$(ricgraph_anyscript_log); \
 	fi
 
 
