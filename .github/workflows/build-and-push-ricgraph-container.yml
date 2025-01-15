@@ -5,7 +5,7 @@ on:
 
 env:
   REGISTRY: ghcr.io/utrechtuniversity
-  RICGRAPH_VERSION: 2.7
+  RICGRAPH_VERSION: 2.8
 
 jobs:
   build:
