@@ -359,10 +359,10 @@ def empty_ricgraph(answer: str = '') -> None:
         exit(1)
 
     if answer == 'no':
-        print('Emptying Ricgraph: Ricgraph will not be emptied.\n')
+        print('empty_ricgraph(): Ricgraph will not be emptied.\n')
         return
 
-    print('Emptying Ricgraph: Ricgraph will be emptied.\n')
+    print('empty_ricgraph(): Ricgraph will be emptied.\n')
     graphdb_name = ricgraph_database()
     graphdb_databasename = ricgraph_databasename()
 
