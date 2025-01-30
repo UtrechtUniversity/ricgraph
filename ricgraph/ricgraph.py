@@ -353,28 +353,16 @@ def empty_ricgraph(answer: str = '') -> None:
     """
     global _graph
 
-    if answer == 'yes':
-        print('Emptying Ricgraph: Ricgraph will be emptied.\n')
-        # Fall through.
-    elif answer == 'no':
+    if answer != 'yes' and answer != 'no':
+        print('empty_ricgraph(): invalid answer "' + answer + '" on the question')
+        print('to empty Ricgraph, exiting.')
+        exit(1)
+
+    if answer == 'no':
         print('Emptying Ricgraph: Ricgraph will not be emptied.\n')
         return
-    else:
-        print('Do you want to empty Ricgraph? You have the following options:')
-        print('- "yes": Ricgraph will be emptied.')
-        print('- "no": Ricgraph will not be emptied.')
-        print('- any other answer: Ricgraph will not be emptied, execution of this script will abort.')
-        user_input = input('Please make a choice: ')
-        if user_input.lower() == 'yes':
-            print('\nRicgraph will be emptied.\n')
-            # Fall through.
-        elif user_input.lower() == 'no':
-            print('\nRicgraph has not been emptied.\n')
-            return
-        else:
-            print('\nRicgraph has not been emptied, exiting.\n')
-            exit(1)
 
+    print('Emptying Ricgraph: Ricgraph will be emptied.\n')
     graphdb_name = ricgraph_database()
     graphdb_databasename = ricgraph_databasename()
 
@@ -2796,6 +2784,80 @@ def get_commandline_argument(argument: str, argument_list: list) -> str:
                 # Only get the next index if we are still in the array bounds.
                 return str(argument_list[i + 1])
     return ''
+
+
+def get_commandline_argument_organization(argument_list: list) -> str:
+    """Get the value of a command line argument '--organization'.
+    Prompt if no argument is given.
+
+    :param argument_list: the argument list.
+    :return: the organization, or '' if no answer is given.
+    """
+    answer = get_commandline_argument(argument='--organization',
+                                      argument_list=argument_list)
+    if answer == '':
+        print('\nYou need to specify an organization abbreviation.')
+        print('This script will be run for that organization.')
+        print('The organization abbreviation you enter will determine')
+        print('which parameters will be read from the Ricgraph ini file')
+        print('"' + get_ricgraph_ini_file() + '".')
+        print('If you make a typo, you can run this script again.')
+        print('If you enter an empty value, this script will exit.')
+        answer = input('For what organization do you want to run this script? ')
+        if answer == '':
+            return ''
+
+    answer = answer.upper()
+    return answer
+
+
+def get_commandline_argument_empty_ricgraph(argument_list: list) -> str:
+    """Get the value of a command line argument '--empty_ricgraph'.
+    Prompt if no argument is given.
+
+    :param argument_list: the argument list.
+    :return: 'yes' or 'no', the answer whether to empty Ricgraph,
+      or '' if no answer is given.
+    """
+    answer = get_commandline_argument(argument='--empty_ricgraph',
+                                      argument_list=argument_list)
+    if answer == '':
+        print('\nDo you want to empty Ricgraph? You have the following options:')
+        print('- "yes": Ricgraph will be emptied.')
+        print('- "no": Ricgraph will not be emptied.')
+        print('- any other answer: Ricgraph will not be emptied,')
+        print('  execution of this script will abort.')
+        answer = input('Please make a choice: ')
+        if answer == '':
+            return ''
+
+    answer = answer.lower()
+    if answer != 'yes' and answer != 'no':
+        return ''
+    return answer
+
+
+def get_commandline_argument_harvest_projects(argument_list: list) -> str:
+    """Get the value of a command line argument '--harvest_projects'.
+    Prompt if no argument is given.
+
+    :param argument_list: the argument list.
+    :return: 'yes' or 'no', the answer whether to harvest projects,
+      or '' if no answer is given.
+    """
+    answer = get_commandline_argument(argument='--harvest_projects',
+                                      argument_list=argument_list)
+    if answer == '':
+        print('\nYou can specify whether you want to harvest projects.')
+        print('Only if enter "yes", this script will harvest projects.')
+        answer = input('Do you want to harvest projects? ')
+        if answer == '':
+            return ''
+
+    answer = answer.lower()
+    if answer != 'yes' and answer != 'no':
+        return ''
+    return answer
 
 
 # ############################################

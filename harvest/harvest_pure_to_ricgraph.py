@@ -75,7 +75,6 @@
 # ########################################################################
 
 
-import os.path
 import sys
 import re
 import pandas
@@ -1563,27 +1562,11 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
 # ################### main ###################
 # ############################################
 rcg.print_commandline_arguments(argument_list=sys.argv)
-organization = rcg.get_commandline_argument(argument='--organization',
-                                            argument_list=sys.argv)
-if organization == '':
-    print('You need to specify an organization abbreviation. This script will be run for that organization.')
-    print('The organization abbreviation you enter will determine which parameters will be read from')
-    print('the Ricgraph ini file. If you make a typo, you can run this script again.')
-    print('If you enter an empty value, this script will exit.')
-    organization = input('For what organization do you want to run this script? ')
-    if organization == '':
-        print('Exiting.\n')
-        exit(1)
+if (organization := rcg.get_commandline_argument_organization(argument_list=sys.argv)) == '':
+    print('Exiting.\n')
+    exit(1)
 
-organization = organization.upper()
-harvest_projects = rcg.get_commandline_argument(argument='--harvest_projects',
-                                                argument_list=sys.argv)
-if harvest_projects == '':
-    print('\nYou may want to specify whether you want to harvest projects.')
-    print('Only if enter "yes", this script will harvest projects.')
-    harvest_projects = input('Do you want to harvest projects? ')
-
-if harvest_projects == 'yes':
+if (harvest_projects := rcg.get_commandline_argument_harvest_projects(argument_list=sys.argv)) == 'yes':
     HARVEST_PROJECTS = True
 else:
     HARVEST_PROJECTS = False
@@ -1650,15 +1633,12 @@ HARVEST_SOURCE = 'Pure-' + organization
 print('\nPreparing graph...')
 rcg.open_ricgraph()
 
-empty_graph = rcg.get_commandline_argument(argument='--empty_ricgraph',
-                                           argument_list=sys.argv)
-if empty_graph == '':
-    # Empty Ricgraph, choose one of the following.
-    # rcg.empty_ricgraph(answer='yes')
-    # rcg.empty_ricgraph(answer='no')
-    rcg.empty_ricgraph()
-else:
+empty_graph = rcg.get_commandline_argument_empty_ricgraph(argument_list=sys.argv)
+if empty_graph == 'yes' or empty_graph == 'no':
     rcg.empty_ricgraph(answer=empty_graph)
+else:
+    print('Exiting.\n')
+    exit(1)
 
 resout_uuid_or_doi = {}
 

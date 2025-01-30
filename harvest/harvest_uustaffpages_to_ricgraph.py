@@ -52,7 +52,6 @@
 # ########################################################################
 
 
-import os.path
 import sys
 import re
 import pandas
@@ -657,16 +656,12 @@ except KeyError:
 
 rcg.open_ricgraph()
 
-empty_graph = rcg.get_commandline_argument(argument='--empty_ricgraph',
-                                           argument_list=sys.argv)
-if empty_graph == '':
-    # Empty Ricgraph, choose one of the following.
-    # rcg.empty_ricgraph(answer='yes')
-    # rcg.empty_ricgraph(answer='no')
-    rcg.empty_ricgraph()
-else:
+empty_graph = rcg.get_commandline_argument_empty_ricgraph(argument_list=sys.argv)
+if empty_graph == 'yes' or empty_graph == 'no':
     rcg.empty_ricgraph(answer=empty_graph)
-
+else:
+    print('Exiting.\n')
+    exit(1)
 
 rcg.graphdb_nr_accesses_print()
 

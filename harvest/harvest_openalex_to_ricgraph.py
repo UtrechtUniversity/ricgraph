@@ -437,19 +437,10 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 # ################### main ###################
 # ############################################
 rcg.print_commandline_arguments(argument_list=sys.argv)
-organization = rcg.get_commandline_argument(argument='--organization',
-                                            argument_list=sys.argv)
-if organization == '':
-    print('You need to specify an organization abbreviation. This script will be run for that organization.')
-    print('The organization abbreviation you enter will determine which parameters will be read from')
-    print('the Ricgraph ini file. If you make a typo, you can run this script again.')
-    print('If you enter an empty value, this script will exit.')
-    organization = input('For what organization do you want to run this script? ')
-    if organization == '':
-        print('Exiting.\n')
-        exit(1)
+if (organization := rcg.get_commandline_argument_organization(argument_list=sys.argv)) == '':
+    print('Exiting.\n')
+    exit(1)
 
-organization = organization.upper()
 config = configparser.ConfigParser()
 config.read(rcg.get_ricgraph_ini_file())
 org_name = 'organization_name_' + organization
@@ -490,15 +481,12 @@ except KeyError:
 print('\nPreparing graph...')
 rcg.open_ricgraph()
 
-empty_graph = rcg.get_commandline_argument(argument='--empty_ricgraph',
-                                           argument_list=sys.argv)
-if empty_graph == '':
-    # Empty Ricgraph, choose one of the following.
-    # rcg.empty_ricgraph(answer='yes')
-    # rcg.empty_ricgraph(answer='no')
-    rcg.empty_ricgraph()
-else:
+empty_graph = rcg.get_commandline_argument_empty_ricgraph(argument_list=sys.argv)
+if empty_graph == 'yes' or empty_graph == 'no':
     rcg.empty_ricgraph(answer=empty_graph)
+else:
+    print('Exiting.\n')
+    exit(1)
 
 rcg.graphdb_nr_accesses_print()
 
