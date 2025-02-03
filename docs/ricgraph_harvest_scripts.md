@@ -218,6 +218,12 @@ Options:
           'no': Ricgraph will not be emptied before harvesting.
           If this option is not present, the script will prompt the user
           what to do.
+  --organization <organization abbreviation>
+          Harvest data from organization <organization abbreviation>.
+          The organization abbreviations are specified in the Ricgraph ini
+          file.
+          If this option is not present, the script will prompt the user
+          what to do.
 ```
 This script can be used out of the box since it doesn't need an
 [API](https://en.wikipedia.org/wiki/API) key.

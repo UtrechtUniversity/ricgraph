@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023 Rik D.T. Janssen
+# Copyright (c) 2023, 2025 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,12 +30,14 @@
 #
 # This file contains example code for Ricgraph.
 #
-# With this code, you can harvest datasets from Yoda, using Datacite, with the OAI-PMH protocol.
+# With this code, you can harvest data sets from Yoda, using Datacite, with
+# the OAI-PMH protocol.
 # You have to set some parameters in ricgraph.ini.
-# Also, you can set a number of parameters in the code following the "import" statements below.
+# Also, you can set a number of parameters in the code following the "import"
+# statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, April, October 2023.
+# Updated Rik D.T. Janssen, April, October 2023, February 2025.
 #
 # ########################################################################
 #
@@ -48,11 +50,19 @@
 #           'no': Ricgraph will not be emptied before harvesting.
 #           If this option is not present, the script will prompt the user
 #           what to do.
+#   --organization <organization abbreviation>
+#           Harvest data from organization <organization abbreviation>.
+#           The organization abbreviations are specified in the Ricgraph ini
+#           file.
+#           If this option is not present, the script will prompt the user
+#           what to do.
 #
 # ########################################################################
 
 
 import sys
+import re
+
 import pandas
 import xmltodict
 from sickle import Sickle
@@ -80,6 +90,60 @@ ROTYPE_MAPPING_YODA = {
 # ######################################################
 # Utility functions related to harvesting of Yoda
 # ######################################################
+def rewrite_yoda_scopusid(scopusid: str) -> str:
+    """Rewrite the Scopus ID obtained from Yoda.
+    They are written in various different ways, so they need to be rewritten.
+
+    :param scopusid: Scopus ID to rewrite.
+    :return: Result of rewriting.
+    """
+    if scopusid == '':
+        return ''
+    if scopusid.startswith('https'):
+        print('yes')
+    scopusid = re.sub(pattern=r'https://www.scopus.com/authid/detail.uri',
+                      repl='',
+                      string=scopusid,
+                      flags=re.IGNORECASE)
+    scopusid = re.sub(pattern=r'\?authorid\=',
+                      repl='',
+                      string=scopusid,
+                      flags=re.IGNORECASE)
+    return scopusid
+
+
+def rewrite_yoda_researcherid(researcherid: str) -> str:
+    """Rewrite the Researcher ID obtained from Yoda.
+    They are written in various different ways, so they need to be rewritten.
+
+    :param researcherid: Researcher ID to rewrite.
+    :return: Result of rewriting.
+    """
+    if researcherid == '':
+        return ''
+    researcherid = re.sub(pattern=r'https://www.researcherid.com/rid/',
+                          repl='',
+                          string=researcherid)
+    return researcherid
+
+
+def rewrite_yoda_isni(isni: str) -> str:
+    """Rewrite the ISNI obtained from Yoda.
+    They are written in various different ways, so they need to be rewritten.
+
+    :param isni: ISNI to rewrite.
+    :return: Result of rewriting.
+    """
+    if isni == '':
+        return ''
+    isni = re.sub(pattern=r'[ ]*',
+                  repl='',
+                  string=isni)
+    isni = re.sub(pattern=r'https://isni.org/isni/',
+                  repl='',
+                  string=isni)
+    return isni
+
 
 # ######################################################
 # Parsing
@@ -237,7 +301,7 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
 
 
 def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
-    """Parse the harvested datasets (and other research outputs) from Yoda datacite.
+    """Parse the harvested data sets (and other research outputs) from Yoda datacite.
 
     :param harvest: the harvest.
     :return: the harvested research outputs in a DataFrame.
@@ -287,11 +351,30 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
         lambda row: rcg.lookup_resout_type(research_output_type=row['resourceType'],
                                            research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
     datacite_data['DOI'] = datacite_data['DOI'].str.lower()
+
+    # If a field is not present, add it as an empty column, for easier processing below.
+    if 'DAI' not in datacite_data.columns:
+        datacite_data['DAI'] = ''
+    if 'ORCID' not in datacite_data.columns:
+        datacite_data['ORCID'] = ''
+    if 'ISNI' not in datacite_data.columns:
+        datacite_data['ISNI'] = ''
+    if 'Author identifier (Scopus)' not in datacite_data.columns:
+        datacite_data['Author identifier (Scopus)'] = ''
+    if 'ResearcherID (Web of Science)' not in datacite_data.columns:
+        datacite_data['ResearcherID (Web of Science)'] = ''
+
+    datacite_data['Author identifier (Scopus)'] = datacite_data['Author identifier (Scopus)'].apply(
+        lambda x: rewrite_yoda_scopusid(x) if isinstance(x, str) else x)
+    datacite_data['ResearcherID (Web of Science)'] = datacite_data['ResearcherID (Web of Science)'].apply(
+        lambda x: rewrite_yoda_researcherid(x) if isinstance(x, str) else x)
+    datacite_data['ISNI'] = datacite_data['ISNI'].apply(
+        lambda x: rewrite_yoda_isni(x) if isinstance(x, str) else x)
+
     # The next two statements will result in an 'behaviour will change in pandas 3.0' warning.
     # datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='', inplace=True)
     # datacite_data['ISNI'].replace(regex=r'[ ]*', value='', inplace=True)
     datacite_data['ORCID'] = datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='')
-    datacite_data['ISNI'] = datacite_data['ISNI'].replace(regex=r'[ ]*', value='')
 
     yoda_data = datacite_data[['DOI', 'contributorName', 'DAI',
                                'ORCID', 'Author identifier (Scopus)',
@@ -299,8 +382,6 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
                                'titles', 'DOI_TYPE', 'publicationYear',
                                'affiliation'
                                ]].copy(deep=True)
-    # This does not seem to work:
-    # yoda_data.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     yoda_data.rename(columns={'DAI': 'DIGITAL_AUTHOR_ID',
                               'Author identifier (Scopus)': 'SCOPUS_AUTHOR_ID',
                               'ResearcherID (Web of Science)': 'RESEARCHER_ID',
@@ -330,7 +411,7 @@ def harvest_xml_and_write_to_file(url: str, headers: dict, harvest_filename: str
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     # Sickle takes care of resumptionToken if present, our source does not deliver all records in one xml
-    print('Getting data from ' + url + '... ', end='')
+    print('Getting data from ' + HARVEST_SOURCE + ' from ' + url + '... ', end='')
     connection = Sickle(url)
     data = connection.ListRecords(**headers)
     print('Done.')
@@ -380,7 +461,7 @@ def harvest_and_parse_yoda_datacite_data(url: str, headers: dict, harvest_filena
         doc = xmltodict.parse(fd.read())
 
     parse = parse_yoda_datacite(harvest=doc)
-    print('The harvested data from Yoda datacite are:')
+    print('The harvested data from ' + HARVEST_SOURCE + ' are:')
     print(parse)
     return parse
 
@@ -390,15 +471,15 @@ def harvest_and_parse_yoda_datacite_data(url: str, headers: dict, harvest_filena
 # ######################################################
 
 def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
-    """Insert the parsed datasets, etc. in Ricgraph.
+    """Insert the parsed data sets, etc. in Ricgraph.
 
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
     timestamp = rcg.datetimestamp()
-    print('Inserting datasets from Yoda (harvested from datacite) in Ricgraph at '
+    print('Inserting data sets from ' + HARVEST_SOURCE + ' in Ricgraph at '
           + timestamp + '...')
-    history_event = 'Source: Harvest Yoda-datacite at ' + timestamp + '.'
+    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' at ' + timestamp + '.'
 
     # The order of the columns in the DataFrame below is not random.
     # A good choice is to have in the first two columns:
@@ -414,16 +495,16 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('The following persons from Yoda will be inserted in Ricgraph:')
+    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(person_identifiers)
     rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event='Yoda-DataCite',
+                                   source_event=HARVEST_SOURCE,
                                    history_event=history_event)
 
-    # We need to connect a dataset to a person-root. However, there is no single
+    # We need to connect a data set to a person-root. However, there is no single
     # person identifier that every person has. So we will need to connect DOIs to
     # every person-identifier we have.
-    print('The following datasets (DOIs) from Yoda will be inserted in Ricgraph:')
+    print('The following data sets (DOIs) from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(parsed_content)
     print('\nAdding DOIs and ORCIDs at ' + rcg.timestamp() + '...')
     rcg.create_nodepairs_and_edges_params(name1='DOI',
@@ -431,7 +512,7 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                           value1=parsed_content['DOI'],
                                           comment1=parsed_content['TITLE'],
                                           year1=parsed_content['publicationYear'],
-                                          source_event1='Yoda-DataCite',
+                                          source_event1=HARVEST_SOURCE,
                                           history_event1=history_event,
                                           name2='ORCID',
                                           category2='person',
@@ -468,13 +549,13 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                           value2=parsed_content['ISNI'])
 
     # Same for organizations.
-    print('The following organizations from person from Yoda will be inserted in Ricgraph:')
+    print('The following organizations from person from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
     print(parsed_content)
     print('\nAdding organizations and ORCIDs at ' + rcg.timestamp() + '...')
     rcg.create_nodepairs_and_edges_params(name1='ORGANIZATION_NAME',
                                           category1='organization',
                                           value1=parsed_content['ORGANIZATION_NAME'],
-                                          source_event1='Yoda-DataCite',
+                                          source_event1=HARVEST_SOURCE,
                                           history_event1=history_event,
                                           name2='ORCID',
                                           category2='person',
@@ -518,14 +599,20 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 # ################### main ###################
 # ############################################
 rcg.print_commandline_arguments(argument_list=sys.argv)
+if (organization := rcg.get_commandline_argument_organization(argument_list=sys.argv)) == '':
+    print('Exiting.\n')
+    exit(1)
+
+yoda_organization = 'yoda_set_' + organization
 YODA_URL = rcg.get_configfile_key(section='Yoda_harvesting', key='yoda_url')
-YODA_SET = rcg.get_configfile_key(section='Yoda_harvesting', key='yoda_set')
+YODA_SET = rcg.get_configfile_key(section='Yoda_harvesting', key=yoda_organization)
 if YODA_URL == '' or YODA_SET == '':
-    print('Ricgraph initialization: error, "yoda_url" or "yoda_set" are')
+    print('Ricgraph initialization: error, "yoda_url" or "' + yoda_organization + '" are')
     print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
 
 YODA_HEADERS['set'] = YODA_SET
+HARVEST_SOURCE = 'Yoda-DataCite-' + organization
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()
@@ -539,13 +626,19 @@ else:
 
 rcg.graphdb_nr_accesses_print()
 
+harvest_file = YODA_HARVEST_FILENAME.split('.')[0] \
+               + '-' + organization + '.' \
+               + YODA_HARVEST_FILENAME.split('.')[1]
+data_file = YODA_DATA_FILENAME.split('.')[0] \
+            + '-' + organization + '.' \
+            + YODA_DATA_FILENAME.split('.')[1]
 parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
                                                        headers=YODA_HEADERS,
-                                                       harvest_filename=YODA_HARVEST_FILENAME)
+                                                       harvest_filename=harvest_file)
 if parse_yoda_data is None or parse_yoda_data.empty:
     print('There are no data from Yoda to harvest.\n')
 else:
-    rcg.write_dataframe_to_csv(filename=YODA_DATA_FILENAME,
+    rcg.write_dataframe_to_csv(filename=data_file,
                                df=parse_yoda_data)
     parsed_yoda_datacite_to_ricgraph(parsed_content=parse_yoda_data)
 

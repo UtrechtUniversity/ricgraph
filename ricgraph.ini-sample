@@ -56,7 +56,7 @@
 # All nodes have the following standard properties:
 # name: name of the node, e.g. ISNI, ORCID, DOI, etc.
 # category: category of the node, e.g. person, person-root, book, 
-#	    journal article, dataset, etc.
+#	    journal article, data set, etc.
 # value: value of the node
 # _key: key value of the node, not to be modified by the user
 # _source: sorted list of sources a record has been harvested from, 
@@ -193,14 +193,22 @@ pure_api_key_VU =
 
 [Yoda_harvesting]
 # ###############################################################
-# With the following settings you will harvest Utrecht University datasets 
+# With the following settings you will harvest data sets
 # from Yoda, Utrecht University's data repository. 
 # They will be harvested from DataCite.
 # The URL to Yoda Datacite harvest (without quotes):
 yoda_url = https://oai.datacite.org/oai
 #
 # The set to harvest (without quotes):
-yoda_set = delft.uu
+yoda_set_UU = delft.uu
+# UU Yoda at SURF, pilot:
+yoda_set_UUSURF = pzax.sxgsah
+yoda_set_UMCU =
+yoda_set_DUT =
+yoda_set_EUR =
+yoda_set_EUT =
+yoda_set_UG =
+yoda_set_VU = delft.vudata
 # ###############################################################
 
  

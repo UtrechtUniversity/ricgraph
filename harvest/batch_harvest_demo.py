@@ -45,7 +45,7 @@ print('This script is called by Python interpreter: ' + PYTHON_CMD + '.')
 print('It will also be used for the Ricgraph harvest scripts to be called from this script.')
 print('')
 
-status = os.system(PYTHON_CMD + ' harvest_yoda_datacite_to_ricgraph.py --empty_ricgraph yes')
+status = os.system(PYTHON_CMD + ' harvest_yoda_datacite_to_ricgraph.py --empty_ricgraph yes --organization UU')
 if status != 0: print('===>>> batch_harvest.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 status = os.system(PYTHON_CMD + ' harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization UU')
 if status != 0: print('===>>> batch_harvest.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
