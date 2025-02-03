@@ -66,7 +66,7 @@ In RICGRAPH_PROPERTIES_STANDARD:
 - name: name of the node, e.g. ISNI, ORCID, DOI, etc.
 
 - category: category of the node,
-  e.g. person, person-root, book, journal article, dataset, etc.
+  e.g. person, person-root, book, journal article, data set, etc.
 
 - value: value of the node.
 
@@ -168,7 +168,7 @@ graphdb_nr_deletes = 0
 # An example mapping may look like this:
 # mapping = {
 #    'book': ROTYPE_BOOK,
-#    'dataset': ROTYPE_DATASET,
+#    'data set': ROTYPE_DATASET,
 #    'software': ROTYPE_SOFTWARE
 # }
 #
@@ -325,7 +325,7 @@ def close_ricgraph() -> None:
     """
     global _graph
 
-    print('Closing ricgraph.\n')
+    print('Closing Ricgraph.\n')
     _graph.close()
     return
 
