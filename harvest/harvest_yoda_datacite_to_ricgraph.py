@@ -56,7 +56,6 @@ import sys
 import pandas
 import xmltodict
 from sickle import Sickle
-import configparser
 import ricgraph as rcg
 
 YODA_HARVEST_FILENAME = 'yoda_datacite_harvest.xml'
@@ -64,7 +63,6 @@ YODA_DATA_FILENAME = 'yoda_datacite_data.csv'
 YODA_HEADERS = {'metadataPrefix': 'oai_datacite',
                 'ignore_deleted': True
                 }
-global YODA_URL
 
 
 # ######################################################
@@ -520,19 +518,14 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 # ################### main ###################
 # ############################################
 rcg.print_commandline_arguments(argument_list=sys.argv)
-config = configparser.ConfigParser()
-config.read(rcg.get_ricgraph_ini_file())
-try:
-    YODA_URL = config['Yoda_harvesting']['yoda_url']
-    YODA_SET = config['Yoda_harvesting']['yoda_set']
-    if YODA_URL == '' or YODA_SET == '':
-        print('Ricgraph initialization: error, yoda_url or yoda_set empty in Ricgraph ini file, exiting.')
-        exit(1)
-
-    YODA_HEADERS['set'] = YODA_SET
-except KeyError:
-    print('Ricgraph initialization: error, yoda_url or yoda_set not found in Ricgraph ini file, exiting.')
+YODA_URL = rcg.get_configfile_key(section='Yoda_harvesting', key='yoda_url')
+YODA_SET = rcg.get_configfile_key(section='Yoda_harvesting', key='yoda_set')
+if YODA_URL == '' or YODA_SET == '':
+    print('Ricgraph initialization: error, "yoda_url" or "yoda_set" are')
+    print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
+
+YODA_HEADERS['set'] = YODA_SET
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()

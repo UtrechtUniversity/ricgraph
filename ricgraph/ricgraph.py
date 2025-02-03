@@ -2860,68 +2860,74 @@ def get_commandline_argument_harvest_projects(argument_list: list) -> str:
     return answer
 
 
+def get_configfile_key(section: str, key: str) -> str:
+    """Get the value of a key in the Ricgraph config file.
+
+    :param section: the section where the key is to be read from.
+    :param key: the name of the key.
+    :return: the value of the key (can be ''), or '' if absent.
+    """
+    config = configparser.ConfigParser()
+    config.read(get_ricgraph_ini_file())
+    try:
+        value = config[section][key]
+    except KeyError:
+        return ''
+
+    return value
+
+
 # ############################################
 # ################### main ###################
 # ############################################
 # This will be executed on module initialization
-config = configparser.ConfigParser()
-config.read(get_ricgraph_ini_file())
-try:
-    RICGRAPH_PROPERTIES_STANDARD = tuple(config['Ricgraph']['ricgraph_properties_standard'].split(','))
-    RICGRAPH_PROPERTIES_HIDDEN = tuple(config['Ricgraph']['ricgraph_properties_hidden'].split(','))
-    RICGRAPH_PROPERTIES_ADDITIONAL = tuple(config['Ricgraph']['ricgraph_properties_additional'].split(','))
-    if len(RICGRAPH_PROPERTIES_STANDARD) == 0 \
-       or len(RICGRAPH_PROPERTIES_HIDDEN) == 0 \
-       or len(RICGRAPH_PROPERTIES_ADDITIONAL) == 0:
-        print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
-        print('  ricgraph_properties_hidden and/or ricgraph_properties_additional')
-        print('  are empty in Ricgraph ini file, exiting.')
-        exit(1)
-
-    if RICGRAPH_PROPERTIES_STANDARD[0] == '' \
-       or RICGRAPH_PROPERTIES_HIDDEN[0] == '' \
-       or RICGRAPH_PROPERTIES_ADDITIONAL[0] == '':
-        print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
-        print('  ricgraph_properties_hidden and/or ricgraph_properties_additional')
-        print('  are empty in Ricgraph ini file, exiting.')
-        exit(1)
-
-    # For more explanation, see file docs/ricgraph_install_configure.md,
-    # section RICGRAPH_NODEADD_MODE.
-    RICGRAPH_NODEADD_MODE = config['Ricgraph']['ricgraph_nodeadd_mode']
-    if RICGRAPH_NODEADD_MODE != 'strict' and RICGRAPH_NODEADD_MODE != 'lenient':
-        print('Ricgraph initialization: error, unknown value "' + RICGRAPH_NODEADD_MODE
-              + '" for ricgraph_nodeadd_mode in Ricgraph ini file, exiting.')
-        exit(1)
-    else:
-        print('Ricgraph is using "' + RICGRAPH_NODEADD_MODE + '" for ricgraph_nodeadd_mode.')
-except KeyError:
-    print('Ricgraph initialization: error, ricgraph_properties_standard and/or')
-    print('  ricgraph_properties_hidden and/or ricgraph_properties_additional and/or ricgraph_nodeadd_mode')
-    print('  not found in Ricgraph ini file, exiting.')
+RICGRAPH_PROPERTIES_STANDARD = tuple(get_configfile_key(section='Ricgraph',
+                                                        key='ricgraph_properties_standard').split(','))
+RICGRAPH_PROPERTIES_HIDDEN = tuple(get_configfile_key(section='Ricgraph',
+                                                      key='ricgraph_properties_hidden').split(','))
+RICGRAPH_PROPERTIES_ADDITIONAL = tuple(get_configfile_key(section='Ricgraph',
+                                                          key='ricgraph_properties_additional').split(','))
+if len(RICGRAPH_PROPERTIES_STANDARD) == 0 \
+   or len(RICGRAPH_PROPERTIES_HIDDEN) == 0 \
+   or len(RICGRAPH_PROPERTIES_ADDITIONAL) == 0 \
+   or RICGRAPH_PROPERTIES_STANDARD[0] == '' \
+   or RICGRAPH_PROPERTIES_HIDDEN[0] == '' \
+   or RICGRAPH_PROPERTIES_ADDITIONAL[0] == '':
+    print('Ricgraph initialization: error, "ricgraph_properties_standard" and/or')
+    print('  "ricgraph_properties_hidden" and/or "ricgraph_properties_additional"')
+    print('  are not existing or empty in Ricgraph ini')
+    print('  file "' + get_ricgraph_ini_file() + '", exiting.')
     exit(1)
 
-try:
-    GRAPHDB = config['GraphDB']['graphdb']
-    GRAPHDB_HOSTNAME = config['GraphDB']['graphdb_hostname']
-    GRAPHDB_DATABASENAME = config['GraphDB']['graphdb_databasename']
-    GRAPHDB_USER = config['GraphDB']['graphdb_user']
-    GRAPHDB_PASSWORD = config['GraphDB']['graphdb_password']
-    GRAPHDB_SCHEME = config['GraphDB']['graphdb_scheme']
-    GRAPHDB_PORT = config['GraphDB']['graphdb_port']
-    if GRAPHDB == '' or GRAPHDB_HOSTNAME == '' or GRAPHDB_DATABASENAME == '' \
-       or GRAPHDB_USER == '' \
-       or GRAPHDB_PASSWORD == '' or GRAPHDB_SCHEME == '' or GRAPHDB_PORT == '':
-        print('Ricgraph initialization: error, one or more of the GraphDB parameters '
-              + 'empty in Ricgraph ini file, exiting.')
-        exit(1)
-    GRAPHDB_URL = '{scheme}://{hostname}:{port}'.format(scheme=GRAPHDB_SCHEME,
-                                                        hostname=GRAPHDB_HOSTNAME,
-                                                        port=GRAPHDB_PORT)
-except KeyError:
-    print('Ricgraph initialization: error, one or more of GraphDB parameters '
-          + 'not found in Ricgraph ini file, exiting.')
+# For more explanation, see file docs/ricgraph_install_configure.md,
+# section RICGRAPH_NODEADD_MODE.
+RICGRAPH_NODEADD_MODE = get_configfile_key(section='Ricgraph', key='ricgraph_nodeadd_mode')
+if RICGRAPH_NODEADD_MODE != 'strict' and RICGRAPH_NODEADD_MODE != 'lenient':
+    print('Ricgraph initialization: error, not existing or unknown value "' + RICGRAPH_NODEADD_MODE + '"')
+    print('  for "ricgraph_nodeadd_mode" in Ricgraph ini')
+    print('  file "' + get_ricgraph_ini_file() + '", exiting.')
     exit(1)
+
+print('Ricgraph is using "' + RICGRAPH_NODEADD_MODE + '" for "ricgraph_nodeadd_mode".')
+
+GRAPHDB = get_configfile_key(section='GraphDB', key='graphdb')
+GRAPHDB_HOSTNAME = get_configfile_key(section='GraphDB', key='graphdb_hostname')
+GRAPHDB_DATABASENAME = get_configfile_key(section='GraphDB', key='graphdb_databasename')
+GRAPHDB_USER = get_configfile_key(section='GraphDB', key='graphdb_user')
+GRAPHDB_PASSWORD = get_configfile_key(section='GraphDB', key='graphdb_password')
+GRAPHDB_SCHEME = get_configfile_key(section='GraphDB', key='graphdb_scheme')
+GRAPHDB_PORT = get_configfile_key(section='GraphDB', key='graphdb_port')
+if GRAPHDB == '' or GRAPHDB_HOSTNAME == '' or GRAPHDB_DATABASENAME == '' \
+   or GRAPHDB_USER == '' or GRAPHDB_PASSWORD == '' \
+   or GRAPHDB_SCHEME == '' or GRAPHDB_PORT == '':
+    print('Ricgraph initialization: error, one or more of the GraphDB parameters')
+    print('  not existing or empty in Ricgraph ini')
+    print('  file "' + get_ricgraph_ini_file() + '", exiting.')
+    exit(1)
+
+GRAPHDB_URL = '{scheme}://{hostname}:{port}'.format(scheme=GRAPHDB_SCHEME,
+                                                    hostname=GRAPHDB_HOSTNAME,
+                                                    port=GRAPHDB_PORT)
 
 # Make sure DataFrames are printed with all columns on full width
 pandas.set_option('display.max_columns', None)

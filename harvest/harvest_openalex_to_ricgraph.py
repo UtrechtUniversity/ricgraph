@@ -62,7 +62,6 @@ import sys
 import re
 import pandas
 from typing import Union
-import configparser
 import pathlib
 import ricgraph as rcg
 
@@ -75,11 +74,6 @@ OPENALEX_HEADERS = {'Accept': 'application/json'
                     # The following will be read in __main__
                     # 'User-Agent': 'mailto:email@somewhere.com'
                     }
-
-global OPENALEX_URL
-global ORGANIZATION_ROR
-global ORGANIZATION_NAME
-global HARVEST_SOURCE
 
 # ######################################################
 # Parameters for harvesting persons and research outputs from OpenAlex
@@ -441,42 +435,28 @@ if (organization := rcg.get_commandline_argument_organization(argument_list=sys.
     print('Exiting.\n')
     exit(1)
 
-config = configparser.ConfigParser()
-config.read(rcg.get_ricgraph_ini_file())
 org_name = 'organization_name_' + organization
 org_ror = 'organization_ror_' + organization
-try:
-    ORGANIZATION_NAME = config['Organization'][org_name]
-    ORGANIZATION_ROR = config['Organization'][org_ror]
-    if ORGANIZATION_NAME == '' or ORGANIZATION_ROR == '':
-        print('\nRicgraph initialization: error, "'
-              + org_name + '" or "' + org_ror
-              + '" empty in Ricgraph ini file, exiting.')
-        exit(1)
-except KeyError:
-    print('\nRicgraph initialization: error, "'
-          + org_name + '" or "' + org_ror
-          + '" not found in Ricgraph ini file, exiting.')
+ORGANIZATION_NAME = rcg.get_configfile_key(section='Organization', key=org_name)
+ORGANIZATION_ROR = rcg.get_configfile_key(section='Organization', key=org_ror)
+if ORGANIZATION_NAME == '' or ORGANIZATION_ROR == '':
+    print('Ricgraph initialization: error, "' + org_name + '" or "' + org_ror + '"')
+    print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
 
 HARVEST_SOURCE = 'OpenAlex-' + organization
 
-try:
-    # The OpenAlex 'polite pool' has much faster and more consistent response times.
-    # See https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication#the-polite-pool.
-    # They have rate limits, but they are high:
-    # https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication.
-    OPENALEX_URL = config['OpenAlex_harvesting']['openalex_url']
-    email = config['OpenAlex_harvesting']['openalex_polite_pool_email']
-    if OPENALEX_URL == '' or email == '':
-        print('\nRicgraph initialization: error, openalex_url or openalex_polite_pool_email '
-              + 'empty in Ricgraph ini file, exiting.')
-        exit(1)
-    OPENALEX_HEADERS['User-Agent'] = 'mailto:' + email
-except KeyError:
-    print('\nRicgraph initialization: error, openalex_url or openalex_polite_pool_email '
-          + 'not found in Ricgraph ini file, exiting.')
+# The OpenAlex 'polite pool' has much faster and more consistent response times.
+# See https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication#the-polite-pool.
+# They have rate limits, but they are high:
+# https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication.
+OPENALEX_URL = rcg.get_configfile_key(section='OpenAlex_harvesting', key='openalex_url')
+email = rcg.get_configfile_key(section='OpenAlex_harvesting', key='openalex_polite_pool_email')
+if OPENALEX_URL == '' or email == '':
+    print('Ricgraph initialization: error, "openalex_url" or "openalex_polite_pool_email"')
+    print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
+OPENALEX_HEADERS['User-Agent'] = 'mailto:' + email
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()

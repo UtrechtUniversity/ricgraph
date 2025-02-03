@@ -64,7 +64,6 @@ import pandas
 import numpy
 import urllib.request
 from typing import Union
-import configparser
 import ricgraph as rcg
 
 
@@ -78,8 +77,6 @@ RSD_FIELDS = 'software(brand_name,slug,concept_doi,' \
 RSD_HEADERS = {
     'User-Agent': 'Harvesting from RSD'
 }
-global FULL_RSD_URL
-global HARVEST_SOURCE
 
 
 # ######################################################
@@ -300,26 +297,15 @@ if (organization := rcg.get_commandline_argument_organization(argument_list=sys.
     print('Exiting.\n')
     exit(1)
 
-config = configparser.ConfigParser()
-config.read(rcg.get_ricgraph_ini_file())
-rsd_url = 'rsd_url'
 rsd_organization = 'rsd_organization_' + organization
-try:
-    RSD_URL = config['RSD_harvesting'][rsd_url]
-    RSD_ORGANIZATION = config['RSD_harvesting'][rsd_organization]
-    if RSD_URL == '' or RSD_ORGANIZATION == '':
-        print('\nRicgraph initialization: error, "'
-              + rsd_url + '" or "' + rsd_organization
-              + '" empty in Ricgraph ini file, exiting.')
-        exit(1)
-
-    FULL_RSD_URL = RSD_URL + '/' + RSD_ENDPOINT + '?slug=eq.' + RSD_ORGANIZATION + '&select=' + RSD_FIELDS
-except KeyError:
-    print('\nRicgraph initialization: error, "'
-          + rsd_url + '" or "' + rsd_organization
-          + '" not found in Ricgraph ini file, exiting.')
+RSD_URL = rcg.get_configfile_key(section='RSD_harvesting', key='rsd_url')
+RSD_ORGANIZATION = rcg.get_configfile_key(section='RSD_harvesting', key=rsd_organization)
+if RSD_URL == '' or RSD_ORGANIZATION == '':
+    print('\nRicgraph initialization: error, "rsd_url" or "' + rsd_organization + '"')
+    print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
 
+FULL_RSD_URL = RSD_URL + '/' + RSD_ENDPOINT + '?slug=eq.' + RSD_ORGANIZATION + '&select=' + RSD_FIELDS
 HARVEST_SOURCE = 'Research Software Directory-' + organization
 
 print('\nPreparing graph...')

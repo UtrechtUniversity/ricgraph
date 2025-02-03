@@ -58,10 +58,7 @@ import pandas
 from typing import Union
 import requests
 import pathlib
-import configparser
 import ricgraph as rcg
-
-global UUSTAFF_URL
 
 
 # ######################################################
@@ -643,15 +640,10 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
 # ################### main ###################
 # ############################################
 rcg.print_commandline_arguments(argument_list=sys.argv)
-config = configparser.ConfigParser()
-config.read(rcg.get_ricgraph_ini_file())
-try:
-    UUSTAFF_URL = config['UU_staff_pages_harvesting']['uustaff_url']
-    if UUSTAFF_URL == '':
-        print('Ricgraph initialization: error, uustaff_url empty in Ricgraph ini file, exiting.')
-        exit(1)
-except KeyError:
-    print('Ricgraph initialization: error, uustaff_url not found in Ricgraph ini file, exiting.')
+UUSTAFF_URL = rcg.get_configfile_key(section='UU_staff_pages_harvesting', key='uustaff_url')
+if UUSTAFF_URL == '':
+    print('Ricgraph initialization: error, "uustaff_url"')
+    print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
 
 rcg.open_ricgraph()

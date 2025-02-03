@@ -80,7 +80,6 @@ import re
 import pandas
 import numpy
 from typing import Union
-import configparser
 import requests
 import pathlib
 import ricgraph as rcg
@@ -1571,25 +1570,16 @@ if (harvest_projects := rcg.get_commandline_argument_harvest_projects(argument_l
 else:
     HARVEST_PROJECTS = False
 
-config = configparser.ConfigParser()
-config.read(rcg.get_ricgraph_ini_file())
 pure_url = 'pure_url_' + organization
 pure_api_key = 'pure_api_key_' + organization
-try:
-    PURE_URL = config['Pure_harvesting'][pure_url]
-    PURE_API_KEY = config['Pure_harvesting'][pure_api_key]
-    if PURE_URL == '' or PURE_API_KEY == '':
-        print('\nRicgraph initialization: error, "'
-              + pure_url + '" or "' + pure_api_key
-              + '" empty in Ricgraph ini file, exiting.')
-        exit(1)
-
-    PURE_HEADERS['api-key'] = PURE_API_KEY
-except KeyError:
-    print('\nRicgraph initialization: error, "'
-          + pure_url + '" or "' + pure_api_key
-          + '" not found in Ricgraph ini file, exiting.')
+PURE_URL = rcg.get_configfile_key(section='Pure_harvesting', key=pure_url)
+PURE_API_KEY = rcg.get_configfile_key(section='Pure_harvesting', key=pure_api_key)
+if PURE_URL == '' or PURE_API_KEY == '':
+    print('Ricgraph initialization: error, "' + pure_url + '" or "' + pure_api_key + '"')
+    print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
+
+PURE_HEADERS['api-key'] = PURE_API_KEY
 
 print('\n')
 
