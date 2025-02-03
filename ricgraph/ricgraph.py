@@ -300,7 +300,7 @@ def open_ricgraph() -> Driver:
     """
     global _graph
 
-    print('Opening ricgraph.\n')
+    print('Opening Ricgraph.\n')
     try:
         _graph = GraphDatabase.driver(GRAPHDB_URL,
                                       auth=(GRAPHDB_USER, GRAPHDB_PASSWORD))
