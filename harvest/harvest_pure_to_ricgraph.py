@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023 Rik D.T. Janssen
+# Copyright (c) 2022-2025 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, April, October, November 2023.
+# Updated Rik D.T. Janssen, April, October, November 2023, February 2025.
 #
 # ########################################################################
 #
@@ -76,7 +76,6 @@
 
 
 import sys
-import re
 import pandas
 import numpy
 from typing import Union
@@ -346,25 +345,6 @@ def create_urlother(type_id: str, uuid_value: str) -> str:
         return ''
 
 
-def rewrite_pure_doi(doi: str) -> str:
-    """Rewrite the DOI obtained from Pure.
-    They are written in various different ways, so they need to be rewritten.
-
-    :param doi: DOI to rewrite.
-    :return: Result of rewriting.
-    """
-    doi = doi.lower()
-    # '|' in regex is "or"
-    # 'flags=re.IGNORECASE' not necessary, everything is lowercase already
-    doi = re.sub(pattern=r'https|http', repl='', string=doi)
-    doi = re.sub(pattern=r'doi.org', repl='', string=doi)
-    doi = re.sub(pattern=r'doi', repl='', string=doi)
-    # Remove any /, : or space at the beginning
-    doi = re.sub(pattern=r'^[/: ]*', repl='', string=doi)
-    doi = re.sub(pattern=r'.proxy.uu.nl/', repl='', string=doi)
-    return doi
-
-
 def find_organization_name(uuid: str, organization_names: dict):
     """Find the full organization name which belongs to an organization with a certain UUID.
 
@@ -381,6 +361,67 @@ def find_organization_name(uuid: str, organization_names: dict):
 # ######################################################
 # Parsing
 # ######################################################
+
+def restructure_parse_persons(df: pandas.DataFrame) -> pandas.DataFrame:
+    """Restructure the parsed data from the source system.
+    This means: convert all field names found in the source system
+    to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI'),
+    and make sure that every column that is expected further down
+    this code is present (i.e. insert an empty column if needed).
+    No processing of data in columns is done.
+
+    :param df: dataframe with identifiers.
+    :return: Result of action described above.
+    """
+    df_mod = df.copy(deep=True)
+
+    if 'ORCID' not in df_mod.columns:
+        df_mod['ORCID'] = ''
+
+    if 'ISNI' not in df_mod.columns:
+        df_mod['ISNI'] = ''
+
+    if 'Scopus Author ID' in df_mod.columns:
+        df_mod.rename(columns={'Scopus Author ID': 'SCOPUS_AUTHOR_ID'}, inplace=True)
+    else:
+        df_mod['SCOPUS_AUTHOR_ID'] = ''
+
+    if 'Researcher ID' in df_mod.columns:
+        df_mod.rename(columns={'Researcher ID': 'RESEARCHER_ID'}, inplace=True)
+    else:
+        df_mod['RESEARCHER_ID'] = ''
+
+    if 'Digital author ID' in df_mod.columns:
+        df_mod.rename(columns={'Digital author ID': 'DIGITAL_AUTHOR_ID'}, inplace=True)
+    else:
+        df_mod['DIGITAL_AUTHOR_ID'] = ''
+
+    if 'Employee ID' in df_mod.columns:
+        df_mod.rename(columns={'Employee ID': 'EMPLOYEE_ID'}, inplace=True)
+    else:
+        df_mod['EMPLOYEE_ID'] = ''
+
+    return df_mod
+
+
+def restructure_parse_projects(df: pandas.DataFrame) -> pandas.DataFrame:
+    """Restructure the parsed data from the source system.
+    This means: convert all field names found in the source system
+    to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI'),
+    and make sure that every column that is expected further down
+    this code is present (i.e. insert an empty column if needed).
+    No processing of data in columns is done.
+
+    :param df: dataframe with identifiers.
+    :return: Result of action described above.
+    """
+    df_mod = df.copy(deep=True)
+
+    if 'PURE_PROJECT_PARTICIPANT_UUID' not in df_mod.columns:
+        df_mod['PURE_PROJECT_PARTICIPANT_UUID'] = ''
+
+    return df_mod
+
 
 def parse_pure_persons(harvest: list) -> pandas.DataFrame:
     """Parse the harvested persons from Pure.
@@ -505,17 +546,6 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk_final)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    parse_result.dropna(axis=0, how='all', inplace=True)
-    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    if 'Scopus Author ID' in parse_result.columns:
-        parse_result.rename(columns={'Scopus Author ID': 'SCOPUS_AUTHOR_ID'}, inplace=True)
-    if 'Digital author ID' in parse_result.columns:
-        parse_result.rename(columns={'Digital author ID': 'DIGITAL_AUTHOR_ID'}, inplace=True)
-    if 'Researcher ID' in parse_result.columns:
-        parse_result.rename(columns={'Researcher ID': 'RESEARCHER_ID'}, inplace=True)
-    if 'Employee ID' in parse_result.columns:
-        parse_result.rename(columns={'Employee ID': 'EMPLOYEE_ID'}, inplace=True)
 
     if 'PURE_UUID_ORG' not in parse_result.columns \
        and PURE_API_VERSION == PURE_CRUD_API_VERSION:
@@ -526,7 +556,8 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
         print('Please ask your Pure administrator to export this field. Exiting.')
         exit(1)
 
-    return parse_result
+    parse_result = restructure_parse_persons(df=parse_result)
+    return rcg.normalize_identifiers(df=parse_result)
 
 
 def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
@@ -645,10 +676,7 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
                                                                    organization_names=organization_names),
                                             axis=1))
 
-    # dropna(how='all'): drop row if all row values contain NaN
-    parse_result.dropna(axis=0, how='all', inplace=True)
-    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    return parse_result
+    return rcg.normalize_identifiers(df=parse_result)
 
 
 def parse_pure_resout(harvest: list) -> pandas.DataFrame:
@@ -725,7 +753,7 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                 # Take the last doi found for a resout
                 if 'doi' in elecversions:
                     doi = str(elecversions['doi'])
-                    doi = rewrite_pure_doi(doi=doi)
+                    doi = rcg.normalize_doi(identifier=doi)
 
         label = ''
         if 'personAssociations' in harvest_item:
@@ -796,10 +824,7 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    parse_result.dropna(axis=0, how='all', inplace=True)
-    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    return parse_result
+    return rcg.normalize_identifiers(df=parse_result)
 
 
 def parse_pure_projects(harvest: list) -> pandas.DataFrame:
@@ -962,10 +987,8 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    parse_result.dropna(axis=0, how='all', inplace=True)
-    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    return parse_result
+    parse_result = restructure_parse_projects(df=parse_result)
+    return rcg.normalize_identifiers(df=parse_result)
 
 
 # ######################################################
@@ -1053,16 +1076,10 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # Since Pure is the first system we harvest, the order of the columns in
     # this DataFrame does not really matter.
     person_identifiers = parsed_content[['PURE_UUID_PERS', 'FULL_NAME',
-                                         'ORCID', 'ISNI']].copy(deep=True)
-    if 'SCOPUS_AUTHOR_ID' in parsed_content.columns:
-        person_identifiers['SCOPUS_AUTHOR_ID'] = parsed_content[['SCOPUS_AUTHOR_ID']].copy(deep=True)
-    if 'DIGITAL_AUTHOR_ID' in parsed_content.columns:
-        person_identifiers['DIGITAL_AUTHOR_ID'] = parsed_content[['DIGITAL_AUTHOR_ID']].copy(deep=True)
-    if 'RESEARCHER_ID' in parsed_content.columns:
-        person_identifiers['RESEARCHER_ID'] = parsed_content[['RESEARCHER_ID']].copy(deep=True)
-    if 'EMPLOYEE_ID' in parsed_content.columns:
-        person_identifiers['EMPLOYEE_ID'] = parsed_content[['EMPLOYEE_ID']].copy(deep=True)
-    # dropna(how='all'): drop row if all row values contain NaN
+                                         'ORCID', 'ISNI',
+                                          'SCOPUS_AUTHOR_ID', 'DIGITAL_AUTHOR_ID',
+                                          'RESEARCHER_ID', 'EMPLOYEE_ID'
+                                       ]].copy(deep=True)
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
@@ -1229,6 +1246,10 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
 
     print('Done.\n')
 
+    if len(parse_chunk) == 0:
+        print('No link found between persons and all of their organizations.')
+        return
+
     persorgnodes = pandas.DataFrame()
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     persorgnodes = pandas.concat([persorgnodes, parse_chunk_df], ignore_index=True)
@@ -1284,6 +1305,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     resout = parsed_content[['RESOUT_UUID', 'TITLE', 'YEAR', 'TYPE', 'DOI', 'AUTHOR_UUID']].copy(deep=True)
     resout.dropna(axis=0, how='all', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    resout['DOI'] = resout['DOI'].fillna('')
 
     # A number of research outputs in Pure have a DOI, but not all. We prefer the DOI above PURE_UUID_RESOUT.
     # So if there is a DOI, use it, otherwise use PURE_UUID_RESOUT UUID. Some shuffling is required.
@@ -1386,15 +1408,16 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
     # ##### Insert projects and related participants.
     project_identifiers = parsed_content[['PURE_UUID_PROJECT',
                                           'PURE_UUID_PROJECT_URL',
-                                          'PURE_PROJECT_TITLE']].copy(deep=True)
-    if 'PURE_PROJECT_PARTICIPANT_UUID' in parsed_content.columns:
-        project_identifiers['PURE_PROJECT_PARTICIPANT_UUID'] = parsed_content[['PURE_PROJECT_PARTICIPANT_UUID']].copy(deep=True)
-    else:
-        project_identifiers['PURE_PROJECT_PARTICIPANT_UUID'] = ''
+                                          'PURE_PROJECT_TITLE',
+                                          'PURE_PROJECT_PARTICIPANT_UUID']].copy(deep=True)
 
     # dropna(how='all'): drop row if all row values contain NaN
     project_identifiers.dropna(axis=0, how='any', inplace=True)
     project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    if len(project_identifiers) == 0:
+        print('There seem to be no projects connected to persons, nothing to do:')
+        print(project_identifiers)
+        return
 
     print('The following projects connected to persons from '
           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')

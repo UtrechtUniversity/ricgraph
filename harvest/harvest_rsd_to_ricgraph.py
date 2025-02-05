@@ -6,18 +6,18 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023 Rik D.T. Janssen
-# 
+# Copyright (c) 2022-2025 Rik D.T. Janssen
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, April, October 2023.
+# Updated Rik D.T. Janssen, April, October 2023, February 2025.
 #
 # ########################################################################
 #
@@ -59,9 +59,9 @@
 
 
 import sys
+import numpy
 import json
 import pandas
-import numpy
 import urllib.request
 from typing import Union
 import ricgraph as rcg
@@ -82,6 +82,25 @@ RSD_HEADERS = {
 # ######################################################
 # Parsing
 # ######################################################
+
+def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
+    """Restructure the parsed data from the source system.
+    This means: convert all field names found in the source system
+    to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI'),
+    and make sure that every column that is expected further down
+    this code is present (i.e. insert an empty column if needed).
+    No processing of data in columns is done.
+
+    :param df: dataframe with identifiers.
+    :return: Result of action described above.
+    """
+    df_mod = df.copy(deep=True)
+    df_mod.rename(columns={'package_doi': 'DOI',
+                           'orcid': 'ORCID',
+                           'affiliation': 'ORGANIZATION_NAME',
+                           }, inplace=True)
+    return df_mod
+
 
 def parse_rsd_software(harvest: list) -> pandas.DataFrame:
     """Parse the harvested software from Research Software Directory.
@@ -146,10 +165,8 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
         contributor.insert(0, 'package_doi', str(package_doi).lower())
         rsd_parse = pandas.concat([rsd_parse, contributor], ignore_index=True)
 
-    # dropna(how='all'): drop row if all row values contain NaN
-    rsd_parse.dropna(axis=0, how='all', inplace=True)
-    rsd_parse.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    return rsd_parse
+    rsd_parse = restructure_parse(df=rsd_parse)
+    return rcg.normalize_identifiers(df=rsd_parse)
 
 
 # ######################################################
@@ -223,8 +240,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
           + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' at ' + timestamp + '.'
 
-    person_identifiers = parsed_content[['orcid', 'FULL_NAME']].copy(deep=True)
-    person_identifiers.rename(columns={'orcid': 'ORCID'}, inplace=True)
+    person_identifiers = parsed_content[['ORCID', 'FULL_NAME']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -238,11 +254,11 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     software = parsed_content.copy(deep=True)
     software.dropna(axis=0, how='all', inplace=True)
     software.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    software.rename(columns={'package_doi': 'value1',
+    software.rename(columns={'DOI': 'value1',
                              'package_name': 'comment1',
                              'package_year': 'year1',
                              'package_url': 'url_other1',
-                             'orcid': 'value2'}, inplace=True)
+                             'ORCID': 'value2'}, inplace=True)
     new_software_columns = {'name1': 'DOI',
                             'category1': rcg.ROTYPE_SOFTWARE,
                             'source_event1': HARVEST_SOURCE,
@@ -265,11 +281,11 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # is working for two different organizations. In this case, the json harvest will have a field:
     # "affiliation": "Radboud University Nijmegen, Utrecht University".
     # I expect this to change in RSD the near future.
-    organizations = parsed_content[['orcid', 'affiliation']].copy(deep=True)
+    organizations = parsed_content[['ORCID', 'ORGANIZATION_NAME']].copy(deep=True)
     organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'orcid': 'value1',
-                                  'affiliation': 'value2'}, inplace=True)
+    organizations.rename(columns={'ORCID': 'value1',
+                                  'ORGANIZATION_NAME': 'value2'}, inplace=True)
     new_organizations_columns = {'name1': 'ORCID',
                                  'category1': 'person',
                                  'name2': 'ORGANIZATION_NAME',

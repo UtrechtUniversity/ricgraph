@@ -100,6 +100,7 @@ In the default configuration of Ricgraph, the following properties are included:
 
 import os
 import sys
+import re
 from datetime import datetime
 import numpy
 import pandas
@@ -913,6 +914,189 @@ def create_well_known_url(name: str, value: str) -> str:
         return 'https://www.twitter.com/' + value
     else:
         return ''
+
+
+# DIGITAL_AUTHOR_ID, DOI, EMAIL, EMPLOYEE_ID, EXPERTISE_AREA, FULL_NAME, GITHUB, ISNI,
+# LINKEDIN, OPENALEX, ORCID, ORGANIZATION_NAME, person-root, PHOTO_ID, PURE_UUID_PERS,
+# RESEARCH_AREA, RESEARCHER_ID, ROR, SCOPUS_AUTHOR_ID, SKILL, TWITTER, UUSTAFF_ID_PERS, UUSTAFF_PAGE_ID
+# '|' in regex is "or"
+# 'flags=re.IGNORECASE' not necessary, everything is lowercase already
+def normalize_doi(identifier: str) -> str:
+    """Normalize DOI.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = re.sub(pattern=r'://', repl='', string=identifier)
+    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
+    identifier = re.sub(pattern=r'doi.org/', repl='', string=identifier)
+    identifier = re.sub(pattern=r'doi', repl='', string=identifier)
+    identifier = re.sub(pattern=r'.proxy.uu.nl/', repl='', string=identifier)
+    return identifier
+
+
+def normalize_ror(identifier: str) -> str:
+    """Normalize ROR.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = re.sub(pattern=r'://', repl='', string=identifier)
+    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
+    identifier = re.sub(pattern=r'ror.org/', repl='', string=identifier)
+    return identifier
+
+
+def normalize_orcid(identifier: str) -> str:
+    """Normalize ORCID.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = re.sub(pattern=r'://', repl='', string=identifier)
+    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
+    identifier = re.sub(pattern=r'orcid.org/', repl='', string=identifier)
+    identifier = identifier.upper()
+    return identifier
+
+
+def normalize_isni(identifier: str) -> str:
+    """Normalize ISNI.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = re.sub(pattern=r'://', repl='', string=identifier)
+    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
+    identifier = re.sub(pattern=r'isni.org/isni/', repl='', string=identifier)
+    identifier = identifier.upper()
+    return identifier
+
+
+def normalize_openalex(identifier: str) -> str:
+    """Normalize OpenAlex identifier.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = re.sub(pattern=r'://', repl='', string=identifier)
+    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
+    identifier = re.sub(pattern=r'openalex.org/', repl='', string=identifier)
+    identifier = identifier.upper()
+    return identifier
+
+
+def normalize_scopus_author_id(identifier: str) -> str:
+    """Normalize SCOPUS_AUTHOR_ID. Return a uniform value.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = re.sub(pattern=r'://', repl='', string=identifier)
+    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
+    identifier = re.sub(pattern=r'scopus.com/authid/detail.uri', repl='', string=identifier)
+    identifier = re.sub(pattern=r'\?authorid\=', repl='', string=identifier)
+    return identifier
+
+
+def normalize_researcher_id(identifier: str) -> str:
+    """Normalize RESEARCHER_ID.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = re.sub(pattern=r'://', repl='', string=identifier)
+    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
+    identifier = re.sub(pattern=r'researcherid.com/rid/', repl='', string=identifier)
+    identifier = identifier.upper()
+    return identifier
+
+
+def normalize_digital_author_id(identifier: str) -> str:
+    """Normalize DIGITAL_AUTHOR_ID.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    identifier = re.sub(pattern=r'urn:nbn:nl:ui:', repl='', string=identifier)
+    identifier = re.sub(pattern=r'info:eu-repo/dai/nl/', repl='', string=identifier)
+    identifier = identifier.upper()
+    return identifier
+
+
+def normalize_email(identifier: str) -> str:
+    """Normalize email address.
+
+    :param identifier: identifier to normalize.
+    :return: Result of normalizing.
+    """
+    if identifier == '':
+        return ''
+    identifier = identifier.lower()
+    return identifier
+
+
+def normalize_identifiers(df: pandas.DataFrame) -> pandas.DataFrame:
+    """Normalize selected identifiers in the dataframe.
+    Delete empty rows and duplicates.
+
+    :param df: dataframe with identifiers.
+    :return: Result of normalizing.
+    """
+    df_mod = df.copy(deep=True)
+
+    # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
+    df_mod.replace('', numpy.nan, inplace=True)
+    # dropna(how='all'): drop row if all row values contain NaN
+    df_mod.dropna(axis=0, how='all', inplace=True)
+    df_mod.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+
+    # The values in this list correspond to the normalize functions above,
+    # such as normalize_doi(), normalize_ror(), etc.
+    for identifier in ['DOI', 'ROR', 'ORCID', 'ISNI', 'OPENALEX',
+                       'SCOPUS_AUTHOR_ID', 'RESEARCHER_ID', 'DIGITAL_AUTHOR_ID',
+                       'EMAIL']:
+        function_name = f'normalize_{identifier.lower()}'
+        if not callable(globals().get(function_name)):
+            print('normalize_identifiers(): Error, function "' + function_name + '"')
+            print('  does not exist, exiting.')
+            exit(1)
+
+        if identifier in df_mod.columns:
+            df_mod[identifier] = df_mod[identifier].apply(
+                lambda x: globals()[function_name](x) if isinstance(x, str) else x)
+    return df_mod
 
 
 def create_history_line(property_name: str, old_value: str, new_value: str) -> str:
@@ -2932,3 +3116,8 @@ GRAPHDB_URL = '{scheme}://{hostname}:{port}'.format(scheme=GRAPHDB_SCHEME,
 # Make sure DataFrames are printed with all columns on full width
 pandas.set_option('display.max_columns', None)
 pandas.set_option('display.width', 500)
+# To prevent warning
+# "FutureWarning: Downcasting behavior in `replace` is deprecated and will be removed
+# in a future version. To retain the old behavior, explicitly call `result.infer_objects(copy=False)`.
+# To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`"
+pandas.set_option('future.no_silent_downcasting', True)

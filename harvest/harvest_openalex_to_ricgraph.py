@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023 Rik D.T. Janssen
+# Copyright (c) 2023-2025 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, March 2023.
-# Updated Rik D.T. Janssen, April, October, November 2023, October 2024.
+# Updated Rik D.T. Janssen, April, October, November 2023, October 2024, February 2025.
 #
 # ########################################################################
 #
@@ -59,7 +59,6 @@
 
 
 import sys
-import re
 import pandas
 from typing import Union
 import pathlib
@@ -144,23 +143,6 @@ def create_openalex_url(name: str, value: str) -> str:
         return ''
 
 
-def rewrite_openalex_doi(doi: str) -> str:
-    """Rewrite the DOI obtained from OpenAlex.
-
-    :param doi: DOI to rewrite.
-    :return: Result of rewriting.
-    """
-    doi = doi.lower()
-    # '|' in regex is "or"
-    # 'flags=re.IGNORECASE' not necessary, everything is lowercase already
-    doi = re.sub(pattern=r'https|http', repl='', string=doi)
-    doi = re.sub(pattern=r'doi.org', repl='', string=doi)
-    doi = re.sub(pattern=r'doi', repl='', string=doi)
-    # Remove any /, : or space at the beginning
-    doi = re.sub(pattern=r'^[/: ]*', repl='', string=doi)
-    return doi
-
-
 # ######################################################
 # Parsing
 # ######################################################
@@ -235,7 +217,7 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                 parse_line = {'OPENALEX': openalex_id,
                               'ROR': str(path.name)}
                 if 'display_name' in institution and institution['display_name'] is not None:
-                    parse_line['INSTITUTION_NAME'] = str(institution['display_name'])
+                    parse_line['ORGANIZATION_NAME'] = str(institution['display_name'])
                 parse_chunk.append(parse_line)
 
             if 'doi' not in harvest_item:
@@ -248,17 +230,17 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                 continue
 
             parse_line = {'OPENALEX': openalex_id,
-                          'DOI': str(rewrite_openalex_doi(doi=harvest_item['doi'])),
+                          'DOI': rcg.normalize_doi(identifier=str(harvest_item['doi'])),
                           'TITLE': str(harvest_item['title'])}
             if 'publication_year' in harvest_item:
                 parse_line['YEAR'] = str(harvest_item['publication_year'])
             else:
                 parse_line['YEAR'] = ''
             if harvest_item['type'] is None:
-                parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type='',
+                parse_line['DOI_TYPE'] = str(rcg.lookup_resout_type(research_output_type='',
                                                                 research_output_mapping=ROTYPE_MAPPING_OPENALEX))
             else:
-                parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type=harvest_item['type'],
+                parse_line['DOI_TYPE'] = str(rcg.lookup_resout_type(research_output_type=harvest_item['type'],
                                                                 research_output_mapping=ROTYPE_MAPPING_OPENALEX))
             parse_chunk.append(parse_line)
 
@@ -266,10 +248,7 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    parse_result.dropna(axis=0, how='all', inplace=True)
-    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    return parse_result
+    return rcg.normalize_identifiers(df=parse_result)
 
 
 # ######################################################
@@ -341,13 +320,13 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                    history_event=history_event)
 
     # Connect organizations to persons.
-    organizations = parsed_content[['OPENALEX', 'INSTITUTION_NAME']].copy(deep=True)
+    organizations = parsed_content[['OPENALEX', 'ORGANIZATION_NAME']].copy(deep=True)
     organizations['url_main1'] = organizations[['OPENALEX']].apply(
                                  lambda row: create_openalex_url(name='AUTHOR',
                                                                  value=row['OPENALEX']), axis=1)
     organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'OPENALEX': 'value1', 'INSTITUTION_NAME': 'value2'}, inplace=True)
+    organizations.rename(columns={'OPENALEX': 'value1', 'ORGANIZATION_NAME': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'OPENALEX',
                                 'category1': 'person',
                                 'name2': 'ORGANIZATION_NAME',
@@ -366,10 +345,10 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
 
     # Connect organization name to organization ROR.
-    organizations = parsed_content[['ROR', 'INSTITUTION_NAME']].copy(deep=True)
+    organizations = parsed_content[['ROR', 'ORGANIZATION_NAME']].copy(deep=True)
     organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'ROR': 'value1', 'INSTITUTION_NAME': 'value2'}, inplace=True)
+    organizations.rename(columns={'ROR': 'value1', 'ORGANIZATION_NAME': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'ROR',
                                 'category1': 'organization',
                                 'source_event1': HARVEST_SOURCE,
@@ -401,10 +380,10 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
           + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' research outputs at ' + timestamp + '.'
 
-    resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+    resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'DOI_TYPE']].copy(deep=True)
     resout.dropna(axis=0, how='any', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    resout.rename(columns={'TYPE': 'category1',
+    resout.rename(columns={'DOI_TYPE': 'category1',
                            'DOI': 'value1',
                            'TITLE': 'comment1',
                            'YEAR': 'year1',

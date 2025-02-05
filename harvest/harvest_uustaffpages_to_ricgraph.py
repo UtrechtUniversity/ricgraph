@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023 Rik D.T. Janssen
+# Copyright (c) 2023-2025 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
 # Original version Rik D.T. Janssen, March 2023.
-# Updated Rik D.T. Janssen, April, November 2023.
+# Updated Rik D.T. Janssen, April, November 2023, February 2025.
 #
 # ########################################################################
 #
@@ -238,10 +238,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    parse_result.dropna(axis=0, how='all', inplace=True)
-    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    return parse_result
+    return rcg.normalize_identifiers(df=parse_result)
 
 
 # ######################################################
@@ -599,9 +596,7 @@ def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    parse_result.dropna(axis=0, how='all', inplace=True)
-    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    return parse_result
+    return rcg.normalize_identifiers(df=parse_result)
 
 
 def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> None:

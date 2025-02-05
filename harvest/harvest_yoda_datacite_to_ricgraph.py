@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023, 2025 Rik D.T. Janssen
+# Copyright (c) 2022-2025 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -61,8 +61,6 @@
 
 
 import sys
-import re
-
 import pandas
 import xmltodict
 from sickle import Sickle
@@ -90,64 +88,89 @@ ROTYPE_MAPPING_YODA = {
 # ######################################################
 # Utility functions related to harvesting of Yoda
 # ######################################################
-def rewrite_yoda_scopusid(scopusid: str) -> str:
-    """Rewrite the Scopus ID obtained from Yoda.
-    They are written in various different ways, so they need to be rewritten.
-
-    :param scopusid: Scopus ID to rewrite.
-    :return: Result of rewriting.
-    """
-    if scopusid == '':
-        return ''
-    if scopusid.startswith('https'):
-        print('yes')
-    scopusid = re.sub(pattern=r'https://www.scopus.com/authid/detail.uri',
-                      repl='',
-                      string=scopusid,
-                      flags=re.IGNORECASE)
-    scopusid = re.sub(pattern=r'\?authorid\=',
-                      repl='',
-                      string=scopusid,
-                      flags=re.IGNORECASE)
-    return scopusid
-
-
-def rewrite_yoda_researcherid(researcherid: str) -> str:
-    """Rewrite the Researcher ID obtained from Yoda.
-    They are written in various different ways, so they need to be rewritten.
-
-    :param researcherid: Researcher ID to rewrite.
-    :return: Result of rewriting.
-    """
-    if researcherid == '':
-        return ''
-    researcherid = re.sub(pattern=r'https://www.researcherid.com/rid/',
-                          repl='',
-                          string=researcherid)
-    return researcherid
-
-
-def rewrite_yoda_isni(isni: str) -> str:
-    """Rewrite the ISNI obtained from Yoda.
-    They are written in various different ways, so they need to be rewritten.
-
-    :param isni: ISNI to rewrite.
-    :return: Result of rewriting.
-    """
-    if isni == '':
-        return ''
-    isni = re.sub(pattern=r'[ ]*',
-                  repl='',
-                  string=isni)
-    isni = re.sub(pattern=r'https://isni.org/isni/',
-                  repl='',
-                  string=isni)
-    return isni
-
 
 # ######################################################
 # Parsing
 # ######################################################
+
+def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
+    """Restructure the parsed data from the source system.
+    This means: convert all field names found in the source system
+    to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI'),
+    and make sure that every column that is expected further down
+    this code is present (i.e. insert an empty column if needed).
+    No processing of data in columns is done.
+
+    :param df: dataframe with identifiers.
+    :return: Result of action described above.
+    """
+    df_mod = df.copy(deep=True)
+
+    # We assume these fiels are present.
+    df_mod.rename(columns={'contributorName': 'FULL_NAME',
+                           'affiliation': 'ORGANIZATION_NAME',
+                           'resourceType': 'DOI_TYPE',
+                           }, inplace=True)
+
+    # But for these, we do not know for sure.
+    if 'ORCID' not in df_mod.columns:
+        df_mod['ORCID'] = ''
+
+    if 'ISNI' not in df_mod.columns:
+        df_mod['ISNI'] = ''
+
+    if 'Author identifier (Scopus)' in df_mod.columns:
+        df_mod.rename(columns={'Author identifier (Scopus)': 'SCOPUS_AUTHOR_ID'}, inplace=True)
+    else:
+        df_mod['SCOPUS_AUTHOR_ID'] = ''
+
+    if 'ResearcherID (Web of Science)' in df_mod.columns:
+        df_mod.rename(columns={'ResearcherID (Web of Science)': 'RESEARCHER_ID'}, inplace=True)
+    else:
+        df_mod['RESEARCHER_ID'] = ''
+
+    if 'DAI' in df_mod.columns:
+        df_mod.rename(columns={'DAI': 'DIGITAL_AUTHOR_ID'}, inplace=True)
+    else:
+        df_mod['DIGITAL_AUTHOR_ID'] = ''
+
+    df_mod = df_mod[['DOI', 'DOI_TYPE', 'FULL_NAME',
+                     'DIGITAL_AUTHOR_ID',
+                     'ORCID', 'SCOPUS_AUTHOR_ID',
+                     'ISNI', 'RESEARCHER_ID',
+                     'titles', 'publicationYear',
+                     'ORGANIZATION_NAME'
+                     ]].copy(deep=True)
+    return df_mod
+
+
+def process_parsed_data(df: pandas.DataFrame) -> pandas.DataFrame:
+    """Process the parsed data from the source system.
+    This means: do any type of processing on values in 'df'.
+    This function is only to change all values in a
+    column, not for one value in a column.
+
+    :param df: dataframe with identifiers.
+    :return: Result of action described above.
+    """
+    df_mod = df.copy(deep=True)
+
+    # In column "affiliation", sometimes there is a string (when someone has one affiliation),
+    # and sometimes a list of strings (when someone has more than one affiliation).
+    # First, convert any string values in that column to single-element lists.
+    # This ensures that all values in the column are list-like.
+    df_mod['ORGANIZATION_NAME'] = df_mod['ORGANIZATION_NAME'].apply(lambda x: [x] if isinstance(x, str) else x)
+    # Then, use the explode() function on the that column.
+    # This will create a new row for each element in the lists, while keeping the other column values the same.
+    # Finally, a reset_index(drop=True) is used to create a new unique index for all rows.
+    df_mod = df_mod.explode('ORGANIZATION_NAME').reset_index(drop=True)
+
+    df_mod['DOI_TYPE'] = df_mod[['DOI_TYPE']].apply(
+        lambda row: rcg.lookup_resout_type(research_output_type=row['DOI_TYPE'],
+                                           research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
+
+    return df_mod
+
 
 def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
     """The purpose of this function is, given a 'full_record', to
@@ -336,61 +359,9 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
                     rowdict.append(newdict)
 
     datacite_data = pandas.DataFrame(rowdict)
-
-    # In column "affiliation", sometimes there is a string (when someone has one affiliation),
-    # and sometimes a list of strings (when someone has more than one affiliation).
-    # First, convert any string values in that column to single-element lists.
-    # This ensures that all values in the column are list-like.
-    datacite_data['affiliation'] = datacite_data['affiliation'].apply(lambda x: [x] if isinstance(x, str) else x)
-    # Then, use the explode() function on the that column.
-    # This will create a new row for each element in the lists, while keeping the other column values the same.
-    # Finally, a reset_index(drop=True) is used to create a new unique index for all rows.
-    datacite_data = datacite_data.explode('affiliation').reset_index(drop=True)
-
-    datacite_data['DOI_TYPE'] = datacite_data[['resourceType']].apply(
-        lambda row: rcg.lookup_resout_type(research_output_type=row['resourceType'],
-                                           research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
-    datacite_data['DOI'] = datacite_data['DOI'].str.lower()
-
-    # If a field is not present, add it as an empty column, for easier processing below.
-    if 'DAI' not in datacite_data.columns:
-        datacite_data['DAI'] = ''
-    if 'ORCID' not in datacite_data.columns:
-        datacite_data['ORCID'] = ''
-    if 'ISNI' not in datacite_data.columns:
-        datacite_data['ISNI'] = ''
-    if 'Author identifier (Scopus)' not in datacite_data.columns:
-        datacite_data['Author identifier (Scopus)'] = ''
-    if 'ResearcherID (Web of Science)' not in datacite_data.columns:
-        datacite_data['ResearcherID (Web of Science)'] = ''
-
-    datacite_data['Author identifier (Scopus)'] = datacite_data['Author identifier (Scopus)'].apply(
-        lambda x: rewrite_yoda_scopusid(x) if isinstance(x, str) else x)
-    datacite_data['ResearcherID (Web of Science)'] = datacite_data['ResearcherID (Web of Science)'].apply(
-        lambda x: rewrite_yoda_researcherid(x) if isinstance(x, str) else x)
-    datacite_data['ISNI'] = datacite_data['ISNI'].apply(
-        lambda x: rewrite_yoda_isni(x) if isinstance(x, str) else x)
-
-    # The next two statements will result in an 'behaviour will change in pandas 3.0' warning.
-    # datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='', inplace=True)
-    # datacite_data['ISNI'].replace(regex=r'[ ]*', value='', inplace=True)
-    datacite_data['ORCID'] = datacite_data['ORCID'].replace(regex=r'[a-z/:_. ]*', value='')
-
-    yoda_data = datacite_data[['DOI', 'contributorName', 'DAI',
-                               'ORCID', 'Author identifier (Scopus)',
-                               'ISNI', 'ResearcherID (Web of Science)',
-                               'titles', 'DOI_TYPE', 'publicationYear',
-                               'affiliation'
-                               ]].copy(deep=True)
-    yoda_data.rename(columns={'DAI': 'DIGITAL_AUTHOR_ID',
-                              'Author identifier (Scopus)': 'SCOPUS_AUTHOR_ID',
-                              'ResearcherID (Web of Science)': 'RESEARCHER_ID',
-                              'contributorName': 'FULL_NAME',
-                              'titles': 'TITLE',
-                              'affiliation': 'ORGANIZATION_NAME'
-                              }, inplace=True)
-
-    return yoda_data
+    datacite_data = restructure_parse(df=datacite_data)
+    datacite_data = process_parsed_data(df=datacite_data)
+    return rcg.normalize_identifiers(df=datacite_data)
 
 
 # ######################################################
@@ -510,7 +481,7 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     rcg.create_nodepairs_and_edges_params(name1='DOI',
                                           category1=parsed_content['DOI_TYPE'],
                                           value1=parsed_content['DOI'],
-                                          comment1=parsed_content['TITLE'],
+                                          comment1=parsed_content['titles'],
                                           year1=parsed_content['publicationYear'],
                                           source_event1=HARVEST_SOURCE,
                                           history_event1=history_event,
