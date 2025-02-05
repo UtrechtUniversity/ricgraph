@@ -916,11 +916,6 @@ def create_well_known_url(name: str, value: str) -> str:
         return ''
 
 
-# DIGITAL_AUTHOR_ID, DOI, EMAIL, EMPLOYEE_ID, EXPERTISE_AREA, FULL_NAME, GITHUB, ISNI,
-# LINKEDIN, OPENALEX, ORCID, ORGANIZATION_NAME, person-root, PHOTO_ID, PURE_UUID_PERS,
-# RESEARCH_AREA, RESEARCHER_ID, ROR, SCOPUS_AUTHOR_ID, SKILL, TWITTER, UUSTAFF_ID_PERS, UUSTAFF_PAGE_ID
-# '|' in regex is "or"
-# 'flags=re.IGNORECASE' not necessary, everything is lowercase already
 def normalize_doi(identifier: str) -> str:
     """Normalize DOI.
 
