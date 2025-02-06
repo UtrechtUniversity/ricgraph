@@ -179,7 +179,7 @@ PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
 global PURE_RESOUT_YEARS
 # The Pure READ API allows to specify years to harvest.
 # PURE_READ_RESOUT_YEARS = ['2021']
-PURE_READ_RESOUT_YEARS = ['2021', '2022', '2023', '2024']
+PURE_READ_RESOUT_YEARS = ['2022', '2023', '2024', '2025']
 # The Pure CRUD API does not allow this. This might cause memory problems.
 # You might want to set PURE_RESOUT_MAX_RECS_TO_HARVEST.
 PURE_CRUD_RESOUT_YEARS = ['all']
