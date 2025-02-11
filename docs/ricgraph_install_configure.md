@@ -20,11 +20,8 @@ Windows](#ricgraph-on-windows).
 
 On this page you can find:
 * [Ricgraph Makefile](#ricgraph-makefile)
-* [Installation instructions for a single user](#installation-instructions-for-a-single-user)
 * [Requirements](#requirements)
 * [Steps to take](#steps-to-take)
-* [Install Neo4j Desktop](#install-neo4j-desktop)
-* [Install Bloom configuration](#install-bloom-configuration)
 * [Download Ricgraph](#download-ricgraph)
 * [Use a Python virtual environment and install Python requirements](#use-a-python-virtual-environment-and-install-python-requirements)
 * [Ricgraph initialization file](#ricgraph-initialization-file)
@@ -77,31 +74,6 @@ have to do some post-install steps, e.g. because you have to choose a password f
 graph database. 
 
 
-## Installation instructions for a single user
-
-Ricgraph can use two [graph database 
-backends](https://en.wikipedia.org/wiki/Graph_database):
-[Neo4j](https://neo4j.com) and [Memgraph](https://memgraph.com). 
-
-### Neo4j 
-Neo4j has several products:
-
-* [Neo4j Desktop](https://neo4j.com/download-center/#desktop);
-* [Neo4j Bloom graph visualization tool](https://neo4j.com/product/bloom),
-  included with Neo4j Desktop
-  (according to Neo4j:
-  "A beautiful and expressive data visualization tool to quickly explore and freely interact with
-  Neo4j’s graph data platform with no coding required");
-* [Neo4j Community Edition](https://neo4j.com/download-center/#community), allows
-  to explore the graph using
-  [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
-
-### Memgraph
-[Memgraph](https://memgraph.com) is an in memory graph database
-and therefore faster than Neo4j. However,
-it has not been tested extensively with Ricgraph yet.
-Read [Install and start Memgraph](ricgraph_as_server.md#install-and-start-memgraph).
-
 ## Requirements
 The easiest method for using Ricgraph is by using a Linux virtual machine (VM) such as
 you can create using 
@@ -124,11 +96,13 @@ E.g., if you have Ubuntu 20.04, you can install Python 3.11 as follows:
 ## Steps to take
 
 1. Install your graph database backend (choose one of these):
-   * [Install Neo4j Desktop](#install-neo4j-desktop) (recommended, since it includes Bloom).
-     Optional: [Install the Bloom configuration](#install-bloom-configuration).
-   * [Install and start Neo4j Community 
-     Edition](ricgraph_as_server.md#install-and-start-neo4j-community-edition).
-   * [Install and start Memgraph](ricgraph_as_server.md#install-and-start-memgraph).
+    * [Install and start Neo4j Community
+      Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
+   * [Install Neo4j Desktop](ricgraph_backend_neo4j.md#install-neo4j-desktop)
+     (recommended, since it includes Bloom).
+     Optional: [Install the Bloom 
+     configuration](ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional).
+   * [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
 1. [Download Ricgraph](#download-ricgraph).
 1. [Use a Python virtual environment and install Python 
    requirements](#use-a-python-virtual-environment-and-install-python-requirements).
@@ -145,93 +119,6 @@ Other things you might want to do, if you use Neo4j:
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
   Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
 
-## Install Neo4j Desktop
-
-To install, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
-command `make install_neo4j_desktop`, or follow the steps below.
-
-1. Install Neo4j Desktop Edition (it is free). 
-   To do this, go to the 
-   [Neo4j Deployment Center](https://neo4j.com/deployment-center). 
-   Go to section "Neo4j Desktop". Choose the latest version of Neo4j Desktop.
-   Download the Linux version. It is an [AppImage](https://en.wikipedia.org/wiki/AppImage),
-   so it can be installed and used without root permissions. You will be asked to fill in a form before
-   you can download. In the following screen you will be given a "Neo4j Desktop Activation Key". Save it.
-1. The downloaded file is called something
-   like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
-   Make it executable using "chmod 755 \[filename\]". 
-
-### Post-install steps Neo4j Desktop
-1. Start Neo4j Desktop by clicking on the downloaded file. 
-1. Accept the license. 
-1. Enter your activation key in the right part of the screen.
-   Click "Activate".
-   If you do not have a key, fill in the left part of the screen.
-   Click "Register with Email".
-   Wait awhile.
-1. Choose whether you would like to participate in anonymous reporting.
-1. You may be offered updates for Neo4j Desktop components, please update.
-1. Move your mouse to "Example Project" in the left column.
-   A red trash can icon appears. Click it to remove the Example
-   Project database "Movie DBMS". Confirm. Then wait awhile.
-1. The text "No projects found" will appear. Create a project by clicking the button "+ New Project".
-1. The text "Project" appears with the text "Add a DBMS to get started". Click on the "+ Add" button
-   next to it and select "Local DBMS". Leave the name as it is ("Graph DBMS") and fill in a password. 
-   Click "Create".
-1. [This step is not necessary if you use the [Ricgraph Makefile](#ricgraph-makefile).]
-   Insert the password in field *graphdb_password* in
-   the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
-1. Exit Neo4j Desktop using the "File" menu and select "Quit". If your database was active
-   a message similar to "Your DBMS [name] is running, are you sure you want to quit" appears,
-   choose "Stop DBMS, then quit".
-1. Ready.
-
-Now we need to find the port number which Neo4j Desktop is using:
-
-1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop). Start the Graph DBMS.
-1. Click on the words "Graph DBMS". At the right (or below, 
-   depending on the width of the Neo4j Desktop window) a new screen appears.
-   Look at the tab "Details". Note the port number next to "Bolt port" (the default
-   value is 7687).
-   Insert this port number in field *graphdb_port* in
-   the [Ricgraph initialization file](#Ricgraph-initialization-file), see below.
-1. Ready.
-
-## Install Bloom configuration
-
-This is only necessary if you plan to use Bloom. If you don't know, skip this step for now,
-you can come back to it later.
-
-1. [Start Neo4j Desktop](ricgraph_query_visualize.md#start-neo4j-desktop).
-1. Click on the icon <img src="images/neo4j1.jpg" height="20">
-   on the left side of Neo4j Desktop.
-1. Click on "Neo4j Bloom". A new window appears.
-1. In this window, click on the icon <img src="images/neo4j2.jpg" height="20">
-   at the top left. A Bloom "Perspective" slides out
-   (Neo4j has an
-   [extensive description how to
-   use it](https://neo4j.com/docs/bloom-user-guide/current/bloom-visual-tour/perspective-drawer)).
-1. Click on "neo4j > Untitled Perspective 1".
-1. A new window appears.
-   Right of the words "Untitled Perspective 1" there are three vertical dots. Click on it.
-   Click on "Delete". The perspective "Untitled Perspective 1" is removed.
-1. In the same window, right of the word "Perspectives" click on the word "Import".
-   A file open window appears. Go to directory
-   [neo4j_config](../neo4j_config) that is part of Ricgraph and
-   select file *ricgraph_bloom_config.json*. Click "Open".
-   The perspective "ricgraph_bloom_config" is loaded.
-1. Click on the text "ricgraph_bloom_config".
-1. Note that the text "neo4j > Untitled Perspective 1"
-   has been changed in "neo4j > ricgraph_bloom_config".
-1. A few centimeters below "neo4j > ricgraph_bloom_config", just below the text "Add category",
-   click on the oval "RicgraphNode". At the right, a new window will appear.
-1. In this window, below the word "Labels", check if an oval box with the text "RicgraphNode" is
-   shown. If not, click on "Add labels", click on "RicgraphNode".
-1. Click on the icon <img src="images/neo4j2.jpg" height="20">
-   to go back to the main screen of Bloom.
-1. Click on the cog icon below <img src="images/neo4j2.jpg" height="20">, you might want
-   to set "Use classic search" to "on".
-1. Ready.
 
 ## Download Ricgraph
 
@@ -389,211 +276,8 @@ see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
 
 
 ## Dumping and restoring the Ricgraph database
-Depending on your situation (whether you use Neo4j Desktop or
-Neo4j Community Edition), this section lists the methods for
-dumping and restoring the Ricgraph database:
-* [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
-* [Create a Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
-* [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
-
-### Create a Neo4j Desktop database dump of Ricgraph
-To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
-1. Start Neo4j Desktop if it is not running, or
-   stop the graph database if it is running.
-1. Hoover over the name of your graph database (probably "Graph DBMS"),
-   and click on the three horizontal dots at the right.
-1. Select "Dump".
-1. Your graph database will be dumped. This may take a while. When it
-   is ready, a message appears.
-1. Ready.
-
-### Create a Neo4j Community Edition database dump of Ricgraph
-To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
-command `make dump_graphdb_neo4j_community`, or follow the steps below.
-
-To create a Neo4j Community Edition database dump of Ricgraph, follow these steps:
-1. Login as user *root*.
-1. Stop Neo4j Community Edition:
-   ```
-   systemctl stop neo4j.service
-   ```
-1. To be able to restore a Neo4j database dump you need to set several permissions
-   on */etc/neo4j*:
-   ```
-   chmod 640 /etc/neo4j/*
-   chmod 750 /etc/neo4j
-   ```
-1. Do the database dump:
-   ```
-   neo4j-admin database dump --expand-commands system --to-path=[path to database dump directory]
-   neo4j-admin database dump --expand-commands neo4j --to-path=[path to database dump directory]
-   ```
-1. Start Neo4j Community Edition:
-   ```
-   systemctl start neo4j.service
-   ```
-1. Check the log for any errors, use one of:
-   ```
-   systemctl -l status neo4j.service
-   journalctl -u neo4j.service
-   ```
-1. Exit from user *root*.
- 
-
-### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop
-To restore a 
-[Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph) 
-in Neo4j Desktop, follow these steps:
-1. Start Neo4j Desktop if it is not running, or 
-   stop the graph database if it is running.
-1. Click on the button "Add" on the right side of "Project" and select "File".
-1. Select the file "neo4j.dump" from a previous Neo4j Desktop database dump.
-   This file will be added to the "File" section a little down the "Project" window.
-1. Hoover over this file and click on the three horizontal dots at the right.
-1. Select "Create new DBMS from dump".
-1. Give it a name, e.g. "Graph DBMS from import file".
-1. When asked, enter the password you have specified in 
-   the [Ricgraph initialization file](#ricgraph-initialization-file)
-   (this saves you from entering a new password in that file).
-1. A new local graph database is being created. This may take a while.
-1. Hoover over the newly created graph database and click "Start" to run it.
-1. Once it is active, [install the Bloom configuration](#install-bloom-configuration).
-1. Now you are ready to explore the data 
-   using [Bloom](ricgraph_query_visualize.md#how-to-use-bloom)
-   or [Ricgraph Explorer](ricgraph_explorer.md).
-
-### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
-To restore a
-[Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
-in Neo4j Community Edition, follow these steps:
-1. Login as user *root*.
-1. Stop Neo4j Community Edition:
-   ```
-   systemctl stop neo4j.service
-   ```
-1. To be able to restore a Neo4j database dump you need to set several permissions
-   on */etc/neo4j*:
-   ```
-   chmod 640 /etc/neo4j/*
-   chmod 750 /etc/neo4j
-   ```
-1. Save the old database:
-   ```
-   cd /var/lib/neo4j
-   mv data/ data-old
-   ```
-1. Go back to your working directory and restore the database dump:
-   ```
-   cd
-   neo4j-admin database load --expand-commands neo4j --from-path=[path to database dump directory] --overwrite-destination=true
-   ```
-   For *path to database dump directory*, specify the path, not the path and the name of the
-   database dump file (this name is *neo4j.dump*, it will be inferred automatically
-   by the *neo4j-admin* command).
-1. Set the correct permissions on */var/lib/neo4j/data*:
-   ```
-   cd /var/lib/neo4j
-   chown -R neo4j:neo4j data
-   ```
-1. Start Neo4j Community Edition:
-   ```
-   systemctl start neo4j.service
-   ```
-1. Check the log for any errors, use one of:
-   ```
-   systemctl -l status neo4j.service
-   journalctl -u neo4j.service
-   ```
-1. In your web browser, go to 
-   [http://localhost:7474/browser](http://localhost:7474/browser).
-1. Neo4j will ask you to login, use username *neo4j* and password *neo4j*.
-1. Neo4j will ask you to change your password, 
-   for the new password, enter the password you have specified in
-   the [Ricgraph initialization file](#ricgraph-initialization-file)
-   (this saves you from entering a new password in that file).
-1. Restart Ricgraph Explorer if you use 
-   [Ricgraph in a multi-user environment](ricgraph_as_server.md):
-   ```
-   systemctl restart ricgraph_explorer_gunicorn.service
-   ```
-1. Check the log for any errors, use one of:
-   ```
-   systemctl -l status ricgraph_explorer_gunicorn.service
-   journalctl -u ricgraph_explorer_gunicorn.service
-   ```
-1. Done. If all works well you might want to remove your old database:
-   ```
-   cd /var/lib/neo4j
-   rm -r data-old
-   ```
-1. Exit from user *root*.
-
-
-### Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition
-To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
-command `make restore_graphdb_neo4j_community`, or follow the steps below.
-
-To restore a
-[Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
-in Neo4j Community Edition, follow these steps:
-1. Login as user *root*.
-1. Stop Neo4j Community Edition:
-   ```
-   systemctl stop neo4j.service
-   ```
-1. To be able to restore a Neo4j database dump you need to set several permissions
-   on */etc/neo4j*:
-   ```
-   chmod 640 /etc/neo4j/*
-   chmod 750 /etc/neo4j
-   ```
-1. Save the old database:
-   ```
-   cd /var/lib
-   mv neo4j/ neo4j-old
-   mkdir /var/lib/neo4j
-   ```
-1. Go back to your working directory and restore the database dump:
-   ```
-   cd
-   neo4j-admin database load --expand-commands system --from-path=[path to database dump directory] --overwrite-destination=true
-   neo4j-admin database load --expand-commands neo4j --from-path=[path to database dump directory] --overwrite-destination=true
-   ```
-   For *path to database dump directory*, specify the path, not the path and the name of the
-   database dump file, it will be inferred automatically
-   by the *neo4j-admin* command.
-1. Set the correct permissions on */var/lib/neo4j/data*:
-   ```
-   cd /var/lib
-   chown -R neo4j:neo4j neo4j
-   ```
-1. Start Neo4j Community Edition:
-   ```
-   systemctl start neo4j.service
-   ```
-1. Check the log for any errors, use one of:
-   ```
-   systemctl -l status neo4j.service
-   journalctl -u neo4j.service
-   ```
-1. Restart Ricgraph Explorer if you use
-   [Ricgraph in a multi-user environment](ricgraph_as_server.md):
-   ```
-   systemctl restart ricgraph_explorer_gunicorn.service
-   ```
-1. Check the log for any errors, use one of:
-   ```
-   systemctl -l status ricgraph_explorer_gunicorn.service
-   journalctl -u ricgraph_explorer_gunicorn.service
-   ```
-1. Done. If all works well you might want to remove your old database:
-   ```
-   cd /var/lib
-   rm -r neo4j-old
-   ```
-1. Exit from user *root*.
+If you use Neo4j, read more at [Dumping and restoring the Ricgraph
+database](ricgraph_backend_neo4j.md#dumping-and-restoring-the-ricgraph-database).
 
 
 ## Ricgraph on Windows

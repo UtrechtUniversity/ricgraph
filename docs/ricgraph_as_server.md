@@ -28,29 +28,21 @@ Windows](ricgraph_install_configure.md#ricgraph-on-windows).
 
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
-* [Check the requirements](#check-the-requirements).
-* Install a graph database backend:
-  * [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition).
-  * [Install and start Memgraph](#install-and-start-memgraph).
-* [Create a ricgraph user and group](#create-a-ricgraph-user-and-group).
+* [Check the requirements](#check-the-requirements)
+* [Install and start a graph database backend](#install-and-start-a-graph-database-backend)
+* [Create a ricgraph user and group](#create-a-ricgraph-user-and-group)
 * [Create a Python virtual environment and install Ricgraph in 
-  it](#create-a-python-virtual-environment-and-install-ricgraph-in-it).
-* [Run Ricgraph scripts from the command 
-  line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob).
-* [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST 
-  API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
-* [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph 
-  REST API accessible from outside your virtual 
-  machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
-* [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph
-  REST API accessible from outside your virtual
-  machine](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community
-  Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
+  it](#create-a-python-virtual-environment-and-install-ricgraph-in-it)
+* [Run Ricgraph scripts from the command line or as a 
+  cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
+* [Use a service unit file to run Ricgraph Explorer and the Ricgraph 
+  REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
+* [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API 
+  accessible from outside your virtual machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
+* [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API 
+  accessible from outside your virtual machine](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research 
-  Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud).
-* [How to solve an AttributeError: Neo4jDriver object has no attribute 
-  executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
+  Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
 
 [Return to main README.md file](../README.md).
 
@@ -65,119 +57,18 @@ the following steps:
 * Please check the [Requirements for Ricgraph](ricgraph_install_configure.md#requirements).
 
  
-## Install and start Neo4j Community Edition
-To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
-command `make install_enable_neo4j_community`, or follow the steps below.
+## Install and start a graph database backend
+Please go to [Install and start Neo4j Community 
+Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+This is the recommended option.
 
-* Login as user *root*.
-* Install Neo4j Community Edition (it is free). 
-  To do this, go to the 
-  [Neo4j Deployment Center](https://neo4j.com/deployment-center). 
-  Go to section "Graph Database Self-Managed", choose "Community".
-  Choose the latest version of Neo4j. Then choose your favorite package
-  format:
-  * OpenSUSE/Fedora: "Red Hat Linux Package (rpm)".
-  * Debian/Ubuntu: "Debian/Ubuntu Package (deb)".
- 
-  Download the package and install it.
-  You might get an error message about a failed dependency on *cypher-shell*,
-  or on other dependencies.
-  * OpenSUSE/Fedora: use either ``rpm -i <packagename>`` (first install)
-    or ``rpm -U <packagename>`` (update).
-  * Debian/Ubuntu: use ``apt install <packagename>`` 
-  * If you get an error message about a failed dependency on *cypher-shell*, install
-    *cypher-shell* separately as follows:
-    * Go to the
-      [Tools tab of the Neo4j Deployment Center](https://neo4j.com/deployment-center/#tools-tab). 
-      Go to section "Cypher Shell", choose the version of Cypher Shell that matches
-      the version of the Neo4j Community Edition you have downloaded above.
-      Then choose the version that fits your Linux version:
-      * OpenSUSE: "Linux cypher-shell_X.YY.0-Z.noarch.rpm".
-      * Debian/Ubuntu: "Linux cypher-shell_X.YY.0_all.deb".
-    * Click "Download" and install it. 
-    * Install again Neo4j Community Edition (see above).
-  * If you get an error message about failed other dependencies, install
-    these other packages.
-
-* You need to reset the default Neo4j password. 
-  This password is necessary in section
-  [Create a Python virtual environment and install Ricgraph in
-  it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) below.
-  Run:
-  ``` 
-  /usr/bin/neo4j-admin dbms set-initial-password [the new password]
-  ``` 
-  Note that this command only works if you have not started Neo4j yet.
-  Otherwise follow the steps in the next section
-  *Post-install steps Neo4j Community Edition*.
-
-* If the installation has finished, make sure it runs by typing:
-  ``` 
-  systemctl enable neo4j.service
-  systemctl start neo4j.service
-  ```
-  Check the log for any errors, use one of:
-  ```
-  systemctl -l status neo4j.service
-  journalctl -u neo4j.service
-  ```
-* Exit from user *root*.
- 
-* Skip the next section *Post-install steps Neo4j Community Edition* (you have
-  already reset the password above).
-
-### Post-install steps Neo4j Community Edition
-If you use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile),
-you do not need to do this. Otherwise, follow these steps:
-
-* Change the default username and password of Neo4j:
-  * In your web browser, go to
-    [http://localhost:7474/browser](http://localhost:7474/browser).
-  * Neo4j will ask you to login, use username *neo4j* and password *neo4j*.
-  * Neo4j will ask you to change your password. Change it.
-    You will need this new password in section
-    [Create a Python virtual environment and install Ricgraph in
-    it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) below.
-  
-
-## Install and start Memgraph
 As an alternative to Neo4j, you can also use
 [Memgraph](https://memgraph.com).
-Memgraph is an in memory graph database 
-and therefore (much) faster than Neo4j. 
+Memgraph is an in memory graph database
+and therefore (much) faster than Neo4j.
 However, it has not been tested extensively with Ricgraph yet.
-* Login as user *root*.
-* Make sure you have Docker. If not, install it:
-  * Debian/Ubuntu: follow [Install Docker using the apt 
-    repository](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository).
-* Install Memgraph Platform.
-  To do this, follow the instructions on 
-  the [Memgraph download page](https://memgraph.com/download) in the block 'Memgraph Platform'.
-  Memgraph will be started automatically. Stop it by typing _Control-C_.
-* To start Memgraph, go to the directory _memgraph-platform_:
-  ```
-  cd memgraph-platform
-  ```
-  and type:
-  ```
-  docker compose up
-  ```
-  If you want to stop Memgraph, type _Control-C_.
-* In the log printed on the terminal, you might get a message like:
-  ``Max virtual memory areas vm.max_map_count 65530 is too low, increase to at least 262144``.
-  To resolve this, create a file in _/etc/sysctl.d_ with the name _90-local.conf_
-  and the following content:
-  ```
-  vm.max_map_count=262144 
-  ```
-  After you have done that, type:
-  ```
-  sysctl --system
-  ```
-  and the message should be gone. Start Memgraph as above.
-* To use Memgraph Platform, go to [http://localhost:3000](http://localhost:3000).
-* How to start Memgraph automatically at system startup, is a 'to be done'.
- 
+Read more at [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
+
 
 ## Create a ricgraph user and group
 If you use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile),
@@ -611,12 +502,6 @@ and Ricgraph data to the outside world.*
   both followed by a REST API endpoint.
 
 
-## Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
-To read how this can be done, read
-[Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
-Edition](ricgraph_install_configure.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
-
-
 ## How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
 [SURF Research Cloud](https://www.surf.nl/en/services/surf-research-cloud)
 is a portal where you can easily build a virtual research environment. 
@@ -690,39 +575,3 @@ Note that in the video, we use an old version of Ubuntu. Please use
 Ubuntu 22.04 as described above.
 
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b
-
-
-## How to solve an AttributeError: Neo4jDriver object has no attribute executequery
-If, at some point while running Ricgraph scripts or Ricgraph Explorer in a
-virtual environment, you get an error message like:
-```
-Traceback (most recent call last):
-  File "ricgraph_explorer.py", line 2930, in <module>
-    initialize_ricgraph_explorer()
-  File "ricgraph_explorer.py", line 2867, in initialize_ricgraph_explorer
-    name_all = rcg.read_all_values_of_property('name')
-  File "/opt/ricgraph_venv/ricgraph/ricgraph.py", line 1140, in read_all_values_of_property
-    result = _graph.execute_query(cypher_query,
-AttributeError: 'Neo4jDriver' object has no attribute 'execute_query'
-```
-or, after typing ``pip install -r requirements.txt``, you get an error message:
-  ```
-  ERROR: Could not find a version that satisfies the requirement neo4j>=5.8
-  ```
-then this means that your version of the Python module *neo4j* is too old.
-Note that this is related to the Python module *neo4j*, not to the graph database backend
-Neo4j Desktop or Neo4j Community Edition.
-You need at least version 5.8 of the Python module *neo4j*.
-With an "old" version of Python (3.6 and earlier), an old version
-of module *neo4j* will be used. The only way to solve this is using a new version of
-Python while creating the Python virtual environment. You can do this by using the
-following command:
-* Create a Python virtual environment:
-  in */opt*, type:
-  ```
-  python3.11 -m venv ricgraph_venv
-  ```
-in section
-[Create a Python virtual environment and install Ricgraph in
-it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) above. For *python3.11* you can take any Python version that is installed
-on your computer, as long as it is at least Python 3.9.
