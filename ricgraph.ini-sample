@@ -106,13 +106,13 @@ organization_name_VU = Vrije Universiteit Amsterdam
 # Add your own 'organization abbreviation' if it is not present. You only 
 # need key and value for the organization(s) you are planning to harvest.
 # The ROR of your organization (without quotes and without 'https://ror.org/'):
-organization_ror_UU = 
-organization_ror_UMCU = 
-organization_ror_DUT = 
-organization_ror_EUR = 
-organization_ror_EUT = 
-organization_ror_UG = 
-organization_ror_VU = 
+organization_ror_UU = 04pp8hn57
+organization_ror_UMCU = 0575yy874
+organization_ror_DUT = 02e2c7k09
+organization_ror_EUR = 057w15z03
+organization_ror_EUT = 02c2kyt77
+organization_ror_UG = 012p63287
+organization_ror_VU = 008xxew50
 # ###############################################################
 
 
@@ -138,12 +138,12 @@ graphdb_password =
 
 # ### These additional parameters are for Neo4j Desktop ###
 # Neo4j desktop may tell you which port to use, default is 7687.
-graphdb_scheme = bolt
-graphdb_port = 7687
+#graphdb_scheme = bolt
+#graphdb_port = 7687
 # ### End of additional parameters for Neo4j Desktop ###
 # ### These additional parameters are for Neo4j Community Edition ###
-#graphdb_scheme = neo4j
-#graphdb_port = 7687
+graphdb_scheme = neo4j
+graphdb_port = 7687
 # ### End of additional parameters for Neo4j Community Edition ###
 # ###############################################################
 
