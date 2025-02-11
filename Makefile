@@ -269,6 +269,7 @@ help:
 	@echo "       in directory $(graphdb_backup_dir)."
 	@echo "- make restore_graphdb_neo4j_community: restore Neo4j Community graph database"
 	@echo "       from directory $(graphdb_backup_dir)."
+	@echo "- make empty_graphdb_neo4j_community: emtpy Neo4j Community graph database."
 	@echo "- make generate_graphdb_password: generate a password for the graph database."
 	@echo "       Write it to file $(graphdb_password_file)."
 	@echo "       Only do this if the file does not exist."
@@ -323,75 +324,6 @@ makefile_variables:
 	@echo ""
 
 
-check_python_minor_version:
-ifeq ($(python_cmd),[not_set])
-	@echo ""
-	@echo "Error: Python has not been installed, please install Python >= 3.$(minimal_python_minor_version) using your package manager."
-	@echo ""
-	exit 1
-endif
-	@if [ $(actual_python_minor_version) -lt $(minimal_python_minor_version) ]; then \
-		echo "Error: Wrong Python version 3.$(actual_python_minor_version) on your system,"; \
-		echo "please install Python >= 3.$(minimal_python_minor_version) using your package manager."; \
-		exit 1; \
-	fi
-
-
-check_user_root:
-	@if [ $(shell id -u) != 0 ]; then echo "Error: You need to be root. Please execute 'sudo bash' and then rerun the 'make' command you started with."; exit 1; fi
-
-
-check_user_notroot:
-	@if [ $(shell id -u) = 0 ]; then echo "Error: You need to be a regular user. Please make sure you are and then rerun the 'make' command you started with."; exit 1; fi
-
-
-check_package_install_cmd:
-ifeq ($(package_install_cmd),[not_set])
-	@echo ""
-	@echo "Error: Your package manager is unknown. Please make sure you have"
-	@echo "a package manager that can install 'rpm' or 'deb' files."
-	@echo "That is required to install Neo4j Community Edition."
-	@echo ""
-	exit 1
-endif
-
-
-check_webserver_apache:
-ifeq ($(shell test ! -f $(apache_service_file) && echo true),true)
-	@echo ""
-	@echo "Error: Apache webserver is not installed."
-	@echo "Please install it using your package manager."
-	@echo ""
-	exit 1
-endif
-
-
-check_webserver_nginx:
-ifeq ($(shell test ! -f /lib/systemd/system/nginx.service && echo true),true)
-	@echo ""
-	@echo "Error: Nginx webserver is not installed."
-	@echo "Please install it using your package manager."
-	@echo ""
-	exit 1
-endif
-
-
-# Only seems necessary for Ubuntu.
-install_python_venv: check_package_install_cmd
-ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
-	@if [ $(shell id -u) != 0 ]; then \
-		echo ""; \
-		echo "You are missing Python package 'python3-venv'. To install, please"; \
-		echo "change to user 'root' (type 'sudo bash') and execute 'make install_python_venv'."; \
-		echo "After that, exit from user 'root' and become a regular user again."; \
-		echo "Then rerun the 'make' command you started with."; \
-		echo ""; \
-		exit 1; \
-	fi
-	$(package_install_cmd) python3-venv
-endif
-
-
 # ########################################################################
 # Ricgraph targets.
 # ########################################################################
@@ -402,7 +334,8 @@ create_user_group_ricgraph: check_user_root
 	@if ! getent passwd 'ricgraph' > /dev/null 2>&1; then useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph; echo "Created user 'ricgraph'."; fi
 
 
-install_enable_neo4j_community: check_user_root check_python_minor_version check_package_install_cmd generate_graphdb_password
+# Additional target "install_python_venv" since we might need it later on, and we are root now, so let's do it.
+install_enable_neo4j_community: check_user_root check_python_minor_version check_package_install_cmd generate_graphdb_password install_python_venv
 ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo ""
 	@echo "Starting Install and enable Neo4j Community Edition. Read documentation at:"
@@ -541,14 +474,7 @@ endif
 
 
 # Documentation for dump & restore: https://neo4j.com/docs/operations-manual/current/kubernetes/operations/dump-load
-dump_graphdb_neo4j_community: check_user_root
-ifneq ($(shell which neo4j-admin > /dev/null 2>&1 && echo $$?),0)
-	@echo ""
-	@echo "Error: You need the 'neo4j-admin' command to dump a graph database."
-	@echo "You can install it by running 'make install_enable_neo4j_community'."
-	@echo ""
-	exit 1
-endif
+dump_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo ""
 	@echo "Starting Dump of graph database of Neo4j Community Edition in"
 	@echo "directory $(graphdb_backup_dir)."
@@ -572,14 +498,7 @@ endif
 	@echo ""
 
 
-restore_graphdb_neo4j_community: check_user_root
-ifneq ($(shell which neo4j-admin > /dev/null 2>&1 && echo $$?),0)
-	@echo ""
-	@echo "Error: You need the 'neo4j-admin' command to restore a graph database."
-	@echo "You can install it by running 'make install_enable_neo4j_community'."
-	@echo ""
-	exit 1
-endif
+restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo ""
 	@echo "Starting Restore of graph database of Neo4j Community Edition"
 	@echo "from directory $(graphdb_backup_dir)."
@@ -610,6 +529,29 @@ endif
 	@echo ""
 	@echo "If you get a warning that the system database may contain unwanted"
 	@echo "metadata from the DBMS it was taken from, please ignore it."
+	@echo ""
+
+
+empty_graphdb_neo4j_community: check_user_root generate_graphdb_password check_neo4jadmin_cmd
+	@echo ""
+	@echo "Starting emptying of graph database of Neo4j Community Edition."
+	@echo "Your old graph database will be removed."
+	$(call are_you_sure)
+	@echo ""
+	$(systemctl_cmd) stop neo4j.service
+	chmod 640 /etc/neo4j/*
+	chmod 750 /etc/neo4j
+	@# Save old database
+	@if [ -d /var/lib/neo4j ]; then mv /var/lib/neo4j /var/lib/neo4j-`date +%y%m%d-%H%M`; fi
+	mkdir /var/lib/neo4j
+	$(call read_graphdb_password)
+	neo4j-admin dbms set-initial-password $(graphdb_password)
+	chown -R neo4j:neo4j /var/lib/neo4j
+	$(systemctl_cmd) start neo4j.service
+	@echo ""
+	@echo "Done."
+	@echo "The graph database of Neo4j Community Edition is now emtpy."
+	@echo "The password to access it can be found in $(graphdb_password_file)."
 	@echo ""
 
 
@@ -683,6 +625,90 @@ clean:
 
 
 # ########################################################################
+# General targets.
+# ########################################################################
+check_python_minor_version:
+ifeq ($(python_cmd),[not_set])
+	@echo ""
+	@echo "Error: Python has not been installed, please install Python >= 3.$(minimal_python_minor_version) using your package manager."
+	@echo ""
+	exit 1
+endif
+	@if [ $(actual_python_minor_version) -lt $(minimal_python_minor_version) ]; then \
+		echo "Error: Wrong Python version 3.$(actual_python_minor_version) on your system,"; \
+		echo "please install Python >= 3.$(minimal_python_minor_version) using your package manager."; \
+		exit 1; \
+	fi
+
+
+check_user_root:
+	@if [ $(shell id -u) != 0 ]; then echo "Error: You need to be root. Please execute 'sudo bash' and then rerun the 'make' command you started with."; exit 1; fi
+
+
+check_user_notroot:
+	@if [ $(shell id -u) = 0 ]; then echo "Error: You need to be a regular user. Please make sure you are and then rerun the 'make' command you started with."; exit 1; fi
+
+
+check_package_install_cmd:
+ifeq ($(package_install_cmd),[not_set])
+	@echo ""
+	@echo "Error: Your package manager is unknown. Please make sure you have"
+	@echo "a package manager that can install 'rpm' or 'deb' files."
+	@echo "That is required to install Neo4j Community Edition."
+	@echo ""
+	exit 1
+endif
+
+
+check_webserver_apache:
+ifeq ($(shell test ! -f $(apache_service_file) && echo true),true)
+	@echo ""
+	@echo "Error: Apache webserver is not installed."
+	@echo "Please install it using your package manager."
+	@echo ""
+	exit 1
+endif
+
+
+check_webserver_nginx:
+ifeq ($(shell test ! -f /lib/systemd/system/nginx.service && echo true),true)
+	@echo ""
+	@echo "Error: Nginx webserver is not installed."
+	@echo "Please install it using your package manager."
+	@echo ""
+	exit 1
+endif
+
+
+# Only seems necessary for Ubuntu.
+install_python_venv: check_package_install_cmd
+ifeq ($(linux_edition),Ubuntu)
+ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
+	@if [ $(shell id -u) != 0 ]; then \
+		echo ""; \
+		echo "You are missing Python package 'python3-venv'. To install, please"; \
+		echo "change to user 'root' (type 'sudo bash') and execute 'make install_python_venv'."; \
+		echo "After that, exit from user 'root' and become a regular user again."; \
+		echo "Then rerun the 'make' command you started with."; \
+		echo ""; \
+		exit 1; \
+	fi
+	$(package_install_cmd) python3-venv
+endif
+endif
+
+
+check_neo4jadmin_cmd:
+ifneq ($(shell which neo4j-admin > /dev/null 2>&1 && echo $$?),0)
+	@echo ""
+	@echo "Error: You need the 'neo4j-admin' command to dump or restore a graph database."
+	@echo "You can install it by running 'make install_enable_neo4j_community'."
+	@echo ""
+	exit 1
+endif
+
+
+# ########################################################################
 # Ricgraph functions.
 # ########################################################################
 define read_graphdb_password
@@ -724,6 +750,8 @@ define install_ricgraph
 	fi
 	@if [ ! -d $(dir $(1)) ]; then mkdir -p $(dir $(1)); fi
 	@# Note $(4) is version. If it is 'cuttingedge', download it first.
+	@# For the change in Makefile, if we use cutting edge, we need to use the local version
+	@# of the ricgraph module in the Makefile instead of PyPIs version.
 	@if [ "$(4)" = "cuttingedge" ]; then \
 		mkdir $(tmp_dir); \
 		cd $(tmp_dir); \
@@ -732,6 +760,7 @@ define install_ricgraph
 		unzip -q $(ricgraph_cuttingedge_name); \
 		mv ricgraph-main $(ricgraph); \
 		echo "This is the cutting edge version of Ricgraph of `date +%y%m%d-%H%M`." > $(ricgraph)/0_ricgraph_cuttingedge_`date +%y%m%d-%H%M`; \
+		sed -i 's_; ../bin/python_; PYTHONPATH=../ricgraph ../bin/python_' $(ricgraph)/Makefile; \
 		tar czf $(ricgraph_tag_name) $(ricgraph); \
 		mv -f $(ricgraph_tag_name) $(dir $(1)); \
 		rm -r $(tmp_dir); \
@@ -746,12 +775,12 @@ define install_ricgraph
 	cp $(1)/ricgraph.ini-sample $(1)/ricgraph.ini
 	$(call read_graphdb_password)
 	sed -i 's/^graphdb_password =/graphdb_password = $(graphdb_password)/' $(1)/ricgraph.ini
-	@# Neo4j Desktop is the default in ricgraph.ini, for Community we need to modify.
+	@# Neo4j Community is the default in ricgraph.ini, for Desktop we need to modify.
 	@# Note $(3) is either "neo4j_desktop" or "neo4j_community_edition".
-	@if [ "$(3)" = "neo4j_community_edition" ]; then \
-		sed -i 's/^graphdb_scheme = bolt/###graphdb_scheme = bolt/' $(1)/ricgraph.ini; \
+	@if [ "$(3)" = "neo4j_desktop" ]; then \
+		sed -i 's/^graphdb_scheme = neo4j/###graphdb_scheme = neo4j/' $(1)/ricgraph.ini; \
 		sed -i 's/^graphdb_port = 7687/###graphdb_port = 7687/' $(1)/ricgraph.ini; \
-		sed -i 's/^#graphdb_scheme = neo4j/graphdb_scheme = neo4j/' $(1)/ricgraph.ini; \
+		sed -i 's/^#graphdb_scheme = bolt/graphdb_scheme = bolt/' $(1)/ricgraph.ini; \
 		sed -i 's/^#graphdb_port = 7687/graphdb_port = 7687/' $(1)/ricgraph.ini; \
 	fi
 	@if [ "$(2)" = "server" ]; then \
