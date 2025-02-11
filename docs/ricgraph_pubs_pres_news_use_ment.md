@@ -3,10 +3,12 @@
 * Read [Ricgraph publications](#ricgraph-publications).
 * Read [Ricgraph presentations](#ricgraph-presentations).
 * Read [Ricgraph newsletters](#ricgraph-newsletters).
+* Read more about [Ricgraph projects with students](#ricgraph-projects-with-students).
 * See where [Ricgraph has been used](#ricgraph-use).
 * See where [Ricgraph has been mentioned](#ricgraph-mentions).
 * Watch a video where [Arjan Sieverink presents Ricgraph at Pure International Conference 
   2023](#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023).
+
 
 Please let us know if you publish, present, use, or mention Ricgraph, then we
 can add that to this page. 
@@ -57,6 +59,14 @@ To subscribe to the newsletter email list, go to [Ricgraph Contact](../README.md
 | April 2024 | [Ricgraph newsletter April 2024. Journal article - Ricgraph: A flexible and extensible graph to explore research in context](newsletters/240400-Ricgraph_newsletter_April_2024.md) |
 | July 2024  | [Ricgraph newsletter July 2024](newsletters/240700-Ricgraph_newsletter_July_2024.md)                                                                                               |
 
+## Ricgraph projects with students
+
+If you use Ricgraph in a project with students, please let us know so that we can add it to this page.
+
+| When                 | Education Institute | Who                                                                                                                                                                                                                                                                                  | Description                                                                                                                                                                                                                                                    |
+|----------------------|---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| February - June, 2025 | University of Applied Sciences, Utrecht | Six 3rd year students | HBO-ICT Innovation project [Using AI and LLM techniques to cluster and visualize large amounts of research information](projects/241219-HU_Innovation_Project-Using_AI_and_LLM_techniques_to_cluster_and_visualize_large_amounts_of_research_information.pdf). |
+
 ## Ricgraph use
 
 If you use Ricgraph, please let us know so that we can add it to this page.
@@ -67,7 +77,7 @@ If you use Ricgraph, please let us know so that we can add it to this page.
 | June 2023            | Ricgraph has been used to test the [NWO NWOpen-API](https://www.nwo.nl/en/news/nwo-makes-data-on-projects-more-readily-available)                                              |
 | July 2023            | Ricgraph has been used to test the [Elsevier Data Monitor](https://www.elsevier.com/products/data-monitor)                                                                     |
 | July 2023            | Ricgraph has been used to test the [Elsevier Grant Award API](https://epdos.nl/pilots/grants-monitor)                                                                          |
-
+| February - June, 2025 | Ricgraph is used in an [University of Applied Sciences Utrecht innovation project](#ricgraph-projects-with-students) |
 
 ## Ricgraph mentions
 

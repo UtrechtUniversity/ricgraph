@@ -170,6 +170,7 @@ __R__
 - [Ricgraph newsletters](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
 - [Ricgraph on Windows](../docs/ricgraph_install_configure.md#ricgraph-on-windows)
 - [Ricgraph presentations](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations)
+- [Ricgraph projects with students](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-projects-with-students)
 - [Ricgraph publications](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications)
 - [Ricgraph publications, presentations, use, and mentions](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications-presentations-use-and-mentions)
 - [Ricgraph REST API](../docs/ricgraph_restapi.md#ricgraph-rest-api)
