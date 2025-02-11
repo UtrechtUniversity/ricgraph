@@ -63,9 +63,9 @@ Choose one of the following:
   * [Install GUI version Podman
     Desktop](https://podman-desktop.io/docs/installation/windows-install#installing-podman-desktop).
   
-  The following information might help you installing Podman on Windows. Note that
+  The following information might help you to install Podman on Windows. Note that
   you will need *Administrator* privileges.
-  * For both the command line version as well as the Desktop GUI version of Podman, you will need
+  * For both the command line version and the Desktop GUI version of Podman, you will need
     *Windows Subsystem for Linux (WSL) 2*. Install it as follows:
     * Open a *PowerShell (Admin)* or *Terminal (Admin)*. 
     * Type:
@@ -78,7 +78,7 @@ Choose one of the following:
   * Get Podman from the GitHub releases page https://github.com/containers/podman/releases, choose the latest
     version with file name extension .msi.
   * Install it by clicking on the downloaded file, follow the instructions.
-  * Exit your *Administator* privileges.
+  * Exit your *Administrator* privileges.
   * Open Windows *PowerShell* or *Terminal* and use the commands in the sections below.
 
   Or, for the Desktop GUI version of Podman:
@@ -92,7 +92,7 @@ Choose one of the following:
   * I got a weird error during installation, but rebooting my Windows machine resolved it.
     Try it, if you get a similar message.
   * Note that Podman Desktop GUI also installs Podman command line version.
-  * Exit your *Administator* privileges.
+  * Exit your *Administrator* privileges.
   * Open Windows *PowerShell* or *Terminal* and use the commands in the sections below.
   * Or use Podman Desktop GUI to pull the Ricgraph image (for location see below) and
     to start it.

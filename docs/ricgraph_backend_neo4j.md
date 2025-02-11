@@ -73,7 +73,7 @@ command `make install_enable_neo4j_community`, or follow the steps below.
 * You need to reset the default Neo4j password.
   This password is necessary in section
   [Create a Python virtual environment and install Ricgraph in
-  it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) below.
+  it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
   Run:
   ``` 
   /usr/bin/neo4j-admin dbms set-initial-password [the new password]
@@ -108,7 +108,7 @@ change the default username and password of Neo4j:
 * Neo4j will ask you to change your password. Change it.
   You will need this new password in section
   [Create a Python virtual environment and install Ricgraph in
-  it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) below.
+  it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 
 
 ## Install Neo4j Desktop
@@ -449,7 +449,7 @@ If you have installed Bloom, below are some examples for a quick start.
 
 ### Execute queries
 
-The [Ricgraph Bloom configuration file](#install-bloom-configuration)
+The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
 contains four different shortcuts for
 [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)):
 
@@ -504,7 +504,7 @@ size or color. This can be changed as follows:
    show on the node, and the icon.
 1. In the tab "Rule-based" you can add your own rules.
 
-The [Ricgraph Bloom configuration file](ricgraph_install_configure.md#install-bloom-configuration)
+The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
 contains a few rules based on the value of properties.
 Rules which determine the color of a node:
 
@@ -557,5 +557,6 @@ following command:
   ```
 in section
 [Create a Python virtual environment and install Ricgraph in
-it](#create-a-python-virtual-environment-and-install-ricgraph-in-it) above. For *python3.11* you can take any Python version that is installed
+it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it). 
+For *python3.11* you can take any Python version that is installed
 on your computer, as long as it is at least Python 3.9.

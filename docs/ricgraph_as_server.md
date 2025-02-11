@@ -169,7 +169,7 @@ command `make full_server_install`, or follow the steps below.
   place where you specify which graph database backend you use.
   You can find these settings in section *GraphDB*.
   * For Neo4j, enter the new password for Neo4j from section
-    [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
+    [Install and start Neo4j Community Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
     at the parameter _graphdb_password_.
 * Deactivate the Python virtual environment: 
   type 
@@ -245,7 +245,7 @@ This batch file is preconfigured in the variable
 `harvest_script` at the top of the Makefile. It can be modified to refer to your favorite Python script.
 If you have done this, and then execute
 command `make run_batchscript`, that script will be executed and its output will appear both
-on your screen as well as in a file. The Makefile will tell you the name of this log file.
+on your screen and in a file. The Makefile will tell you the name of this log file.
 
 The directory of the batch file depends on the user that is running the command
 `make run_batchscript` (either a regular user or user *root*). 
@@ -562,8 +562,8 @@ Then, follow the following steps, and also watch the video below:
 * Done.
 
 The next steps are to install Ricgraph. Start reading from 
-[Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
-or [Install and start Memgraph](#install-and-start-memgraph)
+[Install and start Neo4j Community Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
+or [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph)
 above.
 Note that if you would like to use a webserver, you will need to use Nginx.
 
