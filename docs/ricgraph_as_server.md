@@ -162,7 +162,7 @@ command `make full_server_install`, or follow the steps below.
   ```
   then your Python version is too old. Please read
   [How to solve an AttributeError: Neo4jDriver object has no attribute
-  executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
+  executequery](ricgraph_backend_neo4j.md#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
 * Create a Ricgraph initialization file, 
   read [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
   This is also the

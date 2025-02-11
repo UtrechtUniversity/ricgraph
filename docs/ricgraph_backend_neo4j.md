@@ -255,7 +255,7 @@ in Neo4j Desktop, follow these steps:
    configuration](#install-bloom-configuration-for-neo4j-desktop-optional).
 1. Now you are ready to explore the data 
    using [Ricgraph Explorer](ricgraph_explorer.md) or
-   using [Bloom](ricgraph_query_visualize.md#how-to-use-bloom).
+   using [Bloom](#how-to-use-bloom-for-neo4j-desktop-optional).
 
 ### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
 To restore a

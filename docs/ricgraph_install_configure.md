@@ -113,12 +113,6 @@ E.g., if you have Ubuntu 20.04, you can install Python 3.11 as follows:
    - writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md).
 1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
 
-Other things you might want to do, if you use Neo4j:
-* [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph).
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop).
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community 
-  Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition).
-
 
 ## Download Ricgraph
 
@@ -216,7 +210,6 @@ in the initialization file explain how to do that.
 ### Extending Ricgraph with new properties in the nodes
 Optionally, you can extend Ricgraph by adding new
 [properties of nodes](ricgraph_details.md#Properties-of-nodes-in-Ricgraph).
-Before you can do this, [download Ricgraph](#download-ricgraph).
 
 ### RICGRAPH_NODEADD_MODE
 There is a parameter *RICGRAPH_NODEADD_MODE* in the initialization file 
