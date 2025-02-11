@@ -126,10 +126,10 @@ status = os.system(PYTHON_CMD + ' harvest_rsd_to_ricgraph.py --empty_ricgraph no
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization UU')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization UMCU')
+
+
+status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization VU')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-
-
 status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph no --organization VU --harvest_projects no')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 status = os.system(PYTHON_CMD + ' harvest_yoda_datacite_to_ricgraph.py --empty_ricgraph no --organization VU')
