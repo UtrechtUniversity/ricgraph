@@ -53,7 +53,7 @@ sed -i "s/ricgraph == .*/ricgraph == ${new_version}/" requirements.txt
 
 # Update ricgraph/__init__.py
 echo "Updating ricgraph/__init__.py..."
-sed -i "s/__version__ = '.*'/__version__ = '${new_version}'/" ricgraph/__init__.py
+sed -i "s/__version__ = '.*'/__version__ = '${new_version}'/" ricgraph/ricgraph.py
 
 # Update CITATION.cff
 current_date=$(date '+%Y-%m-%d')
