@@ -19,8 +19,9 @@ Other Ricgraph install options are:
 Windows](#ricgraph-on-windows).
 
 On this page you can find:
-* [Ricgraph Makefile](#ricgraph-makefile)
 * [Requirements](#requirements)
+* [Ricgraph Makefile](#ricgraph-makefile)
+* [Fast and recommended way to install Ricgraph](#fast-and-recommended-way-to-install-ricgraph)
 * [Steps to take](#steps-to-take)
 * [Download Ricgraph](#download-ricgraph)
 * [Use a Python virtual environment and install Python requirements](#use-a-python-virtual-environment-and-install-python-requirements)
@@ -28,50 +29,8 @@ On this page you can find:
 * [Using Ricgraph](#using-ricgraph)
 * [Dumping and restoring the Ricgraph database](#dumping-and-restoring-the-ricgraph-database)
 * [Ricgraph on Windows](#ricgraph-on-windows)
- 
+
 [Return to main README.md file](../README.md).
-
-## Ricgraph Makefile
-A Ricgraph installation involves a number of steps.
-Ricgraph uses a *Makefile* to make installation of (parts of) Ricgraph easier.
-Such a Makefile automates a number of these steps. 
-A Makefile command is executed by typing:
-```
-make [target]
-```
-
-To use the Ricgraph Makefile, first go to your home directory on Linux and 
-then download it, by typing:
-```
-cd
-wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
-```
-
-In the example above, the *[target]* specifies what has to be done. 
-Assuming that you are in your home directory, you can 
-execute one of these commands to find the possible targets:
-```
-make
-make help
-```
-You can add command line parameters to the `make` command, e.g. to get the
-Ricgraph *cutting edge* version, or to specify an installation path. 
-Look in the [Makefile](../Makefile) for possiblities. Any variable defined
-in the Makefile can be used as `make` command line parameter.
-For an example, see the [Podman Containerfile](../Containerfile).
-
-Most often, you do not need to install the `make` command, but if you get a
-"command not found" error message, you need to install it using your Linux 
-package manager.
-
-If you read the documentation below or on page
-[Ricgraph as a server on Linux](ricgraph_as_server.md),
-you will notice that some sections start with mentioning a Makefile command. 
-That means, that if you execute that command, the steps in that section will
-be done automatically.
-Sometimes, you will
-have to do some post-install steps, e.g. because you have to choose a password for the
-graph database. 
 
 
 ## Requirements
@@ -81,6 +40,15 @@ you can create using
 Of course, this depends on the (size of the) sources you plan to harvest and the
 capabilities of your computer. The more, the better. The author uses a VM of 35GB with
 10GB memory and 3 vCPUs on an 11th gen Intel i7 mobile processor. 
+
+There are many tutorials on installing VirtualBox on internet.
+For example, [How to Install VirtualBox on Ubuntu 
+(Beginner's Tutorial)](https://itsfoss.com/install-virtualbox-ubuntu).
+Also, you will need to install the VirtualBox GuestAdditions.
+Read, for example, [How to Install & Use VirtualBox Guest Additions on 
+Ubuntu](https://itsfoss.com/virtualbox-guest-additions-ubuntu).
+You need to be user *root* (Linux) or *Administrator* (Windows) on your computer to be able to
+do this.
 
 Ricgraph has been
 developed with Python 3.11. For some features you need at least Python 3.9.
@@ -92,6 +60,66 @@ E.g., if you have Ubuntu 20.04, you can install Python 3.11 as follows:
   apt install python3.11
   ```
 * Exit from user *root*.
+
+
+## Ricgraph Makefile
+A Ricgraph installation involves a number of steps.
+Ricgraph uses a *Makefile* to make installation of (parts of) Ricgraph easier.
+Such a Makefile automates a number of these steps.
+A Makefile command is executed by typing:
+```
+make [target]
+```
+
+To use the Ricgraph Makefile, first go to your home directory on Linux and
+then download it, by typing:
+```
+cd
+wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
+```
+
+In the example above, the *[target]* specifies what has to be done.
+Assuming that you are in your home directory, you can
+execute one of these commands to find the possible targets:
+```
+make
+make help
+```
+You can add command line parameters to the `make` command, e.g. to get the
+Ricgraph *cutting edge* version, or to specify an installation path.
+Look in the [Makefile](../Makefile) for possiblities. Any variable defined
+in the Makefile can be used as `make` command line parameter.
+For an example, see the [Podman Containerfile](../Containerfile).
+
+Most often, you do not need to install the `make` command, but if you get a
+"command not found" error message, you need to install it using your Linux
+package manager.
+
+If you read the documentation below or on page
+[Ricgraph as a server on Linux](ricgraph_as_server.md),
+you will notice that some sections start with mentioning a Makefile command.
+That means, that if you execute that command, the steps in that section will
+be done automatically.
+Sometimes, you will
+have to do some post-install steps, e.g. because you have to choose a password for the
+graph database.
+
+## Fast and recommended way to install Ricgraph
+1. Get the most recent Ricgraph Makefile, go to [Ricgraph Makefile](#ricgraph-makefile).
+1. Go to [Install and start Neo4j Community Edition graph database 
+   backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+   To do this, execute as user *root*:
+   ```
+   make install_enable_neo4j_community
+   ```
+1. Download and install Ricgraph in your home directory.
+   To do this, execute as regular user (i.e., be sure you are not user *root*):
+   ```
+   make install_ricgraph_singleuser_neo4jcommunity
+   ```
+1. If everything succeeds, skip the sections below and 
+   continue reading at [Using Ricgraph](#using-ricgraph).
+
 
 ## Steps to take
 
@@ -266,6 +294,8 @@ Before you can do anything with Ricgraph, you need to harvest sources,
 see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
 After you have harvested sources, you can execute queries and visualize the results,
 see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
+Very likely, you may want to use Ricgraph Explorer, read
+more on the [Ricgraph Explorer page](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
 
 
 ## Dumping and restoring the Ricgraph database
