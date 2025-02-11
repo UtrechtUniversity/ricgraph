@@ -132,6 +132,8 @@ if status != 0: print('===>>> batch_harvest_uu.py: error while executing previou
 
 status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph no --organization VU --harvest_projects no')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
+status = os.system(PYTHON_CMD + ' harvest_yoda_datacite_to_ricgraph.py --empty_ricgraph no --organization VU')
+if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 
 # ###########################################################
 # Batch order 2: If you'd like to harvest OpenAlex
