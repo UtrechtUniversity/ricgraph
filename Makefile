@@ -197,7 +197,7 @@ endif
 # ########################################################################
 help:
 	@echo ""
-	@echo "Ricgraph Makefile help."
+	@echo "RICGRAPH MAKEFILE HELP"
 	@echo "You can use this Makefile to install (parts of) Ricgraph and dump/restore"
 	@echo "its graph database. There are also other options as listed below."
 	@echo ""
@@ -211,15 +211,30 @@ help:
 	@echo "If you use 'make --dry-run [Makefile target]' the commands that are to be"
 	@echo "executed will be shown, but they will not be executed."
 	@echo ""
-	@echo "Informational commands for this Makefile:"
-	@echo "- make: Displays this message."
-	@echo "- make help: Displays this message."
+	@echo "INFORMATIONAL COMMANDS FOR THIS MAKEFILE"
+	@echo "- make: Displays a short help message."
+	@echo "- make help: Displays a short help message."
+	@echo "- make allhelp: Displays an extensive help message."
 	@echo ""
+	@echo "RECOMMENDED METHOD TO INSTALL"
+	@echo "Recommended method to install Ricgraph as a single user, recommended for"
+	@echo "users that can change to user 'root' (please read"
+	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md):"
+	@echo "- [as user 'root'] make install_enable_neo4j_community:"
+	@echo "       Download, install, enable, and run Neo4j Community Edition."
+	@echo "- [as regular user] make install_ricgraph_singleuser_neo4jcommunity:"
+	@echo "       Install Ricgraph for a single user with the"
+	@echo "       Neo4j Community Edition the graph database backend."
+	@echo "       This will be done in a Python virtual environment"
+	@echo ""
+
+allhelp: help
+	@echo "OTHER INSTALL METHODS AND OPTIONS"
 	@echo "Commands to install Ricgraph as a single user, recommended for"
-	@echo "new Ricgraph users or users that cannot change to user 'root' (please read"
+	@echo "users that cannot change to user 'root' (please read"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md):"
 	@echo "- make install_neo4j_desktop: Download and install Neo4j Desktop."
-	@echo "- make full_singleuser_install: Install Ricgraph for a single user."
+	@echo "- make full_singleuser_install_neo4jdesktop: Install Ricgraph for a single user."
 	@echo "       This will be done in a Python virtual environment"
 	@echo "       in $(ricgraph_singleuser_install_dir)."
 	@echo "       Also, a 'make install_neo4j_desktop' will be done (if not done yet)."
@@ -251,7 +266,8 @@ help:
 	@echo "       If you use Neo4j Desktop, you need to start it first."
 	@echo "- make run_anyscript: you can use this to run any Ricgraph script."
 	@echo "       You may want to use command line parameters 'ricgraph_anyscript'"
-	@echo "       and possibly 'ricgraph_anyscript_log'."
+	@echo "       and possibly 'ricgraph_anyscript_log'. E.g. "
+	@echo "       'ricgraph_anyscript=$(ricgraph_anyscript)'."
 	@echo ""
 	@echo "Advanced commands for this Makefile:"
 	@echo "- make makefile_variables: list all variables used in this Makefile."
@@ -259,7 +275,12 @@ help:
 	@echo "       of Ricgraph on GitHub ($(ricgraph_download)):"
 	@echo "       add 'ricgraph_version=cuttingedge' to your 'make' command, e.g. as in"
 	@echo "       'make ricgraph_version=cuttingedge install_ricgraph_server'"
-	@echo "- make install_ricgraph_singleuser: Install Ricgraph for a single user."
+	@echo "- make install_ricgraph_singleuser_neo4jdesktop: Install Ricgraph for a single"
+	@echo "       user. Neo4j Desktop will be the graph database backend."
+	@echo "       This will be done in a Python virtual environment"
+	@echo "       in $(ricgraph_singleuser_install_dir)."
+	@echo "- make install_ricgraph_singleuser_neo4jcommunity: Install Ricgraph for a single"
+	@echo "       user. Neo4j Community Edition will be the graph database backend."
 	@echo "       This will be done in a Python virtual environment"
 	@echo "       in $(ricgraph_singleuser_install_dir)."
 	@echo "- make install_ricgraph_server: Install Ricgraph as a server."
@@ -339,7 +360,7 @@ install_enable_neo4j_community: check_user_root check_python_minor_version check
 ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo ""
 	@echo "Starting Install and enable Neo4j Community Edition. Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#install-and-start-neo4j-community-edition"
+	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(HOME)/$(neo4j_community) ]; then cd $(HOME); echo "Downloading Neo4j Community Edition..."; wget $(neo4j_community_path); fi
@@ -365,7 +386,7 @@ install_neo4j_desktop: check_user_notroot check_python_minor_version generate_gr
 ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo ""
 	@echo "Starting Download and install Neo4j Desktop. Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#install-neo4j-desktop"
+	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#install-neo4j-desktop"
 	$(call are_you_sure)
 	@echo ""
 	@cd $(HOME); echo "Downloading Neo4j Desktop..."; wget $(neo4j_desktop_path)
@@ -374,7 +395,7 @@ ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo "Done."
 	@echo "Neo4j Desktop version $(neo4j_desktop_version) has been downloaded."
 	@echo "Before you can use it, please read the post-install steps at"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#post-install-steps-neo4j-desktop"
+	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#post-install-steps-neo4j-desktop"
 	@echo "One of the steps is to fill in a password. Use the"
 	@echo "password in file $(graphdb_password_file)."
 	@echo "If you do this, you do not need to fill in this password in"
@@ -395,11 +416,19 @@ ifeq ($(shell test ! -d $(ricgraph_server_install_dir) && echo true),true)
 endif
 
 
-full_singleuser_install: install_neo4j_desktop install_ricgraph_singleuser
+full_singleuser_install_neo4jdesktop: install_neo4j_desktop install_ricgraph_singleuser_neo4jdesktop
 	@echo ""
 
 
-install_ricgraph_singleuser: check_user_notroot check_python_minor_version
+install_ricgraph_singleuser_neo4jcommunity: check_user_notroot check_python_minor_version
+ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
+	@# This test is placed here instead of in function install_ricgraph
+	@# because it will keep the code of install_ricgraph more clear.
+	$(call install_ricgraph,$(ricgraph_singleuser_install_dir),"singleuser","neo4j_community_edition",$(ricgraph_version),$(readdoc_singleuser))
+endif
+
+
+install_ricgraph_singleuser_neo4jdesktop: check_user_notroot check_python_minor_version
 ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
 	@# This test is placed here instead of in function install_ricgraph
 	@# because it will keep the code of install_ricgraph more clear.
@@ -479,7 +508,7 @@ dump_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo "Starting Dump of graph database of Neo4j Community Edition in"
 	@echo "directory $(graphdb_backup_dir)."
 	@echo "Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#create-a-neo4j-community-edition-database-dump-of-ricgraph"
+	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#create-a-neo4j-community-edition-database-dump-of-ricgraph"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -d $(graphdb_backup_dir) ]; then mkdir $(graphdb_backup_dir); fi
@@ -504,7 +533,7 @@ restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo "from directory $(graphdb_backup_dir)."
 	@echo "Your old graph database will be removed."
 	@echo "Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition"
+	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(graphdb_backup_dir)/system.dump ]; then echo "Error: Graph database dump file $(graphdb_backup_dir)/system.dump does not exist."; exit 1; fi
