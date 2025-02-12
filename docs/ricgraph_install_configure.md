@@ -15,13 +15,11 @@ Other Ricgraph install options are:
   Ricgraph in a container](ricgraph_containerized.md):
   relatively quick with limited possibilities.
  
-[Continue reading here if you would like to install Ricgraph on
-Windows](#ricgraph-on-windows).
 
 On this page you can find:
-* [Requirements](#requirements)
+* [Requirements](#requirements-for-ricgraph)
 * [Ricgraph Makefile](#ricgraph-makefile)
-* [Fast and recommended way to install Ricgraph](#fast-and-recommended-way-to-install-ricgraph)
+* [Fast and recommended way to install Ricgraph](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
 * [Steps to take](#steps-to-take)
 * [Download Ricgraph](#download-ricgraph)
 * [Use a Python virtual environment and install Python requirements](#use-a-python-virtual-environment-and-install-python-requirements)
@@ -33,14 +31,25 @@ On this page you can find:
 [Return to main README.md file](../README.md).
 
 
-## Requirements
+## Requirements for Ricgraph
+* You will need access to a Linux (virtual) machine (VM).
+  You can use your own, or one provided by your organization, or you might
+  want to use SURF Research Cloud.
+* You will need at least [Python 3.9 or newer](#python-39-or-newer).
+* A (virtual) machine of size 25GB with 4GB memory will work.
+  Of course, this depends on the (size of the) sources you plan to harvest and the
+  capabilities of your computer. The more, the better. The author uses a VM of 35GB with
+  10GB memory and 3 vCPUs on an 11th gen Intel i7 mobile processor. 
+* [Read here if you would like to install Ricgraph on
+  Windows](#ricgraph-on-windows).
+* For SURF Research Cloud,
+  read [How to install Ricgraph and Ricgraph Explorer on SURF Research
+  Cloud](ricgraph_as_server.md#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud).
+
+### Linux virtual machine using VirtualBox
 The easiest method for using Ricgraph is by using a Linux virtual machine (VM) such as
 you can create using 
-[VirtualBox](https://www.virtualbox.org). A VM of size 25GB with 4GB memory will work.
-Of course, this depends on the (size of the) sources you plan to harvest and the
-capabilities of your computer. The more, the better. The author uses a VM of 35GB with
-10GB memory and 3 vCPUs on an 11th gen Intel i7 mobile processor. 
-
+[VirtualBox](https://www.virtualbox.org). 
 There are many tutorials on installing VirtualBox on internet.
 For example, [How to Install VirtualBox on Ubuntu 
 (Beginner's Tutorial)](https://itsfoss.com/install-virtualbox-ubuntu).
@@ -50,6 +59,7 @@ Ubuntu](https://itsfoss.com/virtualbox-guest-additions-ubuntu).
 You need to be user *root* (Linux) or *Administrator* (Windows) on your computer to be able to
 do this.
 
+### Python 3.9 or newer
 Ricgraph has been
 developed with Python 3.11. For some features you need at least Python 3.9.
 E.g., if you have Ubuntu 20.04, you can install Python 3.11 as follows:
@@ -72,7 +82,7 @@ make [target]
 ```
 
 To use the Ricgraph Makefile, first go to your home directory on Linux and
-then download it, by typing:
+then download the most recent version from the GitHub repository, by typing:
 ```
 cd
 wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
@@ -84,6 +94,7 @@ execute one of these commands to find the possible targets:
 ```
 make
 make help
+make allhelp
 ```
 You can add command line parameters to the `make` command, e.g. to get the
 Ricgraph *cutting edge* version, or to specify an installation path.
@@ -104,25 +115,60 @@ Sometimes, you will
 have to do some post-install steps, e.g. because you have to choose a password for the
 graph database.
 
-## Fast and recommended way to install Ricgraph
-1. Get the most recent Ricgraph Makefile, go to [Ricgraph Makefile](#ricgraph-makefile).
-1. Go to [Install and start Neo4j Community Edition graph database 
-   backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
-   To do this, execute as user *root*:
+## Fast and recommended way to install Ricgraph for a single user
+To follow this procedure, you need to be able to change to user *root*.
+This is the recommended method to install Ricgraph for a single user, since
+it will install everything automatically (by using the Makefile).
+1. Get the most recent Ricgraph Makefile.
+   Type as regular user (i.e., be sure you are not user *root*):
+   ```
+   cd
+   wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
+   ```
+   Read more at [Ricgraph Makefile](#ricgraph-makefile).
+1. Install Neo4j Community Edition.
+   Type as user *root*:
    ```
    make install_enable_neo4j_community
    ```
+   Read more at [Install and start Neo4j Community Edition graph database
+   backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
 1. Download and install Ricgraph in your home directory.
-   To do this, execute as regular user (i.e., be sure you are not user *root*):
+   Type as regular user (i.e., be sure you are not user *root*):
    ```
    make install_ricgraph_singleuser_neo4jcommunity
    ```
-1. If everything succeeds, skip the sections below and 
-   continue reading at [Using Ricgraph](#using-ricgraph).
+   Read more at the sections below.
+1. Start
+   * harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md);
+   * writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md).
+1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
+1. If everything succeeds, you can skip the remainder of this page.
+   If not, the remainder of this page may help in finding solutions.
 
+If you are not able to change to user *root*,
+change step 2 and 3.
+This is a less recommended method to install Ricgraph for a single user,
+since you have to do a number of things manually.
+2. Install Neo4j Desktop. Type:
+   ```
+   make install_neo4j_desktop
+   ```
+   Read more at [Install and start Neo4j Desktop graph database
+   backend](ricgraph_backend_neo4j.md#install-neo4j-desktop).
+   You will need to do a number of post install steps.
+   Any time you want to use Neo4j Desktop, you will need to start
+   it by hand, read [Start Neo4j Desktop](ricgraph_backend_neo4j.md#start-neo4j-desktop).
+3. Download and install Ricgraph in your home directory. Type:
+   ```
+   make install_ricgraph_singleuser_neo4jdesktop
+   ```
+   Read more at the sections below.
 
 ## Steps to take
-
+Skip this if you have done the
+[Fast and recommended way to install Ricgraph for a single 
+user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 1. Install your graph database backend (choose one of these):
     * [Install and start Neo4j Community
       Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)

@@ -23,9 +23,6 @@ Other Ricgraph install options are:
   Ricgraph in a container](ricgraph_containerized.md): 
   relatively quick with limited possibilities.
 
-[Continue reading here if you would like to install Ricgraph on
-Windows](ricgraph_install_configure.md#ricgraph-on-windows).
-
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
 * [Check the requirements](#check-the-requirements)
@@ -48,26 +45,49 @@ the following steps:
 
 
 ## Check the requirements
-* You will need access to a Linux virtual machine.
-  You can use your own, or one provided by your organization, or you might
-  want to use SURF Research Cloud.
-* For SURF Research Cloud, 
-  read [How to install Ricgraph and Ricgraph Explorer on SURF Research
-  Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud).
-* Please check the [Requirements for Ricgraph](ricgraph_install_configure.md#requirements).
+Read [Requirements or Ricgraph](ricgraph_install_configure.md#requirements-for-ricgraph).
 
- 
-## Install and start a graph database backend
-Please go to [Install and start Neo4j Community 
-Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
-This is the recommended option.
 
-As an alternative to Neo4j, you can also use
-[Memgraph](https://memgraph.com).
-Memgraph is an in memory graph database
-and therefore (much) faster than Neo4j.
-However, it has not been tested extensively with Ricgraph yet.
-Read more at [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
+## Fast and recommended way to install Ricgraph as a server 
+To follow this procedure, you need to be able to change to user *root*.
+1. Login as user *root*.
+1. Get the most recent Ricgraph Makefile. Type:
+   ```
+   cd
+   wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
+   ```
+   Read more at [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile).
+1. Install Neo4j Community Edition. Type:
+   ```
+   make install_enable_neo4j_community
+   ```
+   Read more at [Install and start Neo4j Community Edition graph database
+   backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+1. Download and install Ricgraph in system directory */opt*. Type:
+   ```
+   make install_ricgraph_server
+   ```
+   Read more at the sections below.
+1. Optional: Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API. Type:
+   ```
+   make install_enable_ricgraphexplorer_restapi
+   ```
+   Read more at [Use a service unit file to run Ricgraph Explorer and the Ricgraph 
+   REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
+1. Optional and possibly dangerous: Use Apache/Nginx, WSGI, and ASGI to make 
+   Ricgraph Explorer and the Ricgraph 
+   REST API accessible from outside your virtual machine.
+   Read more at
+   [Use Apache...](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+   or at
+   [Use Nginx...](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+1. Exit from user *root*.
+1. Start
+   * harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md);
+   * writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md).
+1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
+1. If everything succeeds, you can skip the remainder of this page.
+   If not, the remainder of this page may help in finding solutions.
 
 
 ## Create a ricgraph user and group
@@ -251,7 +271,12 @@ The directory of the batch file depends on the user that is running the command
 `make run_batchscript` (either a regular user or user *root*). 
 The Makefile will tell which script it will use.
 
-
+The Makefile also provides a command `make run_anyscript`, to run any Ricgraph script.
+You will need to add the name of the script to run using the Makefile command line
+parameter *ricgraph_anyscript*, e.g.
+```
+make run_anyscript ricgraph_anyscript=harvest/batch_harvest_demo.py
+```
 
 ## Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute

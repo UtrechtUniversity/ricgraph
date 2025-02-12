@@ -216,9 +216,8 @@ help:
 	@echo "- make help: Displays a short help message."
 	@echo "- make allhelp: Displays an extensive help message."
 	@echo ""
-	@echo "RECOMMENDED METHOD TO INSTALL"
-	@echo "Recommended method to install Ricgraph as a single user, recommended for"
-	@echo "users that can change to user 'root' (please read"
+	@echo "RECOMMENDED METHOD TO INSTALL RICGRAPH FOR A SINGLE USER"
+	@echo "Recommended for users that can change to user 'root' (please read"
 	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md):"
 	@echo "- [as user 'root'] make install_enable_neo4j_community:"
 	@echo "       Download, install, enable, and run Neo4j Community Edition."
@@ -226,6 +225,8 @@ help:
 	@echo "       Install Ricgraph for a single user with the"
 	@echo "       Neo4j Community Edition the graph database backend."
 	@echo "       This will be done in a Python virtual environment"
+	@echo ""
+	@echo "There are many more options, to see them, type 'make allhelp'."
 	@echo ""
 
 allhelp: help
