@@ -305,7 +305,7 @@ page_footer_general += 'visit the website <a href=https://www.ricgraph.eu>www.ri
 page_footer_general += 'or go to the GitHub repository '
 page_footer_general += '<a href=https://github.com/UtrechtUniversity/ricgraph>'
 page_footer_general += 'https://github.com/UtrechtUniversity/ricgraph</a>. '
-page_footer_general += 'This site uses Ricgraph version ' + rcg.__version__ + '.'
+page_footer_general += 'This site uses Ricgraph version ' + rcg.get_ricgraph_version() + '.'
 
 page_footer_development = '<footer class="w3-container rj-gray" style="font-size:80%">'
 page_footer_development += 'You are using Ricgraph Explorer in development mode. '

@@ -120,8 +120,8 @@ __email__ = ''
 __license__ = 'MIT License'
 __package__ = 'Ricgraph'
 
-# 'version' should be here instead of in __init__.py. If not here, it cannot
-# be found when executing something like
+# __version__ should be placed here instead of in __init__.py.
+# If not here, it cannot be found when executing something like
 # PYTHONPATH=../ricgraph ../bin/python ricgraph_explorer.py
 __version__ = '2.8'
 
@@ -748,6 +748,14 @@ def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_eleme
 # ##############################################################################
 # General Ricgraph functions.
 # ##############################################################################
+def get_ricgraph_version() -> str:
+    """Get the version Ricgraph.
+
+    :return: the version string.
+    """
+    return __version__
+
+
 def get_ricgraph_ini_file() -> str:
     """Get the location of the ricgraph ini file.
 
