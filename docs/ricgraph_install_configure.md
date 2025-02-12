@@ -150,6 +150,7 @@ If you are not able to change to user *root*,
 change step 2 and 3.
 This is a less recommended method to install Ricgraph for a single user,
 since you have to do a number of things manually.
+
 2. Install Neo4j Desktop. Type:
    ```
    make install_neo4j_desktop

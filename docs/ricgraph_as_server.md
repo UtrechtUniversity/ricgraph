@@ -26,26 +26,22 @@ Other Ricgraph install options are:
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
 * [Check the requirements](#check-the-requirements)
-* [Install and start a graph database backend](#install-and-start-a-graph-database-backend)
+* [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server-)
 * [Create a ricgraph user and group](#create-a-ricgraph-user-and-group)
-* [Create a Python virtual environment and install Ricgraph in 
-  it](#create-a-python-virtual-environment-and-install-ricgraph-in-it)
-* [Run Ricgraph scripts from the command line or as a 
-  cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
-* [Use a service unit file to run Ricgraph Explorer and the Ricgraph 
-  REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
-* [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API 
-  accessible from outside your virtual machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
-* [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API 
-  accessible from outside your virtual machine](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
-* [How to install Ricgraph and Ricgraph Explorer on SURF Research 
-  Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
+* [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it)
+* [Run Ricgraph scripts from the command line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
+* [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
+* [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
+* [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
+* [Introduction Nginx webserver](#introduction-nginx-webserver)
+* [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
+ 
 
 [Return to main README.md file](../README.md).
 
 
 ## Check the requirements
-Read [Requirements or Ricgraph](ricgraph_install_configure.md#requirements-for-ricgraph).
+Read [Requirements for Ricgraph](ricgraph_install_configure.md#requirements-for-ricgraph).
 
 
 ## Fast and recommended way to install Ricgraph as a server 
@@ -68,13 +64,13 @@ To follow this procedure, you need to be able to change to user *root*.
    make install_ricgraph_server
    ```
    Read more at the sections below.
-1. Optional: Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API. Type:
+1. Optional: use a service unit file to run Ricgraph Explorer and the Ricgraph REST API. Type:
    ```
    make install_enable_ricgraphexplorer_restapi
    ```
    Read more at [Use a service unit file to run Ricgraph Explorer and the Ricgraph 
    REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
-1. Optional and possibly dangerous: Use Apache/Nginx, WSGI, and ASGI to make 
+1. Optional and possibly dangerous: use Apache or Nginx webserver, WSGI, and ASGI to make 
    Ricgraph Explorer and the Ricgraph 
    REST API accessible from outside your virtual machine.
    Read more at
