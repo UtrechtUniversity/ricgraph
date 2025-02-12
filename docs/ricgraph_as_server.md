@@ -59,11 +59,11 @@ To follow this procedure, you need to be able to change to user *root*.
    ```
    Read more at [Install and start Neo4j Community Edition graph database
    backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
-1. Download and install Ricgraph in system directory */opt*. Type:
+1. Download and install Ricgraph in system directory */opt*.
+   Read more at the sections below. Type:
    ```
    make install_ricgraph_server
    ```
-   Read more at the sections below.
 1. Optional: use a service unit file to run Ricgraph Explorer and the Ricgraph REST API. Type:
    ```
    make install_enable_ricgraphexplorer_restapi

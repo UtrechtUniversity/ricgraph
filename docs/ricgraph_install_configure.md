@@ -134,11 +134,11 @@ it will install everything automatically (by using the Makefile).
    Read more at [Install and start Neo4j Community Edition graph database
    backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
 1. Download and install Ricgraph in your home directory.
+   Read more at the sections below.
    Type as regular user (i.e., be sure you are not user *root*):
    ```
    make install_ricgraph_singleuser_neo4jcommunity
    ```
-   Read more at the sections below.
 1. Start
    * harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md);
    * writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md).
@@ -160,11 +160,11 @@ since you have to do a number of things manually.
    You will need to do a number of post install steps.
    Any time you want to use Neo4j Desktop, you will need to start
    it by hand, read [Start Neo4j Desktop](ricgraph_backend_neo4j.md#start-neo4j-desktop).
-3. Download and install Ricgraph in your home directory. Type:
+3. Download and install Ricgraph in your home directory.
+   Read more at the sections below. Type:
    ```
    make install_ricgraph_singleuser_neo4jdesktop
    ```
-   Read more at the sections below.
 
 ## Steps to take
 Skip this if you have done the
