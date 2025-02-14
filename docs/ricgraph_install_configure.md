@@ -105,7 +105,7 @@ since you have to do a number of things manually.
   All instructions in this documentation are written for a Linux machine,
   except when otherwise noted. This doesn't mean that you cannot install
   the graph database backend and Ricgraph *directly* on a Mac or Windows machine,
-  but that the author has no experience with this, except for
+  it means that the author has no experience with this, except for
   [Read here if you would like to install Ricgraph on
   Windows](#ricgraph-on-windows).
 * If you have a Mac or Windows machine, you can create a
@@ -121,9 +121,15 @@ since you have to do a number of things manually.
   want to use a Linux VM on SURF Research Cloud.
 
   Own Linux (virtual) machine:
-    * Install [VirtualBox](https://www.virtualbox.org) and install a Linux distribution
-      "in" it.
-      There are many tutorials on installing VirtualBox on internet.
+    * On your own Mac, Windows, or Linux machine, 
+      install [VirtualBox](https://www.virtualbox.org). Create a virtual machine
+      in VirtualBox. Install a Linux distribution
+      "in" the virtual machine you have just created.
+      Then, install the graph database backend and Ricgraph in the Linux virtual machine
+      you have just created, as described on this page or on
+      [Install and configure
+      Ricgraph as a server](ricgraph_as_server.md). 
+    * There are many tutorials on installing VirtualBox on internet.
       For example, [How to Install VirtualBox on Ubuntu
       (Beginner's Tutorial)](https://itsfoss.com/install-virtualbox-ubuntu).
       Also, you will need to install the VirtualBox GuestAdditions.
@@ -131,12 +137,13 @@ since you have to do a number of things manually.
       Ubuntu](https://itsfoss.com/virtualbox-guest-additions-ubuntu).
       You need to be user *root* (Linux) or *Administrator* (Windows) on your computer to be able to
       do this.
-    * Many Linux distributions will work, the author uses both
+    * Almost any Linux distribution will work, the author uses both
       [OpenSUSE Leap](https://www.opensuse.org) and
       [Ubuntu](https://ubuntu.com/desktop). Others will also work.
-    * For the configuration, a VM of size 25GB with 4GB memory will work.
+    * For the configuration in VirtualBox, a VM of size 25GB with 4GB memory will work.
       This depends on the (size of the) sources you plan to harvest and the
-      capabilities of your computer. The more, the better. The author uses a VM of 35GB with
+      capabilities of your computer. The more, the better. The author uses a 
+      VirtualBox VM of size 35GB with
       10GB memory and 3 vCPUs on an 11th gen Intel i7 mobile processor.
 
   Linux VM provided by your organization:
