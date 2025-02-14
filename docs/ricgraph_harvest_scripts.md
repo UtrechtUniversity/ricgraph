@@ -204,7 +204,7 @@ and your project may have research outputs from before 2020.
 ## Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph.py)
 
 To harvest data sets from the data repository 
-[Yoda](https://www.uu.nl/en/research/yoda),
+[Yoda](https://www.uu.nl/en/research/yoda) (via DataCite),
 use the script
 *harvest_yoda_datacite_to_ricgraph.py*.
 ```

@@ -96,7 +96,7 @@ To follow this procedure, you need to be able to change to user *root*.
    Read more at [Ricgraph Explorer](ricgraph_explorer.md), or
    at [Execute queries and visualize the results](ricgraph_query_visualize.md).
 1. Exit from user *root*.
-1. If everything succeeds, you can skip the remainder of this page.
+1. If everything succeeded, you can skip the remainder of this page.
    If not, the remainder of this page may help in finding solutions.
 
 

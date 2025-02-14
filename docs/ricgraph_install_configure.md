@@ -17,9 +17,9 @@ Other Ricgraph install options are:
  
 
 On this page you can find:
+* [Fast and recommended way to install Ricgraph](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
 * [Requirements](#requirements-for-ricgraph)
 * [Ricgraph Makefile](#ricgraph-makefile)
-* [Fast and recommended way to install Ricgraph](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
 * [Steps to take](#steps-to-take)
 * [Download Ricgraph](#download-ricgraph)
 * [Use a Python virtual environment and install Python requirements](#use-a-python-virtual-environment-and-install-python-requirements)
@@ -65,7 +65,6 @@ it will install everything automatically (by using the Makefile).
    This will harvest two source systems,
    [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
    [the Research Software Directory](https://research-software-directory.org).
-
    To read more about harvesting data, 
    see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
    To read more about writing harvesting scripts,
@@ -119,7 +118,7 @@ since you have to do a number of things manually.
 * So, to install the graph database backend and Ricgraph,
   you can use your own Linux (virtual) machine, or a Linux VM
   provided by your organization, or you might
-  want to use SURF Research Cloud.
+  want to use a Linux VM on SURF Research Cloud.
 
   Own Linux (virtual) machine:
     * Install [VirtualBox](https://www.virtualbox.org) and install a Linux distribution
@@ -156,6 +155,7 @@ since you have to do a number of things manually.
       add-apt-repository ppa:deadsnakes/ppa
       apt install python3.11
       ```
+      For other Linux distributions there will be similar commands.
     * Exit from user *root*.
 
 

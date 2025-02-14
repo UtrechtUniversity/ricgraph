@@ -49,10 +49,11 @@ On this page, you can learn more about:
 
 
 ## How to start Ricgraph Explorer
-Depending on how Ricgraph has been installed, there are various ways to start it.
+Depending on how Ricgraph has been installed, there are various ways to start 
+Ricgraph Explorer.
 * If you have installed Ricgraph for a single user,
   you might need to start your graph database backend first:
-  * If you use Neo4j Community Edition: very likely this is already running.
+  * If you use Neo4j Community Edition: this will be already running.
   * If you use Neo4j Desktop: read [Start Neo4j Desktop](ricgraph_backend_neo4j.md#start-neo4j-desktop).
   * If you use Memgraph: read [Install and start
     Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
