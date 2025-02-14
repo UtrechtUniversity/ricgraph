@@ -44,7 +44,7 @@ or for anyone.
 There are five examples of harvest scripts provided, for
 * [Harvest of OpenAlex (harvest_openalex_to_ricgraph.py)](#harvest-of-openalex-harvest_openalex_to_ricgraphpy)
 * [Harvest of Pure (harvest_pure_to_ricgraph.py)](#harvest-of-pure-harvest_pure_to_ricgraphpy)
-* [Harvest of Utrecht University data sets (harvest_yoda_datacite_to_ricgraph.py)](#harvest-of-utrecht-university-data-sets-harvest_yoda_datacite_to_ricgraphpy)
+* [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph.py)](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraphpy)
 * [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph.py)](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraphpy)
 * [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph.py)](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraphpy)
 
@@ -201,10 +201,9 @@ your organization),
 and only harvests research outputs from 2020 onward,
 and your project may have research outputs from before 2020.
 
-## Harvest of Utrecht University data sets (harvest_yoda_datacite_to_ricgraph.py)
+## Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph.py)
 
-To harvest Utrecht University data sets
-from the data repository 
+To harvest data sets from the data repository 
 [Yoda](https://www.uu.nl/en/research/yoda),
 use the script
 *harvest_yoda_datacite_to_ricgraph.py*.

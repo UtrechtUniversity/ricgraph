@@ -34,8 +34,8 @@ provided, the user will get a Results page. Since there are many possible result
 pages, we only show one result page as example.
 
 On this page, you can learn more about:
-* [Working with Ricgraph Explorer](#working-with-ricgraph-explorer).
 * Read about [how to start Ricgraph Explorer](#how-to-start-ricgraph-explorer).
+* [Working with Ricgraph Explorer](#working-with-ricgraph-explorer).
 * The [Home page](#home-page) of Ricgraph Explorer.
 * The [Search page](#search-page) of Ricgraph Explorer.
 * The [Person options page](#person-options-page) of Ricgraph Explorer.
@@ -46,6 +46,30 @@ On this page, you can learn more about:
   document](#showing-a-privacy-statement-or-privacy-measures-document).
  
 [Return to main README.md file](../README.md).
+
+
+## How to start Ricgraph Explorer
+Depending on how Ricgraph has been installed, there are various ways to start it.
+* If you have installed Ricgraph for a single user,
+  you might need to start your graph database backend first:
+  * If you use Neo4j Community Edition: very likely this is already running.
+  * If you use Neo4j Desktop: read [Start Neo4j Desktop](ricgraph_backend_neo4j.md#start-neo4j-desktop).
+  * If you use Memgraph: read [Install and start
+    Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
+* Depending on how you have installed Ricgraph, Ricgraph Explorer
+  may already be running. To check, in your web browser, go to http://127.0.0.1:3030.
+* If you get an error message, you will need to start Ricgraph Explorer:
+  * Use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+    command
+    ```
+    make run_ricgraph_explorer
+    ```
+    In your web browser, go to http://127.0.0.1:3030.
+  * Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
+    In your web browser, go to http://127.0.0.1:3030.
+* If you have a domain name to access Ricgraph, for example _www.ricgraph-example.com_:
+  * Open a web browser and go to https://www.ricgraph-example.com.
+
 
 ## Working with Ricgraph Explorer
 
@@ -89,28 +113,6 @@ persons that share any result types with this person” in the bottom left
 person option page corresponds to figure (c),
 and clicking “show personal information related to this person” corresponds to figure (e).
 
-## How to start Ricgraph Explorer
-Depending on how Ricgraph has been installed, there are various ways to start it.
-* If you have installed Ricgraph yourself, using your own user id,
-  you might need to start your graph database backend first:
-  * If you use Neo4j Community Edition: very likely this is already running.
-  * If you use Neo4j Desktop: read [Start Neo4j Desktop](ricgraph_backend_neo4j.md#start-neo4j-desktop).
-  * If you use Memgraph: read [Install and start 
-    Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
-* Start Ricgraph Explorer:
-  * Use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
-    command 
-    ```
-    make run_ricgraph_explorer
-    ```
-  * Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
-     It will tell you which weblink and port to use, probably
-     http://127.0.0.1:3030. Open a web browser and go to that link.
-* If you use Ricgraph on a demo server, and you have used your own user id to log on to that server,
-  you very probably do not need to start the graph database backend.
-  * Open a web browser and go to http://127.0.0.1:3030.
-* If you have a domain name to access Ricgraph, for example _www.ricgraph-example.com_:
-  * Open a web browser and go to https://www.ricgraph-example.com.
 
 ## Home page
 The figure below shows part of the home page.

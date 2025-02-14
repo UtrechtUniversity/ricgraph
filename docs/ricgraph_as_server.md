@@ -25,7 +25,6 @@ Other Ricgraph install options are:
 
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
-* [Check the requirements](#check-the-requirements)
 * [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server-)
 * [Create a ricgraph user and group](#create-a-ricgraph-user-and-group)
 * [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it)
@@ -40,13 +39,13 @@ the following steps:
 [Return to main README.md file](../README.md).
 
 
-## Check the requirements
-Read [Requirements for Ricgraph](ricgraph_install_configure.md#requirements-for-ricgraph).
-
-
 ## Fast and recommended way to install Ricgraph as a server 
 To follow this procedure, you need to be able to change to user *root*.
+1. [Check the requirements](ricgraph_install_configure.md#requirements-for-ricgraph).
 1. Login as user *root*.
+   ```
+   sudo bash
+   ```
 1. Get the most recent Ricgraph Makefile. Type:
    ```
    cd
@@ -77,11 +76,26 @@ To follow this procedure, you need to be able to change to user *root*.
    [Use Apache...](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
    or at
    [Use Nginx...](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+1. Harvest two source systems in Ricgraph:
+   ```
+   make run_batchscript
+   ```
+   This will harvest two source systems,
+   [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
+   [the Research Software Directory](https://research-software-directory.org).
+
+   To read more about harvesting data,
+   see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
+   To read more about writing harvesting scripts,
+   see [Ricgraph script writing](ricgraph_script_writing.md).
+1. Start Ricgraph Explorer to browse the information harvested:
+   ```
+   make run_ricgraph_explorer
+   ```
+   In your web browser, go to http://127.0.0.1:3030.
+   Read more at [Ricgraph Explorer](ricgraph_explorer.md), or
+   at [Execute queries and visualize the results](ricgraph_query_visualize.md).
 1. Exit from user *root*.
-1. Start
-   * harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md);
-   * writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md).
-1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
 1. If everything succeeds, you can skip the remainder of this page.
    If not, the remainder of this page may help in finding solutions.
 

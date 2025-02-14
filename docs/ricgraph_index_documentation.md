@@ -11,7 +11,6 @@ __B__
 - [Browsing Ricgraph](../docs/ricgraph_explorer.md#browsing-ricgraph)
 
 __C__
-- [Check the requirements](../docs/ricgraph_as_server.md#check-the-requirements)
 - [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv.py)](../docs/ricgraph_misc_scripts.md#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csvpy)
 - [Contact](../README.md#contact)
 - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_categorypy)
@@ -42,7 +41,8 @@ __E__
 - [Extending Ricgraph with new properties in the nodes](../docs/ricgraph_install_configure.md#extending-ricgraph-with-new-properties-in-the-nodes)
 
 __F__
-- [Fast and recommended way to install Ricgraph](../docs/ricgraph_install_configure.md#fast-and-recommended-way-to-install-ricgraph)
+- [Fast and recommended way to install Ricgraph as a server ](../docs/ricgraph_as_server.md#fast-and-recommended-way-to-install-ricgraph-as-a-server-)
+- [Fast and recommended way to install Ricgraph for a single user](../docs/ricgraph_install_configure.md#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
 - [Function call for unifying personal identifiers](../docs/ricgraph_script_writing.md#function-call-for-unifying-personal-identifiers)
 - [Function calls for inserting nodes](../docs/ricgraph_script_writing.md#function-calls-for-inserting-nodes)
 - [Function calls to create, read (find), update and delete (CRUD) nodes](../docs/ricgraph_script_writing.md#function-calls-to-create-read-find-update-and-delete-crud-nodes)
@@ -72,10 +72,10 @@ __G__
 - [GET /person/share_research_results](../docs/ricgraph_restapi_gendoc.md#get-personshare_research_results)
 
 __H__
+- [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraphpy)
 - [Harvest of OpenAlex (harvest_openalex_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-openalex-harvest_openalex_to_ricgraphpy)
 - [Harvest of Pure (harvest_pure_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-pure-harvest_pure_to_ricgraphpy)
 - [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraphpy)
-- [Harvest of Utrecht University data sets (harvest_yoda_datacite_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-data-sets-harvest_yoda_datacite_to_ricgraphpy)
 - [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraphpy)
 - [Home page](../docs/ricgraph_explorer.md#home-page)
 - [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](../docs/ricgraph_as_server.md#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
@@ -95,7 +95,6 @@ __I__
 - [Index Ricgraph documentation](../docs/ricgraph_index_documentation.md#index-ricgraph-documentation)
 - [Install and configure Ricgraph](../docs/ricgraph_install_configure.md#install-and-configure-ricgraph)
 - [Install and run the Ricgraph Podman container](../docs/ricgraph_containerized.md#install-and-run-the-ricgraph-podman-container)
-- [Install and start a graph database backend](../docs/ricgraph_as_server.md#install-and-start-a-graph-database-backend)
 - [Install and start Memgraph](../docs/ricgraph_backend_memgraph.md#install-and-start-memgraph)
 - [Install and start Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
 - [Install Bloom configuration for Neo4j Desktop (optional)](../docs/ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional)
@@ -145,7 +144,7 @@ __Q__
 __R__
 - [Read more about Ricgraph](../README.md#read-more-about-ricgraph)
 - [Read this in case you would like to extend Ricgraph](../README.md#read-this-in-case-you-would-like-to-extend-ricgraph)
-- [Requirements](../docs/ricgraph_install_configure.md#requirements)
+- [Requirements for Ricgraph](../docs/ricgraph_install_configure.md#requirements-for-ricgraph)
 - [Research outputs connected to persons](../docs/ricgraph_details.md#research-outputs-connected-to-persons)
 - [Research question “What are the research results of person A” ](../docs/ricgraph_explorer.md#research-question-what-are-the-research-results-of-person-a-)
 - [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
