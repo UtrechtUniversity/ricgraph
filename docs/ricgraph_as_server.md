@@ -19,15 +19,15 @@ it can be used by any user on that machine.
 Other Ricgraph install options are:
 
 * [Install and configure
-  Ricgraph for a single user](ricgraph_install_configure.md).
+  Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph).
 * [Install and use
-  Ricgraph in a container](ricgraph_containerized.md): 
+  Ricgraph in a container](ricgraph_containerized.md#ricgraph-in-a-container): 
   relatively quick with limited possibilities.
 
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
 
-* [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server-)
+* [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server)
 * [Create a ricgraph user and group](#create-a-ricgraph-user-and-group)
 * [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it)
 * [Run Ricgraph scripts from the command line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
