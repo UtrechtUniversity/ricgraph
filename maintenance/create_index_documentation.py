@@ -66,7 +66,7 @@ def generate_sorted_index():
     index.append(f"This index has been generated automatically.\n")
     for letter in sorted(grouped_headings.keys()):
         # index.append(f"\n## {letter}\n")
-        index.append(f"\n__{letter}__\n")
+        index.append(f"\n__{letter}__\n\n")
         for text, level, file_path in grouped_headings[letter]:
             sanitized_file_path = sanitize_filename(file_path)
             sanitized_anchor = sanitize_anchor(text)

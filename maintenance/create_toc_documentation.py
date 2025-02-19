@@ -43,7 +43,7 @@ def generate_toc():
     
     # Generate TOC
     toc = ["# Table of contents Ricgraph documentation\n"]
-    toc.append(f"This table of contents has been generated automatically.\n")
+    toc.append(f"This table of contents has been generated automatically.\n\n")
     for level, text, file_path in all_headings:
         indent = "  " * (level - 1)
         link = create_github_anchor(text)
