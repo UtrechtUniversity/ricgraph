@@ -17,6 +17,7 @@ Ricgraph will be started automatically when your machine boots, and
 it can be used by any user on that machine.
 
 Other Ricgraph install options are:
+
 * [Install and configure
   Ricgraph for a single user](ricgraph_install_configure.md).
 * [Install and use
@@ -25,6 +26,7 @@ Other Ricgraph install options are:
 
 To install and run Ricgraph in a multi-user environment, you need to do most of
 the following steps:
+
 * [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server-)
 * [Create a ricgraph user and group](#create-a-ricgraph-user-and-group)
 * [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it)
@@ -41,6 +43,7 @@ the following steps:
 
 ## Fast and recommended way to install Ricgraph as a server 
 To follow this procedure, you need to be able to change to user *root*.
+
 1. [Check the requirements](ricgraph_install_configure.md#requirements-for-ricgraph).
 1. Login as user *root*.
    ```
@@ -234,6 +237,7 @@ sudo su - ricgraph
 If you are finished with these commands, exit from user *ricgraph*.
 
 Examples of commands you can use are:
+
 * harvest from the Research Software Directory:
   ```
   cd /opt/ricgraph_venv/harvest; ../bin/python harvest_rsd_to_ricgraph.py
@@ -255,6 +259,7 @@ user *ricgraph* and group *ricgraph*.
 The following assumes your Python virtual environment is in your Linux home directory *$HOME*.
 
 Examples of commands you can use are:
+
 * harvest from the Research Software Directory:
   ```
   cd $HOME/ricgraph_venv/harvest; ../bin/python harvest_rsd_to_ricgraph.py
@@ -387,6 +392,7 @@ If you are using SURF Research Cloud, you will need to use Nginx.
 
 Note that different Linux editions use different paths. In the steps below, path names from
 OpenSUSE Leap are used. Please adapt them to you own Linux edition:
+
 * OpenSUSE Leap: `apache2` and /etc/apache2/vhosts.d
 * Ubuntu: `apache2` and /etc/apache/sites-available
 * Fedora: `httpd` and /etc/httpd/conf.d
@@ -477,6 +483,7 @@ webserver](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-
 
 Note that different Linux editions use different paths. In the steps below, path names from
 OpenSUSE Leap are used. Please adapt them to you own Linux edition:
+
 * OpenSUSE Leap: /etc/nginx/vhosts.d
 * Ubuntu: /etc/nginx/sites-available
 * Fedora: /etc/nginx/conf.d
@@ -499,6 +506,7 @@ and Ricgraph data to the outside world.*
   ```
 
 ### Post-install steps Nginx
+
 * Login as user *root*.
 * Move the Nginx *Ricgraph Explorer* configuration file to its final location:
   ```
@@ -547,6 +555,7 @@ Please follow these steps if you would like
 to install Ricgraph and Ricgraph Explorer on SURF Research Cloud.
 
 Preliminaries:
+
 * Make sure you have access to SURF Research Cloud and that you have a wallet
   available. A _wallet_ is a budget.
   A wallet has _credits_, and these credits are used to pay for the
@@ -561,6 +570,7 @@ Preliminaries:
   research engineers, data stewards, data managers, or data consultants.
 
 Then, follow the following steps, and also watch the video below:
+
 * Go to the [SURF Research Cloud portal](https://portal.live.surfresearchcloud.nl)
   and log in.
 * Allocate storage (optional). This step is only required if you expect 
