@@ -24,10 +24,10 @@ Documentation about the Podman badges can be found here: https://github.com/eggp
 
 <img alt="Ricgraph logo" src="docs/images/ricgraph_logo.png" height="30"> 
 
-# Ricgraph - Research in context graph 
+# Ricgraph - Research in context graph
 
-[Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md) and 
-[Index of Ricgraph documentation](docs/ricgraph_index_documentation.md).
+[Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) and 
+[Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
 ## What is Ricgraph?
 
@@ -95,11 +95,11 @@ so Ricgraph can be used in other application areas.
 
 ### How to use Ricgraph (very short)
 
-* [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
-* Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md).
-* Use [Ricgraph Explorer](docs/ricgraph_explorer.md),
+* [Install and configure Ricgraph](docs/ricgraph_install_configure.md#install-and-configure-ricgraph).
+* Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
+* Use [Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer),
   the exploration tool for Ricgraph. 
-* Use the [Ricgraph REST API](docs/ricgraph_restapi.md),
+* Use the [Ricgraph REST API](docs/ricgraph_restapi.md#ricgraph-rest-api),
   the REST API for Ricgraph.
 * Optional: modify code to fit Ricgraph to your specific use case.
 
@@ -113,6 +113,7 @@ context from various systems. *SoftwareX*, 26(101736).
 https://doi.org/10.1016/j.softx.2024.101736.
 
 For a further introduction, you might want to read these two presentations:
+
 * A general presentation about Ricgraph, presenting Ricgraph in a visual manner: 
   https://doi.org/10.5281/zenodo.12634234.
 * A presentation explaining how to enrich 
@@ -138,7 +139,7 @@ data](#steps-to-take-if-you-would-like-to-install-ricgraph-and-harvest-data),
 an [explanation how to use Ricgraph](#steps-to-take-if-you-would-like-to-use-ricgraph), 
 and [information about extending Ricgraph](#read-this-in-case-you-would-like-to-extend-ricgraph).
 Of course there are 
-[videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md),
+[videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md#ricgraph-videos),
 and there is an overview of the 
 [publications](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
 [presentations](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
@@ -148,12 +149,13 @@ and there is an overview of the
 [mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
 of Ricgraph.
 
-You can also use the [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md) 
-or the [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md).
+You can also use the [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) 
+or the [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
 ## Why Ricgraph?
 
 Ricgraph can answer questions like:
+
 * Which researcher has contributed to which publication, dataset, software package, project, etc.?
 * Given e.g. a dataset, software package, or project, who has contributed to it?
 * What identifiers does a researcher have (e.g. 
@@ -165,8 +167,9 @@ Ricgraph can answer questions like:
 * Which organizations have worked together?
 
 Also, more elaborate information can be found using Ricgraph and 
-[Ricgraph Explorer](docs/ricgraph_explorer.md), the
+[Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer), the
 exploration tool for Ricgraph:
+
 * You can find information about persons or their results in a (sub-)organization 
   (unit, department, faculty, university). 
   For example, you can find out what data sets or software are produced in your faculty. 
@@ -238,7 +241,7 @@ The right part shows one person having several identifiers and several research 
 This person has two different ORCIDs, one ISNI, one SCOPUS_AUTHOR_ID, and two FULL_NAMEs (which differ
 in spelling). These identifiers have also been obtained from different source systems, as their color indicates.
 
-More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
+More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implementation-details).
 
 ## Ricgraph in bullet points
 
@@ -297,10 +300,11 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
 
 ## Next steps
 
-[Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md) and
-[Index of Ricgraph documentation](docs/ricgraph_index_documentation.md).
+[Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) and
+[Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
 ### Further information about Ricgraph
+
 * For a gentle introduction in Ricgraph, read the reference publication:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).
@@ -327,35 +331,38 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md).
   [use](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
   [mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
   of Ricgraph.
-* Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md).
-* Read more about [Ricgraph details](docs/ricgraph_details.md),
+* Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md#ricgraph-videos).
+* Read more about [Ricgraph details](docs/ricgraph_details.md#implementation-details),
   such as example graphs, person identifiers and the *person-root* node.
-* You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md).
+* You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md#ricgraph-comparison).
 
 ### Steps to take if you would like to install Ricgraph and harvest data
-* [Install and configure Ricgraph](docs/ricgraph_install_configure.md).
-* Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md),
+
+* [Install and configure Ricgraph](docs/ricgraph_install_configure.md#install-and-configure-ricgraph).
+* Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md#ricgraph-harvest-scripts),
   e.g. by doing a harvest for Utrecht University data sets and
   software. 
   You will observe that the information from two sources is neatly combined into one graph.
-* Unfortunately, there is a bug, see [known bugs](docs/ricgraph_known_bugs.md).
+* Unfortunately, there is a bug, see [known bugs](docs/ricgraph_known_bugs.md#ricgraph-known-bugs).
   This bug may occur
   if you start a harvest script, and as first step in the script you want to empty Ricgraph.
   In that case, a Python error might occur while emptying Ricgraph. Follow the link
   to read more and find out how to repair that.
 
 ### Steps to take if you would like to use Ricgraph
+
 * First, install Ricgraph (see above).
-* Use [Ricgraph Explorer](docs/ricgraph_explorer.md),
+* Use [Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer),
   the exploration tool for Ricgraph. 
-* Use the [Ricgraph REST API](docs/ricgraph_restapi.md),
+* Use the [Ricgraph REST API](docs/ricgraph_restapi.md#ricgraph-rest-api),
   the REST API for Ricgraph.
 * Alternatively, you might want to read
-  [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md).
+  [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md#query-and-visualize-ricgraph).
 
 ### Read this in case you would like to extend Ricgraph
-* Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md).
-* Of course, there is [future work to do](docs/ricgraph_future_work.md). Please let me know
+
+* Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md#ricgraph-script-writing).
+* Of course, there is [future work to do](docs/ricgraph_future_work.md#future-work). Please let me know
   if you'd like to help.
 
 ### Ricgraph website

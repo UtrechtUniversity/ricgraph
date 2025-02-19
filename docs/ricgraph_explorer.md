@@ -14,6 +14,7 @@ In this documentation and on this page, we use the application area _research in
 Ricgraph Explorer 
 has several pre-build queries tailored to this application area,
 each with its own button, for example:
+
 * find a person, a (sub-)organization, a skill;
 * when a person has been found, find its identities, skills, research results.
 
@@ -34,6 +35,7 @@ provided, the user will get a Results page. Since there are many possible result
 pages, we only show one result page as example.
 
 On this page, you can learn more about:
+
 * Read about [how to start Ricgraph Explorer](#how-to-start-ricgraph-explorer).
 * [Working with Ricgraph Explorer](#working-with-ricgraph-explorer).
 * The [Home page](#home-page) of Ricgraph Explorer.
@@ -45,12 +47,13 @@ On this page, you can learn more about:
 * Learn how to [show a privacy statement or privacy measures 
   document](#showing-a-privacy-statement-or-privacy-measures-document).
  
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
 ## How to start Ricgraph Explorer
 Depending on how Ricgraph has been installed, there are various ways to start 
 Ricgraph Explorer.
+
 * If you have installed Ricgraph for a single user,
   you might need to start your graph database backend first:
   * If you use Neo4j Community Edition: this will be already running.
@@ -122,6 +125,7 @@ Click on it to enlarge.
 <img src="images/ricgraph-explorer-home-page.jpg" width="400">
 
 The home page lets the user choose between various methods to explore Ricgraph:
+
 * Button _search for a person_.
   * in the [search page](#search-page) that is shown after you have clicked this button, 
     to search, type a full name or substring of a name.
@@ -159,16 +163,18 @@ The home page lets the user choose between various methods to explore Ricgraph:
       the results are shown on the [results page](#results-page).
 
 In the yellow top bar, there are more buttons:
+
 * Button _Home_. This button returns the user to the [home page](#home-page).
 * Button _Advanced search_. This leads to the advanced search page, see section
   [search page](#search-page).
 * Button _Broad search_. This leads to the broad search page, see section
   [search page](#search-page).
 * Button _REST API doc_. This leads to the documentation and try out page of
-  the [Ricgraph REST API](ricgraph_restapi.md).
+  the [Ricgraph REST API](ricgraph_restapi.md#ricgraph-rest-api).
 
 ## Search page
 There are two search pages:
+
 * A broad search page, having one input field.
   This search is a case-insensitive search.
 * An advanced search page, having three input fields.
@@ -183,6 +189,7 @@ The figure below shows these search pages. Click on any figure to enlarge.
 
 
 There are two methods for viewing the results:
+
 * _person_view_: only show relevant columns, results are presented in 
   a [tabbed format](https://en.wikipedia.org/wiki/Tab_(interface)).
   Tables have fewer columns to reduce information overload.
@@ -197,6 +204,7 @@ The figure below shows the person options page. Click on it to enlarge.
 <img src="images/ricgraph-explorer-personoptions-page.jpg" width="400">
 
 You can use one of these exploration options:
+
 * Button _show personal information related to this person_.
 * Button _show organizations related to this person_.
 * Button _show research results related to this person_.
@@ -236,6 +244,7 @@ The figure below shows the organization options page. Click on it to enlarge.
 <img src="images/ricgraph-explorer-organizationoptions-page.jpg" width="400">
 
 You can use one of these buttons:
+
 * Button _show persons related to this organization_.
 * Button _show all information related to this organization_.
 * Button _find research results from all persons in this organization_.
@@ -279,6 +288,7 @@ and
 [privacy_measures_placeholder.pdf](../ricgraph_explorer/static/privacy_measures_placeholder.pdf).
 
 How to use a privacy statement in Ricgraph Explorer?
+
 * Create a privacy statement that fits your situation.
 * Use the filename `privacy_statement.[extension of your text editor]`.
 * Convert this file to a pdf file and use filename `privacy_statement.pdf`.
@@ -286,6 +296,7 @@ How to use a privacy statement in Ricgraph Explorer?
 * In Ricgraph Explorer, in the footer you will find a link to this file.
 
 How to use a privacy measures document in Ricgraph Explorer?
+
 * Create a privacy measures document that fits your situation.
 * Use the filename `privacy_measures.[extension of your text editor]`.
 * Convert this file to a pdf file and use filename `privacy_measures.pdf`.

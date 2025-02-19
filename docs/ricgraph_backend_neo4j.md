@@ -6,6 +6,7 @@ backends](https://en.wikipedia.org/wiki/Graph_database):
 This page describes how to install Ricgraph with Neo4j graph
 database backend.
 Neo4j has several products:
+
 * [Neo4j Community Edition](https://neo4j.com/download-center/#community), allows
   to explore the graph using
   [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
@@ -19,6 +20,7 @@ Neo4j has several products:
 To use Ricgraph, if you choose the Neo4j graph database backend (which is recommended for now),
 you need to choose between Neo4j Community Edition and Neo4j Desktop.
 On this page you can find:
+
 * [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
 * [Install Neo4j Desktop](#install-neo4j-desktop)
 * [Start Neo4j Desktop](#start-neo4j-desktop)
@@ -32,7 +34,7 @@ On this page you can find:
 * [How to use Bloom for Neo4j Desktop (optional)](#how-to-use-bloom-for-neo4j-desktop-optional)
 * [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
 ## Install and start Neo4j Community Edition
@@ -102,6 +104,7 @@ If you use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefi
 you do not need to do this. Otherwise, for your first run of Neo4j Community Edition 
 only, you need to
 change the default username and password of Neo4j:
+
 * In your web browser, go to
   [http://localhost:7474/browser](http://localhost:7474/browser).
 * Neo4j will ask you to login, use username *neo4j* and password *neo4j*.
@@ -128,6 +131,7 @@ command `make install_neo4j_desktop`, or follow the steps below.
    Make it executable using "chmod 755 \[filename\]". 
 
 ### Post-install steps Neo4j Desktop
+
 1. Start Neo4j Desktop by clicking on the downloaded file. 
 1. Accept the license. 
 1. Enter your activation key in the right part of the screen.
@@ -166,6 +170,7 @@ Now we need to find the port number which Neo4j Desktop is using:
 
 
 ## Start Neo4j Desktop
+
 1. Click on the downloaded AppImage. It will be called something
    like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
 1. At the top right there is a text "No active DBMS".
@@ -183,6 +188,7 @@ Now we need to find the port number which Neo4j Desktop is using:
 Depending on your situation (whether you use Neo4j Desktop or
 Neo4j Community Edition), this section lists the methods for
 dumping and restoring the Ricgraph database:
+
 * [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
 * [Create a Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
 * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
@@ -191,6 +197,7 @@ dumping and restoring the Ricgraph database:
 
 ### Create a Neo4j Desktop database dump of Ricgraph
 To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
+
 1. Start Neo4j Desktop if it is not running, or
    stop the graph database if it is running.
 1. Hoover over the name of your graph database (probably "Graph DBMS"),
@@ -206,6 +213,7 @@ and execute
 command `make dump_graphdb_neo4j_community`, or follow the steps below.
 
 To create a Neo4j Community Edition database dump of Ricgraph, follow these steps:
+
 1. Login as user *root*.
 1. Stop Neo4j Community Edition:
    ```
@@ -238,6 +246,7 @@ To create a Neo4j Community Edition database dump of Ricgraph, follow these step
 To restore a 
 [Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph) 
 in Neo4j Desktop, follow these steps:
+
 1. Start Neo4j Desktop if it is not running, or 
    stop the graph database if it is running.
 1. Click on the button "Add" on the right side of "Project" and select "File".
@@ -254,13 +263,14 @@ in Neo4j Desktop, follow these steps:
 1. Optional: Once it is active, [install the Bloom 
    configuration](#install-bloom-configuration-for-neo4j-desktop-optional).
 1. Now you are ready to explore the data 
-   using [Ricgraph Explorer](ricgraph_explorer.md) or
+   using [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer) or
    using [Bloom](#how-to-use-bloom-for-neo4j-desktop-optional).
 
 ### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
 To restore a
 [Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
 in Neo4j Community Edition, follow these steps:
+
 1. Login as user *root*.
 1. Stop Neo4j Community Edition:
    ```
@@ -307,7 +317,7 @@ in Neo4j Community Edition, follow these steps:
    the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file)
    (this saves you from entering a new password in that file).
 1. Restart Ricgraph Explorer if you use 
-   [Ricgraph in a multi-user environment](ricgraph_as_server.md):
+   [Ricgraph in a multi-user environment](ricgraph_as_server.md#ricgraph-as-a-server-on-linux):
    ```
    systemctl restart ricgraph_explorer_gunicorn.service
    ```
@@ -332,6 +342,7 @@ command `make restore_graphdb_neo4j_community`, or follow the steps below.
 To restore a
 [Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
 in Neo4j Community Edition, follow these steps:
+
 1. Login as user *root*.
 1. Stop Neo4j Community Edition:
    ```
@@ -373,7 +384,7 @@ in Neo4j Community Edition, follow these steps:
    journalctl -u neo4j.service
    ```
 1. Restart Ricgraph Explorer if you use
-   [Ricgraph in a multi-user environment](ricgraph_as_server.md):
+   [Ricgraph in a multi-user environment](ricgraph_as_server.md#ricgraph-as-a-server-on-linux):
    ```
    systemctl restart ricgraph_explorer_gunicorn.service
    ```
@@ -550,6 +561,7 @@ With an "old" version of Python (3.6 and earlier), an old version
 of module *neo4j* will be used. The only way to solve this is using a new version of
 Python while creating the Python virtual environment. You can do this by using the
 following command:
+
 * Create a Python virtual environment:
   in */opt*, type:
   ```

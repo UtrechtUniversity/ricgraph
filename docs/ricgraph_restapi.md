@@ -7,7 +7,7 @@ code. In your own code, you do not need to include any of the Ricgraph dependenc
 include *ricgraph.py* or *ricgraph_explorer.py*.
 You can use the Ricgraph REST API to programmatically get items from Ricgraph,
 as an alternative to using the user
-interface [Ricgraph Explorer](ricgraph_explorer.md). 
+interface [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer). 
 
 Note that this will only work if someone has a running Ricgraph and
 Ricgraph Explorer instance available, which you can access over the web.
@@ -29,11 +29,12 @@ read more about
 [API (application programming interface)](https://en.wikipedia.org/wiki/API).
 
 On this page, you can learn more about:
+
 * [Installation of the Ricgraph REST API](#installation-of-the-ricgraph-rest-api)
 * [Use of the Ricgraph REST API](#use-of-the-ricgraph-rest-api)
 * [Generate the Ricgraph REST API documentation page](#generate-the-ricgraph-rest-api-documentation-page)
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
 ## Installation of the Ricgraph REST API
@@ -41,6 +42,7 @@ The Ricgraph REST API is part of Ricgraph Explorer. Read [how to start Ricgraph
   Explorer](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
 
 Depending on your needs, you might also want to read:
+
 * [Install and use a service unit file to run Ricgraph Explorer and the Ricgraph REST 
   API](ricgraph_as_server.md#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
 * [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph
@@ -70,7 +72,7 @@ See the figure below, that shows part of the Home page of Ricgraph Explorer
 <img src="images/ricgraph-explorer-home-page.jpg" width="400">
 
 As an alternative, you can also read 
-the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md),
+the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api),
 that is auto generated from the OpenAPI yaml specification file, but
 it only lists the end points and parameters available and there is no
 try out feature.

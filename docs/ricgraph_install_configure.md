@@ -8,15 +8,17 @@ install Ricgraph for a single user on Linux, as described on this page.
 Or go for Ricgraph in a container.
 
 Other Ricgraph install options are:
+
 * [Install and configure
-  Ricgraph as a server](ricgraph_as_server.md): 
+  Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux): 
   multi-user environment on Linux.
 * [Install and use
-  Ricgraph in a container](ricgraph_containerized.md):
+  Ricgraph in a container](ricgraph_containerized.md#ricgraph-in-a-container):
   relatively quick with limited possibilities.
  
 
 On this page you can find:
+
 * [Fast and recommended way to install Ricgraph](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
 * [Requirements](#requirements-for-ricgraph)
 * [Ricgraph Makefile](#ricgraph-makefile)
@@ -28,13 +30,14 @@ On this page you can find:
 * [Dumping and restoring the Ricgraph database](#dumping-and-restoring-the-ricgraph-database)
 * [Ricgraph on Windows](#ricgraph-on-windows)
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
 ## Fast and recommended way to install Ricgraph for a single user
 To follow this procedure, you need to be able to change to user *root*.
 This is the recommended method to install Ricgraph for a single user, since
 it will install everything automatically (by using the Makefile).
+
 1. [Check the requirements](#requirements-for-ricgraph).
 1. Get the most recent Ricgraph Makefile.
    Type as regular user (i.e., be sure you are not user *root*):
@@ -66,16 +69,16 @@ it will install everything automatically (by using the Makefile).
    [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
    [the Research Software Directory](https://research-software-directory.org).
    To read more about harvesting data, 
-   see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
+   see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
    To read more about writing harvesting scripts,
-   see [Ricgraph script writing](ricgraph_script_writing.md).
+   see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
 1. Start Ricgraph Explorer to browse the information harvested:
    ```
    make run_ricgraph_explorer
    ```
    In your web browser, go to http://127.0.0.1:3030.
-   Read more at [Ricgraph Explorer](ricgraph_explorer.md), or
-   at [Execute queries and visualize the results](ricgraph_query_visualize.md).
+   Read more at [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer), or
+   at [Execute queries and visualize the results](ricgraph_query_visualize.md#query-and-visualize-ricgraph).
 1. If everything succeeded, you can skip the remainder of this page.
    If not, the remainder of this page may help in finding solutions.
 
@@ -100,6 +103,7 @@ since you have to do a number of things manually.
    ```
 
 ## Requirements for Ricgraph
+
 * To install the graph database backend and Ricgraph,
   you will need access to a Linux machine.
   All instructions in this documentation are written for a Linux machine,
@@ -128,7 +132,7 @@ since you have to do a number of things manually.
       Then, install the graph database backend and Ricgraph in the Linux virtual machine
       you have just created, as described on this page or on
       [Install and configure
-      Ricgraph as a server](ricgraph_as_server.md). 
+      Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux). 
     * There are many tutorials on installing VirtualBox on internet.
       For example, [How to Install VirtualBox on Ubuntu
       (Beginner's Tutorial)](https://itsfoss.com/install-virtualbox-ubuntu).
@@ -201,7 +205,7 @@ Most often, you do not need to install the `make` command, but if you get a
 package manager.
 
 If you read the documentation below or on page
-[Ricgraph as a server on Linux](ricgraph_as_server.md),
+[Ricgraph as a server on Linux](ricgraph_as_server.md#ricgraph-as-a-server-on-linux),
 you will notice that some sections start with mentioning a Makefile command.
 That means, that if you execute that command, the steps in that section will
 be done automatically.
@@ -214,6 +218,7 @@ graph database.
 Skip this if you have done the
 [Fast and recommended way to install Ricgraph for a single 
 user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
+
 1. Install your graph database backend (choose one of these):
     * [Install and start Neo4j Community
       Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
@@ -228,9 +233,9 @@ user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file). This is also the
    place where you specify which graph database backend you use.
 1. Start 
-   - harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md);
-   - writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md).
-1. [Execute queries and visualize the results](ricgraph_query_visualize.md).
+   - harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts);
+   - writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
+1. [Execute queries and visualize the results](ricgraph_query_visualize.md#query-and-visualize-ricgraph).
 
 
 ## Download Ricgraph
@@ -259,10 +264,12 @@ each with their own independent set of Python packages installed
 in their site directories. A virtual environment is created on top of
 an existing Python installation.
 There are two ways of doing this:
+
 * Using Python's venv module;
 * Using a Python Integrated development environment (IDE).
 
 ### Using Python's venv module
+
 * Using Python's venv module.
   Read [Create a Python virtual environment and install Ricgraph in
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
@@ -278,6 +285,7 @@ There are two ways of doing this:
   * Follow the other instructions as written. 
 
 ### Using a Python Integrated development environment (IDE)
+
 * Using a Python
   [Integrated development
   environment (IDE)](https://en.wikipedia.org/wiki/Integrated_development_environment),
@@ -304,6 +312,7 @@ There are two ways of doing this:
     You may want to change *3.11* in *pip3.11* for the Python version you use.
 
 ### Notable dependencies used in Ricgraph:
+
 * [PyAlex](https://github.com/J535D165/pyalex).
   PyAlex is a Python library for [OpenAlex](https://openalex.org/).
   OpenAlex is an index of hundreds of millions of interconnected scholarly papers, authors,
@@ -348,18 +357,20 @@ of *Name-3*, e.g. *John Doe* vs *J. Doe*, but it also may not be correct, e.g. i
 source system). There is no way for Ricgraph to know which of these two options it is.
 
 RICGRAPH_NODEADD_MODE can be either *strict* or *lenient*:
+
 * *strict* (default setting): only add nodes to Ricgraph which conform to the model
-  described in the [Implementation details](ricgraph_details.md). 
+  described in the [Implementation details](ricgraph_details.md#implementation-details). 
   In the example above, *ORCID* *0000-0001-1111-2222* will not be inserted.
 * *lenient*: add every node.
   In the example above, *ORCID* *0000-0001-1111-2222* will be inserted.
 
 This will have the following consequences: 
+
 * *strict*: since *ORCID* *0000-0001-1111-2222* 
   will not be inserted, a research output from a person with
   that *ORCID* may not be inserted in Ricgraph. Or the research output will be inserted,
   but it might not be linked to the person with this *ORCID*.
-* *lenient*: as has been described [Implementation details](ricgraph_details.md), *person-root*
+* *lenient*: as has been described [Implementation details](ricgraph_details.md#implementation-details), *person-root*
   "represents" a person. Person identifiers (such as *ORCID*) 
   and research outputs are connected to the
   *person-root* node of a person. 
@@ -382,9 +393,9 @@ of Ricgraph has noticed that this does not occur often, therefore the default is
 
 ## Using Ricgraph
 Before you can do anything with Ricgraph, you need to harvest sources,
-see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
+see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
 After you have harvested sources, you can execute queries and visualize the results,
-see [Query and visualize Ricgraph](ricgraph_query_visualize.md).
+see [Query and visualize Ricgraph](ricgraph_query_visualize.md#query-and-visualize-ricgraph).
 Very likely, you may want to use Ricgraph Explorer, read
 more on the [Ricgraph Explorer page](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
 
@@ -396,12 +407,12 @@ database](ricgraph_backend_neo4j.md#dumping-and-restoring-the-ricgraph-database)
 
 ## Ricgraph on Windows
 The easiest way to go is to [Install and use
-Ricgraph in a container](ricgraph_containerized.md).
+Ricgraph in a container](ricgraph_containerized.md#ricgraph-in-a-container).
 This is relatively quick but it offers limited possibilities.
 
 If you would like to go for a "full" install of Ricgraph on Windows using either 
-[Install and configure Ricgraph for a single user](ricgraph_install_configure.md) or 
-[Install and configure Ricgraph as a server](ricgraph_as_server.md),
+[Install and configure Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph) or 
+[Install and configure Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux),
 you are very probably the first
 person to do so, as far as known. The creator of Ricgraph has no experience
 in developing software on Windows. So please let me know which steps you have

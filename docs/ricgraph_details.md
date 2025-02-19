@@ -1,6 +1,7 @@
 # Implementation details
 
 On this page, you can find more information about:
+
 * [Person identifiers](#person-identifiers).
 * The [Person-root node in Ricgraph](#person-root-node-in-ricgraph).
 * [Research outputs connected to persons](#research-outputs-connected-to-persons).
@@ -8,7 +9,7 @@ On this page, you can find more information about:
 * [Videos of Ricgraph](#videos-of-ricgraph).
 * [Properties of nodes in Ricgraph](#properties-of-nodes-in-ricgraph).
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## Person identifiers
 
@@ -62,7 +63,7 @@ Click the figure to enlarge.
 
 ## Videos of Ricgraph
 To see a demonstration of Ricgraph, you can look at 
-the [videos we have made to demonstrate Ricgraph](ricgraph_example_use_videos.md).
+the [videos we have made to demonstrate Ricgraph](ricgraph_example_use_videos.md#ricgraph-videos).
 
 ## Properties of nodes in Ricgraph
 

@@ -12,4 +12,4 @@
   [DataCite Commons](https://commons.datacite.org), 
   [GitHub](https://github.com) (and other Gits), etc.  
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).

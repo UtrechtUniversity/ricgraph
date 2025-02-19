@@ -30,6 +30,7 @@ Neo4j Desktop, and might happen sometimes when you are using Neo4j Community Edi
 ### Solution for Neo4j Desktop
 
 You can do the following for Neo4j Desktop and Ricgraph:
+
 1. [Start Neo4j Desktop](ricgraph_backend_neo4j.md#start-neo4j-desktop) if it is not running yet.
 1. Move your mouse to "Project" in the left column.
    A red trash can icon appears. Click it to remove the database. Confirm.

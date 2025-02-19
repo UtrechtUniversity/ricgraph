@@ -13,7 +13,7 @@
 Please let us know if you publish, present, use, or mention Ricgraph, then we
 can add that to this page. 
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## Ricgraph publications
 

@@ -1,6 +1,7 @@
 # Table of contents Ricgraph documentation
 This table of contents has been generated automatically.
-- [Ricgraph - Research in context graph ](../README.md#ricgraph---research-in-context-graph-)
+
+- [Ricgraph - Research in context graph](../README.md#ricgraph---research-in-context-graph)
   - [What is Ricgraph?](../README.md#what-is-ricgraph)
     - [Motivation](../README.md#motivation)
     - [Main contributions of Ricgraph](../README.md#main-contributions-of-ricgraph)

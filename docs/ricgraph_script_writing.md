@@ -1,32 +1,34 @@
 # Ricgraph script writing
 
 Ricgraph scripts can be found in various places:
+
 * Directory [harvest](../harvest):
   scripts for harvesting sources and inserting the results in Ricgraph.
-  [Documentation for these scripts](ricgraph_harvest_scripts.md).
+  [Documentation for these scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
 * Directory [import_export](../import_export):
   scripts to export items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md).
+  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
 * Directory [enhance](../enhance):
   scripts for finding and enriching items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md).
+  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
 * The module code *ricgraph.py* can be found in
   directory [ricgraph](../ricgraph).
 * The code for *Ricgraph Explorer* can be found in
   directory [ricgraph_explorer](../ricgraph_explorer).
-  [Documentation for Ricgraph Explorer](ricgraph_explorer.md).
-* [Documentation for writing your own scripts](ricgraph_script_writing.md)
+  [Documentation for Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
+* [Documentation for writing your own scripts](ricgraph_script_writing.md#ricgraph-script-writing)
   (this file).
 
 All code is documented and hints to use it can be found in the source files.
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## How to make your own harvesting scripts
 You can make your own harvesting script of your favorite source. The easiest way to
 do so is to take one of the harvesting scripts as an example.
 For example, if you use the script *harvest_pure_to_ricgraph.py*, you'll recognize the
 three parts:
+
 1. Code for harvesting. This is done with `harvest_json_and_write_to_file()` which also writes
    the harvested json data to a file. It gets data from a source.
 1. Code for parsing. This is done with `parse_pure_persons()`, `parse_pure_organizations()` and

@@ -1,24 +1,25 @@
 # Ricgraph miscellaneous scripts
 
 Ricgraph scripts can be found in various places:
+
 * Directory [harvest](../harvest): 
   scripts for harvesting sources and inserting the results in Ricgraph.
-  [Documentation for these scripts](ricgraph_harvest_scripts.md).
+  [Documentation for these scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
 * Directory [import_export](../import_export):
   scripts to export items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md) (this file).
+  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts) (this file).
 * Directory [enhance](../enhance):
   scripts for finding and enriching items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md) (this file).
+  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts) (this file).
 * The module code *ricgraph.py* can be found in 
   directory [ricgraph](../ricgraph). 
 * The code for *Ricgraph Explorer* can be found in
   directory [ricgraph_explorer](../ricgraph_explorer). 
-* [Documentation for writing your own scripts](ricgraph_script_writing.md).
+* [Documentation for writing your own scripts](ricgraph_script_writing.md#ricgraph-script-writing).
 
 All code is documented and hints to use it can be found in the source files.
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
 ## Construct a Ricgraph from a csv file (construct_ricgraph_from_csv.py)
@@ -60,11 +61,13 @@ Options:
 
 The import file containing nodes should be a csv file. At least the following columns should be
 present:
+
 * name
 * category
 * value
 
 Other fields that may be present:
+
 * All fields in parameter *ricgraph_properties_additional* in the
   [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file),
   but not the fields *source_event* and *history_event*.
@@ -109,18 +112,21 @@ Options:
 
 The import file containing nodes should be a csv file. At least the following columns should be
 present:
+
 * name
 * category
 * value
 * _key
 
 Other fields that may be present:
+
 * The remaining fields in parameter *ricgraph_properties_hidden* in the
   [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 * The fields in parameter *ricgraph_properties_additional* in the
   [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 
 The import file containing edges should be a csv file containing exactly four columns:
+
 * name_from, value_from: the from node for the edge.
 * name_to, value_to: the to node for the edge.
 
@@ -163,6 +169,7 @@ Options:
 The export file containing nodes will be a csv file. All fields in Ricgraph will be exported.
 
 The export file containing edges will be a csv file containing exactly four columns:
+
 * name_from, value_from: the from node for the edge.
 * name_to, value_to: the to node for the edge.
 
@@ -255,6 +262,7 @@ raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import
 
 There are two scripts which allow to export *person* nodes to a csv file. These can be
 found in the directory [import_export](../import_export).
+
 * *export_person_identifiers.py*: exports
   all [person identifiers](ricgraph_details.md#person-identifiers)
   connected to a *person-root* node.
@@ -289,7 +297,7 @@ To create a table of contents of the Ricgraph documentation
 use the script *create_toc_documentation.py*.
 You can find this script in the directory [maintenance](../maintenance).
 The table of contents will be created in file 
-[ricgraph_toc_documentation.md](ricgraph_toc_documentation.md).
+[ricgraph_toc_documentation.md](ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation).
 ```
 Usage:
 create_toc_documentation.py
@@ -300,7 +308,7 @@ To create an index of the Ricgraph documentation
 use the script *create_index_documentation.py*.
 You can find this script in the directory [maintenance](../maintenance).
 The index will be created in file
-[ricgraph_index_documentation.md](ricgraph_index_documentation.md).
+[ricgraph_index_documentation.md](ricgraph_index_documentation.md#index-ricgraph-documentation).
 ```
 Usage:
 create_index_documentation.py
@@ -314,7 +322,7 @@ This documentation is based on the Ricgraph OpenAPI yaml file *openapi.yaml*
 in the directory [ricgraph_explorer/static](../ricgraph_explorer/static).
 You can find this script in the directory [maintenance](../maintenance).
 The REST API documentation will be created in file
-[ricgraph_restapi_gendoc.md](ricgraph_restapi_gendoc.md).
+[ricgraph_restapi_gendoc.md](ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api).
 ```
 Usage:
 convert_openapi_to_mddoc.py

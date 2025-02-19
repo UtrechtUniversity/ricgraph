@@ -38,7 +38,7 @@ the following steps:
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
  
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
 ## Fast and recommended way to install Ricgraph as a server 

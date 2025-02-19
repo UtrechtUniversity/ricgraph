@@ -8,6 +8,7 @@ The videos only give a glimpse of possible use-cases. By adding more sources,
 more metadata can be harvested, and more insights can be obtained.
 
 For these videos, Ricgraph has harvested the following source systems:
+
 * Utrecht University persons, organizations and research outputs from Pure;
 * Utrecht University data sets
   from the data repository [Yoda](https://search.datacite.org/repositories/delft.uu);
@@ -15,6 +16,7 @@ For these videos, Ricgraph has harvested the following source systems:
   from the [Research Software Directory](https://research-software-directory.org).
 
 In the videos, you will observe nodes of several colors and sizes:
+
 * blue nodes indicate persons;
 * yellow nodes indicate journal articles;
 * green nodes indicate data sets;
@@ -35,7 +37,7 @@ For other illustrations of Ricgraph, see the
 [mentions](ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
 of Ricgraph.
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## Video Start with ORCID to find software
 https://user-images.githubusercontent.com/121875841/226639991-28f279c4-17f8-49ab-8420-1676d3db2b74.mp4
@@ -101,7 +103,7 @@ in Ricgraph. This can be used to understand how nodes connect to each other.
 However, for an end user it might be complicated to use the correct
 search queries. Also, expanding nodes may result in a lot of nodes, so the user might
 get confused what there is to be learned. That is why we have made 
-[Ricgraph Explorer](ricgraph_explorer.md).
+[Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
 
 The [video Ricgraph Explorer (2m20s) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
 shows how a more user-centric interface may look like. 

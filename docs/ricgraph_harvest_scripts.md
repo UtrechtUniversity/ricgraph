@@ -1,26 +1,27 @@
 # Ricgraph harvest scripts
 
 Ricgraph scripts can be found in various places:
+
 * Directory [harvest](../harvest):
   scripts for harvesting sources and inserting the results in Ricgraph.
-  [Documentation for these scripts](ricgraph_harvest_scripts.md)
+  [Documentation for these scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts)
   (this file).
 * Directory [import_export](../import_export):
   scripts to export items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md).
+  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
 * Directory [enhance](../enhance):
   scripts for finding and enriching items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md).
+  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
 * The module code *ricgraph.py* can be found in
   directory [ricgraph](../ricgraph).
 * The code for *Ricgraph Explorer* can be found in
   directory [ricgraph_explorer](../ricgraph_explorer).
-  [Documentation for Ricgraph Explorer](ricgraph_explorer.md).
-* [Documentation for writing your own scripts](ricgraph_script_writing.md).
+  [Documentation for Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
+* [Documentation for writing your own scripts](ricgraph_script_writing.md#ricgraph-script-writing).
 
 All code is documented and hints to use it can be found in the source files.
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
 ## Introduction to harvest scripts
@@ -42,6 +43,7 @@ so the data in Ricgraph is only accessible for persons of a certain organization
 or for anyone.
 
 There are five examples of harvest scripts provided, for
+
 * [Harvest of OpenAlex (harvest_openalex_to_ricgraph.py)](#harvest-of-openalex-harvest_openalex_to_ricgraphpy)
 * [Harvest of Pure (harvest_pure_to_ricgraph.py)](#harvest-of-pure-harvest_pure_to_ricgraphpy)
 * [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph.py)](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraphpy)
@@ -55,8 +57,6 @@ It can be adapted to your needs, see the Python code in the script.
 It is best to [run harvest scripts in a specific 
 order](#order-of-running-the-harvest-scripts).
  
-[Return to main README.md file](../README.md).
-
 ## Organization abbreviation
 Ricgraph uses the term *organization abbreviation*.
 This is a string of a few letters that can be passed to some harvest
@@ -159,6 +159,7 @@ the script will be able to determine it for you
 The author recommends to use the READ API.
 You can use both of them to harvest data from Pure,
 but each of them has its own advantages and disadvantages:
+
 * The Pure READ API has a number of filters, which allow to reduce data requested from Pure
   on the Pure server,
   thereby preventing this data to be sent to the computer which is running the Pure harvest 
@@ -279,6 +280,7 @@ It can be used out of the box since it doesn't need an
 ## Order of running the harvest scripts
 The order of running the harvesting scripts does matter. The author harvests
 only records for Utrecht University and uses this order:
+
 1. *harvest_pure_to_ricgraph.py* (since it has a lot of data which is mostly correct);
 1. *harvest_yoda_datacite_to_ricgraph.py* (not too much data, so harvest is fast, but it 
    contains several data entry errors);

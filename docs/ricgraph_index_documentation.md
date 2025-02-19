@@ -2,15 +2,18 @@
 This index has been generated automatically.
 
 __A__
+
 - [Actions while clicking on a node](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node)
 - [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_pubs_pres_news_use_ment.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
 
 __B__
+
 - [Base URL](../docs/ricgraph_restapi_gendoc.md#base-url)
 - [Browsing Ricgraph](../docs/ricgraph_explorer.md#browsing-ricgraph)
 
 __C__
+
 - [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv.py)](../docs/ricgraph_misc_scripts.md#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csvpy)
 - [Contact](../README.md#contact)
 - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_categorypy)
@@ -23,12 +26,14 @@ __C__
 - [Create the Ricgraph REST API documentation (convert_openapi_to_mddoc.py)](../docs/ricgraph_misc_scripts.md#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddocpy)
 
 __D__
+
 - [Delete personal data from Ricgraph (delete_personal_data.py)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_datapy)
 - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_install_configure.md#dumping-and-restoring-the-ricgraph-database)
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_backend_neo4j.md#dumping-and-restoring-the-ricgraph-database)
 
 __E__
+
 - [Endpoints](../docs/ricgraph_restapi_gendoc.md#endpoints)
 - [Epilogue](../docs/ricgraph_example_use_videos.md#epilogue)
 - [Error while emptying Ricgraph with Neo4j](../docs/ricgraph_known_bugs.md#error-while-emptying-ricgraph-with-neo4j)
@@ -41,6 +46,7 @@ __E__
 - [Extending Ricgraph with new properties in the nodes](../docs/ricgraph_install_configure.md#extending-ricgraph-with-new-properties-in-the-nodes)
 
 __F__
+
 - [Fast and recommended way to install Ricgraph as a server ](../docs/ricgraph_as_server.md#fast-and-recommended-way-to-install-ricgraph-as-a-server-)
 - [Fast and recommended way to install Ricgraph for a single user](../docs/ricgraph_install_configure.md#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
 - [Function call for unifying personal identifiers](../docs/ricgraph_script_writing.md#function-call-for-unifying-personal-identifiers)
@@ -51,6 +57,7 @@ __F__
 - [Future work](../docs/ricgraph_future_work.md#future-work)
 
 __G__
+
 - [General overview](../docs/ricgraph_comparison.md#general-overview)
 - [General program structure of a Python script using Ricgraph](../docs/ricgraph_script_writing.md#general-program-structure-of-a-python-script-using-ricgraph)
 - [Generate the Ricgraph REST API documentation page](../docs/ricgraph_restapi.md#generate-the-ricgraph-rest-api-documentation-page)
@@ -72,6 +79,7 @@ __G__
 - [GET /person/share_research_results](../docs/ricgraph_restapi_gendoc.md#get-personshare_research_results)
 
 __H__
+
 - [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraphpy)
 - [Harvest of OpenAlex (harvest_openalex_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-openalex-harvest_openalex_to_ricgraphpy)
 - [Harvest of Pure (harvest_pure_to_ricgraph.py)](../docs/ricgraph_harvest_scripts.md#harvest-of-pure-harvest_pure_to_ricgraphpy)
@@ -88,6 +96,7 @@ __H__
 - [How to use Ricgraph (very short)](../README.md#how-to-use-ricgraph-very-short)
 
 __I__
+
 - [Implementation details](../docs/ricgraph_details.md#implementation-details)
 - [Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv.py)](../docs/ricgraph_misc_scripts.md#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)
 - [In case you have installed Ricgraph as a server](../docs/ricgraph_as_server.md#in-case-you-have-installed-ricgraph-as-a-server)
@@ -108,18 +117,22 @@ __I__
 - [Introduction to harvest scripts](../docs/ricgraph_harvest_scripts.md#introduction-to-harvest-scripts)
 
 __L__
+
 - [Limit the amount of data to harvest from Pure](../docs/ricgraph_harvest_scripts.md#limit-the-amount-of-data-to-harvest-from-pure)
 
 __M__
+
 - [Main contributions of Ricgraph](../README.md#main-contributions-of-ricgraph)
 - [Motivation](../README.md#motivation)
 
 __N__
+
 - [Next steps](../README.md#next-steps)
 - [Notable dependencies used in Ricgraph:](../docs/ricgraph_install_configure.md#notable-dependencies-used-in-ricgraph)
 - [Notes on the Ricgraph Podman container](../docs/ricgraph_containerized.md#notes-on-the-ricgraph-podman-container)
 
 __O__
+
 - [Open Bloom](../docs/ricgraph_backend_neo4j.md#open-bloom)
 - [Order of running the harvest scripts](../docs/ricgraph_harvest_scripts.md#order-of-running-the-harvest-scripts)
 - [Organization abbreviation](../docs/ricgraph_harvest_scripts.md#organization-abbreviation)
@@ -127,6 +140,7 @@ __O__
 - [Other research questions](../docs/ricgraph_explorer.md#other-research-questions)
 
 __P__
+
 - [Person identifiers](../docs/ricgraph_details.md#person-identifiers)
 - [Person options page](../docs/ricgraph_explorer.md#person-options-page)
 - [Person-root node in Ricgraph](../docs/ricgraph_details.md#person-root-node-in-ricgraph)
@@ -139,9 +153,11 @@ __P__
 - [Pure READ and Pure CRUD API](../docs/ricgraph_harvest_scripts.md#pure-read-and-pure-crud-api)
 
 __Q__
+
 - [Query and visualize Ricgraph](../docs/ricgraph_query_visualize.md#query-and-visualize-ricgraph)
 
 __R__
+
 - [Read more about Ricgraph](../README.md#read-more-about-ricgraph)
 - [Read this in case you would like to extend Ricgraph](../README.md#read-this-in-case-you-would-like-to-extend-ricgraph)
 - [Requirements for Ricgraph](../docs/ricgraph_install_configure.md#requirements-for-ricgraph)
@@ -151,7 +167,7 @@ __R__
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
 - [Results page](../docs/ricgraph_explorer.md#results-page)
-- [Ricgraph - Research in context graph ](../README.md#ricgraph---research-in-context-graph-)
+- [Ricgraph - Research in context graph](../README.md#ricgraph---research-in-context-graph)
 - [Ricgraph - Research in context graph REST API](../docs/ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api)
 - [Ricgraph as a server on Linux](../docs/ricgraph_as_server.md#ricgraph-as-a-server-on-linux)
 - [Ricgraph comparison](../docs/ricgraph_comparison.md#ricgraph-comparison)
@@ -181,6 +197,7 @@ __R__
 - [Run Ricgraph scripts from the command line or as a cronjob](../docs/ricgraph_as_server.md#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
 
 __S__
+
 - [Script to enrich persons (enrich_orcids_scopusids.py)](../docs/ricgraph_misc_scripts.md#script-to-enrich-persons-enrich_orcids_scopusidspy)
 - [Script to find person identifiers pointing to different persons (find_double_pids.py)](../docs/ricgraph_misc_scripts.md#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pidspy)
 - [Search page](../docs/ricgraph_explorer.md#search-page)
@@ -195,10 +212,12 @@ __S__
 - [Structure of a Python script that is harvesting data](../docs/ricgraph_script_writing.md#structure-of-a-python-script-that-is-harvesting-data)
 
 __T__
+
 - [Table of contents Ricgraph documentation](../docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation)
 - [Technicalities](../docs/ricgraph_restapi_gendoc.md#technicalities)
 
 __U__
+
 - [Use a Python virtual environment and install Python requirements](../docs/ricgraph_install_configure.md#use-a-python-virtual-environment-and-install-python-requirements)
 - [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](../docs/ricgraph_as_server.md#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 - [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
@@ -210,6 +229,7 @@ __U__
 - [Using the Makefile](../docs/ricgraph_as_server.md#using-the-makefile)
 
 __V__
+
 - [Video Find output common to two persons](../docs/ricgraph_example_use_videos.md#video-find-output-common-to-two-persons)
 - [Video Find outputs and organizations from a person](../docs/ricgraph_example_use_videos.md#video-find-outputs-and-organizations-from-a-person)
 - [Video Find persons who contributed to a publication](../docs/ricgraph_example_use_videos.md#video-find-persons-who-contributed-to-a-publication)
@@ -220,6 +240,7 @@ __V__
 - [Visualization of nodes](../docs/ricgraph_backend_neo4j.md#visualization-of-nodes)
 
 __W__
+
 - [What is Ricgraph?](../README.md#what-is-ricgraph)
 - [Why Ricgraph?](../README.md#why-ricgraph)
 - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)

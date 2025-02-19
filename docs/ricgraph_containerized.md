@@ -9,19 +9,21 @@ is safe because it doesn’t need special permissions to work.
 This makes it a good choice for running programs quickly and reliably.
 
 Other Ricgraph install options are:
+
 * [Install and configure
-  Ricgraph for a single user](ricgraph_install_configure.md).
+  Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph).
 * [Install and configure
-  Ricgraph as a server](ricgraph_as_server.md).
+  Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux).
  
 To install and run Ricgraph in a Podman container, 
 follow these steps:
+
 * [Read the notes on the Ricgraph Podman container](#notes-on-the-ricgraph-podman-container).
 * [Install Podman](#install-podman).
 * [Install and run the Ricgraph Podman container](#install-and-run-the-ricgraph-podman-container).
 * [Optional: Advanced use of the Ricgraph Podman container](#advanced-use-of-the-ricgraph-podman-container).
 
-[Return to main README.md file](../README.md).
+[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
 ## Notes on the Ricgraph Podman container
@@ -35,6 +37,7 @@ The Ricgraph Podman container is ideal for instructional or personal use.
 The Ricgraph Podman container has been designed in such a way that it is easy to use.
 This also means that some "good container design practices" have not been followed,
 in particular:
+
 * the harvested items are stored in the Ricgraph Podman container (usually, one would use
   data storage in the filesystem on the host);
 * Neo4j Community Edition and Ricgraph are in the same Ricgraph Podman container
@@ -47,6 +50,7 @@ So, do not use the Ricgraph Podman container in a production environment.
 Only for this step you will need *Administrator* or *root* access on
 your machine.
 Choose one of the following:
+
 * Linux:
   * [Install command line version 
     Podman](https://podman.io/docs/installation#installing-on-linux).
@@ -108,6 +112,7 @@ The Ricgraph container is hosted on the
 GitHub Container repository https://ghcr.io/utrechtuniversity/ricgraph.
 
 There are two ways to run the Ricgraph Podman container:
+
 1. You have not done a `podman commit` (see below).
 
    Run the latest (newest) version of the Ricgraph Podman container, and download it if you don't have it:
@@ -205,6 +210,7 @@ you will need to modify the Ricgraph Podman container. You might need to add API
 to the [Ricgraph initialization file 
 *ricgraph.ini*](ricgraph_install_configure.md#ricgraph-initialization-file).
 Follow these steps:
+
 * First execute a `bash` shell in the Ricgraph Podman container (see above). Execute the
   following commands in the container (in the bash shell you just started).
 * If necessary, add API keys to *ricgraph.ini*. It is in */usr/local* in the container.

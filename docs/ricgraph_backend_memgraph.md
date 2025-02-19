@@ -12,6 +12,7 @@ As an alternative to Neo4j, you can also use
 Memgraph is an in memory graph database
 and therefore (much) faster than Neo4j.
 However, it has not been tested extensively with Ricgraph yet.
+
 * Login as user *root*.
 * Make sure you have Docker. If not, install it:
     * Debian/Ubuntu: follow [Install Docker using the apt
