@@ -44,11 +44,11 @@ or for anyone.
 
 There are five examples of harvest scripts provided, for
 
-* [Harvest of OpenAlex (harvest_openalex_to_ricgraph.py)](#harvest-of-openalex-harvest_openalex_to_ricgraphpy)
-* [Harvest of Pure (harvest_pure_to_ricgraph.py)](#harvest-of-pure-harvest_pure_to_ricgraphpy)
-* [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph.py)](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraphpy)
-* [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph.py)](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraphpy)
-* [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph.py)](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraphpy)
+* [Harvest of OpenAlex (harvest_openalex_to_ricgraph)](#harvest-of-openalex-harvest_openalex_to_ricgraph)
+* [Harvest of Pure (harvest_pure_to_ricgraph)](#harvest-of-pure-harvest_pure_to_ricgraph)
+* [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph)](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraph)
+* [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph)](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraph)
+* [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph)](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph)
 
 There is also a script for batch harvesting, *batch_harvest_demo.py*. You can
 use this script to run a number of harvest scripts after each other.
@@ -75,7 +75,7 @@ You can use any (short) string and pass it to a harvest script. You only
 need to insert keys (and values) for the organization(s) you are planning
 to harvest.
 
-## Harvest of OpenAlex (harvest_openalex_to_ricgraph.py)
+## Harvest of OpenAlex (harvest_openalex_to_ricgraph)
 
 To harvest  [OpenAlex](https://openalex.org), use the script *harvest_openalex_to_ricgraph.py*.
 ```
@@ -108,7 +108,7 @@ reduce this by adjusting parameters at the start of the script. Look in the sect
 "Parameters for harvesting persons and research outputs from OpenAlex":
 *OPENALEX_RESOUT_YEARS* and *OPENALEX_MAX_RECS_TO_HARVEST*.
 
-## Harvest of Pure (harvest_pure_to_ricgraph.py)
+## Harvest of Pure (harvest_pure_to_ricgraph)
 
 To harvest [Pure](https://www.elsevier.com/solutions/pure), 
 use the script *harvest_pure_to_ricgraph.py*. 
@@ -202,7 +202,7 @@ your organization),
 and only harvests research outputs from 2020 onward,
 and your project may have research outputs from before 2020.
 
-## Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph.py)
+## Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph)
 
 To harvest data sets from the data repository 
 [Yoda](https://www.uu.nl/en/research/yoda) (via DataCite),
@@ -228,7 +228,7 @@ Options:
 This script can be used out of the box since it doesn't need an
 [API](https://en.wikipedia.org/wiki/API) key.
 
-## Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph.py)
+## Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph)
 
 To harvest the 
 [Utrecht University staff pages](https://www.uu.nl/medewerkers), 
@@ -248,7 +248,7 @@ Options:
 This script needs the parameter *uustaff_url* to be set in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 
-## Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph.py)
+## Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph)
 
 To harvest software packages from the 
 [Research Software Directory](https://research-software-directory.org),

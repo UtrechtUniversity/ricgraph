@@ -88,7 +88,7 @@ Ricgraph Explorer.
 You can click each figure to enlarge.
 Some field values have been blurred for privacy reasons.
 
-### Research question “What are the research results of person A” 
+### Research question “What are the research results of person A”
 The left
 figure above shows screenshots of web pages of Ricgraph Explorer for 
 answering the research question “What are the research results of

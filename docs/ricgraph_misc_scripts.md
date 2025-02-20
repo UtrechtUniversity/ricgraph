@@ -22,7 +22,7 @@ All code is documented and hints to use it can be found in the source files.
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
-## Construct a Ricgraph from a csv file (construct_ricgraph_from_csv.py)
+## Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)
 To construct a Ricgraph from a csv file,
 use the script *construct_ricgraph_from_csv.py*.
 You can find this script in the directory [import_export](../import_export).
@@ -77,7 +77,7 @@ The import file containing edges should be a csv file containing exactly four co
 * name_to, value_to: the to node for the edge.
 
 
-## Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv.py)
+## Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv)
 To import nodes and edges from a csv file,
 use the script *ricgraph_import_raw_from_csv.py*.
 You can find this script in the directory [import_export](../import_export).
@@ -135,7 +135,7 @@ For an example import file, export the nodes and edges in Ricgraph using
 raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
 
 
-## Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv.py)
+## Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv)
 To export nodes and edges to a csv file,
 use the script *ricgraph_export_raw_to_csv.py*.
 You can find this script in the directory [import_export](../import_export).
@@ -174,7 +174,7 @@ The export file containing edges will be a csv file containing exactly four colu
 * name_to, value_to: the to node for the edge.
 
 
-## Delete personal data from Ricgraph (delete_personal_data.py)
+## Delete personal data from Ricgraph (delete_personal_data)
 This script deletes all personal data of one or more persons from Ricgraph.
 These persons need to be listed in a csv file.
 You can find this script in the directory
@@ -208,7 +208,7 @@ The columns are:
 * name, value: values to identify the person in Ricgraph.
 
 
-## Count the number of organizations that contributed to a category (count_organizations_contributed_to_category.py)
+## Count the number of organizations that contributed to a category (count_organizations_contributed_to_category)
 To count the number of organizations that contributed to a category, 
 use the script *count_organizations_contributed_to_category.py*.
 You can find this script 
@@ -255,7 +255,7 @@ Options:
 ```
 
 
-## Export nodes to a file (export_person_identifiers.py and export_person_node_properties.py)
+## Export nodes to a file (export_person_identifiers and export_person_node_properties)
 [This is an old script, you might want to use
 [Export nodes and edges to a csv file,
 raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)].
@@ -274,7 +274,7 @@ Use the parameter *EXPORT_MAX_RECS* for the number of records to export and
 *EXPORT_FILENAME* for the filename to export at the start of both scripts.
 
 
-## Script to enrich persons (enrich_orcids_scopusids.py)
+## Script to enrich persons (enrich_orcids_scopusids)
 With the script *enrich_orcids_scopusids.py*, 
 you can enrich persons having an ORCID but no SCOPUS_AUTHOR_ID
 (using OpenAlex), or vice versa (using the Scopus API). Note that Scopus has 
@@ -284,7 +284,7 @@ You can find this script in the directory
 [enhance](../enhance).
 
 
-## Script to find person identifiers pointing to different persons (find_double_pids.py)
+## Script to find person identifiers pointing to different persons (find_double_pids)
 With the script *find_double_pids.py*, you can check if 
 there are any personal identifiers that are
 pointing to two or more different persons.
@@ -292,7 +292,7 @@ You can find this script in the directory
 [enhance](../enhance).
 
 
-## Create a table of contents of the Ricgraph documentation (create_toc_documentation.py)
+## Create a table of contents of the Ricgraph documentation (create_toc_documentation)
 To create a table of contents of the Ricgraph documentation 
 use the script *create_toc_documentation.py*.
 You can find this script in the directory [maintenance](../maintenance).
@@ -303,7 +303,7 @@ Usage:
 create_toc_documentation.py
 ```
 
-## Create an index of the Ricgraph documentation (create_index_documentation.py)
+## Create an index of the Ricgraph documentation (create_index_documentation)
 To create an index of the Ricgraph documentation
 use the script *create_index_documentation.py*.
 You can find this script in the directory [maintenance](../maintenance).
@@ -315,7 +315,7 @@ create_index_documentation.py
 ```
 
 
-## Create the Ricgraph REST API documentation (convert_openapi_to_mddoc.py)
+## Create the Ricgraph REST API documentation (convert_openapi_to_mddoc)
 To create the Ricgraph REST API documentation 
 use the script *convert_openapi_to_mddoc.py*.
 This documentation is based on the Ricgraph OpenAPI yaml file *openapi.yaml*

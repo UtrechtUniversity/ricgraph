@@ -41,7 +41,7 @@ the following steps:
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
-## Fast and recommended way to install Ricgraph as a server 
+## Fast and recommended way to install Ricgraph as a server
 To follow this procedure, you need to be able to change to user *root*.
 
 1. [Check the requirements](ricgraph_install_configure.md#requirements-for-ricgraph).
