@@ -97,8 +97,9 @@ To follow this procedure, you need to be able to change to user *root*.
    ```
    In your web browser, go to
    [http://127.0.0.1:3030](http://127.0.0.1:3030).
-   Read more at [Ricgraph Explorer](ricgraph_explorer.md), or
-   at [Execute queries and visualize the results](ricgraph_query_visualize.md).
+   Read more at [Ricgraph Explorer](ricgraph_explorer.md).
+   For the Ricgraph REST API, read
+   more on the [Ricgraph REST API page](ricgraph_restapi.md#ricgraph-rest-api).
 1. Exit from user *root*.
 1. If everything succeeded, you can skip the remainder of this page.
    If not, the remainder of this page may help in finding solutions.
@@ -455,7 +456,7 @@ and Ricgraph data to the outside world.*
 * You can use the Ricgraph REST API from inside your virtual machine by
   using the path [http://localhost:3030/api](http://localhost:3030/api) followed by a REST API endpoint, or
   from outside your virtual machine by
-  using the path [http://[your IP address/api](http://[your IP address/api) or
+  using the path [http://[your IP address/api]](http://[your IP address]/api) or
   [http://[your hostname]/api](http://[your hostname]/api),
   both followed by a REST API endpoint.
 

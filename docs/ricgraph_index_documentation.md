@@ -54,7 +54,6 @@ __F__
 - [Function calls to create, read (find), update and delete (CRUD) nodes](../docs/ricgraph_script_writing.md#function-calls-to-create-read-find-update-and-delete-crud-nodes)
 - [Function calls to get neighbors of nodes](../docs/ricgraph_script_writing.md#function-calls-to-get-neighbors-of-nodes)
 - [Further information about Ricgraph](../README.md#further-information-about-ricgraph)
-- [Future work](../docs/ricgraph_future_work.md#future-work)
 
 __G__
 
@@ -151,10 +150,6 @@ __P__
 - [Properties of nodes in Ricgraph](../docs/ricgraph_details.md#properties-of-nodes-in-ricgraph)
 - [Pure harvesting of projects](../docs/ricgraph_harvest_scripts.md#pure-harvesting-of-projects)
 - [Pure READ and Pure CRUD API](../docs/ricgraph_harvest_scripts.md#pure-read-and-pure-crud-api)
-
-__Q__
-
-- [Query and visualize Ricgraph](../docs/ricgraph_query_visualize.md#query-and-visualize-ricgraph)
 
 __R__
 

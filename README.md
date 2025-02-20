@@ -249,7 +249,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implem
   refer to. To access an object, a node has a link to that object in
   the system it was obtained from. 
 * We have chosen a
-  graph as a datastructure, since it is a logical and efficient
+  graph as a data structure, since it is a logical and efficient
   method to access objects
   which are close to objects they have a relation to. For example,
   starting with a person, its research outputs are only one
@@ -356,14 +356,10 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implem
   the exploration tool for Ricgraph. 
 * Use the [Ricgraph REST API](docs/ricgraph_restapi.md#ricgraph-rest-api),
   the REST API for Ricgraph.
-* Alternatively, you might want to read
-  [Query and visualize Ricgraph](docs/ricgraph_query_visualize.md#query-and-visualize-ricgraph).
 
 ### Read this in case you would like to extend Ricgraph
 
 * Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md#ricgraph-script-writing).
-* Of course, there is [future work to do](docs/ricgraph_future_work.md#future-work). Please let me know
-  if you'd like to help.
 
 ### Ricgraph website
 Ricgraph has a main Ricgraph website on www.ricgraph.eu. 

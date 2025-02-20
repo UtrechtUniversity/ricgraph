@@ -37,10 +37,10 @@ it will not be created. This is due to the way Ricgraph works.
 
 This script is different compared to
 [Import nodes and edges from a csv file,
-raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csv)
 and
 [Export nodes and edges to a csv file,
-raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy),
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csv),
 since the "raw" scripts import and export with Cypher queries.
 
 ```
@@ -92,8 +92,8 @@ not consistent with the Ricgraph model. Due to this, Ricgraph Explorer
 may not work as expected.
 
 This script forms a pair with
-[Export nodes and edges to a csv file, 
-raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
+[Export nodes and edges to a csv file,
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csv).
 ```
 Usage:
 ricgraph_import_raw_from_csv.py [options]
@@ -132,7 +132,7 @@ The import file containing edges should be a csv file containing exactly four co
 
 For an example import file, export the nodes and edges in Ricgraph using
 [Export nodes and edges to a csv file,
-raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csvpy).
+raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csv).
 
 
 ## Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv)
@@ -151,8 +151,8 @@ not consistent with the Ricgraph model. Due to this, Ricgraph Explorer
 may not work as expected.
 
 This script forms a pair with 
-[Import nodes and edges from a csv file, 
-raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy).
+[Import nodes and edges from a csv file,
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csv).
 
 ```
 Usage:
@@ -258,7 +258,7 @@ Options:
 ## Export nodes to a file (export_person_identifiers and export_person_node_properties)
 [This is an old script, you might want to use
 [Export nodes and edges to a csv file,
-raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csvpy)].
+raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csv)].
 
 There are two scripts which allow to export *person* nodes to a csv file. These can be
 found in the directory [import_export](../import_export).

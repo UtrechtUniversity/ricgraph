@@ -5,7 +5,7 @@ A container is like a small box that holds an application and everything
 it needs to run, such as files and settings. It
 makes sure the application works the same on any computer. 
 Podman is a tool for creating and running containers, and it
-is safe because it doesn’t need special permissions to work. 
+is safe because it doesn't need special permissions to work. 
 This makes it a good choice for running programs quickly and reliably.
 
 Other Ricgraph install options are:

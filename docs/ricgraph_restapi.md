@@ -80,5 +80,5 @@ try out feature.
 
 ## Generate the Ricgraph REST API documentation page
 Please read
-[Create the Ricgraph REST API 
-documentation](ricgraph_misc_scripts.md#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddocpy).
+[Create the Ricgraph REST API
+documentation](ricgraph_misc_scripts.md#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddoc).

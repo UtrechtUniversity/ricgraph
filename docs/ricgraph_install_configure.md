@@ -78,8 +78,7 @@ it will install everything automatically (by using the Makefile).
    ```
    In your web browser, go to
    [http://127.0.0.1:3030](http://127.0.0.1:3030).
-   Read more at [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer), or
-   at [Execute queries and visualize the results](ricgraph_query_visualize.md#query-and-visualize-ricgraph).
+   Read more at [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
 1. If everything succeeded, you can skip the remainder of this page.
    If not, the remainder of this page may help in finding solutions.
 
@@ -237,7 +236,6 @@ user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 1. Start 
    - harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts);
    - writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
-1. [Execute queries and visualize the results](ricgraph_query_visualize.md#query-and-visualize-ricgraph).
 
 
 ## Download Ricgraph
@@ -396,9 +394,8 @@ of Ricgraph has noticed that this does not occur often, therefore the default is
 ## Using Ricgraph
 Before you can do anything with Ricgraph, you need to harvest sources,
 see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
-After you have harvested sources, you can execute queries and visualize the results,
-see [Query and visualize Ricgraph](ricgraph_query_visualize.md#query-and-visualize-ricgraph).
-Very likely, you may want to use Ricgraph Explorer, read
+After you have harvested sources, you can execute queries and visualize the results.
+You may want to use Ricgraph Explorer, read
 more on the [Ricgraph Explorer page](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
 
 
