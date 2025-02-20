@@ -22,9 +22,9 @@ We use color=#4c1 (green), that color is used by the 'repo status' badge.
 Documentation about the Podman badges can be found here: https://github.com/eggplants/ghcr-badge.
 --->
 
-<img alt="Ricgraph logo" src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/refs/heads/main/docs/images/ricgraph_logo.png" height="30"> 
+<img alt="Ricgraph logo" src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/refs/heads/main/docs/images/ricgraph_logo.png" height="30">
 
-# Ricgraph - Research in context graph 
+# Ricgraph - Research in context graph
 
 ## What is Ricgraph?
 
@@ -65,7 +65,6 @@ Example use cases from the application area research information are:
 | As a librarian, I want to enrich my local research information system with research results from person A that are in other systems (in orange, *RIS2*) but not in ours (in green, *RIS1*), so that we have a more complete view of research at our university. | <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/librarian-use-case.jpg" width="700">  |
 | As a researcher A, I want to find researchers from other universities that have co-authored publications written by the co-authors of my own publications, so that I can read their publications to find out if we share common research interests.             | <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/researcher-use-case.jpg" width="700"> |
 
-
 These use cases use different types of information (called *items*):
 researchers, skills, publications,
 etc. Most often, these types of information are not stored in 
@@ -92,10 +91,11 @@ so Ricgraph can be used in other application areas.
 For a gentle introduction in Ricgraph, read the reference publication: 
 Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
 context from various systems. *SoftwareX*, 26(101736).
-https://doi.org/10.1016/j.softx.2024.101736.
+[https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
 
 You might also want to read the documentation in 
 the [Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
 To use Ricgraph, installing the [Ricgraph package from PyPI](https://pypi.org/project/ricgraph) 
 is not sufficient. Please read the
 installation instructions in the Ricgraph GitHub repository.
+
