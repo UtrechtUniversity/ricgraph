@@ -143,7 +143,8 @@ There are two ways to run the Ricgraph Podman container:
 
  Starting the container takes about ten seconds.
  Explore items with Ricgraph Explorer,
- in your browser, go to http://localhost:3030.
+ in your browser, go to
+ [http://localhost:3030](http://localhost:3030).
 
 If you started `podman run` for the first time, 
 the container does not have data in it. You can observe this by going to the 
@@ -176,7 +177,8 @@ Now restart the Ricgraph container to see the results:
 podman restart ricgraph
 ```
 Explore the harvested items with Ricgraph Explorer,
-in your browser, go to http://localhost:3030.
+in your browser, go to 
+[http://localhost:3030](http://localhost:3030).
 
 You can stop all containers by typing:
 ```

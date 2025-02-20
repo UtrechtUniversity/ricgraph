@@ -76,7 +76,8 @@ it will install everything automatically (by using the Makefile).
    ```
    make run_ricgraph_explorer
    ```
-   In your web browser, go to http://127.0.0.1:3030.
+   In your web browser, go to
+   [http://127.0.0.1:3030](http://127.0.0.1:3030).
    Read more at [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer), or
    at [Execute queries and visualize the results](ricgraph_query_visualize.md#query-and-visualize-ricgraph).
 1. If everything succeeded, you can skip the remainder of this page.
@@ -162,6 +163,7 @@ since you have to do a number of things manually.
   E.g., if you have Ubuntu 20.04, you can install Python 3.11 as follows:
     * Login as user *root*.
     * Type the following commands:
+      
       ```
       add-apt-repository ppa:deadsnakes/ppa
       apt install python3.11

@@ -95,7 +95,8 @@ To follow this procedure, you need to be able to change to user *root*.
    ```
    make run_ricgraph_explorer
    ```
-   In your web browser, go to http://127.0.0.1:3030.
+   In your web browser, go to
+   [http://127.0.0.1:3030](http://127.0.0.1:3030).
    Read more at [Ricgraph Explorer](ricgraph_explorer.md), or
    at [Execute queries and visualize the results](ricgraph_query_visualize.md).
 1. Exit from user *root*.
@@ -344,7 +345,7 @@ the outside world. All data will only be accessible in the virtual machine.
   [http://localhost:3030](http://localhost:3030) in your web browser (i.e., the web browser of
   the virtual machine).
   You can use the Ricgraph REST API by using the path
-  *http://localhost:3030/api* followed by a REST API endpoint.
+  [http://localhost:3030/api](http://localhost:3030/api) followed by a REST API endpoint.
 
 
 ## Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
@@ -452,10 +453,10 @@ and Ricgraph data to the outside world.*
   [http://[your IP address]](http://[your_IP_address) or
   [http://[your hostname]](http://[your_hostname).
 * You can use the Ricgraph REST API from inside your virtual machine by
-  using the path *http://localhost:3030/api* followed by a REST API endpoint, or
+  using the path [http://localhost:3030/api](http://localhost:3030/api) followed by a REST API endpoint, or
   from outside your virtual machine by
-  using the path *http://[your IP address/api* or
-  *http://[your hostname]/api*,
+  using the path [http://[your IP address/api](http://[your IP address/api) or
+  [http://[your hostname]/api](http://[your hostname]/api),
   both followed by a REST API endpoint.
 
 
@@ -538,10 +539,11 @@ and Ricgraph data to the outside world.*
   [http://[your IP address]](http://[your_IP_address) or
   [http://[your hostname]](http://[your_hostname).
 * You can use the Ricgraph REST API from inside your virtual machine by
-  using the path *http://localhost:3030/api* followed by a REST API endpoint, or
+  using the path [http://localhost:3030/api](http://localhost:3030/api) followed by a REST API endpoint, or
   from outside your virtual machine by
-  using the path *http://[your IP address/api* or
-  *http://[your hostname]/api*,
+  using the path 
+  [http://[your IP address]/api](http://[your_IP_address/api) or
+  [http://[your hostname]/api](http://[your_hostname/api),
   both followed by a REST API endpoint.
 
 

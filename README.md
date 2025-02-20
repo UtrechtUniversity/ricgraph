@@ -369,7 +369,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implem
 Ricgraph has a main Ricgraph website on www.ricgraph.eu. 
 Alternative sites are www.ricgraph.nl and www.ricgraph.com.
 The sources for this website are on GitHub in repository
-https://github.com/UtrechtUniversity/ricgraph-website.
+[https://github.com/UtrechtUniversity/ricgraph-website](https://github.com/UtrechtUniversity/ricgraph-website).
 
 ## Contact
 Ricgraph has been created and is being maintained by 
