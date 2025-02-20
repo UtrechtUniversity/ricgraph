@@ -76,7 +76,7 @@ Ricgraph Explorer.
     [http://127.0.0.1:3030](http://127.0.0.1:3030).
 * If you have a domain name to access Ricgraph, for example _www.ricgraph-example.com_:
   * Open a web browser and go to
-    https://www.ricgraph-example.com](https://www.ricgraph-example.com).
+    [https://www.ricgraph-example.com](https://www.ricgraph-example.com).
 
 
 ## Working with Ricgraph Explorer
