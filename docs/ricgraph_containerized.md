@@ -79,7 +79,9 @@ Choose one of the following:
       ```
 
   Next, for the command line version of Podman:
-  * Get Podman from the GitHub releases page https://github.com/containers/podman/releases, choose the latest
+  * Get Podman from the GitHub releases page
+    [https://github.com/containers/podman/releases](https://github.com/containers/podman/releases), 
+    choose the latest
     version with file name extension .msi.
   * Install it by clicking on the downloaded file, follow the instructions.
   * Exit your *Administrator* privileges.
@@ -109,7 +111,8 @@ first start *Windows Subsystem for Linux (WSL)* by typing `wsl` in the Windows
 *Terminal* or *PowerShell* window.
 
 The Ricgraph container is hosted on the 
-GitHub Container repository https://ghcr.io/utrechtuniversity/ricgraph.
+GitHub Container repository
+[https://ghcr.io/utrechtuniversity/ricgraph](https://ghcr.io/utrechtuniversity/ricgraph).
 
 There are two ways to run the Ricgraph Podman container:
 
