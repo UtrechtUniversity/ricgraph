@@ -308,15 +308,15 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implem
 * For a gentle introduction in Ricgraph, read the reference publication:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).
-  https://doi.org/10.1016/j.softx.2024.101736.
+  [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
 * For a further introduction, you might want to read these two presentations:
   * A general presentation about Ricgraph, presenting Ricgraph in a visual manner:
-    https://doi.org/10.5281/zenodo.12634234.
+    [https://doi.org/10.5281/zenodo.12634234](https://doi.org/10.5281/zenodo.12634234).
   * A presentation explaining how to enrich
     the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
     (and other source systems) using Ricgraph
     and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
-    https://doi.org/10.5281/zenodo.12634658.
+    [https://doi.org/10.5281/zenodo.12634658](https://doi.org/10.5281/zenodo.12634658).
     This presentation explains that after harvesting several Pure systems
     (from different institutions)  and other source systems,
     such as [OpenAlex](https://openalex.org),
