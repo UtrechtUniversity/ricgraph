@@ -46,6 +46,7 @@ You can do the following for Neo4j Desktop and Ricgraph:
 ### Solution for Neo4j Community Edition
 
 You can do the following for Neo4j Community Edition and Ricgraph:
+
 1. Login as user *root*.
 1. Stop Neo4j Community Edition:
    ```
