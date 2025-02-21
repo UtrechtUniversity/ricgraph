@@ -22,4 +22,13 @@ to_markdown(api_file=input_file,
             output_file=output_file,
             templates_dir='openapi_markdown_templates')
 
+# Substitute '###' to '##' in the resulting file.
+with open(output_file, 'r') as file:
+    content = file.read()
+
+modified_content = content.replace("###", "\n##")
+
+with open(output_file, 'w') as file:
+    file.write(modified_content)
+
 print(f'Markdown documentation generated: {output_file}.')

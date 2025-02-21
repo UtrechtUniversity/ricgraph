@@ -7,14 +7,19 @@
 
 # Ricgraph - Research in context graph REST API
 
-> Version 1.0.0
+This REST API documentation has been generated automatically.
 
- ### What to find on this page?
+REST API version 1.0.0.
+
+ 
+## What to find on this page?
 This is the documentation page for the Ricgraph REST API. You can use the Ricgraph REST API to programmatically get items from Ricgraph, as an alternative to using the user interface. You will get these items in a [JSON format](https://en.wikipedia.org/wiki/JSON).
-### How to use
+
+## How to use
 In the left column of this page, you can explore the calls (i.e., the REST API operations) that are available. You can also try them out, by selecting a call, entering values in the 'Query-string parameters' subsection of the 'Request' section, and clicking the 'Try' button. Next, a gray tabbed box will appear. In the 'Response' tab of that box, you will get the JSON response. In the 'CURL' tab of that box, you will get a [curl](https://en.wikipedia.org/wiki/CURL#curl) call with an [URL](https://en.wikipedia.org/wiki/URL) (web link) that you can use in a browser or in your code.
 You don't need to provide authentication to use these calls.
-### Technicalities
+
+## Technicalities
 The Ricgraph REST API uses the [OpenAPI standard](https://www.openapis.org). It gives access to Ricgraph function calls both in *ricgraph.py* and in *ricgraph_explorer.py*.
 Read more about [REST (representational state transfer)](https://en.wikipedia.org/wiki/REST), or read more about [API (application programming interface)](https://en.wikipedia.org/wiki/API). 
 
@@ -52,7 +57,8 @@ Read more about [REST (representational state transfer)](https://en.wikipedia.or
 
 
 
-### GET /person/search
+
+## GET /person/search
 
 Search for a person
 
@@ -85,7 +91,8 @@ __Responses__
 
 
 
-### GET /person/all_information
+
+## GET /person/all_information
 
 Show all information related to this person
 
@@ -118,7 +125,8 @@ __Responses__
 
 
 
-### GET /person/share_research_results
+
+## GET /person/share_research_results
 
 Find persons that share any share research result types with this person
 
@@ -151,7 +159,8 @@ __Responses__
 
 
 
-### GET /person/collaborating_organizations
+
+## GET /person/collaborating_organizations
 
 Find organizations that this person collaborates with
 
@@ -186,7 +195,8 @@ __Responses__
 
 
 
-### GET /person/enrich
+
+## GET /person/enrich
 
 Find information harvested from other source systems, not present in this source system
 
@@ -224,7 +234,8 @@ __Responses__
 
 
 
-### GET /organization/search
+
+## GET /organization/search
 
 Search for a (sub-)organization
 
@@ -257,7 +268,8 @@ __Responses__
 
 
 
-### GET /organization/all_information
+
+## GET /organization/all_information
 
 Show all information related to this organization
 
@@ -290,7 +302,8 @@ __Responses__
 
 
 
-### GET /organization/information_persons_results
+
+## GET /organization/information_persons_results
 
 Find any information from persons or their results in this organization
 
@@ -325,7 +338,8 @@ __Responses__
 
 
 
-### GET /organization/enrich
+
+## GET /organization/enrich
 
 Find information harvested from other source systems, not present in this source system
 
@@ -363,7 +377,8 @@ __Responses__
 
 
 
-### GET /competence/search
+
+## GET /competence/search
 
 Search for a skill, expertise area or research area
 
@@ -396,7 +411,8 @@ __Responses__
 
 
 
-### GET /competence/all_information
+
+## GET /competence/all_information
 
 Show all information related to this competence
 
@@ -429,7 +445,8 @@ __Responses__
 
 
 
-### GET /broad_search
+
+## GET /broad_search
 
 Search for anything (broad search)
 
@@ -462,7 +479,8 @@ __Responses__
 
 
 
-### GET /advanced_search
+
+## GET /advanced_search
 
 Advanced search
 
@@ -499,7 +517,8 @@ __Responses__
 
 
 
-### GET /get_all_personroot_nodes
+
+## GET /get_all_personroot_nodes
 
 Find all person-root nodes of this node
 
@@ -532,7 +551,8 @@ __Responses__
 
 
 
-### GET /get_all_neighbor_nodes
+
+## GET /get_all_neighbor_nodes
 
 Find all neighbor nodes of this node
 
@@ -569,7 +589,8 @@ __Responses__
 
 
 
-### GET /get_ricgraph_list
+
+## GET /get_ricgraph_list
 
 Get the values of an internal global Ricgraph list
 
