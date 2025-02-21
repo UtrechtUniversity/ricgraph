@@ -1,23 +1,26 @@
 # Ricgraph harvest scripts
 
-Ricgraph scripts can be found in various places:
+This page describes scripts for harvesting sources and inserting the results in Ricgraph.
+They can be found in directory *harvest*.
+Read more about [scripts to import and export items from 
+Ricgraph](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts), 
+about [scripts to enhance (finding, enriching, etc.) information in
+Ricgraph](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts), 
+or about
+[writing your own scripts](ricgraph_script_writing.md#ricgraph-script-writing).
 
-* Directory [harvest](../harvest):
-  scripts for harvesting sources and inserting the results in Ricgraph.
-  [Documentation for these scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts)
-  (this file).
-* Directory [import_export](../import_export):
-  scripts to export items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
-* Directory [enhance](../enhance):
-  scripts for finding and enriching items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
-* The module code *ricgraph.py* can be found in
-  directory [ricgraph](../ricgraph).
-* The code for *Ricgraph Explorer* can be found in
-  directory [ricgraph_explorer](../ricgraph_explorer).
-  [Documentation for Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
-* [Documentation for writing your own scripts](ricgraph_script_writing.md#ricgraph-script-writing).
+On this page, you can find:
+
+* [Introduction to harvest scripts](#introduction-to-harvest-scripts)
+* [Organization abbreviation](#organization-abbreviation)
+* Harvest scripts:
+  * [Harvest of OpenAlex (harvest_openalex_to_ricgraph)](#harvest-of-openalex-harvest_openalex_to_ricgraph)
+  * [Harvest of Pure (harvest_pure_to_ricgraph)](#harvest-of-pure-harvest_pure_to_ricgraph)
+  * [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph)](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraph)
+  * [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph)](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraph)
+  * [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph)](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph)
+* [Order of running the harvest scripts](#order-of-running-the-harvest-scripts)
+* [How to make your own harvesting scripts](#how-to-make-your-own-harvesting-scripts)
 
 All code is documented and hints to use it can be found in the source files.
 
@@ -42,15 +45,8 @@ Ricgraph can be installed on any internal or external accessible system accordin
 so the data in Ricgraph is only accessible for persons of a certain organization,
 or for anyone.
 
-There are five examples of harvest scripts provided, for
-
-* [Harvest of OpenAlex (harvest_openalex_to_ricgraph)](#harvest-of-openalex-harvest_openalex_to_ricgraph)
-* [Harvest of Pure (harvest_pure_to_ricgraph)](#harvest-of-pure-harvest_pure_to_ricgraph)
-* [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph)](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraph)
-* [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph)](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraph)
-* [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph)](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph)
-
-There is also a script for batch harvesting, *batch_harvest_demo.py*. You can
+Ricgraph provides five harvest scripts.
+There are also scripts for batch harvesting, such as *batch_harvest_demo.py*. You can
 use this script to run a number of harvest scripts after each other.
 It can be adapted to your needs, see the Python code in the script.
 
@@ -62,8 +58,7 @@ Ricgraph uses the term *organization abbreviation*.
 This is a string of a few letters that can be passed to some harvest
 scripts to determine for which organization such a script will harvest
 data.  Examples are *UU* or *UMCU*.
-
-You will see this in keys in the
+You will find this in keys in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 Examples are *organization_name_UU* or
 *organization_name_UMCU*. The general format is *key_XXXX*, with *XXXX* 

@@ -8,7 +8,7 @@ New queries (buttons) can be added,
 or the user interface can
 be modified to fit a certain use case, user group, or application area.
 The code can be found in
-directory [ricgraph_explorer](../ricgraph_explorer).
+directory *ricgraph_explorer*.
 
 In this documentation and on this page, we use the application area _research information_.
 Ricgraph Explorer 
@@ -71,7 +71,7 @@ Ricgraph Explorer.
     ```
     In your web browser, go to
     [http://127.0.0.1:3030](http://127.0.0.1:3030).
-  * Run the *ricgraph_explorer.py* script in directory [ricgraph_explorer](../ricgraph_explorer).
+  * Run the *ricgraph_explorer.py* script in directory *ricgraph_explorer*.
     In your web browser, go to
     [http://127.0.0.1:3030](http://127.0.0.1:3030).
 * If you have a domain name to access Ricgraph, for example _www.ricgraph-example.com_:
@@ -287,24 +287,23 @@ Ricgraph Explorer offers the possibility to show
 a privacy statement or privacy measures document (or both) if desired for 
 your Ricgraph production environment.
 Placeholders have been provided in the files
-[privacy_statement_placeholder.pdf](../ricgraph_explorer/static/privacy_statement_placeholder.pdf)
-and
-[privacy_measures_placeholder.pdf](../ricgraph_explorer/static/privacy_measures_placeholder.pdf).
+*privacy_statement_placeholder.pdf* and
+*privacy_measures_placeholder.pdf* in directory *ricgraph_explorer/static*.
 
 How to use a privacy statement in Ricgraph Explorer?
 
 * Create a privacy statement that fits your situation.
-* Use the filename `privacy_statement.[extension of your text editor]`.
-* Convert this file to a pdf file and use filename `privacy_statement.pdf`.
-* Put it in `…/ricgraph_explorer/static`.
+* Use the filename *privacy_statement.[extension of your text editor]*.
+* Convert this file to a pdf file and use filename *privacy_statement.pdf*.
+* Put it in directory *ricgraph_explorer/static*.
 * In Ricgraph Explorer, in the footer you will find a link to this file.
 
 How to use a privacy measures document in Ricgraph Explorer?
 
 * Create a privacy measures document that fits your situation.
-* Use the filename `privacy_measures.[extension of your text editor]`.
-* Convert this file to a pdf file and use filename `privacy_measures.pdf`.
-* Put it in `…/ricgraph_explorer/static`.
+* Use the filename *privacy_measures.[extension of your text editor]*.
+* Convert this file to a pdf file and use filename *privacy_measures.pdf*.
+* Put it in directory *ricgraph_explorer/static*.
 * In Ricgraph Explorer, in the footer you will find a link to this file.
 
 

@@ -24,10 +24,12 @@ Other Ricgraph install options are:
   Ricgraph in a container](ricgraph_containerized.md#ricgraph-in-a-container): 
   relatively quick with limited possibilities.
 
-To install and run Ricgraph in a multi-user environment, you need to do most of
-the following steps:
+To install and run Ricgraph in a multi-user environment, read
+[Fast and recommended way to install Ricgraph as a 
+server](#fast-and-recommended-way-to-install-ricgraph-as-a-server).
 
-* [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server)
+Alternatively, you can follow these steps:
+
 * [Create a ricgraph user and group](#create-a-ricgraph-user-and-group)
 * [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it)
 * [Run Ricgraph scripts from the command line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
@@ -149,10 +151,9 @@ command `make full_server_install`, or follow the steps below.
   chown -R alice:users /opt/ricgraph_venv
   ```
 * The path */opt/ricgraph_venv* is hardwired in the configuration files
-  [ricgraph_server_config/ricgraph_explorer_gunicorn.service
-  ](../ricgraph_server_config/ricgraph_explorer_gunicorn.service)
+  *ricgraph_server_config/ricgraph_explorer_gunicorn.service*
   and
-  [ricgraph_server_config/ricgraph_explorer.conf-apache](../ricgraph_server_config/ricgraph_explorer.conf-apache).
+  *ricgraph_server_config/ricgraph_explorer.conf-apache*.
   This is done for security reasons. If you change the path, also change it
   in these files.
 * Exit from user *root*. Do the following steps as your own user.
@@ -324,9 +325,8 @@ the outside world. All data will only be accessible in the virtual machine.
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Install the *Ricgraph Explorer* service unit file:
-  copy
-  [ricgraph_server_config/ricgraph_explorer_gunicorn.service
-  ](../ricgraph_server_config/ricgraph_explorer_gunicorn.service)
+  copy file
+  *ricgraph_server_config/ricgraph_explorer_gunicorn.service*
   to /etc/systemd/system, type:
   ```
   cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer_gunicorn.service /etc/systemd/system
@@ -413,8 +413,8 @@ and Ricgraph data to the outside world.*
   a2enmod mod_proxy_http
   ```
 * Install the Apache *Ricgraph Explorer* configuration file:
-  copy
-  [ricgraph_server_config/ricgraph_explorer.conf-apache](../ricgraph_server_config/ricgraph_explorer.conf-apache)
+  copy file
+  *ricgraph_server_config/ricgraph_explorer.conf-apache*
   to /etc/apache2/vhosts.d, type:
   ```
   cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer.conf-apache /etc/apache2/vhosts.d
@@ -499,8 +499,8 @@ and Ricgraph data to the outside world.*
 * Make sure Nginx has been installed.
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Install the Nginx *Ricgraph Explorer* configuration file:
-  copy
-  [ricgraph_server_config/ricgraph_explorer.conf-nginx](../ricgraph_server_config/ricgraph_explorer.conf-nginx)
+  copy file
+  *ricgraph_server_config/ricgraph_explorer.conf-nginx*
   to /etc/nginx/vhosts.d, type:
   ```
   cp /opt/ricgraph_venv/ricgraph_server_config/ricgraph_explorer.conf-nginx /etc/nginx/vhosts.d

@@ -16,10 +16,12 @@ Other Ricgraph install options are:
   Ricgraph in a container](ricgraph_containerized.md#ricgraph-in-a-container):
   relatively quick with limited possibilities.
  
+To install and run Ricgraph for a single user, read
+[Fast and recommended way to install 
+Ricgraph](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 
-On this page you can find:
+Alternatively, you can follow these steps:
 
-* [Fast and recommended way to install Ricgraph](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
 * [Requirements](#requirements-for-ricgraph)
 * [Ricgraph Makefile](#ricgraph-makefile)
 * [Steps to take](#steps-to-take)
@@ -197,9 +199,9 @@ make allhelp
 ```
 You can add command line parameters to the `make` command, e.g. to get the
 Ricgraph *cutting edge* version, or to specify an installation path.
-Look in the [Makefile](../Makefile) for possibilities. Any variable defined
+Look in file *Makefile* for possibilities. Any variable defined
 in the Makefile can be used as `make` command line parameter.
-For an example, see the [Podman Containerfile](../Containerfile).
+For an example, see the Podman Containerfile in file *Containerfile*.
 
 Most often, you do not need to install the `make` command, but if you get a
 "command not found" error message, you need to install it using your Linux

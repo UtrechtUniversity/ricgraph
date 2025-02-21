@@ -1,23 +1,22 @@
 # Ricgraph script writing
 
-Ricgraph scripts can be found in various places:
+This page describes how to write scripts for Ricgraph.
+Read more about [scripts for harvesting sources and inserting the results in 
+Ricgraph](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts),
+about [scripts to import and export items from
+Ricgraph](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts),
+or about [scripts to enhance (finding, enriching, etc.) information in
+Ricgraph](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
 
-* Directory [harvest](../harvest):
-  scripts for harvesting sources and inserting the results in Ricgraph.
-  [Documentation for these scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
-* Directory [import_export](../import_export):
-  scripts to export items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
-* Directory [enhance](../enhance):
-  scripts for finding and enriching items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts).
-* The module code *ricgraph.py* can be found in
-  directory [ricgraph](../ricgraph).
-* The code for *Ricgraph Explorer* can be found in
-  directory [ricgraph_explorer](../ricgraph_explorer).
-  [Documentation for Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
-* [Documentation for writing your own scripts](ricgraph_script_writing.md#ricgraph-script-writing)
-  (this file).
+On this page, you can find:
+
+* [How to make your own harvesting scripts](#how-to-make-your-own-harvesting-scripts)
+* [General program structure of a Python script using Ricgraph](#general-program-structure-of-a-python-script-using-ricgraph)
+* [Structure of a Python script that is harvesting data](#structure-of-a-python-script-that-is-harvesting-data)
+* [Function calls for inserting nodes](#function-calls-for-inserting-nodes)
+* [Function call for unifying personal identifiers](#function-call-for-unifying-personal-identifiers)
+* [Function calls to create, read (find), update and delete (CRUD) nodes](#function-calls-to-create-read-find-update-and-delete-crud-nodes)
+* [Function calls to get neighbors of nodes](#function-calls-to-get-neighbors-of-nodes)
 
 All code is documented and hints to use it can be found in the source files.
 
@@ -56,7 +55,7 @@ rcg.close_ricgraph()
 
 ## Structure of a Python script that is harvesting data
 This structure is used in the programming examples in the directory
-[harvest](../harvest).
+*harvest*.
 
 ```python
 import ricgraph as rcg
@@ -124,9 +123,9 @@ rcg.delete_node()  # delete a node
 ## Function calls to get neighbors of nodes
 There are several function calls
 to get neighbors of nodes. For a more extensive description how to use these,
-see the code comments in file *ricgraph.py* in directory [ricgraph](../ricgraph)
+see the code comments in file *ricgraph.py* in directory *ricgraph*
 or the code examples in file *ricgraph_explorer.py* in directory
-[ricgraph_explorer](../ricgraph_explorer).
+*ricgraph_explorer*.
 
 ```python
 import ricgraph as rcg

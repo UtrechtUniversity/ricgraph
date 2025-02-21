@@ -430,7 +430,7 @@ and a
    Click on "Delete". The perspective "Untitled Perspective 1" is removed.
 1. In the same window, right of the word "Perspectives" click on the word "Import".
    A file open window appears. Go to directory
-   [neo4j_config](../neo4j_config) that is part of Ricgraph and
+   *neo4j_config* that is part of Ricgraph and
    select file *ricgraph_bloom_config.json*. Click "Open".
    The perspective "ricgraph_bloom_config" is loaded.
 1. Click on the text "ricgraph_bloom_config".

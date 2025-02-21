@@ -196,6 +196,8 @@ __S__
 - [Script to enrich persons (enrich_orcids_scopusids)](../docs/ricgraph_misc_scripts.md#script-to-enrich-persons-enrich_orcids_scopusids)
 - [Script to find person identifiers pointing to different persons (find_double_pids)](../docs/ricgraph_misc_scripts.md#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pids)
 - [Search page](../docs/ricgraph_explorer.md#search-page)
+- [Section 1](../docs/ricgraph_tutorial.md#section-1)
+- [Section 2](../docs/ricgraph_tutorial.md#section-2)
 - [Settings for graph database backend](../docs/ricgraph_install_configure.md#settings-for-graph-database-backend)
 - [Showing a privacy statement or privacy measures document](../docs/ricgraph_explorer.md#showing-a-privacy-statement-or-privacy-measures-document)
 - [Solution for Neo4j Community Edition](../docs/ricgraph_known_bugs.md#solution-for-neo4j-community-edition)
@@ -210,6 +212,7 @@ __T__
 
 - [Table of contents Ricgraph documentation](../docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation)
 - [Technicalities](../docs/ricgraph_restapi_gendoc.md#technicalities)
+- [Tutorial Ricgraph](../docs/ricgraph_tutorial.md#tutorial-ricgraph)
 
 __U__
 

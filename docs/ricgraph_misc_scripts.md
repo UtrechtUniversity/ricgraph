@@ -1,21 +1,31 @@
 # Ricgraph miscellaneous scripts
 
-Ricgraph scripts can be found in various places:
+This page describes scripts for 
+importing and exporting items from
+Ricgraph, about
+scripts to enhance (finding, enriching, etc.) information in
+Ricgraph, and about Ricgraph maintenance scripts.
+Read more about [scripts for harvesting sources and inserting the results in
+Ricgraph](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts),
+or about
+[writing your own scripts](ricgraph_script_writing.md#ricgraph-script-writing).
 
-* Directory [harvest](../harvest): 
-  scripts for harvesting sources and inserting the results in Ricgraph.
-  [Documentation for these scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
-* Directory [import_export](../import_export):
-  scripts to export items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts) (this file).
-* Directory [enhance](../enhance):
-  scripts for finding and enriching items from Ricgraph.
-  [Documentation for these scripts](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts) (this file).
-* The module code *ricgraph.py* can be found in 
-  directory [ricgraph](../ricgraph). 
-* The code for *Ricgraph Explorer* can be found in
-  directory [ricgraph_explorer](../ricgraph_explorer). 
-* [Documentation for writing your own scripts](ricgraph_script_writing.md#ricgraph-script-writing).
+On this page, you can find:
+
+* Scripts for importing and exporting (directory *import_export*):
+  * [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)](#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csv)
+  * [Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv)](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csv)
+  * [Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv)](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csv)
+  * [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category)](#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_category)
+  * [Export nodes to a file (export_person_identifiers and export_person_node_properties)](#export-nodes-to-a-file-export_person_identifiers-and-export_person_node_properties)
+* Scripts to enhance (finding, enriching, etc.) information (directory *enhance*):
+  * [Delete personal data from Ricgraph (delete_personal_data)](#delete-personal-data-from-ricgraph-delete_personal_data)
+  * [Script to enrich persons (enrich_orcids_scopusids)](#script-to-enrich-persons-enrich_orcids_scopusids)
+  * [Script to find person identifiers pointing to different persons (find_double_pids)](#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pids)
+* Ricgraph maintenance scripts (directory *maintenance*): 
+  * [Create a table of contents of the Ricgraph documentation (create_toc_documentation)](#create-a-table-of-contents-of-the-ricgraph-documentation-create_toc_documentation)
+  * [Create an index of the Ricgraph documentation (create_index_documentation)](#create-an-index-of-the-ricgraph-documentation-create_index_documentation)
+  * [Create the Ricgraph REST API documentation (convert_openapi_to_mddoc)](#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddoc)
 
 All code is documented and hints to use it can be found in the source files.
 
@@ -25,7 +35,7 @@ All code is documented and hints to use it can be found in the source files.
 ## Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)
 To construct a Ricgraph from a csv file,
 use the script *construct_ricgraph_from_csv.py*.
-You can find this script in the directory [import_export](../import_export).
+You can find this script in the directory *import_export*.
 
 Nodes and edges are inserted with Ricgraph calls. That means,
 that nodes are inserted in pairs connected by an edge. 
@@ -80,7 +90,7 @@ The import file containing edges should be a csv file containing exactly four co
 ## Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv)
 To import nodes and edges from a csv file,
 use the script *ricgraph_import_raw_from_csv.py*.
-You can find this script in the directory [import_export](../import_export).
+You can find this script in the directory *import_export*.
 
 This is a "raw" import, because *person-root* nodes are also imported, as
 are the connections between e.g. an *ORCID* node and its *person-root* node.
@@ -138,7 +148,7 @@ raw version](#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_r
 ## Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv)
 To export nodes and edges to a csv file,
 use the script *ricgraph_export_raw_to_csv.py*.
-You can find this script in the directory [import_export](../import_export).
+You can find this script in the directory *import_export*.
 
 This is a "raw" export, because person-root nodes are also exported, as
 are the connections between e.g. an ORCID node and its person-root node.
@@ -174,45 +184,11 @@ The export file containing edges will be a csv file containing exactly four colu
 * name_to, value_to: the to node for the edge.
 
 
-## Delete personal data from Ricgraph (delete_personal_data)
-This script deletes all personal data of one or more persons from Ricgraph.
-These persons need to be listed in a csv file.
-You can find this script in the directory
-[enhance](../enhance).
-
-The script will delete all nodes of category *person* that are related with
-the person whose personal data have to be deleted (except for the *person-root* node,
-this node will not be deleted since it does not contain personal information).
-
-```
-Usage
-delete_personal_data.py [options]
-
-Options:
-  --filename <filename>
-          Specifies a csv file that has columns 'name' and 'value'.
-          Every row in this file contains a personal identifier of
-          a person whose personal data needs to be deleted from Ricgraph.
-  --are_you_sure <yes>
-          Safety check since the script will delete items from Ricgraph.
-          'yes': This script will run.
-          any other value: This script will not run.
-          If this option is not present, the script will prompt the user
-          whether to run the script.
-```
-
-The file *filename* contains identifiers for persons whose personal data have to 
-be deleted from Ricgraph.
-It contains exactly two columns and can have as many rows as necessary.
-The columns are:
-* name, value: values to identify the person in Ricgraph.
-
 
 ## Count the number of organizations that contributed to a category (count_organizations_contributed_to_category)
 To count the number of organizations that contributed to a category, 
 use the script *count_organizations_contributed_to_category.py*.
-You can find this script 
-in the directory [import_export](../import_export).
+You can find this script in the directory *import_export*.
 
 This script 
 counts the (sub-)organizations of persons who have contributed to all nodes of a
@@ -261,7 +237,7 @@ Options:
 raw version](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csv)].
 
 There are two scripts which allow to export *person* nodes to a csv file. These can be
-found in the directory [import_export](../import_export).
+found in the directory *import_export*.
 
 * *export_person_identifiers.py*: exports
   all [person identifiers](ricgraph_details.md#person-identifiers)
@@ -274,28 +250,59 @@ Use the parameter *EXPORT_MAX_RECS* for the number of records to export and
 *EXPORT_FILENAME* for the filename to export at the start of both scripts.
 
 
+## Delete personal data from Ricgraph (delete_personal_data)
+This script deletes all personal data of one or more persons from Ricgraph.
+These persons need to be listed in a csv file.
+You can find this script in the directory *enhance*.
+
+The script will delete all nodes of category *person* that are related with
+the person whose personal data have to be deleted (except for the *person-root* node,
+this node will not be deleted since it does not contain personal information).
+
+```
+Usage
+delete_personal_data.py [options]
+
+Options:
+  --filename <filename>
+          Specifies a csv file that has columns 'name' and 'value'.
+          Every row in this file contains a personal identifier of
+          a person whose personal data needs to be deleted from Ricgraph.
+  --are_you_sure <yes>
+          Safety check since the script will delete items from Ricgraph.
+          'yes': This script will run.
+          any other value: This script will not run.
+          If this option is not present, the script will prompt the user
+          whether to run the script.
+```
+
+The file *filename* contains identifiers for persons whose personal data have to
+be deleted from Ricgraph.
+It contains exactly two columns and can have as many rows as necessary.
+The columns are:
+* name, value: values to identify the person in Ricgraph.
+
+
 ## Script to enrich persons (enrich_orcids_scopusids)
 With the script *enrich_orcids_scopusids.py*, 
 you can enrich persons having an ORCID but no SCOPUS_AUTHOR_ID
 (using OpenAlex), or vice versa (using the Scopus API). Note that Scopus has 
 a rate limit, and that 
 you have to set some parameters in *ricgraph.ini*.
-You can find this script in the directory 
-[enhance](../enhance).
+You can find this script in the directory *enhance*.
 
 
 ## Script to find person identifiers pointing to different persons (find_double_pids)
 With the script *find_double_pids.py*, you can check if 
 there are any personal identifiers that are
 pointing to two or more different persons.
-You can find this script in the directory
-[enhance](../enhance).
+You can find this script in the directory *enhance*.
 
 
 ## Create a table of contents of the Ricgraph documentation (create_toc_documentation)
 To create a table of contents of the Ricgraph documentation 
 use the script *create_toc_documentation.py*.
-You can find this script in the directory [maintenance](../maintenance).
+You can find this script in the directory *maintenance*.
 The table of contents will be created in file 
 [ricgraph_toc_documentation.md](ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation).
 ```
@@ -306,7 +313,7 @@ create_toc_documentation.py
 ## Create an index of the Ricgraph documentation (create_index_documentation)
 To create an index of the Ricgraph documentation
 use the script *create_index_documentation.py*.
-You can find this script in the directory [maintenance](../maintenance).
+You can find this script in the directory *maintenance*.
 The index will be created in file
 [ricgraph_index_documentation.md](ricgraph_index_documentation.md#index-ricgraph-documentation).
 ```
@@ -319,8 +326,8 @@ create_index_documentation.py
 To create the Ricgraph REST API documentation 
 use the script *convert_openapi_to_mddoc.py*.
 This documentation is based on the Ricgraph OpenAPI yaml file *openapi.yaml*
-in the directory [ricgraph_explorer/static](../ricgraph_explorer/static).
-You can find this script in the directory [maintenance](../maintenance).
+in the directory *ricgraph_explorer/static*.
+You can find this script in the directory *maintenance*.
 The REST API documentation will be created in file
 [ricgraph_restapi_gendoc.md](ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api).
 ```
