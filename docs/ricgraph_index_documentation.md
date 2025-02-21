@@ -240,5 +240,6 @@ __V__
 __W__
 
 - [What is Ricgraph?](../README.md#what-is-ricgraph)
+- [What to find on this page?](../docs/ricgraph_restapi_gendoc.md#what-to-find-on-this-page)
 - [Why Ricgraph?](../README.md#why-ricgraph)
 - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)
