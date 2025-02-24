@@ -20,9 +20,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
 ]
-keywords = ["Ricgraph", "Ricgraph Explorer", "Ricgraph REST API", "Research in context graph",
-    "Graph", "Graph database", "Data harvesting", "Data enrichment", "Data linking",
-    "Linked data", "Knowledge graph", "Metadata", "Utrecht University"]
+keywords = ["Research in context graph", "Ricgraph", "Ricgraph Explorer",
+	    "Ricgraph REST API", "Data enrichment", "Data harvesting",
+	    "Data linking", "Enrichment", "Graph", "Graph database",
+	    "Harvest", "Harvest data", "Harvester", "Knowledge graph",
+	    "Linked data", "Metadata", "Utrecht University", "Visualization"]
 dependencies = [
     "neo4j >= 5.8",
     "numpy",
