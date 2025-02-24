@@ -1,6 +1,7 @@
-[![DOI software](https://img.shields.io/badge/DOI%20%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
+[![DOI software](https://img.shields.io/badge/DOI%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
 [![DOI reference publication](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
-[![website](https://img.shields.io/badge/website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)  
+[![website](https://img.shields.io/badge/website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)
+[![documentation website](https://img.shields.io/badge/documentation%20website-documentation.ricgraph.eu-blue)](https://documentation.ricgraph.eu)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph?color=%234c1)
 [![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=%234c1)](https://github.com/UtrechtUniversity/ricgraph/releases)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/UtrechtUniversity/ricgraph/latest?color=%234c1)
@@ -26,6 +27,7 @@ Documentation about the Podman badges can be found here: https://github.com/eggp
 
 # Ricgraph - Research in context graph
 
+[Read the Tutorial Ricgraph](docs/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph).
 [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) and 
 [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
@@ -63,7 +65,7 @@ collaborations, their skills, projects in which they have
 participated, as well as the relations between these entities.
 Examples of *research results* are publications, data sets, and software.
 
-Example use cases from the application area research information are:
+Example use cases (and sub graphs) from the application area research information are:
 
 | Use case                                                                                                                                                                                                                                                        | In Ricgraph (click to enlarge)                              |
 |-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
@@ -71,6 +73,8 @@ Example use cases from the application area research information are:
 | As a librarian, I want to enrich my local research information system with research results from person A that are in other systems (in orange, *RIS2*) but not in ours (in green, *RIS1*), so that we have a more complete view of research at our university. | <img src="docs/images/librarian-use-case.jpg" width="700">  |
 | As a researcher A, I want to find researchers from other universities that have co-authored publications written by the co-authors of my own publications, so that I can read their publications to find out if we share common research interests.             | <img src="docs/images/researcher-use-case.jpg" width="700"> |
 
+
+For each use case, the items surrounded by the red line are the solution to that use case.
 
 These use cases use different types of information (called *items*):
 researchers, skills, publications,
@@ -305,6 +309,8 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implem
 
 ### Further information about Ricgraph
 
+* Read the full documentation of Ricgraph on
+  [https://documentation.ricgraph.eu](https://documentation.ricgraph.eu).
 * For a gentle introduction in Ricgraph, read the reference publication:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).
@@ -328,6 +334,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implem
   [presentations](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
   [newsletters](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
   (to subscribe, go to [Ricgraph Contact](#contact)),
+  [projects with students](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-projects-with-students),
   [use](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
   [mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
   of Ricgraph.

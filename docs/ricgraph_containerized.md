@@ -236,4 +236,4 @@ Follow these steps:
 
 You can also use [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) targets.
 
-For other useful commands, read the comment section of the [Containerfile](../Containerfile).
+For other useful commands, read the comment section of the *Containerfile*.

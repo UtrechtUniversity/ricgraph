@@ -18,7 +18,7 @@ Other Ricgraph install options are:
  
 To install and run Ricgraph for a single user, read
 [Fast and recommended way to install 
-Ricgraph](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
+Ricgraph for a single user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 
 Alternatively, you can follow these steps:
 
@@ -65,6 +65,7 @@ it will install everything automatically (by using the Makefile).
    ```
 1. Harvest two source systems in Ricgraph:
    ```
+   cd $HOME/ricgraph_venv
    make run_batchscript
    ```
    This will harvest two source systems,
@@ -76,6 +77,7 @@ it will install everything automatically (by using the Makefile).
    see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
 1. Start Ricgraph Explorer to browse the information harvested:
    ```
+   cd $HOME/ricgraph_venv
    make run_ricgraph_explorer
    ```
    In your web browser, go to
@@ -122,11 +124,15 @@ since you have to do a number of things manually.
   computer. You can install anything in it, and it will not interfere with your
   usual working environment on your machine.
 * So, to install the graph database backend and Ricgraph,
-  you can use your own Linux (virtual) machine, or a Linux VM
-  provided by your organization, or you might
-  want to use a Linux VM on SURF Research Cloud.
+  you can use your own Linux machine,
+  your own Linux virtual machine, a Linux VM
+  provided by your organization, or 
+  a Linux VM provided by a Cloud provider such as SURF Research Cloud.
 
-  Own Linux (virtual) machine:
+  Own Linux machine:
+    * You already have Linux, skip to the next bullet in this list. 
+      
+  Own Linux virtual machine:
     * On your own Mac, Windows, or Linux machine, 
       install [VirtualBox](https://www.virtualbox.org). Create a virtual machine
       in VirtualBox. Install a Linux distribution

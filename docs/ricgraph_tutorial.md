@@ -47,6 +47,12 @@ use cases (and many others) are easy to answer.
 As a journalist, I want to find researchers with a certain skill S and their publications, 
 so that I can interview them for a newspaper article. 
 Example skills can be: *climate change* or *stem cells*.
+The items surrounded by the red line are the solution to this use case.
+
+<!-- the '{height=...}' in the lines below to include a figure are necessary for 
+the documentation generated with Quarto, a.o. for the documentation website.
+On GitHub, it will unfortunately show this text.
+-->
 
 ![Ricgraph use case for a journalist.](images/journalist-use-case.jpg){height=200}
 
@@ -198,17 +204,17 @@ that journal article.
 In the figure in the previous section,
 after a click on a value in the “value” column in the bottom right result
 page, the user will get the persons who have contributed to that research
-result, as in figure (b) in below.
+result, as in figure (b) below.
 
 ![Example research questions for Ricgraph.](images/examples-of-research-questions-general.jpg){height=500}
 
 Clicking “find
 persons that share any result types with this person” in the bottom left
-person option page corresponds to figure (c),
+person option page (in the figure in the previous section) corresponds to figure (c),
 and clicking “show personal information related to this person” corresponds to figure (e).
 
-The research question “What are the research results of person A” as shown in the
-previous section, corresponds to figure (a).
+The research question “What are the research results of person A” from
+the previous section corresponds to figure (a).
 
 
 ## More information
@@ -219,25 +225,12 @@ previous section, corresponds to figure (a).
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).
   [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
-* For a further introduction, you might want to read these two presentations:
-    * A general presentation about Ricgraph, presenting Ricgraph in a visual manner:
-      [https://doi.org/10.5281/zenodo.12634234](https://doi.org/10.5281/zenodo.12634234).
-    * A presentation explaining how to enrich
-      the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
-      (and other source systems) using Ricgraph
-      and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
-      [https://doi.org/10.5281/zenodo.12634658](https://doi.org/10.5281/zenodo.12634658).
-      This presentation explains that after harvesting several Pure systems
-      (from different institutions)  and other source systems,
-      such as [OpenAlex](https://openalex.org),
-      one can enrich its own Pure _A_ by using information in other source
-      systems, not present in one's own Pure _A_.
-
 * Read more about
   [publications](ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
   [presentations](ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
   [newsletters](ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
   (to subscribe, go to [Ricgraph Contact](../README.md#contact)),
+  [projects with students](ricgraph_pubs_pres_news_use_ment.md#ricgraph-projects-with-students),
   [use](ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
   [mentions](ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
   of Ricgraph.

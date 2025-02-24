@@ -83,6 +83,7 @@ To follow this procedure, you need to be able to change to user *root*.
    [Use Nginx...](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 1. Harvest two source systems in Ricgraph:
    ```
+   cd /opt/ricgraph_venv
    make run_batchscript
    ```
    This will harvest two source systems,
@@ -95,6 +96,7 @@ To follow this procedure, you need to be able to change to user *root*.
    see [Ricgraph script writing](ricgraph_script_writing.md).
 1. Start Ricgraph Explorer to browse the information harvested:
    ```
+   cd /opt/ricgraph_venv
    make run_ricgraph_explorer
    ```
    In your web browser, go to
