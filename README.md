@@ -1,5 +1,5 @@
 [![DOI software](https://img.shields.io/badge/DOI%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
-[![DOI reference publication](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
+[![DOI reference publication](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)  
 [![website](https://img.shields.io/badge/website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)
 [![documentation website](https://img.shields.io/badge/documentation%20website-documentation.ricgraph.eu-blue)](https://documentation.ricgraph.eu)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph?color=%234c1)
