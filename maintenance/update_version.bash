@@ -43,30 +43,28 @@ fi
 
 cd ..
 
-# Update pyproject.toml
-echo "Updating pyproject.toml..."
+# From now on, update various files.
+echo "Updating pyproject.toml:"
 sed -i "s/version = \".*\"/version = \"${new_version}\"/" pyproject.toml
 
-# Update requirements.txt
-echo "Updating requirements.txt..."
+echo "Updating requirements.txt:"
 sed -i "s/ricgraph == .*/ricgraph == ${new_version}/" requirements.txt
 
-# Update ricgraph/__init__.py
-echo "Updating ricgraph/ricgraph.py..."
+echo "Updating ricgraph/ricgraph.py:"
 sed -i "s/__version__ = '.*'/__version__ = '${new_version}'/" ricgraph/ricgraph.py
 
-# Update CITATION.cff
+echo "Updating CITATION.cff:"
 current_date=$(date '+%Y-%m-%d')
-echo "Updating CITATION.cff..."
 sed -i "s/^version: .*/version: \"${new_version}\"/" CITATION.cff
 sed -i "s/date-released: .*/date-released: \"${current_date}\"/" CITATION.cff
 
-# Update Makefile
-echo "Updating Makefile..."
+echo "Updating Makefile:"
 sed -i "s/ricgraph_version := .*/ricgraph_version := ${new_version}/" Makefile
 
-# Update GitHub Actions file to build Ricgraph Podman container
-echo "Updating GitHub Actions file to build container..."
+echo "Updating GitHub Actions file to build container:"
 sed -i "s/RICGRAPH_VERSION: .*/RICGRAPH_VERSION: ${new_version}/" .github/workflows/build-and-push-ricgraph-container.yml
+
+echo "Updating README.md:"
+sed -i "s/for version \([0-9.]*\) of Ricgraph/for version ${new_version} of Ricgraph/" README.md
 
 echo "Done."
