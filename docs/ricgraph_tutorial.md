@@ -18,7 +18,7 @@ In this tutorial, we explain the possibilities of Ricgraph.
 For a more detailed explanation, read the 
 [full documentation of Ricgraph](../README.md#ricgraph---research-in-context-graph).
 
-### Motivation
+## Motivation
 
 Ricgraph is software that is about
 relations between items. These items can be collected from various source
@@ -43,7 +43,7 @@ one system, so the use cases may be difficult or
 time-consuming to answer. However, by using Ricgraph, these
 use cases (and many others) are easy to answer.
 
-#### Use case for a journalist
+### Use case for a journalist
 As a journalist, I want to find researchers with a certain skill S and their publications, 
 so that I can interview them for a newspaper article. 
 Example skills can be: *climate change* or *stem cells*.
@@ -56,28 +56,31 @@ On GitHub, it will unfortunately show this text.
 
 ![Ricgraph use case for a journalist.](images/journalist-use-case.jpg){height=200}
 
-#### Use case for a librarian
+### Use case for a librarian
 As a librarian, I want to enrich my local research information system with research results 
 from person A that are in other systems (in orange, *RIS2*) but not in 
 ours (in green, *RIS1*), so that we have a more complete view of research at our university. 
+The items surrounded by the red line are the solution to this use case.
 
 ![Ricgraph use case for a librarian.](images/librarian-use-case.jpg){height=200}
 
-#### Use case for a researcher
+### Use case for a researcher
 As a researcher A, I want to find researchers from other universities that have 
 co-authored publications written by the co-authors of my own publications, 
 so that I can read their publications to find out if we share common research interests.
+The items surrounded by the red line are the solution to this use case.
 
 ![Ricgraph use case for a researcher.](images/researcher-use-case.jpg){height=200}
 
 
-### Main contributions of Ricgraph
+## Main contributions of Ricgraph
 
 * Ricgraph can store many types of items in a single graph.
 * Ricgraph harvests multiple source systems into a single graph.
 * Ricgraph Explorer is the exploration tool for Ricgraph.
 * Ricgraph facilitates reasoning about items because it infers new relations between items.
 * Ricgraph can be tailored for an application area.
+* Ricgraph has a REST API to programmatically get items from Ricgraph.
 
 
 ## Installation guide
@@ -228,8 +231,7 @@ the previous section corresponds to figure (a).
 * Read more about
   [publications](ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
   [presentations](ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
-  [newsletters](ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
-  (to subscribe, go to [Ricgraph Contact](../README.md#contact)),
+  [newsletters](ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters),
   [projects with students](ricgraph_pubs_pres_news_use_ment.md#ricgraph-projects-with-students),
   [use](ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
   [mentions](ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)

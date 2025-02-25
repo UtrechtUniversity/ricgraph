@@ -205,6 +205,9 @@ make allhelp
 ```
 You can add command line parameters to the `make` command, e.g. to get the
 Ricgraph *cutting edge* version, or to specify an installation path.
+In that case, the make command would look like 
+`make ricgraph_version=cuttingedge [target]` or
+`make ricgraph_server_install_dir=[path] [target]`.
 Look in file *Makefile* for possibilities. Any variable defined
 in the Makefile can be used as `make` command line parameter.
 For an example, see the Podman Containerfile in file *Containerfile*.

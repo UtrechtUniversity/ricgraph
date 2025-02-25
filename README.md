@@ -28,6 +28,7 @@ Documentation about the Podman badges can be found here: https://github.com/eggp
 # Ricgraph - Research in context graph
 
 [Read the Tutorial Ricgraph](docs/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph).
+
 [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) and 
 [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
@@ -391,3 +392,8 @@ We also have a
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right 
 *Star* button on this page. If you have any suggestions or improvements, 
 please let me know by creating a GitHub *Issue* at the top left of this page. 
+
+<!-- Do not change the lines below. The version number will be
+     modified by script maintenance/update_version.bash -->
+This README.md file is part of the 
+documentation for version 2.9 of Ricgraph - Research in context graph.

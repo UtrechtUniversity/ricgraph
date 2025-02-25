@@ -3,6 +3,7 @@ This index has been generated automatically.
 
 __A__
 
+- [A usage flow through Ricgraph Explorer](../docs/ricgraph_tutorial.md#a-usage-flow-through-ricgraph-explorer)
 - [Actions while clicking on a node](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node)
 - [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_pubs_pres_news_use_ment.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
@@ -11,11 +12,13 @@ __B__
 
 - [Base URL](../docs/ricgraph_restapi_gendoc.md#base-url)
 - [Browsing Ricgraph](../docs/ricgraph_explorer.md#browsing-ricgraph)
+- [Browsing using Ricgraph Explorer](../docs/ricgraph_tutorial.md#browsing-using-ricgraph-explorer)
 
 __C__
 
 - [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)](../docs/ricgraph_misc_scripts.md#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csv)
 - [Contact](../README.md#contact)
+- [Contact](../docs/ricgraph_tutorial.md#contact)
 - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_category)
 - [Create a Neo4j Community Edition database dump of Ricgraph](../docs/ricgraph_backend_neo4j.md#create-a-neo4j-community-edition-database-dump-of-ricgraph)
 - [Create a Neo4j Desktop database dump of Ricgraph](../docs/ricgraph_backend_neo4j.md#create-a-neo4j-desktop-database-dump-of-ricgraph)
@@ -29,8 +32,8 @@ __D__
 
 - [Delete personal data from Ricgraph (delete_personal_data)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_data)
 - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
-- [Dumping and restoring the Ricgraph database](../docs/ricgraph_install_configure.md#dumping-and-restoring-the-ricgraph-database)
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_backend_neo4j.md#dumping-and-restoring-the-ricgraph-database)
+- [Dumping and restoring the Ricgraph database](../docs/ricgraph_install_configure.md#dumping-and-restoring-the-ricgraph-database)
 
 __E__
 
@@ -38,6 +41,7 @@ __E__
 - [Epilogue](../docs/ricgraph_example_use_videos.md#epilogue)
 - [Error while emptying Ricgraph with Neo4j](../docs/ricgraph_known_bugs.md#error-while-emptying-ricgraph-with-neo4j)
 - [Example research questions](../docs/ricgraph_details.md#example-research-questions)
+- [Example research questions](../docs/ricgraph_tutorial.md#example-research-questions)
 - [Examples](../README.md#examples)
 - [Execute queries](../docs/ricgraph_backend_neo4j.md#execute-queries)
 - [Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv)](../docs/ricgraph_misc_scripts.md#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csv)
@@ -84,6 +88,7 @@ __H__
 - [Harvest of Pure (harvest_pure_to_ricgraph)](../docs/ricgraph_harvest_scripts.md#harvest-of-pure-harvest_pure_to_ricgraph)
 - [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph)](../docs/ricgraph_harvest_scripts.md#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph)
 - [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph)](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraph)
+- [Harvesting source systems](../docs/ricgraph_tutorial.md#harvesting-source-systems)
 - [Home page](../docs/ricgraph_explorer.md#home-page)
 - [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](../docs/ricgraph_as_server.md#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
 - [How to make your own harvesting scripts](../docs/ricgraph_harvest_scripts.md#how-to-make-your-own-harvesting-scripts)
@@ -109,6 +114,7 @@ __I__
 - [Install Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#install-neo4j-desktop)
 - [Install Podman](../docs/ricgraph_containerized.md#install-podman)
 - [Installation Apache](../docs/ricgraph_as_server.md#installation-apache)
+- [Installation guide](../docs/ricgraph_tutorial.md#installation-guide)
 - [Installation Nginx](../docs/ricgraph_as_server.md#installation-nginx)
 - [Installation of the Ricgraph REST API](../docs/ricgraph_restapi.md#installation-of-the-ricgraph-rest-api)
 - [Introduction Apache webserver](../docs/ricgraph_as_server.md#introduction-apache-webserver)
@@ -122,7 +128,10 @@ __L__
 __M__
 
 - [Main contributions of Ricgraph](../README.md#main-contributions-of-ricgraph)
+- [Main contributions of Ricgraph](../docs/ricgraph_tutorial.md#main-contributions-of-ricgraph)
+- [More information](../docs/ricgraph_tutorial.md#more-information)
 - [Motivation](../README.md#motivation)
+- [Motivation](../docs/ricgraph_tutorial.md#motivation)
 
 __N__
 
@@ -171,6 +180,7 @@ __R__
 - [Ricgraph in a container](../docs/ricgraph_containerized.md#ricgraph-in-a-container)
 - [Ricgraph in bullet points](../README.md#ricgraph-in-bullet-points)
 - [Ricgraph initialization file](../docs/ricgraph_install_configure.md#ricgraph-initialization-file)
+- [Ricgraph introduction](../docs/ricgraph_tutorial.md#ricgraph-introduction)
 - [Ricgraph known bugs](../docs/ricgraph_known_bugs.md#ricgraph-known-bugs)
 - [Ricgraph Makefile](../docs/ricgraph_install_configure.md#ricgraph-makefile)
 - [Ricgraph mentions](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
@@ -196,8 +206,6 @@ __S__
 - [Script to enrich persons (enrich_orcids_scopusids)](../docs/ricgraph_misc_scripts.md#script-to-enrich-persons-enrich_orcids_scopusids)
 - [Script to find person identifiers pointing to different persons (find_double_pids)](../docs/ricgraph_misc_scripts.md#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pids)
 - [Search page](../docs/ricgraph_explorer.md#search-page)
-- [Section 1](../docs/ricgraph_tutorial.md#section-1)
-- [Section 2](../docs/ricgraph_tutorial.md#section-2)
 - [Settings for graph database backend](../docs/ricgraph_install_configure.md#settings-for-graph-database-backend)
 - [Showing a privacy statement or privacy measures document](../docs/ricgraph_explorer.md#showing-a-privacy-statement-or-privacy-measures-document)
 - [Solution for Neo4j Community Edition](../docs/ricgraph_known_bugs.md#solution-for-neo4j-community-edition)
@@ -212,13 +220,16 @@ __T__
 
 - [Table of contents Ricgraph documentation](../docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation)
 - [Technicalities](../docs/ricgraph_restapi_gendoc.md#technicalities)
-- [Tutorial Ricgraph](../docs/ricgraph_tutorial.md#tutorial-ricgraph)
+- [Tutorial Ricgraph - Research in context graph](../docs/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph)
 
 __U__
 
 - [Use a Python virtual environment and install Python requirements](../docs/ricgraph_install_configure.md#use-a-python-virtual-environment-and-install-python-requirements)
 - [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](../docs/ricgraph_as_server.md#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 - [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
+- [Use case for a journalist](../docs/ricgraph_tutorial.md#use-case-for-a-journalist)
+- [Use case for a librarian](../docs/ricgraph_tutorial.md#use-case-for-a-librarian)
+- [Use case for a researcher](../docs/ricgraph_tutorial.md#use-case-for-a-researcher)
 - [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 - [Use of the Ricgraph REST API](../docs/ricgraph_restapi.md#use-of-the-ricgraph-rest-api)
 - [Using a Python Integrated development environment (IDE)](../docs/ricgraph_install_configure.md#using-a-python-integrated-development-environment-ide)
