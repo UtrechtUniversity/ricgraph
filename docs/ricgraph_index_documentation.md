@@ -53,7 +53,6 @@ __F__
 
 - [Fast and recommended way to install Ricgraph as a server](../docs/ricgraph_as_server.md#fast-and-recommended-way-to-install-ricgraph-as-a-server)
 - [Fast and recommended way to install Ricgraph for a single user](../docs/ricgraph_install_configure.md#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
-- [For make, see https://www.gnu.org/software/make.](../docs/ricgraph_install_configure.md#for-make-see-httpswwwgnuorgsoftwaremake)
 - [Function call for unifying personal identifiers](../docs/ricgraph_script_writing.md#function-call-for-unifying-personal-identifiers)
 - [Function calls for inserting nodes](../docs/ricgraph_script_writing.md#function-calls-for-inserting-nodes)
 - [Function calls to create, read (find), update and delete (CRUD) nodes](../docs/ricgraph_script_writing.md#function-calls-to-create-read-find-update-and-delete-crud-nodes)
