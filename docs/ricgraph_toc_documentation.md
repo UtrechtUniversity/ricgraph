@@ -168,6 +168,7 @@ This table of contents has been generated automatically.
   - [Fast and recommended way to install Ricgraph for a single user](../docs/ricgraph_install_configure.md#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
   - [Requirements for Ricgraph](../docs/ricgraph_install_configure.md#requirements-for-ricgraph)
   - [Ricgraph Makefile](../docs/ricgraph_install_configure.md#ricgraph-makefile)
+- [For make, see https://www.gnu.org/software/make.](../docs/ricgraph_install_configure.md#for-make-see-httpswwwgnuorgsoftwaremake)
   - [Steps to take](../docs/ricgraph_install_configure.md#steps-to-take)
   - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
   - [Use a Python virtual environment and install Python requirements](../docs/ricgraph_install_configure.md#use-a-python-virtual-environment-and-install-python-requirements)
