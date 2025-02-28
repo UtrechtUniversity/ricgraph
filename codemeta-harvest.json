@@ -95,6 +95,24 @@
             "@type": "CreativeWork",
             "name": "Ricgraph - Research in context graph documentation",
             "url": "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
+        },
+        {
+            "@id": "https://docs.ricgraph.eu",
+            "@type": "CreativeWork",
+            "name": "Documentation website for Ricgraph - Research in context graph",
+            "url": "https://docs.ricgraph.eu"
+        },
+        {
+            "@id": "https://docs.ricgraph.eu/docs/ricgraph_tutorial.html",
+            "@type": "CreativeWork",
+            "name": "Tutorial for Ricgraph - Research in context graph",
+            "url": "https://docs.ricgraph.eu/docs/ricgraph_tutorial.html"
+        },
+        {
+            "@id": "https://docs.ricgraph.eu/ricgraph_tutorial.pdf",
+            "@type": "CreativeWork",
+            "name": "Tutorial pdf for Ricgraph - Research in context graph",
+            "url": "https://docs.ricgraph.eu/ricgraph_tutorial.pdf"
         }
     ],
     "applicationCategory": [

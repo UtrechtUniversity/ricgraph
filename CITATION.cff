@@ -178,10 +178,12 @@ abstract: >-
   context from various systems. SoftwareX, 26(101736).
   https://doi.org/10.1016/j.softx.2024.101736
 
+  The website for Ricgraph can be found at https://www.ricgraph.eu
+
+  The documentation website for Ricgraph can be found at https://docs.ricgraph.eu
+
   Extensive documentation, publications, videos and source code can be found in
   the GitHub repository https://github.com/UtrechtUniversity/ricgraph
-
-  The website for Ricgraph can be found at https://www.ricgraph.eu
 keywords:
   - "Research in context graph"
   - "Ricgraph"
