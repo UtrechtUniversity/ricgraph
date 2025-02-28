@@ -1,7 +1,7 @@
 [![DOI Ricgraph software](https://img.shields.io/badge/DOI%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
 [![DOI Ricgraph reference publication](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
 [![Ricgraph website](https://img.shields.io/badge/website-www.ricgraph.eu-blue)](https://www.ricgraph.eu)
-[![Ricgraph documentation website](https://img.shields.io/badge/documentation%20website-documentation.ricgraph.eu-blue)](https://documentation.ricgraph.eu)
+[![Ricgraph documentation website](https://img.shields.io/badge/docs%20website-docs.ricgraph.eu-blue)](https://docs.ricgraph.eu)
 [![GitHub Ricgraph](https://img.shields.io/badge/GitHub-UtrechtUniversity/ricgraph-blue)](https://github.com/UtrechtUniversity/ricgraph)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph?color=%234c1)
 [![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=%234c1)](https://github.com/UtrechtUniversity/ricgraph/releases)
@@ -17,9 +17,7 @@
 [![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=32110&r=123)
 
 <!---
-Note, the lines 'Website' and
-'PyPI downloads' end in two spaces, to force a line break but not a paragraph break.
-Similar for others.
+Note, some lines above end in two spaces, to force a line break but not a paragraph break.
 We use color=#4c1 (green), that color is used by the 'repo status' badge.
 Documentation about the Podman badges can be found here: https://github.com/eggplants/ghcr-badge.
 --->
@@ -29,6 +27,7 @@ Documentation about the Podman badges can be found here: https://github.com/eggp
 # Ricgraph - Research in context graph
 
 [Read the Tutorial Ricgraph](docs/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph).
+Go to the [documentation website for Ricgraph](https://docs.ricgraph.eu).
 
 [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) and 
 [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
