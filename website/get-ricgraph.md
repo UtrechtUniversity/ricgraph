@@ -18,11 +18,11 @@ UtrechtUniversity/ricgraph on GitHub">Issue</a>.
 
 ## How to use Ricgraph
 
-* [Install and configure Ricgraph](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md).
-* Start harvesting data, see [Ricgraph harvest scripts](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_harvest_scripts.md).
-* Use [Ricgraph Explorer](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_explorer.md),
+* [Install and configure Ricgraph](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#install-and-configure-ricgraph).
+* Start harvesting data, see [Ricgraph harvest scripts](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
+* Use [Ricgraph Explorer](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_explorer.md#ricgraph-explorer),
   the exploration tool for Ricgraph. 
-* Use the [Ricgraph REST API](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_restapi.md),
+* Use the [Ricgraph REST API](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_restapi.md#ricgraph-rest-api),
   the REST API for Ricgraph.
 * Optional: modify code to fit Ricgraph to your specific use case.
 
