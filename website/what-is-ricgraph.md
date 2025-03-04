@@ -46,12 +46,15 @@ so that I can interview them for a newspaper article.
 Example skills can be: *climate change* or *stem cells*.
 The items surrounded by the red line are the solution to this use case.
 
-<!-- the '{height=...}' in the lines below to include a figure are necessary for 
+<!--
+The '{width=...}' in the lines below to include a figure are necessary for
 the documentation generated with Quarto, a.o. for the documentation website.
+We will need a width instead of a height to prevent right margin overflows
+on small mobile screens.
 On GitHub, it will unfortunately show this text.
 -->
 
-![Ricgraph use case for a journalist.](images/journalist-use-case.jpg){height=200}
+![Ricgraph use case for a journalist (click to enlarge).](images/journalist-use-case.jpg){width=70%}
 
 ### Use case for a librarian
 As a librarian, I want to enrich my local research information system with research results
@@ -59,7 +62,7 @@ from person A that are in other systems (in orange, *RIS2*) but not in
 ours (in green, *RIS1*), so that we have a more complete view of research at our university.
 The items surrounded by the red line are the solution to this use case.
 
-![Ricgraph use case for a librarian.](images/librarian-use-case.jpg){height=200}
+![Ricgraph use case for a librarian (click to enlarge).](images/librarian-use-case.jpg){width=75%}
 
 ### Use case for a researcher
 As a researcher A, I want to find researchers from other universities that have
@@ -67,7 +70,8 @@ co-authored publications written by the co-authors of my own publications,
 so that I can read their publications to find out if we share common research interests.
 The items surrounded by the red line are the solution to this use case.
 
-![Ricgraph use case for a researcher.](images/researcher-use-case.jpg){height=200}
+![Ricgraph use case for a researcher (click to enlarge).](images/researcher-use-case.jpg){width=35%}
+
 
 ## Main contributions of Ricgraph
 
