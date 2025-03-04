@@ -235,10 +235,9 @@ in a university context.
 See the figures below for example graphs that show how Ricgraph works.
 Click a figure to enlarge.
 
-| one person with several research outputs                                  | symbols for type of object                       | colors for source system                                 |
-|---------------------------------------------------------------------------|--------------------------------------------------|----------------------------------------------------------|
-| <img src="docs/images/one-person-with-research-outputs.jpg" height="170"> | <img src="docs/images/symbols.jpg" height="170"> | <img src="docs/images/colors-vertical.jpg" height="170"> |
-
+| one person with several research outputs                             | symbols for type of object                      | colors for source system                                |
+|----------------------------------------------------------------------|-------------------------------------------------|---------------------------------------------------------|
+| <img src="docs/images/one-person-with-research-outputs.jpg" width="33%"> | <img src="docs/images/symbols.jpg" width="33%"> | <img src="docs/images/colors-vertical.jpg" width="33%"> |
 
 This figure shows one person *A* using a
 [*person-root* node, a node which "represents" a person](docs/ricgraph_details.md#person-root-node-in-ricgraph)
@@ -257,9 +256,9 @@ the software package is from the
 [Research Software Directory](https://research-software-directory.org) (in blue).
 
 
-| several persons with several research outputs                                  | one person with several identifiers and research outputs         |
-|--------------------------------------------------------------------------------|------------------------------------------------------------------|
-| <img src="docs/images/several-persons-with-research-outputs.jpg" height="200"> | <img src="docs/images/identifiers-and-outputs.jpg" height="200"> |
+| several persons with several research outputs                                 | one person with several identifiers and research outputs         |
+|-------------------------------------------------------------------------------|------------------------------------------------------------------|
+| <img src="docs/images/several-persons-with-research-outputs.jpg" width="40%"> | <img src="docs/images/identifiers-and-outputs.jpg" width="50%"> |
 
 The left part of this figure shows several persons having several research outputs
 (the symbols) and
