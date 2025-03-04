@@ -78,55 +78,58 @@ Ricgraph Explorer.
   * Open a web browser and go to
     [https://www.ricgraph-example.com](https://www.ricgraph-example.com).
 
-
 ## Working with Ricgraph Explorer
 
-| screenshots of a usage flow through Ricgraph Explorer                                 | example research questions                                                                                                 |
-|---------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| <img src="images/ricgraph-explorer-showing-research-results-person.jpg" height="300"> | <img src="images/examples-of-research-questions-general.jpg" height="300"><img src="images/icons-colors.jpg" height="100"> |
+###  A usage flow through Ricgraph Explorer
+
+<img alt="Screenshots of a usage flow through Ricgraph Explorer" src="images/ricgraph-explorer-showing-research-results-person.jpg" width="90%">
 
 You can click each figure to enlarge.
+The figure above shows screenshots of web pages of Ricgraph Explorer for
+answering the research question “What are the research results of
+person A”.
 Some field values have been blurred for privacy reasons.
 
-### Research question “What are the research results of person A”
-The left
-figure above shows screenshots of web pages of Ricgraph Explorer for 
-answering the research question “What are the research results of
-person A” in figure (a) at the right.
-
-The screenshot at the top left is the [home page](#home-page). 
+The screenshot at the top left is the [home page](ricgraph_explorer.md#home-page).
 After clicking “search for a person”,
-Ricgraph Explorer shows a [search page](#search-page) (top right). 
-A user types a name, and the 
-[person options page](#person-options-page) is shown (bottom
-left). After clicking “show research results related to this person”, the 
-[results page](#results-page) is shown (bottom right). In that
-page, the rows in the second table are (in this case) the journal article neighbors of 
+Ricgraph Explorer shows a [search page](ricgraph_explorer.md#search-page) (top right).
+A user types a name, and the
+[person options page](ricgraph_explorer.md#person-options-page) is shown (bottom
+left). After clicking “show research results related to this person”, the
+[results page](ricgraph_explorer.md#results-page) is shown (bottom right). In that
+page, the rows in the second table are (in this case) the journal article neighbors of
 the item in the first table (the
-person the user searched). This person also has other types of research results: 
+person the user searched). This person also has other types of research results:
 book chapters, data sets, other
 contributions, books, reviews, and software (cf. row with orange rectangle, this is an
 example of the tabbed navigation). The “comment” column contains the titles of
-the journal articles. By clicking on an entry in the “value” column, in this case a 
+the journal articles. By clicking on an entry in the “value” column, in this case a
 DOI value, the user will go to this
-neighbor. Ricgraph Explorer will show a page with persons who have contributed to 
-that journal article. 
+neighbor. Ricgraph Explorer will show a page with persons who have contributed to
+that journal article.
 
-### Other research questions
-In the left figure above,
+### Example research questions
+
+In the figure in the previous section,
 after a click on a value in the “value” column in the bottom right result
-page, the user will get the persons who have contributed to that research 
-result, as in figure (b) at the right. Clicking “find
-persons that share any result types with this person” in the bottom left 
-person option page corresponds to figure (c),
+page, the user will get the persons who have contributed to that research
+result, as in figure (b) below.
+
+<img alt="Example research questions for Ricgraph" src="images/examples-of-research-questions-general.jpg" width="90%">
+
+Clicking “find
+persons that share any result types with this person” in the bottom left
+person option page (in the figure in the previous section) corresponds to figure (c),
 and clicking “show personal information related to this person” corresponds to figure (e).
 
+The research question “What are the research results of person A” from
+the previous section corresponds to figure (a).
 
 ## Home page
 The figure below shows part of the home page.
 Click on it to enlarge.
 
-<img src="images/ricgraph-explorer-home-page.jpg" width="400">
+<img src="images/ricgraph-explorer-home-page.jpg" width="40%">
 
 The home page lets the user choose between various methods to explore Ricgraph:
 
@@ -187,9 +190,9 @@ There are two search pages:
   
 The figure below shows these search pages. Click on any figure to enlarge.
 
-| broad search page                                                      | advanced search page                                                      |
-|------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| <img src="images/ricgraph-explorer-search-page-broad.jpg" width="300"> | <img src="images/ricgraph-explorer-search-page-advanced.jpg" width="300"> |
+|                           broad search page                            |                           advanced search page                            |
+|:----------------------------------------------------------------------:|:-------------------------------------------------------------------------:|
+| <img src="images/ricgraph-explorer-search-page-broad.jpg" width="50%"> | <img src="images/ricgraph-explorer-search-page-advanced.jpg" width="50%"> |
 
 
 There are two methods for viewing the results:
@@ -205,7 +208,7 @@ There are two methods for viewing the results:
 You only get on this page if the result of your search is a person.
 The figure below shows the person options page. Click on it to enlarge.
 
-<img src="images/ricgraph-explorer-personoptions-page.jpg" width="400">
+<img src="images/ricgraph-explorer-personoptions-page.jpg" width="80%">
 
 You can use one of these exploration options:
 
@@ -245,7 +248,7 @@ For each of these buttons, the results are shown on the [results page](#results-
 You only get on this page if the result of your search is an organization.
 The figure below shows the organization options page. Click on it to enlarge.
 
-<img src="images/ricgraph-explorer-organizationoptions-page.jpg" width="400">
+<img src="images/ricgraph-explorer-organizationoptions-page.jpg" width="60%">
 
 You can use one of these buttons:
 
@@ -268,7 +271,7 @@ The results page will look different depending on what results are shown.
 The figure below shows an example of a part of the skills in an organization.
 Click on it to enlarge.
 
-<img src="images/ricgraph-explorer-result-page.jpg" width="400">
+<img src="images/ricgraph-explorer-result-page.jpg" width="60%">
 
 ## Browsing Ricgraph
 You can browse the graph that Ricgraph has obtained by harvesting source systems

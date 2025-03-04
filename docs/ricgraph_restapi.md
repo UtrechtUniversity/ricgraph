@@ -69,7 +69,7 @@ Ricgraph Explorer, and you will get an explanation how to do this.
 See the figure below, that shows part of the Home page of Ricgraph Explorer 
 (click on it to enlarge).
 
-<img src="images/ricgraph-explorer-home-page.jpg" width="400">
+<img src="images/ricgraph-explorer-home-page.jpg" width="60%">
 
 As an alternative, you can also read 
 the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api),
