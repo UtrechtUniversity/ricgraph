@@ -3,6 +3,7 @@ This index has been generated automatically.
 
 __A__
 
+- [A usage flow through Ricgraph Explorer](../docs/ricgraph_explorer.md#a-usage-flow-through-ricgraph-explorer)
 - [A usage flow through Ricgraph Explorer](../docs/ricgraph_tutorial.md#a-usage-flow-through-ricgraph-explorer)
 - [Actions while clicking on a node](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node)
 - [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
@@ -31,6 +32,7 @@ __C__
 __D__
 
 - [Delete personal data from Ricgraph (delete_personal_data)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_data)
+- [Documentation website Ricgraph - Research in context graph](../docs/ricgraph_documentation_intro.md#documentation-website-ricgraph---research-in-context-graph)
 - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_backend_neo4j.md#dumping-and-restoring-the-ricgraph-database)
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_install_configure.md#dumping-and-restoring-the-ricgraph-database)
@@ -41,6 +43,7 @@ __E__
 - [Epilogue](../docs/ricgraph_example_use_videos.md#epilogue)
 - [Error while emptying Ricgraph with Neo4j](../docs/ricgraph_known_bugs.md#error-while-emptying-ricgraph-with-neo4j)
 - [Example research questions](../docs/ricgraph_details.md#example-research-questions)
+- [Example research questions](../docs/ricgraph_explorer.md#example-research-questions)
 - [Example research questions](../docs/ricgraph_tutorial.md#example-research-questions)
 - [Examples](../README.md#examples)
 - [Execute queries](../docs/ricgraph_backend_neo4j.md#execute-queries)
@@ -145,7 +148,6 @@ __O__
 - [Order of running the harvest scripts](../docs/ricgraph_harvest_scripts.md#order-of-running-the-harvest-scripts)
 - [Organization abbreviation](../docs/ricgraph_harvest_scripts.md#organization-abbreviation)
 - [Organization options page](../docs/ricgraph_explorer.md#organization-options-page)
-- [Other research questions](../docs/ricgraph_explorer.md#other-research-questions)
 
 __P__
 
@@ -166,7 +168,6 @@ __R__
 - [Read this in case you would like to extend Ricgraph](../README.md#read-this-in-case-you-would-like-to-extend-ricgraph)
 - [Requirements for Ricgraph](../docs/ricgraph_install_configure.md#requirements-for-ricgraph)
 - [Research outputs connected to persons](../docs/ricgraph_details.md#research-outputs-connected-to-persons)
-- [Research question “What are the research results of person A”](../docs/ricgraph_explorer.md#research-question-what-are-the-research-results-of-person-a)
 - [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
@@ -227,8 +228,11 @@ __U__
 - [Use a Python virtual environment and install Python requirements](../docs/ricgraph_install_configure.md#use-a-python-virtual-environment-and-install-python-requirements)
 - [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](../docs/ricgraph_as_server.md#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 - [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
+- [Use case for a journalist](../README.md#use-case-for-a-journalist)
 - [Use case for a journalist](../docs/ricgraph_tutorial.md#use-case-for-a-journalist)
+- [Use case for a librarian](../README.md#use-case-for-a-librarian)
 - [Use case for a librarian](../docs/ricgraph_tutorial.md#use-case-for-a-librarian)
+- [Use case for a researcher](../README.md#use-case-for-a-researcher)
 - [Use case for a researcher](../docs/ricgraph_tutorial.md#use-case-for-a-researcher)
 - [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 - [Use of the Ricgraph REST API](../docs/ricgraph_restapi.md#use-of-the-ricgraph-rest-api)
@@ -251,6 +255,8 @@ __V__
 __W__
 
 - [What is Ricgraph?](../README.md#what-is-ricgraph)
+- [What is Ricgraph?](../docs/ricgraph_documentation_intro.md#what-is-ricgraph)
+- [What to find on the Documentation website for Ricgraph?](../docs/ricgraph_documentation_intro.md#what-to-find-on-the-documentation-website-for-ricgraph)
 - [What to find on this page?](../docs/ricgraph_restapi_gendoc.md#what-to-find-on-this-page)
 - [Why Ricgraph?](../README.md#why-ricgraph)
 - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)
