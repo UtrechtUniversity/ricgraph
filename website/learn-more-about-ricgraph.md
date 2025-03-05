@@ -13,7 +13,7 @@ Ricgraph can answer questions like:
 * Which organizations have worked together?
 
 Also, more elaborate information can be found using Ricgraph and
-[Ricgraph Explorer](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_explorer.md#ricgraph_explorer), 
+[Ricgraph Explorer](https://docs.ricgraph.eu/docs/ricgraph_explorer.html#ricgraph-explorer),
 the exploration tool for Ricgraph:
 
 * You can find information about persons or their results in a

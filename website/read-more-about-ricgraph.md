@@ -17,22 +17,24 @@
   such as [OpenAlex](https://openalex.org),
   one can enrich its own Pure _A_ by using information in other source
   systems, not present in one's own Pure _A_.
-* Extensive documentation and source code can be found in the [GitHub
+* Extensive documentation and source code can be found on the
+  [Ricgraph documentation website](https://docs.ricgraph.eu), or
+  in the [GitHub
   repository](https://github.com/UtrechtUniversity/ricgraph).
 * Explore
-  [publications](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
-  [presentations](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
-  [newsletters](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
+  [publications](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-publications),
+  [presentations](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-presentations),
+  [newsletters](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-newsletters)
   (to subscribe, go to [Ricgraph
-  Contact](https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md#contact)),
-  [projects with students](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-projects-with-students),
-  [use](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
-  [mentions](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
+  Contact](https://docs.ricgraph.eu/README.html#contact)),
+  [projects with students](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students),
+  [use](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-use), and
+  [mentions](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-mentions)
   of Ricgraph.
 * Look at the [videos we have made to demonstrate
   Ricgraph](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_example_use_videos.md#ricgraph-videos).
 * Read more about [Ricgraph
-  details](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_details.md#implementation-details),
+  details](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#implementation-details),
   such as example graphs, person identifiers and the *person-root* node.
 
 ## More information

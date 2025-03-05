@@ -86,3 +86,5 @@ You might want to continue reading at
 [Learn more about Ricgraph](learn-more-about-ricgraph.md), 
 to [Read more about Ricgraph](read-more-about-ricgraph.md), 
 or to [Get Ricgraph](get-ricgraph.md).
+
+![Ricgraph sticker.](images/ricgraph-sticker-1000x688.png){width=35%}

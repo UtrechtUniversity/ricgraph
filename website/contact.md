@@ -7,8 +7,8 @@ You can also contact him for presentations, demos and workshops.
 
 About three to four times a year we send out a newsletter.
 To subscribe, go to 
-[Ricgraph Contact](https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md#contact).
+[Ricgraph Contact](https://docs.ricgraph.eu/README.html#contact).
 We also have a 
-[newsletter archive](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters). 
+[newsletter archive](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-newsletters).
 
 You might want to continue reading at [Get Ricgraph](get-ricgraph.md). 
