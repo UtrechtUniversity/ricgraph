@@ -1,7 +1,7 @@
-[![DOI Ricgraph software](https://img.shields.io/badge/DOI%20software-10.5281/zenodo.7524314-blue)](https://doi.org/10.5281/zenodo.7524314)
-[![DOI Ricgraph reference publication](https://img.shields.io/badge/DOI%20reference%20publication-10.1016%2Fj.softx.2024.101736-blue)](https://doi.org/10.1016/j.softx.2024.101736)
-[![Ricgraph website](https://img.shields.io/badge/website-www.ricgraph.eu-blue?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAatAAAGrQEzE5+4AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAABN0RVh0VGl0bGUAUmljZ3JhcGggaWNvbtfYluIAAAAXdEVYdEF1dGhvcgBSaWsgRC5ULiBKYW5zc2VuFiXm4QAAABl0RVh0RGVzY3JpcHRpb24AUmljZ3JhcGggaWNvblxqBnoAAABEdEVYdENvcHlyaWdodABDQyBBdHRyaWJ1dGlvbiBodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9saWNlbnNlcy9ieS80LjAvaRDXXQAAA5FJREFUWIW1l1uIVlUUx3/ON2aTiBlWpKh0eQmpIB9CSaqBniwQyqKLYQQlwZTRQ1OUNkTMQOWUBIbWdIdkKCqE6KaRgVRWPlQWPVhRQdroxMzgXHJ+Pew1zMdpf5eZ+dqwOeesy97/tdf6770PKhV6q/qJ2q8eUrvUlir20+pN5NstwEdAC9AN7AM2AXuB5go+02sZVHPVY2qv2lQmX63+o7Y1cgVywtWmtiKj26O+U8fAzWq7+q06pH6h3lxvCk6N53BGN1ymr9Z2AY8DB+P5F/A6sLmeFJyhjqhbC/ILIpotNaK/NlawGHGXOqaeXysFqA/FIK+o16v3qX+qP6vzagDYGnZF+enquLqhXF6pojuBfmALsB4YA2YBHcBAjeWfA4xk5GPAOMUU1lFQi9Q56i71qDq/hv2tEemVBXlbyC+uJwW5fq46rHbWsLtTHY166VDXqc+aKLyjaD9V3narJ9SlFfQPRO28ob6gDsb3qPq8OnumABaofer76iMmRrSqJXV7TPaMkxtYKcAeU5/MjTlVAM3qlzFRv3o83n9RT6r3VvB7TT3cCAAPm3K5QZ0VfX3Ieqv4rQugF80UwGF1Z0a+Xf2tit9i0yb0o/quusmoh/KtuAQsB1YAp1Tg9zLg64zuK2AxsBZYUNAtAfYDo8BPwGnAE8BnQMsEwjXqH062AXVjWQRLTZQaUnsyEe4wUVQT139QX1bvVj9Vf1fPK7O/POw7US+LHH6gXh3Knhhsm/qeqcBOqN/E+12mCi+pd4T/ZnW5epuJCQfCdly9JwN6p/o9MfFB/8vRXhN/D5n4vTAmfDHADcZKqb5qYkhxkgtDf11G96h6HBNHOzIGN4Tzooxupem8f1BdldGX96PqSwVZyUTnPc1AH7AwU1hnAieBvzO6/dHraR3Atpinh3TNawcuBVqJfA2ql5QhPMd0pH5YI7p6enus5IiTrU+9ydgH5qnfmaryTdOu1acesXB5mEa/wsT/baZtfKLI507YTBi2RFHsi9w8rZ41jQlL6pJ4nm2i3+em4zzrM9PlLQ+g20lWDKm/xkouq+bbKABvRwq71LXqY/F9wHRe/K8AroqobyzIrwn5mmr+lf6MptJWku6JvQX5buAIsKqacyMADJMOr+IFt4l0gOX+LxoKYC8wG7i/IG8D5gMfV/VuUBE+FfnebTqU3orv52r5NgoA6u2mf8AB016ysRYDVP4FRtPJ+PNff84AAAAASUVORK5CYII=)](https://www.ricgraph.eu)
-[![Ricgraph documentation website](https://img.shields.io/badge/doc%20website-docs.ricgraph.eu-blue?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAatAAAGrQEzE5+4AAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAABN0RVh0VGl0bGUAUmljZ3JhcGggaWNvbtfYluIAAAAXdEVYdEF1dGhvcgBSaWsgRC5ULiBKYW5zc2VuFiXm4QAAABl0RVh0RGVzY3JpcHRpb24AUmljZ3JhcGggaWNvblxqBnoAAABEdEVYdENvcHlyaWdodABDQyBBdHRyaWJ1dGlvbiBodHRwOi8vY3JlYXRpdmVjb21tb25zLm9yZy9saWNlbnNlcy9ieS80LjAvaRDXXQAAA5FJREFUWIW1l1uIVlUUx3/ON2aTiBlWpKh0eQmpIB9CSaqBniwQyqKLYQQlwZTRQ1OUNkTMQOWUBIbWdIdkKCqE6KaRgVRWPlQWPVhRQdroxMzgXHJ+Pew1zMdpf5eZ+dqwOeesy97/tdf6770PKhV6q/qJ2q8eUrvUlir20+pN5NstwEdAC9AN7AM2AXuB5go+02sZVHPVY2qv2lQmX63+o7Y1cgVywtWmtiKj26O+U8fAzWq7+q06pH6h3lxvCk6N53BGN1ymr9Z2AY8DB+P5F/A6sLmeFJyhjqhbC/ILIpotNaK/NlawGHGXOqaeXysFqA/FIK+o16v3qX+qP6vzagDYGnZF+enquLqhXF6pojuBfmALsB4YA2YBHcBAjeWfA4xk5GPAOMUU1lFQi9Q56i71qDq/hv2tEemVBXlbyC+uJwW5fq46rHbWsLtTHY166VDXqc+aKLyjaD9V3narJ9SlFfQPRO28ob6gDsb3qPq8OnumABaofer76iMmRrSqJXV7TPaMkxtYKcAeU5/MjTlVAM3qlzFRv3o83n9RT6r3VvB7TT3cCAAPm3K5QZ0VfX3Ieqv4rQugF80UwGF1Z0a+Xf2tit9i0yb0o/quusmoh/KtuAQsB1YAp1Tg9zLg64zuK2AxsBZYUNAtAfYDo8BPwGnAE8BnQMsEwjXqH062AXVjWQRLTZQaUnsyEe4wUVQT139QX1bvVj9Vf1fPK7O/POw7US+LHH6gXh3Knhhsm/qeqcBOqN/E+12mCi+pd4T/ZnW5epuJCQfCdly9JwN6p/o9MfFB/8vRXhN/D5n4vTAmfDHADcZKqb5qYkhxkgtDf11G96h6HBNHOzIGN4Tzooxupem8f1BdldGX96PqSwVZyUTnPc1AH7AwU1hnAieBvzO6/dHraR3Atpinh3TNawcuBVqJfA2ql5QhPMd0pH5YI7p6enus5IiTrU+9ydgH5qnfmaryTdOu1acesXB5mEa/wsT/baZtfKLI507YTBi2RFHsi9w8rZ41jQlL6pJ4nm2i3+em4zzrM9PlLQ+g20lWDKm/xkouq+bbKABvRwq71LXqY/F9wHRe/K8AroqobyzIrwn5mmr+lf6MptJWku6JvQX5buAIsKqacyMADJMOr+IFt4l0gOX+LxoKYC8wG7i/IG8D5gMfV/VuUBE+FfnebTqU3orv52r5NgoA6u2mf8AB016ysRYDVP4FRtPJ+PNff84AAAAASUVORK5CYII=)](https://docs.ricgraph.eu)
+[![DOI Ricgraph software](https://img.shields.io/badge/software-10.5281/zenodo.7524314-blue?logo=doi&logoColor=fff)](https://doi.org/10.5281/zenodo.7524314)
+[![DOI Ricgraph reference publication](https://img.shields.io/badge/reference%20publication-10.1016%2Fj.softx.2024.101736-blue?logo=doi&logoColor=fff)](https://doi.org/10.1016/j.softx.2024.101736)
+[![Ricgraph website](https://img.shields.io/badge/website-www.ricgraph.eu-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3MC43NTIiIGhlaWdodD0iNzAuNzYxIiB2aWV3Qm94PSIwIDAgMTguNzIgMTguNzIyIj48ZyBzdHlsZT0ic3Ryb2tlOiNmZmY7c3Ryb2tlLW9wYWNpdHk6MSIgdHJhbnNmb3JtPSJtYXRyaXgoMS4wNTIwNCAwIDAgMS4wNTIwNCAtNjguMzM1IC0xMy4wODMpIj48Y2lyY2xlIGN4PSI2OS44MDkiIGN5PSIxNC43MDciIHI9IjEuODcyIiBmaWxsPSJub25lIiBzdHlsZT0iZmlsbDojZmZmO2ZpbGwtb3BhY2l0eTowO3N0cm9rZTojZmZmO3N0cm9rZS13aWR0aDouODtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLW9wYWNpdHk6MSIvPjxjaXJjbGUgY3g9IjczLjMwMiIgY3k9IjIxLjA0OSIgcj0iMS44NzIiIGZpbGw9Im5vbmUiIHN0eWxlPSJmaWxsOiNmZmY7ZmlsbC1vcGFjaXR5OjA7c3Ryb2tlOiNmZmY7c3Ryb2tlLXdpZHRoOi44O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIi8+PGNpcmNsZSBjeD0iODAuNDc3IiBjeT0iMjIuNTk2IiByPSIxLjg3MiIgZmlsbD0ibm9uZSIgc3R5bGU9ImZpbGw6I2ZmZjtmaWxsLW9wYWNpdHk6MDtzdHJva2U6I2ZmZjtzdHJva2Utd2lkdGg6Ljg7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiLz48Y2lyY2xlIGN4PSI3OC41MyIgY3k9IjE2LjM2OSIgcj0iMS44NzIiIGZpbGw9Im5vbmUiIHN0eWxlPSJmaWxsOiNmZmY7ZmlsbC1vcGFjaXR5OjA7c3Ryb2tlOiNmZmY7c3Ryb2tlLXdpZHRoOi44O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIi8+PGNpcmNsZSBjeD0iNjcuMjI3IiBjeT0iMjMuNDQ2IiByPSIxLjg3MiIgZmlsbD0ibm9uZSIgc3R5bGU9ImZpbGw6I2ZmZjtmaWxsLW9wYWNpdHk6MDtzdHJva2U6I2ZmZjtzdHJva2Utd2lkdGg6Ljg7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiLz48Y2lyY2xlIGN4PSI3Ni4zNjgiIGN5PSIyNy45NiIgcj0iMS44NzIiIGZpbGw9Im5vbmUiIHN0eWxlPSJmaWxsOiNmZmY7ZmlsbC1vcGFjaXR5OjA7c3Ryb2tlOiNmZmY7c3Ryb2tlLXdpZHRoOi44O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIi8+PHBhdGggZD0ibTc3LjUwNiAyNi40NzQgMS44MzMtMi4zOTJNNzAuNzEyIDE2LjM0N2wxLjY4NyAzLjA2M002OC45NjggMjIuNzZsMi41OTMtMS4wMjRNNzcuMTM1IDE3LjYxOCA3NC42OTcgMTkuOE03NS4xMzIgMjEuNDQ0bDMuNTE1Ljc1N003OS4wODkgMTguMTU1bC44MyAyLjY1NCIgc3R5bGU9ImZpbGw6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtzdHJva2U6I2ZmZjtzdHJva2Utd2lkdGg6Ljg7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiLz48L2c+PC9zdmc+)](https://www.ricgraph.eu)
+[![Ricgraph documentation website](https://img.shields.io/badge/doc%20website-docs.ricgraph.eu-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI3MC43NTIiIGhlaWdodD0iNzAuNzYxIiB2aWV3Qm94PSIwIDAgMTguNzIgMTguNzIyIj48ZyBzdHlsZT0ic3Ryb2tlOiNmZmY7c3Ryb2tlLW9wYWNpdHk6MSIgdHJhbnNmb3JtPSJtYXRyaXgoMS4wNTIwNCAwIDAgMS4wNTIwNCAtNjguMzM1IC0xMy4wODMpIj48Y2lyY2xlIGN4PSI2OS44MDkiIGN5PSIxNC43MDciIHI9IjEuODcyIiBmaWxsPSJub25lIiBzdHlsZT0iZmlsbDojZmZmO2ZpbGwtb3BhY2l0eTowO3N0cm9rZTojZmZmO3N0cm9rZS13aWR0aDouODtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLW9wYWNpdHk6MSIvPjxjaXJjbGUgY3g9IjczLjMwMiIgY3k9IjIxLjA0OSIgcj0iMS44NzIiIGZpbGw9Im5vbmUiIHN0eWxlPSJmaWxsOiNmZmY7ZmlsbC1vcGFjaXR5OjA7c3Ryb2tlOiNmZmY7c3Ryb2tlLXdpZHRoOi44O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIi8+PGNpcmNsZSBjeD0iODAuNDc3IiBjeT0iMjIuNTk2IiByPSIxLjg3MiIgZmlsbD0ibm9uZSIgc3R5bGU9ImZpbGw6I2ZmZjtmaWxsLW9wYWNpdHk6MDtzdHJva2U6I2ZmZjtzdHJva2Utd2lkdGg6Ljg7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiLz48Y2lyY2xlIGN4PSI3OC41MyIgY3k9IjE2LjM2OSIgcj0iMS44NzIiIGZpbGw9Im5vbmUiIHN0eWxlPSJmaWxsOiNmZmY7ZmlsbC1vcGFjaXR5OjA7c3Ryb2tlOiNmZmY7c3Ryb2tlLXdpZHRoOi44O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIi8+PGNpcmNsZSBjeD0iNjcuMjI3IiBjeT0iMjMuNDQ2IiByPSIxLjg3MiIgZmlsbD0ibm9uZSIgc3R5bGU9ImZpbGw6I2ZmZjtmaWxsLW9wYWNpdHk6MDtzdHJva2U6I2ZmZjtzdHJva2Utd2lkdGg6Ljg7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiLz48Y2lyY2xlIGN4PSI3Ni4zNjgiIGN5PSIyNy45NiIgcj0iMS44NzIiIGZpbGw9Im5vbmUiIHN0eWxlPSJmaWxsOiNmZmY7ZmlsbC1vcGFjaXR5OjA7c3Ryb2tlOiNmZmY7c3Ryb2tlLXdpZHRoOi44O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2Utb3BhY2l0eToxIi8+PHBhdGggZD0ibTc3LjUwNiAyNi40NzQgMS44MzMtMi4zOTJNNzAuNzEyIDE2LjM0N2wxLjY4NyAzLjA2M002OC45NjggMjIuNzZsMi41OTMtMS4wMjRNNzcuMTM1IDE3LjYxOCA3NC42OTcgMTkuOE03NS4xMzIgMjEuNDQ0bDMuNTE1Ljc1N003OS4wODkgMTguMTU1bC44MyAyLjY1NCIgc3R5bGU9ImZpbGw6bm9uZTtmaWxsLXJ1bGU6ZXZlbm9kZDtzdHJva2U6I2ZmZjtzdHJva2Utd2lkdGg6Ljg7c3Ryb2tlLWxpbmVjYXA6YnV0dDtzdHJva2UtbGluZWpvaW46bWl0ZXI7c3Ryb2tlLWRhc2hhcnJheTpub25lO3N0cm9rZS1vcGFjaXR5OjEiLz48L2c+PC9zdmc+)](https://docs.ricgraph.eu)
 [![GitHub Ricgraph](https://img.shields.io/badge/GitHub-UtrechtUniversity/ricgraph-blue?logo=github)](https://github.com/UtrechtUniversity/ricgraph)  
 ![GitHub release date](https://img.shields.io/github/release-date/UtrechtUniversity/ricgraph?color=%234c1&logo=github)
 [![GitHub latest release](https://img.shields.io/github/release/UtrechtUniversity/ricgraph?color=%234c1&logo=github)](https://github.com/UtrechtUniversity/ricgraph/releases)
@@ -9,12 +9,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/UtrechtUniversity/ricgraph?color=%234c1&logo=github)
 [![PyPI version](https://img.shields.io/pypi/v/ricgraph?label=PyPI%20version&color=%234c1&logo=pypi&logoColor=ffffff)](https://pypi.org/project/ricgraph)
 [![PyPI downloads](https://img.shields.io/pypi/dm/ricgraph?label=PyPI%20downloads&color=%234c1&logo=pypi&logoColor=ffffff)](https://pypistats.org/packages/ricgraph)  
-[![Ricgraph container doc](https://img.shields.io/badge/Ricgraph_container_doc-click_here-%234c1)](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_containerized.md)
-[![Podman container version](https://ghcr-badge.egpl.dev/utrechtuniversity/ricgraph/latest_tag?color=%234c1&label=container+version)](https://github.com/utrechtuniversity/ricgraph/pkgs/container/ricgraph)  
 [![GitHub license](https://img.shields.io/github/license/UtrechtUniversity/ricgraph?color=%234c1)](LICENSE)
-[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Technology Readiness Level 7/9 - Release Candidate - Technology ready enough and in initial use by end-users in intended scholarly environments](https://w3id.org/research-technology-readiness-levels/Level7ReleaseCandidate.svg)](https://github.com/CLARIAH/clariah-plus/blob/main/requirements/software-metadata-requirements.md#15--you-should-express-a-technology-readiness-level)
-[![FAIR checklist badge](https://fairsoftwarechecklist.net/badge.svg)](https://fairsoftwarechecklist.net/v0.2?f=31&a=32113&i=32110&r=123)
 
 <!---
 Note, some lines above end in two spaces, to force a line break but not a paragraph break.
@@ -40,43 +35,66 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-### Motivation
+## Motivation
 
-Ricgraph, also known as Research in context graph, is software that is about
-relations between items. These items can be collected from various source 
+Ricgraph is software that is about
+relations between items. These items can be collected from various source
 systems and from multiple organizations. We
-explain how Ricgraph works by applying it to the application area 
+explain how Ricgraph works by applying it to the application area
 *research information*. We show the insights that can be
-obtained by combining information from various source systems, 
+obtained by combining information from various source systems,
 insight arising from new relations that are not present
 in each separate source system.
 
-*Research information* is about anything related to research: research 
+*Research information* is about anything related to research: research
 results, the persons in a research team, their
-collaborations, their skills, projects in which they have 
+collaborations, their skills, projects in which they have
 participated, as well as the relations between these entities.
 Examples of *research results* are publications, data sets, and software.
 
-Example use cases from the application area research information are:
-
-| Use case                                                                                                                                                                                                                                                        | In Ricgraph                                                                                                                   |
-|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| As a journalist, I want to find researchers with a certain skill S and their publications, so that I can interview them for a newspaper article. Example skills can be: *climate change* or *stem cells*.                                                       | <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/journalist-use-case.jpg" width="700"> |
-| As a librarian, I want to enrich my local research information system with research results from person A that are in other systems (in orange, *RIS2*) but not in ours (in green, *RIS1*), so that we have a more complete view of research at our university. | <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/librarian-use-case.jpg" width="700">  |
-| As a researcher A, I want to find researchers from other universities that have co-authored publications written by the co-authors of my own publications, so that I can read their publications to find out if we share common research interests.             | <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/researcher-use-case.jpg" width="700"> |
-
-These use cases use different types of information (called *items*):
+The following sections show three use cases
+that use different types of information (called *items*):
 researchers, skills, publications,
-etc. Most often, these types of information are not stored in 
+etc. Most often, these types of information are not stored in
 one system, so the use cases may be difficult or
-time-consuming to answer. However, by using Ricgraph, these 
+time-consuming to answer. However, by using Ricgraph, these
 use cases (and many others) are easy to answer, as will be
 explained throughout this documentation.
 
-Although this documentation illustrates Ricgraph in the application area 
+Although this documentation illustrates Ricgraph in the application area
 research information, the principle “relations
-between items from various source systems” is general, 
+between items from various source systems” is general,
 so Ricgraph can be used in other application areas.
+
+### Use case for a journalist
+As a journalist, I want to find researchers with a certain skill S and their publications,
+so that I can interview them for a newspaper article.
+Example skills can be: *climate change* or *stem cells*.
+The items surrounded by the red line are the solution to this use case.
+
+<!-- 
+The 'width=...' in the lines below to include a figure are necessary for 
+the documentation generated with Quarto, a.o. for the documentation website.
+We will need a width instead of a height to prevent right margin overflows
+on small mobile screens.
+-->
+
+<img src="docs/images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist" width="70%">
+
+### Use case for a librarian
+As a librarian, I want to enrich my local research information system with research results
+from person A that are in other systems (in orange, *RIS2*) but not in
+ours (in green, *RIS1*), so that we have a more complete view of research at our university.
+The items surrounded by the red line are the solution to this use case.
+
+<img src="docs/images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian" width="75%"> 
+
+### Use case for a researcher
+As a researcher A, I want to find researchers from other universities that have
+co-authored publications written by the co-authors of my own publications,
+so that I can read their publications to find out if we share common research interests.
+The items surrounded by the red line are the solution to this use case.
+
 
 ### Main contributions of Ricgraph
 
