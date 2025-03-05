@@ -1,4 +1,4 @@
-# Documentation website Ricgraph - Research in context graph
+# Documentation Ricgraph - Research in context graph
 
 ## What is Ricgraph?
 
@@ -28,11 +28,11 @@ or browse through the full documentation:
   * Start reading at the [Ricgraph README](../README.md#ricgraph---research-in-context-graph).
   * Or choose something from the documentation tree in the left sidebar.
   * Use the search box in the left sidebar.
+  * Of course, every webpage has links that allow you to go to other sections
+    or webpages.
   * Use the [index](ricgraph_index_documentation.md#index-ricgraph-documentation)
     or [table of contents](ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation)
     (the sitemap).
-  * Of course, every webpage has links that allow you to go to other sections
-    or webpages.
   * Read the [full documentation as pdf](https://docs.ricgraph.eu/ricgraph_fulldocumentation.pdf).
     This pdf is the concatenation of all Ricgraph documentation pages in one pdf.
 
