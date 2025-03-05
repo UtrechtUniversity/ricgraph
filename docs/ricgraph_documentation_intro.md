@@ -17,7 +17,7 @@ adapted to new application areas.
 ## What to find on the Documentation website for Ricgraph?
 
 This documentation website offers quite a bit of information about Ricgraph.
-In the sidebar on the left you can find the various options.
+In the yellow sidebar you can find the various options.
 Basically, you can read the Ricgraph tutorial, 
 or browse through the full documentation:
 
@@ -26,8 +26,8 @@ or browse through the full documentation:
   * Read the [tutorial as pdf](https://docs.ricgraph.eu/ricgraph_tutorial.pdf).
 * Full documentation:
   * Start reading at the [Ricgraph README](../README.md#ricgraph---research-in-context-graph).
-  * Or choose something from the documentation tree in the left sidebar.
-  * Use the search box in the left sidebar.
+  * Choose something from the documentation tree in the yellow sidebar.
+  * Use the search box.
   * Of course, every webpage has links that allow you to go to other sections
     or webpages.
   * Use the [index](ricgraph_index_documentation.md#index-ricgraph-documentation)
