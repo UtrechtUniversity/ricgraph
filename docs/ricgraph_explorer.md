@@ -242,7 +242,7 @@ For each of these buttons, the results are shown on the [results page](#results-
 
 ## Organization options page
 You only get on this page if the result of your search is an organization.
-The figure below shows the organization options page. Click on it to enlarge.
+The figure below shows the organization options page.
 
 <img alt="Organization options page of Ricgraph Explorer." src="images/ricgraph-explorer-organizationoptions-page.jpg" width="80%">
 
@@ -265,7 +265,6 @@ For all of these buttons the results are shown on the [results page](#results-pa
 ## Results page
 The results page will look different depending on what results are shown.
 The figure below shows an example of a part of the skills in an organization.
-Click on it to enlarge.
 
 <img alt="Results page of Ricgraph Explorer." src="images/ricgraph-explorer-result-page.jpg" width="80%">
 

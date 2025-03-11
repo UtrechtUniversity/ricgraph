@@ -66,8 +66,7 @@ for the REST API. It lists the various endpoints
 and parameters, and you can try out each endpoint with values for parameters as you like.
 To do this, click the "REST API doc" button in the top bar of 
 Ricgraph Explorer, and you will get an explanation how to do this.
-See the figure below, that shows part of the Home page of Ricgraph Explorer 
-(click on it to enlarge).
+See the figure below, that shows part of the Home page of Ricgraph Explorer.
 
 <img alt="Home page of Ricgraph Explorer." src="images/ricgraph-explorer-home-page.jpg" width="80%">
 
