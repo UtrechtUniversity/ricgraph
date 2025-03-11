@@ -34,12 +34,11 @@ Ricgraph uses a special node *person-root*. This node is connected to all the di
 person identifiers which have been harvested.
 *Person-root* "represents" a person. Research outputs from a person
 will also be connected to this *person-root* node.
-The following figure shows two examples. *B* is the *person-root* node. 
-Click the figure to enlarge.
+The following figures shows two examples. *B* is the *person-root* node. 
 
-| a person with a few identifiers                   | a person with a lot of identifiers                 |
-|:-------------------------------------------------:|:--------------------------------------------------:|
-| <img src="images/person-few-ids.jpg" width="50%"> | <img src="images/person-many-ids.jpg" width="50%"> |
+|                             a person with a few identifiers                              |                              a person with a lot of identifiers                              |
+|:----------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------:|
+| <img alt="A person with a few identifiers." src="images/person-few-ids.jpg" width="50%"> | <img alt="A person with a lot of identifiers." src="images/person-many-ids.jpg" width="50%"> |
 
 A person can have any number of identifiers.
 The person in the left figure has one *ORCID*, one *ISNI* and one *FULL_NAME*.
@@ -48,9 +47,9 @@ E.g. this person has two different ORCIDs and two FULL_NAMEs (with different spe
 
 ## Research outputs connected to persons
 
-| one person with three research outputs                     |                three persons with one research output                | symbols for type of object                 | colors for source system                           |
-|:----------------------------------------------------------:|:--------------------------------------------------------------------:|:------------------------------------------:|:--------------------------------------------------:|
-| <img src="images/identifiers-and-outputs.jpg" width="25%"> | <img src="images/three-persons-one-research-output.jpg" width="25%"> | <img src="images/symbols.jpg" width="25%"> | <img src="images/colors-vertical.jpg" width="25%"> |
+|                                  one person with three research outputs                                  |                                       three persons with one research output                                       |                          symbols for type of object                          |                              colors for source system                              |
+|:--------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------:|:----------------------------------------------------------------------------------:|
+| <img alt="One person with three research outputs." src="images/identifiers-and-outputs.jpg" width="25%"> | <img alt="Three persons with one research output." src="images/three-persons-one-research-output.jpg" width="25%"> | <img alt="Symbols for type of object." src="images/symbols.jpg" width="25%"> | <img alt="Colors for source system." src="images/colors-vertical.jpg" width="25%"> |
 
 The left figure shows how one person, its identifiers and research outputs are connected.
 The right figure shows how three persons have contributed to one research output.
@@ -59,7 +58,7 @@ The right figure shows how three persons have contributed to one research output
 The figure belows shows examples of research questions that can be answered using Ricgraph.
 Click the figure to enlarge.
 
-<img src="images/examples-of-research-questions-general.jpg" width="90%">
+<img alt="Example research questions for Ricgraph." src="images/examples-of-research-questions-general.jpg" width="90%">
 
 ## Videos of Ricgraph
 To see a demonstration of Ricgraph, you can look at 

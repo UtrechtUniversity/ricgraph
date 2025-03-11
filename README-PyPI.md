@@ -17,7 +17,7 @@ We use color=#4c1 (green), that color is used by the 'repo status' badge.
 Documentation about the Podman badges can be found here: https://github.com/eggplants/ghcr-badge.
 --->
 
-<img alt="Ricgraph logo" src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/refs/heads/main/docs/images/ricgraph_logo.png" height="30">
+<img alt="Ricgraph logo" src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/refs/heads/main/docs/images/ricgraph_logo.png" width="30%">
 
 # Ricgraph - Research in context graph
 
@@ -79,7 +79,7 @@ We will need a width instead of a height to prevent right margin overflows
 on small mobile screens.
 -->
 
-<img src="docs/images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist" width="70%">
+<img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist." width="70%">
 
 ### Use case for a librarian
 As a librarian, I want to enrich my local research information system with research results
@@ -87,7 +87,7 @@ from person A that are in other systems (in orange, *RIS2*) but not in
 ours (in green, *RIS1*), so that we have a more complete view of research at our university.
 The items surrounded by the red line are the solution to this use case.
 
-<img src="docs/images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian" width="75%"> 
+<img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian." width="75%"> 
 
 ### Use case for a researcher
 As a researcher A, I want to find researchers from other universities that have
@@ -95,6 +95,7 @@ co-authored publications written by the co-authors of my own publications,
 so that I can read their publications to find out if we share common research interests.
 The items surrounded by the red line are the solution to this use case.
 
+<img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
 
 ### Main contributions of Ricgraph
 
@@ -111,8 +112,9 @@ Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore re
 context from various systems. *SoftwareX*, 26(101736).
 [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
 
-You might also want to read the documentation in 
-the [Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
+You might also want to read the documentation on 
+[https://docs.ricgraph.eu](https://docs.ricgraph.eu).
+You can also go to the [Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
 To use Ricgraph, installing the [Ricgraph package from PyPI](https://pypi.org/project/ricgraph) 
 is not sufficient. Please read the
 installation instructions in the Ricgraph GitHub repository.

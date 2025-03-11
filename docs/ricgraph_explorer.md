@@ -82,13 +82,11 @@ Ricgraph Explorer.
 
 ###  A usage flow through Ricgraph Explorer
 
-<img alt="Screenshots of a usage flow through Ricgraph Explorer" src="images/ricgraph-explorer-showing-research-results-person.jpg" width="90%">
+<img alt="Screenshots of a usage flow through Ricgraph Explorer. Some field values have been blurred for privacy reasons." src="images/ricgraph-explorer-showing-research-results-person.jpg" width="90%">
 
-You can click each figure to enlarge.
 The figure above shows screenshots of web pages of Ricgraph Explorer for
 answering the research question “What are the research results of
 person A”.
-Some field values have been blurred for privacy reasons.
 
 The screenshot at the top left is the [home page](ricgraph_explorer.md#home-page).
 After clicking “search for a person”,
@@ -115,7 +113,7 @@ after a click on a value in the “value” column in the bottom right result
 page, the user will get the persons who have contributed to that research
 result, as in figure (b) below.
 
-<img alt="Example research questions for Ricgraph" src="images/examples-of-research-questions-general.jpg" width="90%">
+<img alt="Example research questions for Ricgraph." src="images/examples-of-research-questions-general.jpg" width="90%">
 
 Clicking “find
 persons that share any result types with this person” in the bottom left
@@ -127,9 +125,8 @@ the previous section corresponds to figure (a).
 
 ## Home page
 The figure below shows part of the home page.
-Click on it to enlarge.
 
-<img src="images/ricgraph-explorer-home-page.jpg" width="40%">
+<img alt="Home page of Ricgraph Explorer." src="images/ricgraph-explorer-home-page.jpg" width="80%">
 
 The home page lets the user choose between various methods to explore Ricgraph:
 
@@ -188,12 +185,11 @@ There are two search pages:
   This search is a case-sensitive exact match search
   on one or more of the Ricgraph fields _name_, _category_, or _value_.
   
-The figure below shows these search pages. Click on any figure to enlarge.
+The figures below show these search pages.
 
-|                           broad search page                            |                           advanced search page                            |
-|:----------------------------------------------------------------------:|:-------------------------------------------------------------------------:|
-| <img src="images/ricgraph-explorer-search-page-broad.jpg" width="50%"> | <img src="images/ricgraph-explorer-search-page-advanced.jpg" width="50%"> |
+<img alt="Broad search page of Ricgraph Explorer." src="images/ricgraph-explorer-search-page-broad.jpg" width="80%"> 
 
+<img alt="Advanced search page of Ricgraph Explorer." src="images/ricgraph-explorer-search-page-advanced.jpg" width="80%">
 
 There are two methods for viewing the results:
 
@@ -206,9 +202,9 @@ There are two methods for viewing the results:
 
 ## Person options page
 You only get on this page if the result of your search is a person.
-The figure below shows the person options page. Click on it to enlarge.
+The figure below shows the person options page.
 
-<img src="images/ricgraph-explorer-personoptions-page.jpg" width="80%">
+<img alt="Person options page of Ricgraph Explorer." src="images/ricgraph-explorer-personoptions-page.jpg" width="80%">
 
 You can use one of these exploration options:
 
@@ -248,7 +244,7 @@ For each of these buttons, the results are shown on the [results page](#results-
 You only get on this page if the result of your search is an organization.
 The figure below shows the organization options page. Click on it to enlarge.
 
-<img src="images/ricgraph-explorer-organizationoptions-page.jpg" width="60%">
+<img alt="Organization options page of Ricgraph Explorer." src="images/ricgraph-explorer-organizationoptions-page.jpg" width="80%">
 
 You can use one of these buttons:
 
@@ -271,7 +267,7 @@ The results page will look different depending on what results are shown.
 The figure below shows an example of a part of the skills in an organization.
 Click on it to enlarge.
 
-<img src="images/ricgraph-explorer-result-page.jpg" width="60%">
+<img alt="Results page of Ricgraph Explorer." src="images/ricgraph-explorer-result-page.jpg" width="80%">
 
 ## Browsing Ricgraph
 You can browse the graph that Ricgraph has obtained by harvesting source systems

@@ -226,7 +226,7 @@ the previous section corresponds to figure (a).
 ## More information
 
 * Read the full documentation of Ricgraph on 
-  [https://documentation.ricgraph.eu](https://documentation.ricgraph.eu).
+  [https://docs.ricgraph.eu](https://docs.ricgraph.eu).
 * For a gentle introduction in Ricgraph, read the reference publication:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).

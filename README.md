@@ -22,7 +22,15 @@ We use color=#4c1 (green), that color is used by the 'repo status' badge.
 Documentation about the Podman badges can be found here: https://github.com/eggplants/ghcr-badge.
 --->
 
-<img alt="Ricgraph logo" src="docs/images/ricgraph_logo.png" height="30"> 
+<img alt="Ricgraph logo" src="docs/images/ricgraph_logo.png" width="30%"> 
+
+<!---
+The Mark below is used in file
+https://github.com/UtrechtUniversity/ricgraph-documentation/blob/main/Makefile
+to remove everything up and including these lines. Do not modify the text in it.
+--->
+
+<!--- Mark to remove everything up to here --->
 
 # Ricgraph - Research in context graph
 
@@ -93,7 +101,7 @@ We will need a width instead of a height to prevent right margin overflows
 on small mobile screens.
 -->
 
-<img src="docs/images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist" width="70%">
+<img src="docs/images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist." width="70%">
 
 ### Use case for a librarian
 As a librarian, I want to enrich my local research information system with research results
@@ -101,7 +109,7 @@ from person A that are in other systems (in orange, *RIS2*) but not in
 ours (in green, *RIS1*), so that we have a more complete view of research at our university.
 The items surrounded by the red line are the solution to this use case.
 
-<img src="docs/images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian" width="75%"> 
+<img src="docs/images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian." width="75%"> 
 
 ### Use case for a researcher
 As a researcher A, I want to find researchers from other universities that have
@@ -109,7 +117,7 @@ co-authored publications written by the co-authors of my own publications,
 so that I can read their publications to find out if we share common research interests.
 The items surrounded by the red line are the solution to this use case.
 
-<img src="docs/images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher" width="35%">
+<img src="docs/images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
 
 
 ### Main contributions of Ricgraph
@@ -231,11 +239,10 @@ in a university context.
 ## Examples
 
 See the figures below for example graphs that show how Ricgraph works.
-Click a figure to enlarge.
 
-|                 one person with several research outputs                 |           symbols for type of object            |                colors for source system                 |
-|:------------------------------------------------------------------------:|:-----------------------------------------------:|:-------------------------------------------------------:|
-| <img src="docs/images/one-person-with-research-outputs.jpg" width="33%"> | <img src="docs/images/symbols.jpg" width="33%"> | <img src="docs/images/colors-vertical.jpg" width="33%"> |
+|                                         one person with several research outputs                                         |                            symbols for type of object                             |                                colors for source system                                 |
+|:------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|
+| <img alt="One person with several research outputs." src="docs/images/one-person-with-research-outputs.jpg" width="33%"> | <img alt="Symbols for type of object." src="docs/images/symbols.jpg" width="33%"> | <img alt="Colors for source system." src="docs/images/colors-vertical.jpg" width="33%"> |
 
 This figure shows one person *A* using a
 [*person-root* node, a node which "represents" a person](docs/ricgraph_details.md#person-root-node-in-ricgraph)
@@ -254,9 +261,9 @@ the software package is from the
 [Research Software Directory](https://research-software-directory.org) (in blue).
 
 
-|                 several persons with several research outputs                 |    one person with several identifiers and research outputs     |
-|:-----------------------------------------------------------------------------:|:---------------------------------------------------------------:|
-| <img src="docs/images/several-persons-with-research-outputs.jpg" width="40%"> | <img src="docs/images/identifiers-and-outputs.jpg" width="50%"> |
+|                                           several persons with several research outputs                                            |                                    one person with several identifiers and research outputs                                     |
+|:----------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------:|
+| <img alt="Several persons with several research outputs." src="docs/images/several-persons-with-research-outputs.jpg" width="40%"> | <img alt="One person with several identifiers and research outputs." src="docs/images/identifiers-and-outputs.jpg" width="50%"> |
 
 The left part of this figure shows several persons having several research outputs
 (the symbols) and
@@ -332,7 +339,7 @@ More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implem
 ### Further information about Ricgraph
 
 * Read the full documentation of Ricgraph on
-  [https://documentation.ricgraph.eu](https://documentation.ricgraph.eu).
+  [https://docs.ricgraph.eu](https://docs.ricgraph.eu).
 * For a gentle introduction in Ricgraph, read the reference publication:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
   context from various systems. *SoftwareX*, 26(101736).
