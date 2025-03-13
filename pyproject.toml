@@ -34,7 +34,7 @@ dependencies = [
 
 [project.urls]
 Website = "https://www.ricgraph.eu"
-Documentation = "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
+Documentation = "https://docs.ricgraph.eu"
 GitHub = "https://github.com/UtrechtUniversity/ricgraph"
 Issues = "https://github.com/UtrechtUniversity/ricgraph/issues"
 Download = "https://github.com/UtrechtUniversity/ricgraph/releases"
