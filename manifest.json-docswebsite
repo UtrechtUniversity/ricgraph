@@ -1,6 +1,7 @@
 {
-  "name": "Documentaton Ricgraph - Research in context graph",
+  "name": "Documentation Ricgraph - Research in context graph",
   "short_name": "Docs Ricgraph",
+    "description": "This is the application for the documentation of Ricgraph - Research in context graph",
   "lang": "en",
   "theme_color": "#ffcd00",
   "background_color": "#ffcd00",
@@ -9,22 +10,35 @@
   "start_url": "/",
   "icons": [
     {
-      "src": "/docs/images/icons/android/ricgraph-icon-rect-192x192.png",
+      "src": "/docs/images/icons/android/ricgraph-icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     },
     {
-      "src": "/docs/images/icons/android/ricgraph-icon-round-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/docs/images/icons/android/ricgraph-icon-web-512x512.png",
+      "src": "/docs/images/icons/android/ricgraph-icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
+    },
+    {
+      "src": "/docs/images/icons/android/ricgraph-icon-solid-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }],
+  "screenshots": [
+    {
+      "src": "/docs/images/ricgraph-docs-screenshot-wide.png",
+      "type": "image/png",
+      "sizes": "1622x909",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/docs/images/ricgraph-docs-screenshot-narrow.png",
+      "type": "image/png",
+      "sizes": "802x909",
+      "form_factor": "narrow"
     }]
 }
 
