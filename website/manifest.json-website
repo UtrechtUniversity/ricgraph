@@ -1,0 +1,44 @@
+{
+  "name": "Website Ricgraph - Research in context graph",
+  "short_name": "Web Ricgraph",
+  "description": "This is the application for the website of Ricgraph - Research in context graph",
+  "lang": "en",
+  "theme_color": "#ffcd00",
+  "background_color": "#ffcd00",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/images/icons/android/ricgraph-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/images/icons/android/ricgraph-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/images/icons/android/ricgraph-icon-solid-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }],
+  "screenshots": [
+    {
+      "src": "/images/ricgraph-website-screenshot-wide.png",
+      "type": "image/png",
+      "sizes": "1622x909",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/images/ricgraph-website-screenshot-narrow.png",
+      "type": "image/png",
+      "sizes": "802x909",
+      "form_factor": "narrow"
+    }]
+}
+
