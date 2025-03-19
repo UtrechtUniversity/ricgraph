@@ -281,9 +281,11 @@ html_preamble += '<link rel="stylesheet" href="https://fonts.googleapis.com/css?
 # The html page header.
 page_header = '<header class="w3-container uu-yellow">'
 page_header += '<div class="w3-bar uu-yellow">'
+page_header += '<a href="javascript:history.back()" class="w3-bar-item" style="font-size:80%; padding-top:0px;'
+page_header += 'padding-bottom:0px; padding-right:0px; writing-mode:vertical-rl; transform:rotate(180deg);">Go back</a>'
 page_header += '<div class="w3-bar-item w3-mobile" style="padding-left:0em; padding-right:2em;">'
 page_header += '<a href="/" style="text-decoration:none; color:#000000; font-size:130%;">'
-page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right:3em;">'
+page_header += '<img src="/static/uu_logo_small.png" height="30" style="padding-right:2em;">'
 page_header += '<img src="/static/ricgraph_logo.png" height="30" style="padding-right:0.5em;">Explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item'
