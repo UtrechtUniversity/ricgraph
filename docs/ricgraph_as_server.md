@@ -130,7 +130,9 @@ you do not need to do this. Otherwise, follow these steps:
   
 ## Create a Python virtual environment and install Ricgraph in it
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
-command `make full_server_install`, or follow the steps below.
+command `make install_ricgraph_server`,
+or follow the steps below.
+
 
 * Suppose you are a user with login *alice* and you are in Linux group *users*.
 * Login as user *root*.

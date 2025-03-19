@@ -229,15 +229,14 @@ graph database.
 
 
 ## Steps to take
-Skip this if you have done the
+Skip this section if you have done the
 [Fast and recommended way to install Ricgraph for a single 
-user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
+user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there were no errors.
 
 1. Install your graph database backend (choose one of these):
     * [Install and start Neo4j Community
-      Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
+      Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) (recommended, only possible if you are able to change to user *root*).
    * [Install Neo4j Desktop](ricgraph_backend_neo4j.md#install-neo4j-desktop)
-     (recommended, since it includes Bloom).
      Optional: [Install the Bloom 
      configuration](ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional).
    * [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
@@ -253,7 +252,11 @@ user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 
 ## Download Ricgraph
 
-To you use the [Ricgraph Makefile](#ricgraph-makefile),
+Skip this section if you have done the
+[Fast and recommended way to install Ricgraph for a single
+user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there were no errors.
+
+If you use the [Ricgraph Makefile](#ricgraph-makefile),
 this will be done automatically while creating a Python virtual environment
 (see the following section).
 
@@ -268,8 +271,24 @@ You can choose two types of downloads for Ricgraph:
 
 ## Use a Python virtual environment and install Python requirements
 
-To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile) and execute
-command `make full_singleuser_install`, or follow the steps below.
+To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile),
+or follow the steps below.
+Skip this section if you have done the
+[Fast and recommended way to install Ricgraph for a single
+user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there were no errors.
+
+
+If you use the Ricgraph Makefile, the command to use depends on 
+whether you have installed Neo4j Community Edition or Neo4j Desktop.
+
+* Neo4j Community Edition, type:
+  ```
+  make install_ricgraph_singleuser_neo4jcommunity
+  ```
+* Neo4j Desktop, type:
+  ```
+  make install_ricgraph_singleuser_neo4jdesktop
+  ```
 
 To be able to use Ricgraph, you will need a Python virtual environment.
 Virtual environments are a kind of lightweight Python environments,
