@@ -85,6 +85,7 @@ import sys
 import urllib.parse
 import uuid
 from typing import Union, Tuple
+from math import ceil, floor
 from neo4j.graph import Node
 import connexion.options
 from flask import request, url_for, send_from_directory, current_app
@@ -326,6 +327,8 @@ html_body_start += '<head>'
 html_body_start += html_preamble
 html_body_start += stylesheet
 html_body_start += '<title>Ricgraph Explorer</title>'
+# Define two global JavaScript arrays to be used in get_regular_table().
+html_body_start += '<script>let currentPage = []; let totalPages = [];</script>'
 html_body_start += '</head>'
 html_body_start += '<body>'
 html_body_start += page_header
@@ -2842,14 +2845,148 @@ def flask_read_file(filename: str) -> str:
 # ##############################################################################
 # The HTML for the regular, tabbed and faceted tables is generated here.
 # ##############################################################################
+def create_table_pagination(total_pages, table_id) -> str:
+    """Generates w3.css pagination controls for a table.
+
+    :param total_pages: the total pages in the table.
+    :param table_id: the id of the table.
+    :return: html to be rendered.
+    """
+    if total_pages <= 1:
+        return ''
+
+    # Navigation buttons.
+    html = f'<a href="#" onclick="showPage(1, \'{table_id}\')" class="w3-button">&laquo;</a>'
+    html += f'<a href="#" onclick="showPage(currentPage[\'{table_id}\']-1, \'{table_id}\')" '
+    html += 'class="w3-button">&lsaquo;</a>'
+
+    # Page numbers with dynamic range.
+    if total_pages <= 5:
+        page_range = range(1, total_pages + 1)
+    else:
+        page_range = range(1, 6)
+        html += f'<span class="ellipsis-left-{table_id}" style="display:none;">...</span>'
+
+    for page in page_range:
+        html += f'<a href="#" class="w3-button page-num-{table_id}">{page}</a>'
+
+    if total_pages > 5:
+        html += f'<span class="ellipsis-right-{table_id}" style="display:none;">...</span>'
+
+    html += f'<a href="#" onclick="showPage(currentPage[\'{table_id}\']+1, \'{table_id}\')" '
+    html += 'class="w3-button">&rsaquo;</a>'
+    html += f'<a href="#" onclick="showPage({total_pages}, \'{table_id}\')" '
+    html += 'class="w3-button">&raquo;</a>'
+    return '<div class="w3-bar">' + html + '</div>'
+
+
 def get_regular_table(nodes_list: list,
                       table_header: str = '',
                       table_columns: list = None,
                       discoverer_mode: str = '',
                       extra_url_parameters: dict = None) -> str:
-    """Create a html table for all nodes in the list.
+    """Create a paginated html table for all nodes in the list.
 
     :param nodes_list: the nodes to create a table from.
+    :param table_header: the html to show above the table.
+    :param table_columns: a list of columns to show in the table.
+    :param discoverer_mode: the discoverer_mode to use.
+    :param extra_url_parameters: extra parameters to be added to the url.
+    :return: html to be rendered.
+    """
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
+
+    table_id = ''.join(random.choice(string.ascii_lowercase) for _ in range(12))
+    table_html = get_regular_table_worker(nodes_list=nodes_list,
+                                          table_id=table_id,
+                                          table_header=table_header,
+                                          table_columns=table_columns,
+                                          discoverer_mode=discoverer_mode,
+                                          extra_url_parameters=extra_url_parameters)
+
+    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    if max_nr_items == 0:
+        max_nr_items = rcg.A_LARGE_NUMBER
+    len_nodes_list = min(len(nodes_list), max_nr_items)
+    max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
+    if max_nr_table_rows == 0:
+        max_nr_table_rows = len_nodes_list
+
+    javascript = f"""<script>
+                 // Initialize currentPage and totalPages for all tables
+                 currentPage['{table_id}'] = 1; 
+                 totalPages['{table_id}'] = Math.ceil({len_nodes_list} / {max_nr_table_rows});
+                 function showPage(page, tableId) {{
+                     page = parseInt(page);
+                     if (page < 1 || page > totalPages[tableId]) return;
+             
+                     // Update table visibility
+                     document.querySelectorAll(`.table-${{tableId}}-page-${{currentPage[tableId]}}`)
+                           .forEach(tr => tr.style.display = 'none');
+                     document.querySelectorAll(`.table-${{tableId}}-page-${{page}}`)
+                           .forEach(tr => tr.style.display = '');
+             
+                     currentPage[tableId] = page;
+                     updatePagination(tableId);
+                 }}
+                 function updatePagination(tableId) {{
+                     const buttons = document.querySelectorAll(`.page-num-${{tableId}}`);
+                     const total = totalPages[tableId];
+                     let start = 1;
+                     if (total > 5) {{
+                         if (currentPage[tableId] <= 3) {{
+                             start = 1;
+                         }} else if (currentPage[tableId] >= total - 2) {{
+                             start = total - 4;
+                         }} else {{
+                             start = currentPage[tableId] - 2;
+                         }}
+                     }}
+                     buttons.forEach((btn, index) => {{
+                         const pageNum = start + index;
+                         if (btn) {{
+                             btn.textContent = pageNum;
+                             btn.onclick = function() {{ showPage(pageNum, tableId); }};
+                             btn.classList.toggle('uu-yellow', pageNum === currentPage[tableId]);
+                             btn.style.display = pageNum <= total ? '' : 'none';
+                         }}
+                     }});
+                     const ellipsisLeft = document.querySelector(`.ellipsis-left-${{tableId}}`);
+                     const ellipsisRight = document.querySelector(`.ellipsis-right-${{tableId}}`);
+                     if (ellipsisLeft) ellipsisLeft.style.display = start > 1 ? '' : 'none';
+                     if (ellipsisRight) 
+                        ellipsisRight.style.display = (start + buttons.length - 1) < total ? '' : 'none';
+                     const firstButton = document.querySelector(`a[onclick="showPage(1, '${{tableId}}')"]`);
+                     const prevButton = document.querySelector(`a[onclick=
+                                        "showPage(currentPage['${{tableId}}']-1, '${{tableId}}')"]`);
+                     const nextButton = document.querySelector(`a[onclick=
+                                        "showPage(currentPage['${{tableId}}']+1, '${{tableId}}')"]`);
+                     const lastButton = document.querySelector(`a[onclick="showPage(${{total}}, '${{tableId}}')"]`);
+                     if (firstButton) firstButton.classList.toggle('w3-disabled', currentPage[tableId] === 1);
+                     if (prevButton) prevButton.classList.toggle('w3-disabled', currentPage[tableId] === 1);
+                     if (nextButton) nextButton.classList.toggle('w3-disabled', currentPage[tableId] === total);
+                     if (lastButton) lastButton.classList.toggle('w3-disabled', currentPage[tableId] === total);
+                 }}
+                 document.addEventListener('DOMContentLoaded', () => {{
+                     {f'updatePagination("{table_id}");'}
+                 }});
+                 </script>"""
+
+    return javascript + table_html
+
+
+def get_regular_table_worker(nodes_list: list,
+                             table_id: str = '',
+                             table_header: str = '',
+                             table_columns: list = None,
+                             discoverer_mode: str = '',
+                             extra_url_parameters: dict = None) -> str:
+    """Create a html table for all nodes in the list.
+    Here the real work is done.
+
+    :param nodes_list: the nodes to create a table from.
+    :param table_id: the id of the table, required for pagination.
     :param table_header: the html to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param discoverer_mode: the discoverer_mode to use.
@@ -2865,34 +3002,45 @@ def get_regular_table(nodes_list: list,
             table_columns = DETAIL_COLUMNS
         else:
             table_columns = RESEARCH_OUTPUT_COLUMNS
-    if len(nodes_list) == 0:
+    len_nodes_list = len(nodes_list)
+    if len_nodes_list == 0:
         return get_message(table_header + '</br>Nothing found.')
 
-    len_nodes_list = len(nodes_list)
+    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    if max_nr_items == 0:
+        max_nr_items = rcg.A_LARGE_NUMBER
+
     nr_rows_in_table_message = ''
     max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
+    if max_nr_table_rows == 0:
+        max_nr_table_rows = min(len_nodes_list, max_nr_items)
     if 0 < max_nr_table_rows < len_nodes_list:
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table, showing first '
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table, showing pages of '
         nr_rows_in_table_message += str(max_nr_table_rows) + '.'
-    elif len_nodes_list == max_nr_table_rows:
-        # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
-        # so we have no idea how many search results there are.
-        nr_rows_in_table_message = 'This table shows the first ' + str(max_nr_table_rows) + ' rows.'
+    # elif len_nodes_list == max_nr_table_rows:
+    #     # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
+    #     # so we have no idea how many search results there are.
+    #     nr_rows_in_table_message = 'This table shows the first ' + str(max_nr_table_rows) + ' rows.'
     elif len_nodes_list >= 2:
         nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table.'
 
     html = get_html_for_cardstart()
     html += '<span style="float:left;">' + table_header + '</span>'
     html += '<span style="float:right;">' + nr_rows_in_table_message + '</span>'
+    html += '<div id="' + table_id + '-container">'     # <div> ends below.
     html += get_html_for_tablestart()
+    html += '<thead>'
     html += get_html_for_tableheader(table_columns=table_columns)
-    count = 0
-    for node in nodes_list:
-        count += 1
-        if 0 < max_nr_table_rows < count:
+    html += '</thead>'
+    html += '<tbody>'
+    for count, node in enumerate(nodes_list):
+        if count >= max_nr_items:
             break
+        table_page_num = floor(count / max_nr_table_rows) + 1
         html += get_html_for_tablerow(node=node,
+                                      table_id=table_id,
                                       table_columns=table_columns,
+                                      table_page_num=table_page_num,
                                       discoverer_mode=discoverer_mode,
                                       extra_url_parameters=extra_url_parameters)
 
@@ -2901,8 +3049,14 @@ def get_regular_table(nodes_list: list,
         if key not in nodes_cache:
             nodes_cache[key] = node
 
+    html += '</tbody>'
     html += get_html_for_tableend()
+    html += '</div>'        # Ends </div> from above '<div id="' + table_id + '-container">'.
     html += nr_rows_in_table_message
+
+    total_pages = ceil(min(len(nodes_list), max_nr_items) / max_nr_table_rows)
+    pagination_html = create_table_pagination(total_pages, table_id)
+    html += '<div class="w3-center" id="' + table_id + '-pagination-container">' + pagination_html + '</div>'
     html += get_html_for_cardend()
     return html
 
@@ -3368,13 +3522,17 @@ def get_html_for_tableheader(table_columns: list = None) -> str:
 
 
 def get_html_for_tablerow(node: Node,
+                          table_id: str = '',
                           table_columns: list = None,
+                          table_page_num: int = 1,
                           discoverer_mode: str = '',
                           extra_url_parameters: dict = None) -> str:
     """Get the html required for a row of a html table.
 
     :param node: the node to show in the table.
+    :param table_id: the id of the table, required for pagination.
     :param table_columns: a list of columns to show in the table.
+    :param table_page_num: the page number of the table.
     :param discoverer_mode: the discoverer_mode to use.
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
@@ -3383,7 +3541,12 @@ def get_html_for_tablerow(node: Node,
         table_columns = []
     if extra_url_parameters is None:
         extra_url_parameters = {}
-    html = '<tr class="item">'
+
+    # Show only the first page initially.
+    display_style = '' if table_page_num == 1 else 'display: none;'
+    html = '<tr class="table-' + table_id + '-page-' + str(table_page_num) + ' '
+    html += 'item" style="' + display_style + '">'
+
     if 'name' in table_columns:
         # Name can never be empty, it is part of _key.
         html += '<td>' + node['name'] + '</td>'
