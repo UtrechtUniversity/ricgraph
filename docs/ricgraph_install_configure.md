@@ -183,7 +183,8 @@ since you have to do a number of things manually.
 A Ricgraph installation involves a number of steps.
 Ricgraph uses a [Makefile](https://www.gnu.org/software/make)
 to make installation of (parts of) Ricgraph easier.
-For make, see https://www.gnu.org/software/make.
+For make, see 
+[https://www.gnu.org/software/make](https://www.gnu.org/software/make).
 Such a Makefile automates a number of these steps.
 A Makefile command is executed by typing:
 ```
