@@ -286,6 +286,13 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
                     key = item_in_names
                     value = affiliation_identifiers['#text']
                     new_record[key] = value
+                    # TODO: get the ROR from 'affiliation_identifiers'. The following works.
+                    # But it should also work down below, otherwise it is kind of useless.
+                    # if '@affiliationIdentifierScheme' in affiliation_identifiers \
+                    #    and '@affiliationIdentifier' in affiliation_identifiers:
+                    #     id_scheme = affiliation_identifiers['@affiliationIdentifierScheme']
+                    #     value_id_scheme = affiliation_identifiers['@affiliationIdentifier']
+                    #     new_record[id_scheme] = value_id_scheme
                     break
 
                 # This one is to catch XML lines like
@@ -298,12 +305,17 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
                     value = value['#text']
 
                 if isinstance(value, list):
-                    if isinstance(value[0], dict):
-                        # A person is from multiple organizations.
-                        newvalue = []
-                        for item in value:
+                    newvalue = []
+                    for item in value:
+                        if isinstance(item, dict):
+                            # TODO: get the ROR from 'affiliation_identifiers'.
+                            # For inspiration: see above. More complicated.
                             newvalue.append(item['#text'])
-                        value = newvalue.copy()
+                        if isinstance(item, str):
+                            newvalue.append(item)
+                    if len(newvalue) == 0:
+                        break
+                    value = newvalue.copy()
 
                 new_record[key] = value
         else:
