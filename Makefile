@@ -100,7 +100,7 @@ ricgraph := ricgraph-$(ricgraph_version)
 # 'make ricgraph_anyscript=[script name] ricgraph_anyscript_log=[log file] run_anyscript'
 ricgraph_anyscript := maintenance/create_toc_documentation.py
 ricgraph_anyscript_log_file := $(basename $(notdir $(ricgraph_anyscript)))_`date +%y%m%d-%H%M`.log
-ricgraph_anyscript_log := $(dir $(ricgraph_anyscript))/$(ricgraph_anyscript_log_file)
+ricgraph_anyscript_log := $(dir $(ricgraph_anyscript))$(ricgraph_anyscript_log_file)
 
 # Neo4j variable.
 # Ask https://perplexity.ai for download locations, prompt:
@@ -594,6 +594,7 @@ run_batchscript:
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f harvest/$(batch_script) ]; then echo "Error: batch script '$(batch_script)' does not exist."; exit 1; fi
+	@if [ ! -f ./bin/python ]; then echo "Error: python  './bin/python' does not exist."; exit 1; fi
 	@if [ $(shell id -u) = 0 ]; then \
 		sudo -u ricgraph bash -c 'cd harvest; ../bin/python $(batch_script) | tee $(batch_script_log)'; \
 	else \
@@ -607,12 +608,15 @@ run_ricgraph_explorer:
 	@echo "from ricgraph_explorer/$(ricgraph_explorer)."
 	@echo ""
 	@if [ ! -f ricgraph_explorer/$(ricgraph_explorer) ]; then echo "Error: script '$(ricgraph_explorer)' does not exist."; exit 1; fi
+	@if [ ! -f ./bin/python ]; then echo "Error: python  './bin/python' does not exist."; exit 1; fi
 	cd ricgraph_explorer; ../bin/python $(ricgraph_explorer)
 
 
 run_anyscript:
 	@echo ""
 	@echo "This target will run Ricgraph script $(ricgraph_anyscript)."
+	@echo "You need to specify the path to the script, in a subdirectory"
+	@echo "of the directory this Makefile is in."
 	@echo "The output will be both on screen as well as in file"
 	@echo "$(ricgraph_anyscript_log)."
 	@echo "If you don't have write permission to this file, you will get an error."
@@ -620,7 +624,8 @@ run_anyscript:
 	@echo "this is due to buffering of the output."
 	$(call are_you_sure)
 	@echo ""
-	@if [ ! -f ricgraph_explorer/$(ricgraph_explorer) ]; then echo "Error: script '$(ricgraph_explorer)' does not exist."; exit 1; fi
+	@if [ ! -f $(ricgraph_anyscript) ]; then echo "Error: script '$(ricgraph_anyscript)' does not exist."; exit 1; fi
+	@if [ ! -f ./bin/python ]; then echo "Error: python  './bin/python' does not exist."; exit 1; fi
 	@# Check if the path to 'ricgraph_anyscript_log' starts with '/'. If so, it is considered a full path.
 	@if [ $(shell echo $(ricgraph_anyscript_log) | cut -c1) = '/' ]; then \
 		cd $(dir $(ricgraph_anyscript)); ../bin/python $(notdir $(ricgraph_anyscript)) | tee $(ricgraph_anyscript_log); \
@@ -710,17 +715,17 @@ endif
 # Only seems necessary for Ubuntu.
 install_python_venv: check_package_install_cmd
 ifeq ($(linux_edition),Ubuntu)
-ifeq ($(shell test ! -e /usr/share/doc/python3-venv && echo true),true)
+ifeq ($(shell test ! -e /usr/share/doc/python3.$(actual_python_minor_version)-venv && echo true),true)
 	@if [ $(shell id -u) != 0 ]; then \
 		echo ""; \
-		echo "You are missing Python package 'python3-venv'. To install, please"; \
+		echo "You are missing Python package 'python3.$(actual_python_minor_version)-venv'. To install, please"; \
 		echo "change to user 'root' (type 'sudo bash') and execute 'make install_python_venv'."; \
 		echo "After that, exit from user 'root' and become a regular user again."; \
 		echo "Then rerun the 'make' command you started with."; \
 		echo ""; \
 		exit 1; \
 	fi
-	$(package_install_cmd) python3-venv
+	$(package_install_cmd) python3.$(actual_python_minor_version)-venv
 endif
 endif
 
