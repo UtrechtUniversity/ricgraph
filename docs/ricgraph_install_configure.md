@@ -166,7 +166,13 @@ since you have to do a number of things manually.
       Cloud](ricgraph_as_server.md#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud).
 * You will need at least Python 3.9 or newer.
   Ricgraph has been
-  developed with Python 3.11. For some features you need at least Python 3.9.
+  developed with Python 3.11. 
+  Check your Python version by typing:
+  ```
+  python3 --version
+  ```
+  Look at the first two numbers. If they are lower than 3.9, you will need to install
+  a newer Python version. How you do it, is dependent on your Linux version.
   E.g., if you have Ubuntu 20.04, you can install Python 3.11 as follows:
     * Login as user *root*.
     * Type the following commands:
@@ -175,8 +181,9 @@ since you have to do a number of things manually.
       add-apt-repository ppa:deadsnakes/ppa
       apt install python3.11
       ```
-      For other Linux distributions there will be similar commands.
-    * Exit from user *root*.
+  * Exit from user *root*.
+  
+  For other Linux distributions there will be similar commands.
 
 
 ## Ricgraph Makefile
