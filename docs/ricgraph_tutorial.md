@@ -110,11 +110,13 @@ Linux](ricgraph_as_server.md#fast-and-recommended-way-to-install-ricgraph-as-a-s
    make install_enable_neo4j_community
    exit
    ```
+   On success, the Makefile will print *installed successfully*.
 1. Download and install Ricgraph in your home directory.
    Type as regular user (i.e., be sure you are not user *root*):
    ```
    make install_ricgraph_singleuser_neo4jcommunity
    ```
+   On success, the Makefile will print *installed successfully*.
 1. For more detail, read 
    [Fast and recommended way to install Ricgraph for a single 
    user](ricgraph_install_configure.md#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
@@ -127,16 +129,18 @@ For some source systems, you need an authentication key. For some others, this i
 necessary. To harvest two source systems in Ricgraph without the need for an
 authentication key, type:
 
-   ```
-   cd $HOME/ricgraph_venv
-   make run_batchscript
-   ```
-   This will harvest
-   [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
-   [the Research Software Directory](https://research-software-directory.org).
+```
+cd $HOME/ricgraph_venv
+make run_batchscript
+```
+This will harvest
+[the data repository Yoda](https://www.uu.nl/en/research/yoda) and
+[the Research Software Directory](https://research-software-directory.org).
+It will print a lot of output, and it will take a few minutes.
+When ready, it will print *Done*.
 
-   To read more about harvesting,
-   see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
+To read more about harvesting,
+see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
 
 
 ## Browsing using Ricgraph Explorer
@@ -169,12 +173,13 @@ For a more extensive description, read
 
 Start Ricgraph Explorer to browse the information harvested:
 
-   ```
-   cd $HOME/ricgraph_venv
-   make run_ricgraph_explorer
-   ```
-   Then, in your web browser, go to
-   [http://127.0.0.1:3030](http://127.0.0.1:3030).
+```
+cd $HOME/ricgraph_venv
+make run_ricgraph_explorer
+```
+The Makefile will tell you to go to
+your web browser, and go to
+[http://127.0.0.1:3030](http://127.0.0.1:3030).
 
 
 ###  A usage flow through Ricgraph Explorer
