@@ -7,7 +7,7 @@ packages = ["ricgraph"]
 
 [project]
 name = "ricgraph"
-version = "2.9"
+version = "2.10"
 authors = [
   { name="Rik D.T. Janssen" },
 ]
