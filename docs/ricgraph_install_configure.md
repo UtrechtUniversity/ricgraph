@@ -36,6 +36,8 @@ Alternatively, you can follow these steps:
 
 
 ## Fast and recommended way to install Ricgraph for a single user
+
+### You can change to user *root*
 To follow this procedure, you need to be able to change to user *root*.
 This is the recommended method to install Ricgraph for a single user, since
 it will install everything automatically (by using the Makefile).
@@ -55,14 +57,13 @@ it will install everything automatically (by using the Makefile).
    make install_enable_neo4j_community
    exit
    ```
-   Read more at [Install and start Neo4j Community Edition graph database
-   backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+   On success, the Makefile will print *installed successfully*.
 1. Download and install Ricgraph in your home directory.
-   Read more at the sections below.
    Type as regular user (i.e., be sure you are not user *root*):
    ```
    make install_ricgraph_singleuser_neo4jcommunity
    ```
+   On success, the Makefile will print *installed successfully*.
 1. Harvest two source systems in Ricgraph:
    ```
    cd $HOME/ricgraph_venv
@@ -71,6 +72,9 @@ it will install everything automatically (by using the Makefile).
    This will harvest two source systems,
    [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
    [the Research Software Directory](https://research-software-directory.org).
+   It will print a lot of output, and it will take a few minutes. 
+   When ready, it will print *Done*.
+
    To read more about harvesting data, 
    see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
    To read more about writing harvesting scripts,
@@ -80,14 +84,20 @@ it will install everything automatically (by using the Makefile).
    cd $HOME/ricgraph_venv
    make run_ricgraph_explorer
    ```
-   In your web browser, go to
+   The Makefile will tell you to go to 
+   your web browser, and go to 
    [http://127.0.0.1:3030](http://127.0.0.1:3030).
    Read more at [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
-1. If everything succeeded, you can skip the remainder of this page.
-   If not, the remainder of this page may help in finding solutions.
 
+If everything succeeded, you are done, and you can skip the remainder of this page.
+If not, the remainder of this page may help in finding solutions, or
+section  [Install and start Neo4j Community Edition graph database
+backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+
+
+### You cannot change to user *root*
 If you are not able to change to user *root*,
-change step 3 and 4.
+change step 3 and 4 in the previous section.
 This is a less recommended method to install Ricgraph for a single user,
 since you have to do a number of things manually.
 
@@ -95,9 +105,9 @@ since you have to do a number of things manually.
    ```
    make install_neo4j_desktop
    ```
-   Read more at [Install and start Neo4j Desktop graph database
-   backend](ricgraph_backend_neo4j.md#install-neo4j-desktop).
-   You will need to do a number of post install steps.
+   On success, the Makefile will print *installed successfully*.
+   You will need to do a number of [post install 
+   steps](ricgraph_backend_neo4j.md#post-install-steps-neo4j-desktop).
    Any time you want to use Neo4j Desktop, you will need to start
    it by hand, read [Start Neo4j Desktop](ricgraph_backend_neo4j.md#start-neo4j-desktop).
 4. Download and install Ricgraph in your home directory.
@@ -105,6 +115,12 @@ since you have to do a number of things manually.
    ```
    make install_ricgraph_singleuser_neo4jdesktop
    ```
+   On success, the Makefile will print *installed successfully*.
+
+If everything succeeded, you are done, and you can skip the remainder of this page.
+If not, the remainder of this page may help in finding solutions, or
+section  [Install and start Neo4j Desktop graph database
+backend](ricgraph_backend_neo4j.md#install-neo4j-desktop).
 
 ## Requirements for Ricgraph
 
@@ -144,11 +160,16 @@ since you have to do a number of things manually.
     * There are many tutorials on installing VirtualBox on internet.
       For example, [How to Install VirtualBox on Ubuntu
       (Beginner's Tutorial)](https://itsfoss.com/install-virtualbox-ubuntu).
-      Also, you will need to install the VirtualBox GuestAdditions.
+    * Also, you will need to install the VirtualBox GuestAdditions.
+      They will enable e.g. shared folders with the host and automatic
+      adjustment of guest display resolution.
+      You install them inside a virtual machine after the 
+      guest operating system has been installed.
       Read, for example, [How to Install & Use VirtualBox Guest Additions on
       Ubuntu](https://itsfoss.com/virtualbox-guest-additions-ubuntu).
-      You need to be user *root* (Linux) or *Administrator* (Windows) on your computer to be able to
-      do this.
+    * Very probably you will *not* need the VirtualBox Extension Pack.
+      You need to be user *root* (Linux) or *Administrator* (Windows) 
+      on your computer to be able to do this. Don't do it for now.
     * Almost any Linux distribution will work, the author uses both
       [OpenSUSE Leap](https://www.opensuse.org) and
       [Ubuntu](https://ubuntu.com/desktop). Others will also work.
@@ -182,8 +203,12 @@ since you have to do a number of things manually.
       apt install python3.11
       ```
   * Exit from user *root*.
-  
-  For other Linux distributions there will be similar commands.
+    For other Linux distributions there will be similar commands.
+* You need the linux command `make`. Try typing 
+  ```
+  make
+  ```
+  If you get an error, install it using your package manager.
 
 
 ## Ricgraph Makefile

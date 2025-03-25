@@ -61,17 +61,17 @@ To follow this procedure, you need to be able to change to user *root*.
    ```
    make install_enable_neo4j_community
    ```
-   Read more at [Install and start Neo4j Community Edition graph database
-   backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+   On success, the Makefile will print *installed successfully*.
 1. Download and install Ricgraph in system directory */opt*.
-   Read more at the sections below. Type:
    ```
    make install_ricgraph_server
    ```
+   On success, the Makefile will print *installed successfully*.
 1. Optional: use a service unit file to run Ricgraph Explorer and the Ricgraph REST API. Type:
    ```
    make install_enable_ricgraphexplorer_restapi
    ```
+   On success, the Makefile will print *installed successfully*.
    Read more at [Use a service unit file to run Ricgraph Explorer and the Ricgraph 
    REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
 1. Optional and possibly dangerous: use Apache or Nginx webserver, WSGI, and ASGI to make 
@@ -81,6 +81,7 @@ To follow this procedure, you need to be able to change to user *root*.
    [Use Apache...](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
    or at
    [Use Nginx...](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+   On success, the Makefile will print *installed successfully*.
 1. Harvest two source systems in Ricgraph:
    ```
    cd /opt/ricgraph_venv
@@ -89,6 +90,8 @@ To follow this procedure, you need to be able to change to user *root*.
    This will harvest two source systems,
    [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
    [the Research Software Directory](https://research-software-directory.org).
+   It will print a lot of output, and it will take a few minutes.
+   When ready, it will print *Done*.
 
    To read more about harvesting data,
    see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
@@ -99,14 +102,18 @@ To follow this procedure, you need to be able to change to user *root*.
    cd /opt/ricgraph_venv
    make run_ricgraph_explorer
    ```
-   In your web browser, go to
+   The Makefile will tell you to go to
+   your web browser, and go to 
    [http://127.0.0.1:3030](http://127.0.0.1:3030).
    Read more at [Ricgraph Explorer](ricgraph_explorer.md).
    For the Ricgraph REST API, read
    more on the [Ricgraph REST API page](ricgraph_restapi.md#ricgraph-rest-api).
 1. Exit from user *root*.
-1. If everything succeeded, you can skip the remainder of this page.
-   If not, the remainder of this page may help in finding solutions.
+
+If everything succeeded, you are done, and you can skip the remainder of this page.
+If not, the remainder of this page may help in finding solutions, or
+section  [Install and start Neo4j Community Edition graph database
+backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
 
 
 ## Create a ricgraph user and group
@@ -227,6 +234,26 @@ or follow the steps below.
 
 ## Run Ricgraph scripts from the command line or as a cronjob
 
+### Using the Makefile
+The [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) can also be used to execute
+a Python batch file. Such a batch file can be used to harvest the sources specific to your organization.
+This batch file is preconfigured in the variable
+`harvest_script` at the top of the Makefile. It can be modified to refer to your favorite Python script.
+If you have done this, and then execute
+command `make run_batchscript`, that script will be executed and its output will appear both
+on your screen and in a file. The Makefile will tell you the name of this log file.
+
+The directory of the batch file depends on the user that is running the command
+`make run_batchscript` (either a regular user or user *root*).
+The Makefile will tell which script it will use.
+
+The Makefile also provides a command `make run_anyscript`, to run any Ricgraph script.
+You will need to add the name of the script to run using the Makefile command line
+parameter *ricgraph_anyscript*, e.g.
+```
+make run_anyscript ricgraph_anyscript=harvest/batch_harvest_demo.py
+```
+
 ### In case you have installed Ricgraph as a server
 
 After following the steps in [Create a Python virtual environment and install Ricgraph in
@@ -279,26 +306,6 @@ Examples of commands you can use are:
   ```
   cd $HOME/ricgraph_venv/ricgraph_explorer; ../bin/python ricgraph_explorer.py
   ```
-
-### Using the Makefile
-The [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) can also be used to execute
-a Python batch file. Such a batch file can be used to harvest the sources specific to your organization.
-This batch file is preconfigured in the variable
-`harvest_script` at the top of the Makefile. It can be modified to refer to your favorite Python script.
-If you have done this, and then execute
-command `make run_batchscript`, that script will be executed and its output will appear both
-on your screen and in a file. The Makefile will tell you the name of this log file.
-
-The directory of the batch file depends on the user that is running the command
-`make run_batchscript` (either a regular user or user *root*). 
-The Makefile will tell which script it will use.
-
-The Makefile also provides a command `make run_anyscript`, to run any Ricgraph script.
-You will need to add the name of the script to run using the Makefile command line
-parameter *ricgraph_anyscript*, e.g.
-```
-make run_anyscript ricgraph_anyscript=harvest/batch_harvest_demo.py
-```
 
 ## Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
@@ -580,10 +587,13 @@ Then, follow the following steps, and also watch the video below:
 
 * Go to the [SURF Research Cloud portal](https://portal.live.surfresearchcloud.nl)
   and log in.
-* Allocate storage (optional). This step is only required if you expect 
+* Optional: Allocate storage. This step is only required if you expect 
   to install a lot of programs on
- the virtual research environment and expect to create or use a lot of
- data. In the case of Ricgraph: > 100M nodes and edges.
+  the virtual research environment and expect to create or use a lot of
+  data. In the case of Ricgraph: > 100M nodes and edges.
+  This is for advanced use only, since this storage will be attached to
+  */data* in the virtual research environment, and not to */var/lib*,
+  where the Neo4j Community Edition graph database lives.
   * Click on "Create new storage".
   * Select the collaborative organization that you want to use for running
     Ricgraph. If you have only one, it will be preselected.
@@ -611,14 +621,16 @@ Then, follow the following steps, and also watch the video below:
   * Rename your workspace.
   * After some minutes your workspace will be created and available. It will
     be started up automatically.
+  * Note that your workspace has a *will be removed* date. You might want
+    to set it to a suitable date.
 * Done.
 
-The next steps are to install Ricgraph. Start reading from 
-[Install and start Neo4j Community Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
-or [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph)
-above.
+The next steps are to install the graph database backend and
+Ricgraph. You can install 
+[Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph)
+or 
+[Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux).
 Note that if you would like to use a webserver, you will need to use Nginx.
-
 
 For more explanation, please watch the 
 [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud

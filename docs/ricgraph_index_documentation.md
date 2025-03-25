@@ -32,7 +32,7 @@ __C__
 __D__
 
 - [Delete personal data from Ricgraph (delete_personal_data)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_data)
-- [Documentation website Ricgraph - Research in context graph](../docs/ricgraph_documentation_intro.md#documentation-website-ricgraph---research-in-context-graph)
+- [Documentation Ricgraph - Research in context graph](../docs/ricgraph_documentation_intro.md#documentation-ricgraph---research-in-context-graph)
 - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_backend_neo4j.md#dumping-and-restoring-the-ricgraph-database)
 - [Dumping and restoring the Ricgraph database](../docs/ricgraph_install_configure.md#dumping-and-restoring-the-ricgraph-database)
@@ -260,3 +260,8 @@ __W__
 - [What to find on this page?](../docs/ricgraph_restapi_gendoc.md#what-to-find-on-this-page)
 - [Why Ricgraph?](../README.md#why-ricgraph)
 - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)
+
+__Y__
+
+- [You can change to user *root*](../docs/ricgraph_install_configure.md#you-can-change-to-user-root)
+- [You cannot change to user *root*](../docs/ricgraph_install_configure.md#you-cannot-change-to-user-root)
