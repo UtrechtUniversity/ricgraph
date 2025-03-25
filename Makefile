@@ -36,7 +36,7 @@
 # Ricgraph batch scripts.
 #
 # Original version Rik D.T. Janssen, September 2024.
-# Updated Rik D.T. Janssen, January 2025.
+# Updated Rik D.T. Janssen, January, March 2025.
 #
 # ########################################################################
 
@@ -108,8 +108,8 @@ ricgraph_anyscript_log := $(dir $(ricgraph_anyscript))$(ricgraph_anyscript_log_f
 neo4j_download := https://dist.neo4j.org
 
 # Misc. variables.
-readdoc_server := https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it
-readdoc_singleuser := https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#using-pythons-venv-module
+readdoc_server := https://docs.ricgraph.eu/docs/ricgraph_as_server.html#create-a-python-virtual-environment-and-install-ricgraph-in-it
+readdoc_singleuser := https://docs.ricgraph.eu/docs/ricgraph_install_configure.html#using-pythons-venv-module
 tmp_dir := /tmp/cuttingedge_$(shell echo $$PPID)
 graphdb_backup_dir := /root/graphdb_backup
 graphdb_password_file := /tmp/0-ricgraph-password.txt
@@ -133,6 +133,19 @@ else ifeq ($(shell which python3 > /dev/null 2>&1 && echo $$?),0)
 else
 	python_cmd := [not_set]
 	actual_python_minor_version := [not_set]
+endif
+
+# Determine which python command to use when running in a virtual environment.
+# Make it relative to this Makefile.
+# It is used in the 'run_' targets below.
+ifeq ($(shell test -f bin/python3 && echo true),true)
+	# Very probably we are running from a 'ricgraph_venv' directory.
+	python_cmd_venv := bin/python3
+else ifeq ($(shell test -f venv/bin/python3 && echo true),true)
+	# Probably we are running PyCharm or equivalent.
+	python_cmd_venv := venv/bin/python3
+else
+	python_cmd_venv := [not_set]
 endif
 
 # Determine which package install command to use, and subsequently which package names to use.
@@ -201,48 +214,54 @@ help:
 	@echo "You can use this Makefile to install (parts of) Ricgraph and dump/restore"
 	@echo "its graph database. There are also other options as listed below."
 	@echo ""
-	@echo "The output of this script will be the commands that have been executed"
-	@echo "and their results. If you do not get any output, then nothing has been done,"
-	@echo "because the action that you requested has already been executed."
-	@echo ""
-	@echo "Please be careful running this Makefile and make sure you know what"
-	@echo "you do (especially with the Apache or Nginx webserver). For some actions you"
-	@echo "will need to be user 'root', this Makefile will test for it."
-	@echo "If you use 'make --dry-run [Makefile target]' the commands that are to be"
-	@echo "executed will be shown, but they will not be executed."
+	@echo "The output of this Makefile will be the commands that have been executed"
+	@echo "and their results. If you do not get any output, then nothing has been done."
+	@echo "On success, the Makefile will print 'finished successfully'."
 	@echo ""
 	@echo "INFORMATIONAL COMMANDS FOR THIS MAKEFILE"
-	@echo "- make: Displays a short help message."
-	@echo "- make help: Displays a short help message."
-	@echo "- make allhelp: Displays an extensive help message."
+	@echo "- 'make' or 'make help': Display this help message."
+	@echo "- 'make allhelp': Display the extensive help message."
 	@echo ""
 	@echo "RECOMMENDED METHOD TO INSTALL RICGRAPH FOR A SINGLE USER"
-	@echo "Recommended for users that can change to user 'root' (please read"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md):"
+	@echo "Recommended for users that can change to user 'root' (for other"
+	@echo "install options, type 'make allhelp'):"
 	@echo "- [as user 'root'] make install_enable_neo4j_community:"
 	@echo "       Download, install, enable, and run Neo4j Community Edition."
-	@echo "- [as regular user] make install_ricgraph_singleuser_neo4jcommunity:"
+	@echo "- [as regular user] make install_ricgraph_singleuser_neo4j_community:"
 	@echo "       Install Ricgraph for a single"
 	@echo "       user. Neo4j Community Edition will be the graph database backend."
 	@echo "       This will be done in a Python virtual environment"
 	@echo "       in $(ricgraph_singleuser_install_dir)."
 	@echo ""
-	@echo "There are many more options, to see them, type 'make allhelp'."
+	@echo "Commands to run something:"
+	@echo "- make run_ricgraph_explorer: run Ricgraph Explorer in development mode."
+	@echo "       If you use Neo4j Desktop, you need to start it first."
+	@echo "- make run_batchscript: run Ricgraph batch script '$(batch_script)'."
+	@echo "       You can change the name of this script by"
+	@echo "       adding 'batch_script=my_batchscript.py' to your 'make' command."
+	@echo "       If you use Neo4j Desktop, you need to start it first."
+	@echo "- make run_anyscript: you can use this to run any Ricgraph script."
+	@echo "       Use command line parameter 'ricgraph_anyscript',"
+	@echo "       and possibly 'ricgraph_anyscript_log'. E.g. "
+	@echo "       'make ricgraph_anyscript=[path]/[script name] run_anyscript'."
+	@echo ""
+	@echo "There are many more options, to read more, type 'make allhelp'."
 	@echo ""
 
 allhelp: help
-	@echo "OTHER INSTALL METHODS AND OPTIONS"
+	@echo "OTHER RICGRAPH INSTALL METHODS"
+	@echo "For installation options, please read"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_install_configure.html"
+	@echo ""
 	@echo "Commands to install Ricgraph as a single user, recommended for"
-	@echo "users that cannot change to user 'root' (please read"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md):"
+	@echo "users that cannot change to user 'root':"
 	@echo "- make install_neo4j_desktop: Download and install Neo4j Desktop."
-	@echo "- make install_ricgraph_singleuser_neo4jdesktop: Install Ricgraph for a single"
+	@echo "- make install_ricgraph_singleuser_neo4j_desktop: Install Ricgraph for a single"
 	@echo "       user. Neo4j Desktop will be the graph database backend."
 	@echo "       This will be done in a Python virtual environment"
 	@echo "       in $(ricgraph_singleuser_install_dir)."
 	@echo ""
-	@echo "Commands to install Ricgraph as a server (you need to be 'root') (please read"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md):"
+	@echo "Commands to install Ricgraph as a server (you need to be 'root'):"
 	@echo "- make install_enable_neo4j_community: Download, install, enable, and run"
 	@echo "       Neo4j Community Edition."
 	@echo "- make install_ricgraph_server: Install Ricgraph as a server."
@@ -250,45 +269,36 @@ allhelp: help
 	@echo "       in $(ricgraph_server_install_dir)."
 	@echo "- make install_enable_ricgraphexplorer_restapi: Install, enable, and run"
 	@echo "       Ricgraph Explorer and its REST API as a service."
-	@echo "       This will also do a 'make full_server_install' (if not done yet)."
 	@echo "- make prepare_webserver_apache: Prepare webserver Apache for use with Ricgraph."
-	@echo "       This will also do a 'make full_server_install' (if not done yet)."
 	@echo "- make prepare_webserver_nginx: Prepare webserver Nginx for use with Ricgraph."
 	@echo "       For SURF Research Cloud you will need the Nginx webserver."
-	@echo "       This will also do a 'make full_server_install' (if not done yet)."
 	@echo ""
-	@echo "Commands to run something:"
-	@echo "- make run_batchscript: run Ricgraph batch script '$(batch_script)'."
-	@echo "       You can change the name of this script by"
-	@echo "       adding 'batch_script=my_batchscript.py' to your 'make' command."
-	@echo "       If you use Neo4j Desktop, you need to start it first."
-	@echo "- make run_ricgraph_explorer: run Ricgraph Explorer in development mode."
-	@echo "       If you use Neo4j Desktop, you need to start it first."
-	@echo "- make run_anyscript: you can use this to run any Ricgraph script."
-	@echo "       You may want to use command line parameters 'ricgraph_anyscript'"
-	@echo "       and possibly 'ricgraph_anyscript_log'. E.g. "
-	@echo "       'ricgraph_anyscript=$(ricgraph_anyscript)'."
-	@echo ""
-	@echo "Advanced commands for this Makefile:"
-	@echo "- make makefile_variables: list all variables used in this Makefile."
+	@echo "Various install options:"
 	@echo "- install the 'cutting edge' version of Ricgraph, i.e. the most current version"
 	@echo "       of Ricgraph on GitHub ($(ricgraph_download)):"
 	@echo "       add 'ricgraph_version=cuttingedge' to your 'make' command, e.g. as in"
-	@echo "       'make ricgraph_version=cuttingedge install_ricgraph_server'"
-	@echo "- make full_singleuser_install_neo4jdesktop: Install Ricgraph for a single user."
+	@echo "       'make ricgraph_version=cuttingedge install_ricgraph_singleuser_neo4j_community'"
+	@echo "- make full_singleuser_install_neo4j_desktop: Install Neo4j Desktop"
+	@echo "       and Ricgraph for a single user."
 	@echo "       This will be done in a Python virtual environment"
 	@echo "       in $(ricgraph_singleuser_install_dir)."
-	@echo "       Also, a 'make install_neo4j_desktop' will be done (if not done yet)."
-	@echo "- make full_server_install: Install Ricgraph as a server."
+	@echo "[Note: there is no equivalent such as 'full_singleuser_install_neo4j_community',"
+	@echo "since you need to be both 'root' and a 'normal user'.]"
+	@echo "- make full_server_install: Install Neo4j Community Edition"
+	@echo "       and Ricgraph as a server."
 	@echo "       This will be done in a Python virtual environment"
 	@echo "       in $(ricgraph_server_install_dir)."
-	@echo "       Also, a 'make install_enable_neo4j_community' will be done"
-	@echo "       (if not done yet)."
+	@echo ""
+	@echo "ADVANCED OPTIONS"
+	@echo "Emptying, dumping, or restoring the graph database:"
+	@echo "- make empty_graphdb_neo4j_community: emtpy Neo4j Community graph database."
 	@echo "- make dump_graphdb_neo4j_community: dump Neo4j Community graph database"
 	@echo "       in directory $(graphdb_backup_dir)."
 	@echo "- make restore_graphdb_neo4j_community: restore Neo4j Community graph database"
 	@echo "       from directory $(graphdb_backup_dir)."
-	@echo "- make empty_graphdb_neo4j_community: emtpy Neo4j Community graph database."
+	@echo ""
+	@echo "Miscellaneous options:"
+	@echo "- make makefile_variables: list all variables used in this Makefile."
 	@echo "- make generate_graphdb_password: generate a password for the graph database."
 	@echo "       Write it to file $(graphdb_password_file)."
 	@echo "       Only do this if the file does not exist."
@@ -299,7 +309,10 @@ allhelp: help
 	@echo "       If you have used command line parameters for previous make calls"
 	@echo "       (e.g. ricgraph_version=cuttingedge), you will have to call this clean"
 	@echo "       with the same command line parameters."
+	@echo "If you use 'make --dry-run [Makefile target]' the commands that are to be"
+	@echo "executed will be shown, but they will not be executed."
 	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 
 
 all:
@@ -318,6 +331,7 @@ makefile_variables:
 	@echo "- neo4j_desktop_version: $(neo4j_desktop_version)"
 	@echo "- package_install_cmd: $(package_install_cmd)"
 	@echo "- python_cmd: $(python_cmd)"
+	@echo "- python_cmd_venv: $(python_cmd_venv)"
 	@echo "- actual_python_minor_version: $(actual_python_minor_version)"
 	@echo "- minimal_python_minor_version: $(minimal_python_minor_version)"
 	@echo "- linux_name: $(linux_edition)"
@@ -353,12 +367,13 @@ create_user_group_ricgraph: check_user_root
 	@if ! getent passwd 'ricgraph' > /dev/null 2>&1; then useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph; echo "Created user 'ricgraph'."; fi
 
 
-# Additional target "install_python_venv" since we might need it later on, and we are root now, so let's do it.
+# Additional target "install_python_venv" since we may need it later on, and we are root now, so let's do it.
 install_enable_neo4j_community: check_user_root check_python_minor_version check_package_install_cmd generate_graphdb_password install_python_venv
 ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo ""
-	@echo "Starting Install and enable Neo4j Community Edition. Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition"
+	@echo "Starting Install and enable Neo4j Community Edition."
+	@echo "You may want to read more at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#install-and-start-neo4j-community-edition"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(HOME)/$(neo4j_community) ]; then cd $(HOME); echo "Downloading Neo4j Community Edition..."; wget $(neo4j_community_path); fi
@@ -377,14 +392,16 @@ ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo "been installed, enabled and will be run at system start."
 	@echo "The password to access it can be found in $(graphdb_password_file)."
 	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
 
 
 install_neo4j_desktop: check_user_notroot check_python_minor_version generate_graphdb_password
 ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo ""
-	@echo "Starting Download and install Neo4j Desktop. Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#install-neo4j-desktop"
+	@echo "Starting Download and install Neo4j Desktop." 
+	@echo "You may want to read more at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#install-neo4j-desktop"
 	$(call are_you_sure)
 	@echo ""
 	@cd $(HOME); echo "Downloading Neo4j Desktop..."; wget $(neo4j_desktop_path)
@@ -393,12 +410,13 @@ ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo "Done."
 	@echo "Neo4j Desktop version $(neo4j_desktop_version) has been downloaded."
 	@echo "Before you can use it, please read the post-install steps at"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#post-install-steps-neo4j-desktop"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#post-install-steps-neo4j-desktop"
 	@echo "One of the steps is to fill in a password. Use the"
 	@echo "password in file $(graphdb_password_file)."
 	@echo "If you do this, you do not need to fill in this password in"
 	@echo "file 'ricgraph.ini' later on, this Makefile will take care of it."
 	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
 
 
@@ -414,11 +432,11 @@ ifeq ($(shell test ! -d $(ricgraph_server_install_dir) && echo true),true)
 endif
 
 
-full_singleuser_install_neo4jdesktop: install_neo4j_desktop install_ricgraph_singleuser_neo4jdesktop
+full_singleuser_install_neo4j_desktop: install_neo4j_desktop install_ricgraph_singleuser_neo4j_desktop
 	@echo ""
 
 
-install_ricgraph_singleuser_neo4jcommunity: check_user_notroot check_python_minor_version
+install_ricgraph_singleuser_neo4j_community: check_user_notroot check_python_minor_version
 ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
 	@# This test is placed here instead of in function install_ricgraph
 	@# because it will keep the code of install_ricgraph more clear.
@@ -426,7 +444,7 @@ ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
 endif
 
 
-install_ricgraph_singleuser_neo4jdesktop: check_user_notroot check_python_minor_version
+install_ricgraph_singleuser_neo4j_desktop: check_user_notroot check_python_minor_version
 ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
 	@# This test is placed here instead of in function install_ricgraph
 	@# because it will keep the code of install_ricgraph more clear.
@@ -438,8 +456,8 @@ install_enable_ricgraphexplorer_restapi: check_user_root full_server_install
 ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service && echo true),true)
 	@echo ""
 	@echo "Starting Install and enable Ricgraph Explorer and REST API."
-	@echo "Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api"
+	@echo "You may want to read more at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api"
 	$(call are_you_sure)
 	@echo ""
 	cp $(ricgraph_server_install_dir)/ricgraph_server_config/ricgraph_explorer_gunicorn.service /etc/systemd/system
@@ -449,12 +467,13 @@ ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service &
 	@echo ""
 	@echo "Done."
 	@echo "Ricgraph Explorer and the Ricgraph REST API have"
-	@echo "been enabled and will be run at system start."
+	@echo "been enabled, started, and will be run at system start."
 	@echo "These are only accessible at this (local) machine."
 	@echo "You can use Ricgraph Explorer by typing http://localhost:3030 in"
 	@echo "your web browser, or you can use the Ricgraph REST API by using"
 	@echo "the path http://localhost:3030/api followed by a REST API endpoint."
 	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
 
 
@@ -463,8 +482,9 @@ ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf && echo true
 ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && echo true),true)
 	@echo ""
 	@echo "Starting Preparing webserver Apache for use with Ricgraph."
-	@echo "Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
+	@echo "Please make sure you know what you do."
+	@echo "Please, please, do read the documentation at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
 	$(call are_you_sure)
 	@echo ""
 	cp $(ricgraph_server_install_dir)/ricgraph_server_config/ricgraph_explorer.conf-apache $(apache_vhosts_dir)
@@ -474,8 +494,9 @@ ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && ec
 	@echo ""
 	@echo "Done."
 	@echo "Webserver Apache has been prepared. To make it work, continue reading at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#post-install-steps-apache"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-apache"
 	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
 endif
 
@@ -485,8 +506,9 @@ ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf && echo true)
 ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo true),true)
 	@echo ""
 	@echo "Starting Preparing webserver Nginx for use with Ricgraph."
-	@echo "Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
+	@echo "Please make sure you know what you do."
+	@echo "Please, please, do read the documentation at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
 	$(call are_you_sure)
 	@echo ""
 	cp $(ricgraph_server_install_dir)/ricgraph_server_config/ricgraph_explorer.conf-nginx $(nginx_vhosts_dir)
@@ -494,8 +516,9 @@ ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo
 	@echo ""
 	@echo "Done."
 	@echo "Webserver Nginx has been prepared. To make it work, continue reading at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#post-install-steps-nginx"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-nginx"
 	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
 endif
 
@@ -505,13 +528,13 @@ dump_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo ""
 	@echo "Starting Dump of graph database of Neo4j Community Edition in"
 	@echo "directory $(graphdb_backup_dir)."
-	@echo "Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#create-a-neo4j-community-edition-database-dump-of-ricgraph"
+	@echo "You may want to read more at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#create-a-neo4j-community-edition-database-dump-of-ricgraph"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -d $(graphdb_backup_dir) ]; then mkdir $(graphdb_backup_dir); fi
-	@if [ -f $(graphdb_backup_dir)/system.dump ]; then echo "Error: Graph database dump file $(graphdb_backup_dir)/system.dump does exist, you might overwrite an existing dump. Please remove it first."; exit 1; fi
-	@if [ -f $(graphdb_backup_dir)/neo4j.dump ]; then echo "Error: Graph database dump file $(graphdb_backup_dir)/neo4j.dump does exist, you might overwrite an existing dump. Please remove it first."; exit 1; fi
+	@if [ -f $(graphdb_backup_dir)/system.dump ]; then echo "Error: Graph database dump file $(graphdb_backup_dir)/system.dump does exist, you may overwrite an existing dump. Please remove it first."; exit 1; fi
+	@if [ -f $(graphdb_backup_dir)/neo4j.dump ]; then echo "Error: Graph database dump file $(graphdb_backup_dir)/neo4j.dump does exist, you may overwrite an existing dump. Please remove it first."; exit 1; fi
 	$(systemctl_cmd) stop neo4j.service
 	chmod 640 /etc/neo4j/*
 	chmod 750 /etc/neo4j
@@ -523,6 +546,7 @@ dump_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo "The graph database of Neo4j Community Edition has been dumped"
 	@echo "in directory $(graphdb_backup_dir)."
 	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 
 
 restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
@@ -530,8 +554,8 @@ restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo "Starting Restore of graph database of Neo4j Community Edition"
 	@echo "from directory $(graphdb_backup_dir)."
 	@echo "Your old graph database will be removed."
-	@echo "Read documentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop"
+	@echo "You may want to read more at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(graphdb_backup_dir)/system.dump ]; then echo "Error: Graph database dump file $(graphdb_backup_dir)/system.dump does not exist."; exit 1; fi
@@ -547,6 +571,9 @@ restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	chown -R neo4j:neo4j /var/lib/neo4j
 	$(systemctl_cmd) start neo4j.service
 	@echo ""
+	@echo "If you get a warning that the system database may contain unwanted"
+	@echo "metadata from the DBMS it was taken from, please ignore it."
+	@echo ""
 	@echo "Done."
 	@echo "The graph database of Neo4j Community Edition has been restored"
 	@echo "from directory $(graphdb_backup_dir)."
@@ -554,9 +581,7 @@ restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo "If you use the Ricgraph Explorer gunicorn service, please execute"
 	@echo "the command 'systemctl restart ricgraph_explorer_gunicorn' now."
 	@echo ""
-	@echo "If you get a warning that the system database may contain unwanted"
-	@echo "metadata from the DBMS it was taken from, please ignore it."
-	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 
 
 empty_graphdb_neo4j_community: check_user_root generate_graphdb_password check_neo4jadmin_cmd
@@ -580,6 +605,7 @@ empty_graphdb_neo4j_community: check_user_root generate_graphdb_password check_n
 	@echo "The graph database of Neo4j Community Edition is now emtpy."
 	@echo "The password to access it can be found in $(graphdb_password_file)."
 	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 
 
 run_batchscript:
@@ -590,15 +616,15 @@ run_batchscript:
 	@echo "It may take a while before the output appears on screen,"
 	@echo "this is due to buffering of the output."
 	@echo ""
-	@echo "If you continue, this script might delete your current graph database."
+	@echo "If you continue, this script may delete your current graph database."
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f harvest/$(batch_script) ]; then echo "Error: batch script '$(batch_script)' does not exist."; exit 1; fi
-	@if [ ! -f ./bin/python ]; then echo "Error: python  './bin/python' does not exist."; exit 1; fi
+	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
 	@if [ $(shell id -u) = 0 ]; then \
-		sudo -u ricgraph bash -c 'cd harvest; ../bin/python $(batch_script) | tee $(batch_script_log)'; \
+		sudo -u ricgraph bash -c 'cd harvest; ../$(python_cmd_venv) $(batch_script) | tee $(batch_script_log)'; \
 	else \
-		cd harvest; ../bin/python $(batch_script) | tee $(batch_script_log); \
+		cd harvest; ../$(python_cmd_venv) $(batch_script) | tee $(batch_script_log); \
 	fi
 
 
@@ -608,8 +634,8 @@ run_ricgraph_explorer:
 	@echo "from ricgraph_explorer/$(ricgraph_explorer)."
 	@echo ""
 	@if [ ! -f ricgraph_explorer/$(ricgraph_explorer) ]; then echo "Error: script '$(ricgraph_explorer)' does not exist."; exit 1; fi
-	@if [ ! -f ./bin/python ]; then echo "Error: python  './bin/python' does not exist."; exit 1; fi
-	cd ricgraph_explorer; ../bin/python $(ricgraph_explorer)
+	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
+	cd ricgraph_explorer; ../$(python_cmd_venv) $(ricgraph_explorer)
 
 
 run_anyscript:
@@ -625,26 +651,13 @@ run_anyscript:
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(ricgraph_anyscript) ]; then echo "Error: script '$(ricgraph_anyscript)' does not exist."; exit 1; fi
-	@if [ ! -f ./bin/python ]; then echo "Error: python  './bin/python' does not exist."; exit 1; fi
+	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
 	@# Check if the path to 'ricgraph_anyscript_log' starts with '/'. If so, it is considered a full path.
 	@if [ $(shell echo $(ricgraph_anyscript_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(ricgraph_anyscript)); ../bin/python $(notdir $(ricgraph_anyscript)) | tee $(ricgraph_anyscript_log); \
+		cd $(dir $(ricgraph_anyscript)); ../$(python_cmd_venv) $(notdir $(ricgraph_anyscript)) | tee $(ricgraph_anyscript_log); \
 	else \
-		cd $(dir $(ricgraph_anyscript)); ../bin/python $(notdir $(ricgraph_anyscript)) | tee ../$(ricgraph_anyscript_log); \
+		cd $(dir $(ricgraph_anyscript)); ../$(python_cmd_venv) $(notdir $(ricgraph_anyscript)) | tee ../$(ricgraph_anyscript_log); \
 	fi
-
-
-generate_graphdb_password:
-	@if [ ! -f $(graphdb_password_file) ]; then \
-		< /dev/urandom tr -dc 'A-Za-z0-9' | head -c $(graphdb_password_length) > $(graphdb_password_file); \
-		echo "Created graphdb_password_file $(graphdb_password_file)."; \
-	fi
-
-
-specify_graphdb_password:
-	@echo -n "Specify the graph database password you want to use: "
-	@read answer && echo -n "$$answer" > $(graphdb_password_file)
-	@echo "Created graphdb_password_file $(graphdb_password_file)."
 
 
 # Note that if you have used command line parameters for previous make calls
@@ -740,6 +753,21 @@ ifneq ($(shell which neo4j-admin > /dev/null 2>&1 && echo $$?),0)
 endif
 
 
+generate_graphdb_password:
+	@if [ ! -f $(graphdb_password_file) ]; then \
+		< /dev/urandom tr -dc 'A-Za-z0-9' | head -c $(graphdb_password_length) > $(graphdb_password_file); \
+		echo "Created graphdb_password_file $(graphdb_password_file)."; \
+	fi
+
+
+specify_graphdb_password:
+	@echo -n "Specify the graph database password you want to use: "
+	@read answer && echo -n "$$answer" > $(graphdb_password_file)
+	@echo "Created graphdb_password_file $(graphdb_password_file)."
+
+
+# 'read_graphdb_password' is a function, defined below.
+
 # ########################################################################
 # Ricgraph functions.
 # ########################################################################
@@ -770,7 +798,8 @@ define install_ricgraph
 	@echo "Starting install of Ricgraph version '$(4)' in"
 	@echo "directory '$(1)'."
 	@echo "as '$(2)'. The database to be used is '$(3)'."
-	@echo "Read documentation at $(5)."
+	@echo "You may want to read more at:"
+	@echo "$(5)"
 	$(call are_you_sure)
 	@echo ""
 	@if [ -d $(1) ]; then echo -e "Error: Ricgraph install dir $(1) already exists,\nplease remove it first."; exit 1; fi
@@ -792,7 +821,7 @@ define install_ricgraph
 		unzip -q $(ricgraph_cuttingedge_name); \
 		mv ricgraph-main $(ricgraph); \
 		echo "This is the cutting edge version of Ricgraph of `date +%y%m%d-%H%M`." > $(ricgraph)/0_ricgraph_cuttingedge_`date +%y%m%d-%H%M`; \
-		sed -i 's_; ../bin/python_; PYTHONPATH=../ricgraph ../bin/python_' $(ricgraph)/Makefile; \
+		sed -i 's_; ../$(python_cmd_venv)_; PYTHONPATH=../ricgraph ../$(python_cmd_venv)_' $(ricgraph)/Makefile; \
 		tar czf $(ricgraph_tag_name) $(ricgraph); \
 		mv -f $(ricgraph_tag_name) $(dir $(1)); \
 		rm -r $(tmp_dir); \
@@ -823,15 +852,11 @@ define install_ricgraph
 	@echo "Done."
 	@echo "Ricgraph version '$(4)' has been installed in"
 	@echo "a Python virtual environment in '$(1)'."
-	@echo "You may want to modify '$(1)/ricgraph.ini' to suit"
-	@echo "your needs, please read:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#ricgraph-initialization-file"
+	@echo "It is ready to be used. You may want to use one of this Makefile"
+	@echo "'run_' targets, type 'make help' to learn more."
+	@echo "Also, you may want to modify '$(1)/ricgraph.ini'"
+	@echo "to suit your needs, please read:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_install_configure.html#ricgraph-initialization-file"
 	@echo ""
-	@echo "Please read this to learn how to start Ricgraph scripts from the command line:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_as_server.md#in-case-you-have-installed-ricgraph-as-a-server"
-	@echo ""
-	@echo "Alternatively, you may want to install a Python Integrated"
-	@echo "development environment (IDE), such as PyCharm. Read documenentation at:"
-	@echo "https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_install_configure.md#using-a-python-integrated-development-environment-ide"
-	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endef
