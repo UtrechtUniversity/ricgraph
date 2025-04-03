@@ -238,13 +238,16 @@ in a university context.
 
 ## Examples
 
-See the figures below for example graphs that show how Ricgraph works.
+See the figures below for example graphs that show how Ricgraph works. In this section, we use the following
+symbols and colors.
 
-|                                         one person with several research outputs                                         |                            symbols for type of object                             |                                colors for source system                                 |
-|:------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|
-| <img alt="One person with several research outputs." src="docs/images/one-person-with-research-outputs.jpg" width="33%"> | <img alt="Symbols for type of object." src="docs/images/symbols.jpg" width="33%"> | <img alt="Colors for source system." src="docs/images/colors-vertical.jpg" width="33%"> |
+|                            symbols for type of object                             |                                colors for source system                                 |
+|:---------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|
+| <img alt="Symbols for type of object." src="docs/images/symbols.jpg" width="20%"> | <img alt="Colors for source system." src="docs/images/colors-vertical.jpg" width="20%"> |
 
-This figure shows one person *A* using a
+
+The following figure shows one person with several research outputs.
+It shows one person *A* using a
 [*person-root* node, a node which "represents" a person](docs/ricgraph_details.md#person-root-node-in-ricgraph)
 as it is called
 in Ricgraph.
@@ -260,21 +263,24 @@ and
 the software package is from the
 [Research Software Directory](https://research-software-directory.org) (in blue).
 
+<img alt="One person with several research outputs." src="docs/images/one-person-with-research-outputs.jpg" width="25%">
 
-|                                           several persons with several research outputs                                            |                                    one person with several identifiers and research outputs                                     |
-|:----------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------:|
-| <img alt="Several persons with several research outputs." src="docs/images/several-persons-with-research-outputs.jpg" width="40%"> | <img alt="One person with several identifiers and research outputs." src="docs/images/identifiers-and-outputs.jpg" width="50%"> |
-
-The left part of this figure shows several persons having several research outputs
-(the symbols) and
+The following figure shows several persons with several research outputs (the symbols) and
 how these are related (i.e. which person contributed to which research output).
 It also shows from which source system these research outputs have originated
 (using different colors).
-The right part shows one person having several identifiers and several research outputs.
+
+<img alt="Several persons with several research outputs." src="docs/images/several-persons-with-research-outputs.jpg" width="35%"> 
+
+The following figure shows one person having several identifiers and several research outputs.
 This person has two different ORCIDs, one ISNI, one SCOPUS_AUTHOR_ID, and two FULL_NAMEs (which differ
 in spelling). These identifiers have also been obtained from different source systems, as their color indicates.
 
-More examples can be found in [Ricgraph details](docs/ricgraph_details.md#implementation-details).
+<img alt="One person with several identifiers and research outputs." src="docs/images/identifiers-and-outputs.jpg" width="25%">
+
+The following figure shows how three persons have contributed to one research output.
+
+<img alt="Three persons with one research output." src="docs/images/three-persons-one-research-output.jpg" width="15%">
 
 ## Ricgraph in bullet points
 

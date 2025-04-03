@@ -4,7 +4,6 @@ On this page, you can find more information about:
 
 * [Person identifiers](#person-identifiers).
 * The [Person-root node in Ricgraph](#person-root-node-in-ricgraph).
-* [Research outputs connected to persons](#research-outputs-connected-to-persons).
 * [Example research questions](#example-research-questions).
 * [Videos of Ricgraph](#videos-of-ricgraph).
 * [Properties of nodes in Ricgraph](#properties-of-nodes-in-ricgraph).
@@ -44,15 +43,6 @@ A person can have any number of identifiers.
 The person in the left figure has one *ORCID*, one *ISNI* and one *FULL_NAME*.
 The person in the right figure has a lot more identifiers, and some identifiers appear more than once.
 E.g. this person has two different ORCIDs and two FULL_NAMEs (with different spellings).
-
-## Research outputs connected to persons
-
-|                                  one person with three research outputs                                  |                                       three persons with one research output                                       |                          symbols for type of object                          |                              colors for source system                              |
-|:--------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------:|:----------------------------------------------------------------------------------:|
-| <img alt="One person with three research outputs." src="images/identifiers-and-outputs.jpg" width="25%"> | <img alt="Three persons with one research output." src="images/three-persons-one-research-output.jpg" width="25%"> | <img alt="Symbols for type of object." src="images/symbols.jpg" width="25%"> | <img alt="Colors for source system." src="images/colors-vertical.jpg" width="25%"> |
-
-The left figure shows how one person, its identifiers and research outputs are connected.
-The right figure shows how three persons have contributed to one research output.
 
 ## Example research questions
 The figure belows shows examples of research questions that can be answered using Ricgraph.

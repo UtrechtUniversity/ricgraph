@@ -49,7 +49,6 @@ This table of contents has been generated automatically.
 - [Implementation details](../docs/ricgraph_details.md#implementation-details)
   - [Person identifiers](../docs/ricgraph_details.md#person-identifiers)
   - [Person-root node in Ricgraph](../docs/ricgraph_details.md#person-root-node-in-ricgraph)
-  - [Research outputs connected to persons](../docs/ricgraph_details.md#research-outputs-connected-to-persons)
   - [Example research questions](../docs/ricgraph_details.md#example-research-questions)
   - [Videos of Ricgraph](../docs/ricgraph_details.md#videos-of-ricgraph)
   - [Properties of nodes in Ricgraph](../docs/ricgraph_details.md#properties-of-nodes-in-ricgraph)

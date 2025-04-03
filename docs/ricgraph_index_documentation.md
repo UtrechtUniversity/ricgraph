@@ -167,7 +167,6 @@ __R__
 - [Read more about Ricgraph](../README.md#read-more-about-ricgraph)
 - [Read this in case you would like to extend Ricgraph](../README.md#read-this-in-case-you-would-like-to-extend-ricgraph)
 - [Requirements for Ricgraph](../docs/ricgraph_install_configure.md#requirements-for-ricgraph)
-- [Research outputs connected to persons](../docs/ricgraph_details.md#research-outputs-connected-to-persons)
 - [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
