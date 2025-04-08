@@ -689,17 +689,20 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
                                  result_transformer_=Result.value,
                                  database_=ricgraph_databasename())
 
-    # If merge_node_from does not have neighbors, it will not be deleted.
-    # Do another Cypher query to be sure it is gone.
-    cypher_delete_node(node_element_id=node_merge_from_element_id)
+    if len(nodes) == 0:
+        # If merge_node_from does not have neighbors, len(nodes) will be 0.
+        # Also, it will not have been deleted. The merge has been done.
+        # Do another Cypher query to be sure it is gone.
+        cypher_delete_node(node_element_id=node_merge_from_element_id)
+        node_merge_to_properties['_history'].append('Merged two nodes of which the merged from did not have neighbors.')
+        node = cypher_update_node_properties(node_element_id=node_merge_to_element_id,
+                                             node_properties=node_merge_to_properties)
+        return node
 
     nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_merge_to_element_id)
     graphdb_nr_reads += 2 * nr_edges        # Approximation: edges are in two directions.
     graphdb_nr_updates += 2 * nr_edges      # Approximation: edges are in two directions.
-    if len(nodes) == 0:
-        return None
-    else:
-        return nodes[0]
+    return nodes[0]
 
 
 def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_element_id: str) -> None:
@@ -1617,12 +1620,18 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
 
     time_stamp = datetimestamp()
     node = read_node(name=lname, value=loldvalue)
-    if node is None:
+    newnode = read_node(name=lname, value=lnewvalue)
+    if node is None and newnode is None:
         # Node we want to change does not exist.
+        print('update_node_value(): Error: both of the nodes do not exist.')
         return None
 
-    newnode = read_node(name=lname, value=lnewvalue)
-    if newnode is not None:
+    if node is None and newnode is not None:
+        # Node we want to change does not exist,
+        # but newnode does, we don't do anything.
+        return newnode
+
+    if node is not None and newnode is not None:
         # The node we want to change to does already exist.
         # So this happens to be a merge of two nodes.
         merged_node = merge_two_nodes(node_merge_from=node,
@@ -1808,8 +1817,12 @@ def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, N
         # Done.
         return node_merge_to
 
-    if node_merge_from is None or node_merge_to is None:
-        print('merge_two_nodes(): Error: one or both of the nodes is None - cannot be found.')
+    if node_merge_from is not None and node_merge_to is None:
+        # Done.
+        return node_merge_from
+
+    if node_merge_from is None and node_merge_to is None:
+        print('merge_two_nodes(): Error: both of the nodes do not exist.')
         return None
 
     if node_merge_from['name'] != node_merge_to['name'] \
