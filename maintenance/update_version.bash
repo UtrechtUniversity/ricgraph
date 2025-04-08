@@ -48,7 +48,7 @@ echo "Updating pyproject.toml:"
 sed -i "s/version = \".*\"/version = \"${new_version}\"/" pyproject.toml
 
 echo "Updating requirements.txt:"
-sed -i "s/ricgraph == .*/ricgraph == ${new_version}/" requirements.txt
+sed -i "s/ricgraph==.*/ricgraph==${new_version}/" requirements.txt
 
 echo "Updating ricgraph/ricgraph.py:"
 sed -i "s/__version__ = '.*'/__version__ = '${new_version}'/" ricgraph/ricgraph.py

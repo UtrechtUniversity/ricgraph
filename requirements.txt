@@ -3,14 +3,14 @@ connexion[swagger-ui,flask,uvicorn]
 flask
 gunicorn
 markupsafe
-neo4j >= 5.8
+neo4j>=5.8
 numpy
 openapi_markdown
 pandas
 pyalex
 ratelimit
 requests
-ricgraph == 2.10
+ricgraph==2.10
 twine
 Sickle
 xmltodict
