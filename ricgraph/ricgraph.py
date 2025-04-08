@@ -153,6 +153,12 @@ nodes_cache_key_element_id = {}
 # Cache size. 'nodes_cache_key_element_id' will be emptied if it has this number of elements.
 MAX_NODES_CACHE_KEY_ID = 15000
 
+# In merge_two_nodes(node_merge_from, node_merge_to), we are constructing a list of
+# all the nodes that are to be merged with node_merge_to, to add to property _history
+# in that node. This value restricts the length of that list (to prevent property
+# values that are too long).
+MAX_NR_HISTORYITEMS_TO_ADD = 100
+
 
 # These counters are used to count the number of accesses to the
 # graph database backend.
@@ -1836,23 +1842,27 @@ def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, N
 
     count += 1
     what_happened = time_stamp + '-' + format(count, '02d') + ': '
-    what_happened += 'Start of history of the deleted node.'
+    what_happened += '--- Start of history of the deleted node.'
     node_merge_to_properties['_history'].append(what_happened)
 
     for history in node_merge_from['_history']:
         count += 1
         what_happened = time_stamp + '-' + format(count, '02d') + ': '
+        if count >= MAX_NR_HISTORYITEMS_TO_ADD:
+            what_happened += 'List truncated, too many history lines for _history.'
+            node_merge_to_properties['_history'].append(what_happened)
+            break
         what_happened += history
         node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
     what_happened = time_stamp + '-' + format(count, '02d') + ': '
-    what_happened += 'End of history of the deleted node.'
+    what_happened += '--- End of history of the deleted node.'
     node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
     what_happened = time_stamp + '-' + format(count, '02d') + ': '
-    what_happened += 'These were the neighbors of the deleted node, '
+    what_happened += '--- These were the neighbors of the deleted node, '
     what_happened += 'now merged with the neighbors of this node:'
     node_merge_to_properties['_history'].append(what_happened)
 
@@ -1866,12 +1876,16 @@ def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, N
         for node in neighbornodes:
             count += 1
             what_happened = time_stamp + '-' + format(count, '02d') + ': '
+            if count >= MAX_NR_HISTORYITEMS_TO_ADD:
+                what_happened += 'List truncated, too many history lines for _history.'
+                node_merge_to_properties['_history'].append(what_happened)
+                break
             what_happened += '"' + str(node['_key']) + '" '
             node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
     what_happened = time_stamp + '-' + format(count, '02d') + ': '
-    what_happened += 'End of list of neighbors of the deleted node.'
+    what_happened += '--- End of list of neighbors of the deleted node.'
     node_merge_to_properties['_history'].append(what_happened)
 
     count += 1
