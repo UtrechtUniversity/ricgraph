@@ -52,20 +52,19 @@ import ricgraph as rcg
 # Get the name of the Python executable that is executing this script.
 PYTHON_CMD = sys.executable
 
-rename_nodes_first_group = {
+rename_orgs_uupure = {
     'University: Universiteit Utrecht': 'Utrecht University',
-    'UU Faculty: Faculteit Betawetenschappen': 'Science',
-    'UU Faculty: Faculteit Diergeneeskunde': 'Veterinary Medicine',
-    'UU Faculty: Faculteit Geesteswetenschappen': 'Humanities',
-    'UU Faculty: Faculteit Geowetenschappen': 'Geosciences',
-    'UU Faculty: Faculteit REBO': 'Law, Economics and Governance',
-    'UU Faculty: Faculteit Sociale Wetenschappen': 'Social and Behavioural Sciences',
-    'UU Faculty: University College Utrecht': 'University College Utrecht',
-    'UU Faculties / Services: Utrecht University Library': 'Utrecht University Library',
-    'UU Faculties / Services: Corporate Offices': 'University Corporate Offices',
+    'UU Faculty: Faculteit Betawetenschappen': 'UU Faculty: Science',
+    'UU Faculty: Faculteit Diergeneeskunde': 'UU Faculty: Veterinary Medicine',
+    'UU Faculty: Faculteit Geesteswetenschappen': 'UU Faculty: Humanities',
+    'UU Faculty: Faculteit Geowetenschappen': 'UU Faculty: Geosciences',
+    'UU Faculty: Faculteit REBO': 'UU Faculty: Law, Economics and Governance',
+    'UU Faculty: Faculteit Sociale Wetenschappen': 'UU Faculty: Social and Behavioural Sciences',
+    'UU Faculties / Services: Utrecht University Library': 'UU Faculties/Services: Utrecht University Library',
+    'UU Faculties / Services: Corporate Offices': 'UU Faculties/Services: University Corporate Offices',
 }
 
-rename_nodes_second_group = {
+rename_orgs_uustaff = {
     'Science': 'UU Faculty: Science',
     'Veterinary Medicine': 'UU Faculty: Veterinary Medicine',
     'Humanities': 'UU Faculty: Humanities',
@@ -77,6 +76,13 @@ rename_nodes_second_group = {
     'University Corporate Offices': 'UU Faculties/Services: University Corporate Offices',
     'Medicine': 'University Medical Center Utrecht',
 }
+
+rename_orgs_uugeneral = {
+    'Universiteit Utrecht': 'Utrecht University',
+    'Utrecht, University': 'Utrecht University',
+    'Utrecht University, Utrecht, the Netherlands': 'Utrecht University',
+}
+
 
 
 def rename_nodes(name: str, rename_table: dict):
@@ -101,25 +107,8 @@ print('')
 
 status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph yes --organization UU --harvest_projects no')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-
-# Change the 'value' of some nodes, so they will have the same name as nodes in following harvests.
-graph = rcg.open_ricgraph()
-if graph is None:
-    print('Ricgraph could not be opened in batch_harvest_uu.py.')
-    exit(2)
-rename_nodes(name='ORGANIZATION_NAME', rename_table=rename_nodes_first_group)
-rcg.close_ricgraph()
-
 status = os.system(PYTHON_CMD + ' harvest_uustaffpages_to_ricgraph.py --empty_ricgraph no')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-
-graph = rcg.open_ricgraph()
-if graph is None:
-    print('Ricgraph could not be opened in batch_harvest_uu.py.')
-    exit(2)
-rename_nodes(name='ORGANIZATION_NAME', rename_table=rename_nodes_second_group)
-rcg.close_ricgraph()
-
 status = os.system(PYTHON_CMD + ' harvest_yoda_datacite_to_ricgraph.py --empty_ricgraph no --organization UU')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 status = os.system(PYTHON_CMD + ' harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization UU')
@@ -127,13 +116,25 @@ if status != 0: print('===>>> batch_harvest_uu.py: error while executing previou
 status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization UU')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 
-
 status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization VU')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph no --organization VU --harvest_projects no')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 status = os.system(PYTHON_CMD + ' harvest_yoda_datacite_to_ricgraph.py --empty_ricgraph no --organization VU')
 if status != 0: print('===>>> batch_harvest_uu.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
+
+# Make sure (sub-)organizations from different sources have the same name.
+graph = rcg.open_ricgraph()
+if graph is None:
+    print('Ricgraph could not be opened in batch_harvest_uu.py.')
+    exit(2)
+rename_nodes(name='ORGANIZATION_NAME', rename_table=rename_orgs_uupure)
+print('')
+rename_nodes(name='ORGANIZATION_NAME', rename_table=rename_orgs_uustaff)
+print('')
+rename_nodes(name='ORGANIZATION_NAME', rename_table=rename_orgs_uugeneral)
+print('')
+rcg.close_ricgraph()
 
 # ###########################################################
 # Batch order 2: If you'd like to harvest OpenAlex

@@ -28,7 +28,7 @@ import ricgraph as rcg
 # Get the name of the Python executable that is executing this script.
 PYTHON_CMD = sys.executable
 
-rename_nodes_first_group = {
+rename_nodes_tudpure = {
     'University: Delft University of Technology': 'Delft University of Technology',
 }
 
@@ -55,16 +55,15 @@ print('')
 
 status = os.system(PYTHON_CMD + ' harvest_pure_to_ricgraph.py --empty_ricgraph yes --organization DUT --harvest_projects yes')
 if status != 0: print('===>>> batch_harvest_dut.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
+status = os.system(PYTHON_CMD + ' harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization DUT')
+if status != 0: print('===>>> batch_harvest_dut.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
+status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization DUT')
+if status != 0: print('===>>> batch_harvest_dut.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
 
 # Change the 'value' of some nodes, so they will have the same name as nodes in following harvests.
 graph = rcg.open_ricgraph()
 if graph is None:
     print('Ricgraph could not be opened in batch_harvest_dut.py.')
     exit(2)
-rename_nodes(name='ORGANIZATION_NAME', rename_table=rename_nodes_first_group)
+rename_nodes(name='ORGANIZATION_NAME', rename_table=rename_nodes_tudpure)
 rcg.close_ricgraph()
-
-status = os.system(PYTHON_CMD + ' harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization DUT')
-if status != 0: print('===>>> batch_harvest_dut.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
-status = os.system(PYTHON_CMD + ' harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization DUT')
-if status != 0: print('===>>> batch_harvest_dut.py: error while executing previous script, status: ' + str(status) + '.'); exit(status)
