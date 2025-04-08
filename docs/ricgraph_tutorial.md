@@ -16,7 +16,8 @@ adapted to new application areas.
 
 In this tutorial, we explain the possibilities of Ricgraph.
 For a more detailed explanation, read the 
-[full documentation of Ricgraph](../README.md#ricgraph---research-in-context-graph).
+full documentation of Ricgraph on 
+[https://docs.ricgraph.eu](https://docs.ricgraph.eu).
 
 ## Motivation
 
@@ -244,7 +245,6 @@ the previous section corresponds to figure (a).
   [use](ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
   [mentions](ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
   of Ricgraph.
-* Look at the [videos we have made to demonstrate Ricgraph](ricgraph_example_use_videos.md#ricgraph-videos).
 
 ## Contact
 Ricgraph has been created and is being maintained by

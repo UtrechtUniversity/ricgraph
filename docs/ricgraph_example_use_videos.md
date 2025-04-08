@@ -1,7 +1,17 @@
 # Ricgraph videos
 
-The following videos illustrate the possible uses of Ricgraph. 
-These are not intended to demonstrate how an interface
+This page contains a number of videos
+that illustrate the possible uses of Ricgraph: 
+
+  * Video [Ricgraph Explorer](#video-ricgraph-explorer).
+  * Video [Start with ORCID to find software](#video-start-with-orcid-to-find-software).
+  * Video [Find persons who contributed to a publication](#video-find-persons-who-contributed-to-a-publication).
+  * Video [Find outputs and organizations from a person](#video-find-outputs-and-organizations-from-a-person).
+  * Video [Traverse Utrecht University organizations](#video-traverse-utrecht-university-organizations).
+  * Video [Find output common to two persons](#video-find-output-common-to-two-persons).
+
+Except for the video of [Ricgraph Explorer](#video-ricgraph-explorer), 
+these videos are not intended to demonstrate how an interface
 for users would look like, they are meant to illustrate how data repositories can
 be linked together and how metadata across several systems can be combined.
 The videos only give a glimpse of possible use-cases. By adding more sources, 
@@ -38,6 +48,37 @@ For other illustrations of Ricgraph, see the
 of Ricgraph.
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
+
+## Video Ricgraph Explorer
+https://user-images.githubusercontent.com/121875841/228465992-993dc8ec-0bd9-4985-b2d9-3200f50d558b.mp4
+
+The [video Ricgraph Explorer (2m20s) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
+shows how a user-centric interface may look like.
+This video uses Ricgraph Explorer from March 2023 (the current version has much more
+possibilities, read
+[Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer)).
+In this video, we look
+up a specific person with his last name. As can be observed, there are three *FULL_NAME*
+nodes
+for this person, each with a different spelling, from four different sources we have
+harvested.
+If we click on one of them, we observe that we have found a lot of information about
+this person.
+
+The first table shows the node used for the search.
+The second table displays the IDs of the person found, connected to the *person-root*
+node, and the third table shows all other nodes connected to the *person-root* node.
+This includes research outputs like publications, data sets and software, as well as
+the (sub)organization this person works. We can sort columns, and we can use
+faceted navigation (i.e. filter on *name* or *category* nodes).
+
+The videos in the following sections
+show how the graph looks like that represents the information
+in Ricgraph. These can be used to understand how nodes connect to each other.
+However, for an end user it might be complicated to use the correct
+search queries. Also, expanding nodes may result in a lot of nodes, so the user might
+get confused what there is to be learned. 
+
 
 ## Video Start with ORCID to find software
 https://user-images.githubusercontent.com/121875841/226639991-28f279c4-17f8-49ab-8420-1676d3db2b74.mp4
@@ -93,35 +134,6 @@ relation between two individuals. First we find two persons using their last nam
 Then we let Ricgraph find the
 shortest path between the two nodes. It finds one node, representing a publication. 
 This means that both people have worked together on this publication.
-
-## Video Ricgraph Explorer
-https://user-images.githubusercontent.com/121875841/228465992-993dc8ec-0bd9-4985-b2d9-3200f50d558b.mp4
-
-As mentioned, the videos in the previous sections 
-show how the graph looks like that represents the information
-in Ricgraph. This can be used to understand how nodes connect to each other.
-However, for an end user it might be complicated to use the correct
-search queries. Also, expanding nodes may result in a lot of nodes, so the user might
-get confused what there is to be learned. That is why we have made 
-[Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
-
-The [video Ricgraph Explorer (2m20s) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
-shows how a more user-centric interface may look like. 
-This video uses Ricgraph Explorer from March 2023.
-In this video, we look
-up a specific person with his last name. As can be observed, there are three *FULL_NAME*
-nodes
-for this person, each with a different spelling, from four different sources we have
-harvested. 
-If we click on one of them, we observe that we have found a lot of information about
-this person. 
-
-The first table shows the node used for the search.
-The second table displays the IDs of the person found, connected to the *person-root*
-node, and the third table shows all other nodes connected to the *person-root* node.
-This includes research outputs like publications, data sets and software, as well as
-the (sub)organization this person works. We can sort columns, and we can use 
-faceted navigation (i.e. filter on *name* or *category* nodes).
 
 ## Epilogue
 Intrigued by the possibilities? Do you have a specific use case you would like to see? 
