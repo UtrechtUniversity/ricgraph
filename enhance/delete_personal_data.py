@@ -66,9 +66,8 @@ print('This script will delete from Ricgraph all personal data of one or more pe
 print('that are listed in the input file.')
 are_you_sure = rcg.get_commandline_argument(argument='--are_you_sure',
                                             argument_list=sys.argv)
-# if are_you_sure != 'yes':
 if are_you_sure == '':
-    are_you_sure = input('Are you sure you want to run this script? Type "yes" to continue. ')
+    are_you_sure = input('Are you sure you want to run this script? Type "yes" to continue: ')
     if are_you_sure != 'yes':
         print('Exiting this script.')
         exit(1)
