@@ -1818,8 +1818,10 @@ def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, N
         return node_merge_to
 
     if node_merge_from is not None and node_merge_to is None:
-        # Done.
-        return node_merge_from
+        print('merge_two_nodes(): Error: it seems that you are trying to move a node')
+        print('  to another node. This is not supported.')
+        print('  You might want to use update_node_value().')
+        return None
 
     if node_merge_from is None and node_merge_to is None:
         print('merge_two_nodes(): Error: both of the nodes do not exist.')
