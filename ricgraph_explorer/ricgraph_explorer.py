@@ -124,6 +124,9 @@ DEFAULT_DISCOVERER_MODE = 'details_view'
 # value_search: do a broad search on field 'value'.
 DEFAULT_SEARCH_MODE = 'value_search'
 
+# Miniumum length of a value in a search field (in characters).
+SEARCH_STRING_MIN_LENGTH = 2
+
 # Ricgraph Explorer shows tables. You can specify which columns you need.
 # You do this by making a list of one or more fields in a Ricgraph node.
 # There are some predefined lists.
@@ -713,8 +716,9 @@ def optionspage() -> str:
         result = rcg.read_all_nodes(name=name, category=category, value=value,
                                     max_nr_nodes=int(extra_url_parameters['max_nr_items']))
     else:
-        if len(value) < 3:
-            html += get_message(message='The search string should be at least three characters.')
+        if len(value) < SEARCH_STRING_MIN_LENGTH:
+            html += get_message(message='The search string should be at least '
+                                        + str(SEARCH_STRING_MIN_LENGTH) + ' characters.')
             html += page_footer + html_body_end
             return html
         result = rcg.read_all_nodes(name=name, category=category, value=value,
