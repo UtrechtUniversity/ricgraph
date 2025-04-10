@@ -9,6 +9,7 @@ ricgraph.ini
 .idea
 *experimental*
 !neo4j_config/*.json
+!convenience/orgs_to_rename_*.csv
 
 # ###########################
 # Default .gitignore from GitHub on January 4, 2022.
