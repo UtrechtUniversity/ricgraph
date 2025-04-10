@@ -56,8 +56,8 @@ minimal_python_minor_version := 10
 # The name of the Ricgraph batch harvest script to run and its log.
 # It should be in directory [Ricgraph install directory]/harvest.
 # ########################################################################
-batch_script := batch_harvest_demo.py
-batch_script_log := $(basename $(batch_script))_`date +%y%m%d-%H%M`.log
+#batch_script := batch_harvest_demo.py
+#batch_script_log := $(basename $(batch_script))_$$(date +%y%m%d-%H%M).log
 
 
 # ########################################################################
@@ -91,16 +91,21 @@ ricgraph_explorer := ricgraph_explorer.py
 ricgraph := ricgraph-$(ricgraph_version)
 
 # You can use the following two variables as command line arguments to run
-# any Ricgraph script. 'ricgraph_anyscript' should contain the path to the
+# any Ricgraph Python script. 'ricgraph_anyscript_python' should contain the path to the
 # script relative to the directory where this Makefile is. The same for
-# 'ricgraph_anyscript_log', unless it starts with a '/'.
+# 'ricgraph_anyscript_python_log', unless it starts with a '/'.
 # If that directory or file is not writable for the user
 # executing the script, you will get an error. The values below are placeholders.
 # Example use:
-# 'make ricgraph_anyscript=[script name] ricgraph_anyscript_log=[log file] run_anyscript'
-ricgraph_anyscript := maintenance/create_toc_documentation.py
-ricgraph_anyscript_log_file := $(basename $(notdir $(ricgraph_anyscript)))_`date +%y%m%d-%H%M`.log
-ricgraph_anyscript_log := $(dir $(ricgraph_anyscript))$(ricgraph_anyscript_log_file)
+# 'make ricgraph_anyscript_python=[script name] ricgraph_anyscript_python_log=[log file] run_anyscript_python'
+ricgraph_anyscript_python := maintenance/create_toc_documentation.py
+ricgraph_anyscript_python_log_file := $(basename $(notdir $(ricgraph_anyscript_python)))_$$(date +%y%m%d-%H%M).log
+ricgraph_anyscript_python_log := $(dir $(ricgraph_anyscript_python))$(ricgraph_anyscript_python_log_file)
+
+# Similar for Ricgraph bash scripts.
+ricgraph_anyscript_bash := convenience/batch_harvest_demo.sh
+ricgraph_anyscript_bash_log_file := $(basename $(notdir $(ricgraph_anyscript_bash)))_$$(date +%y%m%d-%H%M).log
+ricgraph_anyscript_bash_log := $(dir $(ricgraph_anyscript_bash))$(ricgraph_anyscript_bash_log_file)
 
 # Neo4j variable.
 # Ask https://perplexity.ai for download locations, prompt:
@@ -236,14 +241,18 @@ help:
 	@echo "Commands to run something:"
 	@echo "- make run_ricgraph_explorer: run Ricgraph Explorer in development mode."
 	@echo "       If you use Neo4j Desktop, you need to start it first."
-	@echo "- make run_batchscript: run Ricgraph batch script '$(batch_script)'."
-	@echo "       You can change the name of this script by"
-	@echo "       adding 'batch_script=my_batchscript.py' to your 'make' command."
-	@echo "       If you use Neo4j Desktop, you need to start it first."
-	@echo "- make run_anyscript: you can use this to run any Ricgraph script."
-	@echo "       Use command line parameter 'ricgraph_anyscript',"
-	@echo "       and possibly 'ricgraph_anyscript_log'. E.g. "
-	@echo "       'make ricgraph_anyscript=[path]/[script name] run_anyscript'."
+#	@echo "- make run_batchscript: run Ricgraph batch script '$(batch_script)'."
+#	@echo "       You can change the name of this script by"
+#	@echo "       adding 'batch_script=my_batchscript.py' to your 'make' command."
+#	@echo "       If you use Neo4j Desktop, you need to start it first."
+	@echo "- make run_anyscript_python: you can use this to run any Ricgraph Python script."
+	@echo "       Use command line parameter 'ricgraph_anyscript_python',"
+	@echo "       and possibly 'ricgraph_anyscript_python_log'. E.g. "
+	@echo "       'make ricgraph_anyscript_python=[path]/[script name] run_anyscript_python'."
+	@echo "- make run_anyscript_bash: you can use this to run any Ricgraph bash script."
+	@echo "       Use command line parameter 'ricgraph_anyscript_bash',"
+	@echo "       and possibly 'ricgraph_anyscript_bash_log'. E.g. "
+	@echo "       'make ricgraph_anyscript_bash=[path]/[script name] run_anyscript_bash'."
 	@echo ""
 	@echo "There are many more options, to read more, type 'make allhelp'."
 	@echo ""
@@ -351,9 +360,13 @@ makefile_variables:
 	@echo "- graphdb_backup_dir: $(graphdb_backup_dir)"
 	@echo "- graphdb_password_file: $(graphdb_password_file)"
 	@echo "- graphdb_password_length: $(graphdb_password_length)"
-	@echo "- batch_script: $(batch_script)"
-	@echo "- batch_script_log: $(batch_script_log)"
+#	@echo "- batch_script: $(batch_script)"
+#	@echo "- batch_script_log: $(batch_script_log)"
 	@echo "- ricgraph_explorer: $(ricgraph_explorer)"
+	@echo "- ricgraph_anyscript_python: $(ricgraph_anyscript_python)"
+	@echo "- ricgraph_anyscript_python_log: $(ricgraph_anyscript_python_log)"
+	@echo "- ricgraph_anyscript_bash: $(ricgraph_anyscript_bash) "
+	@echo "- ricgraph_anyscript_bash_log: $(ricgraph_anyscript_bash_log)"
 	@echo ""
 
 
@@ -564,7 +577,7 @@ restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	chmod 640 /etc/neo4j/*
 	chmod 750 /etc/neo4j
 	@# Save old database
-	@if [ -d /var/lib/neo4j ]; then mv /var/lib/neo4j /var/lib/neo4j-`date +%y%m%d-%H%M`; fi
+	@if [ -d /var/lib/neo4j ]; then mv /var/lib/neo4j /var/lib/neo4j-$$(date +%y%m%d-%H%M); fi
 	mkdir /var/lib/neo4j
 	neo4j-admin database load --expand-commands system --from-path=$(graphdb_backup_dir) --overwrite-destination=true
 	neo4j-admin database load --expand-commands neo4j --from-path=$(graphdb_backup_dir) --overwrite-destination=true
@@ -594,7 +607,7 @@ empty_graphdb_neo4j_community: check_user_root generate_graphdb_password check_n
 	chmod 640 /etc/neo4j/*
 	chmod 750 /etc/neo4j
 	@# Save old database
-	@if [ -d /var/lib/neo4j ]; then mv /var/lib/neo4j /var/lib/neo4j-`date +%y%m%d-%H%M`; fi
+	@if [ -d /var/lib/neo4j ]; then mv /var/lib/neo4j /var/lib/neo4j-$$(date +%y%m%d-%H%M); fi
 	mkdir /var/lib/neo4j
 	$(call read_graphdb_password)
 	neo4j-admin dbms set-initial-password $(graphdb_password)
@@ -608,24 +621,24 @@ empty_graphdb_neo4j_community: check_user_root generate_graphdb_password check_n
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 
 
-run_batchscript:
-	@echo ""
-	@echo "This target will run Ricgraph batch script harvest/$(batch_script)."
-	@echo "The output will be both on screen as well as in file"
-	@echo "harvest/$(batch_script_log)."
-	@echo "It may take a while before the output appears on screen,"
-	@echo "this is due to buffering of the output."
-	@echo ""
-	@echo "If you continue, this script may delete your current graph database."
-	$(call are_you_sure)
-	@echo ""
-	@if [ ! -f harvest/$(batch_script) ]; then echo "Error: batch script '$(batch_script)' does not exist."; exit 1; fi
-	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
-	@if [ $(shell id -u) = 0 ]; then \
-		sudo -u ricgraph bash -c 'cd harvest; ../$(python_cmd_venv) $(batch_script) | tee $(batch_script_log)'; \
-	else \
-		cd harvest; ../$(python_cmd_venv) $(batch_script) | tee $(batch_script_log); \
-	fi
+#run_batchscript:
+#	@echo ""
+#	@echo "This target will run Ricgraph batch script harvest/$(batch_script)."
+#	@echo "The output will be both on screen as well as in file"
+#	@echo "harvest/$(batch_script_log)."
+#	@echo "It may take a while before the output appears on screen,"
+#	@echo "this is due to buffering of the output."
+#	@echo ""
+#	@echo "If you continue, this script may delete your current graph database."
+#	$(call are_you_sure)
+#	@echo ""
+#	@if [ ! -f harvest/$(batch_script) ]; then echo "Error: batch script '$(batch_script)' does not exist."; exit 1; fi
+#	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
+#	@if [ $(shell id -u) = 0 ]; then \
+#		sudo -u ricgraph bash -c 'cd harvest; ../$(python_cmd_venv) $(batch_script) | tee $(batch_script_log)'; \
+#	else \
+#		cd harvest; ../$(python_cmd_venv) $(batch_script) | tee $(batch_script_log); \
+#	fi
 
 
 run_ricgraph_explorer:
@@ -638,25 +651,46 @@ run_ricgraph_explorer:
 	cd ricgraph_explorer; ../$(python_cmd_venv) $(ricgraph_explorer)
 
 
-run_anyscript:
+run_anyscript_python:
 	@echo ""
-	@echo "This target will run Ricgraph script $(ricgraph_anyscript)."
+	@echo "This target will run Ricgraph Python script $(ricgraph_anyscript_python)."
 	@echo "You need to specify the path to the script, in a subdirectory"
 	@echo "of the directory this Makefile is in."
 	@echo "The output will be both on screen as well as in file"
-	@echo "$(ricgraph_anyscript_log)."
+	@echo "$(ricgraph_anyscript_python_log)."
 	@echo "If you don't have write permission to this file, you will get an error."
 	@echo "It may take a while before the output appears on screen,"
 	@echo "this is due to buffering of the output."
 	$(call are_you_sure)
 	@echo ""
-	@if [ ! -f $(ricgraph_anyscript) ]; then echo "Error: script '$(ricgraph_anyscript)' does not exist."; exit 1; fi
+	@if [ ! -f $(ricgraph_anyscript_python) ]; then echo "Error: script '$(ricgraph_anyscript_python)' does not exist."; exit 1; fi
 	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
-	@# Check if the path to 'ricgraph_anyscript_log' starts with '/'. If so, it is considered a full path.
-	@if [ $(shell echo $(ricgraph_anyscript_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(ricgraph_anyscript)); ../$(python_cmd_venv) $(notdir $(ricgraph_anyscript)) | tee $(ricgraph_anyscript_log); \
+	@# Check if the path to 'ricgraph_anyscript_python_log' starts with '/'. If so, it is considered a full path.
+	@if [ $(shell echo $(ricgraph_anyscript_python_log) | cut -c1) = '/' ]; then \
+		cd $(dir $(ricgraph_anyscript_python)); ../$(python_cmd_venv) $(notdir $(ricgraph_anyscript_python)) | tee $(ricgraph_anyscript_python_log); \
 	else \
-		cd $(dir $(ricgraph_anyscript)); ../$(python_cmd_venv) $(notdir $(ricgraph_anyscript)) | tee ../$(ricgraph_anyscript_log); \
+		cd $(dir $(ricgraph_anyscript_python)); ../$(python_cmd_venv) $(notdir $(ricgraph_anyscript_python)) | tee ../$(ricgraph_anyscript_python_log); \
+	fi
+
+
+run_anyscript_bash:
+	@echo ""
+	@echo "This target will run Ricgraph bash script $(ricgraph_anyscript_bash)."
+	@echo "You need to specify the path to the script, in a subdirectory"
+	@echo "of the directory this Makefile is in."
+	@echo "The output will be both on screen as well as in file"
+	@echo "$(ricgraph_anyscript_bash_log)."
+	@echo "If you don't have write permission to this file, you will get an error."
+	@echo "It may take a while before the output appears on screen,"
+	@echo "this is due to buffering of the output."
+	$(call are_you_sure)
+	@echo ""
+	@if [ ! -f $(ricgraph_anyscript_bash) ]; then echo "Error: script '$(ricgraph_anyscript_bash)' does not exist."; exit 1; fi
+	@# Check if the path to 'ricgraph_anyscript_bash_log' starts with '/'. If so, it is considered a full path.
+	@if [ $(shell echo $(ricgraph_anyscript_bash_log) | cut -c1) = '/' ]; then \
+		cd $(dir $(ricgraph_anyscript_bash)); ./$(notdir $(ricgraph_anyscript_bash)) | tee $(ricgraph_anyscript_bash_log); \
+	else \
+		cd $(dir $(ricgraph_anyscript_bash)); ./$(notdir $(ricgraph_anyscript_bash)) | tee ../$(ricgraph_anyscript_bash_log); \
 	fi
 
 
@@ -820,7 +854,7 @@ define install_ricgraph
 		wget $(ricgraph_cuttingedge_path); \
 		unzip -q $(ricgraph_cuttingedge_name); \
 		mv ricgraph-main $(ricgraph); \
-		echo "This is the cutting edge version of Ricgraph of `date +%y%m%d-%H%M`." > $(ricgraph)/0_ricgraph_cuttingedge_`date +%y%m%d-%H%M`; \
+		echo "This is the cutting edge version of Ricgraph of $$(date +%y%m%d-%H%M)." > $(ricgraph)/0_ricgraph_cuttingedge_$$(date +%y%m%d-%H%M); \
 		sed -i 's|; ../$$(python_cmd_venv)|; PYTHONPATH=../ricgraph ../$$(python_cmd_venv)|' $(ricgraph)/Makefile; \
 		tar czf $(ricgraph_tag_name) $(ricgraph); \
 		mv -f $(ricgraph_tag_name) $(dir $(1)); \
