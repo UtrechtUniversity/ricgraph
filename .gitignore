@@ -10,6 +10,7 @@ ricgraph.ini
 *experimental*
 !neo4j_config/*.json
 !convenience/orgs_to_rename_*.csv
+convenience/batch_harvest_uu_with_uustaff.sh
 
 # ###########################
 # Default .gitignore from GitHub on January 4, 2022.
