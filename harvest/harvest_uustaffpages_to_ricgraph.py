@@ -64,6 +64,7 @@ import ricgraph as rcg
 # ######################################################
 # Parameters for harvesting from UU staff pages
 # ######################################################
+ORGANIZATION = 'UU'
 UUSTAFF_MAX_FACULTY_NR = 25
 UUSTAFF_CONNECTDATA_FROM_FILE = False
 UUSTAFF_HARVEST_FROM_FILE = False
@@ -209,7 +210,7 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
 
             if org_name != '':
                 parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
-                              'FACULTY': org_name}
+                              'FACULTY': ORGANIZATION + ' ' + org_name}
                 parse_chunk.append(parse_line)
         if 'Expertises' in harvest_item:
             for expertise in harvest_item['Expertises']:
