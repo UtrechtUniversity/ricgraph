@@ -88,6 +88,9 @@ ricgraph_nodeadd_mode = strict
 [Organization]
 # ###############################################################
 # Information about your organization.
+# The organization names used on https://ror.org are considered
+# to be authorative. E.g., at that website, UU uses an English name,
+# while VUA uses a Dutch name.
 # Add your own 'organization abbreviation' if it is not present.
 # Format: organization_name_XXXX with 'XXXX' the organization abbreviation.
 # You only need key and value for the organization(s) you are planning
@@ -99,7 +102,7 @@ organization_name_DUT = Delft University of Technology
 organization_name_EUR = Erasmus University Rotterdam
 organization_name_EUT = Eindhoven University of Technology
 organization_name_UG = University of Groningen
-organization_name_VU = Vrije Universiteit Amsterdam
+organization_name_VUA = Vrije Universiteit Amsterdam
 #
 # ROR is a global open persistent identifier for research organizations.
 # Find yours on https://ror.org. 
@@ -112,7 +115,7 @@ organization_ror_DUT = 02e2c7k09
 organization_ror_EUR = 057w15z03
 organization_ror_EUT = 02c2kyt77
 organization_ror_UG = 012p63287
-organization_ror_VU = 008xxew50
+organization_ror_VUA = 008xxew50
 # ###############################################################
 
 
@@ -175,7 +178,7 @@ pure_url_DUT =
 pure_url_EUR =
 pure_url_EUT =
 pure_url_UG =
-pure_url_VU =
+pure_url_VUA =
 #
 # You can obtain a Pure API key from your local Pure admin.
 # Add your own 'organization abbreviation' if it is not present. You only 
@@ -187,7 +190,7 @@ pure_api_key_DUT =
 pure_api_key_EUR =
 pure_api_key_EUT =
 pure_api_key_UG =
-pure_api_key_VU =
+pure_api_key_VUA =
 # ###############################################################
 
 
@@ -201,14 +204,12 @@ yoda_url = https://oai.datacite.org/oai
 #
 # The set to harvest (without quotes):
 yoda_set_UU = delft.uu
-# UU Yoda at SURF, pilot:
-yoda_set_UUSURF = pzax.sxgsah
 yoda_set_UMCU =
 yoda_set_DUT =
 yoda_set_EUR =
 yoda_set_EUT =
 yoda_set_UG =
-yoda_set_VU = delft.vudata
+yoda_set_VUA = delft.vudata
 # ###############################################################
 
  
@@ -230,7 +231,7 @@ rsd_organization_DUT = delft-university-of-technology
 rsd_organization_EUR = erasmus-university-rotterdam
 rsd_organization_EUT = eindhoven-university-of-technology
 rsd_organization_UG = university-of-groningen
-rsd_organization_VU = vu-university-amsterdam
+rsd_organization_VUA = vu-university-amsterdam
 # ###############################################################
 
 
