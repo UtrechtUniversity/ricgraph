@@ -97,6 +97,7 @@ This table of contents has been generated automatically.
   - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_category)
   - [Export nodes to a file (export_person_identifiers and export_person_node_properties)](../docs/ricgraph_misc_scripts.md#export-nodes-to-a-file-export_person_identifiers-and-export_person_node_properties)
   - [Delete personal data from Ricgraph (delete_personal_data)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_data)
+  - [Rename (sub-)organizations in Ricgraph (rename_orgs)](../docs/ricgraph_misc_scripts.md#rename-sub-organizations-in-ricgraph-rename_orgs)
   - [Script to enrich persons (enrich_orcids_scopusids)](../docs/ricgraph_misc_scripts.md#script-to-enrich-persons-enrich_orcids_scopusids)
   - [Script to find person identifiers pointing to different persons (find_double_pids)](../docs/ricgraph_misc_scripts.md#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pids)
   - [Create a table of contents of the Ricgraph documentation (create_toc_documentation)](../docs/ricgraph_misc_scripts.md#create-a-table-of-contents-of-the-ricgraph-documentation-create_toc_documentation)

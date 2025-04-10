@@ -166,6 +166,7 @@ __R__
 
 - [Read more about Ricgraph](../README.md#read-more-about-ricgraph)
 - [Read this in case you would like to extend Ricgraph](../README.md#read-this-in-case-you-would-like-to-extend-ricgraph)
+- [Rename (sub-)organizations in Ricgraph (rename_orgs)](../docs/ricgraph_misc_scripts.md#rename-sub-organizations-in-ricgraph-rename_orgs)
 - [Requirements for Ricgraph](../docs/ricgraph_install_configure.md#requirements-for-ricgraph)
 - [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)

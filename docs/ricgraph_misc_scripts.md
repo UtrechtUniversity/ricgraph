@@ -20,13 +20,14 @@ On this page, you can find:
   * [Export nodes to a file (export_person_identifiers and export_person_node_properties)](#export-nodes-to-a-file-export_person_identifiers-and-export_person_node_properties)
 * Scripts to enhance (finding, enriching, etc.) information (directory *enhance*):
   * [Delete personal data from Ricgraph (delete_personal_data)](#delete-personal-data-from-ricgraph-delete_personal_data)
+  * [Rename (sub-)organizations in Ricgraph (rename_orgs)](#rename-sub-organizations-in-ricgraph-rename_orgs)
   * [Script to enrich persons (enrich_orcids_scopusids)](#script-to-enrich-persons-enrich_orcids_scopusids)
   * [Script to find person identifiers pointing to different persons (find_double_pids)](#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pids)
 * Ricgraph maintenance scripts (directory *maintenance*): 
   * [Create a table of contents of the Ricgraph documentation (create_toc_documentation)](#create-a-table-of-contents-of-the-ricgraph-documentation-create_toc_documentation)
   * [Create an index of the Ricgraph documentation (create_index_documentation)](#create-an-index-of-the-ricgraph-documentation-create_index_documentation)
   * [Create the Ricgraph REST API documentation (convert_openapi_to_mddoc)](#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddoc)
-
+  * 
 All code is documented and hints to use it can be found in the source files.
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
@@ -280,7 +281,43 @@ The file *filename* contains identifiers for persons whose personal data have to
 be deleted from Ricgraph.
 It contains exactly two columns and can have as many rows as necessary.
 The columns are:
+
 * name, value: values to identify the person in Ricgraph.
+
+
+## Rename (sub-)organizations in Ricgraph (rename_orgs)
+This script renames (sub-)organizations in Ricgraph.
+These need to be listed in a csv file.
+You can find this script in the directory *enhance*.
+Example corresponding csv files can be found in directory *convenience*.
+
+The script will read a line from the csv file. Then it will
+rename the (sub-)organization.
+
+```
+Usage
+rename_orgs.py [options]
+
+Options:
+  --filename <filename>
+          Specifies a csv file that has columns 'orgname_old'
+          and 'orgname_new'.
+          Every row in this file contains an organization name
+          that has to be renamed to a new organization name.
+  --are_you_sure <yes>
+          Safety check since the script will modify Ricgraph.
+          'yes': This script will run.
+          any other value: This script will not run.
+          If this option is not present, the script will prompt the user
+          whether to run the script.
+```
+
+The file *filename* contains (sub-)organization names.
+It contains exactly two columns and can have as many rows as necessary.
+The columns are:
+
+* orgname_old: the old (sub-)organization name;
+* orgname_new: the new (sub-)organization name.
 
 
 ## Script to enrich persons (enrich_orcids_scopusids)

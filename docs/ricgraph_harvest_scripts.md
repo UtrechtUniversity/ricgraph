@@ -45,10 +45,23 @@ Ricgraph can be installed on any internal or external accessible system accordin
 so the data in Ricgraph is only accessible for persons of a certain organization,
 or for anyone.
 
-Ricgraph provides five harvest scripts.
-There are also scripts for batch harvesting, such as *batch_harvest_demo.py*. You can
-use this script to run a number of harvest scripts after each other.
-It can be adapted to your needs, see the Python code in the script.
+Ricgraph provides five harvest scripts. They are in directory *harvest*.
+There are also a number of scripts for batch harvesting multiple sources
+with one script, such as *batch_harvest_demo.sh*.
+These are in directory *convenience*.
+Each of these scripts can be adapted to your needs, see their code.
+
+You can use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) 
+to run batch harvest scripts, e.g. to run *batch_harvest_demo.sh*,
+execute command
+
+```
+make run_anyscript_bash
+```
+or
+```
+make run_anyscript_bash ricgraph_anyscript_bash=convenience/batch_harvest_demo.sh
+```
 
 It is best to [run harvest scripts in a specific 
 order](#order-of-running-the-harvest-scripts).
