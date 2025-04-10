@@ -85,6 +85,9 @@ if [ ! -d "$python_path" ]; then
   echo "Error: python path (PYTHONPATH) directory '$python_path' does not exist."
   exit 1
 fi
+# Do not remove or modify the next line, file Makefile may modify it.
+# ## ### #### #####
+# Do not remove or modify the line above.
 
 if [ -z "$organization" ]; then
   echo "Error: organization must be present."

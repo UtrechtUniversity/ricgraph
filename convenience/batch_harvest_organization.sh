@@ -44,7 +44,7 @@ else
   exit $exit_code
 fi
 
-# Do not remove or modify the next line.
+# Do not remove or modify the next line, file batch_harvest_uu.sh may modify it.
 # ##### #### ### ##
 # Do not remove or modify the line above.
 
