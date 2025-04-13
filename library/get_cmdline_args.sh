@@ -107,7 +107,7 @@ fi
 
 # Process $python_cmd.
 if [ ! -z "$python_cmd" ]; then
-  path_python=$(which $python_cmd 2>/dev/null)
+  path_python=$(which "$python_cmd" 2>/dev/null)
   if [ -z "$path_python" ]; then
     echo "Error: cannot find python '$python_cmd' in '$PATH'."
     exit 1
