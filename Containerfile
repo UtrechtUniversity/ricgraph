@@ -73,7 +73,7 @@
 #
 # - execute command in container: podman exec -it ricgraph [command]
 #   e.g. podman exec -it ricgraph /bin/bash
-#   or podman exec -it ricgraph python batch_harvest_demo.py
+#   or podman exec -it ricgraph ./harvest_multiple_sources/multiple_harvest_demo.sh
 #   Note that after harvesting, you have to commit and restart the container.
 # - make changes permanent in local generated container:
 #   podman commit ricgraph ricgraph:latest
@@ -105,7 +105,7 @@ LABEL org.opencontainers.image.description="Ricgraph - Research in context graph
 LABEL org.opencontainers.image.authors="Rik D.T. Janssen"
 LABEL org.opencontainers.image.version=${ricgraph_version}
 LABEL org.opencontainers.image.licenses=MIT
-LABEL org.opencontainers.image.documentation="https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
+LABEL org.opencontainers.image.documentation="https://docs.ricgraph.eu"
 LABEL org.opencontainers.image.source="https://github.com/UtrechtUniversity/ricgraph"
 LABEL org.opencontainers.image.url="https://www.ricgraph.eu"
 
