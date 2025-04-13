@@ -20,14 +20,14 @@ On this page, you can find:
   * [Export nodes to a file (export_person_identifiers and export_person_node_properties)](#export-nodes-to-a-file-export_person_identifiers-and-export_person_node_properties)
 * Scripts to enhance (finding, enriching, etc.) information (directory *enhance*):
   * [Delete personal data from Ricgraph (delete_personal_data)](#delete-personal-data-from-ricgraph-delete_personal_data)
-  * [Rename (sub-)organizations in Ricgraph (rename_orgs)](#rename-sub-organizations-in-ricgraph-rename_orgs)
+  * [Rename (sub-)organizations in Ricgraph (rename_organizations)](#rename-sub-organizations-in-ricgraph-rename_organizations)
   * [Script to enrich persons (enrich_orcids_scopusids)](#script-to-enrich-persons-enrich_orcids_scopusids)
   * [Script to find person identifiers pointing to different persons (find_double_pids)](#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pids)
 * Ricgraph maintenance scripts (directory *maintenance*): 
   * [Create a table of contents of the Ricgraph documentation (create_toc_documentation)](#create-a-table-of-contents-of-the-ricgraph-documentation-create_toc_documentation)
   * [Create an index of the Ricgraph documentation (create_index_documentation)](#create-an-index-of-the-ricgraph-documentation-create_index_documentation)
   * [Create the Ricgraph REST API documentation (convert_openapi_to_mddoc)](#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddoc)
-  * 
+
 All code is documented and hints to use it can be found in the source files.
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
@@ -285,14 +285,36 @@ The columns are:
 * name, value: values to identify the person in Ricgraph.
 
 
-## Rename (sub-)organizations in Ricgraph (rename_orgs)
-This script renames (sub-)organizations in Ricgraph.
-These need to be listed in a csv file.
-You can find this script in the directory *enhance*.
-Example corresponding csv files can be found in directory *convenience*.
+## Rename (sub-)organizations in Ricgraph (rename_organizations)
+This script renames (sub-)organizations in Ricgraph
+that are listed in a csv file.
+The bash script *rename_organizations.sh* is a wrapper for the
+Python script *rename_orgs.py*.
+Both can be found in the directory *enhance*.
+Example corresponding csv files can also be found in directory *enhance*.
 
 The script will read a line from the csv file. Then it will
 rename the (sub-)organization.
+```
+Usage
+./rename_organizations.sh [options]
+
+Options:
+        -o, --organization [organization]
+                The organization to harvest. Specify the organization
+                abbreviation.
+        -e, --empty_ricgraph [yes|no]
+                Whether to empty Ricgraph before harvesting the
+                first organization. If absent, Ricgraph will not be emptied.
+        -c, --python_cmd [python interpreter]
+                The python interpreter to use. If absent, and a python
+                virtual environment is used, that interpreter is used.
+        -p, --python_path [python path]
+                The value for PYTHONPATH, the path to python libraries.
+                If absent, the current directory is used.
+        -h, --help
+                Show this help text.
+```
 
 ```
 Usage

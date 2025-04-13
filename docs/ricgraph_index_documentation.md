@@ -166,7 +166,7 @@ __R__
 
 - [Read more about Ricgraph](../README.md#read-more-about-ricgraph)
 - [Read this in case you would like to extend Ricgraph](../README.md#read-this-in-case-you-would-like-to-extend-ricgraph)
-- [Rename (sub-)organizations in Ricgraph (rename_orgs)](../docs/ricgraph_misc_scripts.md#rename-sub-organizations-in-ricgraph-rename_orgs)
+- [Rename (sub-)organizations in Ricgraph (rename_organizations)](../docs/ricgraph_misc_scripts.md#rename-sub-organizations-in-ricgraph-rename_organizations)
 - [Requirements for Ricgraph](../docs/ricgraph_install_configure.md#requirements-for-ricgraph)
 - [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
 - [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
@@ -206,6 +206,8 @@ __S__
 
 - [Script to enrich persons (enrich_orcids_scopusids)](../docs/ricgraph_misc_scripts.md#script-to-enrich-persons-enrich_orcids_scopusids)
 - [Script to find person identifiers pointing to different persons (find_double_pids)](../docs/ricgraph_misc_scripts.md#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pids)
+- [Scripts that harvest a single source](../docs/ricgraph_harvest_scripts.md#scripts-that-harvest-a-single-source)
+- [Scripts that harvest multiple sources](../docs/ricgraph_harvest_scripts.md#scripts-that-harvest-multiple-sources)
 - [Search page](../docs/ricgraph_explorer.md#search-page)
 - [Settings for graph database backend](../docs/ricgraph_install_configure.md#settings-for-graph-database-backend)
 - [Showing a privacy statement or privacy measures document](../docs/ricgraph_explorer.md#showing-a-privacy-statement-or-privacy-measures-document)

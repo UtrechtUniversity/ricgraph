@@ -61,7 +61,7 @@ it will install everything automatically (by using the Makefile).
 1. Download and install Ricgraph in your home directory.
    Type as regular user (i.e., be sure you are not user *root*):
    ```
-   make install_ricgraph_singleuser_neo4jcommunity
+   make install_ricgraph_singleuser_neo4j_community
    ```
    On success, the Makefile will print *installed successfully*.
 1. Harvest two source systems in Ricgraph:
@@ -113,7 +113,7 @@ since you have to do a number of things manually.
 4. Download and install Ricgraph in your home directory.
    Read more at the sections below. Type:
    ```
-   make install_ricgraph_singleuser_neo4jdesktop
+   make install_ricgraph_singleuser_neo4j_desktop
    ```
    On success, the Makefile will print *installed successfully*.
 
@@ -316,11 +316,11 @@ whether you have installed Neo4j Community Edition or Neo4j Desktop.
 
 * Neo4j Community Edition, type:
   ```
-  make install_ricgraph_singleuser_neo4jcommunity
+  make install_ricgraph_singleuser_neo4j_community
   ```
 * Neo4j Desktop, type:
   ```
-  make install_ricgraph_singleuser_neo4jdesktop
+  make install_ricgraph_singleuser_neo4j_desktop
   ```
 
 To be able to use Ricgraph, you will need a Python virtual environment.

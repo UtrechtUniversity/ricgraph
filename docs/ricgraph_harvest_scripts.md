@@ -1,7 +1,7 @@
 # Ricgraph harvest scripts
 
 This page describes scripts for harvesting sources and inserting the results in Ricgraph.
-They can be found in directory *harvest*.
+They can be found in directory *harvest* and *harvest_multiple_sources*.
 Read more about [scripts to import and export items from 
 Ricgraph](ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts), 
 about [scripts to enhance (finding, enriching, etc.) information in
@@ -13,7 +13,8 @@ On this page, you can find:
 
 * [Introduction to harvest scripts](#introduction-to-harvest-scripts)
 * [Organization abbreviation](#organization-abbreviation)
-* Harvest scripts:
+* [Scripts that harvest multiple sources](#scripts-that-harvest-multiple-sources)
+* [Scripts that harvest a single source](#scripts-that-harvest-a-single-source)
   * [Harvest of OpenAlex (harvest_openalex_to_ricgraph)](#harvest-of-openalex-harvest_openalex_to_ricgraph)
   * [Harvest of Pure (harvest_pure_to_ricgraph)](#harvest-of-pure-harvest_pure_to_ricgraph)
   * [Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph)](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraph)
@@ -36,33 +37,30 @@ By doing this, one is able to create a system that perfectly suits
 a certain information need of that person or organization.
 In creating harvest scripts, it is possible to harvest
 only that information that is relevant for a certain purpose.
-For example, one of the example harvest
+
+E.g., one can harvest generally available sources such as OpenAlex.
+It is also possible to harvest sources that are specific for a certain organization.
+For example, one of the harvest
 scripts harvests the Utrecht University staff pages.
 These pages cannot be harvested by other organizations
 due to the privileges required. Also, it is possible to harvest a source that is internal
 to an organization.
+
 Ricgraph can be installed on any internal or external accessible system according to your needs,
 so the data in Ricgraph is only accessible for persons of a certain organization,
 or for anyone.
 
-Ricgraph provides five harvest scripts. They are in directory *harvest*.
-There are also a number of scripts for batch harvesting multiple sources
-with one script, such as *batch_harvest_demo.sh*.
-These are in directory *convenience*.
-Each of these scripts can be adapted to your needs, see their code.
+Ricgraph provides a number of scripts for batch harvesting multiple sources
+with one script.
+These are in directory *harvest_multiple_sources*.
+Read more in the 
+[section that describes the scripts that harvest multiple sources](#scripts-that-harvest-multiple-sources).
+These scripts are based on the Ricgraph harvest scripts to harvest a single source.
+They are in directory *harvest*.
+Read more in the 
+[section that describes the scripts that harvest a single source](#scripts-that-harvest-a-single-source).
 
-You can use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) 
-to run batch harvest scripts, e.g. to run *batch_harvest_demo.sh*,
-execute command
-
-```
-make run_bash_script
-```
-or
-```
-make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_demo.sh
-```
-
+Each of these scripts can be adapted to your needs, see their code. 
 It is best to [run harvest scripts in a specific 
 order](#order-of-running-the-harvest-scripts).
  
@@ -83,7 +81,62 @@ You can use any (short) string and pass it to a harvest script. You only
 need to insert keys (and values) for the organization(s) you are planning
 to harvest.
 
-## Harvest of OpenAlex (harvest_openalex_to_ricgraph)
+## Scripts that harvest multiple sources
+These bash scripts are in directory *harvest_mulitple_sources*.
+
+There are two general scripts to harvest multiple sources:
+
+* *multiple_harvest_organization_rsd_yoda.sh*: harvests the 
+  [Research Software Directory](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph) and
+  [Yoda](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraph).
+* *multiple_harvest_organization.sh*: harvest
+  [Pure](#harvest-of-pure-harvest_pure_to_ricgraph) and
+  [OpenAlex](#harvest-of-openalex-harvest_openalex_to_ricgraph).
+  Then, it calls script  *multiple_harvest_organization_rsd_yoda.sh*.
+
+```
+Usage
+./[script name].sh [options]
+
+Options:
+        -o, --organization [organization]
+                The organization to harvest. Specify the organization
+                abbreviation.
+        -e, --empty_ricgraph [yes|no]
+                Whether to empty Ricgraph before harvesting the
+                first organization. If absent, Ricgraph will not be emptied.
+        -c, --python_cmd [python interpreter]
+                The python interpreter to use. If absent, and a python
+                virtual environment is used, that interpreter is used.
+        -p, --python_path [python path]
+                The value for PYTHONPATH, the path to python libraries.
+                If absent, the current directory is used.
+        -h, --help
+                Show this help text.
+```
+
+There are three wrapper scripts:
+
+* *multiple_harvest_demo.sh*: 
+  calls script *multiple_harvest_organization_rsd_yoda.sh* with organization *UU*. These sources can be used
+  to demonstrate Ricgraph, since these sources do not need a REST API key.
+* *multiple_harvest_uu.sh*: 
+  calls *multiple_harvest_organization.sh* for organization *UU*, and also harvests 
+  [the UU staff pages](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraph).
+* *multiple_harvest_rik.sh*: a script that harvests the favorite sources of the author of Ricgraph.
+
+You can use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
+to run these harvest scripts, e.g. to run *multiple_harvest_demo.sh*,
+execute command:
+
+```
+make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_demo.sh
+```
+
+## Scripts that harvest a single source
+These Python scripts are in directory *harvest*. 
+
+### Harvest of OpenAlex (harvest_openalex_to_ricgraph)
 
 To harvest  [OpenAlex](https://openalex.org), use the script *harvest_openalex_to_ricgraph.py*.
 ```
@@ -116,7 +169,7 @@ reduce this by adjusting parameters at the start of the script. Look in the sect
 "Parameters for harvesting persons and research outputs from OpenAlex":
 *OPENALEX_RESOUT_YEARS* and *OPENALEX_MAX_RECS_TO_HARVEST*.
 
-## Harvest of Pure (harvest_pure_to_ricgraph)
+### Harvest of Pure (harvest_pure_to_ricgraph)
 
 To harvest [Pure](https://www.elsevier.com/solutions/pure), 
 use the script *harvest_pure_to_ricgraph.py*. 
@@ -149,7 +202,7 @@ the url to Pure in *pure_url_XXXX*, and the
 Pure [API](https://en.wikipedia.org/wiki/API) key in *pure_api_key_XXXX*.
 *XXXX* is your [organization abbreviation](#organization-abbreviation).
 
-### Limit the amount of data to harvest from Pure
+#### Limit the amount of data to harvest from Pure
 There is a lot of data in Pure, so your harvest may take a long time. You may
 reduce this by adjusting parameters at the start of the script. Look in the sections
 "Parameters for harvesting persons/organizations/research outputs from Pure".
@@ -157,7 +210,7 @@ E.g., for research outputs you can adjust
 the years to harvest with the parameter *PURE_RESOUT_YEARS* and the maximum number of
 records to harvest with *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
 
-### Pure READ and Pure CRUD API
+#### Pure READ and Pure CRUD API
 Pure has two APIs, a READ and a CRUD API.
 The Pure READ API ("old" API) is only for reading data from Pure.
 The Pure CRUD API ("new" API) can be used to create, read, update and delete data 
@@ -188,7 +241,7 @@ but each of them has its own advantages and disadvantages:
   unless you set *PURE_RESOUT_MAX_RECS_TO_HARVEST* in the Pure harvest script to some
   suitable value. 
 
-### Pure harvesting of projects
+#### Pure harvesting of projects
 You can also harvest projects from Pure, if your organization uses them. You will
 need to use the Pure READ API, harvesting projects with the PURE CRUD API has not
 been implemented yet.
@@ -210,7 +263,7 @@ your organization),
 and only harvests research outputs from 2020 onward,
 and your project may have research outputs from before 2020.
 
-## Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph)
+### Harvest of data sets from Yoda-DataCite (harvest_yoda_datacite_to_ricgraph)
 
 To harvest data sets from the data repository 
 [Yoda](https://www.uu.nl/en/research/yoda) (via DataCite),
@@ -236,7 +289,7 @@ Options:
 This script can be used out of the box since it doesn't need an
 [API](https://en.wikipedia.org/wiki/API) key.
 
-## Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph)
+### Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph)
 
 To harvest the 
 [Utrecht University staff pages](https://www.uu.nl/medewerkers), 
@@ -256,7 +309,7 @@ Options:
 This script needs the parameter *uustaff_url* to be set in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 
-## Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph)
+### Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph)
 
 To harvest software packages from the 
 [Research Software Directory](https://research-software-directory.org),

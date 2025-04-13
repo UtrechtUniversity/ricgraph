@@ -115,7 +115,7 @@ Linux](ricgraph_as_server.md#fast-and-recommended-way-to-install-ricgraph-as-a-s
 1. Download and install Ricgraph in your home directory.
    Type as regular user (i.e., be sure you are not user *root*):
    ```
-   make install_ricgraph_singleuser_neo4jcommunity
+   make install_ricgraph_singleuser_neo4j_community
    ```
    On success, the Makefile will print *installed successfully*.
 1. For more detail, read 
