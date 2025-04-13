@@ -36,7 +36,7 @@
 # Ricgraph batch scripts.
 #
 # Original version Rik D.T. Janssen, September 2024.
-# Updated Rik D.T. Janssen, January, March 2025.
+# Updated Rik D.T. Janssen, January, March, April 2025.
 #
 # ########################################################################
 
@@ -91,21 +91,19 @@ ricgraph_explorer := ricgraph_explorer.py
 ricgraph := ricgraph-$(ricgraph_version)
 
 # You can use the following two variables as command line arguments to run
-# any Ricgraph Python script. 'ricgraph_anyscript_python' should contain the path to the
+# any Ricgraph Python script. 'python_script' should contain the path to the
 # script relative to the directory where this Makefile is. The same for
-# 'ricgraph_anyscript_python_log', unless it starts with a '/'.
+# 'python_script_log', unless it starts with a '/'.
 # If that directory or file is not writable for the user
 # executing the script, you will get an error. The values below are placeholders.
 # Example use:
-# 'make ricgraph_anyscript_python=[script name] ricgraph_anyscript_python_log=[log file] run_anyscript_python'
-ricgraph_anyscript_python := maintenance/create_toc_documentation.py
-ricgraph_anyscript_python_log_file := $(basename $(notdir $(ricgraph_anyscript_python)))_$$(date +%y%m%d-%H%M).log
-ricgraph_anyscript_python_log := $(dir $(ricgraph_anyscript_python))$(ricgraph_anyscript_python_log_file)
+# 'make python_script=[script name] python_script_log=[log file] run_python_script'
+python_script := maintenance/create_toc_documentation.py
+python_script_log := $(dir $(python_script))$(basename $(notdir $(python_script)))_$$(date +%y%m%d-%H%M).log
 
 # Similar for Ricgraph bash scripts.
-ricgraph_anyscript_bash := convenience/batch_harvest_demo.sh
-ricgraph_anyscript_bash_log_file := $(basename $(notdir $(ricgraph_anyscript_bash)))_$$(date +%y%m%d-%H%M).log
-ricgraph_anyscript_bash_log := $(dir $(ricgraph_anyscript_bash))$(ricgraph_anyscript_bash_log_file)
+bash_script := harvest_multiple_sources/multiple_harvest_demo.sh
+bash_script_log := $(dir $(bash_script))$(basename $(notdir $(bash_script)))_$$(date +%y%m%d-%H%M).log
 
 # Neo4j variable.
 # Ask https://perplexity.ai for download locations, prompt:
@@ -245,14 +243,14 @@ help:
 #	@echo "       You can change the name of this script by"
 #	@echo "       adding 'batch_script=my_batchscript.py' to your 'make' command."
 #	@echo "       If you use Neo4j Desktop, you need to start it first."
-	@echo "- make run_anyscript_python: you can use this to run any Ricgraph Python script."
-	@echo "       Use command line parameter 'ricgraph_anyscript_python',"
-	@echo "       and possibly 'ricgraph_anyscript_python_log'. E.g. "
-	@echo "       'make ricgraph_anyscript_python=[path]/[script name] run_anyscript_python'."
-	@echo "- make run_anyscript_bash: you can use this to run any Ricgraph bash script."
-	@echo "       Use command line parameter 'ricgraph_anyscript_bash',"
-	@echo "       and possibly 'ricgraph_anyscript_bash_log'. E.g. "
-	@echo "       'make ricgraph_anyscript_bash=[path]/[script name] run_anyscript_bash'."
+	@echo "- make run_python_script: you can use this to run any Ricgraph Python script."
+	@echo "       Use command line parameter 'python_script',"
+	@echo "       and possibly 'python_script_log'. E.g. "
+	@echo "       'make python_script=[path]/[script name] run_python_script'."
+	@echo "- make run_bash_script: you can use this to run any Ricgraph bash script."
+	@echo "       Use command line parameter 'bash_script',"
+	@echo "       and possibly 'bash_script_log'. E.g. "
+	@echo "       'make bash_script=[path]/[script name] run_bash_script'."
 	@echo ""
 	@echo "There are many more options, to read more, type 'make allhelp'."
 	@echo ""
@@ -363,10 +361,10 @@ makefile_variables:
 #	@echo "- batch_script: $(batch_script)"
 #	@echo "- batch_script_log: $(batch_script_log)"
 	@echo "- ricgraph_explorer: $(ricgraph_explorer)"
-	@echo "- ricgraph_anyscript_python: $(ricgraph_anyscript_python)"
-	@echo "- ricgraph_anyscript_python_log: $(ricgraph_anyscript_python_log)"
-	@echo "- ricgraph_anyscript_bash: $(ricgraph_anyscript_bash) "
-	@echo "- ricgraph_anyscript_bash_log: $(ricgraph_anyscript_bash_log)"
+	@echo "- python_script: $(python_script)"
+	@echo "- python_script_log: $(python_script_log)"
+	@echo "- bash_script: $(bash_script) "
+	@echo "- bash_script_log: $(bash_script_log)"
 	@echo ""
 
 
@@ -651,46 +649,46 @@ run_ricgraph_explorer:
 	cd ricgraph_explorer; ../$(python_cmd_venv) $(ricgraph_explorer)
 
 
-run_anyscript_python:
+run_python_script:
 	@echo ""
-	@echo "This target will run Ricgraph Python script $(ricgraph_anyscript_python)."
+	@echo "This target will run Ricgraph Python script $(python_script)."
 	@echo "You need to specify the path to the script, in a subdirectory"
 	@echo "of the directory this Makefile is in."
 	@echo "The output will be both on screen as well as in file"
-	@echo "$(ricgraph_anyscript_python_log)."
+	@echo "$(python_script_log)."
 	@echo "If you don't have write permission to this file, you will get an error."
 	@echo "It may take a while before the output appears on screen,"
 	@echo "this is due to buffering of the output."
 	$(call are_you_sure)
 	@echo ""
-	@if [ ! -f $(ricgraph_anyscript_python) ]; then echo "Error: script '$(ricgraph_anyscript_python)' does not exist."; exit 1; fi
+	@if [ ! -f $(python_script) ]; then echo "Error: script '$(python_script)' does not exist."; exit 1; fi
 	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
-	@# Check if the path to 'ricgraph_anyscript_python_log' starts with '/'. If so, it is considered a full path.
-	@if [ $(shell echo $(ricgraph_anyscript_python_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(ricgraph_anyscript_python)); ../$(python_cmd_venv) $(notdir $(ricgraph_anyscript_python)) | tee $(ricgraph_anyscript_python_log); \
+	@# Check if the path to 'python_script_log' starts with '/'. If so, it is considered a full path.
+	@if [ $(shell echo $(python_script_log) | cut -c1) = '/' ]; then \
+		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) | tee $(python_script_log); \
 	else \
-		cd $(dir $(ricgraph_anyscript_python)); ../$(python_cmd_venv) $(notdir $(ricgraph_anyscript_python)) | tee ../$(ricgraph_anyscript_python_log); \
+		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) | tee ../$(python_script_log); \
 	fi
 
 
-run_anyscript_bash:
+run_bash_script:
 	@echo ""
-	@echo "This target will run Ricgraph bash script $(ricgraph_anyscript_bash)."
+	@echo "This target will run Ricgraph bash script $(bash_script)."
 	@echo "You need to specify the path to the script, in a subdirectory"
 	@echo "of the directory this Makefile is in."
 	@echo "The output will be both on screen as well as in file"
-	@echo "$(ricgraph_anyscript_bash_log)."
+	@echo "$(bash_script_log)."
 	@echo "If you don't have write permission to this file, you will get an error."
 	@echo "It may take a while before the output appears on screen,"
 	@echo "this is due to buffering of the output."
 	$(call are_you_sure)
 	@echo ""
-	@if [ ! -f $(ricgraph_anyscript_bash) ]; then echo "Error: script '$(ricgraph_anyscript_bash)' does not exist."; exit 1; fi
-	@# Check if the path to 'ricgraph_anyscript_bash_log' starts with '/'. If so, it is considered a full path.
-	@if [ $(shell echo $(ricgraph_anyscript_bash_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(ricgraph_anyscript_bash)); ./$(notdir $(ricgraph_anyscript_bash)) | tee $(ricgraph_anyscript_bash_log); \
+	@if [ ! -f $(bash_script) ]; then echo "Error: script '$(bash_script)' does not exist."; exit 1; fi
+	@# Check if the path to 'bash_script_log' starts with '/'. If so, it is considered a full path.
+	@if [ $(shell echo $(bash_script_log) | cut -c1) = '/' ]; then \
+		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) | tee $(bash_script_log); \
 	else \
-		cd $(dir $(ricgraph_anyscript_bash)); ./$(notdir $(ricgraph_anyscript_bash)) | tee ../$(ricgraph_anyscript_bash_log); \
+		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) | tee ../$(bash_script_log); \
 	fi
 
 
@@ -856,7 +854,7 @@ define install_ricgraph
 		mv ricgraph-main $(ricgraph); \
 		echo "This is the cutting edge version of Ricgraph of $$(date +%y%m%d-%H%M)." > $(ricgraph)/0_ricgraph_cuttingedge_$$(date +%y%m%d-%H%M); \
 		sed -i 's|; ../$$(python_cmd_venv)|; PYTHONPATH=../ricgraph ../$$(python_cmd_venv)|' $(ricgraph)/Makefile; \
-		sed -i 's|# ## ### #### #####|python_path=../ricgraph|' $(ricgraph)/convenience/get_cmdline_args.sh; \
+		sed -i 's|# ## ### #### #####|python_path=../ricgraph|' $(ricgraph)/library/get_cmdline_args.sh; \
 		tar czf $(ricgraph_tag_name) $(ricgraph); \
 		mv -f $(ricgraph_tag_name) $(dir $(1)); \
 		rm -r $(tmp_dir); \

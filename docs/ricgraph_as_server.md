@@ -236,23 +236,24 @@ or follow the steps below.
 
 ### Using the Makefile
 The [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) can also be used to execute
-a Python batch file. Such a batch file can be used to harvest the sources specific to your organization.
-This batch file is preconfigured in the variable
-`harvest_script` at the top of the Makefile. It can be modified to refer to your favorite Python script.
-If you have done this, and then execute
-command `make run_batchscript`, that script will be executed and its output will appear both
+a Python script or a bash script.
+Such a script can be used to harvest the sources specific to your organization.
+The Makefile provides a command `make run_python_script`, to run any Ricgraph Python script.
+You will need to add the name of the script to run using the Makefile command line
+parameter *python_script*, e.g.
+```
+make run_python_script python_script=[path]/[python script]
+```
+
+There is a similar command for bash scripts:
+```
+make run_bash_script bash_script=[path]/[bash script]
+```
+
+Both `make` commands execute the script and the output will appear both
 on your screen and in a file. The Makefile will tell you the name of this log file.
 
-The directory of the batch file depends on the user that is running the command
-`make run_batchscript` (either a regular user or user *root*).
-The Makefile will tell which script it will use.
 
-The Makefile also provides a command `make run_anyscript`, to run any Ricgraph script.
-You will need to add the name of the script to run using the Makefile command line
-parameter *ricgraph_anyscript*, e.g.
-```
-make run_anyscript ricgraph_anyscript=harvest/batch_harvest_demo.py
-```
 
 ### In case you have installed Ricgraph as a server
 

@@ -56,11 +56,11 @@ to run batch harvest scripts, e.g. to run *batch_harvest_demo.sh*,
 execute command
 
 ```
-make run_anyscript_bash
+make run_bash_script
 ```
 or
 ```
-make run_anyscript_bash ricgraph_anyscript_bash=convenience/batch_harvest_demo.sh
+make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_demo.sh
 ```
 
 It is best to [run harvest scripts in a specific 
