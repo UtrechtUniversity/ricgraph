@@ -123,5 +123,3 @@ echo "You can find the final graphdb dump in"
 echo "  file '$explorer_data_collect_dir.tar.gz."
 echo "You can find all of the harvested data in"
 echo "  file '$data_collect_dir.tar.gz'."
-
-exit 0

@@ -85,5 +85,3 @@ harvest_pure
 harvest_openalex
 
 harvest_rsd_yoda_wrapper
-
-exit 0

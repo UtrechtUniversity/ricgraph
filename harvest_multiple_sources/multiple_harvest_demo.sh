@@ -27,5 +27,3 @@
 # ########################################################################
 
 ./multiple_harvest_organization_rsd_yoda.sh --organization UU --empty_ricgraph yes
-
-exit 0

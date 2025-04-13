@@ -154,5 +154,3 @@ echo "Ricgraph is emptied before harvesting: $empty_ricgraph."
 echo "Python interpreter: '$python_cmd'."
 echo "Python path: '$python_path'."
 echo ""
-
-exit 0

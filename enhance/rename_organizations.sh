@@ -43,5 +43,3 @@ echo "This script renames organizations based on a file."
 source ../library/get_cmdline_args.sh
 
 rename_organizations
-
-exit 0

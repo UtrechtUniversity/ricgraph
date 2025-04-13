@@ -87,5 +87,3 @@ harvest_rsd
 harvest_yoda
 
 echo "Done with harvesting."
-
-exit 0

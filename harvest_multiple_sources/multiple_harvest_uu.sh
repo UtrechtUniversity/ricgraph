@@ -57,5 +57,3 @@ multiple_harvest_script_with_uustaff=multiple_harvest_uu_uustaff_generated.sh
 insert_uuharvest_in_multiple_harvest_organization_script
 
 ./$multiple_harvest_script_with_uustaff --organization UU --empty_ricgraph yes
-
-exit 0
