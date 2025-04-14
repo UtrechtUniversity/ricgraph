@@ -26,4 +26,17 @@
 #
 # ########################################################################
 
+exit_on_error() {
+  exit_code=$1
+  if [ "$exit_code" != "0" ] ; then
+    echo ""
+    echo "$0: an error occurred in a previous script."
+    echo "Read above for more information, status: '$exit_code'. Exiting."
+    echo ""
+    exit "$exit_code"
+  fi
+}
+
+
 ./multiple_harvest_organization_rsd_yoda.sh --organization UU --empty_ricgraph yes
+exit_on_error $?

@@ -29,12 +29,29 @@
 # ########################################################################
 
 
+exit_on_error() {
+  exit_code=$1
+  if [ "$exit_code" != "0" ] ; then
+    echo ""
+    echo "$0: an error occurred in a previous script."
+    echo "Read above for more information, status: '$exit_code'. Exiting."
+    echo ""
+    exit "$exit_code"
+  fi
+}
+
+
 insert_uuharvest_in_multiple_harvest_organization_script() {
   cp -f multiple_harvest_organization.sh $multiple_harvest_script_with_uustaff
 
   # Insert a message that it is a generated script.
   sed -i 's|#!/bin/bash|#!/bin/bash\
-# NOTE: THIS IS A GENERATED FILE, DO NOT MODIFY.|g' $multiple_harvest_script_with_uustaff
+#\
+# NOTE: THIS IS A GENERATED FILE.\
+# It is created by script multiple_harvest_uu.sh.\
+# You can remove it at will, it will be recreated by that script.\
+# Also, do not modify it, since any changes will be overwritten.\
+#|g' $multiple_harvest_script_with_uustaff
 
   # Insert harvest of UU staff pages in the multiple_harvest_organization.sh
   # script, after the harvest of Pure.
@@ -55,5 +72,7 @@ echo "This script harvests a number of sources for Ricgraph from the UU."
 multiple_harvest_script_with_uustaff=multiple_harvest_uu_uustaff_generated.sh
 
 insert_uuharvest_in_multiple_harvest_organization_script
+exit_on_error $?
 
 ./$multiple_harvest_script_with_uustaff --organization UU --empty_ricgraph yes
+exit_on_error $?
