@@ -569,7 +569,7 @@ virtual machine that you can use to install Ricgraph.
 Please follow these steps if you would like
 to install Ricgraph and Ricgraph Explorer on SURF Research Cloud.
 
-Preliminaries:
+### Preliminaries
 
 * Make sure you have access to SURF Research Cloud and that you have a wallet
   available. A _wallet_ is a budget.
@@ -584,7 +584,10 @@ Preliminaries:
   service desk, or help desk of your organization, or they might be persons like
   research engineers, data stewards, data managers, or data consultants.
 
-Then, follow the following steps, and also watch the video below:
+### Create a SURF Research Cloud workspace
+
+To create a SURF Research Cloud workspace, 
+follow the following steps:
 
 * Go to the [SURF Research Cloud portal](https://portal.live.surfresearchcloud.nl)
   and log in.
@@ -626,17 +629,41 @@ Then, follow the following steps, and also watch the video below:
     to set it to a suitable date.
 * Done.
 
-The next steps are to install the graph database backend and
-Ricgraph. You can install 
-[Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph)
-or 
-[Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux).
-Note that if you would like to use a webserver, you will need to use Nginx.
-
-For more explanation, please watch the 
+You might want to watch the
 [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
 (2m14s) (click to download)](videos/ricgraph_howto_install_on_SURFResearchCloud.mp4).
 Note that in the video, we use an old version of Ubuntu. Please use
 Ubuntu 22.04 as described above.
 
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b
+
+### Install Ricgraph in a SURF Research Cloud workspace
+
+The next steps in your workspace are to install the graph database backend and
+Ricgraph. You can install
+[Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph)
+or
+[Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux).
+Note that if you would like to use a webserver, you will need to use Nginx.
+
+### Pause and resume a SURF Research Cloud workspace
+
+On the [SURF Research Cloud portal](https://portal.live.surfresearchcloud.nl), you 
+can *pause* and *resume* your workspace. *Pausing* means that the workspace will not run,
+and of course then it will not be accessible. If you have paused your workspace, it does
+not cost credits (money). If you *resume* your workspace, you can use it again.
+
+### Access a SURF Research Cloud workspace
+
+On the workspace window, you will find the name of the workspace. It will be a
+*https* link that ends with *.src.surf-hosted.nl*.
+SURF Research Cloud uses *guacamole*, which provides you with a desktop window
+in your browser. There are two ways to access your workspace and authenticate:
+
+* Use port 443, then you will login on your workspace using SURF conext.
+  In this case, the link will look like: 
+  [https://[name of your workspace].src.surf-hosted.nl](https://[name of your workspace].src.surf-hosted.nl).
+* Use port 3389, then you will login on your workspace using a one time password.
+  In this case, the link will look like: 
+  [https://[name of your workspace].src.surf-hosted.nl:3389](https://[name of your workspace].src.surf-hosted.nl:3389).
+
