@@ -1,0 +1,8 @@
+"name","value"
+# This is a placeholder file for batch deleting personal data of a person.
+# It is read by script delete_pers_data.py.
+# It has two columns, name and value. Of course, 
+# the file containing personal data to delete will never be on GitHub.
+# If you are going to use this file, fill it with your own data and
+# remove every line that starts with '#'.
+# Make sure the result is not accessible by anyone.

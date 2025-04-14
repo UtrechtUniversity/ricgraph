@@ -253,8 +253,11 @@ Use the parameter *EXPORT_MAX_RECS* for the number of records to export and
 
 ## Delete personal data from Ricgraph (delete_personal_data)
 This script deletes all personal data of one or more persons from Ricgraph.
+The bash script *delete_personal_data.sh* is a wrapper for the
+Python script *delete_pers_data.py*.
+Both can be found in the directory *enhance*.
 These persons need to be listed in a csv file.
-You can find this script in the directory *enhance*.
+An example csv file *pers_to_delete.csv* can also be found in directory *enhance*.
 
 The script will delete all nodes of category *person* that are related with
 the person whose personal data have to be deleted (except for the *person-root* node,
@@ -262,7 +265,28 @@ this node will not be deleted since it does not contain personal information).
 
 ```
 Usage
-delete_personal_data.py [options]
+./delete_personal_data.sh [options]
+
+Options:
+        -o, --organization [organization]
+                The organization to harvest. Specify the organization
+                abbreviation.
+        -e, --empty_ricgraph [yes|no]
+                Whether to empty Ricgraph before harvesting the
+                first organization. If absent, Ricgraph will not be emptied.
+        -c, --python_cmd [python interpreter]
+                The python interpreter to use. If absent, and a python
+                virtual environment is used, that interpreter is used.
+        -p, --python_path [python path]
+                The value for PYTHONPATH, the path to python libraries.
+                If absent, the current directory is used.
+        -h, --help
+                Show this help text.
+```
+
+```
+Usage
+delete_pers_data.py [options]
 
 Options:
   --filename <filename>
