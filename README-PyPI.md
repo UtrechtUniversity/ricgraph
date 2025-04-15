@@ -97,7 +97,7 @@ The items surrounded by the red line are the solution to this use case.
 
 <img src="https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/docs/images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
 
-### Main contributions of Ricgraph
+## Main contributions of Ricgraph
 
 * Ricgraph can store many types of items in a single graph.
 * Ricgraph harvests multiple source systems into a single graph.
@@ -105,7 +105,7 @@ The items surrounded by the red line are the solution to this use case.
 * Ricgraph facilitates reasoning about items because it infers new relations between items.
 * Ricgraph can be tailored for an application area.
 
-### Read more about Ricgraph
+## Read more about Ricgraph
 
 For a gentle introduction in Ricgraph, read the reference publication: 
 Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
@@ -119,3 +119,11 @@ To use Ricgraph, installing the [Ricgraph package from PyPI](https://pypi.org/pr
 is not sufficient. Please read the
 installation instructions in the Ricgraph GitHub repository.
 
+## Contact
+
+Ricgraph has been created and is being maintained by
+Rik D.T. Janssen from Utrecht University in the Netherlands. 
+You can find contact details at
+[his Utrecht University employee page](https://www.uu.nl/staff/DTJanssen).
+He also has an ORCID profile on
+[ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).

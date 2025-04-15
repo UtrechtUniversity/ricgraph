@@ -1,9 +1,11 @@
 # Contact
-Ricgraph has been created and is being maintained 
-by [Rik D.T. Janssen from Utrecht University in the 
-Netherlands](https://www.uu.nl/staff/DTJanssen) 
-([ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802)). 
-You can also contact him for presentations, demos and workshops.
+Ricgraph has been created and is being maintained by
+Rik D.T. Janssen from Utrecht University in the Netherlands.
+You can find contact details at
+[his Utrecht University employee page](https://www.uu.nl/staff/DTJanssen).
+He also has an ORCID profile on
+[ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).
+You can contact him for presentations, demos and workshops.
 
 About three to four times a year we send out a newsletter.
 To subscribe, go to 

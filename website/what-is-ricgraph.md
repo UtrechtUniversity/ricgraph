@@ -11,6 +11,33 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
+Currently, there are people that are working on the following extensions for Ricgraph:
+
+* [BackToPure](https://github.com/UtrechtUniversity/backtopure).
+  This is a tool that can enrich
+  the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
+  of that organization.
+  This means that BackToPure can insert (enrich) items from an organization that
+  are absent from the Pure of that organization
+  but are present in another source, back into the Pure of that organization.
+  The result is a more complete overview of research at that organization.
+  Status: experimental stage (beta).
+* A chatbot that allows you to "talk" to Ricgraph. You can formulate questions in
+  plain English, such as "Please give me the research results of the Geosciences
+  faculty of Utrecht University?"
+  or "With what organizations does that faculty collaborate?".
+  It uses a local Large Language Model.
+  Status: planning stage (pre-alpha).
+* A project that uses
+  [AI and Large Language Models to cluster and visualize large amounts of research
+  information](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students).
+  It uses *topics* to cluster publications,
+  data sets, and software. Using these topics, these research results can
+  be grouped, and possibly experts on these topics can be found.
+  Status: planning stage (pre-alpha).
+* A tool that helps Pure administrators to clean up "external organizations" in Pure.
+  Status: planning stage (pre-alpha).
+
 ## Motivation
 Ricgraph is software that is about
 relations between items. These items can be collected from various source 
@@ -46,15 +73,7 @@ so that I can interview them for a newspaper article.
 Example skills can be: *climate change* or *stem cells*.
 The items surrounded by the red line are the solution to this use case.
 
-<!--
-The '{width=...}' in the lines below to include a figure are necessary for
-the documentation generated with Quarto, a.o. for the documentation website.
-We will need a width instead of a height to prevent right margin overflows
-on small mobile screens.
-On GitHub, it will unfortunately show this text.
--->
-
-![Ricgraph use case for a journalist (click to enlarge).](images/journalist-use-case.jpg){width=70%}
+<img src="images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist." width="70%">
 
 ### Use case for a librarian
 As a librarian, I want to enrich my local research information system with research results
@@ -62,7 +81,7 @@ from person A that are in other systems (in orange, *RIS2*) but not in
 ours (in green, *RIS1*), so that we have a more complete view of research at our university.
 The items surrounded by the red line are the solution to this use case.
 
-![Ricgraph use case for a librarian (click to enlarge).](images/librarian-use-case.jpg){width=75%}
+<img src="images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian." width="75%"> 
 
 ### Use case for a researcher
 As a researcher A, I want to find researchers from other universities that have
@@ -70,7 +89,7 @@ co-authored publications written by the co-authors of my own publications,
 so that I can read their publications to find out if we share common research interests.
 The items surrounded by the red line are the solution to this use case.
 
-![Ricgraph use case for a researcher (click to enlarge).](images/researcher-use-case.jpg){width=35%}
+<img src="images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
 
 
 ## Main contributions of Ricgraph

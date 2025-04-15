@@ -54,8 +54,36 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-Throughout this documentation, we illustrate how Ricgraph works by applying 
-it to the application area research information. 
+Currently, there are people that are working on the following extensions for Ricgraph:
+
+* [BackToPure](https://github.com/UtrechtUniversity/backtopure). 
+  This is a tool that can enrich 
+  the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
+  of that organization.
+  This means that BackToPure can insert (enrich) items from an organization that
+  are absent from the Pure of that organization 
+  but are present in another source, back into the Pure of that organization.
+  The result is a more complete overview of research at that organization.
+  Status: experimental stage (beta).
+* A chatbot that allows you to "talk" to Ricgraph. You can formulate questions in
+  plain English, such as "Please give me the research results of the Geosciences
+  faculty of Utrecht University?"
+  or "With what organizations does that faculty collaborate?".
+  It uses a local Large Language Model.
+  Status: planning stage (pre-alpha).
+* A project that uses
+  [AI and Large Language Models to cluster and visualize large amounts of research 
+  information](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students). 
+  It uses *topics* to cluster publications,
+  data sets, and software. Using these topics, these research results can
+  be grouped, and possibly experts on these topics can be found.
+  Status: planning stage (pre-alpha).
+* A tool that helps Pure administrators to clean up "external organizations" in Pure.
+  Status: planning stage (pre-alpha).
+
+Throughout this documentation, we illustrate how Ricgraph works by applying
+it to the application area research information.
+
 
 ## Motivation
 
@@ -406,13 +434,17 @@ The following figure shows how three persons have contributed to one research ou
 ### Ricgraph website
 Ricgraph has a main Ricgraph website on www.ricgraph.eu. 
 Alternative sites are www.ricgraph.nl and www.ricgraph.com.
-The sources for this website are on GitHub in repository
-[https://github.com/UtrechtUniversity/ricgraph-website](https://github.com/UtrechtUniversity/ricgraph-website).
+The sources for this website are on GitHub in directory *website*.
+It is generated using the repository
+[https://github.com/UtrechtUniversity/ricgraph-documentation](https://github.com/UtrechtUniversity/ricgraph-documentation).
 
 ## Contact
-Ricgraph has been created and is being maintained by 
-[Rik D.T. Janssen from Utrecht University in the Netherlands](https://www.uu.nl/staff/DTJanssen)
-[(ORCID 0000-0001-9510-0802)](https://orcid.org/0000-0001-9510-0802).
+Ricgraph has been created and is being maintained by
+Rik D.T. Janssen from Utrecht University in the Netherlands.
+You can find contact details at
+[his Utrecht University employee page](https://www.uu.nl/staff/DTJanssen).
+He also has an ORCID profile on
+[ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).
 You can contact him for presentations, demos and workshops.
 
 About three to four times a year we send out a 
@@ -424,8 +456,10 @@ We also have a
 [newsletter archive](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters). 
 
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right 
-*Star* button on this page. If you have any suggestions or improvements, 
-please let me know by creating a GitHub *Issue* at the top left of this page. 
+*Star* button on the Ricgraph GitHub page
+[https://github.com/UtrechtUniversity/ricgraph](https://github.com/UtrechtUniversity/ricgraph).
+If you have any suggestions or improvements, 
+please let me know by creating a GitHub *Issue* at the top left of that page. 
 
 <!-- Do not change the lines below. The version number will be
      modified by script maintenance/update_version.bash -->

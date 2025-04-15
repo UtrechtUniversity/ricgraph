@@ -50,15 +50,7 @@ so that I can interview them for a newspaper article.
 Example skills can be: *climate change* or *stem cells*.
 The items surrounded by the red line are the solution to this use case.
 
-<!-- 
-The '{width=...}' in the lines below to include a figure are necessary for 
-the documentation generated with Quarto, a.o. for the documentation website.
-We will need a width instead of a height to prevent right margin overflows
-on small mobile screens.
-On GitHub, it will unfortunately show this text.
--->
-
-![Ricgraph use case for a journalist.](images/journalist-use-case.jpg){width=70%}
+<img src="images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist." width="70%">
 
 ### Use case for a librarian
 As a librarian, I want to enrich my local research information system with research results 
@@ -66,7 +58,7 @@ from person A that are in other systems (in orange, *RIS2*) but not in
 ours (in green, *RIS1*), so that we have a more complete view of research at our university. 
 The items surrounded by the red line are the solution to this use case.
 
-![Ricgraph use case for a librarian.](images/librarian-use-case.jpg){width=75%}
+<img src="images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian." width="75%"> 
 
 ### Use case for a researcher
 As a researcher A, I want to find researchers from other universities that have 
@@ -74,7 +66,7 @@ co-authored publications written by the co-authors of my own publications,
 so that I can read their publications to find out if we share common research interests.
 The items surrounded by the red line are the solution to this use case.
 
-![Ricgraph use case for a researcher.](images/researcher-use-case.jpg){width=35%}
+<img src="images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
 
 
 ## Main contributions of Ricgraph
@@ -248,6 +240,9 @@ the previous section corresponds to figure (a).
 
 ## Contact
 Ricgraph has been created and is being maintained by
-[Rik D.T. Janssen from Utrecht University in the Netherlands](https://www.uu.nl/staff/DTJanssen)
-[(ORCID 0000-0001-9510-0802)](https://orcid.org/0000-0001-9510-0802).
+Rik D.T. Janssen from Utrecht University in the Netherlands.
+You can find contact details at
+[his Utrecht University employee page](https://www.uu.nl/staff/DTJanssen).
+He also has an ORCID profile on
+[ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).
 You can contact him for presentations, demos and workshops.
