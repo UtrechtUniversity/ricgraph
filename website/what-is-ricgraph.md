@@ -106,4 +106,4 @@ You might want to continue reading at
 to [Read more about Ricgraph](read-more-about-ricgraph.md), 
 or to [Get Ricgraph](get-ricgraph.md).
 
-![Ricgraph sticker.](images/ricgraph-sticker-1000x688.png){width=35%}
+<img src="images/ricgraph-sticker-1000x688.png" alt="Ricgraph sticker." width="35%">
