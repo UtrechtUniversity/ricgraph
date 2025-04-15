@@ -148,7 +148,7 @@ The items surrounded by the red line are the solution to this use case.
 <img src="docs/images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
 
 
-### Main contributions of Ricgraph
+## Main contributions of Ricgraph
 
 * Ricgraph can store many types of items in a single graph.
 * Ricgraph harvests multiple source systems into a single graph.
@@ -156,7 +156,7 @@ The items surrounded by the red line are the solution to this use case.
 * Ricgraph facilitates reasoning about items because it infers new relations between items.
 * Ricgraph can be tailored for an application area.
 
-### How to use Ricgraph (very short)
+## How to use Ricgraph (very short)
 
 * [Install and configure Ricgraph](docs/ricgraph_install_configure.md#install-and-configure-ricgraph).
 * Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
@@ -168,7 +168,7 @@ The items surrounded by the red line are the solution to this use case.
 
 For more details, read the remainder of this documentation.
   
-### Read more about Ricgraph
+## Read more about Ricgraph
 
 For a gentle introduction in Ricgraph, read the reference publication: 
 Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
