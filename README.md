@@ -56,15 +56,14 @@ adapted to new application areas.
 
 Currently, there are people working on the following extensions for Ricgraph:
 
-* [BackToPure](https://github.com/UtrechtUniversity/backtopure).
+* [BackToPure](https://github.com/UtrechtUniversity/backtopure)
   is a tool designed to enhance an organization's
   [Research Information System Pure](https://www.elsevier.com/solutions/pure)
   by enriching its content. BackToPure can identify items
   (such as publications, data sets or software)
   that exist in other external sources but are missing from the organization's Pure,
   and then insert (enrich) those items into Pure.
-  This process helps ensure that the organization's
-  Pure is as complete and up-to-date as possible.
+  The result is a more complete overview of research at that organization.
   Status: experimental stage (beta).
 * A chatbot that allows you to "talk" to Ricgraph. You can formulate questions in
   plain English, such as "Please give me the research results of the Geosciences
@@ -156,63 +155,6 @@ The items surrounded by the red line are the solution to this use case.
 * Ricgraph Explorer is the exploration tool for Ricgraph.
 * Ricgraph facilitates reasoning about items because it infers new relations between items.
 * Ricgraph can be tailored for an application area.
-
-## How to use Ricgraph (very short)
-
-* [Install and configure Ricgraph](docs/ricgraph_install_configure.md#install-and-configure-ricgraph).
-* Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
-* Use [Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer),
-  the exploration tool for Ricgraph. 
-* Use the [Ricgraph REST API](docs/ricgraph_restapi.md#ricgraph-rest-api),
-  the REST API for Ricgraph.
-* Optional: modify code to fit Ricgraph to your specific use case.
-
-For more details, read the remainder of this documentation.
-  
-## Read more about Ricgraph
-
-For a gentle introduction in Ricgraph, read the reference publication: 
-Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
-context from various systems. *SoftwareX*, 26(101736).
-[https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
-
-For a further introduction, you might want to read these two presentations:
-
-* A general presentation about Ricgraph, presenting Ricgraph in a visual manner: 
-  [https://doi.org/10.5281/zenodo.12634234](https://doi.org/10.5281/zenodo.12634234).
-* A presentation explaining how to enrich 
-  the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
-  (and other source systems) using Ricgraph 
-  and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
-  [https://doi.org/10.5281/zenodo.12634658](https://doi.org/10.5281/zenodo.12634658).
-  This presentation explains that after harvesting several Pure systems 
-  (from different institutions)  and other source systems,
-  such as [OpenAlex](https://openalex.org), 
-  one can enrich its own Pure _A_ by using information in other source
-  systems, not present in one's own Pure _A_.
-  
-To learn more about Ricgraph,
-[read why Ricgraph has been developed](#why-ricgraph).
-This is followed by
-[Ricgraph in bullet points](#ricgraph-in-bullet-points). There is also
-[a section with next steps you might want to take](#next-steps),
-including [further information about 
-Ricgraph](#further-information-about-ricgraph),
-an [explanation how to install Ricgraph and harvest 
-data](#steps-to-take-if-you-would-like-to-install-ricgraph-and-harvest-data),
-an [explanation how to use Ricgraph](#steps-to-take-if-you-would-like-to-use-ricgraph), 
-and [information about extending Ricgraph](#read-this-in-case-you-would-like-to-extend-ricgraph).
-Of course there is an overview of the 
-[publications](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
-[presentations](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
-[newsletters](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
-(to subscribe, go to [Ricgraph Contact](#contact)),
-[use](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
-[mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
-of Ricgraph.
-
-You can also use the [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) 
-or the [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
 ## Why Ricgraph?
 
@@ -366,8 +308,6 @@ The following figure shows how three persons have contributed to one research ou
 
 ## Next steps
 
-[Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) and
-[Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
 ### Further information about Ricgraph
 
@@ -403,6 +343,10 @@ The following figure shows how three persons have contributed to one research ou
 * Read more about [Ricgraph details](docs/ricgraph_details.md#implementation-details),
   such as example graphs, person identifiers and the *person-root* node.
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md#ricgraph-comparison).
+* Read the
+  [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation).
+* Read the
+  [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
 ### Steps to take if you would like to install Ricgraph and harvest data
 
@@ -425,7 +369,7 @@ The following figure shows how three persons have contributed to one research ou
 * Use the [Ricgraph REST API](docs/ricgraph_restapi.md#ricgraph-rest-api),
   the REST API for Ricgraph.
 
-### Read this in case you would like to extend Ricgraph
+### Steps to take in case you would like to extend Ricgraph
 
 * Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md#ricgraph-script-writing).
 

@@ -103,7 +103,6 @@ __H__
 - [How to start Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-ricgraph-explorer)
 - [How to use](../docs/ricgraph_restapi_gendoc.md#how-to-use)
 - [How to use Bloom for Neo4j Desktop (optional)](../docs/ricgraph_backend_neo4j.md#how-to-use-bloom-for-neo4j-desktop-optional)
-- [How to use Ricgraph (very short)](../README.md#how-to-use-ricgraph-very-short)
 
 __I__
 
@@ -170,8 +169,6 @@ __P__
 
 __R__
 
-- [Read more about Ricgraph](../README.md#read-more-about-ricgraph)
-- [Read this in case you would like to extend Ricgraph](../README.md#read-this-in-case-you-would-like-to-extend-ricgraph)
 - [Rename (sub-)organizations in Ricgraph (rename_organizations)](../docs/ricgraph_misc_scripts.md#rename-sub-organizations-in-ricgraph-rename_organizations)
 - [Requirements for Ricgraph](../docs/ricgraph_install_configure.md#requirements-for-ricgraph)
 - [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
@@ -199,6 +196,7 @@ __R__
 - [Ricgraph publications](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications)
 - [Ricgraph publications, presentations, use, and mentions](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications-presentations-use-and-mentions)
 - [Ricgraph REST API](../docs/ricgraph_restapi.md#ricgraph-rest-api)
+- [Ricgraph REST API endpoint documentation](../docs/ricgraph_restapi.md#ricgraph-rest-api-endpoint-documentation)
 - [Ricgraph script writing](../docs/ricgraph_script_writing.md#ricgraph-script-writing)
 - [Ricgraph use](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use)
 - [Ricgraph website](../README.md#ricgraph-website)
@@ -222,6 +220,7 @@ __S__
 - [Steps to take](../docs/ricgraph_install_configure.md#steps-to-take)
 - [Steps to take if you would like to install Ricgraph and harvest data](../README.md#steps-to-take-if-you-would-like-to-install-ricgraph-and-harvest-data)
 - [Steps to take if you would like to use Ricgraph](../README.md#steps-to-take-if-you-would-like-to-use-ricgraph)
+- [Steps to take in case you would like to extend Ricgraph](../README.md#steps-to-take-in-case-you-would-like-to-extend-ricgraph)
 - [Structure of a Python script that is harvesting data](../docs/ricgraph_script_writing.md#structure-of-a-python-script-that-is-harvesting-data)
 
 __T__

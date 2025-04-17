@@ -13,15 +13,14 @@ adapted to new application areas.
 
 Currently, there are people working on the following extensions for Ricgraph:
 
-* [BackToPure](https://github.com/UtrechtUniversity/backtopure).
-  is a tool designed to enhance an organization's 
+* [BackToPure](https://github.com/UtrechtUniversity/backtopure)
+  is a tool designed to enhance an organization's
   [Research Information System Pure](https://www.elsevier.com/solutions/pure)
   by enriching its content. BackToPure can identify items
-  (such as publications, data sets or software) 
-  that exist in other external sources but are missing from the organization's Pure, 
-  and then insert (enrich) those items into Pure. 
-  This process helps ensure that the organization's 
-  Pure is as complete and up-to-date as possible.
+  (such as publications, data sets or software)
+  that exist in other external sources but are missing from the organization's Pure,
+  and then insert (enrich) those items into Pure.
+  The result is a more complete overview of research at that organization.
   Status: experimental stage (beta).
 * A chatbot that allows you to "talk" to Ricgraph. You can formulate questions in
   plain English, such as "Please give me the research results of the Geosciences
