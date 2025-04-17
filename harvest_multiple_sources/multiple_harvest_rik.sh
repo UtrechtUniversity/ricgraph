@@ -117,6 +117,9 @@ sleep 120
 ../enhance/rename_organizations.sh --organization UU
 exit_on_error $?
 
+../enhance/rename_organizations.sh --organization VUA
+exit_on_error $?
+
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-all-$(date +%y%m%d-%H%M)
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
