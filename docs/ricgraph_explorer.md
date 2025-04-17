@@ -46,9 +46,9 @@ On this page, you can learn more about:
 * Read about [browsing Ricgraph](#browsing-ricgraph).
 * Learn how to [show a privacy statement or privacy measures 
   document](#showing-a-privacy-statement-or-privacy-measures-document).
+* [Video Ricgraph Explorer](#video-ricgraph-explorer)
  
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
-
 
 ## How to start Ricgraph Explorer
 Depending on how Ricgraph has been installed, there are various ways to start 
