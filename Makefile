@@ -544,8 +544,6 @@ dump_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo ""
 	@echo "Starting Dump of graph database of Neo4j Community Edition in"
 	@echo "directory $(graphdb_backup_dir)."
-	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#create-a-neo4j-community-edition-database-dump-of-ricgraph"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -d $(graphdb_backup_dir) ]; then mkdir $(graphdb_backup_dir); fi
@@ -570,8 +568,6 @@ restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo "Starting Restore of graph database of Neo4j Community Edition"
 	@echo "from directory $(graphdb_backup_dir)."
 	@echo "Your old graph database will be removed."
-	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(graphdb_backup_dir)/system.dump ]; then echo "Error: Graph database dump file $(graphdb_backup_dir)/system.dump does not exist."; exit 1; fi
