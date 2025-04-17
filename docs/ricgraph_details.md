@@ -5,7 +5,6 @@ On this page, you can find more information about:
 * [Person identifiers](#person-identifiers).
 * The [Person-root node in Ricgraph](#person-root-node-in-ricgraph).
 * [Example research questions](#example-research-questions).
-* [Videos of Ricgraph](#videos-of-ricgraph).
 * [Properties of nodes in Ricgraph](#properties-of-nodes-in-ricgraph).
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
@@ -49,10 +48,6 @@ The figure belows shows examples of research questions that can be answered usin
 Click the figure to enlarge.
 
 <img alt="Example research questions for Ricgraph." src="images/examples-of-research-questions-general.jpg" width="90%">
-
-## Videos of Ricgraph
-To see a demonstration of Ricgraph, you can look at 
-the [videos we have made to demonstrate Ricgraph](ricgraph_example_use_videos.md#ricgraph-videos).
 
 ## Properties of nodes in Ricgraph
 

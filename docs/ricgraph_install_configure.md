@@ -29,7 +29,6 @@ Alternatively, you can follow these steps:
 * [Use a Python virtual environment and install Python requirements](#use-a-python-virtual-environment-and-install-python-requirements)
 * [Ricgraph initialization file](#ricgraph-initialization-file)
 * [Using Ricgraph](#using-ricgraph)
-* [Dumping and restoring the Ricgraph database](#dumping-and-restoring-the-ricgraph-database)
 * [Ricgraph on Windows](#ricgraph-on-windows)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
@@ -462,11 +461,6 @@ see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scri
 After you have harvested sources, you can execute queries and visualize the results.
 You may want to use Ricgraph Explorer, read
 more on the [Ricgraph Explorer page](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
-
-
-## Dumping and restoring the Ricgraph database
-If you use Neo4j, read more at [Dumping and restoring the Ricgraph
-database](ricgraph_backend_neo4j.md#dumping-and-restoring-the-ricgraph-database).
 
 
 ## Ricgraph on Windows

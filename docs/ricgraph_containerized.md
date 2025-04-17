@@ -160,7 +160,7 @@ These two repositories do not need authentication keys.
 Running this script will take several minutes to complete.
 Type
 ```
-podman exec -it ricgraph make run_batchscript
+podman exec -it ricgraph make run_bash_script
 ```
 
 It is a design decision to store all harvested items in the Ricgraph container
@@ -230,6 +230,7 @@ Follow these steps:
   ```
   or create your own harvest script.
   For more information, read [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
+  You can also use the [scripts that harvest multiple sources](ricgraph_harvest_scripts.md#scripts-that-harvest-multiple-sources).
 * Make the data permanent in the container, see `podman commit` above.  
   Note that the size of your container may explode if you harvest a lot of items.
 * Restart the container, see `podman restart` above.

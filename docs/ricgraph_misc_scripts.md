@@ -264,7 +264,7 @@ the person whose personal data have to be deleted (except for the *person-root* 
 this node will not be deleted since it does not contain personal information).
 
 ```
-Usage
+Usage:
 ./delete_personal_data.sh [options]
 
 Options:
@@ -285,7 +285,7 @@ Options:
 ```
 
 ```
-Usage
+Usage:
 delete_pers_data.py [options]
 
 Options:
@@ -320,7 +320,7 @@ Example corresponding csv files can also be found in directory *enhance*.
 The script will read a line from the csv file. Then it will
 rename the (sub-)organization.
 ```
-Usage
+Usage:
 ./rename_organizations.sh [options]
 
 Options:
@@ -341,7 +341,7 @@ Options:
 ```
 
 ```
-Usage
+Usage:
 rename_orgs.py [options]
 
 Options:

@@ -31,8 +31,6 @@
   [use](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-use), and
   [mentions](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-mentions)
   of Ricgraph.
-* Look at the [videos we have made to demonstrate
-  Ricgraph](https://github.com/UtrechtUniversity/ricgraph/blob/main/docs/ricgraph_example_use_videos.md#ricgraph-videos).
 * Read more about [Ricgraph
   details](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#implementation-details),
   such as example graphs, person identifiers and the *person-root* node.

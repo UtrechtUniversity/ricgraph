@@ -5,6 +5,7 @@ __A__
 
 - [A usage flow through Ricgraph Explorer](../docs/ricgraph_explorer.md#a-usage-flow-through-ricgraph-explorer)
 - [A usage flow through Ricgraph Explorer](../docs/ricgraph_tutorial.md#a-usage-flow-through-ricgraph-explorer)
+- [Access a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#access-a-surf-research-cloud-workspace)
 - [Actions while clicking on a node](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node)
 - [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_pubs_pres_news_use_ment.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
@@ -19,12 +20,14 @@ __C__
 
 - [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)](../docs/ricgraph_misc_scripts.md#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csv)
 - [Contact](../README.md#contact)
+- [Contact](../docs/ricgraph_documentation_intro.md#contact)
 - [Contact](../docs/ricgraph_tutorial.md#contact)
 - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_category)
 - [Create a Neo4j Community Edition database dump of Ricgraph](../docs/ricgraph_backend_neo4j.md#create-a-neo4j-community-edition-database-dump-of-ricgraph)
 - [Create a Neo4j Desktop database dump of Ricgraph](../docs/ricgraph_backend_neo4j.md#create-a-neo4j-desktop-database-dump-of-ricgraph)
 - [Create a Python virtual environment and install Ricgraph in it](../docs/ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it)
 - [Create a ricgraph user and group](../docs/ricgraph_as_server.md#create-a-ricgraph-user-and-group)
+- [Create a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#create-a-surf-research-cloud-workspace)
 - [Create a table of contents of the Ricgraph documentation (create_toc_documentation)](../docs/ricgraph_misc_scripts.md#create-a-table-of-contents-of-the-ricgraph-documentation-create_toc_documentation)
 - [Create an index of the Ricgraph documentation (create_index_documentation)](../docs/ricgraph_misc_scripts.md#create-an-index-of-the-ricgraph-documentation-create_index_documentation)
 - [Create the Ricgraph REST API documentation (convert_openapi_to_mddoc)](../docs/ricgraph_misc_scripts.md#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddoc)
@@ -34,13 +37,12 @@ __D__
 - [Delete personal data from Ricgraph (delete_personal_data)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_data)
 - [Documentation Ricgraph - Research in context graph](../docs/ricgraph_documentation_intro.md#documentation-ricgraph---research-in-context-graph)
 - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
-- [Dumping and restoring the Ricgraph database](../docs/ricgraph_backend_neo4j.md#dumping-and-restoring-the-ricgraph-database)
-- [Dumping and restoring the Ricgraph database](../docs/ricgraph_install_configure.md#dumping-and-restoring-the-ricgraph-database)
+- [Dumping, restoring, and emptying the Ricgraph database](../docs/ricgraph_backend_neo4j.md#dumping-restoring-and-emptying-the-ricgraph-database)
 
 __E__
 
+- [Empty a Neo4j Community Edition database](../docs/ricgraph_backend_neo4j.md#empty-a-neo4j-community-edition-database)
 - [Endpoints](../docs/ricgraph_restapi_gendoc.md#endpoints)
-- [Epilogue](../docs/ricgraph_example_use_videos.md#epilogue)
 - [Error while emptying Ricgraph with Neo4j](../docs/ricgraph_known_bugs.md#error-while-emptying-ricgraph-with-neo4j)
 - [Example research questions](../docs/ricgraph_details.md#example-research-questions)
 - [Example research questions](../docs/ricgraph_explorer.md#example-research-questions)
@@ -94,8 +96,9 @@ __H__
 - [Harvesting source systems](../docs/ricgraph_tutorial.md#harvesting-source-systems)
 - [Home page](../docs/ricgraph_explorer.md#home-page)
 - [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](../docs/ricgraph_as_server.md#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
-- [How to make your own harvesting scripts](../docs/ricgraph_harvest_scripts.md#how-to-make-your-own-harvesting-scripts)
 - [How to make your own harvesting scripts](../docs/ricgraph_script_writing.md#how-to-make-your-own-harvesting-scripts)
+- [How to make your own harvesting scripts](../docs/ricgraph_harvest_scripts.md#how-to-make-your-own-harvesting-scripts)
+- [How to reset the Neo4j Community Edition password](../docs/ricgraph_backend_neo4j.md#how-to-reset-the-neo4j-community-edition-password)
 - [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](../docs/ricgraph_backend_neo4j.md#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 - [How to start Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-ricgraph-explorer)
 - [How to use](../docs/ricgraph_restapi_gendoc.md#how-to-use)
@@ -116,6 +119,7 @@ __I__
 - [Install Bloom configuration for Neo4j Desktop (optional)](../docs/ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional)
 - [Install Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#install-neo4j-desktop)
 - [Install Podman](../docs/ricgraph_containerized.md#install-podman)
+- [Install Ricgraph in a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#install-ricgraph-in-a-surf-research-cloud-workspace)
 - [Installation Apache](../docs/ricgraph_as_server.md#installation-apache)
 - [Installation guide](../docs/ricgraph_tutorial.md#installation-guide)
 - [Installation Nginx](../docs/ricgraph_as_server.md#installation-nginx)
@@ -151,6 +155,7 @@ __O__
 
 __P__
 
+- [Pause and resume a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#pause-and-resume-a-surf-research-cloud-workspace)
 - [Person identifiers](../docs/ricgraph_details.md#person-identifiers)
 - [Person options page](../docs/ricgraph_explorer.md#person-options-page)
 - [Person-root node in Ricgraph](../docs/ricgraph_details.md#person-root-node-in-ricgraph)
@@ -158,6 +163,7 @@ __P__
 - [Post-install steps Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#post-install-steps-neo4j-community-edition)
 - [Post-install steps Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#post-install-steps-neo4j-desktop)
 - [Post-install steps Nginx](../docs/ricgraph_as_server.md#post-install-steps-nginx)
+- [Preliminaries](../docs/ricgraph_as_server.md#preliminaries)
 - [Properties of nodes in Ricgraph](../docs/ricgraph_details.md#properties-of-nodes-in-ricgraph)
 - [Pure harvesting of projects](../docs/ricgraph_harvest_scripts.md#pure-harvesting-of-projects)
 - [Pure READ and Pure CRUD API](../docs/ricgraph_harvest_scripts.md#pure-read-and-pure-crud-api)
@@ -195,7 +201,6 @@ __R__
 - [Ricgraph REST API](../docs/ricgraph_restapi.md#ricgraph-rest-api)
 - [Ricgraph script writing](../docs/ricgraph_script_writing.md#ricgraph-script-writing)
 - [Ricgraph use](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use)
-- [Ricgraph videos](../docs/ricgraph_example_use_videos.md#ricgraph-videos)
 - [Ricgraph website](../README.md#ricgraph-website)
 - [Ricgraph with Memgraph graph database backend](../docs/ricgraph_backend_memgraph.md#ricgraph-with-memgraph-graph-database-backend)
 - [Ricgraph with Neo4j graph database backend](../docs/ricgraph_backend_neo4j.md#ricgraph-with-neo4j-graph-database-backend)
@@ -245,13 +250,7 @@ __U__
 
 __V__
 
-- [Video Find output common to two persons](../docs/ricgraph_example_use_videos.md#video-find-output-common-to-two-persons)
-- [Video Find outputs and organizations from a person](../docs/ricgraph_example_use_videos.md#video-find-outputs-and-organizations-from-a-person)
-- [Video Find persons who contributed to a publication](../docs/ricgraph_example_use_videos.md#video-find-persons-who-contributed-to-a-publication)
-- [Video Ricgraph Explorer](../docs/ricgraph_example_use_videos.md#video-ricgraph-explorer)
-- [Video Start with ORCID to find software](../docs/ricgraph_example_use_videos.md#video-start-with-orcid-to-find-software)
-- [Video Traverse Utrecht University organizations](../docs/ricgraph_example_use_videos.md#video-traverse-utrecht-university-organizations)
-- [Videos of Ricgraph](../docs/ricgraph_details.md#videos-of-ricgraph)
+- [Video Ricgraph Explorer](../docs/ricgraph_explorer.md#video-ricgraph-explorer)
 - [Visualization of nodes](../docs/ricgraph_backend_neo4j.md#visualization-of-nodes)
 
 __W__

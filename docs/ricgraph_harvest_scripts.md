@@ -95,7 +95,7 @@ There are two general scripts to harvest multiple sources:
   Then, it calls script  *multiple_harvest_organization_rsd_yoda.sh*.
 
 ```
-Usage
+Usage:
 ./[script name].sh [options]
 
 Options:

@@ -305,3 +305,24 @@ How to use a privacy measures document in Ricgraph Explorer?
 * In Ricgraph Explorer, in the footer you will find a link to this file.
 
 
+## Video Ricgraph Explorer
+https://user-images.githubusercontent.com/121875841/228465992-993dc8ec-0bd9-4985-b2d9-3200f50d558b.mp4
+
+The [video Ricgraph Explorer (2m20s) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
+gives an impression of how a user-centric interface may look like.
+This video uses Ricgraph Explorer from March 2023 (the current version has much more
+possibilities).
+In this video, we look
+up a specific person with his last name. As can be observed, there are three *FULL_NAME*
+nodes
+for this person, each with a different spelling, from four different sources we have
+harvested.
+If we click on one of them, we observe that we have found a lot of information about
+this person.
+
+The first table shows the node used for the search.
+The second table displays the IDs of the person found, connected to the *person-root*
+node, and the third table shows all other nodes connected to the *person-root* node.
+This includes research outputs like publications, data sets and software, as well as
+the (sub)organization this person works. We can sort columns, and we can use
+faceted navigation (i.e. filter on *name* or *category* nodes).

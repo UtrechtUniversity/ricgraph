@@ -27,6 +27,11 @@ If you empty the graph database, it needs to delete every node and edge and this
 when there are a lot of nodes and edges. This happens when you use
 Neo4j Desktop, and might happen sometimes when you are using Neo4j Community Edition.
 
+### Solution for Neo4j Community Edition
+
+Read [Empty a Neo4j Community Edition database](ricgraph_backend_neo4j.md#empty-a-neo4j-community-edition-database).
+
+
 ### Solution for Neo4j Desktop
 
 You can do the following for Neo4j Desktop and Ricgraph:
@@ -43,34 +48,3 @@ You can do the following for Neo4j Desktop and Ricgraph:
    the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 1. Ready.
 
-### Solution for Neo4j Community Edition
-
-You can do the following for Neo4j Community Edition and Ricgraph:
-
-1. Login as user *root*.
-1. Stop Neo4j Community Edition:
-   ```
-   systemctl stop neo4j.service
-   ```
-1. Save the old database:
-   ```
-   cd /var/lib/neo4j
-   mv data/ data-old
-   ```
-1. Start Neo4j Community Edition:
-   ```
-   systemctl start neo4j.service
-   ```
-   Check the log for any errors, use one of:
-   ```
-   systemctl -l status neo4j.service
-   journalctl -u neo4j.service
-   ```
-1. In your web browser, go to
-   [http://localhost:7474/browser](http://localhost:7474/browser).
-1. Neo4j will ask you to login, use username *neo4j* and password *neo4j*.
-1. Neo4j will ask you to change your password,
-   for the new password, enter the password you have specified in
-   the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file)
-   (this saves you from entering a new password in that file).
-1. Exit from user *root*.

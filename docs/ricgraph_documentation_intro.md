@@ -14,16 +14,17 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-Currently, there are people that are working on the following extensions for Ricgraph:
+Currently, there are people working on the following extensions for Ricgraph:
 
 * [BackToPure](https://github.com/UtrechtUniversity/backtopure).
-  This is a tool that can enrich
-  the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
-  of that organization.
-  This means that BackToPure can insert (enrich) items from an organization that
-  are absent from the Pure of that organization
-  but are present in another source, back into the Pure of that organization.
-  The result is a more complete overview of research at that organization.
+  is a tool designed to enhance an organization's
+  [Research Information System Pure](https://www.elsevier.com/solutions/pure)
+  by enriching its content. BackToPure can identify items
+  (such as publications, data sets or software)
+  that exist in other external sources but are missing from the organization's Pure,
+  and then insert (enrich) those items into Pure.
+  This process helps ensure that the organization's
+  Pure is as complete and up-to-date as possible.
   Status: experimental stage (beta).
 * A chatbot that allows you to "talk" to Ricgraph. You can formulate questions in
   plain English, such as "Please give me the research results of the Geosciences
@@ -34,9 +35,9 @@ Currently, there are people that are working on the following extensions for Ric
 * A project that uses
   [AI and Large Language Models to cluster and visualize large amounts of research
   information](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students).
-  It uses *topics* to cluster publications,
-  data sets, and software. Using these topics, these research results can
-  be grouped, and possibly experts on these topics can be found.
+  It assigns *topics* to publications,
+  data sets, and software. By selecting a number of topics, research results are
+  grouped, and possibly experts on these topics can be found.
   Status: planning stage (pre-alpha).
 * A tool that helps Pure administrators to clean up "external organizations" in Pure.
   Status: planning stage (pre-alpha).

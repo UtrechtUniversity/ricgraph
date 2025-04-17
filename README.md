@@ -54,16 +54,17 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-Currently, there are people that are working on the following extensions for Ricgraph:
+Currently, there are people working on the following extensions for Ricgraph:
 
-* [BackToPure](https://github.com/UtrechtUniversity/backtopure). 
-  This is a tool that can enrich 
-  the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
-  of that organization.
-  This means that BackToPure can insert (enrich) items from an organization that
-  are absent from the Pure of that organization 
-  but are present in another source, back into the Pure of that organization.
-  The result is a more complete overview of research at that organization.
+* [BackToPure](https://github.com/UtrechtUniversity/backtopure).
+  is a tool designed to enhance an organization's
+  [Research Information System Pure](https://www.elsevier.com/solutions/pure)
+  by enriching its content. BackToPure can identify items
+  (such as publications, data sets or software)
+  that exist in other external sources but are missing from the organization's Pure,
+  and then insert (enrich) those items into Pure.
+  This process helps ensure that the organization's
+  Pure is as complete and up-to-date as possible.
   Status: experimental stage (beta).
 * A chatbot that allows you to "talk" to Ricgraph. You can formulate questions in
   plain English, such as "Please give me the research results of the Geosciences
@@ -72,11 +73,11 @@ Currently, there are people that are working on the following extensions for Ric
   It uses a local Large Language Model.
   Status: planning stage (pre-alpha).
 * A project that uses
-  [AI and Large Language Models to cluster and visualize large amounts of research 
-  information](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students). 
-  It uses *topics* to cluster publications,
-  data sets, and software. Using these topics, these research results can
-  be grouped, and possibly experts on these topics can be found.
+  [AI and Large Language Models to cluster and visualize large amounts of research
+  information](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students).
+  It assigns *topics* to publications,
+  data sets, and software. By selecting a number of topics, research results are
+  grouped, and possibly experts on these topics can be found.
   Status: planning stage (pre-alpha).
 * A tool that helps Pure administrators to clean up "external organizations" in Pure.
   Status: planning stage (pre-alpha).
@@ -201,9 +202,7 @@ an [explanation how to install Ricgraph and harvest
 data](#steps-to-take-if-you-would-like-to-install-ricgraph-and-harvest-data),
 an [explanation how to use Ricgraph](#steps-to-take-if-you-would-like-to-use-ricgraph), 
 and [information about extending Ricgraph](#read-this-in-case-you-would-like-to-extend-ricgraph).
-Of course there are 
-[videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md#ricgraph-videos),
-and there is an overview of the 
+Of course there is an overview of the 
 [publications](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
 [presentations](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
 [newsletters](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
@@ -401,7 +400,6 @@ The following figure shows how three persons have contributed to one research ou
   [use](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
   [mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
   of Ricgraph.
-* Look at the [videos we have made to demonstrate Ricgraph](docs/ricgraph_example_use_videos.md#ricgraph-videos).
 * Read more about [Ricgraph details](docs/ricgraph_details.md#implementation-details),
   such as example graphs, person identifiers and the *person-root* node.
 * You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md#ricgraph-comparison).

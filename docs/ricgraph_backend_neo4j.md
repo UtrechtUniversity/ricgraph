@@ -24,18 +24,18 @@ On this page you can find:
 * [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
 * [Install Neo4j Desktop](#install-neo4j-desktop)
 * [Start Neo4j Desktop](#start-neo4j-desktop)
-* [Dumping and restoring the Ricgraph database](#dumping-and-restoring-the-ricgraph-database)
+* [Dumping, restoring, and emptying the Ricgraph database](#dumping-restoring-and-emptying-the-ricgraph-database)
   * [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
   * [Create a Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
   * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
   * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
   * [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
+  * [Empty a Neo4j Community Edition database](#empty-a-neo4j-community-edition-database)
 * [Install Bloom configuration for Neo4j Desktop (optional)](#install-bloom-configuration-for-neo4j-desktop-optional)
 * [How to use Bloom for Neo4j Desktop (optional)](#how-to-use-bloom-for-neo4j-desktop-optional)
 * [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
-
 
 ## Install and start Neo4j Community Edition
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) 
@@ -184,16 +184,10 @@ Now we need to find the port number which Neo4j Desktop is using:
    the text "ACTIVE". Your graph database engine is active and ready for use.
 
 
-## Dumping and restoring the Ricgraph database
+## Dumping, restoring, and emptying the Ricgraph database
 Depending on your situation (whether you use Neo4j Desktop or
-Neo4j Community Edition), this section lists the methods for
-dumping and restoring the Ricgraph database:
-
-* [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
-* [Create a Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Desktop](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-desktop)
-* [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
-* [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
+Neo4j Community Edition), this section lists various methods for
+dumping, restoring, and emptying the Ricgraph database.
 
 ### Create a Neo4j Desktop database dump of Ricgraph
 To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
@@ -401,8 +395,62 @@ in Neo4j Community Edition, follow these steps:
 1. Exit from user *root*.
 
 
+### Empty a Neo4j Community Edition database
+To do this, use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
+and execute
+command `make empty_graphdb_neo4j_community`.
+
+
+## How to reset the Neo4j Community Edition password
+To reset the Neo4j Community Edition password, follow the following steps:
+
+1. Login as user *root*.
+1. Stop Neo4j, type:
+   ```
+   systemctl stop neo4j
+   ```
+1. Edit file */etc/neo4j/neo4j.conf* and change line
+   ```
+   #dbms.security.auth_enabled: "false"
+   ```
+   to
+   ```
+   dbms.security.auth_enabled: "false"
+   ```
+1. Start Neo4j, type:
+   ```
+   systemctl start neo4j
+   ```
+1. Start cypher-shell, type:
+   ```
+   cypher-shell
+   ```
+   and in cypher-shell, type:
+   ```
+   ALTER USER neo4j SET PASSWORD '<new-password>';
+   :exit
+   ```
+1. Stop Neo4j, type:
+   ```
+   systemctl stop neo4j
+   ```
+1. Edit file */etc/neo4j/neo4j.conf* and change line
+   ```
+   dbms.security.auth_enabled: "false"
+   ```
+   to
+   ```
+   #dbms.security.auth_enabled: "false"
+   ```
+1. Start Neo4j, type:
+   ```
+   systemctl start neo4j
+   ```
+1. Exit from user *root*.
+
+
 ## Install Bloom configuration for Neo4j Desktop (optional)
-This is only necessary if you plan to use Bloom. If you don't know, skip this step for now,
+This is only necessary if you plan to use Bloom. If you don't know (yet), skip this step for now,
 you can come back to it later.
 
 [Bloom is Neo4j Desktop's graph visualization tool](https://neo4j.com/product/bloom).
@@ -572,3 +620,4 @@ in section
 it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it). 
 For *python3.11* you can take any Python version that is installed
 on your computer, as long as it is at least Python 3.9.
+
