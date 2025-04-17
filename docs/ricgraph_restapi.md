@@ -32,10 +32,10 @@ On this page, you can learn more about:
 
 * [Installation of the Ricgraph REST API](#installation-of-the-ricgraph-rest-api)
 * [Use of the Ricgraph REST API](#use-of-the-ricgraph-rest-api)
+* [Ricgraph REST API endpoint documentation](#ricgraph-rest-api-endpoint-documentation)
 * [Generate the Ricgraph REST API documentation page](#generate-the-ricgraph-rest-api-documentation-page)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
-
 
 ## Installation of the Ricgraph REST API
 The Ricgraph REST API is part of Ricgraph Explorer. Read [how to start Ricgraph 
@@ -70,12 +70,11 @@ See the figure below, that shows part of the Home page of Ricgraph Explorer.
 
 <img alt="Home page of Ricgraph Explorer." src="images/ricgraph-explorer-home-page.jpg" width="80%">
 
-As an alternative, you can also read 
-the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api),
-that is auto generated from the OpenAPI yaml specification file, but
-it only lists the end points and parameters available and there is no
-try out feature.
 
+## Ricgraph REST API endpoint documentation
+Read 
+the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api).
+This page is auto generated from the OpenAPI yaml specification file (see the next section). but
 
 ## Generate the Ricgraph REST API documentation page
 Please read
