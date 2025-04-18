@@ -82,7 +82,7 @@ need to insert keys (and values) for the organization(s) you are planning
 to harvest.
 
 ## Scripts that harvest multiple sources
-These bash scripts are in directory *harvest_mulitple_sources*.
+These bash scripts are in directory *harvest_multiple_sources*.
 
 There are two general scripts to harvest multiple sources:
 

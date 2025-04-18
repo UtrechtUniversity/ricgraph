@@ -323,7 +323,7 @@ The following figure shows how three persons have contributed to one research ou
   [use](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
   [mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
   of Ricgraph.
-* Ricgraph's main website is www.ricgraph.eu.
+* The Ricgraph main website is www.ricgraph.eu.
   Alternative sites are www.ricgraph.nl and www.ricgraph.com.
   These are generated using the 
   [ricgraph-documentation](https://github.com/UtrechtUniversity/ricgraph-documentation)

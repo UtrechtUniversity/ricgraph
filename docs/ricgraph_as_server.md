@@ -353,7 +353,7 @@ after the start of the virtual machine, you would need to start the graph databa
 backend, the virtual environment,
 and *ricgraph_explorer.py* by hand.
 
-To use a service usint file, 
+To use a service unit file, 
 you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
 command:
 ```

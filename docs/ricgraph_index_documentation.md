@@ -44,7 +44,6 @@ __E__
 - [Empty a Neo4j Community Edition database](../docs/ricgraph_backend_neo4j.md#empty-a-neo4j-community-edition-database)
 - [Endpoints](../docs/ricgraph_restapi_gendoc.md#endpoints)
 - [Error while emptying Ricgraph with Neo4j](../docs/ricgraph_known_bugs.md#error-while-emptying-ricgraph-with-neo4j)
-- [Example research questions](../docs/ricgraph_details.md#example-research-questions)
 - [Example research questions](../docs/ricgraph_explorer.md#example-research-questions)
 - [Example research questions](../docs/ricgraph_tutorial.md#example-research-questions)
 - [Examples](../README.md#examples)
@@ -119,6 +118,8 @@ __I__
 - [Install Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#install-neo4j-desktop)
 - [Install Podman](../docs/ricgraph_containerized.md#install-podman)
 - [Install Ricgraph in a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#install-ricgraph-in-a-surf-research-cloud-workspace)
+- [Install your graph database backend](../docs/ricgraph_as_server.md#install-your-graph-database-backend)
+- [Install your graph database backend](../docs/ricgraph_install_configure.md#install-your-graph-database-backend)
 - [Installation Apache](../docs/ricgraph_as_server.md#installation-apache)
 - [Installation guide](../docs/ricgraph_tutorial.md#installation-guide)
 - [Installation Nginx](../docs/ricgraph_as_server.md#installation-nginx)
@@ -141,8 +142,9 @@ __M__
 
 __N__
 
+- [Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#neo4j-community-edition)
+- [Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#neo4j-desktop)
 - [Next steps](../README.md#next-steps)
-- [Notable dependencies used in Ricgraph:](../docs/ricgraph_install_configure.md#notable-dependencies-used-in-ricgraph)
 - [Notes on the Ricgraph Podman container](../docs/ricgraph_containerized.md#notes-on-the-ricgraph-podman-container)
 
 __O__
@@ -199,7 +201,6 @@ __R__
 - [Ricgraph REST API endpoint documentation](../docs/ricgraph_restapi.md#ricgraph-rest-api-endpoint-documentation)
 - [Ricgraph script writing](../docs/ricgraph_script_writing.md#ricgraph-script-writing)
 - [Ricgraph use](../docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use)
-- [Ricgraph website](../README.md#ricgraph-website)
 - [Ricgraph with Memgraph graph database backend](../docs/ricgraph_backend_memgraph.md#ricgraph-with-memgraph-graph-database-backend)
 - [Ricgraph with Neo4j graph database backend](../docs/ricgraph_backend_neo4j.md#ricgraph-with-neo4j-graph-database-backend)
 - [RICGRAPH_NODEADD_MODE](../docs/ricgraph_install_configure.md#ricgraph_nodeadd_mode)
@@ -212,15 +213,15 @@ __S__
 - [Scripts that harvest a single source](../docs/ricgraph_harvest_scripts.md#scripts-that-harvest-a-single-source)
 - [Scripts that harvest multiple sources](../docs/ricgraph_harvest_scripts.md#scripts-that-harvest-multiple-sources)
 - [Search page](../docs/ricgraph_explorer.md#search-page)
-- [Settings for graph database backend](../docs/ricgraph_install_configure.md#settings-for-graph-database-backend)
+- [Settings for the graph database backend](../docs/ricgraph_install_configure.md#settings-for-the-graph-database-backend)
 - [Showing a privacy statement or privacy measures document](../docs/ricgraph_explorer.md#showing-a-privacy-statement-or-privacy-measures-document)
 - [Solution for Neo4j Community Edition](../docs/ricgraph_known_bugs.md#solution-for-neo4j-community-edition)
 - [Solution for Neo4j Desktop](../docs/ricgraph_known_bugs.md#solution-for-neo4j-desktop)
 - [Start Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#start-neo4j-desktop)
-- [Steps to take](../docs/ricgraph_install_configure.md#steps-to-take)
 - [Steps to take if you would like to install Ricgraph and harvest data](../README.md#steps-to-take-if-you-would-like-to-install-ricgraph-and-harvest-data)
 - [Steps to take if you would like to use Ricgraph](../README.md#steps-to-take-if-you-would-like-to-use-ricgraph)
-- [Steps to take in case you would like to extend Ricgraph](../README.md#steps-to-take-in-case-you-would-like-to-extend-ricgraph)
+- [Steps to take to install Ricgraph for a single user by hand](../docs/ricgraph_install_configure.md#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
+- [Steps to take to install Ricgraph for as a server by hand](../docs/ricgraph_as_server.md#steps-to-take-to-install-ricgraph-for-as-a-server-by-hand)
 - [Structure of a Python script that is harvesting data](../docs/ricgraph_script_writing.md#structure-of-a-python-script-that-is-harvesting-data)
 
 __T__

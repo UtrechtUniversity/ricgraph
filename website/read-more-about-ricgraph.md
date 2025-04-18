@@ -14,7 +14,7 @@ There are several places where you can start reading about Ricgraph:
   (and other source systems) using Ricgraph
   and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
   [https://doi.org/10.5281/zenodo.12634658](https://doi.org/10.5281/zenodo.12634658).
-  This presentation explains that after harvesting several Pure's
+  This presentation explains that after harvesting several Pures
   (from different institutions)  and other source systems,
   such as [OpenAlex](https://openalex.org),
   one can enrich its own Pure _A_ by using information in other source

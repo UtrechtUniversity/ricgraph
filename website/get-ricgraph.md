@@ -2,19 +2,10 @@
 To get Ricgraph, go to the 
 [Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
 
-<!-- GitHub buttons from https://buttons.github.io -->
-If you like Ricgraph, please give it a GitHub star by clicking on the top right
-<a class="github-button" href="https://github.com/UtrechtUniversity/ricgraph"
-data-color-scheme="no-preference: light; light: light; dark: light;"
-data-icon="octicon-star" data-size="large" aria-label="Star
-UtrechtUniversity/ricgraph on GitHub">Star</a> button on the [Ricgraph GitHub
-repository page](https://github.com/UtrechtUniversity/ricgraph).  If you have
-any suggestions or improvements, please let me know by creating a  GitHub <a
-class="github-button"
-href="https://github.com/UtrechtUniversity/ricgraph/issues"
-data-color-scheme="no-preference: light; light: light; dark: light;"
-data-icon="octicon-issue-opened" data-size="large" aria-label="Issue
-UtrechtUniversity/ricgraph on GitHub">Issue</a>. 
+If you like Ricgraph, please give it a GitHub Star by clicking on the top right
+*Star* button on that Ricgraph GitHub page.
+If you have any suggestions or improvements,
+please let me know by creating a GitHub *Issue* at the top left of that page. 
 
 ## How to use Ricgraph
 
