@@ -101,7 +101,7 @@ __H__
 - [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](../docs/ricgraph_backend_neo4j.md#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 - [How to start Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-ricgraph-explorer)
 - [How to use](../docs/ricgraph_restapi_gendoc.md#how-to-use)
-- [How to use Bloom for Neo4j Desktop (optional)](../docs/ricgraph_backend_neo4j.md#how-to-use-bloom-for-neo4j-desktop-optional)
+- [How to use Bloom for Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#how-to-use-bloom-for-neo4j-desktop)
 
 __I__
 
@@ -114,7 +114,7 @@ __I__
 - [Install and run the Ricgraph Podman container](../docs/ricgraph_containerized.md#install-and-run-the-ricgraph-podman-container)
 - [Install and start Memgraph](../docs/ricgraph_backend_memgraph.md#install-and-start-memgraph)
 - [Install and start Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
-- [Install Bloom configuration for Neo4j Desktop (optional)](../docs/ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional)
+- [Install Bloom configuration for Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop)
 - [Install Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#install-neo4j-desktop)
 - [Install Podman](../docs/ricgraph_containerized.md#install-podman)
 - [Install Ricgraph in a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#install-ricgraph-in-a-surf-research-cloud-workspace)
@@ -142,6 +142,7 @@ __M__
 
 __N__
 
+- [Neo4j Bloom (optional)](../docs/ricgraph_backend_neo4j.md#neo4j-bloom-optional)
 - [Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#neo4j-community-edition)
 - [Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#neo4j-desktop)
 - [Next steps](../README.md#next-steps)
@@ -245,7 +246,6 @@ __U__
 - [Use of the Ricgraph REST API](../docs/ricgraph_restapi.md#use-of-the-ricgraph-rest-api)
 - [Using a Python Integrated development environment (IDE)](../docs/ricgraph_install_configure.md#using-a-python-integrated-development-environment-ide)
 - [Using Python's venv module](../docs/ricgraph_install_configure.md#using-pythons-venv-module)
-- [Using Ricgraph](../docs/ricgraph_install_configure.md#using-ricgraph)
 - [Using the Makefile](../docs/ricgraph_as_server.md#using-the-makefile)
 
 __V__

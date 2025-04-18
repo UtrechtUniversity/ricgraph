@@ -28,8 +28,7 @@ On this page you can find:
   * [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
   * [Empty a Neo4j Community Edition database](#empty-a-neo4j-community-edition-database)
 * [How to reset the Neo4j Community Edition password](#how-to-reset-the-neo4j-community-edition-password)
-* [Install Bloom configuration for Neo4j Desktop (optional)](#install-bloom-configuration-for-neo4j-desktop-optional)
-* [How to use Bloom for Neo4j Desktop (optional)](#how-to-use-bloom-for-neo4j-desktop-optional)
+* [Neo4j Bloom (optional)](#neo4j-bloom-optional)
 * [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
@@ -58,9 +57,9 @@ or follow the steps below.
   Download the package and install it.
   You might get an error message about a failed dependency on *cypher-shell*,
   or on other dependencies.
-    * OpenSUSE/Fedora: use either ``rpm -i <packagename>`` (first install)
-      or ``rpm -U <packagename>`` (update).
-    * Debian/Ubuntu: use ``apt install <packagename>``
+    * OpenSUSE/Fedora: use either `rpm -i <packagename>` (first install)
+      or `rpm -U <packagename>` (update).
+    * Debian/Ubuntu: use `apt install <packagename>`
     * If you get an error message about a failed dependency on *cypher-shell*, install
       *cypher-shell* separately as follows:
         * Go to the
@@ -121,8 +120,7 @@ change the default username and password of Neo4j:
 
 ### Install Neo4j Desktop
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
-and execute
-command 
+and execute command 
 ```
 make install_neo4j_desktop
 ```
@@ -213,8 +211,7 @@ To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
 ### Create a Neo4j Community Edition database dump of Ricgraph
 To create a Neo4j Community Edition database dump of Ricgraph, 
 either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
-and execute
-command 
+and execute command 
 ```
 make dump_graphdb_neo4j_community
 ```
@@ -347,7 +344,7 @@ in Neo4j Community Edition,
 either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
 and execute command 
 ```
-make restore_graphdb_neo4j_community`
+make restore_graphdb_neo4j_community
 ```
 or follow the steps below.
 
@@ -465,7 +462,7 @@ To reset the Neo4j Community Edition password, follow the following steps:
 1. Exit from user *root*.
 
 
-## Install Bloom configuration for Neo4j Desktop (optional)
+## Neo4j Bloom (optional)
 This is only necessary if you plan to use Bloom. If you don't know (yet), skip this step for now,
 you can come back to it later.
 
@@ -478,6 +475,8 @@ Neo4j has
 [extensive documentation how to use Bloom](https://neo4j.com/docs/bloom-user-guide/current)
 and a
 [Bloom overview](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/bloom-overview).
+
+### Install Bloom configuration for Neo4j Desktop
 
 1. [Start Neo4j Desktop](#start-neo4j-desktop).
 1. Click on the icon <img src="images/neo4j1.jpg" height="20">
@@ -511,10 +510,10 @@ and a
 1. Ready.
 
 
-## How to use Bloom for Neo4j Desktop (optional)
+### How to use Bloom for Neo4j Desktop
 If you have installed Bloom, below are some examples for a quick start.
 
-### Open Bloom
+#### Open Bloom
 
 1. [Start Neo4j Desktop](#start-neo4j-desktop).
 1. Click on the icon
@@ -522,7 +521,7 @@ If you have installed Bloom, below are some examples for a quick start.
    on the left side of Neo4j Desktop.
 1. Click on "Neo4j Bloom". A new window appears.
 
-### Execute queries
+#### Execute queries
 
 The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
 contains four different shortcuts for
@@ -549,7 +548,7 @@ Nodes found can be examined or expanded as described in the section
 The result will be visualized as described in section
 [Visualization of nodes](#Visualization-of-nodes).
 
-### Actions while clicking on a node
+#### Actions while clicking on a node
 
 The following are some examples of actions while clicking on a node:
 
@@ -565,7 +564,7 @@ The following are some examples of actions while clicking on a node:
 * For other actions, see
   [Bloom actions](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/search-bar/#_actions).
 
-### Visualization of nodes
+#### Visualization of nodes
 
 Nodes can be visualized in different ways, by changing e.g. their
 size or color. This can be changed as follows:

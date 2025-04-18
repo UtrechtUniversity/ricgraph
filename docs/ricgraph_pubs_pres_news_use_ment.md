@@ -1,5 +1,6 @@
 # Ricgraph publications, presentations, use, and mentions
 This page contains the following sections:
+
 * [Ricgraph publications](#ricgraph-publications)
 * [Ricgraph presentations](#ricgraph-presentations)
 * [Ricgraph newsletters](#ricgraph-newsletters)

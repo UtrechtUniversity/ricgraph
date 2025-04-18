@@ -20,7 +20,6 @@ On this page, you can find:
 * [Ricgraph Makefile](#ricgraph-makefile)
 * [Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
 * [Ricgraph initialization file](#ricgraph-initialization-file)
-* [Using Ricgraph](#using-ricgraph)
 * [Ricgraph on Windows](#ricgraph-on-windows)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
@@ -425,13 +424,6 @@ This will have the following consequences:
 
 *Lenient* is advisable if the sources you harvest from do not contain errors. However, the author
 of Ricgraph has noticed that this does not occur often, therefore the default is *strict*.
-
-## Using Ricgraph
-Before you can do anything with Ricgraph, you need to harvest sources,
-see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
-After you have harvested sources, you can execute queries and visualize the results.
-You may want to use Ricgraph Explorer, read
-more on the [Ricgraph Explorer page](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
 
 
 ## Ricgraph on Windows
