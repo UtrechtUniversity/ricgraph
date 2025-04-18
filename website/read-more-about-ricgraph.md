@@ -1,5 +1,7 @@
 # Read more about Ricgraph
 
+There are several places where you can start reading about Ricgraph:
+
 * For a gentle introduction in Ricgraph, please read the reference publication:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore
   research in context from various systems. *SoftwareX*, 26(101736).
@@ -31,9 +33,6 @@
   [use](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-use), and
   [mentions](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-mentions)
   of Ricgraph.
-* Read more about [Ricgraph
-  details](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#implementation-details),
-  such as example graphs, person identifiers and the *person-root* node.
 
-## More information
+## Next steps
 You might want to continue reading at [Get Ricgraph](get-ricgraph.md).

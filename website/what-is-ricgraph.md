@@ -100,7 +100,7 @@ The items surrounded by the red line are the solution to this use case.
 * Ricgraph facilitates reasoning about items because it infers new relations between items.
 * Ricgraph can be tailored for an application area.
 
-## More information
+## Next steps
 You might want to continue reading at 
 [Learn more about Ricgraph](learn-more-about-ricgraph.md), 
 to [Read more about Ricgraph](read-more-about-ricgraph.md), 

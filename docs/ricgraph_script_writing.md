@@ -18,6 +18,9 @@ On this page, you can find:
 * [Function calls to create, read (find), update and delete (CRUD) nodes](#function-calls-to-create-read-find-update-and-delete-crud-nodes)
 * [Function calls to get neighbors of nodes](#function-calls-to-get-neighbors-of-nodes)
 
+You can also adapt the code of Ricgraph in directory *ricgraph*, or
+the code of Ricgraph Explorer in directory *ricgraph_explorer*.
+
 All code is documented and hints to use it can be found in the source files.
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).

@@ -4,6 +4,7 @@ There are a number of approaches that collect research related information
 from various sources and 
 combine them into one data structure. This section will give a short
 explanation of some of these approaches and how they compare to Ricgraph.
+This comparison was last updated in spring 2024.
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
@@ -11,7 +12,7 @@ explanation of some of these approaches and how they compare to Ricgraph.
 
 | name                                                                           | data structure               | how does it obtain data?                                                                                        | fields (entities) in system                                                                                        | maturity                           |
 |--------------------------------------------------------------------------------|------------------------------|-----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|------------------------------------|
-| [Ricgraph](https://github.com/UtrechtUniversity/ricgraph)                      | graph                        | harvesting of any source, not only research related entities, requires creation or adaptation of harvest script | any field (configurable), in standard configuration: research outputs, people (with any identifier), organizations | proof of concept                   | 
+| [Ricgraph](https://www.ricgraph.eu)                                            | graph                        | harvesting of any source, not only research related entities, requires creation or adaptation of harvest script | any field (configurable), in standard configuration: research outputs, people (with any identifier), organizations | proof of concept                   | 
 | [EOSC research discovery graph](https://faircore4eosc.eu/eosc-core-components) | probably graph               | in development                                                                                                  | in development                                                                                                     | does not exist yet                 | 
 | [EOSC PID graph](https://faircore4eosc.eu/eosc-core-components)                | probably graph               | in development                                                                                                  | in development                                                                                                     | does not exist yet                 | 
 | [Freya PID graph](https://www.project-freya.eu/the-pid-graph.html)             | graph                        | unclear                                                                                                         | unclear                                                                                                            | proof of concept, project finished | 
@@ -46,23 +47,25 @@ or for anyone.
 
 ## Extendability
 
-| name                          | open source                                                     | extendable   | create your own visualizers or explorers | example code | harvest your own sources | additional information                                                          |
-|-------------------------------|-----------------------------------------------------------------|--------------|------------------------------------------|--------------|--------------------------|---------------------------------------------------------------------------------|
-| Ricgraph                      | yes, [GitHub](https://github.com/UtrechtUniversity/ricgraph)    | yes          | yes                                      | yes          | yes                      | [read more](https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md) |
-| EOSC research discovery graph | probably in the future                                          |              |                                          |              |                          | in development, does not exist yet                                              |
-| EOSC PID graph                | probably in the future                                          |              |                                          |              |                          | in development, does not exist yet                                              |
-| Freya PID graph               | unknown                                                         | unknown      | unknown                                  | unknown      | unknown                  | project has finished                                                            |
-| Lens                          | no                                                              | no           | no                                       | no           | no                       | [read more](https://about.lens.org)                                             |
-| OpenAire graph                | unknown                                                         | unknown      | probably not                             | probably not | no                       | [read more](https://graph.openaire.eu/what-is-the-openaire-graph)               |
-| OpenAlex                      | yes, [GitHub](https://github.com/orgs/ourresearch/repositories) | probably not | probably not                             | probably not | no                       | [read more](https://docs.openalex.org)                                          |
-| Research.fi                   | yes, [GitHub](https://github.com/CSCfi)                         | probably not | probably not                             | probably not | no                       | [read more](https://research.fi/en/service-info)                                |
+| name                          | open source                                                     | extendable   | create your own visualizers or explorers | example code | harvest your own sources | additional information                                            |
+|-------------------------------|-----------------------------------------------------------------|--------------|------------------------------------------|--------------|--------------------------|-------------------------------------------------------------------|
+| Ricgraph                      | yes, [GitHub](https://github.com/UtrechtUniversity/ricgraph)    | yes          | yes                                      | yes          | yes                      | [read more](https://docs.ricgraph.eu)                             |
+| EOSC research discovery graph | probably in the future                                          |              |                                          |              |                          | in development, does not exist yet                                |
+| EOSC PID graph                | probably in the future                                          |              |                                          |              |                          | in development, does not exist yet                                |
+| Freya PID graph               | unknown                                                         | unknown      | unknown                                  | unknown      | unknown                  | project has finished                                              |
+| Lens                          | no                                                              | no           | no                                       | no           | no                       | [read more](https://about.lens.org)                               |
+| OpenAire graph                | unknown                                                         | unknown      | probably not                             | probably not | no                       | [read more](https://graph.openaire.eu/what-is-the-openaire-graph) |
+| OpenAlex                      | yes, [GitHub](https://github.com/orgs/ourresearch/repositories) | probably not | probably not                             | probably not | no                       | [read more](https://docs.openalex.org)                            |
+| Research.fi                   | yes, [GitHub](https://github.com/CSCfi)                         | probably not | probably not                             | probably not | no                       | [read more](https://research.fi/en/service-info)                  |
 
 As indicated above, systems such as Lens, OpenAire graph, OpenAlex and Research.fi
 are difficult to extend due to their size. For the Freya PID graph the author could not find 
 information, and the EOSC research discovery graph and PID graph do not exist yet.
 
 Ricgraph is easy to extend: the code is concise and can be found on GitHub.
-Also, it is possible to traverse the graph that has been constructed, either with Neo4j Bloom or
-with [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer), or with any other visualizer or explorer that someone builds.
+Also, it is possible to traverse the graph that has been constructed, either with 
+[Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer), 
+the [Ricgraph REST API](ricgraph_restapi.md#ricgraph-rest-api)
+or with any other visualizer or explorer that someone builds.
 Also, Ricgraph can contain any field (entity) by changing the Ricgraph initialization file, 
 creating a harvest script to fill this field, and modifying Ricgraph Explorer to show this field.

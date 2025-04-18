@@ -1,32 +1,24 @@
 # Install and configure Ricgraph
 
 This page describes how to install Ricgraph for a single user on Linux.
-If you would like to use Ricgraph in a multi-user environment
-on Linux, you will need to install Ricgraph differently.
+If you would like to use Ricgraph in a [multi-user environment
+on Linux, you will need to install Ricgraph
+differently](ricgraph_as_server.md#ricgraph-as-a-server-on-linux).
 In case you have no idea what would be the best for your situation, please 
 install Ricgraph for a single user on Linux, as described on this page.
-Or go for Ricgraph in a container.
+Or go for [Ricgraph in a
+container](ricgraph_containerized.md#ricgraph-in-a-container).
 
-Other Ricgraph install options are:
-
-* [Install and configure
-  Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux): 
-  multi-user environment on Linux.
-* [Install and use
-  Ricgraph in a container](ricgraph_containerized.md#ricgraph-in-a-container):
-  relatively quick with limited possibilities.
- 
 To install and run Ricgraph for a single user, read
 [Fast and recommended way to install 
 Ricgraph for a single user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 
-Alternatively, you can follow these steps:
+On this page, you can find:
 
-* [Requirements](#requirements-for-ricgraph)
+* [Fast and recommended way to install Ricgraph for a single user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
+* [Requirements for Ricgraph](#requirements-for-ricgraph)
 * [Ricgraph Makefile](#ricgraph-makefile)
-* [Steps to take](#steps-to-take)
-* [Download Ricgraph](#download-ricgraph)
-* [Use a Python virtual environment and install Python requirements](#use-a-python-virtual-environment-and-install-python-requirements)
+* [Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
 * [Ricgraph initialization file](#ricgraph-initialization-file)
 * [Using Ricgraph](#using-ricgraph)
 * [Ricgraph on Windows](#ricgraph-on-windows)
@@ -39,7 +31,8 @@ Alternatively, you can follow these steps:
 ### You can change to user *root*
 To follow this procedure, you need to be able to change to user *root*.
 This is the recommended method to install Ricgraph for a single user, since
-it will install everything automatically (by using the Makefile).
+it will install everything automatically (by using the 
+[Ricgraph Makefile](#ricgraph-makefile)).
 
 1. [Check the requirements](#requirements-for-ricgraph).
 1. Get the most recent Ricgraph Makefile.
@@ -66,7 +59,7 @@ it will install everything automatically (by using the Makefile).
 1. Harvest two source systems in Ricgraph:
    ```
    cd $HOME/ricgraph_venv
-   make run_batchscript
+   make run_bash_script
    ```
    This will harvest two source systems,
    [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
@@ -89,9 +82,9 @@ it will install everything automatically (by using the Makefile).
    Read more at [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
 
 If everything succeeded, you are done, and you can skip the remainder of this page.
-If not, the remainder of this page may help in finding solutions, or
-section  [Install and start Neo4j Community Edition graph database
-backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+If not, the remainder of this page 
+or section  [Install and start Neo4j Community Edition graph database
+backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) may help in finding solutions.
 
 
 ### You cannot change to user *root*
@@ -117,9 +110,9 @@ since you have to do a number of things manually.
    On success, the Makefile will print *installed successfully*.
 
 If everything succeeded, you are done, and you can skip the remainder of this page.
-If not, the remainder of this page may help in finding solutions, or
-section  [Install and start Neo4j Desktop graph database
-backend](ricgraph_backend_neo4j.md#install-neo4j-desktop).
+If not, the remainder of this page
+or section  [Install and start Neo4j Community Edition graph database
+backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) may help in finding solutions.
 
 ## Requirements for Ricgraph
 
@@ -172,7 +165,7 @@ backend](ricgraph_backend_neo4j.md#install-neo4j-desktop).
     * Almost any Linux distribution will work, the author uses both
       [OpenSUSE Leap](https://www.opensuse.org) and
       [Ubuntu](https://ubuntu.com/desktop). Others will also work.
-    * For the configuration in VirtualBox, a VM of size 25GB with 4GB memory will work.
+    * For the configuration in VirtualBox, a VM of size 25GB with 8GB memory will work.
       This depends on the (size of the) sources you plan to harvest and the
       capabilities of your computer. The more, the better. The author uses a 
       VirtualBox VM of size 35GB with
@@ -212,14 +205,16 @@ backend](ricgraph_backend_neo4j.md#install-neo4j-desktop).
 
 ## Ricgraph Makefile
 A Ricgraph installation involves a number of steps.
-Ricgraph uses a [Makefile](https://www.gnu.org/software/make)
+Ricgraph uses [*make* and a Makefile](https://www.gnu.org/software/make)
 to make installation of (parts of) Ricgraph easier.
-For make, see 
-[https://www.gnu.org/software/make](https://www.gnu.org/software/make).
-Such a Makefile automates a number of these steps.
-A Makefile command is executed by typing:
+A Makefile automates a number of these steps.
+A `make` command is executed by typing:
 ```
 make [target]
+```
+or
+```
+make [make command line parameter]=[value] [target]
 ```
 
 To use the Ricgraph Makefile, first go to your home directory on Linux and
@@ -239,9 +234,14 @@ make allhelp
 ```
 You can add command line parameters to the `make` command, e.g. to get the
 Ricgraph *cutting edge* version, or to specify an installation path.
-In that case, the make command would look like 
-`make ricgraph_version=cuttingedge [target]` or
-`make ricgraph_server_install_dir=[path] [target]`.
+In that case, the make command may look like 
+```
+make ricgraph_version=cuttingedge [target] 
+```
+or
+```
+make ricgraph_server_install_dir=/opt/ricgraph_venv [target]
+```
 Look in file *Makefile* for possibilities. Any variable defined
 in the Makefile can be used as `make` command line parameter.
 For an example, see the Podman Containerfile in file *Containerfile*.
@@ -259,39 +259,34 @@ Sometimes, you will
 have to do some post-install steps, e.g. because you have to choose a password for the
 graph database.
 
-
-## Steps to take
+## Steps to take to install Ricgraph for a single user by hand
 Skip this section if you have done the
 [Fast and recommended way to install Ricgraph for a single 
 user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there were no errors.
 
-1. Install your graph database backend (choose one of these):
-    * [Install and start Neo4j Community
-      Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) (recommended, only possible if you are able to change to user *root*).
-   * [Install Neo4j Desktop](ricgraph_backend_neo4j.md#install-neo4j-desktop)
-     Optional: [Install the Bloom 
-     configuration](ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional).
-   * [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
+1. [Install your graph database backend](#install-your-graph-database-backend).
 1. [Download Ricgraph](#download-ricgraph).
 1. [Use a Python virtual environment and install Python 
    requirements](#use-a-python-virtual-environment-and-install-python-requirements).
 1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file). This is also the
    place where you specify which graph database backend you use.
-1. Start 
-   - harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts);
-   - writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
+1. Start harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts), or
+   writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
+1. Start browsing using
+   [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
 
 
-## Download Ricgraph
+### Install your graph database backend
+Install your graph database backend (choose one of these):
 
-Skip this section if you have done the
-[Fast and recommended way to install Ricgraph for a single
-user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there were no errors.
-
-If you use the [Ricgraph Makefile](#ricgraph-makefile),
-this will be done automatically while creating a Python virtual environment
-(see the following section).
-
+* [Install and start Neo4j Community
+  Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) (recommended, only possible if you are able to change to user *root*).
+* [Install Neo4j Desktop](ricgraph_backend_neo4j.md#install-neo4j-desktop)
+  Optional: [Install the Bloom
+  configuration](ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional).
+* [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
+    
+### Download Ricgraph
 You can choose two types of downloads for Ricgraph:
 
 * The latest released version. Go to the
@@ -301,26 +296,7 @@ You can choose two types of downloads for Ricgraph:
   [GitHub page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/),
   click the green button "Code", choose tab "Local", choose "Download zip".
 
-## Use a Python virtual environment and install Python requirements
-
-To do this, you can either use the [Ricgraph Makefile](#ricgraph-makefile),
-or follow the steps below.
-Skip this section if you have done the
-[Fast and recommended way to install Ricgraph for a single
-user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there were no errors.
-
-
-If you use the Ricgraph Makefile, the command to use depends on 
-whether you have installed Neo4j Community Edition or Neo4j Desktop.
-
-* Neo4j Community Edition, type:
-  ```
-  make install_ricgraph_singleuser_neo4j_community
-  ```
-* Neo4j Desktop, type:
-  ```
-  make install_ricgraph_singleuser_neo4j_desktop
-  ```
+### Use a Python virtual environment and install Python requirements
 
 To be able to use Ricgraph, you will need a Python virtual environment.
 Virtual environments are a kind of lightweight Python environments,
@@ -332,7 +308,7 @@ There are two ways of doing this:
 * Using Python's venv module;
 * Using a Python Integrated development environment (IDE).
 
-### Using Python's venv module
+#### Using Python's venv module
 
 * Using Python's venv module.
   Read [Create a Python virtual environment and install Ricgraph in
@@ -348,7 +324,7 @@ There are two ways of doing this:
     read _/home/alice_, and ignore any references to "login as user _root_" and ``chown``.
   * Follow the other instructions as written. 
 
-### Using a Python Integrated development environment (IDE)
+#### Using a Python Integrated development environment (IDE)
 
 * Using a Python
   [Integrated development
@@ -375,23 +351,18 @@ There are two ways of doing this:
     ```
     You may want to change *3.11* in *pip3.11* for the Python version you use.
 
-### Notable dependencies used in Ricgraph:
-
-* [PyAlex](https://github.com/J535D165/pyalex).
-  PyAlex is a Python library for [OpenAlex](https://openalex.org/).
-  OpenAlex is an index of hundreds of millions of interconnected scholarly papers, authors,
-  institutions, and more. OpenAlex offers a robust, open, and free [REST API](https://docs.openalex.org/)
-  to extract, aggregate, or search scholarly data.
-  PyAlex is a lightweight and thin Python interface to this API.
-
 ## Ricgraph initialization file
 
 Ricgraph requires an initialization file. A sample file is included as *ricgraph.ini-sample*.
 You need to copy this file to *ricgraph.ini* and modify it
 to include settings for your graph database backend, and
 API keys and/or email addresses for other systems you plan to use.
+If you have used the Ricgraph Makefile, the copying 
+and the settings for the graph database backend will have been set, but
+you still need to fill in
+API keys and/or email addresses for other systems you plan to use.
 
-### Settings for graph database backend
+### Settings for the graph database backend
 Ricgraph has a *[GraphDB]* section where you have to specify the graph database
 backend that you will be using. First, you will need to set 
 the parameter *graphdb* to the graph database backend name (you can
@@ -476,5 +447,6 @@ person to do so, as far as known. The creator of Ricgraph has no experience
 in developing software on Windows. So please let me know which steps you have
 taken, so I can add them to this documentation. If you are a Windows user,
 I would recommend to create a Linux virtual machine using e.g.
-[VirtualBox](https://www.virtualbox.org), and install Ricgraph in that 
+VirtualBox as explained in section [Requirements](#requirements-for-ricgraph), 
+and install Ricgraph in that 
 virtual machine as described above.

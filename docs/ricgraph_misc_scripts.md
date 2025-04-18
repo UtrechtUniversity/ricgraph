@@ -3,7 +3,8 @@
 This page describes scripts for 
 importing and exporting items from
 Ricgraph, about
-scripts to enhance (finding, enriching, etc.) information in
+scripts to enhance (deleting personal data, renaming (sub-)organizations, etc.) 
+information in
 Ricgraph, and about Ricgraph maintenance scripts.
 Read more about [scripts for harvesting sources and inserting the results in
 Ricgraph](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts),
@@ -84,6 +85,7 @@ Other fields that may be present:
   but not the fields *source_event* and *history_event*.
 
 The import file containing edges should be a csv file containing exactly four columns:
+
 * name_from, value_from: the from node for the edge.
 * name_to, value_to: the to node for the edge.
 
@@ -263,9 +265,10 @@ The script will delete all nodes of category *person* that are related with
 the person whose personal data have to be deleted (except for the *person-root* node,
 this node will not be deleted since it does not contain personal information).
 
+Bash script:
 ```
 Usage:
-./delete_personal_data.sh [options]
+delete_personal_data.sh [options]
 
 Options:
         -o, --organization [organization]
@@ -284,6 +287,7 @@ Options:
                 Show this help text.
 ```
 
+Python script:
 ```
 Usage:
 delete_pers_data.py [options]
@@ -319,9 +323,11 @@ Example corresponding csv files can also be found in directory *enhance*.
 
 The script will read a line from the csv file. Then it will
 rename the (sub-)organization.
+
+Bash script:
 ```
 Usage:
-./rename_organizations.sh [options]
+rename_organizations.sh [options]
 
 Options:
         -o, --organization [organization]
@@ -340,6 +346,7 @@ Options:
                 Show this help text.
 ```
 
+Python script:
 ```
 Usage:
 rename_orgs.py [options]

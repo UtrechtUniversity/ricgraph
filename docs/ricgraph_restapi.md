@@ -13,8 +13,8 @@ Note that this will only work if someone has a running Ricgraph and
 Ricgraph Explorer instance available, which you can access over the web.
 That someone can be yourself, where you run Ricgraph and
 Ricgraph Explorer on your own computer or use a cloud service 
-such as SURF Research Cloud,
-or it can be someone else, who is doing that for you or for a 
+such as SURF Research Cloud.
+Alternatively, it can be someone else, who is doing that for you or for a 
 community of users.
 
 If you use the Ricgraph REST API, will get these results 
@@ -74,7 +74,7 @@ See the figure below, that shows part of the Home page of Ricgraph Explorer.
 ## Ricgraph REST API endpoint documentation
 Read 
 the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api).
-This page is auto generated from the OpenAPI yaml specification file (see the next section). but
+This page is automatically generated from the OpenAPI yaml specification file.
 
 ## Generate the Ricgraph REST API documentation page
 Please read

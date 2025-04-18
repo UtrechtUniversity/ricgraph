@@ -1,14 +1,12 @@
 # Ricgraph publications, presentations, use, and mentions
-
-* Read [Ricgraph publications](#ricgraph-publications).
-* Read [Ricgraph presentations](#ricgraph-presentations).
-* Read [Ricgraph newsletters](#ricgraph-newsletters).
-* Read more about [Ricgraph projects with students](#ricgraph-projects-with-students).
-* See where [Ricgraph has been used](#ricgraph-use).
-* See where [Ricgraph has been mentioned](#ricgraph-mentions).
-* Watch a video where [Arjan Sieverink presents Ricgraph at Pure International Conference 
-  2023](#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023).
-
+This page contains the following sections:
+* [Ricgraph publications](#ricgraph-publications)
+* [Ricgraph presentations](#ricgraph-presentations)
+* [Ricgraph newsletters](#ricgraph-newsletters)
+* [Ricgraph projects with students](#ricgraph-projects-with-students)
+* [Ricgraph use](#ricgraph-use)
+* [Ricgraph mentions](#ricgraph-mentions)
+* [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
 
 Please let us know if you publish, present, use, or mention Ricgraph, then we
 can add that to this page. 

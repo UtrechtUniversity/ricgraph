@@ -2,43 +2,37 @@
 This page describes how to install and run Ricgraph in a multi-user environment on Linux.
 *Multi-user environment* means that you install Ricgraph on a Linux (virtual) machine, 
 and that various persons can log on to that machine, each with his own user id
-and password, and that each person will be able to use Ricgraph by using a
+and password. Each person will be able to use Ricgraph by using a
 web link in their web browser.
+For other Ricgraph install options start reading at
+[Install and configure
+Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph).
 
 The reason that a Linux multi-user environment for Ricgraph is different from installing and using
 Ricgraph on your own user id, is that you will need to run the graph database backend and
 [Ricgraph Explorer](ricgraph_explorer.md) 
 as a system user instead of running it using your own user id.
-If you run Ricgraph with your own user id, you will be the only user able to use it.
+In case you run Ricgraph with your own user id, you will be the only user able to use it.
 In case other persons on that same machine would like to use Ricgraph, they have
 to install it for themselves. 
 By installing Ricgraph as a server, as described on this page,
 Ricgraph will be started automatically when your machine boots, and
 it can be used by any user on that machine.
 
-Other Ricgraph install options are:
-
-* [Install and configure
-  Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph).
-* [Install and use
-  Ricgraph in a container](ricgraph_containerized.md#ricgraph-in-a-container): 
-  relatively quick with limited possibilities.
 
 To install and run Ricgraph in a multi-user environment, read
 [Fast and recommended way to install Ricgraph as a 
 server](#fast-and-recommended-way-to-install-ricgraph-as-a-server).
 
-Alternatively, you can follow these steps:
+On this page, you can find:
 
-* [Create a ricgraph user and group](#create-a-ricgraph-user-and-group)
-* [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it)
+* [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server)
+* [Steps to take to install Ricgraph for as a server by hand](#steps-to-take-to-install-ricgraph-for-as-a-server-by-hand)
 * [Run Ricgraph scripts from the command line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
 * [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 * [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 * [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
-* [Introduction Nginx webserver](#introduction-nginx-webserver)
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
- 
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
@@ -85,7 +79,7 @@ To follow this procedure, you need to be able to change to user *root*.
 1. Harvest two source systems in Ricgraph:
    ```
    cd /opt/ricgraph_venv
-   make run_batchscript
+   make run_bash_script
    ```
    This will harvest two source systems,
    [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
@@ -115,10 +109,32 @@ If not, the remainder of this page may help in finding solutions, or
 section  [Install and start Neo4j Community Edition graph database
 backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
 
+## Steps to take to install Ricgraph for as a server by hand
+Skip this section if you have done the
+[Fast and recommended way to install Ricgraph as a
+server](#fast-and-recommended-way-to-install-ricgraph-as-a-server)
+and there were no errors.
 
-## Create a ricgraph user and group
-If you use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile),
-you do not need to do this. Otherwise, follow these steps:
+1. [Install your graph database backend](#install-your-graph-database-backend).
+1. [Create a ricgraph user and group](#create-a-ricgraph-user-and-group).
+1. [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it).
+1. Create and update the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file). 
+   This is also the
+   place where you specify which graph database backend you use.
+1. Start harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts), or
+   writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
+1. Start browsing using
+   [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
+
+### Install your graph database backend
+Install your graph database backend (choose one of these):
+
+* [Install and start Neo4j Community
+  Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+* [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
+
+### Create a ricgraph user and group
+Follow these steps:
 
 * Login as user *root*.
 * Create group and user *ricgraph*. First check if they exist:
@@ -135,11 +151,8 @@ you do not need to do this. Otherwise, follow these steps:
 * Exit from user *root*.
   
   
-## Create a Python virtual environment and install Ricgraph in it
-To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
-command `make install_ricgraph_server`,
-or follow the steps below.
-
+### Create a Python virtual environment and install Ricgraph in it
+Follow these steps:
 
 * Suppose you are a user with login *alice* and you are in Linux group *users*.
 * Login as user *root*.
@@ -245,7 +258,7 @@ parameter *python_script*, e.g.
 make run_python_script python_script=[path]/[python script]
 ```
 
-There is a similar command for bash scripts:
+There is a similar command for running bash scripts:
 ```
 make run_bash_script bash_script=[path]/[bash script]
 ```
@@ -253,7 +266,20 @@ make run_bash_script bash_script=[path]/[bash script]
 Both `make` commands execute the script and the output will appear both
 on your screen and in a file. The Makefile will tell you the name of this log file.
 
+Examples of commands you can use are:
 
+* harvest from the Research Software Directory:
+  ```
+  make run_python_script python_script=harvest/harvest_rsd_to_ricgraph.py
+  ```
+* harvest two sources without needing any keys or configuration:
+  ```
+  make run_bash_script
+  ```
+* run Ricgraph Explorer:
+  ```
+  make run_ricgraph_explorer
+  ```
 
 ### In case you have installed Ricgraph as a server
 
@@ -277,9 +303,9 @@ Examples of commands you can use are:
   ```
   cd /opt/ricgraph_venv/harvest; ../bin/python harvest_rsd_to_ricgraph.py
   ```
-* harvest all your favorite sources:
+* harvest two sources without needing any keys or configuration:
   ```
-  cd /opt/ricgraph_venv/harvest; ../bin/python batch_harvest_demo.py
+  cd /opt/ricgraph_venv/harvest_multiple_sources; ./multiple_harvest_demo.sh
   ```
 * run Ricgraph Explorer:
   ```
@@ -301,7 +327,7 @@ Examples of commands you can use are:
   ```
 * harvest all your favorite sources:
   ```
-  cd $HOME/ricgraph_venv/harvest; ../bin/python batch_harvest_demo.py
+  cd $HOME/ricgraph_venv/harvest_multiple_sources; ./multiple_harvest_demo.sh
   ```
 * run Ricgraph Explorer:
   ```
@@ -309,8 +335,6 @@ Examples of commands you can use are:
   ```
 
 ## Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API
-To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
-command `make install_enable_ricgraphexplorer_restapi`, or follow the steps below.
 
 Using a service unit file to run
 [Ricgraph Explorer](ricgraph_explorer.md) 
@@ -328,6 +352,14 @@ of Ricgraph for a single user](ricgraph_install_configure.md),
 after the start of the virtual machine, you would need to start the graph database
 backend, the virtual environment,
 and *ricgraph_explorer.py* by hand.
+
+To use a service usint file, 
+you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+command:
+```
+make install_enable_ricgraphexplorer_restapi
+```
+or follow the steps below.
 
 Using a service unit file will *not* expose Ricgraph Explorer,
 the Ricgraph REST API, and Ricgraph data to 
@@ -362,8 +394,6 @@ the outside world. All data will only be accessible in the virtual machine.
 
 
 ## Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
-To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
-command `make prepare_webserver_apache`, or follow the steps below.
 
 ### Introduction Apache webserver
 [Ricgraph Explorer](ricgraph_explorer.md) 
@@ -401,6 +431,14 @@ comments at the start of the configuration file.
 Note that it is also possible to use [Nginx as a
 webserver](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 If you are using SURF Research Cloud, you will need to use Nginx.
+
+To use Apache c.s., you can either use the 
+[Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+command:
+```
+make prepare_webserver_apache
+```
+or follow the steps below.
 
 ### Installation Apache
 
@@ -474,8 +512,6 @@ and Ricgraph data to the outside world.*
 
 
 ## Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
-To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
-command `make prepare_webserver_nginx`, or follow the steps below.
 
 ### Introduction Nginx webserver
 Please read the introduction of section
@@ -492,6 +528,14 @@ comments at the start of the configuration file.
 
 Note that it is also possible to use [Apache as a
 webserver](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+
+To use Nginx c.s., you can either use the
+[Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
+command:
+```
+make prepare_webserver_nginx
+```
+or follow the steps below.
 
 ### Installation Nginx
 

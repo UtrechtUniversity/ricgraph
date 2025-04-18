@@ -7,13 +7,9 @@ makes sure the application works the same on any computer.
 Podman is a tool for creating and running containers, and it
 is safe because it doesn't need special permissions to work. 
 This makes it a good choice for running programs quickly and reliably.
-
-Other Ricgraph install options are:
-
-* [Install and configure
-  Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph).
-* [Install and configure
-  Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux).
+For other Ricgraph install options start reading at
+[Install and configure
+Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph).
  
 To install and run Ricgraph in a Podman container, 
 follow these steps:
@@ -148,14 +144,16 @@ There are two ways to run the Ricgraph Podman container:
 
 If you started `podman run` for the first time, 
 the container does not have data in it. You can observe this by going to the 
-Ricgraph Explorer home page (http://localhost:3030),
-and by scrolling down to the "About Ricgraph" section.
-The easiest method for getting data in it, is to run the `batch_harvest_demo.py` script
-that harvests a selection of research information of Utrecht University. 
-The script harvests from both
+Ricgraph Explorer home page ([http://localhost:3030](http://localhost:3030)),
+by scrolling down to the "About Ricgraph" section, and looking for the number
+of nodes and edges.
+The easiest method for getting data in it, is to run the 
+*multiple_harvest_demo.sh* script
+that harvests a selection of research information of Utrecht University
+(from
 the data repository [Yoda](https://www.uu.nl/en/research/yoda)
-and from the 
-[Research Software Directory](https://research-software-directory.org)
+and the 
+[Research Software Directory](https://research-software-directory.org)).
 These two repositories do not need authentication keys.
 Running this script will take several minutes to complete.
 Type
@@ -216,9 +214,10 @@ to the [Ricgraph initialization file
 *ricgraph.ini*](ricgraph_install_configure.md#ricgraph-initialization-file).
 Follow these steps:
 
-* First execute a `bash` shell in the Ricgraph Podman container (see above). Execute the
+* Execute a `bash` shell in the Ricgraph Podman container (see above). Do the
   following commands in the container (in the bash shell you just started).
-* If necessary, add API keys to *ricgraph.ini*. It is in */usr/local* in the container.
+* Add API keys to *ricgraph.ini*, if necessary for the sources you would like to harvest. 
+  It is in */usr/local* in the container.
   You can use `vim` (or `vi`) to edit it.
 * Go to the directory with harvest scripts:
   ```
@@ -230,7 +229,8 @@ Follow these steps:
   ```
   or create your own harvest script.
   For more information, read [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
-  You can also use the [scripts that harvest multiple sources](ricgraph_harvest_scripts.md#scripts-that-harvest-multiple-sources).
+  You can also use the 
+  [scripts that harvest multiple sources](ricgraph_harvest_scripts.md#scripts-that-harvest-multiple-sources).
 * Make the data permanent in the container, see `podman commit` above.  
   Note that the size of your container may explode if you harvest a lot of items.
 * Restart the container, see `podman restart` above.

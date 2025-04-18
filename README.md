@@ -22,6 +22,11 @@ We use color=#4c1 (green), that color is used by the 'repo status' badge.
 Documentation about the Podman badges can be found here: https://github.com/eggplants/ghcr-badge.
 --->
 
+> Read the [Tutorial](docs/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph).
+> Go to the [Documentation website](https://docs.ricgraph.eu).
+> Consult the [Table of contents](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation), 
+> or the [Index](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
+
 <img alt="Ricgraph logo" src="docs/images/ricgraph_logo.png" width="30%"> 
 
 <!---
@@ -33,12 +38,6 @@ to remove everything up and including these lines. Do not modify the text in it.
 <!--- Mark to remove everything up to here --->
 
 # Ricgraph - Research in context graph
-
-[Read the Tutorial Ricgraph](docs/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph).
-Go to the [documentation website for Ricgraph](https://docs.ricgraph.eu).
-
-[Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation) and 
-[Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
 ## What is Ricgraph?
 
@@ -194,16 +193,15 @@ exploration tool for Ricgraph:
   clicking on a number in one of these
   two tables to find the nodes corresponding to that number. 
 
+If you would like to get this information programmatically, you can use
+the [Ricgraph REST API](https://docs.ricgraph.eu/docs/ricgraph_restapi.html#ricgraph-rest-api).
+
 With Ricgraph, you can get metadata from objects from any source system you’d like. 
 You run the harvest script for that
 system, and data will be imported in Ricgraph and will be 
 combined automatically with data which is already there.
 Ricgraph provides harvest scripts for the systems mentioned above. 
 Scripts for other sources can be written easily.
-
-In the remainder of this text, Ricgraph is described in the use case of
-showing people, organizations and research outputs in relation to each other
-in a university context.
 
 ## Examples
 
@@ -270,14 +268,8 @@ The following figure shows how three persons have contributed to one research ou
   relation between two objects.
 * Ricgraph and Ricgraph Explorer are written in Python. You can use two different
   [graph database backends](https://en.wikipedia.org/wiki/Graph_database):
-  * [Neo4j](https://neo4j.com) (either Neo4j Desktop or Neo4j Community Edition);
-  * [Memgraph](https://memgraph.com).
-* Metadata of an object are stored as "properties"
-  in a node, i.e. as information associated with a node.
-  For example, a node may store two properties, *name = PET* and
-  *value = cat*. Another node may store *name = FULL_NAME* and *value = John Doe*.
-  Then the edge between those two nodes means that the person with FULL_NAME John Doe
-  has a PET which is a cat. Ricgraph can store any number of properties in a node.
+  [Neo4j](docs/ricgraph_backend_neo4j.md#ricgraph-with-neo4j-graph-database-backend) and
+  [Memgraph](docs/ricgraph_backend_memgraph.md#ricgraph-with-memgraph-graph-database-backend).
 * The objective of Ricgraph is to get metadata from
   objects from a source system in a process called "harvesting".
   That means that e.g. persons and publications
@@ -290,28 +282,19 @@ The following figure shows how three persons have contributed to one research ou
   the data repository [Yoda](https://www.uu.nl/en/research/yoda),
   the [Research Software Directory](https://research-software-directory.org), and 
   for the [Utrecht University staff pages](https://www.uu.nl/staff/search).
-* Ricgraph can be used as an ID resolver. It can, given an identifier of a person,
+* Ricgraph is an ID resolver. It can, given an identifier of a person,
   easily find other identifiers of that person. When new identifiers are found when
   harvesting from new systems,
   they will be added automatically. 
-* Ricgraph can check the consistency of information harvested. For example, ORCIDs and ISNIs
-  are supposed to refer to one person, so every node representing such an identifier should have
-  only one edge. This can be checked easily.
-  An example script is included.
-* Ricgraph can enrich information in its own graph by using information from other systems. 
-  For example,
-  if a person has an ORCID, but not a Scopus Author ID,
-  [OpenAlex](https://openalex.org) can be used
-  to find the missing Scopus Author ID. An example script is included.
 * Ricgraph can enrich a source system based on information that is present in one
-  source system, but not in another source system. See the use case above.
+  source system, but not in another source system. 
+  See the [librarian use case](#use-case-for-a-librarian) above.
 
 ## Next steps
 
-
 ### Further information about Ricgraph
 
-* Read the full documentation of Ricgraph on
+* Explore the full documentation of Ricgraph on
   [https://docs.ricgraph.eu](https://docs.ricgraph.eu).
 * For a gentle introduction in Ricgraph, read the reference publication:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
@@ -340,13 +323,11 @@ The following figure shows how three persons have contributed to one research ou
   [use](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
   [mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
   of Ricgraph.
-* Read more about [Ricgraph details](docs/ricgraph_details.md#implementation-details),
-  such as example graphs, person identifiers and the *person-root* node.
-* You might want to [compare Ricgraph to other systems](docs/ricgraph_comparison.md#ricgraph-comparison).
-* Read the
-  [Table of contents of Ricgraph documentation](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation).
-* Read the
-  [Index of Ricgraph documentation](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
+* Ricgraph's main website is www.ricgraph.eu.
+  Alternative sites are www.ricgraph.nl and www.ricgraph.com.
+  These are generated using the 
+  [ricgraph-documentation](https://github.com/UtrechtUniversity/ricgraph-documentation)
+  GitHub repository.
 
 ### Steps to take if you would like to install Ricgraph and harvest data
 
@@ -363,22 +344,12 @@ The following figure shows how three persons have contributed to one research ou
 
 ### Steps to take if you would like to use Ricgraph
 
-* First, install Ricgraph (see above).
 * Use [Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer),
   the exploration tool for Ricgraph. 
 * Use the [Ricgraph REST API](docs/ricgraph_restapi.md#ricgraph-rest-api),
   the REST API for Ricgraph.
-
-### Steps to take in case you would like to extend Ricgraph
-
-* Start writing scripts, see [Ricgraph script writing](docs/ricgraph_script_writing.md#ricgraph-script-writing).
-
-### Ricgraph website
-Ricgraph has a main Ricgraph website on www.ricgraph.eu. 
-Alternative sites are www.ricgraph.nl and www.ricgraph.com.
-The sources for this website are on GitHub in directory *website*.
-It is generated using the repository
-[https://github.com/UtrechtUniversity/ricgraph-documentation](https://github.com/UtrechtUniversity/ricgraph-documentation).
+* You can also [write your own harvest scripts](docs/ricgraph_script_writing.md#ricgraph-script-writing),
+  or modify any part of the Ricgraph code.
 
 ## Contact
 Ricgraph has been created and is being maintained by
@@ -388,6 +359,18 @@ You can find contact details at
 He also has an ORCID profile on
 [ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).
 You can contact him for presentations, demos and workshops.
+
+He is also very interested in collaborating on projects involving Ricgraph.
+Ricgraph is a flexible platform that brings
+together information from multiple systems into a single graph,
+allowing users to explore and analyze this information and their relationships.
+Collaborations could focus on applying Ricgraph to
+research information, such as exploring collaborations
+and contributions, or analyzing networks.
+They could also explore entirely different domains.
+Any application that involves representing and analyzing
+interconnected information as nodes and relationships in a graph,
+regardless of the field, is of interest
 
 About three to four times a year we send out a 
 newsletter.

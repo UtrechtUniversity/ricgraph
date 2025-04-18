@@ -40,6 +40,9 @@ the exploration tool for Ricgraph:
   clicking on a number in one of these
   two tables to find the nodes corresponding to that number.
 
+If you would like to get this information programmatically, you can use
+the [Ricgraph REST API](https://docs.ricgraph.eu/docs/ricgraph_restapi.html#ricgraph-rest-api).
+
 With Ricgraph, you can get metadata from objects from any source system you’d
 like.  You run the harvest script for that
 system, and data will be imported in Ricgraph and will be
@@ -47,7 +50,7 @@ combined automatically with data which is already there.
 Ricgraph provides harvest scripts for the systems mentioned above.
 Scripts for other sources can be written easily.
 
-## More information
+## Next steps
 You might want to continue reading at 
 [Read more about Ricgraph](read-more-about-ricgraph.md), 
 or to [Get Ricgraph](get-ricgraph.md).

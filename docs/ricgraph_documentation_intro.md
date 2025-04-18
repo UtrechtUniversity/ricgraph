@@ -57,9 +57,6 @@ or browse through the full documentation:
   * Use the search box.
   * Of course, every webpage has links that allow you to go to other sections
     or webpages.
-  * Use the [index](ricgraph_index_documentation.md#index-ricgraph-documentation)
-    or [table of contents](ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation)
-    (the sitemap).
   * Read the [full documentation as pdf](https://docs.ricgraph.eu/ricgraph_fulldocumentation.pdf).
     This pdf is the concatenation of all Ricgraph documentation pages in one pdf.
 
@@ -75,3 +72,15 @@ You can find contact details at
 He also has an ORCID profile on
 [ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).
 You can contact him for presentations, demos and workshops.
+
+He is also very interested in collaborating on projects involving Ricgraph.
+Ricgraph is a flexible platform that brings
+together information from multiple systems into a single graph,
+allowing users to explore and analyze this information and their relationships.
+Collaborations could focus on applying Ricgraph to
+research information, such as exploring collaborations
+and contributions, or analyzing networks.
+They could also explore entirely different domains.
+Any application that involves representing and analyzing
+interconnected information as nodes and relationships in a graph,
+regardless of the field, is of interest

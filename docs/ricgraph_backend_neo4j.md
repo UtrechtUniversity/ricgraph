@@ -12,18 +12,14 @@ Neo4j has several products:
   [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
 * [Neo4j Desktop](https://neo4j.com/download-center/#desktop);
 * (optional) [Neo4j Bloom graph visualization tool](https://neo4j.com/product/bloom),
-  included with Neo4j Desktop
-  (according to Neo4j:
-  "A beautiful and expressive data visualization tool to quickly explore and freely interact with
-  Neo4j’s graph data platform with no coding required");
+  included with Neo4j Desktop.
 
 To use Ricgraph, if you choose the Neo4j graph database backend (which is recommended for now),
 you need to choose between Neo4j Community Edition and Neo4j Desktop.
 On this page you can find:
 
-* [Install and start Neo4j Community Edition](#install-and-start-neo4j-community-edition)
-* [Install Neo4j Desktop](#install-neo4j-desktop)
-* [Start Neo4j Desktop](#start-neo4j-desktop)
+* [Neo4j Community Edition](#neo4j-community-edition)
+* [Neo4j Desktop](#neo4j-desktop)
 * [Dumping, restoring, and emptying the Ricgraph database](#dumping-restoring-and-emptying-the-ricgraph-database)
   * [Create a Neo4j Desktop database dump of Ricgraph](#create-a-neo4j-desktop-database-dump-of-ricgraph)
   * [Create a Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
@@ -31,16 +27,23 @@ On this page you can find:
   * [Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-desktop-database-dump-of-ricgraph-in-neo4j-community-edition)
   * [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
   * [Empty a Neo4j Community Edition database](#empty-a-neo4j-community-edition-database)
+* [How to reset the Neo4j Community Edition password](#how-to-reset-the-neo4j-community-edition-password)
 * [Install Bloom configuration for Neo4j Desktop (optional)](#install-bloom-configuration-for-neo4j-desktop-optional)
 * [How to use Bloom for Neo4j Desktop (optional)](#how-to-use-bloom-for-neo4j-desktop-optional)
 * [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
-## Install and start Neo4j Community Edition
+## Neo4j Community Edition
+
+### Install and start Neo4j Community Edition
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) 
 and execute as user *root*
-command `make install_enable_neo4j_community`, or follow the steps below.
+command 
+```
+make install_enable_neo4j_community
+```
+or follow the steps below.
 
 * Login as user *root*.
 * Install Neo4j Community Edition (it is free).
@@ -96,8 +99,8 @@ command `make install_enable_neo4j_community`, or follow the steps below.
   ```
 * Exit from user *root*.
 
-* Skip the next section *Post-install steps Neo4j Community Edition* (you have
-  already reset the password above).
+Skip the next section *Post-install steps Neo4j Community Edition* (you have
+already reset the password above).
 
 ### Post-install steps Neo4j Community Edition
 If you use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile),
@@ -114,10 +117,16 @@ change the default username and password of Neo4j:
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 
 
-## Install Neo4j Desktop
+## Neo4j Desktop
+
+### Install Neo4j Desktop
 To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
 and execute
-command `make install_neo4j_desktop`, or follow the steps below.
+command 
+```
+make install_neo4j_desktop
+```
+or follow the steps below.
 
 1. Install Neo4j Desktop Edition (it is free). 
    To do this, go to the 
@@ -169,7 +178,7 @@ Now we need to find the port number which Neo4j Desktop is using:
 1. Ready.
 
 
-## Start Neo4j Desktop
+### Start Neo4j Desktop
 
 1. Click on the downloaded AppImage. It will be called something
    like *neo4j-desktop-X.Y.Z-x86_64.AppImage*, where *X.Y.Z* is a version number.
@@ -202,11 +211,14 @@ To create a Neo4j Desktop database dump of Ricgraph, follow these steps:
 1. Ready.
 
 ### Create a Neo4j Community Edition database dump of Ricgraph
-To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
+To create a Neo4j Community Edition database dump of Ricgraph, 
+either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
 and execute
-command `make dump_graphdb_neo4j_community`, or follow the steps below.
-
-To create a Neo4j Community Edition database dump of Ricgraph, follow these steps:
+command 
+```
+make dump_graphdb_neo4j_community
+```
+or follow the steps below.
 
 1. Login as user *root*.
 1. Stop Neo4j Community Edition:
@@ -329,13 +341,15 @@ in Neo4j Community Edition, follow these steps:
 
 
 ### Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition
-To do this, you can either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
-and execute
-command `make restore_graphdb_neo4j_community`, or follow the steps below.
-
 To restore a
 [Neo4j Community Edition database dump of Ricgraph](#create-a-neo4j-community-edition-database-dump-of-ricgraph)
-in Neo4j Community Edition, follow these steps:
+in Neo4j Community Edition, 
+either use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
+and execute command 
+```
+make restore_graphdb_neo4j_community`
+```
+or follow the steps below.
 
 1. Login as user *root*.
 1. Stop Neo4j Community Edition:
@@ -397,15 +411,17 @@ in Neo4j Community Edition, follow these steps:
 
 ### Empty a Neo4j Community Edition database
 To do this, use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
-and execute
-command `make empty_graphdb_neo4j_community`.
+and execute command 
+```
+make empty_graphdb_neo4j_community
+```
 
 
 ## How to reset the Neo4j Community Edition password
 To reset the Neo4j Community Edition password, follow the following steps:
 
 1. Login as user *root*.
-1. Stop Neo4j, type:
+1. Stop Neo4j Community Edition, type:
    ```
    systemctl stop neo4j
    ```

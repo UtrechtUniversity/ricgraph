@@ -24,5 +24,3 @@ UtrechtUniversity/ricgraph on GitHub">Issue</a>.
   the exploration tool for Ricgraph. 
 * Use the [Ricgraph REST API](https://docs.ricgraph.eu/docs/ricgraph_restapi.html#ricgraph-rest-api),
   the REST API for Ricgraph.
-* Optional: modify code to fit Ricgraph to your specific use case.
-

@@ -4,8 +4,10 @@ On this page, you can find more information about:
 
 * [Person identifiers](#person-identifiers).
 * The [Person-root node in Ricgraph](#person-root-node-in-ricgraph).
-* [Example research questions](#example-research-questions).
 * [Properties of nodes in Ricgraph](#properties-of-nodes-in-ricgraph).
+
+You can also look at
+[Example research questions](ricgraph_explorer.md#example-research-questions).
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
@@ -42,12 +44,6 @@ A person can have any number of identifiers.
 The person in the left figure has one *ORCID*, one *ISNI* and one *FULL_NAME*.
 The person in the right figure has a lot more identifiers, and some identifiers appear more than once.
 E.g. this person has two different ORCIDs and two FULL_NAMEs (with different spellings).
-
-## Example research questions
-The figure belows shows examples of research questions that can be answered using Ricgraph.
-Click the figure to enlarge.
-
-<img alt="Example research questions for Ricgraph." src="images/examples-of-research-questions-general.jpg" width="90%">
 
 ## Properties of nodes in Ricgraph
 
