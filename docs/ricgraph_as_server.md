@@ -103,7 +103,7 @@ To follow this procedure, you need to be able to change to user *root*.
    On success, the Makefile will print *installed successfully*.
 1. Exit from user *root*.
 
-If everything succeeded, you are done, and you can skip the remainder of this page.
+If everything succeeded, you are done installing Ricgraph as a server.
 If not, sections
 [Steps to take to install Ricgraph as a server by hand](#steps-to-take-to-install-ricgraph-as-a-server-by-hand)
 or [Install and start Neo4j Community Edition graph database

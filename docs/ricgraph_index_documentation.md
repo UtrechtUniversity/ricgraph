@@ -6,7 +6,7 @@ __A__
 - [A usage flow through Ricgraph Explorer](../docs/ricgraph_explorer.md#a-usage-flow-through-ricgraph-explorer)
 - [A usage flow through Ricgraph Explorer](../docs/ricgraph_tutorial.md#a-usage-flow-through-ricgraph-explorer)
 - [Access a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#access-a-surf-research-cloud-workspace)
-- [Actions while clicking on a node](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node)
+- [Actions while clicking on a node in Bloom](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node-in-bloom)
 - [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_pubs_pres_news_use_ment.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
 
@@ -47,7 +47,7 @@ __E__
 - [Example research questions](../docs/ricgraph_explorer.md#example-research-questions)
 - [Example research questions](../docs/ricgraph_tutorial.md#example-research-questions)
 - [Examples](../README.md#examples)
-- [Execute queries](../docs/ricgraph_backend_neo4j.md#execute-queries)
+- [Execute queries in Bloom](../docs/ricgraph_backend_neo4j.md#execute-queries-in-bloom)
 - [Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv)](../docs/ricgraph_misc_scripts.md#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csv)
 - [Export nodes to a file (export_person_identifiers and export_person_node_properties)](../docs/ricgraph_misc_scripts.md#export-nodes-to-a-file-export_person_identifiers-and-export_person_node_properties)
 - [Extendability](../docs/ricgraph_comparison.md#extendability)
@@ -101,7 +101,6 @@ __H__
 - [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](../docs/ricgraph_backend_neo4j.md#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 - [How to start Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-ricgraph-explorer)
 - [How to use](../docs/ricgraph_restapi_gendoc.md#how-to-use)
-- [How to use Bloom for Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#how-to-use-bloom-for-neo4j-desktop)
 
 __I__
 
@@ -142,9 +141,9 @@ __M__
 
 __N__
 
-- [Neo4j Bloom (optional)](../docs/ricgraph_backend_neo4j.md#neo4j-bloom-optional)
 - [Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#neo4j-community-edition)
 - [Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#neo4j-desktop)
+- [Neo4j Desktop with Bloom (optional)](../docs/ricgraph_backend_neo4j.md#neo4j-desktop-with-bloom-optional)
 - [Next steps](../README.md#next-steps)
 - [Notes on the Ricgraph Podman container](../docs/ricgraph_containerized.md#notes-on-the-ricgraph-podman-container)
 
@@ -221,8 +220,8 @@ __S__
 - [Start Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#start-neo4j-desktop)
 - [Steps to take if you would like to install Ricgraph and harvest data](../README.md#steps-to-take-if-you-would-like-to-install-ricgraph-and-harvest-data)
 - [Steps to take if you would like to use Ricgraph](../README.md#steps-to-take-if-you-would-like-to-use-ricgraph)
+- [Steps to take to install Ricgraph as a server by hand](../docs/ricgraph_as_server.md#steps-to-take-to-install-ricgraph-as-a-server-by-hand)
 - [Steps to take to install Ricgraph for a single user by hand](../docs/ricgraph_install_configure.md#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
-- [Steps to take to install Ricgraph for as a server by hand](../docs/ricgraph_as_server.md#steps-to-take-to-install-ricgraph-for-as-a-server-by-hand)
 - [Structure of a Python script that is harvesting data](../docs/ricgraph_script_writing.md#structure-of-a-python-script-that-is-harvesting-data)
 
 __T__
@@ -251,7 +250,7 @@ __U__
 __V__
 
 - [Video Ricgraph Explorer](../docs/ricgraph_explorer.md#video-ricgraph-explorer)
-- [Visualization of nodes](../docs/ricgraph_backend_neo4j.md#visualization-of-nodes)
+- [Visualization of nodes in Bloom](../docs/ricgraph_backend_neo4j.md#visualization-of-nodes-in-bloom)
 
 __W__
 

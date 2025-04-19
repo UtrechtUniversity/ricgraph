@@ -80,9 +80,10 @@ it will install everything automatically (by using the
    [http://127.0.0.1:3030](http://127.0.0.1:3030).
    Read more at [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
 
-If everything succeeded, you are done, and you can skip the remainder of this page.
-If not, the remainder of this page 
-or section  [Install and start Neo4j Community Edition graph database
+If everything succeeded, you are done installing Ricgraph for a single user.
+If not, sections
+[Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
+or [Install and start Neo4j Community Edition graph database
 backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) may help in finding solutions.
 
 
@@ -108,7 +109,7 @@ since you have to do a number of things manually.
    ```
    On success, the Makefile will print *installed successfully*.
 
-If everything succeeded, you are done, and you can skip the remainder of this page.
+If everything succeeded, you are done installing Ricgraph for a single user.
 If not, sections
 [Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
 or [Install and start Neo4j Community Edition graph database
