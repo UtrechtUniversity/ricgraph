@@ -45,19 +45,13 @@
 # These are the versions of the software to be installed.
 # ########################################################################
 ricgraph_version := 2.10
-neo4j_community_version := 5.24.0
-neo4j_desktop_version := 1.6.0
+
+# Find latest versions on https://neo4j.com/deployment-center.
+neo4j_community_version := 2025.03.0
+neo4j_desktop_version := 1.6.1
 
 # The minimal Python version required for Ricgraph.
 minimal_python_minor_version := 10
-
-
-# ########################################################################
-# The name of the Ricgraph batch harvest script to run and its log.
-# It should be in directory [Ricgraph install directory]/harvest.
-# ########################################################################
-#batch_script := batch_harvest_demo.py
-#batch_script_log := $(basename $(batch_script))_$$(date +%y%m%d-%H%M).log
 
 
 # ########################################################################
@@ -111,8 +105,8 @@ bash_script_log := $(dir $(bash_script))$(basename $(notdir $(bash_script)))_$$(
 neo4j_download := https://dist.neo4j.org
 
 # Misc. variables.
-readdoc_server := https://docs.ricgraph.eu/docs/ricgraph_as_server.html#create-a-python-virtual-environment-and-install-ricgraph-in-it
-readdoc_singleuser := https://docs.ricgraph.eu/docs/ricgraph_install_configure.html#using-pythons-venv-module
+readdoc_server := https://docs.ricgraph.eu/docs/ricgraph_as_server.html#fast-and-recommended-way-to-install-ricgraph-as-a-server
+readdoc_singleuser := https://docs.ricgraph.eu/docs/ricgraph_install_configure.html#fast-and-recommended-way-to-install-ricgraph-for-a-single-user
 tmp_dir := /tmp/cuttingedge_$(shell echo $$PPID)
 graphdb_backup_dir := /root/graphdb_backup
 graphdb_password_file := /tmp/0-ricgraph-password.txt
@@ -239,18 +233,16 @@ help:
 	@echo "Commands to run something:"
 	@echo "- make run_ricgraph_explorer: run Ricgraph Explorer in development mode."
 	@echo "       If you use Neo4j Desktop, you need to start it first."
-#	@echo "- make run_batchscript: run Ricgraph batch script '$(batch_script)'."
-#	@echo "       You can change the name of this script by"
-#	@echo "       adding 'batch_script=my_batchscript.py' to your 'make' command."
-#	@echo "       If you use Neo4j Desktop, you need to start it first."
 	@echo "- make run_python_script: you can use this to run any Ricgraph Python script."
 	@echo "       Use command line parameter 'python_script',"
 	@echo "       and possibly 'python_script_log'. E.g. "
 	@echo "       'make python_script=[path]/[script name] run_python_script'."
+	@echo "       Default: python_script=$(python_script)"
 	@echo "- make run_bash_script: you can use this to run any Ricgraph bash script."
 	@echo "       Use command line parameter 'bash_script',"
 	@echo "       and possibly 'bash_script_log'. E.g. "
 	@echo "       'make bash_script=[path]/[script name] run_bash_script'."
+	@echo "       Default: bash_script=$(bash_script)"
 	@echo ""
 	@echo "There are many more options, to read more, type 'make allhelp'."
 	@echo ""
@@ -363,8 +355,6 @@ makefile_variables:
 	@echo "- graphdb_backup_dir: $(graphdb_backup_dir)"
 	@echo "- graphdb_password_file: $(graphdb_password_file)"
 	@echo "- graphdb_password_length: $(graphdb_password_length)"
-#	@echo "- batch_script: $(batch_script)"
-#	@echo "- batch_script_log: $(batch_script_log)"
 	@echo "- ricgraph_explorer: $(ricgraph_explorer)"
 	@echo "- python_script: $(python_script)"
 	@echo "- python_script_log: $(python_script_log)"
@@ -389,7 +379,7 @@ ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo ""
 	@echo "Starting Install and enable Neo4j Community Edition."
 	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#install-and-start-neo4j-community-edition"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#neo4j-community-edition"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(HOME)/$(neo4j_community) ]; then cd $(HOME); echo "Downloading Neo4j Community Edition..."; wget $(neo4j_community_path); fi
@@ -417,7 +407,7 @@ ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo ""
 	@echo "Starting Download and install Neo4j Desktop." 
 	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#install-neo4j-desktop"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#neo4j-desktop"
 	$(call are_you_sure)
 	@echo ""
 	@cd $(HOME); echo "Downloading Neo4j Desktop..."; wget $(neo4j_desktop_path)
@@ -618,26 +608,6 @@ empty_graphdb_neo4j_community: check_user_root generate_graphdb_password check_n
 	@echo "The password to access it can be found in $(graphdb_password_file)."
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
-
-
-#run_batchscript:
-#	@echo ""
-#	@echo "This target will run Ricgraph batch script harvest/$(batch_script)."
-#	@echo "The output will be both on screen as well as in file"
-#	@echo "harvest/$(batch_script_log)."
-#	@echo "It may take a while before the output appears on screen,"
-#	@echo "this is due to buffering of the output."
-#	@echo ""
-#	@echo "If you continue, this script may delete your current graph database."
-#	$(call are_you_sure)
-#	@echo ""
-#	@if [ ! -f harvest/$(batch_script) ]; then echo "Error: batch script '$(batch_script)' does not exist."; exit 1; fi
-#	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
-#	@if [ $(shell id -u) = 0 ]; then \
-#		sudo -u ricgraph bash -c 'cd harvest; ../$(python_cmd_venv) $(batch_script) | tee $(batch_script_log)'; \
-#	else \
-#		cd harvest; ../$(python_cmd_venv) $(batch_script) | tee $(batch_script_log); \
-#	fi
 
 
 run_ricgraph_explorer:
