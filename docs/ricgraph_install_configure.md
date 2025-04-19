@@ -18,9 +18,9 @@ On this page, you can find:
 * [Fast and recommended way to install Ricgraph for a single user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
 * [Requirements for Ricgraph](#requirements-for-ricgraph)
 * [Ricgraph Makefile](#ricgraph-makefile)
-* [Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
 * [Ricgraph initialization file](#ricgraph-initialization-file)
 * [Ricgraph on Windows](#ricgraph-on-windows)
+* [Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
@@ -109,8 +109,9 @@ since you have to do a number of things manually.
    On success, the Makefile will print *installed successfully*.
 
 If everything succeeded, you are done, and you can skip the remainder of this page.
-If not, the remainder of this page
-or section  [Install and start Neo4j Community Edition graph database
+If not, sections
+[Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
+or [Install and start Neo4j Community Edition graph database
 backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) may help in finding solutions.
 
 ## Requirements for Ricgraph
@@ -258,100 +259,8 @@ Sometimes, you will
 have to do some post-install steps, e.g. because you have to choose a password for the
 graph database.
 
-## Steps to take to install Ricgraph for a single user by hand
-Skip this section if you have done the
-[Fast and recommended way to install Ricgraph for a single 
-user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there were no errors.
-
-1. [Install your graph database backend](#install-your-graph-database-backend).
-1. [Download Ricgraph](#download-ricgraph).
-1. [Use a Python virtual environment and install Python 
-   requirements](#use-a-python-virtual-environment-and-install-python-requirements).
-1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file). This is also the
-   place where you specify which graph database backend you use.
-1. Start harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts), or
-   writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
-1. Start browsing using
-   [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
-
-
-### Install your graph database backend
-Install your graph database backend (choose one of these):
-
-* [Install and start Neo4j Community
-  Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) (recommended, only possible if you are able to change to user *root*).
-* [Install Neo4j Desktop](ricgraph_backend_neo4j.md#install-neo4j-desktop)
-  Optional: [Install the Bloom
-  configuration](ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional).
-* [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
-    
-### Download Ricgraph
-You can choose two types of downloads for Ricgraph:
-
-* The latest released version. Go to the
-  [Release page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/releases),
-  choose the most recent version, download either the *zip* or *tar.gz* version.
-* The "cutting edge" version. Go to the
-  [GitHub page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/),
-  click the green button "Code", choose tab "Local", choose "Download zip".
-
-### Use a Python virtual environment and install Python requirements
-
-To be able to use Ricgraph, you will need a Python virtual environment.
-Virtual environments are a kind of lightweight Python environments,
-each with their own independent set of Python packages installed
-in their site directories. A virtual environment is created on top of
-an existing Python installation.
-There are two ways of doing this:
-
-* Using Python's venv module;
-* Using a Python Integrated development environment (IDE).
-
-#### Using Python's venv module
-
-* Using Python's venv module.
-  Read [Create a Python virtual environment and install Ricgraph in
-  it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
-  This documentation has been written for a multi-user installation of Ricgraph.
-  To use it for a single users install (as you are doing since you are on this page):
-  * Suppose you are a user with login _alice_.
-  * Suppose your home directory is _/home/alice_ (check this by typing ``cd`` followed
-    by ``pwd``).
-  * For every occurrence of _/opt_ in
-    [Create a Python virtual environment and install Ricgraph in
-    it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
-    read _/home/alice_, and ignore any references to "login as user _root_" and ``chown``.
-  * Follow the other instructions as written. 
-
-#### Using a Python Integrated development environment (IDE)
-
-* Using a Python
-  [Integrated development
-  environment (IDE)](https://en.wikipedia.org/wiki/Integrated_development_environment),
-  such as [PyCharm](https://www.jetbrains.com/pycharm).
-  An IDE will automatically generate a virtual environment, and any time you
-  use the IDE, it will "transfer" you to that virtual environment.
-  It will also help to execute and debug your scripts.
-  * If PyCharm does not automatically generate a virtual environment, you
-    need to go to File --> Settings --> Project: [your project name] --> 
-    Python Interpreter, and check if
-    there is a valid interpreter in the right column next to
-    "Python Interpreter". If not, add one, using "Add Interpreter",
-    and choose for example "Add Local Interpreter". A venv will be generated.
-  * Next, ``unzip`` or ``tar xf`` the downloaded file for Ricgraph (see previous section).
-  * Install the Python requirements.
-    Depending on the Python IDE, single or double-click on
-    file *requirements.txt*. Probably, a button or text appears
-    that asks you to install requirements. Click on it.
-  
-    If this does not work, type in the IDE (PyCharm) Terminal:
-    ```
-    pip3.11 install -r requirements.txt
-    ```
-    You may want to change *3.11* in *pip3.11* for the Python version you use.
 
 ## Ricgraph initialization file
-
 Ricgraph requires an initialization file. A sample file is included as *ricgraph.ini-sample*.
 You need to copy this file to *ricgraph.ini* and modify it
 to include settings for your graph database backend, and
@@ -442,3 +351,97 @@ I would recommend to create a Linux virtual machine using e.g.
 VirtualBox as explained in section [Requirements](#requirements-for-ricgraph), 
 and install Ricgraph in that 
 virtual machine as described above.
+
+
+## Steps to take to install Ricgraph for a single user by hand
+Skip this section if you have done the
+[Fast and recommended way to install Ricgraph for a single
+user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there were no errors.
+
+1. [Install your graph database backend](#install-your-graph-database-backend).
+1. [Download Ricgraph](#download-ricgraph).
+1. [Use a Python virtual environment and install Python
+   requirements](#use-a-python-virtual-environment-and-install-python-requirements).
+1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file). This is also the
+   place where you specify which graph database backend you use.
+1. Start harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts), or
+   writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
+1. Start browsing using
+   [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
+
+
+### Install your graph database backend
+Install your graph database backend (choose one of these):
+
+* [Install and start Neo4j Community
+  Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) (recommended, only possible if you are able to change to user *root*).
+* [Install Neo4j Desktop](ricgraph_backend_neo4j.md#install-neo4j-desktop)
+  Optional: [Install the Bloom
+  configuration](ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional).
+* [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
+
+### Download Ricgraph
+You can choose two types of downloads for Ricgraph:
+
+* The latest released version. Go to the
+  [Release page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/releases),
+  choose the most recent version, download either the *zip* or *tar.gz* version.
+* The "cutting edge" version. Go to the
+  [GitHub page of Ricgraph](https://github.com/UtrechtUniversity/ricgraph/),
+  click the green button "Code", choose tab "Local", choose "Download zip".
+
+### Use a Python virtual environment and install Python requirements
+
+To be able to use Ricgraph, you will need a Python virtual environment.
+Virtual environments are a kind of lightweight Python environments,
+each with their own independent set of Python packages installed
+in their site directories. A virtual environment is created on top of
+an existing Python installation.
+There are two ways of doing this:
+
+* Using Python's venv module;
+* Using a Python Integrated development environment (IDE).
+
+#### Using Python's venv module
+
+* Using Python's venv module.
+  Read [Create a Python virtual environment and install Ricgraph in
+  it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
+  This documentation has been written for a multi-user installation of Ricgraph.
+  To use it for a single users install (as you are doing since you are on this page):
+    * Suppose you are a user with login _alice_.
+    * Suppose your home directory is _/home/alice_ (check this by typing ``cd`` followed
+      by ``pwd``).
+    * For every occurrence of _/opt_ in
+      [Create a Python virtual environment and install Ricgraph in
+      it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it),
+      read _/home/alice_, and ignore any references to "login as user _root_" and ``chown``.
+    * Follow the other instructions as written.
+
+#### Using a Python Integrated development environment (IDE)
+
+* Using a Python
+  [Integrated development
+  environment (IDE)](https://en.wikipedia.org/wiki/Integrated_development_environment),
+  such as [PyCharm](https://www.jetbrains.com/pycharm).
+  An IDE will automatically generate a virtual environment, and any time you
+  use the IDE, it will "transfer" you to that virtual environment.
+  It will also help to execute and debug your scripts.
+    * If PyCharm does not automatically generate a virtual environment, you
+      need to go to File --> Settings --> Project: [your project name] -->
+      Python Interpreter, and check if
+      there is a valid interpreter in the right column next to
+      "Python Interpreter". If not, add one, using "Add Interpreter",
+      and choose for example "Add Local Interpreter". A venv will be generated.
+    * Next, ``unzip`` or ``tar xf`` the downloaded file for Ricgraph (see previous section).
+    * Install the Python requirements.
+      Depending on the Python IDE, single or double-click on
+      file *requirements.txt*. Probably, a button or text appears
+      that asks you to install requirements. Click on it.
+
+      If this does not work, type in the IDE (PyCharm) Terminal:
+      ```
+      pip3.11 install -r requirements.txt
+      ```
+      You may want to change *3.11* in *pip3.11* for the Python version you use.
+    

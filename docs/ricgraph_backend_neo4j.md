@@ -28,7 +28,6 @@ On this page you can find:
   * [Restore a Neo4j Community Edition database dump of Ricgraph in Neo4j Community Edition](#restore-a-neo4j-community-edition-database-dump-of-ricgraph-in-neo4j-community-edition)
   * [Empty a Neo4j Community Edition database](#empty-a-neo4j-community-edition-database)
 * [How to reset the Neo4j Community Edition password](#how-to-reset-the-neo4j-community-edition-password)
-* [Neo4j Bloom (optional)](#neo4j-bloom-optional)
 * [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
@@ -189,6 +188,141 @@ Now we need to find the port number which Neo4j Desktop is using:
    while creating your database. Click "Save".
 1. Now, next to the text "Graph DBMS" a green icon appears with
    the text "ACTIVE". Your graph database engine is active and ready for use.
+
+
+### Neo4j Desktop with Bloom (optional)
+This is only necessary if you plan to use Bloom. If you don't know (yet), skip this step for now,
+you can come back to it later.
+
+[Bloom is Neo4j Desktop's graph visualization tool](https://neo4j.com/product/bloom).
+It is included with Neo4j Desktop.
+According to Neo4j it is:
+"A beautiful and expressive data visualization tool to quickly explore and freely interact with
+Neo4j’s graph data platform with no coding required".
+Neo4j has
+[extensive documentation how to use Bloom](https://neo4j.com/docs/bloom-user-guide/current)
+and a
+[Bloom overview](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/bloom-overview).
+
+#### Install Bloom configuration for Neo4j Desktop
+
+1. [Start Neo4j Desktop](#start-neo4j-desktop).
+1. Click on the icon <img src="images/neo4j1.jpg" height="20">
+   on the left side of Neo4j Desktop.
+1. Click on "Neo4j Bloom". A new window appears.
+1. In this window, click on the icon <img src="images/neo4j2.jpg" height="20">
+   at the top left. A Bloom "Perspective" slides out
+   (Neo4j has an
+   [extensive description how to
+   use it](https://neo4j.com/docs/bloom-user-guide/current/bloom-visual-tour/perspective-drawer)).
+1. Click on "neo4j > Untitled Perspective 1".
+1. A new window appears.
+   Right of the words "Untitled Perspective 1" there are three vertical dots. Click on it.
+   Click on "Delete". The perspective "Untitled Perspective 1" is removed.
+1. In the same window, right of the word "Perspectives" click on the word "Import".
+   A file open window appears. Go to directory
+   *neo4j_config* that is part of Ricgraph and
+   select file *ricgraph_bloom_config.json*. Click "Open".
+   The perspective "ricgraph_bloom_config" is loaded.
+1. Click on the text "ricgraph_bloom_config".
+1. Note that the text "neo4j > Untitled Perspective 1"
+   has been changed in "neo4j > ricgraph_bloom_config".
+1. A few centimeters below "neo4j > ricgraph_bloom_config", just below the text "Add category",
+   click on the oval "RicgraphNode". At the right, a new window will appear.
+1. In this window, below the word "Labels", check if an oval box with the text "RicgraphNode" is
+   shown. If not, click on "Add labels", click on "RicgraphNode".
+1. Click on the icon <img src="images/neo4j2.jpg" height="20">
+   to go back to the main screen of Bloom.
+1. Click on the cog icon below <img src="images/neo4j2.jpg" height="20">, you might want
+   to set "Use classic search" to "on".
+1. Ready.
+
+The following sections show some examples for a quick start using Bloom.
+
+#### Open Bloom
+
+1. [Start Neo4j Desktop](#start-neo4j-desktop).
+1. Click on the icon
+   <img src="images/neo4j1.jpg" height="20">
+   on the left side of Neo4j Desktop.
+1. Click on "Neo4j Bloom". A new window appears.
+
+#### Execute queries in Bloom
+
+The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
+contains four different shortcuts for
+[Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)):
+
+* "Node name \[value of node to find\]": finds a node
+  where property *name* of a node has value *\[value of node to find\]*.
+* "Node category \[value of node to find\]": similar to
+  "Node name ..." for property *category*.
+* "Node value \[value of node to find\]": similar to
+  "Node name ..." for property *value*.
+* "Node comment \[value of node to find\]": similar to
+  "Node name ..." for property *comment*.
+
+These queries can be entered in the Bloom text box "Search graph",
+by typing e.g. "Node name ORCID" or "Node category data set".
+For more information see
+[Bloom search bar](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/search-bar)
+and [Boom pattern
+search](https://neo4j.com/docs/bloom-user-guide/current/bloom-tutorial/graph-pattern-search).
+
+Nodes found can be examined or expanded as described in the section
+[Actions while clicking on a node](#Actions-while-clicking-on-a-node).
+The result will be visualized as described in section
+[Visualization of nodes](#Visualization-of-nodes).
+
+#### Actions while clicking on a node in Bloom
+
+The following are some examples of actions while clicking on a node:
+
+* Double left-click on a node: the properties of a node are shown in a window.
+* Right-click right on a node, choose "Expand", choose "All": The node will be
+  expanded with all nodes connected to it.
+* Multiple nodes can be selected by selecting one node, holding the
+  Control key and selecting other nodes.
+* Right-click on a node, choose "Dismiss": This node will
+  be removed from the visualization.
+* Right-click on a node, choose "Dismiss other nodes": All other nodes will
+  be removed from the visualization.
+* For other actions, see
+  [Bloom actions](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/search-bar/#_actions).
+
+#### Visualization of nodes in Bloom
+
+Nodes can be visualized in different ways, by changing e.g. their
+size or color. This can be changed as follows:
+
+1. On the right side of the Bloom window, there is
+   an icon <img src="images/neo4j3.jpg" height="20">. Click it
+   (Neo4j has [extensive documentation how to use
+   it](https://neo4j.com/docs/bloom-user-guide/current/bloom-visual-tour/perspective-drawer)).
+1. A new window appears. It shows the default settings for the display
+   of nodes. You can change the color, size, the property to
+   show on the node, and the icon.
+1. In the tab "Rule-based" you can add your own rules.
+
+The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
+contains a few rules based on the value of properties.
+Rules which determine the color of a node:
+
+* if property *category* = "person": color = blue.
+* if property *category* = "data set": color = green.
+* if property *category* = "journal article": color = yellow.
+* if property *category* = "software": color = red.
+* all other nodes: color = grey.
+
+Rules which determine the size of a node:
+
+* if property *url_main* contains "uu01": size of the node = small. This indicates
+  which nodes have been harvested from
+  the data repository [Yoda](https://search.datacite.org/repositories/delft.uu).
+* if property *url_other* contains "research-software-directory": size of the node = large.
+  This indicates which nodes have been harvested from
+  the [Research Software Directory](https://research-software-directory.org).
+* all other nodes: size = medium.
 
 
 ## Dumping, restoring, and emptying the Ricgraph database
@@ -460,143 +594,6 @@ To reset the Neo4j Community Edition password, follow the following steps:
    systemctl start neo4j
    ```
 1. Exit from user *root*.
-
-
-## Neo4j Bloom (optional)
-This is only necessary if you plan to use Bloom. If you don't know (yet), skip this step for now,
-you can come back to it later.
-
-[Bloom is Neo4j Desktop's graph visualization tool](https://neo4j.com/product/bloom).
-It is included with Neo4j Desktop.
-According to Neo4j it is:
-"A beautiful and expressive data visualization tool to quickly explore and freely interact with
-Neo4j’s graph data platform with no coding required".
-Neo4j has
-[extensive documentation how to use Bloom](https://neo4j.com/docs/bloom-user-guide/current)
-and a
-[Bloom overview](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/bloom-overview).
-
-### Install Bloom configuration for Neo4j Desktop
-
-1. [Start Neo4j Desktop](#start-neo4j-desktop).
-1. Click on the icon <img src="images/neo4j1.jpg" height="20">
-   on the left side of Neo4j Desktop.
-1. Click on "Neo4j Bloom". A new window appears.
-1. In this window, click on the icon <img src="images/neo4j2.jpg" height="20">
-   at the top left. A Bloom "Perspective" slides out
-   (Neo4j has an
-   [extensive description how to
-   use it](https://neo4j.com/docs/bloom-user-guide/current/bloom-visual-tour/perspective-drawer)).
-1. Click on "neo4j > Untitled Perspective 1".
-1. A new window appears.
-   Right of the words "Untitled Perspective 1" there are three vertical dots. Click on it.
-   Click on "Delete". The perspective "Untitled Perspective 1" is removed.
-1. In the same window, right of the word "Perspectives" click on the word "Import".
-   A file open window appears. Go to directory
-   *neo4j_config* that is part of Ricgraph and
-   select file *ricgraph_bloom_config.json*. Click "Open".
-   The perspective "ricgraph_bloom_config" is loaded.
-1. Click on the text "ricgraph_bloom_config".
-1. Note that the text "neo4j > Untitled Perspective 1"
-   has been changed in "neo4j > ricgraph_bloom_config".
-1. A few centimeters below "neo4j > ricgraph_bloom_config", just below the text "Add category",
-   click on the oval "RicgraphNode". At the right, a new window will appear.
-1. In this window, below the word "Labels", check if an oval box with the text "RicgraphNode" is
-   shown. If not, click on "Add labels", click on "RicgraphNode".
-1. Click on the icon <img src="images/neo4j2.jpg" height="20">
-   to go back to the main screen of Bloom.
-1. Click on the cog icon below <img src="images/neo4j2.jpg" height="20">, you might want
-   to set "Use classic search" to "on".
-1. Ready.
-
-
-### How to use Bloom for Neo4j Desktop
-If you have installed Bloom, below are some examples for a quick start.
-
-#### Open Bloom
-
-1. [Start Neo4j Desktop](#start-neo4j-desktop).
-1. Click on the icon
-   <img src="images/neo4j1.jpg" height="20">
-   on the left side of Neo4j Desktop.
-1. Click on "Neo4j Bloom". A new window appears.
-
-#### Execute queries
-
-The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
-contains four different shortcuts for
-[Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)):
-
-* "Node name \[value of node to find\]": finds a node
-  where property *name* of a node has value *\[value of node to find\]*.
-* "Node category \[value of node to find\]": similar to
-  "Node name ..." for property *category*.
-* "Node value \[value of node to find\]": similar to
-  "Node name ..." for property *value*.
-* "Node comment \[value of node to find\]": similar to
-  "Node name ..." for property *comment*.
-
-These queries can be entered in the Bloom text box "Search graph",
-by typing e.g. "Node name ORCID" or "Node category data set".
-For more information see
-[Bloom search bar](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/search-bar)
-and [Boom pattern
-search](https://neo4j.com/docs/bloom-user-guide/current/bloom-tutorial/graph-pattern-search).
-
-Nodes found can be examined or expanded as described in the section
-[Actions while clicking on a node](#Actions-while-clicking-on-a-node).
-The result will be visualized as described in section
-[Visualization of nodes](#Visualization-of-nodes).
-
-#### Actions while clicking on a node
-
-The following are some examples of actions while clicking on a node:
-
-* Double left-click on a node: the properties of a node are shown in a window.
-* Right-click right on a node, choose "Expand", choose "All": The node will be
-  expanded with all nodes connected to it.
-* Multiple nodes can be selected by selecting one node, holding the
-  Control key and selecting other nodes.
-* Right-click on a node, choose "Dismiss": This node will
-  be removed from the visualization.
-* Right-click on a node, choose "Dismiss other nodes": All other nodes will
-  be removed from the visualization.
-* For other actions, see
-  [Bloom actions](https://neo4j.com/docs/bloom-user-guide/2.6/bloom-visual-tour/search-bar/#_actions).
-
-#### Visualization of nodes
-
-Nodes can be visualized in different ways, by changing e.g. their
-size or color. This can be changed as follows:
-
-1. On the right side of the Bloom window, there is
-   an icon <img src="images/neo4j3.jpg" height="20">. Click it
-   (Neo4j has [extensive documentation how to use
-   it](https://neo4j.com/docs/bloom-user-guide/current/bloom-visual-tour/perspective-drawer)).
-1. A new window appears. It shows the default settings for the display
-   of nodes. You can change the color, size, the property to
-   show on the node, and the icon.
-1. In the tab "Rule-based" you can add your own rules.
-
-The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
-contains a few rules based on the value of properties.
-Rules which determine the color of a node:
-
-* if property *category* = "person": color = blue.
-* if property *category* = "data set": color = green.
-* if property *category* = "journal article": color = yellow.
-* if property *category* = "software": color = red.
-* all other nodes: color = grey.
-
-Rules which determine the size of a node:
-
-* if property *url_main* contains "uu01": size of the node = small. This indicates
-  which nodes have been harvested from
-  the data repository [Yoda](https://search.datacite.org/repositories/delft.uu).
-* if property *url_other* contains "research-software-directory": size of the node = large.
-  This indicates which nodes have been harvested from
-  the [Research Software Directory](https://research-software-directory.org).
-* all other nodes: size = medium.
 
 
 ## How to solve an AttributeError: Neo4jDriver object has no attribute executequery

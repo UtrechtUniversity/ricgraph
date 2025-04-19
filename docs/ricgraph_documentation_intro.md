@@ -73,14 +73,15 @@ He also has an ORCID profile on
 [ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).
 You can contact him for presentations, demos and workshops.
 
-He is also very interested in collaborating on projects involving Ricgraph.
+He is also very interested in working together on projects involving Ricgraph.
 Ricgraph is a flexible platform that brings
-together information from multiple systems into a single graph,
-allowing users to explore and analyze this information and their relationships.
-Collaborations could focus on applying Ricgraph to
-research information, such as exploring collaborations
-and contributions, or analyzing networks.
-They could also explore entirely different domains.
+together information from multiple systems into a single graph.
+It allows users to analyze this information and explore how it relates
+to other types of information.
+We could work together on use cases applying Ricgraph to
+research information, such as exploring collaborations or
+analyzing how people or organizations contribute to research results.
+We could also explore entirely different domains.
 Any application that involves representing and analyzing
-interconnected information as nodes and relationships in a graph,
-regardless of the field, is of interest
+interconnected information as nodes and relations in a graph,
+regardless of the field, is of interest.

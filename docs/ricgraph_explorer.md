@@ -306,9 +306,11 @@ How to use a privacy measures document in Ricgraph Explorer?
 
 
 ## Video Ricgraph Explorer
+<!--- GitHub embedded video link
 https://user-images.githubusercontent.com/121875841/228465992-993dc8ec-0bd9-4985-b2d9-3200f50d558b.mp4
+--->
 
-The [video Ricgraph Explorer (2m20s) (click to download)](videos/ricgraph_ricgraph_explorer.mp4)
+The [video Ricgraph Explorer (2m20s) (click to view or download)](videos/ricgraph_ricgraph_explorer.mp4)
 gives an impression of how a user-centric interface may look like.
 This video uses Ricgraph Explorer from March 2023 (the current version has much more
 possibilities).

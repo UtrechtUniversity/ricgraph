@@ -27,15 +27,14 @@ server](#fast-and-recommended-way-to-install-ricgraph-as-a-server).
 On this page, you can find:
 
 * [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server)
-* [Steps to take to install Ricgraph for as a server by hand](#steps-to-take-to-install-ricgraph-for-as-a-server-by-hand)
 * [Run Ricgraph scripts from the command line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
 * [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 * [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 * [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
+* [Steps to take to install Ricgraph as a server by hand](#steps-to-take-to-install-ricgraph-as-a-server-by-hand)
 
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
-
 
 ## Fast and recommended way to install Ricgraph as a server
 To follow this procedure, you need to be able to change to user *root*.
@@ -60,21 +59,6 @@ To follow this procedure, you need to be able to change to user *root*.
    ```
    make install_ricgraph_server
    ```
-   On success, the Makefile will print *installed successfully*.
-1. Optional: use a service unit file to run Ricgraph Explorer and the Ricgraph REST API. Type:
-   ```
-   make install_enable_ricgraphexplorer_restapi
-   ```
-   On success, the Makefile will print *installed successfully*.
-   Read more at [Use a service unit file to run Ricgraph Explorer and the Ricgraph 
-   REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
-1. Optional and possibly dangerous: use Apache or Nginx webserver, WSGI, and ASGI to make 
-   Ricgraph Explorer and the Ricgraph 
-   REST API accessible from outside your virtual machine.
-   Read more at
-   [Use Apache...](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
-   or at
-   [Use Nginx...](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
    On success, the Makefile will print *installed successfully*.
 1. Harvest two source systems in Ricgraph:
    ```
@@ -102,147 +86,29 @@ To follow this procedure, you need to be able to change to user *root*.
    Read more at [Ricgraph Explorer](ricgraph_explorer.md).
    For the Ricgraph REST API, read
    more on the [Ricgraph REST API page](ricgraph_restapi.md#ricgraph-rest-api).
+1. Optional: use a service unit file to run Ricgraph Explorer and the Ricgraph REST API. Type:
+   ```
+   make install_enable_ricgraphexplorer_restapi
+   ```
+   On success, the Makefile will print *installed successfully*.
+   Read more at [Use a service unit file to run Ricgraph Explorer and the Ricgraph
+   REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
+1. Optional and possibly dangerous: use Apache or Nginx webserver, WSGI, and ASGI to make
+   Ricgraph Explorer and the Ricgraph
+   REST API accessible from outside your virtual machine.
+   Read more at
+   [Use Apache...](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+   or at
+   [Use Nginx...](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
+   On success, the Makefile will print *installed successfully*.
 1. Exit from user *root*.
 
 If everything succeeded, you are done, and you can skip the remainder of this page.
-If not, the remainder of this page may help in finding solutions, or
-section  [Install and start Neo4j Community Edition graph database
-backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
-
-## Steps to take to install Ricgraph for as a server by hand
-Skip this section if you have done the
-[Fast and recommended way to install Ricgraph as a
-server](#fast-and-recommended-way-to-install-ricgraph-as-a-server)
-and there were no errors.
-
-1. [Install your graph database backend](#install-your-graph-database-backend).
-1. [Create a ricgraph user and group](#create-a-ricgraph-user-and-group).
-1. [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it).
-1. Create and update the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file). 
-   This is also the
-   place where you specify which graph database backend you use.
-1. Start harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts), or
-   writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
-1. Start browsing using
-   [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
-
-### Install your graph database backend
-Install your graph database backend (choose one of these):
-
-* [Install and start Neo4j Community
-  Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
-* [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
-
-### Create a ricgraph user and group
-Follow these steps:
-
-* Login as user *root*.
-* Create group and user *ricgraph*. First check if they exist:
-  ```
-  grep ricgraph /etc/group
-  grep ricgraph /etc/passwd
-  ```
-  If you get output, they already exist, and you don't need to do this step.
-  If you get no output, you will need to create the group and user:
-  ```
-  groupadd --system ricgraph
-  useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph
-  ```
-* Exit from user *root*.
-  
-  
-### Create a Python virtual environment and install Ricgraph in it
-Follow these steps:
-
-* Suppose you are a user with login *alice* and you are in Linux group *users*.
-* Login as user *root*.
-* For Debian/Ubuntu: type: 
-  ```
-  apt install python3-venv
-  ``` 
-* Go to directory */opt*, type: 
-  ```
-  cd /opt
-  ```
-* Create a Python virtual environment:
-  in */opt*, type:
-  ```
-  python3 -m venv ricgraph_venv
-  ```
-* Change the owner and group to your own user *alice* and group *users*,
-  in */opt*, type:
-  ```
-  chown -R alice:users /opt/ricgraph_venv
-  ```
-* The path */opt/ricgraph_venv* is hardwired in the configuration files
-  *ricgraph_server_config/ricgraph_explorer_gunicorn.service*
-  and
-  *ricgraph_server_config/ricgraph_explorer.conf-apache*.
-  This is done for security reasons. If you change the path, also change it
-  in these files.
-* Exit from user *root*. Do the following steps as your own user.
-* Download the latest release of Ricgraph from the
-  [Ricgraph downloads
-  page](https://github.com/UtrechtUniversity/ricgraph/releases)
-  to directory */opt/ricgraph_venv*.
-  Get the ``tar.gz`` version.
-* Install Ricgraph: 
-  go to */opt/ricgraph_venv*, type: 
-  ```
-  tar xf /opt/ricgraph-X.YY.tar.gz 
-  ```
-  (X.YY is the version number you downloaded). You will get a directory 
-  */opt/ricgraph_venv/ricgraph-X.YY*.
-* Merge the Ricgraph you have extracted with *tar* with the virtual environment,
-  and do some cleanup:
-  in */opt/ricgraph_venv*, type: 
-  ```
-  mv ricgraph-X.YY/* /opt/ricgraph_venv
-  rm -r /opt/ricgraph_venv/ricgraph-X.YY
-  rm /opt/ricgraph_venv/ricgraph-X.YY.tar.gz
-  ```
-* Activate the Python virtual environment: 
-  in */opt/ricgraph_venv*, type: 
-  ```
-  source bin/activate
-  ```
-* Install the standard Python requirements:
-  in */opt/ricgraph_venv*, type:
-  ```
-  pip install setuptools pip wheel
-  ```
-* Install the Python requirements for Ricgraph:
-  in */opt/ricgraph_venv*, type:
-  ```
-  pip install -r requirements.txt
-  ```
-  If you get an error message 
-  ```
-  ERROR: Could not find a version that satisfies the requirement neo4j>=5.8
-  ```
-  then your Python version is too old. Please read
-  [How to solve an AttributeError: Neo4jDriver object has no attribute
-  executequery](ricgraph_backend_neo4j.md#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
-* Create a Ricgraph initialization file, 
-  read [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
-  This is also the
-  place where you specify which graph database backend you use.
-  You can find these settings in section *GraphDB*.
-  * For Neo4j, enter the new password for Neo4j from section
-    [Install and start Neo4j Community Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
-    at the parameter _graphdb_password_.
-* Deactivate the Python virtual environment: 
-  type 
-  ```
-  deactivate
-  ```
-* Login as user *root*.
-* Change the owner and group to ricgraph of directory */opt/ricgraph_venv*.
-  In */opt*, type 
-  ```
-  chown -R ricgraph:ricgraph /opt/ricgraph_venv
-  ```
-* Exit from user *root*.
+If not, sections
+[Steps to take to install Ricgraph as a server by hand](#steps-to-take-to-install-ricgraph-as-a-server-by-hand)
+or [Install and start Neo4j Community Edition graph database
+backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
+may help in finding solutions.
 
 
 ## Run Ricgraph scripts from the command line or as a cronjob
@@ -675,11 +541,13 @@ follow the following steps:
 
 You might want to watch the
 [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
-(2m14s) (click to download)](videos/ricgraph_howto_install_on_SURFResearchCloud.mp4).
+(2m14s) (click to view or download)](videos/ricgraph_howto_install_on_SURFResearchCloud.mp4).
 Note that in the video, we use an old version of Ubuntu. Please use
 Ubuntu 22.04 as described above.
 
+<!--- GitHub embedded video link
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b
+--->
 
 ### Install Ricgraph in a SURF Research Cloud workspace
 
@@ -711,3 +579,138 @@ in your browser. There are two ways to access your workspace and authenticate:
   In this case, the link will look like: 
   [https://[name of your workspace].src.surf-hosted.nl:3389](https://[name of your workspace].src.surf-hosted.nl:3389).
 
+
+## Steps to take to install Ricgraph as a server by hand
+Skip this section if you have done the
+[Fast and recommended way to install Ricgraph as a
+server](#fast-and-recommended-way-to-install-ricgraph-as-a-server)
+and there were no errors.
+
+1. [Install your graph database backend](#install-your-graph-database-backend).
+1. [Create a ricgraph user and group](#create-a-ricgraph-user-and-group).
+1. [Create a Python virtual environment and install Ricgraph in it](#create-a-python-virtual-environment-and-install-ricgraph-in-it).
+1. Create and update the [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
+   This is also the
+   place where you specify which graph database backend you use.
+1. Start harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts), or
+   writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
+1. Start browsing using
+   [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
+
+### Install your graph database backend
+Install your graph database backend (choose one of these):
+
+* [Install and start Neo4j Community
+  Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition).
+* [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
+
+### Create a ricgraph user and group
+Follow these steps:
+
+* Login as user *root*.
+* Create group and user *ricgraph*. First check if they exist:
+  ```
+  grep ricgraph /etc/group
+  grep ricgraph /etc/passwd
+  ```
+  If you get output, they already exist, and you don't need to do this step.
+  If you get no output, you will need to create the group and user:
+  ```
+  groupadd --system ricgraph
+  useradd --system --comment "Ricgraph user" --no-create-home --gid ricgraph ricgraph
+  ```
+* Exit from user *root*.
+
+
+### Create a Python virtual environment and install Ricgraph in it
+Follow these steps:
+
+* Suppose you are a user with login *alice* and you are in Linux group *users*.
+* Login as user *root*.
+* For Debian/Ubuntu: type:
+  ```
+  apt install python3-venv
+  ``` 
+* Go to directory */opt*, type:
+  ```
+  cd /opt
+  ```
+* Create a Python virtual environment:
+  in */opt*, type:
+  ```
+  python3 -m venv ricgraph_venv
+  ```
+* Change the owner and group to your own user *alice* and group *users*,
+  in */opt*, type:
+  ```
+  chown -R alice:users /opt/ricgraph_venv
+  ```
+* The path */opt/ricgraph_venv* is hardwired in the configuration files
+  *ricgraph_server_config/ricgraph_explorer_gunicorn.service*
+  and
+  *ricgraph_server_config/ricgraph_explorer.conf-apache*.
+  This is done for security reasons. If you change the path, also change it
+  in these files.
+* Exit from user *root*. Do the following steps as your own user.
+* Download the latest release of Ricgraph from the
+  [Ricgraph downloads
+  page](https://github.com/UtrechtUniversity/ricgraph/releases)
+  to directory */opt/ricgraph_venv*.
+  Get the ``tar.gz`` version.
+* Install Ricgraph:
+  go to */opt/ricgraph_venv*, type:
+  ```
+  tar xf /opt/ricgraph-X.YY.tar.gz 
+  ```
+  (X.YY is the version number you downloaded). You will get a directory
+  */opt/ricgraph_venv/ricgraph-X.YY*.
+* Merge the Ricgraph you have extracted with *tar* with the virtual environment,
+  and do some cleanup:
+  in */opt/ricgraph_venv*, type:
+  ```
+  mv ricgraph-X.YY/* /opt/ricgraph_venv
+  rm -r /opt/ricgraph_venv/ricgraph-X.YY
+  rm /opt/ricgraph_venv/ricgraph-X.YY.tar.gz
+  ```
+* Activate the Python virtual environment:
+  in */opt/ricgraph_venv*, type:
+  ```
+  source bin/activate
+  ```
+* Install the standard Python requirements:
+  in */opt/ricgraph_venv*, type:
+  ```
+  pip install setuptools pip wheel
+  ```
+* Install the Python requirements for Ricgraph:
+  in */opt/ricgraph_venv*, type:
+  ```
+  pip install -r requirements.txt
+  ```
+  If you get an error message
+  ```
+  ERROR: Could not find a version that satisfies the requirement neo4j>=5.8
+  ```
+  then your Python version is too old. Please read
+  [How to solve an AttributeError: Neo4jDriver object has no attribute
+  executequery](ricgraph_backend_neo4j.md#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery).
+* Create a Ricgraph initialization file,
+  read [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
+  This is also the
+  place where you specify which graph database backend you use.
+  You can find these settings in section *GraphDB*.
+  * For Neo4j, enter the new password for Neo4j from section
+    [Install and start Neo4j Community Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
+    at the parameter _graphdb_password_.
+* Deactivate the Python virtual environment:
+  type
+  ```
+  deactivate
+  ```
+* Login as user *root*.
+* Change the owner and group to ricgraph of directory */opt/ricgraph_venv*.
+  In */opt*, type
+  ```
+  chown -R ricgraph:ricgraph /opt/ricgraph_venv
+  ```
+* Exit from user *root*.

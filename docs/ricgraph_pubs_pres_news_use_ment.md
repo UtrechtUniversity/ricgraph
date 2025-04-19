@@ -98,9 +98,12 @@ If you mention Ricgraph, please let us know so that we can add it to this page.
 | August 13, 2024  | Maastricht University Library news                   | [Recap Research Intelligence Network Netherlands symposium at Maastricht University, June 27, 2024](mentions/240813-Maastricht_University-Recap_RINN_symposium_June_27,_2024.pdf)      | [link](https://library.maastrichtuniversity.nl/news/recap-research-intelligence-network-netherlands-symposium/)                                                                          |
 
 ## Arjan Sieverink presents Ricgraph at Pure International Conference 2023
+<!--- GitHub embedded video link
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/1a810def-9f51-47e7-adce-327d0e005f03
+--->
 
-In this [video of the presentation at the Pure International Conference 2023, Dubrovnik, 
-Croatia (19m27s) (click to download)](videos/231026-RDTJanssen+ASieverink-Ricgraph_Showcasing_research_in_context_using_Pure_and_other_sources-PRCN2023_video.mp4),
+In the [video of the presentation at the Pure International Conference 2023, Dubrovnik, 
+Croatia (19m27s) (click to view or download)](videos/231026-RDTJanssen+ASieverink-Ricgraph_Showcasing_research_in_context_using_Pure_and_other_sources-PRCN2023_video.mp4),
 Arjan Sieverink presents the abstract
-_Ricgraph: Showcasing research in context using Pure and other sources_.
+_Ricgraph: Showcasing research in context using Pure and other sources_
+(see the [Ricgraph publications](#ricgraph-publications) section).
