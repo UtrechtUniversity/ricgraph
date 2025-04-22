@@ -124,7 +124,7 @@ DEFAULT_DISCOVERER_MODE = 'details_view'
 # value_search: do a broad search on field 'value'.
 DEFAULT_SEARCH_MODE = 'value_search'
 
-# Miniumum length of a value in a search field (in characters).
+# Minimum length of a value in a search field (in characters).
 SEARCH_STRING_MIN_LENGTH = 2
 
 # Ricgraph Explorer shows tables. You can specify which columns you need.
@@ -3061,7 +3061,6 @@ def get_regular_table_worker(nodes_list: list,
             nodes_cache[key] = node
 
     html += '</tbody>'
-    # html += get_html_for_tableend()
     html += get_html_for_tableend(table_id=table_id)
     html += '</div>'        # Ends </div> from above '<div id="' + table_id + '-container">'.
     html += nr_rows_in_table_message
@@ -3630,8 +3629,8 @@ def get_html_for_tableend(table_id: str = '') -> str:
     """Get the html required for the end of a html table.
     Offer a possibility to export the table.
 
-    :param table_id: the id of the table, required for
-      exporting the table to csv.
+    :param table_id: the id of the table, required for exporting the
+      table to csv, but not if you don't want it to be exported.
     :return: html to be rendered.
     """
     html = '</table>'
