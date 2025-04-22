@@ -114,6 +114,7 @@ ENV container_startscript=/usr/local/bin/start_services.sh
 
 # Install and update packages.
 RUN apt-get update && \
+    apt-get install -y openjdk-21-jre-headless && \
     apt-get install -y wget vim make sudo && \
     apt-get clean
 
