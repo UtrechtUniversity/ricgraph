@@ -10,7 +10,7 @@ pandas
 pyalex
 ratelimit
 requests
-ricgraph==2.10
+ricgraph==2.11
 twine
 Sickle
 xmltodict
