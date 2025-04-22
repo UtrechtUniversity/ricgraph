@@ -143,6 +143,9 @@ MAX_ITEMS = '250'
 # If we render a table, we return at most this number of rows in that table.
 MAX_ROWS_IN_TABLE = '250'
 
+# If we export a table, we export at most this number of rows in that table.
+MAX_ROWS_TO_EXPORT = 250
+
 # If we search for neighbors of an 'organization' node, in the first filter
 # in filterorganization(), we restrict it to return at most this number of nodes.
 MAX_ORGANIZATION_NODES_TO_RETURN = 4 * MAX_ROWS_IN_TABLE
@@ -2920,6 +2923,7 @@ def get_regular_table(nodes_list: list,
     if max_nr_table_rows == 0:
         max_nr_table_rows = len_nodes_list
 
+    # This javascript code is for the pagination of the table.
     javascript = f"""<script>
                  // Initialize currentPage and totalPages for all tables
                  currentPage['{table_id}'] = 1; 
@@ -3057,7 +3061,8 @@ def get_regular_table_worker(nodes_list: list,
             nodes_cache[key] = node
 
     html += '</tbody>'
-    html += get_html_for_tableend()
+    # html += get_html_for_tableend()
+    html += get_html_for_tableend(table_id=table_id)
     html += '</div>'        # Ends </div> from above '<div id="' + table_id + '-container">'.
     html += nr_rows_in_table_message
 
@@ -3621,13 +3626,54 @@ def get_html_for_tablerow(node: Node,
     return html
 
 
-def get_html_for_tableend() -> str:
+def get_html_for_tableend(table_id: str = '') -> str:
     """Get the html required for the end of a html table.
+    Offer a possibility to export the table.
 
+    :param table_id: the id of the table, required for
+      exporting the table to csv.
     :return: html to be rendered.
     """
     html = '</table>'
-    return html
+    if table_id == '':
+        return html
+
+    # This javascript code is to export the table with the given tableId as a CSV file.
+    # Only maxRows are exported (as a kind of safety not to be able to export everything).
+    javascript = '''<script>
+                 function exportTableToCSV(tableId, maxRows) {
+                     const rows = document.querySelectorAll(`#${tableId} tr`);
+                     const rowsToExport = [];
+                     // Always include the header row (first row), then up to (maxRows) rows total (header + data)
+                     for (let i = 0; i < rows.length && i <= maxRows; i++) {
+                         rowsToExport.push(rows[i]);
+                     }
+                     // For each row, get all cells (th or td), and for each cell:
+                     // - Replace any double quotes with two double quotes (CSV escaping).
+                     // - Enclose every cell value in double quotes.
+                     // Join each cell in a row with commas, and join rows with newlines.
+                     const csvContent = Array.from(rowsToExport).map(row =>
+                         Array.from(row.children).map(cell =>
+                             '"' + cell.innerText.replace(/"/g, '""') + '"'
+                         ).join(',')
+                     ).join('\\n');
+                     const blob = new Blob([csvContent], {type: 'text/csv'});
+                     // Create a hidden <a> element to trigger the download.
+                     const link = document.createElement('a');
+                     link.href = URL.createObjectURL(blob);
+                     link.download = tableId + '.csv';
+                     document.body.appendChild(link);
+                     link.click();
+                     document.body.removeChild(link);
+                     URL.revokeObjectURL(link.href);
+                 }
+                 </script>'''
+
+    html += f'''<div style="float:right;">
+                    <a href="#" onclick="exportTableToCSV('{table_id}-container', {MAX_ROWS_TO_EXPORT}); return false;">
+                        Export table to CSV file, at most {MAX_ROWS_TO_EXPORT} rows.</a>
+                </div>'''
+    return javascript + html
 
 
 # ##############################################################################
