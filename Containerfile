@@ -27,6 +27,8 @@
 # Original version Rik D.T. Janssen, December 2024.
 # Updated Rik D.T. Janssen, January 2025.
 #
+# See the warning below at RDTJ April 22, 2025.
+#
 # ######################################################################
 #
 # This Containerfile produces a Podman container that runs both 
@@ -114,19 +116,25 @@ ENV container_startscript=/usr/local/bin/start_services.sh
 
 # Install and update packages.
 RUN apt-get update && \
-    apt-get install -y openjdk-21-jre-headless && \
     apt-get install -y wget vim make sudo && \
     apt-get clean
 
 # Set working directory.
 WORKDIR /app
 
+# ######
+# RDTJ April 22, 2025:
+# Warning: explicit neo4j_community_version=5.24.0 below.
+# We cannot use the version in the Makefile since Java 21, required for
+# Neo4j & cypher-shell, is not in Debian.
+# ######
+
 # Install Neo4j and Ricgraph.
 # 'systemctl_cmd=:' disables the systemctl command in the Makefile.
 # The 'docs' directory is removed since it is large (mostly due to
 # the videos) and we do not want a container of a large size.
 RUN wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile && \
-    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no systemctl_cmd=: full_server_install && \
+    make ricgraph_server_install_dir=/app/ricgraph neo4j_community_version=5.24.0 ask_are_you_sure=no systemctl_cmd=: full_server_install && \
     make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no clean && \
     rm -r ricgraph/docs && \
     cp Makefile ricgraph
