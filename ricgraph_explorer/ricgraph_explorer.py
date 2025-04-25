@@ -77,13 +77,10 @@
 #
 # ##############################################################################
 
-import random
-import string
 import json
 import os
 import sys
 import urllib.parse
-import uuid
 from typing import Union, Tuple
 from math import ceil, floor
 from neo4j.graph import Node
@@ -2909,7 +2906,7 @@ def get_regular_table(nodes_list: list,
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
-    table_id = ''.join(random.choice(string.ascii_lowercase) for _ in range(12))
+    table_id = rcg.create_unique_string(length=12)
     table_html = get_regular_table_worker(nodes_list=nodes_list,
                                           table_id=table_id,
                                           table_header=table_header,
@@ -3147,8 +3144,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
     :return: html to be rendered.
     """
 
-    table_id = ''.join(random.choice(string.ascii_lowercase) for _ in range(12))
-
+    table_id = rcg.create_unique_string(length=12)
     if extra_url_parameters is None:
         extra_url_parameters = {}
     if table_columns is None:
@@ -3432,7 +3428,7 @@ def get_html_for_histogram(histogram_list: list,
     histogram_json = json.dumps(histogram_list)
 
     # The plot name should be unique, otherwise we get strange side effects.
-    plot_name = 'myplot' + '_' + str(uuid.uuid4())
+    plot_name = 'myplot' + '_' + rcg.create_unique_string()
 
     html = '<div class="w3-card-4">'
     if histogram_title != '':

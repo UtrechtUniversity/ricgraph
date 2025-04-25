@@ -100,6 +100,8 @@ In the default configuration of Ricgraph, the following properties are included:
 
 import os
 import sys
+import random
+import string
 import re
 from datetime import datetime
 import numpy
@@ -826,6 +828,28 @@ def convert_string_to_ascii(value: str = '') -> str:
     """
     asc = unidecode(string=value)
     return asc
+
+
+def create_unique_string(length: int = 0) -> str:
+    """Create a (pseudo) unique string of characters.
+    Only if you don't specify 'length' or give it value 0,
+    the string will really be unique. Otherwise, it will
+    be pseudo unique.
+
+    :param length: 0 or empty for unique string, otherwise length
+      of string to create.
+    :return: unique string.
+    """
+    if length == 0:
+        # UUID4 is randomly generated and guaranteed to be unique.
+        # The probability to find a duplicate within 103 trillion
+        # version-4 UUIDs is one in a billion.
+        # https://en.wikipedia.org/wiki/Universally_unique_identifier.
+        return str(uuid.uuid4())
+
+    # This will generate a pseudo random string.
+    value = ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+    return value
 
 
 def graphdb_nr_accesses_reset() -> None:
@@ -1650,13 +1674,19 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
         return merged_node
 
     node_properties = {'value': lnewvalue}
+    # The following generates a Cannot find reference '[' in 'None'
+    # warning in PyCharm, but the 'None' case has been caught above.
     oldkey = node['_key']
     newkey = create_ricgraph_key(name=lname, value=lnewvalue)
     node_properties['_key'] = newkey
     history_line = create_history_line(property_name='value', old_value=loldvalue, new_value=lnewvalue)
     history_line += create_history_line(property_name='_key', old_value=oldkey, new_value=newkey)
+    # The following generates a Cannot find reference '[' in 'None'
+    # warning in PyCharm, but the 'None' case has been caught above.
     node_properties['_history'] = node['_history'].copy()
     node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
+    # The following generates a Cannot find reference 'element_id' in 'None'
+    # warning in PyCharm, but the 'None' case has been caught above.
     updated_node = cypher_update_node_properties(node_element_id=node.element_id,
                                                  node_properties=node_properties)
 
@@ -1761,7 +1791,7 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
     personroot_nodes = get_all_personroot_nodes(node=person_node)
     if len(personroot_nodes) == 0:
         # Create the 'person-root' node with a unique value.
-        value = str(uuid.uuid4())
+        value = create_unique_string()
         personroot = create_update_node(name='person-root', category='person', value=value)
         cypher_create_edge_if_not_exists(left_node_element_id=person_node.element_id,
                                          right_node_element_id=personroot.element_id)
