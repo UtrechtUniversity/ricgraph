@@ -159,6 +159,9 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
 
         contributor.fillna(value=numpy.nan, inplace=True)
         contributor['FULL_NAME'] = contributor['family_names'] + ', ' + contributor['given_names']
+        # Note: the following is a DataFrame column operation.
+        contributor['FULL_NAME_ASCII'] = contributor['FULL_NAME'].apply(
+            lambda x: asc if (asc := rcg.convert_string_to_ascii(x)) != x else '')
         contributor.insert(0, 'package_year', publication_year_most_recent_doi)
         contributor.insert(0, 'package_name', package_name)
         contributor.insert(0, 'package_url', package_url)
@@ -240,7 +243,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
           + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' at ' + timestamp + '.'
 
-    person_identifiers = parsed_content[['ORCID', 'FULL_NAME']].copy(deep=True)
+    person_identifiers = parsed_content[['ORCID', 'FULL_NAME', 'FULL_NAME_ASCII']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)

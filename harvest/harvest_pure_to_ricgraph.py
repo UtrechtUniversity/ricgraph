@@ -462,6 +462,8 @@ def parse_pure_persons(harvest: list) -> pandas.DataFrame:
                               'FULL_NAME': harvest_item['name']['lastName']}
                 if 'firstName' in harvest_item['name']:
                     parse_line['FULL_NAME'] += ', ' + harvest_item['name']['firstName']
+                if (asc := rcg.convert_string_to_ascii(parse_line['FULL_NAME'])) != parse_line['FULL_NAME']:
+                    parse_line['FULL_NAME_ASCII'] = asc
                 parse_chunk.append(parse_line)
         if 'orcid' in harvest_item:
             parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
@@ -808,6 +810,8 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                                                              research_output_mapping=ROTYPE_MAPPING_PURE),
                               'AUTHOR_UUID': author_uuid,
                               'FULL_NAME': author_name}
+                if (asc := rcg.convert_string_to_ascii(parse_line['FULL_NAME'])) != parse_line['FULL_NAME']:
+                    parse_line['FULL_NAME_ASCII'] = asc
                 parse_chunk.append(parse_line)
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
@@ -1075,7 +1079,8 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     # Since Pure is the first system we harvest, the order of the columns in
     # this DataFrame does not really matter.
-    person_identifiers = parsed_content[['PURE_UUID_PERS', 'FULL_NAME',
+    person_identifiers = parsed_content[['PURE_UUID_PERS',
+                                         'FULL_NAME', 'FULL_NAME_ASCII',
                                          'ORCID', 'ISNI',
                                           'SCOPUS_AUTHOR_ID', 'DIGITAL_AUTHOR_ID',
                                           'RESEARCHER_ID', 'EMPLOYEE_ID'
@@ -1359,32 +1364,51 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     print(resout)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
 
+    #### modified 24-4-2025 for introduction of FULL_NAME_ASCII.
+    #### To be removed.
     # This is specifically for external persons and author collaborations. We only
     # find these while parsing research outputs, not while parsing persons.
-    resout = parsed_content[['AUTHOR_UUID', 'FULL_NAME']].copy(deep=True)
-    # Replace all empty strings in column FULL_NAME for NaNs
-    # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
-    # resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
-    resout['FULL_NAME'] = resout['FULL_NAME'].replace('', numpy.nan)
-    resout.dropna(axis=0, how='any', inplace=True)
+    # resout = parsed_content[['AUTHOR_UUID', 'FULL_NAME']].copy(deep=True)
+    # # Replace all empty strings in column FULL_NAME for NaNs
+    # # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
+    # # resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
+    # resout['FULL_NAME'] = resout['FULL_NAME'].replace('', numpy.nan)
+    # resout.dropna(axis=0, how='any', inplace=True)
+    # resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    # resout.rename(columns={'AUTHOR_UUID': 'value1',
+    #                        'FULL_NAME': 'value2'}, inplace=True)
+    # new_resout_columns = {'name1': 'PURE_UUID_PERS',
+    #                       'category1': 'person',
+    #                       'name2': 'FULL_NAME',
+    #                       'category2': 'person',
+    #                       'source_event2': HARVEST_SOURCE,
+    #                       'history_event2': history_event}
+    # resout = resout.assign(**new_resout_columns)
+    # resout = resout[['name1', 'category1', 'value1',
+    #                  'name2', 'category2', 'value2',
+    #                  'source_event2', 'history_event2']]
+    #
+    # print('The following external persons and author collaborations from '
+    #       + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+    # print(resout)
+    # rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
+    #### end of modified 24-4-2025 for introduction of FULL_NAME_ASCII.
+
+    # This is specifically for external persons and author collaborations. We only
+    # find these while parsing research outputs, not while parsing persons.
+    resout = parsed_content[['AUTHOR_UUID',
+                             'FULL_NAME', 'FULL_NAME_ASCII'
+                           ]].copy(deep=True)
+    resout.rename(columns={'AUTHOR_UUID': 'PURE_UUID_PERS'}, inplace=True)
+    resout.dropna(axis=0, how='all', inplace=True)
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    resout.rename(columns={'AUTHOR_UUID': 'value1',
-                           'FULL_NAME': 'value2'}, inplace=True)
-    new_resout_columns = {'name1': 'PURE_UUID_PERS',
-                          'category1': 'person',
-                          'name2': 'FULL_NAME',
-                          'category2': 'person',
-                          'source_event2': HARVEST_SOURCE,
-                          'history_event2': history_event}
-    resout = resout.assign(**new_resout_columns)
-    resout = resout[['name1', 'category1', 'value1',
-                     'name2', 'category2', 'value2',
-                     'source_event2', 'history_event2']]
 
     print('The following external persons and author collaborations from '
           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(resout)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
+    rcg.unify_personal_identifiers(personal_identifiers=resout,
+                                   source_event=HARVEST_SOURCE,
+                                   history_event=history_event)
 
     print('\nDone at ' + rcg.timestamp() + '.\n')
     return

@@ -111,6 +111,7 @@ import json
 from typing import Union, Tuple
 from collections import defaultdict
 import configparser
+from unidecode import unidecode
 from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
 
@@ -815,6 +816,16 @@ def datetimestamp(seconds: bool = False) -> str:
     else:
         datetime_stamp = now.strftime("%Y-%m-%d %H:%M")
     return datetime_stamp
+
+
+def convert_string_to_ascii(value: str = '') -> str:
+    """Convert all accented etc. characters to their ASCII equivalent.
+    We use Unidecode from https://github.com/avian2/unidecode.
+
+    :return: the ASCII equivalent.
+    """
+    asc = unidecode(string=value)
+    return asc
 
 
 def graphdb_nr_accesses_reset() -> None:

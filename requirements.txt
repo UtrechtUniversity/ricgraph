@@ -11,6 +11,7 @@ pyalex
 ratelimit
 requests
 ricgraph==2.11
-twine
 Sickle
+twine
+unidecode
 xmltodict

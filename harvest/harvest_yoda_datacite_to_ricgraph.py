@@ -112,6 +112,9 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
                            'resourceType': 'DOI_TYPE',
                            }, inplace=True)
 
+    df_mod['FULL_NAME_ASCII'] = df_mod['FULL_NAME'].apply(
+        lambda x: asc if (asc := rcg.convert_string_to_ascii(x)) != x else '')
+
     # But for these, we do not know for sure.
     if 'ORCID' not in df_mod.columns:
         df_mod['ORCID'] = ''
@@ -134,7 +137,8 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     else:
         df_mod['DIGITAL_AUTHOR_ID'] = ''
 
-    df_mod = df_mod[['DOI', 'DOI_TYPE', 'FULL_NAME',
+    df_mod = df_mod[['DOI', 'DOI_TYPE',
+                     'FULL_NAME', 'FULL_NAME_ASCII',
                      'DIGITAL_AUTHOR_ID',
                      'ORCID', 'SCOPUS_AUTHOR_ID',
                      'ISNI', 'RESEARCHER_ID',
@@ -472,7 +476,8 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     #    person-root.
     # If you have 2 of type (b), use these as the first 2 columns.
     person_identifiers = parsed_content[['ORCID', 'SCOPUS_AUTHOR_ID',
-                                         'FULL_NAME', 'DIGITAL_AUTHOR_ID',
+                                         'FULL_NAME', 'FULL_NAME_ASCII',
+                                         'DIGITAL_AUTHOR_ID',
                                          'ISNI', 'RESEARCHER_ID']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)

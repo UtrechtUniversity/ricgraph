@@ -408,7 +408,9 @@ def homepage() -> str:
     html += create_html_form(destination='searchpage',
                              button_text='search for a person',
                              hidden_fields={'search_mode': 'value_search',
-                                            'name': 'FULL_NAME'
+                                            # We need to search for both FULL_NAME and FULL_NAME_ASCII.
+                                            # 'name': 'FULL_NAME'
+                                            'category': 'person'
                                             })
     html += '<p/>'
     html += create_html_form(destination='searchpage',
