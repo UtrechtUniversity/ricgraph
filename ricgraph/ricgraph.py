@@ -133,7 +133,17 @@ __version__ = '2.11'
 # Start of constants section
 # ########################################################################
 RICGRAPH_INI_FILENAME = 'ricgraph.ini'
+
+# This one separates value & name in property _key of a node.
 RICGRAPH_KEY_SEPARATOR = '|'
+# If we find RICGRAPH_KEY_SEPARATOR in a string, replace it with this one.
+RICGRAPH_KEY_SEPARATOR_REPLACEMENT = '_'
+
+# For a non-unique 'value' field, this one separates 'value' & the
+# unique string to concatenate. It may not be RICGRAPH_KEY_SEPARATOR.
+RICGRAPH_VALUE_SEPARATOR = '#'
+# If we find RICGRAPH_VALUE_SEPARATOR in 'value', replace it with this one.
+RICGRAPH_VALUE_SEPARATOR_REPLACEMENT = '_'
 
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
 A_LARGE_NUMBER = 9999999999
@@ -152,9 +162,21 @@ HTTP_RESPONSE_INVALID_SEARCH = 251
 # This dict is used as a cache for node id's. If we have a node id, we can
 # do a direct lookup for a node in O(1), instead of a search in O(log n).
 # The dict has the format: [Ricgraph _key]: [Node element_id].
-nodes_cache_key_element_id = {}
-# Cache size. 'nodes_cache_key_element_id' will be emptied if it has this number of elements.
+nodes_cache_key_id = {}
+# Cache size. 'nodes_cache_key_id' will be emptied if it has this number of elements.
 MAX_NODES_CACHE_KEY_ID = 15000
+
+# The dict 'nodes_cache_nodelink' is used to be able to pass nodes (i.e. links to Node)
+# between the pages of Ricgraph Explorer. If we would not do this, we would need
+# to search the node again every time we go to a new page. Then we would
+# lose the advantage of using a graph.
+# I could have used rcg.read_node() with @ricgraph_lru_cache, but I'd prefer to be
+# able to store any node in the cache at the moment I prefer, as is done
+# in function ricgraph_explorer.py/get_regular_table()).
+# This dict has the format: [Ricgraph _key]: [Node link]
+nodes_cache_nodelink = {}
+# Cache size. 'nodes_cache_nodelink' will be emptied if it has this number of elements.
+MAX_NODES_CACHE_NODELINK = 15000
 
 # In merge_two_nodes(node_merge_from, node_merge_to), we are constructing a list of
 # all the nodes that are to be merged with node_merge_to, to add to property _history
@@ -562,7 +584,9 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     if len(nodes) == 0:
         return None
     else:
-        return nodes[0]
+        node = nodes[0]
+        nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
+        return node
 
 
 def cypher_delete_node(node_element_id: str) -> None:
@@ -587,6 +611,7 @@ def cypher_delete_node(node_element_id: str) -> None:
 
     nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_element_id)
     graphdb_nr_deletes += 1 + nr_edges      # '1' for node, add all of its edges.
+    nodes_cache_key_id_delete_id(elementid=node_element_id)
     return
 
 
@@ -626,7 +651,12 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
     if len(nodes) == 0:
         return None
     else:
-        return nodes[0]
+        node = nodes[0]
+        if 'name' in node_properties or 'value' in node_properties:
+            # 'name' or 'value' has changed and thus '_key' has changed.
+            nodes_cache_key_id_delete_id(elementid=node_element_id)
+            nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
+        return node
 
 
 def cypher_merge_nodes(node_merge_from_element_id: str,
@@ -705,6 +735,9 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_merge_to_element_id)
     graphdb_nr_reads += 2 * nr_edges        # Approximation: edges are in two directions.
     graphdb_nr_updates += 2 * nr_edges      # Approximation: edges are in two directions.
+
+    # Too much may have happened, no idea how to efficiently update nodes_cache_key_id, just empty it.
+    nodes_cache_key_id_empty()
     return nodes[0]
 
 
@@ -755,6 +788,142 @@ def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_eleme
     graphdb_nr_reads += 2             # one for left_node, one for right_node
     graphdb_nr_updates += 2           # one for ->, one for <-.
     return
+
+
+# ##############################################################################
+# Ricgraph cache functions.
+# ##############################################################################
+def nodes_cache_key_id_create(key: str, elementid: str) -> None:
+    """Create an entry in the cache for node id's.
+    'id' in this sentence is the id assigned by de graph database.
+
+    :param key: _key of a node.
+    :param elementid: id of a node.
+    :return: None.
+    """
+    global nodes_cache_key_id
+
+    if len(nodes_cache_key_id) > MAX_NODES_CACHE_KEY_ID:
+        nodes_cache_key_id_empty()
+
+    # We use a 'dict', which does not allow for duplicates, so we
+    # do not need to check for it.
+    nodes_cache_key_id[key] = elementid
+    return
+
+
+def nodes_cache_key_id_read(key: str) -> str:
+    """Read an entry from the cache for node id's.
+    'id' in this sentence is the id assigned by de graph database.
+
+    :param key: _key of a node.
+    :return: The id of the node, or '' if not present.
+    """
+    global nodes_cache_key_id
+
+    if key in nodes_cache_key_id:
+        return nodes_cache_key_id[key]
+    return ''
+
+
+def nodes_cache_key_id_delete_key(key: str) -> None:
+    """Delete a key 'key' from the cache for node id's.
+    'id' in this sentence is the id assigned by de graph database.
+
+    :param key: _key of a node.
+    :return: None.
+    """
+    global nodes_cache_key_id
+
+    if key in nodes_cache_key_id:
+        nodes_cache_key_id.pop(key)
+    return
+
+
+def nodes_cache_key_id_delete_id(elementid: str) -> None:
+    """Delete a value 'elementid' from the cache for node id's.
+    'id' in this sentence is the id assigned by de graph database.
+    This need to iterate over the full dict, so it is not efficient.
+
+    :param elementid: the id of a node.
+    :return: None.
+    """
+    global nodes_cache_key_id
+
+    key_to_delete = ''
+    for key in nodes_cache_key_id:
+        if nodes_cache_key_id[key] == elementid:
+            key_to_delete = key
+            break
+    if key_to_delete != '':
+        nodes_cache_key_id_delete_key(key=key_to_delete)
+    return
+
+
+def nodes_cache_key_id_empty() -> None:
+    """Empty the cache for node id's.
+    'id' in this sentence is the id assigned by de graph database.
+
+    :return: None.
+    """
+    global nodes_cache_key_id
+
+    nodes_cache_key_id.clear()
+    return
+
+
+def nodes_cache_nodelink_create(key: str, node: Node) -> None:
+    """Create an entry in the cache for nodes.
+
+    :param key: _key of a node.
+    :param node: a node.
+    :return: None.
+    """
+    global nodes_cache_nodelink
+
+    if len(nodes_cache_nodelink) > MAX_NODES_CACHE_NODELINK:
+        nodes_cache_nodelink_empty()
+
+    # We use a 'dict', which does not allow for duplicates, so we
+    # do not need to check for it.
+    nodes_cache_nodelink[key] = node
+    return
+
+
+def nodes_cache_nodelink_read(key: str) -> Union[Node, None]:
+    """Read an entry from the cache for nodes.
+
+    :param key: _key of a node.
+    :return: The node, or None if not present.
+    """
+    global nodes_cache_nodelink
+
+    if key in nodes_cache_nodelink:
+        return nodes_cache_nodelink[key]
+    return None
+
+
+def nodes_cache_nodelink_empty() -> None:
+    """Empty the cache for nodes.
+
+    :return: None.
+    """
+    global nodes_cache_nodelink
+
+    nodes_cache_nodelink.clear()
+    return
+
+
+def nodes_cache_nodelink_size() -> tuple[int, float]:
+    """Return the size of the cache for nodes.
+
+    :return: the length of the dict (int) and the size in kB (float).
+    """
+    global nodes_cache_nodelink
+
+    length = len(nodes_cache_nodelink)
+    size_kb = round(sys.getsizeof(nodes_cache_nodelink)/1000, 1)
+    return length, size_kb
 
 
 # ##############################################################################
@@ -820,38 +989,6 @@ def datetimestamp(seconds: bool = False) -> str:
     return datetime_stamp
 
 
-def convert_string_to_ascii(value: str = '') -> str:
-    """Convert all accented etc. characters to their ASCII equivalent.
-    We use Unidecode from https://github.com/avian2/unidecode.
-
-    :return: the ASCII equivalent.
-    """
-    asc = unidecode(string=value)
-    return asc
-
-
-def create_unique_string(length: int = 0) -> str:
-    """Create a (pseudo) unique string of characters.
-    Only if you don't specify 'length' or give it value 0,
-    the string will really be unique. Otherwise, it will
-    be pseudo unique.
-
-    :param length: 0 or empty for unique string, otherwise length
-      of string to create.
-    :return: unique string.
-    """
-    if length == 0:
-        # UUID4 is randomly generated and guaranteed to be unique.
-        # The probability to find a duplicate within 103 trillion
-        # version-4 UUIDs is one in a billion.
-        # https://en.wikipedia.org/wiki/Universally_unique_identifier.
-        return str(uuid.uuid4())
-
-    # This will generate a pseudo random string.
-    value = ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
-    return value
-
-
 def graphdb_nr_accesses_reset() -> None:
     """Reset the counters that are used to count the number of accesses
     to the graph database backend.
@@ -899,6 +1036,38 @@ def graphdb_nr_accesses_print() -> None:
     return
 
 
+def convert_string_to_ascii(value: str = '') -> str:
+    """Convert all accented etc. characters to their ASCII equivalent.
+    We use Unidecode from https://github.com/avian2/unidecode.
+
+    :return: the ASCII equivalent.
+    """
+    asc = unidecode(string=value)
+    return asc
+
+
+def create_unique_string(length: int = 0) -> str:
+    """Create a (pseudo) unique string of characters.
+    Only if you don't specify 'length' or give it value 0,
+    the string will really be unique. Otherwise, it will
+    be pseudo unique.
+
+    :param length: 0 or empty for unique string, otherwise length
+      of string to create.
+    :return: unique string.
+    """
+    if length == 0:
+        # UUID4 is randomly generated and guaranteed to be unique.
+        # The probability to find a duplicate within 103 trillion
+        # version-4 UUIDs is one in a billion.
+        # https://en.wikipedia.org/wiki/Universally_unique_identifier.
+        return str(uuid.uuid4())
+
+    # This will generate a pseudo random string.
+    value = ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+    return value
+
+
 def create_ricgraph_key(name: str, value: str) -> str:
     """Create a key for a node.
     This function generates a composite key for a node in a graph.
@@ -908,8 +1077,8 @@ def create_ricgraph_key(name: str, value: str) -> str:
     :return: key generated for the node.
     """
     # Check and correct for occurrences of RICGRAPH_KEY_SEPARATOR.
-    name = name.replace(RICGRAPH_KEY_SEPARATOR, '#')
-    value = value.replace(RICGRAPH_KEY_SEPARATOR, '#')
+    name = name.replace(RICGRAPH_KEY_SEPARATOR, RICGRAPH_KEY_SEPARATOR_REPLACEMENT)
+    value = value.replace(RICGRAPH_KEY_SEPARATOR, RICGRAPH_KEY_SEPARATOR_REPLACEMENT)
 
     return value.lower() + RICGRAPH_KEY_SEPARATOR + name.lower()
 
@@ -918,7 +1087,7 @@ def get_namepart_from_ricgraph_key(key: str) -> str:
     """Get the 'name' part from the composite key in a node.
 
     :param key: key of the node.
-    :return: name part of key for the node.
+    :return: name part of key for the node, or '' on error.
     """
     key_list = key.split(sep=RICGRAPH_KEY_SEPARATOR)
     if len(key_list) != 2:
@@ -930,12 +1099,56 @@ def get_valuepart_from_ricgraph_key(key: str) -> str:
     """Get the 'value' part from the composite key in a node.
 
     :param key: key of the node.
-    :return: value part of key for the node.
+    :return: value part of key for the node, or '' on error.
     """
     key_list = key.split(sep=RICGRAPH_KEY_SEPARATOR)
     if len(key_list) != 2:
         return ''
     return key_list[0]
+
+
+def create_ricgraph_value(value: str, additional: str) -> str:
+    """Sometimes, we may want to have non-unique nodes.
+    E.g. the same name may apply to different persons,
+    so FULL_NAME is not unique.
+    However, for Ricgraph every node needs to be unique,
+    so we append a certain value to it, 'additional'.
+    Together they need to be unique.
+
+    :param value: value.
+    :param additional: an additional value to make this node unique.
+    :return: the concatenation.
+    """
+    # Check and correct for occurrences of RICGRAPH_KEY_SEPARATOR.
+    value = value.replace(RICGRAPH_VALUE_SEPARATOR, RICGRAPH_VALUE_SEPARATOR_REPLACEMENT)
+    additional = additional.replace(RICGRAPH_VALUE_SEPARATOR, RICGRAPH_VALUE_SEPARATOR_REPLACEMENT)
+
+    # Note that we don't do a .lower(), since we want the correctly spelled name.
+    return value + RICGRAPH_VALUE_SEPARATOR + additional.lower()
+
+
+def get_valuepart_from_ricgraph_value(key: str) -> str:
+    """Get the 'value' part from the composite key in a node.
+
+    :param key: key of the node.
+    :return: the value part, or '' on error.
+    """
+    key_list = key.split(sep=RICGRAPH_VALUE_SEPARATOR)
+    if len(key_list) != 2:
+        return ''
+    return key_list[0]
+
+
+def get_additionalpart_from_ricgraph_value(key: str) -> str:
+    """Get the 'value' part from the composite key in a node.
+
+    :param key: key of the node.
+    :return: the additional part, or '' on error.
+    """
+    key_list = key.split(sep=RICGRAPH_VALUE_SEPARATOR)
+    if len(key_list) != 2:
+        return ''
+    return key_list[1]
 
 
 def create_well_known_url(name: str, value: str) -> str:
@@ -1172,10 +1385,12 @@ def create_name_cache_in_personroot(node: Node, personroot: Node) -> None:
         return
     if node['name'] == 'FULL_NAME':
         time_stamp = datetimestamp()
+        value = get_valuepart_from_ricgraph_value(node['value']) + ' ['
+        value += get_additionalpart_from_ricgraph_value(node['value']) + ']'
         if isinstance(personroot['comment'], str):
             if personroot['comment'] == '':
                 old_value = str(personroot['comment'])      # Not necessary, for symmetry.
-                node_properties = {'comment': [node['value']]}
+                node_properties = {'comment': [value]}
                 history_line = create_history_line(property_name='comment',
                                                    old_value=old_value,
                                                    new_value=str(node_properties['comment']))
@@ -1184,10 +1399,11 @@ def create_name_cache_in_personroot(node: Node, personroot: Node) -> None:
                 cypher_update_node_properties(node_element_id=personroot.element_id,
                                               node_properties=node_properties)
         elif isinstance(personroot['comment'], list):
-            if node['value'] not in personroot['comment']:
+            # if node['value'] not in personroot['comment']:
+            if value not in personroot['comment']:
                 old_value = str(personroot['comment'])
                 node_properties = {'comment': personroot['comment'].copy()}
-                node_properties['comment'].append(node['value'])
+                node_properties['comment'].append(value)
                 history_line = create_history_line(property_name='comment',
                                                    old_value=old_value,
                                                    new_value=str(node_properties['comment']))
@@ -1215,8 +1431,10 @@ def recreate_name_cache_in_personroot(personroot: Node) -> None:
                                            name_want='FULL_NAME')
     name_cache = []
     for node in neighbornodes:
-        if node['value'] not in name_cache:
-            name_cache.append(node['value'])
+        value = get_valuepart_from_ricgraph_value(node['value']) + ' ['
+        value += get_additionalpart_from_ricgraph_value(node['value']) + ']'
+        if value not in name_cache:
+            name_cache.append(value)
 
     # We need to do this irrespective of the length of name_cache.
     # If the length is 0, we might be deleting FULL_NAME nodes and that
@@ -1385,7 +1603,6 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
     :return: the node read, or None if no node was found.
     """
     global _graph
-    global nodes_cache_key_element_id
     global graphdb_nr_reads
 
     if _graph is None:
@@ -1400,8 +1617,7 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
 
     graphdb_nr_reads += 1
     key = create_ricgraph_key(name=name, value=value)
-    if key in nodes_cache_key_element_id:
-        node_element_id = nodes_cache_key_element_id[key]
+    if (node_element_id := nodes_cache_key_id_read(key=key)) != '':
         cypher_query = 'MATCH (node:RicgraphNode) WHERE '
         if ricgraph_database() == 'neo4j':
             cypher_query += 'elementId(node)=$node_element_id '
@@ -1417,10 +1633,6 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
         else:
             return nodes[0]
     else:
-        if len(nodes_cache_key_element_id) > MAX_NODES_CACHE_KEY_ID:
-            # Empty cache.
-            nodes_cache_key_element_id = {}
-
         cypher_query = 'MATCH (node:RicgraphNode) WHERE (node.name=$node_name) AND (node.value=$node_value) '
         cypher_query += 'RETURN node'
         nodes = _graph.execute_query(cypher_query,
@@ -1432,7 +1644,7 @@ def read_node(name: str = '', value: str = '') -> Union[Node, None]:
             return None
         else:
             node = nodes[0]
-            nodes_cache_key_element_id[key] = node.element_id
+            nodes_cache_key_id_create(key=key, elementid=node.element_id)
             return node
 
 
@@ -1693,7 +1905,7 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, 
     if updated_node['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=updated_node)
         recreate_name_cache_in_personroot(personroot=personroot)
-    return node
+    return updated_node
 
 
 # Note the similarity with create_nodepairs_and_edges_df().
@@ -2007,8 +2219,8 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         return
 
     if left_node['name'] == 'person-root' or right_node['name'] == 'person-root':
-        print('connect_person_and_person_node(): not anticipated: (one of the) person_nodes '
-              + 'are "person-root" nodes.')
+        cypher_create_edge_if_not_exists(left_node_element_id=left_node.element_id,
+                                         right_node_element_id=right_node.element_id)
         return
 
     nr_edges_left_node = ricgraph_nr_edges_of_node(node_element_id=left_node.element_id)
@@ -2159,10 +2371,38 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
     connect_two_nodes(left_node=node1, right_node=node2)
     if node1['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=node1)
-        create_name_cache_in_personroot(node=node1, personroot=personroot)
+        if (asc := convert_string_to_ascii(node1['value'])) != node1['value']:
+            history_event = 'From node "FULL_NAME" with value "' + node1['value'] + '".'
+            create_two_nodes_and_edge(name1=personroot['name'],
+                                      category1=personroot['category'],
+                                      value1=personroot['value'],
+                                      name2='FULL_NAME_ASCII',
+                                      category2 = node1['category'],
+                                      value2 = create_ricgraph_value(value=asc,
+                                                                     additional=personroot['value']),
+                                      history_event2=history_event)
+        node_upd = update_node_value(name='FULL_NAME',
+                                     old_value=node1['value'],
+                                     new_value=create_ricgraph_value(value=node1['value'],
+                                                                     additional=personroot['value']))
+        create_name_cache_in_personroot(node=node_upd, personroot=personroot)
     if node2['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=node2)
-        create_name_cache_in_personroot(node=node2, personroot=personroot)
+        if (asc := convert_string_to_ascii(node2['value'])) != node2['value']:
+            history_event = 'From node "FULL_NAME" with value "' + node2['value'] + '".'
+            create_two_nodes_and_edge(name1=personroot['name'],
+                                      category1=personroot['category'],
+                                      value1=personroot['value'],
+                                      name2='FULL_NAME_ASCII',
+                                      category2 = node2['category'],
+                                      value2 = create_ricgraph_value(value=asc,
+                                                                     additional=personroot['value']),
+                                      history_event2=history_event)
+        node_upd = update_node_value(name='FULL_NAME',
+                                     old_value=node2['value'],
+                                     new_value=create_ricgraph_value(value=node2['value'],
+                                                                     additional=personroot['value']))
+        create_name_cache_in_personroot(node=node_upd, personroot=personroot)
     return
 
 
@@ -2307,16 +2547,29 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
 
             if RICGRAPH_NODEADD_MODE == 'strict':
                 # Remove rows which have a cell value that occurs more than once.
+                # There are two situations: (1) nodes with unique value; (2) nodes with non-unique value.
+                # (1) We assume that in one source system, always the same ID is used to connect to
+                # research results.
+                # In principle, more than one ID could be used, but it could also be that someone made
+                # a typo and entered the ID from another person. We cannot know which one it is,
+                # therefore we assume that the same ID is used. This leads to the following,
+                # e.g. if we have a DataFrame:
+                # ISNI          ORCID
+                # ISNI1         10
+                # ISNI2         11
+                # ISNI3         11
+                # then we remove both rows with ORCID 11.
+                # (2) It can very well be the same name belongs to more than one person (to more than one ID).
                 # E.g. if we have a DataFrame:
                 # FULL_NAME     ORCID
                 # Name1         10
-                # Name2         11
-                # Name3         11
-                # then we remove both rows with ORCID 11.
+                # Name2         10
+                # In this case we remove nothing.
                 # For more explanation, see file docs/ricgraph_install_configure.md,
                 # section RICGRAPH_NODEADD_MODE.
-                identifiers.drop_duplicates(subset=column1, keep=False, inplace=True, ignore_index=True)
-                identifiers.drop_duplicates(subset=column2, keep=False, inplace=True, ignore_index=True)
+                if column1 != 'FULL_NAME' and column2 != 'FULL_NAME':
+                    identifiers.drop_duplicates(subset=column1, keep=False, inplace=True, ignore_index=True)
+                    identifiers.drop_duplicates(subset=column2, keep=False, inplace=True, ignore_index=True)
 
             create_nodepairs_and_edges_params(name1=column1, category1='person', value1=identifiers[column1],
                                               name2=column2, category2='person', value2=identifiers[column2],
