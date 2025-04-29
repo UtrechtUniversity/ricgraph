@@ -79,14 +79,15 @@
 
 import json
 import os
-import sys
 import urllib.parse
-from typing import Union, Tuple
 from math import ceil, floor
-from neo4j.graph import Node
+from typing import Union, Tuple
+
 import connexion.options
 from flask import request, url_for, send_from_directory, current_app
 from markupsafe import escape
+from neo4j.graph import Node
+
 import ricgraph as rcg
 
 # We don't show the Swagger REST API page, we use RapiDoc for that (see restapidocpage()
@@ -179,16 +180,6 @@ VIEW_MODE_ALL = ['view_regular_table_personal',
                  'view_regular_table_person_organization_collaborations',
                  'view_regular_table_organization_addinfo',
                  ]
-
-# The dict 'nodes_cache' is used to be able to pass nodes (i.e. links to Node)
-# between the pages of this application. If we would not do this, we would need
-# to search the node again every time we go to a new page. Then we would
-# lose the advantage of using a graph.
-# I could have used rcg.read_node() with @ricgraph_lru_cache, but I'd prefer to be
-# able to store any node in the cache at the moment I prefer, as is done
-# in function get_regular_table()).
-# This dict has the format: [Ricgraph _key]: [Node link]
-nodes_cache = {}
 
 # These will be defined in initialize_ricgraph_explorer()
 global graph
@@ -490,8 +481,9 @@ def homepage() -> str:
     html += str(nr_nodes) + ' nodes and ' + str(nr_edges) + ' edges.'
     html += '</li>'
     html += '<li>'
-    html += 'The node cache has ' + str(len(nodes_cache)) + ' elements, and its size is '
-    html += str(round(sys.getsizeof(nodes_cache)/1000, 1)) + ' kB.'
+    length, size_kb = rcg.nodes_cache_nodelink_size()
+    html += 'The node cache has ' + str(length) + ' elements, and its size is '
+    html += str(size_kb) + ' kB.'
     html += '</li>'
     html += '</ul>'
     html += get_html_for_cardend()
@@ -652,7 +644,7 @@ def optionspage() -> str:
 
     returns html to parse.
     """
-    global html_body_start, html_body_end, page_footer, nodes_cache
+    global html_body_start, html_body_end, page_footer
 
     get_all_globals_from_app_context()
     search_mode = get_url_parameter_value(parameter='search_mode',
@@ -693,8 +685,7 @@ def optionspage() -> str:
 
     # First check if the node is in 'nodes_cache'.
     if key != '':
-        if key in nodes_cache:
-            node = nodes_cache[key]
+        if (node := rcg.nodes_cache_nodelink_read(key=key)) is not None:
             html += create_options_page(node=node,
                                         discoverer_mode=discoverer_mode,
                                         extra_url_parameters=extra_url_parameters)
@@ -703,8 +694,7 @@ def optionspage() -> str:
 
     if name != '' and value != '':
         key_found = rcg.create_ricgraph_key(name=name, value=value)
-        if key_found in nodes_cache:
-            node = nodes_cache[key_found]
+        if (node := rcg.nodes_cache_nodelink_read(key=key_found)) is not None:
             html += create_options_page(node=node,
                                         discoverer_mode=discoverer_mode,
                                         extra_url_parameters=extra_url_parameters)
@@ -742,7 +732,7 @@ def optionspage() -> str:
 
     node = result[0]
     key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
-    nodes_cache[key] = node
+    rcg.nodes_cache_nodelink_create(key=key, node=node)
     html += create_options_page(node=node,
                                 discoverer_mode=discoverer_mode,
                                 extra_url_parameters=extra_url_parameters)
@@ -1169,7 +1159,7 @@ def create_results_page(view_mode: str,
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
-    global resout_types_all, personal_types_all, remainder_types_all, nodes_cache
+    global resout_types_all, personal_types_all, remainder_types_all
 
     if name_list is None:
         name_list = []
@@ -1188,9 +1178,7 @@ def create_results_page(view_mode: str,
 
     max_nr_items = int(extra_url_parameters['max_nr_items'])
     html = ''
-    if key in nodes_cache:
-        node = nodes_cache[key]
-    else:
+    if (node := rcg.nodes_cache_nodelink_read(key=key)) is None:
         result = rcg.read_all_nodes(key=key)
         if len(result) == 0 or len(result) > 1:
             if len(result) == 0:
@@ -1199,7 +1187,7 @@ def create_results_page(view_mode: str,
                 message = 'Ricgraph Explorer found too many nodes. '
             message += 'This should not happen. '
             return get_message(message=message)
-        nodes_cache[key] = result[0]
+        rcg.nodes_cache_nodelink_create(key=key, node=result[0])
         node = result[0]
 
     if discoverer_mode == 'details_view':
@@ -1427,8 +1415,6 @@ def view_personal_information(nodes_list: list,
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
-    global nodes_cache
-
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
@@ -1438,11 +1424,8 @@ def view_personal_information(nodes_list: list,
     html = get_html_for_cardstart()
     names = []
     for node in nodes_list:
-        # Add node to nodes_cache if it is not there already.
         key = node['_key']
-        if key not in nodes_cache:
-            nodes_cache[key] = node
-
+        rcg.nodes_cache_nodelink_create(key=key, node=node)
         if node['name'] != 'FULL_NAME':
             continue
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
@@ -1575,7 +1558,7 @@ def find_person_share_resouts_cypher(parent_node: Node,
 
     # Convert 'cypher_result' to a list of Node's.
     # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
-    # have gotten a list of dicts, which messes up 'nodes_cache'.
+    # have gotten a list of dicts, which messes up 'nodes_cache_nodelink'.
     connected_persons = []
     for neighbor_node in cypher_result:
         if len(neighbor_node) == 0:
@@ -1885,7 +1868,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
 
     # Convert 'cypher_result' to a list of Node's.
     # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
-    # have gotten a list of dicts, which messes up 'nodes_cache'.
+    # have gotten a list of dicts, which messes up 'nodes_cache_nodelink'.
     collaborating_organizations = []
     for organization_node in cypher_result:
         if len(organization_node) == 0:
@@ -3003,8 +2986,6 @@ def get_regular_table_worker(nodes_list: list,
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
-    global nodes_cache
-
     if extra_url_parameters is None:
         extra_url_parameters = {}
     if table_columns is None:
@@ -3054,10 +3035,8 @@ def get_regular_table_worker(nodes_list: list,
                                       discoverer_mode=discoverer_mode,
                                       extra_url_parameters=extra_url_parameters)
 
-        # Add node to nodes_cache if it is not there already.
         key = node['_key']
-        if key not in nodes_cache:
-            nodes_cache[key] = node
+        rcg.nodes_cache_nodelink_create(key=key, node=node)
 
     html += '</tbody>'
     html += get_html_for_tableend(table_id=table_id)
@@ -3567,11 +3546,17 @@ def get_html_for_tablerow(node: Node,
     if 'value' in table_columns:
         # Value can never be empty, it is part of _key.
         key = rcg.create_ricgraph_key(name=node['name'], value=node['value'])
+        if node['name'] == 'FULL_NAME' or node['name'] == 'FULL_NAME_ASCII':
+            value = rcg.get_valuepart_from_ricgraph_value(node['value']) + ' ['
+            value += rcg.get_additionalpart_from_ricgraph_value(node['value']) + ']'
+        else:
+            value = node['value']
+
         html += '<td><a href=' + url_for('optionspage') + '?'
         html += urllib.parse.urlencode({'key': key,
                                         'discoverer_mode': discoverer_mode}
                                        | extra_url_parameters) + '>'
-        html += node['value'] + '</a></td>'
+        html += value + '</a></td>'
     if 'comment' in table_columns:
         if isinstance(node['comment'], str):
             if node['comment'] == '':
