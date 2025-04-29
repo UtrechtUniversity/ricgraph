@@ -69,6 +69,8 @@ import ricgraph as rcg
 
 RSD_HARVEST_FILENAME = 'rsd_harvest.json'
 RSD_DATA_FILENAME = 'rsd_data.csv'
+RSD_HARVEST_FROM_FILE = False
+# RSD_HARVEST_FROM_FILE = True
 RSD_ENDPOINT = 'api/v1/organisation'
 RSD_FIELDS = 'software(brand_name,slug,concept_doi,' \
              + 'release(mention(doi,doi_registration_date,publication_year)),' \
@@ -159,9 +161,6 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
 
         contributor.fillna(value=numpy.nan, inplace=True)
         contributor['FULL_NAME'] = contributor['family_names'] + ', ' + contributor['given_names']
-        # Note: the following is a DataFrame column operation.
-        contributor['FULL_NAME_ASCII'] = contributor['FULL_NAME'].apply(
-            lambda x: asc if (asc := rcg.convert_string_to_ascii(x)) != x else '')
         contributor.insert(0, 'package_year', publication_year_most_recent_doi)
         contributor.insert(0, 'package_name', package_name)
         contributor.insert(0, 'package_url', package_url)
@@ -213,12 +212,13 @@ def harvest_and_parse_software(headers: dict, url: str, harvest_filename: str) -
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting software packages from ' + HARVEST_SOURCE + '...')
-    retval = rsd_harvest_json_and_write_to_file(filename=harvest_filename,
-                                                url=url,
-                                                headers=headers)
-    if len(retval) == 0:
-        # Nothing found
-        return None
+    if not RSD_HARVEST_FROM_FILE:
+        retval = rsd_harvest_json_and_write_to_file(filename=harvest_filename,
+                                                    url=url,
+                                                    headers=headers)
+        if len(retval) == 0:
+            # Nothing found
+            return None
 
     harvest_data = rcg.read_json_from_file(filename=harvest_filename)
     parse = parse_rsd_software(harvest=harvest_data)
@@ -243,7 +243,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
           + timestamp + '...')
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' at ' + timestamp + '.'
 
-    person_identifiers = parsed_content[['ORCID', 'FULL_NAME', 'FULL_NAME_ASCII']].copy(deep=True)
+    person_identifiers = parsed_content[['ORCID', 'FULL_NAME']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
