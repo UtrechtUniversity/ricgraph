@@ -153,8 +153,6 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
         if 'NameShort' in harvest_item:
             parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
                           'FULL_NAME': str(harvest_item['NameShort'])}
-            if (asc := rcg.convert_string_to_ascii(parse_line['FULL_NAME'])) != parse_line['FULL_NAME']:
-                parse_line['FULL_NAME_ASCII'] = asc
             parse_chunk.append(parse_line)
         if 'Email' in harvest_item:
             parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
@@ -402,8 +400,7 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
 
     # ####### Insert persons.
     person_identifiers = parsed_content[['UUSTAFF_PAGE_ID', 'ORCID',
-                                         'UUSTAFF_ID_PERS',
-                                         'FULL_NAME', 'FULL_NAME_ASCII',
+                                         'UUSTAFF_ID_PERS', 'FULL_NAME',
                                          'EMAIL', 'PHOTO_ID',
                                          'TWITTER', 'LINKEDIN',
                                          'GITHUB']].copy(deep=True)

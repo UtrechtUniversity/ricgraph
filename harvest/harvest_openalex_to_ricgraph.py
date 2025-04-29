@@ -195,8 +195,6 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                 if authors['author']['display_name'] is not None:
                     parse_line = {'OPENALEX': openalex_id,
                                   'FULL_NAME': str(authors['author']['display_name'])}
-                    if (asc := rcg.convert_string_to_ascii(parse_line['FULL_NAME'])) != parse_line['FULL_NAME']:
-                        parse_line['FULL_NAME_ASCII'] = asc
                     parse_chunk.append(parse_line)
 
             for institution in authors['institutions']:
@@ -309,8 +307,7 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     #    since new identifiers from this harvest will be  linked to an already existing
     #    person-root.
     # If you have 2 of type (b), use these as the first 2 columns.
-    person_identifiers = parsed_content[['OPENALEX', 'ORCID',
-                                         'FULL_NAME', 'FULL_NAME_ASCII']].copy(deep=True)
+    person_identifiers = parsed_content[['OPENALEX', 'ORCID', 'FULL_NAME']].copy(deep=True)
     # dropna(how='all'): drop row if all row values contain NaN
     person_identifiers.dropna(axis=0, how='all', inplace=True)
     person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
