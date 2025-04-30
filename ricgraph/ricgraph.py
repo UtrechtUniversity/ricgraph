@@ -2371,8 +2371,9 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
     connect_two_nodes(left_node=node1, right_node=node2)
     if node1['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=node1)
+        new_value = create_ricgraph_value(value=node1['value'], additional=personroot['value'])
         if (asc := convert_string_to_ascii(node1['value'])) != node1['value']:
-            history_event = 'From node "FULL_NAME" with value "' + node1['value'] + '".'
+            history_event = 'From node "FULL_NAME" with value "' + new_value + '".'
             create_two_nodes_and_edge(name1=personroot['name'],
                                       category1=personroot['category'],
                                       value1=personroot['value'],
@@ -2383,13 +2384,13 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
                                       history_event2=history_event)
         node_upd = update_node_value(name='FULL_NAME',
                                      old_value=node1['value'],
-                                     new_value=create_ricgraph_value(value=node1['value'],
-                                                                     additional=personroot['value']))
+                                     new_value=new_value)
         create_name_cache_in_personroot(node=node_upd, personroot=personroot)
     if node2['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=node2)
+        new_value = create_ricgraph_value(value=node2['value'], additional=personroot['value'])
         if (asc := convert_string_to_ascii(node2['value'])) != node2['value']:
-            history_event = 'From node "FULL_NAME" with value "' + node2['value'] + '".'
+            history_event = 'From node "FULL_NAME" with value "' + new_value + '".'
             create_two_nodes_and_edge(name1=personroot['name'],
                                       category1=personroot['category'],
                                       value1=personroot['value'],
@@ -2400,8 +2401,7 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
                                       history_event2=history_event)
         node_upd = update_node_value(name='FULL_NAME',
                                      old_value=node2['value'],
-                                     new_value=create_ricgraph_value(value=node2['value'],
-                                                                     additional=personroot['value']))
+                                     new_value=new_value)
         create_name_cache_in_personroot(node=node_upd, personroot=personroot)
     return
 
