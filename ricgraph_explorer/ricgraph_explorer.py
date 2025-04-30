@@ -396,9 +396,7 @@ def homepage() -> str:
     html += create_html_form(destination='searchpage',
                              button_text='search for a person',
                              hidden_fields={'search_mode': 'value_search',
-                                            # We need to search for both FULL_NAME and FULL_NAME_ASCII.
-                                            # 'name': 'FULL_NAME'
-                                            'category': 'person'
+                                            'name': 'FULL_NAME'
                                             })
     html += '<p/>'
     html += create_html_form(destination='searchpage',
@@ -713,7 +711,14 @@ def optionspage() -> str:
                                         + str(SEARCH_STRING_MIN_LENGTH) + ' characters.')
             html += page_footer + html_body_end
             return html
-        result = rcg.read_all_nodes(name=name, category=category, value=value,
+        if name == 'FULL_NAME':
+            # We also need to search on FULL_NAME_ASCII, therefore the 'name_is_exact_match = False'.
+            result = rcg.read_all_nodes(name=name, category=category, value=value,
+                                        name_is_exact_match=False,
+                                        value_is_exact_match=False,
+                                        max_nr_nodes=int(extra_url_parameters['max_nr_items']))
+        else:
+            result = rcg.read_all_nodes(name=name, category=category, value=value,
                                     value_is_exact_match=False,
                                     max_nr_nodes=int(extra_url_parameters['max_nr_items']))
     if len(result) == 0:
