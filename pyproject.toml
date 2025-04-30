@@ -26,10 +26,11 @@ keywords = ["Research in context graph", "Ricgraph", "Ricgraph Explorer",
 	    "Harvest", "Harvest data", "Harvester", "Knowledge graph",
 	    "Linked data", "Metadata", "Utrecht University", "Visualization"]
 dependencies = [
-    "neo4j >= 5.8",
+    "neo4j>=5.8",
     "numpy",
     "pandas",
     "requests",
+    "unidecode",
 ]
 
 [project.urls]
