@@ -636,9 +636,9 @@ run_python_script:
 	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
 	@# Check if the path to 'python_script_log' starts with '/'. If so, it is considered a full path.
 	@if [ $(shell echo $(python_script_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) | tee $(python_script_log); \
+		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) |& tee $(python_script_log); \
 	else \
-		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) | tee ../$(python_script_log); \
+		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) |& tee ../$(python_script_log); \
 	fi
 
 
@@ -657,9 +657,9 @@ run_bash_script:
 	@if [ ! -f $(bash_script) ]; then echo "Error: script '$(bash_script)' does not exist."; exit 1; fi
 	@# Check if the path to 'bash_script_log' starts with '/'. If so, it is considered a full path.
 	@if [ $(shell echo $(bash_script_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) | tee $(bash_script_log); \
+		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) |& tee $(bash_script_log); \
 	else \
-		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) | tee ../$(bash_script_log); \
+		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) |& tee ../$(bash_script_log); \
 	fi
 
 
