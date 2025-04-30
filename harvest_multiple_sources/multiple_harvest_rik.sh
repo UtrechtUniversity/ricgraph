@@ -114,10 +114,12 @@ exit_on_error $?
 # Make sure neo4j is up and running.
 sleep 120
 
-../enhance/rename_organizations.sh --organization UU
+cd ../enhance || exit 1
+
+./rename_organizations.sh --organization UU
 exit_on_error $?
 
-../enhance/rename_organizations.sh --organization VUA
+./rename_organizations.sh --organization VUA
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-all-$(date +%y%m%d-%H%M)
@@ -130,9 +132,11 @@ exit_on_error $?
 # to another VM.
 cp "$graphdb_backup"/* "$explorer_data_collect_dir"
 tar -czf "$explorer_data_collect_dir".tar.gz "$explorer_data_collect_dir"
+exit_on_error $?
 
 # Collect all results in one directory, $data_collect_dir, for easy
 # transfer to another computer.
+cd ../harvest_multiple_sources || exit 1
 mv ./*.log "$data_collect_dir"
 cd ../harvest || exit 1
 mv ./*.xml ./*.csv ./*.json "$harvest_result_dir"
