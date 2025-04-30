@@ -32,7 +32,7 @@
 
 harvest_pure() {
   echo "Harvesting Pure for organization '$organization'."
-  PYTHONPATH=$python_path $python_cmd harvest_pure_to_ricgraph.py --empty_ricgraph "$empty_ricgraph" --organization "$organization" --harvest_projects yes
+  PYTHONPATH=$python_path $python_cmd harvest_pure_to_ricgraph.py --empty_ricgraph "$empty_ricgraph" --organization "$organization" --harvest_projects no
   exit_code=$?
   if [ "$exit_code" = "0" ] ; then
     echo "Done with harvesting Pure-$organization."
