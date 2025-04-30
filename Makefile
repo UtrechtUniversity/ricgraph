@@ -167,6 +167,7 @@ neo4j_desktop_path := $(neo4j_download)/neo4j-desktop/linux-offline/neo4j-deskto
 neo4j_desktop := $(shell basename $(neo4j_desktop_path))
 neo4j_community := $(shell basename $(neo4j_community_path))
 neo4j_cyphershell := $(shell basename $(neo4j_cyphershell_path))
+neo4j_community_config := /etc/neo4j/neo4j.conf
 
 # Determine which Apache paths to use.
 ifeq ($(shell test -d /etc/apache2/vhosts.d && echo true),true)
@@ -352,6 +353,7 @@ makefile_variables:
 	@echo "- neo4j_cyphershell_path: $(neo4j_cyphershell_path)"
 	@echo "- neo4j_desktop: $(neo4j_desktop)"
 	@echo "- neo4j_desktop_path: $(neo4j_desktop_path)"
+	@echo "- neo4j_community_config: $(neo4j_community_config)"
 	@echo "- graphdb_backup_dir: $(graphdb_backup_dir)"
 	@echo "- graphdb_password_file: $(graphdb_password_file)"
 	@echo "- graphdb_password_length: $(graphdb_password_length)"
@@ -390,6 +392,9 @@ ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	$(call read_graphdb_password)
 	@# The following can only be done if you have not started Neo4j yet.
 	neo4j-admin dbms set-initial-password $(graphdb_password)
+	@echo "Disabling anonymous usage reporting to Neo4j."
+	@if [ ! -f $(neo4j_community_config) ]; then echo "Error, cannot find neo4j config file '$(neo4j_community_config)'."; fi
+	@sed -i 's/#dbms\.usage_report\.enabled=false/dbms.usage_report.enabled=false/' $(neo4j_community_config)
 	$(systemctl_cmd) enable neo4j.service
 	$(systemctl_cmd) start neo4j.service
 	@echo ""
