@@ -285,20 +285,22 @@ Optionally, you can extend Ricgraph by adding new
 
 ### RICGRAPH_NODEADD_MODE
 There is a parameter *RICGRAPH_NODEADD_MODE* in the initialization file 
-which influences how nodes are added to Ricgraph. Suppose we harvest a source system
+that influences how nodes are added to Ricgraph. Suppose we harvest a source system
 and that results in the following table:
 
-| FULL_NAME | ORCID               |
-|-----------|---------------------|
-| Name-1    | 0000-0001-1111-1111 |
-| Name-2    | 0000-0001-1111-2222 |
-| Name-3    | 0000-0001-1111-2222 |
-| Name-4    | 0000-0001-1111-3333 |
+| ISNI   | ORCID               |
+|--------|---------------------|
+| ISNI-1 | 0000-0001-1111-1111 |
+| ISNI-2 | 0000-0001-1111-2222 |
+| ISNI-3 | 0000-0001-1111-2222 |
+| ISNI-4 | 0000-0001-1111-3333 |
 
-*Name-2* and *Name-3* have the same ORCID. This may be correct, e.g. if *Name-2* is a name variant
-of *Name-3*, e.g. *John Doe* vs *J. Doe*, but it also may not be correct, e.g. if 
-*Name-2* is *John* and *Name-3* is *Peter* (possibly caused by a typing mistake in a
-source system). There is no way for Ricgraph to know which of these two options it is.
+*ISNI-2* and *ISNI-3* have the same ORCID. This may be correct, e.g. if the person
+with the *ORCID* has multiple *ISNI* records.
+But it also may be incorrect, e.g. if
+*ISNI-2* and *ISNI-3* do not refer to the same person,
+possibly caused by a typing mistake in a
+source system. There is no way for Ricgraph to know which of these two options it is.
 
 RICGRAPH_NODEADD_MODE can be either *strict* or *lenient*:
 
@@ -322,18 +324,17 @@ This will have the following consequences:
  
   In the example above, *ORCID* *0000-0001-1111-2222* 
   is inserted. That means that the *person-root*s of the two persons 
-  *Name-2* or *Name-3* are "merged" and
-  that all research outputs of *Name-2* and *Name-3* will be connected to one *person-root* node.
+  with *ISNI-2* or *ISNI-3* are "merged", and
+  that all research outputs of *ISNI-2* and *ISNI-3* will be connected to one *person-root* node.
   After this has been done, there is no way to know which research output belongs to
-  *Name-2* or *Name-3*. 
+  *ISNI-2* or *ISNI-3*. 
  
-  As said, that is fine if *Name-2* and *Name-3* are name variants,
-  but not fine if they are different names.
-  (Side note: if you want to capture spelling variants, you may want to use a fuzzy string match library
-  such as [TheFuzz](https://github.com/seatgeek/thefuzz).)
+  As said, that is fine if *ISNI-2* and *ISNI-3* refer to the same person (having two ISNIs),
+  but not fine if they refer to two different persons.
 
-*Lenient* is advisable if the sources you harvest from do not contain errors. However, the author
-of Ricgraph has noticed that this does not occur often, therefore the default is *strict*.
+*Lenient* is advisable if the sources you harvest from do not contain errors. However, with
+source systems that contain a lot of information this is not likely,
+therefore the default is *strict*.
 
 
 ## Ricgraph on Windows
