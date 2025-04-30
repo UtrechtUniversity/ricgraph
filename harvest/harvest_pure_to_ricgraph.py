@@ -914,6 +914,7 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
         # else:
         #    continue
 
+        title = organization + ' ' + title
         if 'participants' in harvest_item:
             for participant in harvest_item['participants']:
                 if 'person' in participant \
