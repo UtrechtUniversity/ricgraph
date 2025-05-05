@@ -829,7 +829,7 @@ define install_ricgraph
 		unzip -q $(ricgraph_cuttingedge_name); \
 		mv ricgraph-main $(ricgraph); \
 		echo "This is the cutting edge version of Ricgraph of $$(date +%y%m%d-%H%M)." > $(ricgraph)/0_ricgraph_cuttingedge_$$(date +%y%m%d-%H%M); \
-		sed -i 's|; ../$$(python_cmd_venv)|; PYTHONPATH=../ricgraph ../$$(python_cmd_venv)|' $(ricgraph)/Makefile; \
+		sed -i 's|; ../$$(python_cmd_venv)|; PYTHONPATH=.. ../$$(python_cmd_venv)|' $(ricgraph)/Makefile; \
 		sed -i 's|# ## ### #### #####|python_path=../ricgraph|' $(ricgraph)/library/get_cmdline_args.sh; \
 		tar czf $(ricgraph_tag_name) $(ricgraph); \
 		mv -f $(ricgraph_tag_name) $(dir $(1)); \

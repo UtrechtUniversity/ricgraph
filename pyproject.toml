@@ -16,10 +16,10 @@ readme = "README-PyPI.md"
 requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
 ]
+license = "MIT"
 keywords = ["Research in context graph", "Ricgraph", "Ricgraph Explorer",
 	    "Ricgraph REST API", "Data enrichment", "Data harvesting",
 	    "Data linking", "Enrichment", "Graph", "Graph database",
