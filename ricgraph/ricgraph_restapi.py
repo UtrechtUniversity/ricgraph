@@ -28,23 +28,48 @@
 #
 # ########################################################################
 #
-# This file is the __init__ file for Ricgraph.
+# Ricgraph general REST API functions.
 # For more information about Ricgraph and Ricgraph Explorer,
 # go to https://www.ricgraph.eu and https://docs.ricgraph.eu.
 #
 # ########################################################################
 #
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, May 2025.
+# Updated Rik D.T. Janssen, February, March, September to December 2023.
+# Updated Rik D.T. Janssen, February to June, September to December  2024.
+# Updated Rik D.T. Janssen, January to June 2025.
 #
 # ########################################################################
 
-from .ricgraph_constants import *
-from .ricgraph_cache import *
-from .ricgraph_utils import *
-from .ricgraph_file import *
-from .ricgraph_graphdb import *
-from .ricgraph_researchinfo import *
-from .ricgraph_harvest import *
-from .ricgraph_restapi import *
-from .ricgraph import *
+
+from typing import Tuple
+from .ricgraph_constants import HTTP_RESPONSE_OK
+
+
+def create_http_response(result_list: list = None,
+                         message: str = '',
+                         http_status: int = HTTP_RESPONSE_OK) -> Tuple[dict, int]:
+    """Create an HTTP response.
+
+    :param result_list: A list of dicts, to be put in the 'result' section of
+      the response.
+    :param message: An optional message to be put in the 'meta' section of
+      the response.
+    :param http_status: The HTTP status code to be put in the 'meta' section of
+      the response.
+    :return: An HTTP response (as dict, to be translated to json)
+      and an HTTP response code.
+    """
+    if result_list is None:
+        result_list = []
+
+    meta = {'count': len(result_list),
+            'page': 1,                      # More pages not implemented yet.
+            'per_page': len(result_list),   # Should be page length, not implemented yet.
+            'status': http_status}
+    if message != '':
+        meta['message'] = message
+
+    response = {'meta': meta,
+                'results': result_list}
+    return response, http_status
