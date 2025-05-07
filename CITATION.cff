@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 title: "Ricgraph - Research in context graph"
 type: software
-version: "2.12"
+version: "2.12.1"
 date-released: "2025-05-07"
 authors:
   - given-names: "Rik D.T."
@@ -112,7 +112,7 @@ identifiers:
   - description: "Ricgraph DOI v2.11"
     type: doi
     value: "10.5281/zenodo.15261306"
-  - description: "Ricgraph DOI v2.12"
+  - description: "Ricgraph DOI v2.12.1"
     type: doi
     value: "10.5281/zenodo.XXXXXXX"
 abstract: >-
