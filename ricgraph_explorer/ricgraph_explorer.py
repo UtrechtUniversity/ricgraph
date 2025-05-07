@@ -270,15 +270,15 @@ def searchpage() -> str:
                                               allowed_values=['details_view', 'person_view'],
                                               default_value=DEFAULT_DISCOVERER_MODE)
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
-                                           default_value=MAX_ITEMS)
+                                           default_value=str(MAX_ITEMS))
     if not max_nr_items.isnumeric():
         # This also catches negative numbers, they contain a '-' and are not numeric.
         # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
-                                                default_value=MAX_ROWS_IN_TABLE)
+                                                default_value=str(MAX_ROWS_IN_TABLE))
     if not max_nr_table_rows.isnumeric():
-        max_nr_table_rows = MAX_ROWS_IN_TABLE
+        max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     html = html_body_start
     html += get_html_for_cardstart()
 
@@ -408,16 +408,16 @@ def optionspage() -> str:
                                               default_value=DEFAULT_DISCOVERER_MODE)
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
-                                           default_value=MAX_ITEMS)
+                                           default_value=str(MAX_ITEMS))
     if not max_nr_items.isnumeric():
         # This also catches negative numbers, they contain a '-' and are not numeric.
         # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     extra_url_parameters['max_nr_items'] = max_nr_items
     max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
-                                                default_value=MAX_ROWS_IN_TABLE)
+                                                default_value=str(MAX_ROWS_IN_TABLE))
     if not max_nr_table_rows.isnumeric():
-        max_nr_table_rows = MAX_ROWS_IN_TABLE
+        max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
     html = html_body_start
 
@@ -538,16 +538,16 @@ def resultspage() -> str:
                                               default_value=DEFAULT_DISCOVERER_MODE)
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
-                                           default_value=MAX_ITEMS)
+                                           default_value=str(MAX_ITEMS))
     if not max_nr_items.isnumeric():
         # This also catches negative numbers, they contain a '-' and are not numeric.
         # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     extra_url_parameters['max_nr_items'] = max_nr_items
     max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
-                                                default_value=MAX_ROWS_IN_TABLE)
+                                                default_value=str(MAX_ROWS_IN_TABLE))
     if not max_nr_table_rows.isnumeric():
-        max_nr_table_rows = MAX_ROWS_IN_TABLE
+        max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
     name_list = request.args.getlist('name_list')
     category_list = request.args.getlist('category_list')

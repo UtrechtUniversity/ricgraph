@@ -95,11 +95,13 @@ def view_personal_information(nodes_list: list,
         if node['name'] != 'FULL_NAME':
             continue
         key = create_ricgraph_key(name=node['name'], value=node['value'])
+        value = get_valuepart_from_ricgraph_value(node['value'])
+        # Don't get the 'additionalpart'.
         item = '<a href=' + url_for('optionspage') + '?'
         item += urllib.parse.urlencode({'key': key,
                                         'discoverer_mode': discoverer_mode}
                                        | extra_url_parameters) + '>'
-        item += node['value'] + '</a>'
+        item += value + '</a>'
         names.append(item)
     if len(names) == 1:
         html += '<p class="w3-xlarge">' + ', '.join(str(item) for item in names)
@@ -159,8 +161,9 @@ def view_personal_information(nodes_list: list,
         if node['category'] != 'person':
             continue
         if node['name'] != 'FULL_NAME' \
-                and node['name'] != 'person-root' \
-                and node['name'] != 'PHOTO_ID':
+           and node['name'] != 'FULL_NAME_ASCII' \
+           and node['name'] != 'person-root' \
+           and node['name'] != 'PHOTO_ID':
             id_nodes.append(node)
     html += get_tabbed_table(nodes_list=id_nodes,
                              table_header='These are the identities related to this person:',
@@ -337,6 +340,10 @@ def get_regular_table_worker(nodes_list: list,
     max_nr_items = int(extra_url_parameters['max_nr_items'])
     if max_nr_items == 0:
         max_nr_items = A_LARGE_NUMBER
+    if len_nodes_list > max_nr_items:
+        # Remove elements from list following the max_nr_items'th.
+        del nodes_list[max_nr_items:]
+        len_nodes_list = max_nr_items
 
     nr_rows_in_table_message = ''
     max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
@@ -345,10 +352,10 @@ def get_regular_table_worker(nodes_list: list,
     if 0 < max_nr_table_rows < len_nodes_list:
         nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table, showing pages of '
         nr_rows_in_table_message += str(max_nr_table_rows) + '.'
-    # elif len_nodes_list == max_nr_table_rows:
-    #     # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
-    #     # so we have no idea how many search results there are.
-    #     nr_rows_in_table_message = 'This table shows the first ' + str(max_nr_table_rows) + ' rows.'
+    elif len_nodes_list == max_nr_table_rows:
+        # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
+        # so we have no idea how many search results there are.
+        nr_rows_in_table_message = 'This table shows the first ' + str(max_nr_table_rows) + ' rows.'
     elif len_nodes_list >= 2:
         nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table.'
 
@@ -362,8 +369,6 @@ def get_regular_table_worker(nodes_list: list,
     html += '</thead>'
     html += '<tbody>'
     for count, node in enumerate(nodes_list):
-        if count >= max_nr_items:
-            break
         table_page_num = floor(count / max_nr_table_rows) + 1
         html += get_html_for_tablerow(node=node,
                                       table_id=table_id,
@@ -414,6 +419,13 @@ def get_faceted_table(parent_node: Node,
             table_columns = RESEARCH_OUTPUT_COLUMNS
     if len(neighbor_nodes) == 0:
         return get_message(table_header + '</br>Nothing found.')
+
+    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    if max_nr_items == 0:
+        max_nr_items = A_LARGE_NUMBER
+    if len(neighbor_nodes) > max_nr_items:
+        # Remove elements from list following the max_nr_items'th.
+        del neighbor_nodes[max_nr_items:]
 
     faceted_html = get_facets_from_nodes(parent_node=parent_node,
                                          neighbor_nodes=neighbor_nodes,
@@ -468,10 +480,20 @@ def get_tabbed_table(nodes_list: Union[list, None],
             table_columns = DETAIL_COLUMNS
         else:
             table_columns = RESEARCH_OUTPUT_COLUMNS
-    if len(nodes_list) == 0:
-        return get_message(table_header + '</br>Nothing found.')
     if tabs_on != 'name' and tabs_on != 'category':
         return get_message(message='get_tabbed_table(): Invalid value for "tabs_on": ' + tabs_on + '.')
+
+    len_nodes_list = len(nodes_list)
+    if len_nodes_list == 0:
+        return get_message(table_header + '</br>Nothing found.')
+
+    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    if max_nr_items == 0:
+        max_nr_items = A_LARGE_NUMBER
+    if len_nodes_list > max_nr_items:
+        # Remove elements from list following the max_nr_items'th.
+        del nodes_list[max_nr_items:]
+        len_nodes_list = max_nr_items
 
     histogram = {}
     for node in nodes_list:
@@ -553,11 +575,10 @@ def get_tabbed_table(nodes_list: Union[list, None],
                         }
                         </script>"""
 
-    len_nodes_list = len(nodes_list)
     nr_rows_in_table_message = ''
     max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
     if 0 < max_nr_table_rows < len_nodes_list:
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table, showing first '
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table, showing pages of '
         nr_rows_in_table_message += str(max_nr_table_rows) + '.'
     elif len_nodes_list == max_nr_table_rows:
         # Special case: we have truncated the number of search results somewhere out of efficiency reasons,

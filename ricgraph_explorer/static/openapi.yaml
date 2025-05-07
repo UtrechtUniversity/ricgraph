@@ -130,7 +130,7 @@ components:
       required: False
       schema:
         type: "string"
-        default: "250"      # This is MAX_ITEMS from ricgraph_explorer.py.
+        default: "250"      # This is MAX_ITEMS from ricgraph_explorer_constants.py.
     source_system:
       name: "source_system"
       description: "The name of the source system you would like to enrich"

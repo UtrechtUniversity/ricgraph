@@ -70,7 +70,7 @@ from ricgraph_explorer_table import *
 def find_person_share_resouts_cypher(parent_node: Node,
                                      category_want_list: list = None,
                                      category_dontwant_list: list = None,
-                                     max_nr_items: str = MAX_ITEMS) -> list:
+                                     max_nr_items: str = str(MAX_ITEMS)) -> list:
     """ For documentation, see find_person_share_resouts().
 
     :param parent_node:
@@ -380,7 +380,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
 
 
 def find_person_organization_collaborations_cypher(parent_node: Node,
-                                                   max_nr_items: str = MAX_ITEMS) -> Tuple[list, list]:
+                                                   max_nr_items: str = str(MAX_ITEMS)) -> Tuple[list, list]:
     """ For documentation, see find_person_organization_collaborations_cypher().
 
     :param parent_node:
@@ -521,7 +521,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
                                              name_list: list = None,
                                              category_list: list = None,
                                              source_system: str = '',
-                                             max_nr_items: str = MAX_ITEMS) -> list:
+                                             max_nr_items: str = str(MAX_ITEMS)) -> list:
     """For documentation, see find_organization_additional_info().
 
     :param parent_node:
@@ -607,7 +607,7 @@ def find_organization_additional_info(parent_node: Node,
     if parent_node['category'] != 'organization':
         message = 'Unexpected result in find_organization_additional_info(): '
         message += 'You have not passed an "organization" node, but a "' + parent_node['category']
-        message += '" node in fiterorganization(). '
+        message += '" node. '
         return get_message(message=message)
 
     if name_list is None:

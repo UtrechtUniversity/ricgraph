@@ -36,7 +36,7 @@
 # Ricgraph batch scripts.
 #
 # Original version Rik D.T. Janssen, September 2024.
-# Updated Rik D.T. Janssen, January, March, April 2025.
+# Updated Rik D.T. Janssen, January - May 2025.
 #
 # ########################################################################
 
@@ -309,10 +309,17 @@ allhelp: help
 	@echo "- make specify_graphdb_password: specify (type) a password for the graph"
 	@echo "       database. Write it to file $(graphdb_password_file)."
 	@echo "       Always create this file, even if it already exists."
-	@echo "- make clean: removes files you have downloaded."
+	@echo "- make clean_singleuser: removes files you have downloaded."
 	@echo "       If you have used command line parameters for previous make calls"
 	@echo "       (e.g. ricgraph_version=cuttingedge), you will have to call this clean"
 	@echo "       with the same command line parameters."
+	@echo "- make clean_server: similar but for server install."
+	@echo "- make veryclean_singleuser: removes files you have downloaded."
+	@echo "       Also remove log files and temporary files."
+	@echo "       If you have used command line parameters for previous make calls"
+	@echo "       (e.g. ricgraph_version=cuttingedge), you will have to call this clean"
+	@echo "       with the same command line parameters."
+	@echo "- make veryclean_server: similar but for server install."
 	@echo ""
 	@echo "If you use 'make --dry-run [Makefile target]' the commands that are to be"
 	@echo "executed will be shown, but they will not be executed."
@@ -641,9 +648,9 @@ run_python_script:
 	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
 	@# Check if the path to 'python_script_log' starts with '/'. If so, it is considered a full path.
 	@if [ $(shell echo $(python_script_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) |& tee $(python_script_log); \
+		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) 2>&1 | tee $(python_script_log); \
 	else \
-		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) |& tee ../$(python_script_log); \
+		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) 2>&1 | tee ../$(python_script_log); \
 	fi
 
 
@@ -662,19 +669,34 @@ run_bash_script:
 	@if [ ! -f $(bash_script) ]; then echo "Error: script '$(bash_script)' does not exist."; exit 1; fi
 	@# Check if the path to 'bash_script_log' starts with '/'. If so, it is considered a full path.
 	@if [ $(shell echo $(bash_script_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) |& tee $(bash_script_log); \
+		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) 2>&1 | tee $(bash_script_log); \
 	else \
-		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) |& tee ../$(bash_script_log); \
+		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) 2>&1 | tee ../$(bash_script_log); \
 	fi
 
 
 # Note that if you have used command line parameters for previous make calls
 # (e.g. ricgraph_version=cuttingedge), you will have to call this clean
 # with the same command line parameters.
-clean:
+clean_singleuser:
 	rm -f $(HOME)/$(neo4j_cyphershell) $(HOME)/$(neo4j_community)
-	rm -f $(dir $(ricgraph_server_install_dir))/$(ricgraph_tag_name)
 	rm -f $(dir $(ricgraph_singleuser_install_dir))/$(ricgraph_tag_name)
+
+
+clean_server:
+	rm -f $(dir $(ricgraph_server_install_dir))/$(ricgraph_tag_name)
+
+
+veryclean_singleuser: clean_singleuser
+	rm -f $(ricgraph_singleuser_install_dir)/harvest/*.log
+	rm -f $(ricgraph_singleuser_install_dir)/harvest_multiple_sources/*.log
+	rm -f $(ricgraph_singleuser_install_dir)/harvest_multiple_sources/multiple_harvest_uu_uustaff_generated.sh
+
+
+veryclean_server: clean_server
+	rm -f $(ricgraph_server_install_dir)/harvest/*.log
+	rm -f $(ricgraph_server_install_dir)/harvest_multiple_sources/*.log
+	rm -f $(ricgraph_server_install_dir)/harvest_multiple_sources/multiple_harvest_uu_uustaff_generated.sh
 
 
 # ########################################################################
@@ -817,6 +839,8 @@ define install_ricgraph
 	@if [ "$(linux_edition)" = "Ubuntu" ]; then \
 		make install_python_venv; \
 	fi
+	@# We will need the result of this function below.
+	$(call read_graphdb_password)
 	@if [ ! -d $(dir $(1)) ]; then mkdir -p $(dir $(1)); fi
 	@# Note $(4) is version. If it is 'cuttingedge', download it first.
 	@# For the change in Makefile, if we use cutting edge, we need to use the local version
@@ -830,7 +854,7 @@ define install_ricgraph
 		mv ricgraph-main $(ricgraph); \
 		echo "This is the cutting edge version of Ricgraph of $$(date +%y%m%d-%H%M)." > $(ricgraph)/0_ricgraph_cuttingedge_$$(date +%y%m%d-%H%M); \
 		sed -i 's|; ../$$(python_cmd_venv)|; PYTHONPATH=.. ../$$(python_cmd_venv)|' $(ricgraph)/Makefile; \
-		sed -i 's|# ## ### #### #####|python_path=../ricgraph|' $(ricgraph)/library/get_cmdline_args.sh; \
+		sed -i 's|# ## ### #### #####|python_path=..|' $(ricgraph)/library/get_cmdline_args.sh; \
 		tar czf $(ricgraph_tag_name) $(ricgraph); \
 		mv -f $(ricgraph_tag_name) $(dir $(1)); \
 		rm -r $(tmp_dir); \
@@ -843,7 +867,7 @@ define install_ricgraph
 	$(1)/bin/pip install setuptools pip wheel
 	$(1)/bin/pip install -r $(1)/requirements.txt
 	cp $(1)/ricgraph.ini-sample $(1)/ricgraph.ini
-	$(call read_graphdb_password)
+	@# The $(graphdb_password) comes from function $(call read_graphdb_password) called above.
 	sed -i 's/^graphdb_password =/graphdb_password = $(graphdb_password)/' $(1)/ricgraph.ini
 	@# Neo4j Community is the default in ricgraph.ini, for Desktop we need to modify.
 	@# Note $(3) is either "neo4j_desktop" or "neo4j_community_edition".

@@ -84,7 +84,7 @@ MAX_NODES_CACHE_NODELINK = 100000
 # all the nodes that are to be merged with node_merge_to, to add to property _history
 # in that node. This value restricts the length of that list (to prevent property
 # values that are too long).
-MAX_NR_HISTORYITEMS_TO_ADD = 100
+MAX_NR_HISTORYITEMS_TO_ADD = 50
 
 
 # ########################################################################

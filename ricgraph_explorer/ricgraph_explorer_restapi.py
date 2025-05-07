@@ -49,7 +49,7 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       read_all_nodes, get_all_neighbor_nodes,
                       get_personroot_node, get_all_personroot_nodes,
                       convert_nodes_to_list_of_dict)
-from ricgraph_explorer_constants import MAX_ITEMS
+from ricgraph_explorer_constants import MAX_ITEMS, SEARCH_STRING_MIN_LENGTH
 from ricgraph_explorer_graphdb import (find_person_share_resouts_cypher,
                                        find_person_organization_collaborations_cypher,
                                        find_organization_additional_info_cypher,
@@ -57,7 +57,7 @@ from ricgraph_explorer_graphdb import (find_person_share_resouts_cypher,
 
 
 def api_search_person(value: str = '',
-                      max_nr_items: str = MAX_ITEMS) -> Tuple[dict, int]:
+                      max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
     """REST API Search for a person.
 
     :param value: value of the node(s) to find.
@@ -72,7 +72,7 @@ def api_search_person(value: str = '',
 
 
 def api_person_all_information(key: str = '',
-                               max_nr_items: str = MAX_ITEMS):
+                               max_nr_items: str = str(MAX_ITEMS)):
     """REST API Show all information related to this person.
 
     :param key: key of the node(s) to find.
@@ -106,7 +106,7 @@ def api_person_all_information(key: str = '',
 
 
 def api_person_share_research_results(key: str = '',
-                                      max_nr_items: str = MAX_ITEMS):
+                                      max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find persons that share any share research result types with this person.
 
     :param key: key of the node(s) to find.
@@ -124,7 +124,7 @@ def api_person_share_research_results(key: str = '',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if not max_nr_items.isnumeric():
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(key=key)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
@@ -151,7 +151,7 @@ def api_person_share_research_results(key: str = '',
 
 
 def api_person_collaborating_organizations(key: str = '',
-                                           max_nr_items: str = MAX_ITEMS):
+                                           max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find persons that share any share research result types with this person.
 
     :param key: key of the node(s) to find.
@@ -169,7 +169,7 @@ def api_person_collaborating_organizations(key: str = '',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if not max_nr_items.isnumeric():
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(key=key)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
@@ -210,7 +210,7 @@ def api_person_enrich(key: str = '',
                       name_want: list = None,
                       category_want: list = None,
                       source_system: str = '',
-                      max_nr_items: str = MAX_ITEMS):
+                      max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find persons that share any share research result types with this person.
 
     :param key: key of the node(s) to find.
@@ -260,7 +260,7 @@ def api_person_enrich(key: str = '',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if not max_nr_items.isnumeric():
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(key=key)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
@@ -316,7 +316,7 @@ def api_person_enrich(key: str = '',
 
 
 def api_search_organization(value: str = '',
-                            max_nr_items: str = MAX_ITEMS) -> Tuple[dict, int]:
+                            max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
     """REST API Search for a (sub-)organization.
 
     :param value: value of the node(s) to find.
@@ -331,7 +331,7 @@ def api_search_organization(value: str = '',
 
 
 def api_organization_all_information(key: str = '',
-                                     max_nr_items: str = MAX_ITEMS):
+                                     max_nr_items: str = str(MAX_ITEMS)):
     """REST API Show all information related to this organization.
 
     :param key: key of the node(s) to find.
@@ -348,7 +348,7 @@ def api_organization_all_information(key: str = '',
 def api_organization_information_persons_results(key: str = '',
                                                  name_want: list = None,
                                                  category_want: list = None,
-                                                 max_nr_items: str = MAX_ITEMS):
+                                                 max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find any information from persons or their results in this organization.
 
     :param key: key of the node(s) to find.
@@ -376,7 +376,7 @@ def api_organization_enrich(key: str = '',
                             name_want: list = None,
                             category_want: list = None,
                             source_system: str = '',
-                            max_nr_items: str = MAX_ITEMS):
+                            max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find persons that share any share research result types with this organization.
 
     :param key: key of the node(s) to find.
@@ -426,7 +426,7 @@ def api_organization_enrich(key: str = '',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if not max_nr_items.isnumeric():
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(key=key)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
@@ -458,7 +458,7 @@ def api_organization_enrich(key: str = '',
 
 
 def api_search_competence(value: str = '',
-                          max_nr_items: str = MAX_ITEMS) -> Tuple[dict, int]:
+                          max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
     """REST API Search for a skill, expertise area or research area.
 
     :param value: value of the node(s) to find.
@@ -473,7 +473,7 @@ def api_search_competence(value: str = '',
 
 
 def api_competence_all_information(key: str = '',
-                                   max_nr_items: str = MAX_ITEMS):
+                                   max_nr_items: str = str(MAX_ITEMS)):
     """REST API Show all information related to this competence.
 
     :param key: key of the node(s) to find.
@@ -487,7 +487,7 @@ def api_competence_all_information(key: str = '',
 
 
 def api_broad_search(value: str = '',
-                     max_nr_items: str = MAX_ITEMS) -> Tuple[dict, int]:
+                     max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
     """REST API Search for anything (broad search).
 
     :param value: value of the node(s) to find.
@@ -501,7 +501,7 @@ def api_broad_search(value: str = '',
 
 
 def api_advanced_search(name: str = '', category: str = '', value: str = '',
-                        max_nr_items: str = MAX_ITEMS) -> Tuple[dict, int]:
+                        max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
     """REST API Advanced search.
 
     :param name: name of the node(s) to find.
@@ -519,7 +519,7 @@ def api_advanced_search(name: str = '', category: str = '', value: str = '',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if not max_nr_items.isnumeric():
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(name=name,
                            category=category,
                            value=value,
@@ -540,7 +540,7 @@ def api_advanced_search(name: str = '', category: str = '', value: str = '',
 def api_search_general(value: str = '',
                        name_restriction: str = '',
                        category_restriction: str = '',
-                       max_nr_items: str = MAX_ITEMS) -> Tuple[dict, int]:
+                       max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
     """REST API General broad search function.
 
     :param value: value of the node(s) to find.
@@ -557,17 +557,28 @@ def api_search_general(value: str = '',
         response, status = create_http_response(message='You have not specified a search string',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if len(value) < 3:
-        response, status = create_http_response(message='The search string should be at least three characters',
+    if len(value) < SEARCH_STRING_MIN_LENGTH:
+        message = 'The search string should be at least ' + str(SEARCH_STRING_MIN_LENGTH) + ' characters'
+        response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if not max_nr_items.isnumeric():
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(name=name_restriction,
                            category=category_restriction,
                            value=value,
                            value_is_exact_match=False,
                            max_nr_nodes=int(max_nr_items))
+    if name_restriction == 'FULL_NAME' \
+       and len(nodes) < int(max_nr_items):
+        # Also return FULL_NAME_ASCII nodes, if applicable.
+        nodes_ascii = read_all_nodes(name='FULL_NAME_ASCII',
+                                     category=category_restriction,
+                                     value=value,
+                                     value_is_exact_match=False,
+                                     max_nr_nodes=int(max_nr_items) - len(nodes))
+        nodes.extend(nodes_ascii)
+
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -581,7 +592,7 @@ def api_search_general(value: str = '',
 
 
 def api_all_information_general(key: str = '',
-                                max_nr_items: str = MAX_ITEMS):
+                                max_nr_items: str = str(MAX_ITEMS)):
     """REST API General all information about a node function.
 
     :param key: key of the node(s) to find.
@@ -597,7 +608,7 @@ def api_all_information_general(key: str = '',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if not max_nr_items.isnumeric():
-        max_nr_items = MAX_ITEMS
+        max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(key=key)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
@@ -618,7 +629,7 @@ def api_all_information_general(key: str = '',
 
 
 def api_get_all_personroot_nodes(key: str = '',
-                                 max_nr_items: str = MAX_ITEMS):
+                                 max_nr_items: str = str(MAX_ITEMS)):
     """REST API Get all the person-root nodes of a node.
 
     :param key: key of the node(s) to find.
@@ -656,7 +667,7 @@ def api_get_all_neighbor_nodes(key: str = '',
                                name_dontwant: list = None,
                                category_want: list = None,
                                category_dontwant: list = None,
-                               max_nr_items: str = MAX_ITEMS):
+                               max_nr_items: str = str(MAX_ITEMS)):
     """REST API Get all the neighbor nodes of a node.
 
     :param key: key of the node(s) to find.

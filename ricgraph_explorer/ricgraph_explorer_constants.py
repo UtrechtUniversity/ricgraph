@@ -72,17 +72,13 @@ ORGANIZATION_COLUMNS = ['name', 'value', 'comment', 'url_main']
 ID_COLUMNS = ['name', 'value', 'comment', 'url_main']
 
 # When we do a query, we return at most this number of nodes.
-MAX_ITEMS = '250'
+MAX_ITEMS = 250
 
 # If we render a table, we return at most this number of rows in that table.
-MAX_ROWS_IN_TABLE = '250'
+MAX_ROWS_IN_TABLE = 250
 
 # If we export a table, we export at most this number of rows in that table.
 MAX_ROWS_TO_EXPORT = 250
-
-# If we search for neighbors of an 'organization' node, in the first filter
-# in filterorganization(), we restrict it to return at most this number of nodes.
-MAX_ORGANIZATION_NODES_TO_RETURN = 4 * int(MAX_ROWS_IN_TABLE)
 
 # It is possible to find enrichments for all nodes in Ricgraph. However, that
 # will take a long time. This is the maximum number of nodes Ricgraph Explorer
