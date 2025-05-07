@@ -867,7 +867,7 @@ define install_ricgraph
 	$(1)/bin/pip install setuptools pip wheel
 	$(1)/bin/pip install -r $(1)/requirements.txt
 	cp $(1)/ricgraph.ini-sample $(1)/ricgraph.ini
-	@# The $(graphdb_password) comes from function $(call read_graphdb_password) called above.
+	@# The $(graphdb_password) comes from function call to 'read_graphdb_password' called above.
 	sed -i 's/^graphdb_password =/graphdb_password = $(graphdb_password)/' $(1)/ricgraph.ini
 	@# Neo4j Community is the default in ricgraph.ini, for Desktop we need to modify.
 	@# Note $(3) is either "neo4j_desktop" or "neo4j_community_edition".
