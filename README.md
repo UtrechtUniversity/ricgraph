@@ -390,4 +390,4 @@ please let me know by creating a GitHub *Issue* at the top left of that page.
 <!-- Do not change the lines below. The version number will be
      modified by script maintenance/update_version.bash -->
 This README.md file is part of the 
-documentation for version 2.11 of Ricgraph - Research in context graph.
+documentation for version 2.12 of Ricgraph - Research in context graph.
