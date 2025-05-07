@@ -135,7 +135,7 @@ WORKDIR /app
 # the videos) and we do not want a container of a large size.
 RUN wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile && \
     make ricgraph_server_install_dir=/app/ricgraph neo4j_community_version=5.24.0 ask_are_you_sure=no systemctl_cmd=: full_server_install && \
-    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no clean && \
+    make ricgraph_server_install_dir=/app/ricgraph ask_are_you_sure=no clean_server && \
     rm -r ricgraph/docs && \
     cp Makefile ricgraph
 
