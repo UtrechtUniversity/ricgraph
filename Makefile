@@ -174,17 +174,21 @@ ifeq ($(shell test -d /etc/apache2/vhosts.d && echo true),true)
 	# E.g. for OpenSUSE Leap & Tumbleweed.
 	apache_vhosts_dir := /etc/apache2/vhosts.d
 	apache_service_file := /usr/lib/systemd/system/apache2.service
+	certbot := python3-certbot
 else ifeq ($(shell test -d /etc/apache2/sites-available && echo true),true)
 	# E.g. for Ubuntu and Debian.
 	apache_vhosts_dir := /etc/apache2/sites-available
 	apache_service_file := /usr/lib/systemd/system/apache2.service
+	certbot := certbot
 else ifeq ($(shell test -d /etc/httpd/conf.d && echo true),true)
 	# E.g. for Fedora.
 	apache_vhosts_dir := /etc/httpd/conf.d
 	apache_service_file := /usr/lib/systemd/system/httpd.service
+	certbot := certbot
 else
 	apache_vhosts_dir := [not_set]
 	apache_service_file := [not_set]
+	certbot := [not_set]
 endif
 
 # Determine which Nginx paths to use.
@@ -356,6 +360,7 @@ makefile_variables:
 	@echo "- apache_vhosts_dir: $(apache_vhosts_dir)"
 	@echo "- apache_service_file: $(apache_service_file)"
 	@echo "- nginx_vhosts_dir: $(nginx_vhosts_dir)"
+	@echo "- certbot: $(certbot)"
 	@echo "- neo4j_community: $(neo4j_community)"
 	@echo "- neo4j_community_path: $(neo4j_community_path)"
 	@echo "- neo4j_cyphershell: $(neo4j_cyphershell)"
@@ -497,7 +502,7 @@ ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service &
 endif
 
 
-prepare_webserver_apache: check_user_root check_webserver_apache full_server_install
+prepare_webserver_apache: check_user_root check_webserver_apache full_server_install install_certbot
 ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf && echo true),true)
 ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && echo true),true)
 	@echo ""
@@ -521,7 +526,7 @@ endif
 endif
 
 
-prepare_webserver_nginx: check_user_root check_webserver_nginx full_server_install
+prepare_webserver_nginx: check_user_root check_webserver_nginx full_server_install install_certbot
 ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf && echo true),true)
 ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo true),true)
 	@echo ""
@@ -540,6 +545,18 @@ ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
+endif
+
+
+# install_certbot: check_user_root
+install_certbot:
+ifeq ($(shell test ! -d /etc/letsencrypt && echo true),true)
+	@echo "Installing certbot and its webserver plugin."
+	$(package_install_cmd) $(certbot) certbot-systemd-timer
+	@# Depending on the installed webserver, install its corresponding cerbot plugin.
+	@if [ -f /lib/systemd/system/nginx.service ]; then $(package_install_cmd) python3-certbot-nginx; fi
+	@if [ -f $(apache_service_file) ]; then $(package_install_cmd) python3-certbot-apache; fi
+	@echo "Finished successfully with installing certbot and its plugin."
 endif
 
 
