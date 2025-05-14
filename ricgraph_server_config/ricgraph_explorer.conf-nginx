@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2024 Rik D.T. Janssen
+# Copyright (c) 2024, 2025 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,9 @@
 # That is done, since a ASGI application server is good practise for 
 # a REST API.
 #
+# You will need to change WEBSERVER_NAME below in the name of the
+# webserver that is serving Ricgraph (e.g. ricgraph.example.com).
+#
 # WARNING: 
 # Note that this file, as it is now, serves Ricgraph Explorer and the
 # Ricgraph REST API on a http connection, not secured (no https), 
@@ -53,7 +56,7 @@
 # Please read the warning above and take appropriate
 # measures before uncommenting it and starting Nginx.
 #
-# Original version Rik D.T. September 2024, based on 
+# Original version Rik D.T. September 2024, May 2025, based on
 # ricgraph_explorer.conf-apache.
 #
 # ########################################################################
@@ -61,16 +64,28 @@
 
 # Note: 
 # It is assumed that Ricgraph is installed in /opt/ricgraph_venv.
+# In Nginx config files, it is not possible to use variables
+# in the same way as Apache's Define directive.
+# So note the hardwired paths below
+
 
 server {
-    # You might want to change the '*' to the IP address Nginx is listening on
-    listen *:80;
+    listen 80;
+    server_name WEBSERVER_NAME;
+    return 301 https://$host$request_uri;
+}
+
+
+server {
+    listen 443 ssl;
+
+    # To request a certificate, type
+    # certbot --nginx -d WEBSERVER_NAME
 
     # Replace with your domain name
-    # server_name www.example.com;
+    # server_name WEBSERVER_NAME;
 
-    # Enable hostname lookups
-    # Please add code for this yourself
+    # Nginx cannot do hostname lookups as Apache can do.
 
     root /opt/ricgraph_venv/ricgraph_explorer;
 
@@ -98,11 +113,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    access_log /var/log/nginx/ricgraph_explorer-access.log;
-    error_log /var/log/nginx/ricgraph_explorer-error.log;
+    error_log /var/log/nginx/WEBSERVER_NAME_error.log;
+    access_log /var/log/nginx/WEBSERVER_NAME_access.log;
+
 }
-
-#
-# You may want to add extensions for SSL (https) or authentication below.
-#
-
