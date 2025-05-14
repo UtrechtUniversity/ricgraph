@@ -78,7 +78,7 @@ Define APACHE_LOGDIR "/var/log/apache2"
 
 # We call the webserver with https://WEBSERVER_NAME.
 <VirtualHost WEBSERVER_NAME:443>
-	DocumentRoot "${RICGRAPH_PATH}/ricgraph_explorer"
+    DocumentRoot "${RICGRAPH_PATH}/ricgraph_explorer"
     ServerName WEBSERVER_NAME:443
     ServerAlias WEBSERVER_NAME
 
@@ -90,26 +90,26 @@ Define APACHE_LOGDIR "/var/log/apache2"
     # then enable SSLEngine, restart apache.
     #SSLEngine on
 
-	# Performance improvement: make Apache serve static files,
-	# because that is faster than WSGI serving static files.
-	Alias /static/ "${RICGRAPH_PATH}/ricgraph_explorer/static/"
-	<Directory "${RICGRAPH_PATH}/ricgraph_explorer/static/">
-		Require all granted
-	</Directory>
-
-	# The hostname (127.0.0.1) and port (3030) below correspond to the
-	# hostname and port where Gunicorn is running. These parameters
-	# are set in file 'ricgraph_explorer_gunicorn.service'.
-	# If you change these, also change them in that file.
-
-	# ########## Please modify
-	# To prevent accidental use, the lines with 'ProxyPass' 
-	# have been commented. Remove the comment to make it work.
-	# See 'Warning' and 'Read this' at the start of this file.
-	#ProxyPass / http://127.0.0.1:3030/
-	#ProxyPassReverse / http://127.0.0.1:3030/
-	# ########## End of please modify
-	ProxyPreserveHost On
+    # Performance improvement: make Apache serve static files,
+    # because that is faster than WSGI serving static files.
+    Alias /static/ "${RICGRAPH_PATH}/ricgraph_explorer/static/"
+    <Directory "${RICGRAPH_PATH}/ricgraph_explorer/static/">
+    Require all granted
+    </Directory>
+    
+    # The hostname (127.0.0.1) and port (3030) below correspond to the
+    # hostname and port where Gunicorn is running. These parameters
+    # are set in file 'ricgraph_explorer_gunicorn.service'.
+    # If you change these, also change them in that file.
+    
+    # ########## Please modify
+    # To prevent accidental use, the lines with 'ProxyPass' 
+    # have been commented. Remove the comment to make it work.
+    # See 'Warning' and 'Read this' at the start of this file.
+    #ProxyPass / http://127.0.0.1:3030/
+    #ProxyPassReverse / http://127.0.0.1:3030/
+    # ########## End of please modify
+    ProxyPreserveHost On
 
     LogLevel warn
     ErrorLog ${APACHE_LOG_DIR}/WEBSERVER_NAME_error.log
