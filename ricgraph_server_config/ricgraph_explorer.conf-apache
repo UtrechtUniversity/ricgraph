@@ -112,8 +112,8 @@ Define APACHE_LOGDIR "/var/log/apache2"
 	ProxyPreserveHost On
 
     LogLevel warn
-    ErrorLog ${APACHE_LOG_DIR}/www_ricgraph_eu_error.log
-    CustomLog ${APACHE_LOG_DIR}/www_ricgraph_eu_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\""
-    CustomLog ${APACHE_LOG_DIR}/www_ricgraph_eu_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+    ErrorLog ${APACHE_LOG_DIR}/WEBSERVER_NAME_error.log
+    CustomLog ${APACHE_LOG_DIR}/WEBSERVER_NAME_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\""
+    CustomLog ${APACHE_LOG_DIR}/WEBSERVER_NAME_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 
 </VirtualHost>
