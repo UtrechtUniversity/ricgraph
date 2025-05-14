@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2024 Rik D.T. Janssen
+# Copyright (c) 2024, 2025 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,15 +29,18 @@
 # ########################################################################
 #
 # This file is an example Apache configuration file, containing a
-# VirtualHost on port 80 (standard http port) for both Ricgraph Explorer, 
+# VirtualHost for both Ricgraph Explorer,
 # a web based tool to access Ricgraph, and the Ricgraph REST API.
 # To be able to use this, enable the Apache modules mod_proxy and
-# mod_proxy_http.
+# mod_proxy_http. Also enable mod_ssl and mod_rewrite.
 #
 # Apache proxies to a local host and port (see below). On that host/port 
 # runs the WSGI Gunicorn server using Uvicorn for ASGI applications.
 # That is done, since a ASGI application server is good practise for 
 # a REST API.
+#
+# You will need to change WEBSERVER_NAME below in the name of the
+# webserver that is serving Ricgraph (e.g. ricgraph.example.com).
 #
 # WARNING: 
 # Note that this file, as it is now, serves Ricgraph Explorer and the
@@ -55,7 +58,7 @@
 # Please read the warning above and take appropriate
 # measures before uncommenting it and starting Apache.
 #
-# Original version Rik D.T. Janssen, February, May 2024.
+# Original version Rik D.T. Janssen, February, May 2024, May 2025.
 #
 # ########################################################################
 
@@ -63,19 +66,31 @@
 Define RICGRAPH_PATH "/opt/ricgraph_venv"
 Define APACHE_LOGDIR "/var/log/apache2"
 
-# You might want to change the '*' to the IP address Apache is listening on.
-<VirtualHost *:80>
+
+# We call the webserver with http://WEBSERVER_NAME: redirect.
+<VirtualHost WEBSERVER_NAME:80>
+    ServerName WEBSERVER_NAME:80
+    ServerAlias WEBSERVER_NAME
+    Redirect permanent / https://WEBSERVER_NAME/
+
+</VirtualHost>
+
+
+# We call the webserver with https://WEBSERVER_NAME.
+<VirtualHost WEBSERVER_NAME:443>
 	DocumentRoot "${RICGRAPH_PATH}/ricgraph_explorer"
+    ServerName WEBSERVER_NAME:443
+    ServerAlias WEBSERVER_NAME
 
-	# Replace with your domain name
-	#ServerName www.example.com 
-	# Replace with your email address
-	#ServerAdmin webmaster@example.com 
+    # Do lose time with IP address lookups.
+    HostnameLookups On
 
-	# Loose some time with IP address lookups
-	HostnameLookups On
+    # Disable SSLEngine temporarily, restart apache, request a certificate by typing
+    # certbot --apache -d WEBSERVER_NAME
+    # then enable SSLEngine, restart apache.
+    #SSLEngine on
 
-	# Performance improvement: make Apache serve static files, 
+	# Performance improvement: make Apache serve static files,
 	# because that is faster than WSGI serving static files.
 	Alias /static/ "${RICGRAPH_PATH}/ricgraph_explorer/static/"
 	<Directory "${RICGRAPH_PATH}/ricgraph_explorer/static/">
@@ -96,12 +111,9 @@ Define APACHE_LOGDIR "/var/log/apache2"
 	# ########## End of please modify
 	ProxyPreserveHost On
 
-	CustomLog ${APACHE_LOGDIR}/ricgraph_explorer.log ssl_combined
-	ErrorLog ${APACHE_LOGDIR}/ricgraph_explorer-error.log
-	TransferLog ${APACHE_LOGDIR}/ricgraph_explorer-access.log
+    LogLevel warn
+    ErrorLog ${APACHE_LOG_DIR}/www_ricgraph_eu_error.log
+    CustomLog ${APACHE_LOG_DIR}/www_ricgraph_eu_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\""
+    CustomLog ${APACHE_LOG_DIR}/www_ricgraph_eu_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
 </VirtualHost>
-
-#
-# You may want to add extensions for SSL (https) or authentication below.
-#
-
