@@ -358,7 +358,7 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
 
     if _graph is None:
         print('\ncypher_create_node(): Error: graph has not been initialized or opened.\n\n')
-        return
+        return None
 
     # There are several methods for creating a node in the graph database.
     # This would be an alternative, but it seems to use more memory than the
@@ -429,7 +429,7 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
 
     if _graph is None:
         print('\ncypher_update_node_properties(): Error: graph has not been initialized or opened.\n\n')
-        return
+        return None
 
     cypher_query = 'MATCH (node:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
@@ -483,7 +483,7 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
 
     if _graph is None:
         print('\ncypher_merge_nodes(): Error: graph has not been initialized or opened.\n\n')
-        return
+        return None
 
     graphdb_name = ricgraph_database()
 
@@ -1217,7 +1217,7 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
     """
     if person_node is None:
         print('get_or_create_personroot_node(): Error: node is None.')
-        return
+        return None
 
     if person_node['category'] != 'person':
         print('get_or_create_personroot_node(): node category is not person.')
