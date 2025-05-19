@@ -314,7 +314,7 @@ def searchpage() -> str:
 
     radio_person_text = ' <em>person_view</em>: only show relevant columns, '
     radio_person_text += 'results are presented in a <em>tabbed</em> format '
-    radio_person_tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
+    radio_person_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg">'
     radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
     radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
     radio_person_tooltip += 'Also, tables have less columns to reduce information overload. '
@@ -326,7 +326,7 @@ def searchpage() -> str:
 
     radio_details_text = ' <em>details_view</em>: show all columns, '
     radio_details_text += 'research results are presented in a table with <em>facets</em> '
-    radio_details_tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
+    radio_details_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg">'
     radio_details_tooltip += '<div class="w3-text" style="margin-left:60px;"> '
     radio_details_tooltip += 'This view shows all columns in Ricgraph. '
     radio_details_tooltip += 'Research results are presented in a table with <em>facets</em>. '
@@ -345,7 +345,7 @@ def searchpage() -> str:
     form += '<label class="w3-tooltip">' + radio_details_tooltip + '</label><br/>'
 
     form += '</br>'
-    tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
+    tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg">'
     tooltip += '<div class="w3-text" style="margin-left:60px;"> '
     tooltip += 'More items will take more time, since they all have to be processed. '
     tooltip += '</div>'
@@ -355,7 +355,7 @@ def searchpage() -> str:
     form += '<input class="w3-input w3-border" type=text value=' + max_nr_items + ' name=max_nr_items>'
 
     form += '</br>'
-    tooltip = '<img src="/static/circle_info_solid_uuyellow.svg">'
+    tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg">'
     tooltip += '<div class="w3-text" style="margin-left:60px;"> '
     tooltip += 'More rows will take more time, since HTML needs to be generated for every row. '
     tooltip += 'If the number of items returned is very large, and the number of rows in a table '
@@ -626,7 +626,7 @@ def restapidocpage() -> str:
                 sort-endpoints-by="none"
               > 
               <div slot="nav-logo">
-                <img slot="nav-logo" src="/static/ricgraph_logo.png" width="200" 
+                <img slot="nav-logo" src="/static/images/ricgraph_logo.png" width="200" 
                   style="vertical-align:middle;padding-right:0.5em;">REST API</img>
                 <p/>
                 <a href="/">Return to Ricgraph Explorer</a>
