@@ -53,11 +53,15 @@ harvest_yoda() {
       echo "Continuing harvesting organization '$organization': Yoda."
     else
       # The key has no value.
+      echo "Skipping harvesting Yoda, no value for Yoda set in ricgraph.ini file."
+      echo "This is to be expected if your organization does not use the Yoda data repository."
       echo "Done with harvesting."
       exit 0
     fi
   else
     # The key does not exist.
+    echo "Skipping harvesting Yoda, key for Yoda in ricgraph.ini file does not exist."
+    echo "This is to be expected if your organization does not use the Yoda data repository."
     echo "Done with harvesting."
     exit 0
   fi
