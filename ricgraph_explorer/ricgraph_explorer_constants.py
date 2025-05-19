@@ -196,10 +196,16 @@ stylesheet += '</style>'
 # The HTML preamble
 # ########################################################################
 html_preamble = '<meta charset="utf-8">'
+html_preamble += '<meta name="viewport" content="width=device-width, initial-scale=1">'
+html_preamble += '<title>Ricgraph Explorer</title>'
+html_preamble += '<link rel="manifest" href="/manifest.json">'
+html_preamble += '<link rel="apple-touch-icon" sizes="76x76" href="/static/images/icons/ios/ricgraph-icon-76x76.png">'
+html_preamble += '<link rel="apple-touch-icon" sizes="120x120" href="/static/images/icons/ios/ricgraph-icon-120x120.png">'
+html_preamble += '<link rel="apple-touch-icon" sizes="152x152" href="/static/images/icons/ios/ricgraph-icon-152x152.png">'
+html_preamble += '<link rel="apple-touch-icon" sizes="180x180" href="/static/images/icons/ios/ricgraph-icon-180x180.png">'
 html_preamble += '<meta name="author" content="Rik D.T. Janssen">'
 html_preamble += '<meta name="description" content="Ricgraph - Research in context graph">'
 html_preamble += '<meta name="keywords" content="Ricgraph, Ricgraph Explorer, Ricgraph REST API">'
-html_preamble += '<meta name="viewport" content="width=device-width, initial-scale=1">'
 # The W3.css style file is at https://www.w3schools.com/w3css/4/w3.css. I use the "pro" version.
 # The pro version is identical to the standard version except for it has no colors defined.
 html_preamble += '<link rel="stylesheet" href="/static/w3pro.css">'
@@ -264,7 +270,6 @@ html_body_start += '<html>'
 html_body_start += '<head>'
 html_body_start += html_preamble
 html_body_start += stylesheet
-html_body_start += '<title>Ricgraph Explorer</title>'
 # Define two global JavaScript arrays to be used in get_regular_table().
 html_body_start += '<script>let currentPage = []; let totalPages = [];</script>'
 html_body_start += '</head>'
