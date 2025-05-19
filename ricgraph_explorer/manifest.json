@@ -1,0 +1,44 @@
+{
+  "name": "Ricgraph Explorer - Research in context graph",
+  "short_name": "Ricgraph Explorer",
+    "description": "This is application for Ricgraph Explorer - Research in context graph",
+  "lang": "en",
+  "theme_color": "#ffcd00",
+  "background_color": "#ffcd00",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/static/images/icons/android/ricgraph-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/images/icons/android/ricgraph-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/images/icons/android/ricgraph-icon-solid-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }],
+  "screenshots": [
+    {
+      "src": "/static/images/ricgraph-explorer-screenshot-wide.png",
+      "type": "image/png",
+      "sizes": "1407x802",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/static/images/ricgraph-explorer-screenshot-narrow.png",
+      "type": "image/png",
+      "sizes": "779x953",
+      "form_factor": "narrow"
+    }]
+}
+
