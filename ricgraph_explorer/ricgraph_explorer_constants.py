@@ -143,6 +143,7 @@ stylesheet += '::-webkit-scrollbar-thumb {background-color:#999;}'
 stylesheet += '::-webkit-scrollbar-thumb:hover {background-color:#555;}'
 
 stylesheet += '.w3-container {padding:16px;}'
+#stylesheet += '.w3-container {padding-left:16px; padding-right:16px; padding-bottom:8px; padding-top:8px}'
 # Note: #ffcd00 is 'uu-yellow' below.
 stylesheet += '.w3-check {width:15px; height:15px; position:relative; top:3px; accent-color:#ffcd00;}'
 stylesheet += '.w3-radio {accent-color: #ffcd00;}'
@@ -163,6 +164,10 @@ stylesheet += '{color:#000!important; background-color:#cecece!important;}'
 stylesheet += '.rj-border-black, .rj-hover-border-black:hover {border-color:#000!important;}'
 stylesheet += 'body {background-color:white;}'
 stylesheet += 'body, h1, h2, h3, h4, h5, h6 {font-family:"Open Sans",sans-serif;}'
+stylesheet += 'h1 {font-size:24px;}'
+stylesheet += 'h2 {font-size:20px;}'
+stylesheet += 'h3 {font-size:16px;}'
+stylesheet += 'h4 {font-size:12px;}'
 stylesheet += 'ul {padding-left:2em; margin:0px}'
 stylesheet += 'a:link, a:visited {color:blue;}'
 stylesheet += 'a:hover {color:darkblue;}'
@@ -221,8 +226,8 @@ page_header += '<a href="javascript:history.back()" class="w3-bar-item" style="f
 page_header += 'padding-bottom:0px; padding-right:0px; writing-mode:vertical-rl; transform:rotate(180deg);">Go back</a>'
 page_header += '<div class="w3-bar-item w3-mobile" style="padding-left:0em; padding-right:2em;">'
 page_header += '<a href="/" style="text-decoration:none; color:#000000; font-size:130%;">'
-page_header += '<img src="/static/images/uu_logo_small.png" height="30" style="padding-right:2em;">'
-page_header += '<img src="/static/images/ricgraph_logo.png" height="30" style="padding-right:0.5em;">Explorer</a>'
+page_header += '<img src="/static/images/uu_logo_small.png" alt="Utrecht University logo" height="30" style="padding-right:2em;">'
+page_header += '<img src="/static/images/ricgraph_logo.png" alt="Ricgraph logo" height="30" style="padding-right:0.5em;">Explorer</a>'
 page_header += '</div>'
 page_header += '<a href="/" class="w3-bar-item'
 page_header += button_style_border + '" style="min-width:10em;">Home</a>'
@@ -266,7 +271,7 @@ page_footer_wsgi += '</footer>'
 # The first part of the HTML page, up to stylesheet and page_header.
 # ########################################################################
 html_body_start = '<!DOCTYPE html>'
-html_body_start += '<html>'
+html_body_start += '<html lang="en">'
 html_body_start += '<head>'
 html_body_start += html_preamble
 html_body_start += stylesheet

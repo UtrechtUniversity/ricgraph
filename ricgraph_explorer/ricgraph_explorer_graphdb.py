@@ -58,13 +58,22 @@
 # ########################################################################
 
 
-from typing import Tuple
+from typing import Tuple, Union
+from neo4j.graph import Node
+from flask import url_for
+import urllib.parse
 from ricgraph import (get_personroot_node,
                       get_all_neighbor_nodes, read_all_nodes,
                       ricgraph_database, ricgraph_databasename,
                       create_multidimensional_dict)
-from ricgraph_explorer_constants import MAX_NR_NODES_TO_ENRICH, MAX_ITEMS
-from ricgraph_explorer_table import *
+from ricgraph_explorer_constants import (MAX_NR_NODES_TO_ENRICH, MAX_ITEMS,
+                                         RESEARCH_OUTPUT_COLUMNS, DETAIL_COLUMNS)
+from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
+                                     get_message,
+                                     get_you_searched_for_card)
+from ricgraph_explorer_table import  (get_regular_table, get_tabbed_table,
+                                      get_html_for_histogram,
+                                      get_html_for_tablestart, get_html_for_tableend)
 
 
 def find_person_share_resouts_cypher(parent_node: Node,
@@ -831,19 +840,19 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     all_harvested_systems.sort()
 
     html += get_html_for_cardstart()
-    html += '<h3>Your query</h3>'
-    html += 'This was your query:'
-    html += '<ul>'
-    if name != '':
-        html += '<li>name: <i>"' + str(name) + '"</i>'
-    if category != '':
-        html += '<li>category: <i>"' + str(category) + '"</i>'
-    if value != '':
-        html += '<li>value: <i>"' + str(value) + '"</i>'
-    html += '</ul>'
-
-    html += '<br/>'
-    html += '<h3>Number of items in source systems</h3>'
+    # html += '<h2>Your query</h2>'
+    # html += 'This was your query:'
+    # html += '<ul>'
+    # if name != '':
+    #     html += '<li>name: <i>"' + str(name) + '"</i>'
+    # if category != '':
+    #     html += '<li>category: <i>"' + str(category) + '"</i>'
+    # if value != '':
+    #     html += '<li>value: <i>"' + str(value) + '"</i>'
+    # html += '</ul>'
+    #
+    # html += '<br/>'
+    html += '<h2>Number of items in source systems</h2>'
     html += 'This table shows the number of items found in only one source or '
     html += 'found in multiple sources for your query. '
     html += 'You can click on a number to retrieve these items.'
@@ -932,7 +941,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
 
     html += '<br/>'
     html += '<br/>'
-    html += '<h3>Overlap in items from multiple sources</h3>'
+    html += '<h2>Overlap in items from multiple sources</h2>'
     html += 'For the items found for your query in multiple sources, this table shows in which sources '
     html += 'they were found. '
     html += 'You can click on a number to retrieve these items. '

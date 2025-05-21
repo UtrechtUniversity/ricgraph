@@ -57,7 +57,14 @@ from neo4j.graph import Node
 from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       nodes_cache_nodelink_create, nodes_cache_nodelink_read,
                       nodes_cache_nodelink_size, create_ricgraph_key)
-from ricgraph_explorer_constants import *
+from ricgraph_explorer_constants import (html_body_start, html_body_end,
+                                         html_preamble,
+                                         page_footer_wsgi, page_footer_development,
+                                         button_style, button_width,
+                                         VIEW_MODE_ALL,
+                                         DEFAULT_SEARCH_MODE, DEFAULT_DISCOVERER_MODE,
+                                         DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
+                                         RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE)
 from ricgraph_explorer_init import initialize_ricgraph_explorer
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_overlap_in_source_systems_records,
@@ -65,11 +72,11 @@ from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_enrich_candidates,
                                        find_person_organization_collaborations,
                                        find_organization_additional_info)
-from ricgraph_explorer_table import (get_html_for_cardstart, get_html_for_cardend,
+from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form, get_url_parameter_value,
                                      get_message, get_found_message,
-                                     get_regular_table,
-                                     get_you_searched_for_card,
+                                     get_you_searched_for_card, get_page_title)
+from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
 from ricgraph_explorer_restapi import *
@@ -129,8 +136,8 @@ def homepage() -> str:
 
     get_all_globals_from_app_context()
     html = html_body_start
+    html += get_page_title(title='Ricgraph - Research in context graph')
     html += get_html_for_cardstart()
-    html += '<h3>Ricgraph - Research in context graph</h3>'
     html += 'Ricgraph, also known as Research in context graph, enables the exploration of researchers, '
     html += 'teams, their results, '
     html += 'collaborations, skills, projects, and the relations between these items. '
@@ -183,7 +190,7 @@ def homepage() -> str:
     html += get_html_for_cardstart()
     nr_nodes = ricgraph_nr_nodes()
     nr_edges = ricgraph_nr_edges()
-    html += '<h4>About Ricgraph</h4>'
+    html += '<h2>About Ricgraph</h2>'
     html += 'More information:'
     html += '<ul>'
     html += '<li>'
@@ -279,9 +286,6 @@ def searchpage() -> str:
                                                 default_value=str(MAX_ROWS_IN_TABLE))
     if not max_nr_table_rows.isnumeric():
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
-    html = html_body_start
-    html += get_html_for_cardstart()
-
     form = '<form method="get" action="/optionspage/">'
     if search_mode == 'exact_match':
         form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
@@ -369,8 +373,14 @@ def searchpage() -> str:
 
     form += '<br/><input class="' + button_style + '" ' + button_width + ' type=submit value=search>'
     form += '</form>'
-    html += form
 
+    html = html_body_start
+    if search_mode == 'exact_match':
+        html += get_page_title(title='Advanced search page')
+    else:
+        html += get_page_title(title='Search page')
+    html += get_html_for_cardstart()
+    html += form
     html += get_html_for_cardend()
     html += page_footer + html_body_end
     return html
@@ -420,6 +430,7 @@ def optionspage() -> str:
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
     html = html_body_start
+    #html += get_page_title(title='Results page')
 
     key = get_url_parameter_value(parameter='key', use_escape=False)
     if key == '':
@@ -482,6 +493,7 @@ def optionspage() -> str:
         html += page_footer + html_body_end
         return html
     if len(result) > 1:
+        html += get_page_title(title='Results page')
         table_header = 'Your search resulted in more than one item. Please choose one item to continue:'
         html += get_regular_table(nodes_list=result,
                                   table_header=table_header,
@@ -667,13 +679,14 @@ def create_options_page(node: Node,
         html += get_you_searched_for_card(key=node['_key'],
                                           discoverer_mode=discoverer_mode,
                                           extra_url_parameters=extra_url_parameters)
+    html += get_page_title(title='Results page')
     key = node['_key']
     html += get_found_message(node=node,
                               discoverer_mode=discoverer_mode,
                               extra_url_parameters=extra_url_parameters)
     if node['category'] == 'organization':
         html += get_html_for_cardstart()
-        html += '<h4>What would you like to see from this organization?</h4>'
+        html += '<h2>What would you like to see from this organization?</h2>'
         html += create_html_form(destination='resultspage',
                                  button_text='show all information related to this organization',
                                  hidden_fields={'key': key,
@@ -692,9 +705,9 @@ def create_options_page(node: Node,
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
-        html += '<h4>Advanced information related to this organization</h4>'
+        html += '<h2>Advanced information related to this organization</h2>'
         html += get_html_for_cardstart()
-        html += '<h5>More information about persons or their results in this organization.</h5>'
+        html += '<h3>More information about persons or their results in this organization.</h3>'
         html += create_html_form(destination='resultspage',
                                  button_text='find any information from all persons in this organization',
                                  hidden_fields={'key': key,
@@ -746,7 +759,7 @@ def create_options_page(node: Node,
 
     elif node['category'] == 'person':
         html += get_html_for_cardstart()
-        html += '<h4>What would you like to see from this person?</h4>'
+        html += '<h2>What would you like to see from this person?</h2>'
 
         html += create_html_form(destination='resultspage',
                                  button_text='show all information related to this person',
@@ -785,9 +798,9 @@ def create_options_page(node: Node,
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
-        html += '<h4>Advanced information related to this person</h4>'
+        html += '<h2>Advanced information related to this person</h2>'
         html += get_html_for_cardstart()
-        html += '<h5>With whom does this person share research results?</h5>'
+        html += '<h3>With whom does this person share research results?</h3>'
         html += create_html_form(destination='resultspage',
                                  button_text='find persons that share any research result types with this person',
                                  hidden_fields={'key': key,
@@ -811,7 +824,7 @@ def create_options_page(node: Node,
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
-        explanation = '<h5>With which organizations does this person collaborate?</h5>'
+        explanation = '<h3>With which organizations does this person collaborate?</h3>'
         explanation += 'By clicking the following button, you will get an overview '
         explanation += 'of organizations that his person collaborates with. '
         explanation += 'A person <em>X</em> from organization <em>A</em> '
@@ -830,7 +843,7 @@ def create_options_page(node: Node,
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
-        explanation = '<h5>Improve or enhance information in one of your source systems</h5>'
+        explanation = '<h3>Improve or enhance information in one of your source systems</h3>'
         explanation += 'The process of improving or enhancing information in a source system is called "enriching" '
         explanation += 'that source system. This is only possible if you have harvested more than one source system. '
         explanation += 'By using information found in one or more other harvested systems, '
@@ -854,7 +867,7 @@ def create_options_page(node: Node,
         html += get_html_for_cardend()
 
         html += get_html_for_cardstart()
-        explanation = '<h5>More information about overlap in source systems</h5>'
+        explanation = '<h3>More information about overlap in source systems</h3>'
         explanation += 'In case more than one source systems have been harvested, '
         explanation += 'and the information in Ricgraph for the neighbors of this node have originated '
         explanation += 'from more than one source system, you can find out from which ones.</br>'
@@ -961,6 +974,7 @@ def create_results_page(view_mode: str,
         personroot_node = get_personroot_node(node=node)
         neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
                                                          category_want=personal_types_all)
+        html += get_page_title(title='Personal information related to this person')
         html += node_found
         if discoverer_mode == 'details_view':
             html += get_regular_table(nodes_list=neighbor_nodes_personal,
@@ -985,9 +999,11 @@ def create_results_page(view_mode: str,
         if view_mode == 'view_regular_table_organizations':
             table_header = 'These are the organizations related to this person:'
             table_columns = table_columns_org
+            html += get_page_title(title='Organizations related to this person')
         else:
             table_header = 'This is all information related to this ' + node['category'] + ':'
             table_columns = table_columns_resout
+            html += get_page_title(title='All information related to this ' + node['category'])
         html += node_found
         html += get_regular_table(nodes_list=neighbor_nodes,
                                   table_header=table_header,
@@ -1006,6 +1022,7 @@ def create_results_page(view_mode: str,
                                                 max_nr_neighbor_nodes=max_nr_items)
         table_header = 'These are persons related to this organization:'
         table_columns = table_columns_ids
+        html += get_page_title(title='Persons related to this organization')
         html += node_found
         html += get_regular_table(nodes_list=neighbor_nodes,
                                   table_header=table_header,
@@ -1023,6 +1040,7 @@ def create_results_page(view_mode: str,
                                                 category_want=category_list,
                                                 max_nr_neighbor_nodes=max_nr_items)
         table_header = 'This is all information related to this organization:'
+        html += get_page_title(title='All information related to this organization')
         html += node_found
         if discoverer_mode == 'details_view':
             html += get_faceted_table(parent_node=node,
@@ -1050,6 +1068,7 @@ def create_results_page(view_mode: str,
             table_header = 'These are the research results related to this person:'
         else:
             table_header = 'These are all the neighbors related to this person (without its identities):'
+        html += get_page_title(title='Research results related to this person')
         html += node_found
         if discoverer_mode == 'details_view':
             html += get_faceted_table(parent_node=node,
@@ -1069,6 +1088,7 @@ def create_results_page(view_mode: str,
 
     elif view_mode == 'view_unspecified_table_everything':
         personroot_node = get_personroot_node(node=node)
+        html += get_page_title(title='All information related to this person')
         html += node_found
         neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
                                                          category_want=personal_types_all)
@@ -1102,6 +1122,7 @@ def create_results_page(view_mode: str,
 
     elif view_mode == 'view_regular_table_person_share_resouts':
         # Note the hard limit.
+        html += get_page_title(title='Persons that share research results with this person')
         html += find_person_share_resouts(parent_node=node,
                                           category_want_list=category_list,
                                           category_dontwant_list=['person', 'competence', 'organization'],
@@ -1115,24 +1136,28 @@ def create_results_page(view_mode: str,
             source_system = ''
         else:
             source_system = str(category_list[0])
+        html += get_page_title(title='Information harvested from other source systems, not present in this source system')
         html += find_enrich_candidates(parent_node=node,
                                        source_system=source_system,
                                        discoverer_mode=discoverer_mode,
                                        extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_person_organization_collaborations':
+        html += get_page_title(title='Organizations that this person collaborates with')
         html += find_person_organization_collaborations(parent_node=node,
                                                         discoverer_mode=discoverer_mode,
                                                         extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_organization_addinfo':
         # Note the hard limit.
+        html += get_page_title(title='Information about this organization')
         html += find_organization_additional_info(parent_node=node,
                                                   name_list=name_list,
                                                   category_list=category_list,
                                                   discoverer_mode=discoverer_mode,
                                                   extra_url_parameters=extra_url_parameters)
     elif view_mode == 'view_regular_table_overlap':
+        html += get_page_title(title='Overlap in source systems for the neighbor nodes of this node')
         html += find_overlap_in_source_systems(name=node['name'],
                                                category=node['category'],
                                                value=node['value'],

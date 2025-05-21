@@ -43,7 +43,8 @@
 import os
 from connexion import FlaskApp
 from ricgraph import open_ricgraph, read_all_values_of_property, ROTYPE_ALL
-from ricgraph_explorer_constants import *
+from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
+                                         PRIVACY_STATEMENT_FILE, PRIVACY_MEASURES_FILE)
 
 
 def flask_check_file_exists(ricgraph_explorer_app: FlaskApp, filename: str) -> bool:

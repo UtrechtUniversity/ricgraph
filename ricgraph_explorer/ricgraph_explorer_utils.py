@@ -130,6 +130,19 @@ def get_found_message(node: Node,
     return html
 
 
+def get_page_title(title: str) -> str:
+    """This function creates a html card with the page title.
+
+    :param title: the message.
+    :return: html to be rendered.
+    """
+    html = get_html_for_cardstart()
+    html += '<h1 style="margin-top:0px; margin-bottom:0px">' + title + '</h1>'
+    html += get_html_for_cardend()
+    return html
+
+
+
 def create_html_form(destination: str,
                      button_text: str,
                      explanation: str = '',
