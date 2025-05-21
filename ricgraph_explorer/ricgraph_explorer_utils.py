@@ -43,6 +43,7 @@
 from flask import request, url_for
 from markupsafe import escape
 from neo4j.graph import Node
+from ricgraph import create_unique_string
 from ricgraph_explorer_constants import button_style, button_width
 
 
@@ -177,13 +178,14 @@ def create_html_form(destination: str,
     form = explanation
     form += '<form method="get" action="/' + destination + '/">'
     for item in input_fields:
+        label_id = create_unique_string(length=12)
         if input_fields[item][0] == 'list':
             if len(input_fields[item]) != 4:
                 print('Wrong length for input field of type "list": ' +
                       str(len(input_fields[item])) + ', should be 4.')
                 continue
-            form += '<label>' + item + '</label>'
-            form += '<input class="w3-input w3-border" '
+            form += '<label for="' + label_id + '">' + item + '</label>'
+            form += '<input id="' + label_id + '" class="w3-input w3-border" '
             form += 'list="' + input_fields[item][2] + '" '     # 2: name of datalist
             form += 'name="' + input_fields[item][1] + '" '     # 1: name of field
             form += 'id="' + input_fields[item][1] + '" '       # 1: name of field
@@ -195,8 +197,8 @@ def create_html_form(destination: str,
                 print('Wrong length for input field of type "text": ' +
                       str(len(input_fields[item])) + ', should be 2.')
                 continue
-            form += '<label>' + item + '</label>'
-            form += '<input class="w3-input w3-border" '
+            form += '<label for="' + label_id + '">' + item + '</label>'
+            form += '<input id="' + label_id + '" class="w3-input w3-border" '
             form += 'type="' + input_fields[item][0] + '" '     # 0: type of field ('text')
             form += 'name="' + input_fields[item][1] + '" '     # 1: name of field
             form += '>'

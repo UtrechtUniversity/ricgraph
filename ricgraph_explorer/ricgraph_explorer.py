@@ -288,28 +288,28 @@ def searchpage() -> str:
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     form = '<form method="get" action="/optionspage/">'
     if search_mode == 'exact_match':
-        form += '<label>Search for a value in Ricgraph field <em>name</em>:</label>'
-        form += '<input class="w3-input w3-border" list="name_all_datalist"'
+        form += '<label for="name">Search for a value in Ricgraph field <em>name</em>:</label>'
+        form += '<input id="name" class="w3-input w3-border" list="name_all_datalist"'
         form += 'name=name id=name autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
         form += name_all_datalist
         form += '<br/>'
 
-        form += '<label>Search for a value in Ricgraph field <em>category</em>:</label>'
-        form += '<input class="w3-input w3-border" list="category_all_datalist"'
+        form += '<label for="category">Search for a value in Ricgraph field <em>category</em>:</label>'
+        form += '<input id="category" class="w3-input w3-border" list="category_all_datalist"'
         form += 'name=category id=category autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
         form += category_all_datalist
         form += '<br/>'
     if search_mode == 'value_search' and name != '':
-        form += '<input type="hidden" name="name" value=' + name + '>'
+        form += '<input id="name" type="hidden" name="name" value=' + name + '>'
     if search_mode == 'value_search' and category != '':
-        form += '<input type="hidden" name="category" value=' + category + '>'
+        form += '<input id="category" type="hidden" name="category" value=' + category + '>'
     if search_mode == 'exact_match':
-        form += '<label>Search for a value in Ricgraph field <em>value</em>:</label>'
+        form += '<label for="value">Search for a value in Ricgraph field <em>value</em>:</label>'
     else:
-        form += '<label>Type your search string:</label>'
-    form += '<input class="w3-input w3-border" type=text name=value>'
+        form += '<label for="value">Type your search string:</label>'
+    form += '<input id="value" class="w3-input w3-border" type=text name=value>'
     form += '<input type="hidden" name="search_mode" value=' + search_mode + '>'
 
     if search_mode == 'exact_match':
@@ -318,7 +318,7 @@ def searchpage() -> str:
 
     radio_person_text = ' <em>person_view</em>: only show relevant columns, '
     radio_person_text += 'results are presented in a <em>tabbed</em> format '
-    radio_person_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg">'
+    radio_person_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg" alt="Click for more information">'
     radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
     radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
     radio_person_tooltip += 'Also, tables have less columns to reduce information overload. '
@@ -330,36 +330,39 @@ def searchpage() -> str:
 
     radio_details_text = ' <em>details_view</em>: show all columns, '
     radio_details_text += 'research results are presented in a table with <em>facets</em> '
-    radio_details_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg">'
+    radio_details_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg" alt="Click for more information">'
     radio_details_tooltip += '<div class="w3-text" style="margin-left:60px;"> '
     radio_details_tooltip += 'This view shows all columns in Ricgraph. '
     radio_details_tooltip += 'Research results are presented in a table with <em>facets</em>. '
     radio_details_tooltip += '</div>'
 
-    form += '<br/>Please specify how you like to view your results:<br/>'
-    form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="person_view"'
+    form += '<br/>'
+    form += '<fieldset>'
+    form += '<legend>Please specify how you like to view your results:</legend>'
+    form += '<input id="person_view" class="w3-radio" type="radio" name="discoverer_mode" value="person_view"'
     if discoverer_mode == 'person_view':
         form += 'checked'
     form += '>' + radio_person_text
-    form += '<label class="w3-tooltip">' + radio_person_tooltip + '</label><br/>'
-    form += '<input class="w3-radio" type="radio" name="discoverer_mode" value="details_view"'
+    form += '<label for="person_view" class="w3-tooltip">' + radio_person_tooltip + '</label><br/>'
+    form += '<input id="details_view" class="w3-radio" type="radio" name="discoverer_mode" value="details_view"'
     if discoverer_mode == 'details_view':
         form += 'checked'
     form += '>' + radio_details_text
-    form += '<label class="w3-tooltip">' + radio_details_tooltip + '</label><br/>'
+    form += '<label for="details_view" class="w3-tooltip">' + radio_details_tooltip + '</label><br/>'
+    form += '</fieldset>'
 
     form += '</br>'
-    tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg">'
+    tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg" alt="Click for more information">'
     tooltip += '<div class="w3-text" style="margin-left:60px;"> '
     tooltip += 'More items will take more time, since they all have to be processed. '
     tooltip += '</div>'
     form += 'You might want to specify the maximum number of items to return, '
     form += 'or 0 to return all items (the more items, the more time it will take): '
-    form += '<label class="w3-tooltip">' + tooltip + '</label><br/>'
-    form += '<input class="w3-input w3-border" type=text value=' + max_nr_items + ' name=max_nr_items>'
+    form += '<label for="max_nr_items" class="w3-tooltip">' + tooltip + '</label><br/>'
+    form += '<input id="max_nr_items" class="w3-input w3-border" type=text value=' + max_nr_items + ' name=max_nr_items>'
 
     form += '</br>'
-    tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg">'
+    tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg" alt="Click for more information">'
     tooltip += '<div class="w3-text" style="margin-left:60px;"> '
     tooltip += 'More rows will take more time, since HTML needs to be generated for every row. '
     tooltip += 'If the number of items returned is very large, and the number of rows in a table '
@@ -368,8 +371,8 @@ def searchpage() -> str:
     form += 'You might want to specify the maximum number of rows in a table to return '
     form += '(the page size of the table), '
     form += 'or 0 to return all rows (the more rows, the more time it will take): '
-    form += '<label class="w3-tooltip">' + tooltip + '</label><br/>'
-    form += '<input class="w3-input w3-border" type=text value=' + max_nr_table_rows + ' name=max_nr_table_rows>'
+    form += '<label for="max_nr_table_rows" class="w3-tooltip">' + tooltip + '</label><br/>'
+    form += '<input id="max_nr_table_rows" class="w3-input w3-border" type=text value=' + max_nr_table_rows + ' name=max_nr_table_rows>'
 
     form += '<br/><input class="' + button_style + '" ' + button_width + ' type=submit value=search>'
     form += '</form>'

@@ -685,14 +685,20 @@ def get_facets_from_nodes(parent_node: Node,
         faceted_form += '<b>Filter on "name"</b>'
         faceted_form += '</div>'
         faceted_form += '<div class="w3-container" style="font-size: 90%;">'
+        faceted_form += '<fieldset style="border:none; margin:0px; padding:0px;">'
+        # For screen readers.
+        faceted_form += '<legend style="display:none">Filter on "name"</legend>'
+
         # Sort a dict on value:
         # https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
         for bucket in sorted(name_histogram, key=name_histogram.get, reverse=True):
+            label_id = create_unique_string(length=12)
             name_label = bucket + '&nbsp;<i>(' + str(name_histogram[bucket]) + ')</i>'
-            faceted_form += '<input class="w3-check" type="checkbox" name="name_list" value="'
+            faceted_form += '<input id="' + label_id + '" class="w3-check" type="checkbox" name="name_list" value="'
             faceted_form += bucket + '" checked>'
-            faceted_form += '<label>&nbsp;' + name_label + '</label><br/>'
+            faceted_form += '<label for="' + label_id + '">&nbsp;' + name_label + '</label><br/>'
             name_list.append({'name': bucket, 'value': name_histogram[bucket]})
+        faceted_form += '</fieldset>'
         faceted_form += '</div>'
         faceted_form += '</div><br/>'
 
@@ -706,12 +712,18 @@ def get_facets_from_nodes(parent_node: Node,
         faceted_form += '<b>Filter on "category"</b>'
         faceted_form += '</div>'
         faceted_form += '<div class="w3-container" style="font-size: 90%;">'
+        faceted_form += '<fieldset style="border:none; margin:0px; padding:0px;">'
+        # For screen readers.
+        faceted_form += '<legend style="display:none">Filter on "category"</legend>'
+
         for bucket in sorted(category_histogram, key=category_histogram.get, reverse=True):
+            label_id = create_unique_string(length=12)
             category_label = bucket + '&nbsp;<i>(' + str(category_histogram[bucket]) + ')</i>'
-            faceted_form += '<input class="w3-check" type="checkbox" name="category_list" value="'
+            faceted_form += '<input id="' + label_id + '" class="w3-check" type="checkbox" name="category_list" value="'
             faceted_form += bucket + '" checked>'
-            faceted_form += '<label>&nbsp;' + category_label + '</label><br/>'
+            faceted_form += '<label for="' + label_id + '">&nbsp;' + category_label + '</label><br/>'
             category_list.append({'name': bucket, 'value': category_histogram[bucket]})
+        faceted_form += '</fieldset>'
         faceted_form += '</div>'
         faceted_form += '</div><br/>'
 
