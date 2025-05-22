@@ -42,6 +42,7 @@
 # ########################################################################
 
 
+import os.path
 import pandas
 import csv
 import json
@@ -96,6 +97,10 @@ def read_json_from_file(filename: str) -> list:
     :param filename: filename of the file to use for writing.
     :return: list of records in json format, or empty list if nothing found.
     """
+    if not os.path.isfile(path=filename):
+        print('read_json_from_file(): Error, file "' + filename + '" does not exist, exiting...')
+        exit(1)
+
     print('Reading json data from ' + filename + '... ', end='', flush=True)
     with open(filename) as fd:
         json_data = json.load(fp=fd)
@@ -103,6 +108,28 @@ def read_json_from_file(filename: str) -> list:
     if json_data is None:
         return []
     return json_data
+
+
+def write_dataframe_to_csv(filename: str, df: pandas.DataFrame) -> None:
+    """Write a datastructure (DataFrame) to file.
+
+    :param filename: csv file to write.
+    :param df: dataframe to write.
+    :return: None.
+    """
+    if df is None or df.empty:
+        print('write_dataframe_to_csv(): Empty DataFrame, nothing to write, continuing.')
+        return
+
+    print('\nwrite_dataframe_to_csv(): Writing to csv file: ' + filename + '... ', end='', flush=True)
+    df.to_csv(filename,
+              sep=',',
+              quotechar='"',
+              quoting=csv.QUOTE_ALL,
+              encoding='utf-8',
+              index=False)
+    print('Done.')
+    return
 
 
 def read_dataframe_from_csv(filename: str, columns: dict = None,
@@ -115,6 +142,10 @@ def read_dataframe_from_csv(filename: str, columns: dict = None,
     :param datatype: type of (some) columns to read.
     :return: dataframe read.
     """
+    if not os.path.isfile(path=filename):
+        print('read_dataframe_from_csv(): Error, file "' + filename + '" does not exist, exiting...')
+        exit(1)
+
     try:
         # Some inputfiles have problems reading in utf-8
         csv_data = pandas.read_csv(filename,
@@ -140,21 +171,3 @@ def read_dataframe_from_csv(filename: str, columns: dict = None,
                                    quotechar='"',
                                    encoding='latin-1')
     return csv_data
-
-
-def write_dataframe_to_csv(filename: str, df: pandas.DataFrame) -> None:
-    """Write a datastructure (DataFrame) to file.
-
-    :param filename: csv file to write.
-    :param df: dataframe to write.
-    :return: None.
-    """
-    print('\nWriting to csv file: ' + filename + '... ', end='', flush=True)
-    df.to_csv(filename,
-              sep=',',
-              quotechar='"',
-              quoting=csv.QUOTE_ALL,
-              encoding='utf-8',
-              index=False)
-    print('Done.')
-    return
