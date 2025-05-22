@@ -109,10 +109,19 @@ global resout_uuid_or_doi
 global PURE_PERSONS_ENDPOINT
 PURE_READ_PERSONS_ENDPOINT = 'persons'
 PURE_CRUD_PERSONS_ENDPOINT = 'persons/search'
-PURE_PERSONS_HARVEST_FROM_FILE = False
-# PURE_PERSONS_HARVEST_FROM_FILE = True
+
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+PURE_PERSONS_READ_HARVEST_FROM_FILE = False
+# PURE_PERSONS_READ_HARVEST_FROM_FILE = True
 PURE_PERSONS_HARVEST_FILENAME = 'pure_persons_harvest.json'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# If True, the value of PURE_PERSONS_READ_HARVEST_FROM_FILE does not matter.
+PURE_PERSONS_READ_DATA_FROM_FILE = False
+# PURE_PERSONS_READ_DATA_FROM_FILE = True
 PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
+
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_PERSONS_FIELDS = {'fields': ['uuid',
@@ -150,10 +159,19 @@ PURE_PERSONS_LOWEST_YEAR = 2010
 global PURE_ORGANIZATIONS_ENDPOINT
 PURE_READ_ORGANIZATIONS_ENDPOINT = 'organisational-units'
 PURE_CRUD_ORGANIZATIONS_ENDPOINT = 'organizations/search'
-PURE_ORGANIZATIONS_HARVEST_FROM_FILE = False
-# PURE_ORGANIZATIONS_HARVEST_FROM_FILE = True
+
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE = False
+# PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE = True
 PURE_ORGANIZATIONS_HARVEST_FILENAME = 'pure_organizations_harvest.json'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# If True, the value of PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE does not matter.
+PURE_ORGANIZATIONS_READ_DATA_FROM_FILE = False
+# PURE_ORGANIZATIONS_READ_DATA_FROM_FILE = True
 PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.csv'
+
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
@@ -172,10 +190,20 @@ PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
 global PURE_RESOUT_ENDPOINT
 PURE_READ_RESOUT_ENDPOINT = 'research-outputs'
 PURE_CRUD_RESOUT_ENDPOINT = 'research-outputs/search'
-PURE_RESOUT_HARVEST_FROM_FILE = False
-# PURE_RESOUT_HARVEST_FROM_FILE = True
+
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+PURE_RESOUT_READ_HARVEST_FROM_FILE = False
+# PURE_RESOUT_READ_HARVEST_FROM_FILE = True
 PURE_RESOUT_HARVEST_FILENAME = 'pure_resout_harvest.json'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# Make sure PURE_READ_RESOUT_YEARS or PURE_CRUD_RESOUT_YEARS has been set correctly.
+# If True, the value of PURE_RESOUT_READ_HARVEST_FROM_FILE does not matter.
+PURE_RESOUT_READ_DATA_FROM_FILE = False
+# PURE_RESOUT_READ_DATA_FROM_FILE = True
 PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
+
 global PURE_RESOUT_YEARS
 # The Pure READ API allows to specify years to harvest.
 # PURE_READ_RESOUT_YEARS = ['2021']
@@ -210,10 +238,19 @@ PURE_CRUD_RESOUT_FIELDS = {'orderings': ['publicationYear'],
 global PURE_PROJECTS_ENDPOINT
 PURE_READ_PROJECTS_ENDPOINT = 'projects'
 # PURE_CRUD_PROJECTS_ENDPOINT = 'projects/search'
-PURE_PROJECTS_HARVEST_FROM_FILE = False
-# PURE_PROJECTS_HARVEST_FROM_FILE = True
+
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+PURE_PROJECTS_READ_HARVEST_FROM_FILE = False
+# PURE_PROJECTS_READ_HARVEST_FROM_FILE = True
 PURE_PROJECTS_HARVEST_FILENAME = 'pure_projects_harvest.json'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# If True, the value of PURE_PROJECTS_READ_HARVEST_FROM_FILE does not matter.
+PURE_PROJECTS_READ_DATA_FROM_FILE = False
+# PURE_PROJECTS_READ_DATA_FROM_FILE = True
 PURE_PROJECTS_DATA_FILENAME = 'pure_projects_data.csv'
+
 PURE_PROJECTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_PROJECTS_FIELDS = {'fields': ['uuid',
@@ -1028,10 +1065,10 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
         return None
 
     print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
-    if (mode == 'persons' and not PURE_PERSONS_HARVEST_FROM_FILE) \
-       or (mode == 'organizations' and not PURE_ORGANIZATIONS_HARVEST_FROM_FILE) \
-       or (mode == 'research outputs' and not PURE_RESOUT_HARVEST_FROM_FILE) \
-       or (mode == 'projects' and not PURE_PROJECTS_HARVEST_FROM_FILE):
+    if (mode == 'persons' and not PURE_PERSONS_READ_HARVEST_FROM_FILE) \
+       or (mode == 'organizations' and not PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE) \
+       or (mode == 'research outputs' and not PURE_RESOUT_READ_HARVEST_FROM_FILE) \
+       or (mode == 'projects' and not PURE_PROJECTS_READ_HARVEST_FROM_FILE):
         url = PURE_URL + '/' + PURE_API_VERSION + '/' + endpoint
         retval = rcg.harvest_json_and_write_to_file(filename=harvest_filename,
                                                     url=url,
@@ -1321,13 +1358,13 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                            lambda row: create_urlother(type_id=row['name1'],
                                                        uuid_value=row['RESOUT_UUID']), axis=1)
     # Now replace all empty strings in column DOI for NaNs
-    # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
+    # The next statement will result in a 'behaviour will change in pandas 3.0' warning.
     # resout['DOI'].replace('', numpy.nan, inplace=True)
     resout['DOI'] = resout['DOI'].replace('', numpy.nan)
     # Then fill the column 'value1' with the value from column DOI, unless the value is NaN,
     # then fill with the value from column RESOUT_UUID.
     resout['value1'] = resout['DOI'].copy(deep=True)
-    # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
+    # The next statement will result in a 'behaviour will change in pandas 3.0' warning.
     # resout.value1.fillna(resout['RESOUT_UUID'], inplace=True)
     resout['RESOUT_UUID'] = resout.value1.fillna(resout['RESOUT_UUID'])
 
@@ -1364,7 +1401,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # find these while parsing research outputs, not while parsing persons.
     resout = parsed_content[['AUTHOR_UUID', 'FULL_NAME']].copy(deep=True)
     # Replace all empty strings in column FULL_NAME for NaNs
-    # The next statement will result in an 'behaviour will change in pandas 3.0' warning.
+    # The next statement will result in a 'behaviour will change in pandas 3.0' warning.
     # resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
     resout['FULL_NAME'] = resout['FULL_NAME'].replace('', numpy.nan)
     resout.dropna(axis=0, how='any', inplace=True)
@@ -1674,19 +1711,26 @@ rcg.graphdb_nr_accesses_print()
 
 # if False:
 if True:
-    harvest_file = PURE_PERSONS_HARVEST_FILENAME.split('.')[0] \
-                   + '-' + organization + '.' \
-                   + PURE_PERSONS_HARVEST_FILENAME.split('.')[1]
-    parse_persons = harvest_and_parse_pure_data(mode='persons',
-                                                endpoint=PURE_PERSONS_ENDPOINT,
-                                                headers=PURE_HEADERS,
-                                                body=PURE_PERSONS_FIELDS,
-                                                harvest_filename=harvest_file)
-    if parse_persons is None or parse_persons.empty:
-        print('There are no persons from ' + HARVEST_SOURCE + ' to harvest.\n')
+    if PURE_PERSONS_READ_DATA_FROM_FILE:
+        error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
+        print('Reading persons from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
     else:
-        rcg.write_dataframe_to_csv(filename=data_file,
-                                   df=parse_persons)
+        error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to harvest.\n'
+        print('Harvesting person from ' + HARVEST_SOURCE + '.')
+        harvest_file = PURE_PERSONS_HARVEST_FILENAME.split('.')[0] \
+                       + '-' + organization + '.' \
+                       + PURE_PERSONS_HARVEST_FILENAME.split('.')[1]
+        parse_persons = harvest_and_parse_pure_data(mode='persons',
+                                                    endpoint=PURE_PERSONS_ENDPOINT,
+                                                    headers=PURE_HEADERS,
+                                                    body=PURE_PERSONS_FIELDS,
+                                                    harvest_filename=harvest_file)
+        rcg.write_dataframe_to_csv(filename=data_file, df=parse_persons)
+
+    parse_persons = rcg.read_dataframe_from_csv(filename=data_file)
+    if parse_persons is None or parse_persons.empty:
+        print(error_message)
+    else:
         parsed_persons_to_ricgraph(parsed_content=parse_persons)
 
     rcg.graphdb_nr_accesses_print()
@@ -1698,29 +1742,37 @@ org_and_all_parents = {}
 # if False:
 if True:
     # Uncomment the next line for (some) debugging purposes.
-    # You might also want to set 'PURE_PERSONS_HARVEST_FROM_FILE = True'
+    # You might also want to set 'PURE_PERSONS_READ_HARVEST_FROM_FILE = True'
     # at the top of this file.
     # parse_persons = rcg.read_dataframe_from_csv(filename=data_file)
 
-    harvest_file = PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[0] \
-                   + '-' + organization + '.' \
-                   + PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[1]
     data_file = PURE_ORGANIZATIONS_DATA_FILENAME.split('.')[0] \
                 + '-' + organization + '.' \
                 + PURE_ORGANIZATIONS_DATA_FILENAME.split('.')[1]
-    parse_organizations = harvest_and_parse_pure_data(mode='organizations',
-                                                      endpoint=PURE_ORGANIZATIONS_ENDPOINT,
-                                                      headers=PURE_HEADERS,
-                                                      body=PURE_ORGANIZATIONS_FIELDS,
-                                                      harvest_filename=harvest_file)
-    if parse_organizations is None or parse_organizations.empty:
-        print('There are no organizations from ' + HARVEST_SOURCE + ' to harvest.\n')
+    if PURE_ORGANIZATIONS_READ_DATA_FROM_FILE:
+        error_message = 'There are no organizations from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
+        print('Reading organizations from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
     else:
-        rcg.write_dataframe_to_csv(filename=data_file,
-                                   df=parse_organizations)
+        error_message = 'There are no organizations from ' + HARVEST_SOURCE + ' to harvest.\n'
+        print('Harvesting organizations from ' + HARVEST_SOURCE + '.')
+        harvest_file = PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[0] \
+                       + '-' + organization + '.' \
+                       + PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[1]
+        parse_organizations = harvest_and_parse_pure_data(mode='organizations',
+                                                          endpoint=PURE_ORGANIZATIONS_ENDPOINT,
+                                                          headers=PURE_HEADERS,
+                                                          body=PURE_ORGANIZATIONS_FIELDS,
+                                                          harvest_filename=harvest_file)
+        rcg.write_dataframe_to_csv(filename=data_file, df=parse_organizations)
+
+    parse_organizations = rcg.read_dataframe_from_csv(filename=data_file)
+    if parse_organizations is None or parse_organizations.empty:
+        print(error_message)
+    else:
         org_and_all_parents = determine_all_parent_organizations(parsed_content_organizations=parse_organizations)
         parsed_organizations_to_ricgraph(parsed_content_persons=parse_persons,
                                          organization_and_all_parents=org_and_all_parents)
+
     rcg.graphdb_nr_accesses_print()
 
 
@@ -1729,26 +1781,37 @@ if True:
 # if False:
 if True:
     for year in PURE_RESOUT_YEARS:
-        print('Harvesting research outputs from ' + HARVEST_SOURCE
-              + ' for year ' + year + '.')
-        harvest_file_year = PURE_RESOUT_HARVEST_FILENAME.split('.')[0] \
-                            + '-' + year + '-' + organization + '.' \
-                            + PURE_RESOUT_HARVEST_FILENAME.split('.')[1]
         data_file_year = PURE_RESOUT_DATA_FILENAME.split('.')[0] \
                          + '-' + year + '-' + organization + '.' \
                          + PURE_RESOUT_DATA_FILENAME.split('.')[1]
-        PURE_RESOUT_FIELDS['publishedBeforeDate'] = year + '-12-31'
-        PURE_RESOUT_FIELDS['publishedAfterDate'] = year + '-01-01'
-        parse_resout = harvest_and_parse_pure_data(mode='research outputs',
-                                                   endpoint=PURE_RESOUT_ENDPOINT,
-                                                   headers=PURE_HEADERS,
-                                                   body=PURE_RESOUT_FIELDS,
-                                                   harvest_filename=harvest_file_year)
-        if parse_resout is None or parse_resout.empty:
-            print('There are no research outputs from ' + HARVEST_SOURCE + ' to harvest.\n')
+        if PURE_RESOUT_READ_DATA_FROM_FILE:
+            error_message = 'There are no research outputs from ' + HARVEST_SOURCE
+            error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
+            print('Reading research outputs from ' + HARVEST_SOURCE + ' for year '
+                  + year + ' from file ' + data_file_year + '.')
         else:
-            rcg.write_dataframe_to_csv(filename=data_file_year,
-                                       df=parse_resout)
+            error_message = 'There are no research outputs from ' + HARVEST_SOURCE
+            error_message += ' for year ' + year + ' to harvest.\n'
+            print('Harvesting research outputs from ' + HARVEST_SOURCE + ' for year '
+                  + year + ' from file ' + data_file_year + '.')
+            print('Harvesting research outputs from ' + HARVEST_SOURCE
+                  + ' for year ' + year + '.')
+            harvest_file_year = PURE_RESOUT_HARVEST_FILENAME.split('.')[0] \
+                                + '-' + year + '-' + organization + '.' \
+                                + PURE_RESOUT_HARVEST_FILENAME.split('.')[1]
+            PURE_RESOUT_FIELDS['publishedBeforeDate'] = year + '-12-31'
+            PURE_RESOUT_FIELDS['publishedAfterDate'] = year + '-01-01'
+            parse_resout = harvest_and_parse_pure_data(mode='research outputs',
+                                                       endpoint=PURE_RESOUT_ENDPOINT,
+                                                       headers=PURE_HEADERS,
+                                                       body=PURE_RESOUT_FIELDS,
+                                                       harvest_filename=harvest_file_year)
+            rcg.write_dataframe_to_csv(filename=data_file_year, df=parse_resout)
+
+        parse_resout = rcg.read_dataframe_from_csv(filename=data_file_year)
+        if parse_resout is None or parse_resout.empty:
+            print(error_message)
+        else:
             parsed_resout_to_ricgraph(parsed_content=parse_resout)
 
         rcg.graphdb_nr_accesses_print()
@@ -1762,24 +1825,32 @@ if HARVEST_PROJECTS:
         print('Harvesting projects from Pure using the CRUD API is not implemented yet.')
         exit(1)
 
-    harvest_file = PURE_PROJECTS_HARVEST_FILENAME.split('.')[0] \
-                   + '-' + organization + '.' \
-                   + PURE_PROJECTS_HARVEST_FILENAME.split('.')[1]
     data_file = PURE_PROJECTS_DATA_FILENAME.split('.')[0] \
                 + '-' + organization + '.' \
                 + PURE_PROJECTS_DATA_FILENAME.split('.')[1]
-    parse_projects = harvest_and_parse_pure_data(mode='projects',
-                                                 endpoint=PURE_PROJECTS_ENDPOINT,
-                                                 headers=PURE_HEADERS,
-                                                 body=PURE_PROJECTS_FIELDS,
-                                                 harvest_filename=harvest_file)
-    if parse_projects is None or parse_projects.empty:
-        print('There are no projects from ' + HARVEST_SOURCE + ' to harvest.\n')
+    if PURE_PROJECTS_READ_DATA_FROM_FILE:
+        error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
+        print('Reading projects from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
     else:
-        rcg.write_dataframe_to_csv(filename=data_file,
-                                   df=parse_projects)
+        error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to harvest.\n'
+        print('Harvesting projects from ' + HARVEST_SOURCE + '.')
+        harvest_file = PURE_PROJECTS_HARVEST_FILENAME.split('.')[0] \
+                       + '-' + organization + '.' \
+                       + PURE_PROJECTS_HARVEST_FILENAME.split('.')[1]
+        parse_projects = harvest_and_parse_pure_data(mode='projects',
+                                                     endpoint=PURE_PROJECTS_ENDPOINT,
+                                                     headers=PURE_HEADERS,
+                                                     body=PURE_PROJECTS_FIELDS,
+                                                     harvest_filename=harvest_file)
+        rcg.write_dataframe_to_csv(filename=data_file, df=parse_projects)
+
+    parse_projects = rcg.read_dataframe_from_csv(filename=data_file)
+    if parse_projects is None or parse_projects.empty:
+        print(error_message)
+    else:
         parsed_projects_to_ricgraph(parsed_content=parse_projects,
                                     organization_and_all_parents=org_and_all_parents)
+
     rcg.graphdb_nr_accesses_print()
 
 rcg.close_ricgraph()

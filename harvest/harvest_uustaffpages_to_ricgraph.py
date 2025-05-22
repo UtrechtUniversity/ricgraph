@@ -66,11 +66,43 @@ import ricgraph as rcg
 # ######################################################
 ORGANIZATION = 'UU'
 UUSTAFF_MAX_FACULTY_NR = 25
-UUSTAFF_CONNECTDATA_FROM_FILE = False
-UUSTAFF_HARVEST_FROM_FILE = False
+
+# Harvesting UU staff pages is a three-step process and differs from
+# e.g. harvesting Pure.
+# 1. We need to harvest SolisIDs and their connection to UU staff pages.
+#    This will produce a csv file in UUSTAFF_HARVEST_CONNECT_FILENAME.
+#    We need this step because, after harvesting Pure, in Ricgraph
+#    we only have SolisIDs that we can use to connect to the UU staff pages.
+#    The UU staff pages do not offer anything else that can be used
+#    to connect to something that is already in Ricgraph (after
+#    the Pure harvest).
+# 2. Then we can harvest the other data from the UU staff pages.
+#    This will produce a json file with the harvested data in
+#    UUSTAFF_HARVEST_FILENAME.
+# 3. Finally, we insert the data from step 2 in Ricgraph.
+#    This will produce a csv file in UUSTAFF_DATA_FILENAME.
+# If you do not want to harvest at all, but only use information
+# in files produced by a previous UU staff harvest, you will need to set both
+# UUSTAFF_READ_HARVEST_CONNECTDATA_FROM_FILE = True
+# and
+# UUSTAFF_READ_DATA_FROM_FILE = True.
+
+# Ad 1. Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+# If True, the value of UUSTAFF_READ_HARVEST_FROM_FILE does not matter.
+UUSTAFF_READ_HARVEST_CONNECTDATA_FROM_FILE = False
+# UUSTAFF_READ_HARVEST_CONNECTDATA_FROM_FILE = True
+UUSTAFF_HARVEST_CONNECT_FILENAME = 'uustaff_connect.csv'
+
+# Ad 2. Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+UUSTAFF_READ_HARVEST_FROM_FILE = False
 UUSTAFF_HARVEST_FILENAME = 'uustaff_harvest.json'
+
+# See above.
+# If True, the value of UUSTAFF_READ_HARVEST_FROM_FILE does not matter.
+UUSTAFF_READ_DATA_FROM_FILE = False
+# UUSTAFF_READ_DATA_FROM_FILE = True
 UUSTAFF_DATA_FILENAME = 'uustaff_data.csv'
-UUSTAFF_CONNECT_FILENAME = 'uustaff_connect.csv'
+
 UUSTAFF_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # We can harvest many fields from the UU staff pages. For now,
 # we only need a few.
@@ -356,7 +388,7 @@ def harvest_and_parse_uustaffpages_data(url: str,
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting UU staff pages...')
-    if not UUSTAFF_HARVEST_FROM_FILE:
+    if not UUSTAFF_READ_HARVEST_FROM_FILE:
         retval = harvest_json_and_write_to_file_uustaffpages(filename=harvest_filename,
                                                              url=url,
                                                              max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST)
@@ -662,16 +694,21 @@ if True:              # Comment this line to comment out code block A
     print('\nNote: If this script hangs, just run it again.')
     print('This is probably due to a time-out of the server that is hosting the UU staff pages.\n')
 
-    if not UUSTAFF_CONNECTDATA_FROM_FILE:
-        parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL)
-        if parsed_results is None or parsed_results.empty:
-            print('There are no Pure SolisIDs to connect to UU staff pages.\n')
-        else:
-            rcg.write_dataframe_to_csv(filename=UUSTAFF_CONNECT_FILENAME,
-                                       df=parsed_results)
-            parsed_pure_uustaffpages_to_ricgraph(parsed_content=parsed_results)
+    if UUSTAFF_READ_HARVEST_CONNECTDATA_FROM_FILE:
+        error_message = 'There are no Pure SolisIDs to connect to UU staff pages to harvest '
+        error_message += 'from file ' + UUSTAFF_HARVEST_CONNECT_FILENAME + '.\n'
+        print('Reading Pure SolisIDs to connect to UU staff pages to harvest from file '
+              + UUSTAFF_HARVEST_CONNECT_FILENAME + '.')
     else:
-        parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_CONNECT_FILENAME)
+        error_message = 'There are no Pure SolisIDs to connect to UU staff pages to harvest.\n'
+        print('Harvesting Pure SolisIDs to connect to UU staff pages to harvest.')
+        parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL)
+        rcg.write_dataframe_to_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME, df=parsed_results)
+
+    parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME)
+    if parsed_results is None or parsed_results.empty:
+        print(error_message)
+    else:
         parsed_pure_uustaffpages_to_ricgraph(parsed_content=parsed_results)
 
     rcg.graphdb_nr_accesses_print()
@@ -684,19 +721,25 @@ if True:
     print('1. Edit the python code, comment out code block A (i.e. make sure it does not get executed).')
     print('2. Rerun this script.')
     print('This is probably due to a time-out of the server that is hosting the UU staff pages.\n')
-    parse_uustaff = harvest_and_parse_uustaffpages_data(url=UUSTAFF_URL,
-                                                        harvest_filename=UUSTAFF_HARVEST_FILENAME)
+    if UUSTAFF_READ_DATA_FROM_FILE:
+        error_message = 'There are no UU staff data to harvest '
+        error_message += 'from file ' + UUSTAFF_HARVEST_FILENAME + '.\n'
+        print('Reading UU staff data to harvest from file ' + UUSTAFF_HARVEST_FILENAME + '.')
+    else:
+        error_message = 'There are no UU staff data to harvest.\n'
+        print('Harvesting UU staff data.')
+        parse_uustaff = harvest_and_parse_uustaffpages_data(url=UUSTAFF_URL,
+                                                            harvest_filename=UUSTAFF_HARVEST_FILENAME)
+        rcg.write_dataframe_to_csv(filename=UUSTAFF_DATA_FILENAME, df=parse_uustaff)
+
+    parse_uustaff = rcg.read_dataframe_from_csv(filename=UUSTAFF_DATA_FILENAME)
     if parse_uustaff is None or parse_uustaff.empty:
-        print('There are no UU staff data to harvest.\n')
-        exit(0)
-
-    rcg.write_dataframe_to_csv(filename=UUSTAFF_DATA_FILENAME,
-                               df=parse_uustaff)
-
-    # Harvesting from UU staff pages could be improved by better
-    # parsing for UU sub organizations and UU research output.
-    # For inspiration see harvest_pure_to_ricgraph.py.
-    parsed_uustaff_persons_to_ricgraph(parsed_content=parse_uustaff)
+        print(error_message)
+    else:
+        # Harvesting from UU staff pages could be improved by better
+        # parsing for UU sub organizations and UU research output.
+        # For inspiration see harvest_pure_to_ricgraph.py.
+        parsed_uustaff_persons_to_ricgraph(parsed_content=parse_uustaff)
 
     rcg.graphdb_nr_accesses_print()
 

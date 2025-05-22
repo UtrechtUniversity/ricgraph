@@ -66,11 +66,18 @@ import urllib.request
 from typing import Union
 import ricgraph as rcg
 
-
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+RSD_READ_HARVEST_FROM_FILE = False
+# RSD_READ_HARVEST_FROM_FILE = True
 RSD_HARVEST_FILENAME = 'rsd_harvest.json'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# If True, the value of RSD_READ_HARVEST_FROM_FILE does not matter.
+RSD_READ_DATA_FROM_FILE = False
+# RSD_READ_DATA_FROM_FILE = True
 RSD_DATA_FILENAME = 'rsd_data.csv'
-RSD_HARVEST_FROM_FILE = False
-# RSD_HARVEST_FROM_FILE = True
+
 RSD_ENDPOINT = 'api/v1/organisation'
 RSD_FIELDS = 'software(brand_name,slug,concept_doi,' \
              + 'release(mention(doi,doi_registration_date,publication_year)),' \
@@ -212,7 +219,7 @@ def harvest_and_parse_software(headers: dict, url: str, harvest_filename: str) -
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting software packages from ' + HARVEST_SOURCE + '...')
-    if not RSD_HARVEST_FROM_FILE:
+    if not RSD_READ_HARVEST_FROM_FILE:
         retval = rsd_harvest_json_and_write_to_file(filename=harvest_filename,
                                                     url=url,
                                                     headers=headers)
@@ -339,20 +346,27 @@ else:
 
 rcg.graphdb_nr_accesses_print()
 
-harvest_file = RSD_HARVEST_FILENAME.split('.')[0] \
-               + '-' + organization + '.' \
-               + RSD_HARVEST_FILENAME.split('.')[1]
 data_file = RSD_DATA_FILENAME.split('.')[0] \
             + '-' + organization + '.' \
             + RSD_DATA_FILENAME.split('.')[1]
-rsd_data = harvest_and_parse_software(headers=RSD_HEADERS,
-                                      url=FULL_RSD_URL,
-                                      harvest_filename=harvest_file)
-if rsd_data is None or rsd_data.empty:
-    print('There are no software packages from ' + HARVEST_SOURCE + ' to harvest.\n')
+if RSD_READ_DATA_FROM_FILE:
+    error_message = 'There are no software packages from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
+    print('Reading software packages from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
 else:
-    rcg.write_dataframe_to_csv(filename=data_file,
-                               df=rsd_data)
+    error_message = 'There are no software packages from ' + HARVEST_SOURCE + ' to harvest.\n'
+    print('Harvesting software packages from ' + HARVEST_SOURCE + '.')
+    harvest_file = RSD_HARVEST_FILENAME.split('.')[0] \
+                   + '-' + organization + '.' \
+                   + RSD_HARVEST_FILENAME.split('.')[1]
+    rsd_data = harvest_and_parse_software(headers=RSD_HEADERS,
+                                          url=FULL_RSD_URL,
+                                          harvest_filename=harvest_file)
+    rcg.write_dataframe_to_csv(filename=data_file, df=rsd_data)
+
+rsd_data = rcg.read_dataframe_from_csv(filename=data_file)
+if rsd_data is None or rsd_data.empty:
+    print(error_message)
+else:
     parsed_software_to_ricgraph(parsed_content=rsd_data)
 
 rcg.graphdb_nr_accesses_print()

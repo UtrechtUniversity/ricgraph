@@ -79,9 +79,19 @@ OPENALEX_HEADERS = {'Accept': 'application/json'
 # ######################################################
 OPENALEX_API_URL = 'https://api.openalex.org/'
 OPENALEX_ENDPOINT = 'works'
-OPENALEX_HARVEST_FROM_FILE = False
+
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+OPENALEX_READ_HARVEST_FROM_FILE = False
 OPENALEX_HARVEST_FILENAME = 'openalex_harvest.json'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# Make sure OPENALEX_RESOUT_YEARS has been set correctly.
+# If True, the value of OPENALEX_READ_HARVEST_FROM_FILE does not matter.
+OPENALEX_READ_DATA_FROM_FILE = False
+# OPENALEX_READ_DATA_FROM_FILE = True
 OPENALEX_DATA_FILENAME = 'openalex_data.csv'
+
 OPENALEX_RESOUT_YEARS = ['2022', '2023', '2024', '2025']
 # This number is the max recs to harvest per year, not total.
 OPENALEX_MAX_RECS_TO_HARVEST = 0                        # 0 = all records
@@ -266,7 +276,7 @@ def harvest_and_parse_openalex(harvest_year: str,
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting persons and research outputs from ' + HARVEST_SOURCE + '...')
-    if not OPENALEX_HARVEST_FROM_FILE:
+    if not OPENALEX_READ_HARVEST_FROM_FILE:
         url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT + '?filter=institutions.ror:' + ORGANIZATION_ROR
         url += ',publication_year:' + harvest_year + '&select=' + OPENALEX_FIELDS
         retval = rcg.harvest_json_and_write_to_file(filename=harvest_filename,
@@ -450,22 +460,31 @@ else:
 rcg.graphdb_nr_accesses_print()
 
 for year in OPENALEX_RESOUT_YEARS:
-    print('Harvesting persons and research outputs from ' + HARVEST_SOURCE + ' for year ' + year + '.')
-    harvest_file_year = OPENALEX_HARVEST_FILENAME.split('.')[0] \
-                        + '-' + year + '-' + organization + '.' \
-                        + OPENALEX_HARVEST_FILENAME.split('.')[1]
     data_file_year = OPENALEX_DATA_FILENAME.split('.')[0] \
                      + '-' + year + '-' + organization + '.' \
                      + OPENALEX_DATA_FILENAME.split('.')[1]
-    parse_persons_resout = harvest_and_parse_openalex(harvest_year=year,
-                                                      headers=OPENALEX_HEADERS,
-                                                      harvest_filename=harvest_file_year)
-
-    if parse_persons_resout is None or parse_persons_resout.empty:
-        print('There are no persons or research outputs from ' + HARVEST_SOURCE + ' to harvest.\n')
+    if OPENALEX_READ_DATA_FROM_FILE:
+        error_message = 'There are no persons or research outputs from ' + HARVEST_SOURCE
+        error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
+        print('Reading persons and research outputs from ' + HARVEST_SOURCE
+              + ' for year ' + year + ' from file ' + data_file_year + '.')
     else:
-        rcg.write_dataframe_to_csv(filename=data_file_year,
-                                   df=parse_persons_resout)
+        error_message = 'There are no persons or research outputs from ' + HARVEST_SOURCE
+        error_message += ' for year ' + year + ' to harvest.\n'
+        print('Harvesting persons and research outputs from ' + HARVEST_SOURCE
+              + ' for year ' + year + '.')
+        harvest_file_year = OPENALEX_HARVEST_FILENAME.split('.')[0] \
+                            + '-' + year + '-' + organization + '.' \
+                            + OPENALEX_HARVEST_FILENAME.split('.')[1]
+        parse_persons_resout = harvest_and_parse_openalex(harvest_year=year,
+                                                          headers=OPENALEX_HEADERS,
+                                                          harvest_filename=harvest_file_year)
+        rcg.write_dataframe_to_csv(filename=data_file_year, df=parse_persons_resout)
+
+    parse_persons_resout = rcg.read_dataframe_from_csv(filename=data_file_year)
+    if parse_persons_resout is None or parse_persons_resout.empty:
+        print(error_message)
+    else:
         parsed_persons_to_ricgraph(parsed_content=parse_persons_resout)
         parsed_resout_to_ricgraph(parsed_content=parse_persons_resout)
 

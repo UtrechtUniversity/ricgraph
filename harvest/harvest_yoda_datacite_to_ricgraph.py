@@ -66,8 +66,17 @@ import xmltodict
 from sickle import Sickle
 import ricgraph as rcg
 
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+YODA_READ_HARVEST_FROM_FILE = False
 YODA_HARVEST_FILENAME = 'yoda_datacite_harvest.xml'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# If True, the value of YODA_READ_HARVEST_FROM_FILE does not matter.
+YODA_READ_DATA_FROM_FILE = False
+# YODA_READ_DATA_FROM_FILE = True
 YODA_DATA_FILENAME = 'yoda_datacite_data.csv'
+
 YODA_HEADERS = {'metadataPrefix': 'oai_datacite',
                 'ignore_deleted': True
                 }
@@ -437,9 +446,12 @@ def harvest_and_parse_yoda_datacite_data(url: str, headers: dict, harvest_filena
     :param harvest_filename: filename to write harvest results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-    harvest_xml_and_write_to_file(url=url,
-                                  headers=headers,
-                                  harvest_filename=harvest_filename)
+    print('Harvesting from ' + HARVEST_SOURCE + '...')
+    if not YODA_READ_HARVEST_FROM_FILE:
+        harvest_xml_and_write_to_file(url=url,
+                                      headers=headers,
+                                      harvest_filename=harvest_filename)
+
     with open(harvest_filename) as fd:
         doc = xmltodict.parse(fd.read())
 
@@ -609,20 +621,28 @@ else:
 
 rcg.graphdb_nr_accesses_print()
 
-harvest_file = YODA_HARVEST_FILENAME.split('.')[0] \
-               + '-' + organization + '.' \
-               + YODA_HARVEST_FILENAME.split('.')[1]
 data_file = YODA_DATA_FILENAME.split('.')[0] \
             + '-' + organization + '.' \
             + YODA_DATA_FILENAME.split('.')[1]
-parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
-                                                       headers=YODA_HEADERS,
-                                                       harvest_filename=harvest_file)
-if parse_yoda_data is None or parse_yoda_data.empty:
-    print('There are no data from Yoda to harvest.\n')
+
+if YODA_READ_DATA_FROM_FILE:
+    error_message = 'There are no data from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
+    print('Reading data from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
 else:
-    rcg.write_dataframe_to_csv(filename=data_file,
-                               df=parse_yoda_data)
+    error_message = 'There are no data from ' + HARVEST_SOURCE + ' to harvest.\n'
+    print('Harvesting data from ' + HARVEST_SOURCE + '.')
+    harvest_file = YODA_HARVEST_FILENAME.split('.')[0] \
+                   + '-' + organization + '.' \
+                   + YODA_HARVEST_FILENAME.split('.')[1]
+    parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
+                                                           headers=YODA_HEADERS,
+                                                           harvest_filename=harvest_file)
+    rcg.write_dataframe_to_csv(filename=data_file, df=parse_yoda_data)
+
+parse_yoda_data = rcg.read_dataframe_from_csv(filename=data_file)
+if parse_yoda_data is None or parse_yoda_data.empty:
+    print(error_message)
+else:
     parsed_yoda_datacite_to_ricgraph(parsed_content=parse_yoda_data)
 
 rcg.graphdb_nr_accesses_print()
