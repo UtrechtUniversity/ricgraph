@@ -59,7 +59,7 @@ def flask_check_file_exists(ricgraph_explorer_app: FlaskApp, filename: str) -> b
     # That means we need to get the app context.
     this_app = ricgraph_explorer_app.app
     file_path = os.path.join(this_app.static_folder, filename)
-    if os.path.isfile(file_path):
+    if os.path.isfile(path=file_path):
         # The file exists in the static folder.
         return True
     else:
@@ -100,7 +100,7 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     graph = open_ricgraph()
     if graph is None:
         print('Ricgraph could not be opened.')
-        exit(2)
+        exit(1)
     store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
                                 name='graph', value=graph)
 
