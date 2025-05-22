@@ -118,8 +118,8 @@ PURE_PERSONS_HARVEST_FILENAME = 'pure_persons_harvest.json'
 # Set this to True to read data from the csv file. No harvest will be done, this would
 # not make sense. If False, a harvest will be done.
 # If True, the value of PURE_PERSONS_READ_HARVEST_FROM_FILE does not matter.
-PURE_PERSONS_READ_DATA_FROM_FILE = False
-# PURE_PERSONS_READ_DATA_FROM_FILE = True
+# PURE_PERSONS_READ_DATA_FROM_FILE = False
+PURE_PERSONS_READ_DATA_FROM_FILE = True
 PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
 
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
@@ -200,8 +200,8 @@ PURE_RESOUT_HARVEST_FILENAME = 'pure_resout_harvest.json'
 # not make sense. If False, a harvest will be done.
 # Make sure PURE_READ_RESOUT_YEARS or PURE_CRUD_RESOUT_YEARS has been set correctly.
 # If True, the value of PURE_RESOUT_READ_HARVEST_FROM_FILE does not matter.
-PURE_RESOUT_READ_DATA_FROM_FILE = False
-# PURE_RESOUT_READ_DATA_FROM_FILE = True
+# PURE_RESOUT_READ_DATA_FROM_FILE = False
+PURE_RESOUT_READ_DATA_FROM_FILE = True
 PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
 
 global PURE_RESOUT_YEARS
@@ -213,7 +213,8 @@ PURE_READ_RESOUT_YEARS = ['2022', '2023', '2024', '2025']
 PURE_CRUD_RESOUT_YEARS = ['all']
 # For Pure READ API: this number is the max recs to harvest per year, not total
 # For Pure CRUD API: this number is the max recs to harvest total.
-PURE_RESOUT_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+PURE_RESOUT_MAX_RECS_TO_HARVEST = 100                  # 0 = all records
+# PURE_RESOUT_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 global PURE_RESOUT_FIELDS
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_READ_RESOUT_FIELDS = {'fields': ['uuid',
@@ -701,7 +702,8 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
                 org_type_name = str(harvest_item['type']['term']['en_GB'])
                 org_name = str(harvest_item['name']['en_GB'])
             # Only necessary to add the top level organization to the dict with organization names.
-            organization_names[str(harvest_item['uuid'])] = org_type_name + ': ' + org_name
+            # organization_names[str(harvest_item['uuid'])] = org_type_name + ': ' + org_name
+            organization_names[str(harvest_item['uuid'])] = organization + ' ' + org_type_name + ': ' + org_name
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
