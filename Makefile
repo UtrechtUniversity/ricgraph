@@ -278,10 +278,14 @@ allhelp: help
 	@echo "       For SURF Research Cloud you will need the Nginx webserver."
 	@echo ""
 	@echo "Various install options:"
-	@echo "- install the 'cutting edge' version of Ricgraph, i.e. the most current version"
-	@echo "       of Ricgraph on GitHub ($(ricgraph_download)):"
-	@echo "       add 'ricgraph_version=cuttingedge' to your 'make' command, e.g. as in"
-	@echo "       'make ricgraph_version=cuttingedge install_ricgraph_singleuser_neo4j_community'"
+	@echo "- make install_ricgraph_singleuser_cuttingedge_neo4j_desktop: Install"
+	@echo "       the 'cutting edge' version of Ricgraph for a single user,"
+	@echo "       i.e. the most current version of Ricgraph"
+	@echo "       on GitHub ($(ricgraph_download))."
+	@echo "- make install_ricgraph_server_cuttingedge: Install"
+	@echo "       the 'cutting edge' version of Ricgraph as a server,"
+	@echo "       i.e. the most current version of Ricgraph"
+	@echo "       on GitHub ($(ricgraph_download))."
 	@echo "- make full_singleuser_install_neo4j_desktop: Install Neo4j Desktop"
 	@echo "       and Ricgraph for a single user."
 	@echo "       This will be done in a Python virtual environment"
@@ -457,6 +461,10 @@ ifeq ($(shell test ! -d $(ricgraph_server_install_dir) && echo true),true)
 endif
 
 
+install_ricgraph_server_cuttingedge:
+	@make ricgraph_version=cuttingedge install_ricgraph_server
+
+
 full_singleuser_install_neo4j_desktop: install_neo4j_desktop install_ricgraph_singleuser_neo4j_desktop
 	@echo ""
 
@@ -475,6 +483,10 @@ ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
 	@# because it will keep the code of install_ricgraph more clear.
 	$(call install_ricgraph,$(ricgraph_singleuser_install_dir),"singleuser","neo4j_desktop",$(ricgraph_version),$(readdoc_singleuser))
 endif
+
+
+install_ricgraph_singleuser_cuttingedge_neo4j_desktop:
+	@make ricgraph_version=cuttingedge install_ricgraph_singleuser_neo4j_desktop
 
 
 install_enable_ricgraphexplorer_restapi: check_user_root full_server_install
@@ -565,6 +577,8 @@ dump_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo ""
 	@echo "Starting Dump of graph database of Neo4j Community Edition in"
 	@echo "directory $(graphdb_backup_dir)."
+	@echo "You can use command line parameter 'graphdb_backup_dir'"
+	@echo "to specify the directory to dump to."
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -d $(graphdb_backup_dir) ]; then mkdir $(graphdb_backup_dir); fi
@@ -589,6 +603,8 @@ restore_graphdb_neo4j_community: check_user_root check_neo4jadmin_cmd
 	@echo "Starting Restore of graph database of Neo4j Community Edition"
 	@echo "from directory $(graphdb_backup_dir)."
 	@echo "Your old graph database will be removed."
+	@echo "You can use command line parameter 'graphdb_backup_dir'"
+	@echo "to specify the directory to restore from."
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(graphdb_backup_dir)/system.dump ]; then echo "Error: Graph database dump file $(graphdb_backup_dir)/system.dump does not exist."; exit 1; fi
