@@ -278,7 +278,7 @@ allhelp: help
 	@echo "       For SURF Research Cloud you will need the Nginx webserver."
 	@echo ""
 	@echo "Various install options:"
-	@echo "- make install_ricgraph_singleuser_cuttingedge_neo4j_desktop: Install"
+	@echo "- make install_ricgraph_singleuser_cuttingedge_neo4j_community: Install"
 	@echo "       the 'cutting edge' version of Ricgraph for a single user,"
 	@echo "       i.e. the most current version of Ricgraph"
 	@echo "       on GitHub ($(ricgraph_download))."
@@ -485,8 +485,8 @@ ifeq ($(shell test ! -d $(ricgraph_singleuser_install_dir) && echo true),true)
 endif
 
 
-install_ricgraph_singleuser_cuttingedge_neo4j_desktop:
-	@make ricgraph_version=cuttingedge install_ricgraph_singleuser_neo4j_desktop
+install_ricgraph_singleuser_cuttingedge_neo4j_community:
+	@make ricgraph_version=cuttingedge install_ricgraph_singleuser_neo4j_community
 
 
 install_enable_ricgraphexplorer_restapi: check_user_root full_server_install
