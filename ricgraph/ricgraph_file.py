@@ -117,8 +117,8 @@ def write_dataframe_to_csv(filename: str,
 
     :param filename: csv file to write.
     :param df: dataframe to write.
-    :param write_index: whether to write the index to the csv
-      file (True) or not (False).
+    :param write_index: whether to write the index of the DataFrame
+      as first column to the csv file (True) or not (False).
     :return: None.
     """
     if df is None or df.empty:
@@ -136,24 +136,36 @@ def write_dataframe_to_csv(filename: str,
     return
 
 
-def read_dataframe_from_csv(filename: str, columns: dict = None,
-                            nr_rows: int = None, datatype=None) -> pandas.DataFrame:
+def read_dataframe_from_csv(filename: str,
+                            columns: dict = None,
+                            nr_rows: int = None,
+                            datatype=None,
+                            read_index: bool = False) -> pandas.DataFrame:
     """Reads a datastructure (DataFrame) from file
 
     :param filename: csv file to read.
     :param columns: which columns to read.
     :param nr_rows: how many rows to read (default: all).
     :param datatype: type of (some) columns to read.
+    :param read_index: whether to use the first column
+      from the csv file (True) or not (False) for index in the DataFrame.
     :return: dataframe read.
     """
     if not os.path.isfile(path=filename):
         print('read_dataframe_from_csv(): Error, file "' + filename + '" does not exist, exiting...')
         exit(1)
 
+    # Note the inconsistent type of 'index_col'.
+    if read_index:
+        index_col = 0
+    else:
+        index_col = False
+
     try:
         # Some inputfiles have problems reading in utf-8
         csv_data = pandas.read_csv(filename,
                                    sep=',',
+                                   index_col=index_col,
                                    usecols=columns,
                                    dtype=datatype,
                                    engine='python',
@@ -166,6 +178,7 @@ def read_dataframe_from_csv(filename: str, columns: dict = None,
         print('read_dataframe_from_csv(): error reading in utf-8 format, reading in latin-1 format.')
         csv_data = pandas.read_csv(filename,
                                    sep=',',
+                                   index_col=index_col,
                                    usecols=columns,
                                    dtype=datatype,
                                    engine='python',
