@@ -110,11 +110,15 @@ def read_json_from_file(filename: str) -> list:
     return json_data
 
 
-def write_dataframe_to_csv(filename: str, df: pandas.DataFrame) -> None:
+def write_dataframe_to_csv(filename: str,
+                           df: pandas.DataFrame,
+                           write_index: bool = False) -> None:
     """Write a datastructure (DataFrame) to file.
 
     :param filename: csv file to write.
     :param df: dataframe to write.
+    :param write_index: whether to write the index to the csv
+      file (True) or not (False).
     :return: None.
     """
     if df is None or df.empty:
@@ -127,7 +131,7 @@ def write_dataframe_to_csv(filename: str, df: pandas.DataFrame) -> None:
               quotechar='"',
               quoting=csv.QUOTE_ALL,
               encoding='utf-8',
-              index=False)
+              index=write_index)
     print('Done.')
     return
 
