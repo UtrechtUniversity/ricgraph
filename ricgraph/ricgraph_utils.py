@@ -368,6 +368,25 @@ def get_commandline_argument_harvest_projects(argument_list: list) -> str:
     return answer
 
 
+def get_commandline_argument_filename(argument_list: list) -> str:
+    """Get the value of a command line argument '--filename'.
+    Prompt if no argument is given.
+
+    :param argument_list: the argument list.
+    :return: 'yes' or 'no', the answer whether to harvest projects,
+      or '' if no answer is given.
+    """
+    answer = get_commandline_argument(argument='--filename',
+                                      argument_list=argument_list)
+    if answer == '':
+        answer = input('Please specify a filename: ')
+        if answer == '':
+            return ''
+
+    answer = answer.lower()
+    return answer
+
+
 def get_configfile_key(section: str, key: str) -> str:
     """Get the value of a key in the Ricgraph config file.
 
