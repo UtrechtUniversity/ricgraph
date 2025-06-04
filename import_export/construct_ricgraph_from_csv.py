@@ -69,16 +69,14 @@ FILENAME_EDGES_EXTENSION = '-edges.csv'
 # ################### main ###################
 # ############################################
 rcg.print_commandline_arguments(argument_list=sys.argv)
-filename = rcg.get_commandline_argument(argument='--filename',
-                                                 argument_list=sys.argv)
+
+print('\nYou need to specify a filename. This name will be used for')
+print('importing the nodes and edges.')
+print('If you enter an empty value, this script will exit.')
+filename = rcg.get_commandline_argument_filename(argument_list=sys.argv)
 if filename == '':
-    print('\nYou need to specify a filename. This name will be used for')
-    print('importing the nodes and edges.')
-    print('If you enter an empty value, this script will exit.')
-    filename = input('Please specify this filename: ')
-    if filename == '':
-        print('Exiting.\n')
-        exit(1)
+    print('Exiting.\n')
+    exit(1)
 
 filename_nodes = filename + FILENAME_NODES_EXTENSION
 filename_edges = filename + FILENAME_EDGES_EXTENSION
@@ -96,15 +94,12 @@ print('Filename used for nodes: "' + filename_nodes + '", for edges: "'
 print('\nPreparing graph...')
 graph = rcg.open_ricgraph()
 
-empty_graph = rcg.get_commandline_argument(argument='--empty_ricgraph',
-                                           argument_list=sys.argv)
-if empty_graph == '':
-    # Empty Ricgraph, choose one of the following.
-    # rcg.empty_ricgraph(answer='yes')
-    # rcg.empty_ricgraph(answer='no')
-    rcg.empty_ricgraph()
-else:
+empty_graph = rcg.get_commandline_argument_empty_ricgraph(argument_list=sys.argv)
+if empty_graph == 'yes' or empty_graph == 'no':
     rcg.empty_ricgraph(answer=empty_graph)
+else:
+    print('Exiting.\n')
+    exit(1)
 
 # Import all values as string (i.e., also the year which might otherwise be read as an int).
 df_nodes = rcg.read_dataframe_from_csv(filename=filename_nodes, datatype=str)

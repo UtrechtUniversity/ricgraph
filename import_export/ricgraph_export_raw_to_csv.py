@@ -74,16 +74,14 @@ FILENAME_EDGES_EXTENSION = '-edges.csv'
 # ################### main ###################
 # ############################################
 rcg.print_commandline_arguments(argument_list=sys.argv)
-filename = rcg.get_commandline_argument(argument='--filename',
-                                                 argument_list=sys.argv)
+
+print('\nYou need to specify a filename. This name will be used for')
+print('exporting the nodes and edges.')
+print('If you enter an empty value, this script will exit.')
+filename = rcg.get_commandline_argument_filename(argument_list=sys.argv)
 if filename == '':
-    print('\nYou need to specify a filename. This name will be used for')
-    print('exporting the nodes and edges.')
-    print('If you enter an empty value, this script will exit.')
-    filename = input('Please specify this filename: ')
-    if filename == '':
-        print('Exiting.\n')
-        exit(1)
+    print('Exiting.\n')
+    exit(1)
 
 filename_nodes = filename + FILENAME_NODES_EXTENSION
 filename_edges = filename + FILENAME_EDGES_EXTENSION
