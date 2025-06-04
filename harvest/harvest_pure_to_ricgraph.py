@@ -1728,7 +1728,7 @@ if True:
                                                     harvest_filename=harvest_file)
         rcg.write_dataframe_to_csv(filename=data_file, df=parse_persons)
 
-    parse_persons = rcg.read_dataframe_from_csv(filename=data_file)
+    parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     if parse_persons is None or parse_persons.empty:
         print(error_message)
     else:
@@ -1745,7 +1745,7 @@ if True:
     # Uncomment the next line for (some) debugging purposes.
     # You might also want to set 'PURE_PERSONS_READ_HARVEST_FROM_FILE = True'
     # at the top of this file.
-    # parse_persons = rcg.read_dataframe_from_csv(filename=data_file)
+    # parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 
     data_file = PURE_ORGANIZATIONS_DATA_FILENAME.split('.')[0] \
                 + '-' + organization + '.' \
@@ -1766,7 +1766,7 @@ if True:
                                                           harvest_filename=harvest_file)
         rcg.write_dataframe_to_csv(filename=data_file, df=parse_organizations)
 
-    parse_organizations = rcg.read_dataframe_from_csv(filename=data_file)
+    parse_organizations = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     if parse_organizations is None or parse_organizations.empty:
         print(error_message)
     else:
@@ -1809,7 +1809,7 @@ if True:
                                                        harvest_filename=harvest_file_year)
             rcg.write_dataframe_to_csv(filename=data_file_year, df=parse_resout)
 
-        parse_resout = rcg.read_dataframe_from_csv(filename=data_file_year)
+        parse_resout = rcg.read_dataframe_from_csv(filename=data_file_year, datatype=str)
         if parse_resout is None or parse_resout.empty:
             print(error_message)
         else:
@@ -1845,7 +1845,7 @@ if HARVEST_PROJECTS:
                                                      harvest_filename=harvest_file)
         rcg.write_dataframe_to_csv(filename=data_file, df=parse_projects)
 
-    parse_projects = rcg.read_dataframe_from_csv(filename=data_file)
+    parse_projects = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     if parse_projects is None or parse_projects.empty:
         print(error_message)
     else:

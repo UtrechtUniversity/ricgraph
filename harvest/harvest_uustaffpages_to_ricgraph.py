@@ -705,7 +705,7 @@ if True:              # Comment this line to comment out code block A
         parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL)
         rcg.write_dataframe_to_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME, df=parsed_results)
 
-    parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME)
+    parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME, datatype=str)
     if parsed_results is None or parsed_results.empty:
         print(error_message)
     else:
@@ -732,7 +732,7 @@ if True:
                                                             harvest_filename=UUSTAFF_HARVEST_FILENAME)
         rcg.write_dataframe_to_csv(filename=UUSTAFF_DATA_FILENAME, df=parse_uustaff)
 
-    parse_uustaff = rcg.read_dataframe_from_csv(filename=UUSTAFF_DATA_FILENAME)
+    parse_uustaff = rcg.read_dataframe_from_csv(filename=UUSTAFF_DATA_FILENAME, datatype=str)
     if parse_uustaff is None or parse_uustaff.empty:
         print(error_message)
     else:

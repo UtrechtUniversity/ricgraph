@@ -363,7 +363,7 @@ else:
                                           harvest_filename=harvest_file)
     rcg.write_dataframe_to_csv(filename=data_file, df=rsd_data)
 
-rsd_data = rcg.read_dataframe_from_csv(filename=data_file)
+rsd_data = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 if rsd_data is None or rsd_data.empty:
     print(error_message)
 else:

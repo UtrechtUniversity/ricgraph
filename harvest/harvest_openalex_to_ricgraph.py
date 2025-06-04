@@ -481,7 +481,7 @@ for year in OPENALEX_RESOUT_YEARS:
                                                           harvest_filename=harvest_file_year)
         rcg.write_dataframe_to_csv(filename=data_file_year, df=parse_persons_resout)
 
-    parse_persons_resout = rcg.read_dataframe_from_csv(filename=data_file_year)
+    parse_persons_resout = rcg.read_dataframe_from_csv(filename=data_file_year, datatype=str)
     if parse_persons_resout is None or parse_persons_resout.empty:
         print(error_message)
     else:

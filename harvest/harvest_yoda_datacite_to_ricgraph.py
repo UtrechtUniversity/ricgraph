@@ -639,7 +639,7 @@ else:
                                                            harvest_filename=harvest_file)
     rcg.write_dataframe_to_csv(filename=data_file, df=parse_yoda_data)
 
-parse_yoda_data = rcg.read_dataframe_from_csv(filename=data_file)
+parse_yoda_data = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 if parse_yoda_data is None or parse_yoda_data.empty:
     print(error_message)
 else:
