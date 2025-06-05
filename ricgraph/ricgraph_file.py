@@ -139,7 +139,7 @@ def write_dataframe_to_csv(filename: str,
 def read_dataframe_from_csv(filename: str,
                             columns: dict = None,
                             nr_rows: int = None,
-                            datatype=None,
+                            datatype=str,
                             read_index: bool = False) -> pandas.DataFrame:
     """Reads a datastructure (DataFrame) from file
 
