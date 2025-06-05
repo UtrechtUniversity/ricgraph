@@ -842,6 +842,9 @@ def create_update_node(name: str, category: str, value: str,
         if prop_name == 'history_event' or prop_name == 'source_event':
             # Do not add these to node_properties, and don't add them to _history.
             continue
+        if str(other_properties[prop_name]) == '':
+            # Do not change a value if the future value is ''.
+            continue
         # Only in case a property is in other_properties, its value may change.
         present_val = str(node[prop_name])
         if present_val != str(other_properties[prop_name]):
