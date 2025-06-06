@@ -66,7 +66,8 @@ def create_http_response(result_list: list = None,
     meta = {'count': len(result_list),
             'page': 1,                      # More pages not implemented yet.
             'per_page': len(result_list),   # Should be page length, not implemented yet.
-            'status': http_status}
+            'status': http_status,
+            'message': ''}
     if message != '':
         meta['message'] = message
 

@@ -43,6 +43,7 @@ from .ricgraph_constants import *
 from .ricgraph_cache import *
 from .ricgraph_utils import *
 from .ricgraph_file import *
+from .ricgraph_cypher import *
 from .ricgraph_graphdb import *
 from .ricgraph_researchinfo import *
 from .ricgraph_harvest import *
