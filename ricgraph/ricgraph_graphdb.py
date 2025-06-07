@@ -347,7 +347,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
 
     if key != '' and name == '' and category == '' and value == '':
         node = cypher_read_node(name=get_namepart_from_ricgraph_key(key=key),
-                                value=get_valuepart_from_ricgraph_value(key=key))
+                                value=get_valuepart_from_ricgraph_key(key=key))
         if node is None:
             return []
         else:

@@ -410,11 +410,10 @@ def cypher_read_node(name: str, value: str) -> Union[Node, None]:
                                      result_transformer_=Result.value,
                                      database_=ricgraph_databasename())
     else:
-        cypher_query += 'WHERE (node.name=$node_name) AND (node.value=$node_value) '
+        cypher_query += 'WHERE (node._key=$node_key) '
         cypher_query += 'RETURN node'
         nodes = _graph.execute_query(cypher_query,
-                                     node_name=name,
-                                     node_value=value,
+                                     node_key=key,
                                      result_transformer_=Result.value,
                                      database_=ricgraph_databasename())
     _graphdb_nr_reads += 1
