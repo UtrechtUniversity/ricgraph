@@ -42,10 +42,10 @@
 # ########################################################################
 
 
-import os.path
-import pandas
-import csv
-import json
+from os.path import isfile
+from pandas import DataFrame, read_csv
+from csv import QUOTE_ALL
+from json import load, dump
 from .ricgraph_harvest import harvest_json
 
 
@@ -86,7 +86,7 @@ def write_json_to_file(json_data: list, filename: str) -> None:
     """
     print('Saving json data to ' + filename + '... ', end='', flush=True)
     with open(filename, 'w') as fd:
-        json.dump(obj=json_data, fp=fd, ensure_ascii=False, indent=2)
+        dump(obj=json_data, fp=fd, ensure_ascii=False, indent=2)
     print('Done.')
     return
 
@@ -97,13 +97,13 @@ def read_json_from_file(filename: str) -> list:
     :param filename: filename of the file to use for writing.
     :return: list of records in json format, or empty list if nothing found.
     """
-    if not os.path.isfile(path=filename):
+    if not isfile(path=filename):
         print('read_json_from_file(): Error, file "' + filename + '" does not exist, exiting...')
         exit(1)
 
     print('Reading json data from ' + filename + '... ', end='', flush=True)
     with open(filename) as fd:
-        json_data = json.load(fp=fd)
+        json_data = load(fp=fd)
     print('Done.')
     if json_data is None:
         return []
@@ -111,7 +111,7 @@ def read_json_from_file(filename: str) -> list:
 
 
 def write_dataframe_to_csv(filename: str,
-                           df: pandas.DataFrame,
+                           df: DataFrame,
                            write_index: bool = False) -> None:
     """Write a datastructure (DataFrame) to file.
 
@@ -129,7 +129,7 @@ def write_dataframe_to_csv(filename: str,
     df.to_csv(filename,
               sep=',',
               quotechar='"',
-              quoting=csv.QUOTE_ALL,
+              quoting=QUOTE_ALL,
               encoding='utf-8',
               index=write_index)
     print('Done.')
@@ -140,7 +140,7 @@ def read_dataframe_from_csv(filename: str,
                             columns: dict = None,
                             nr_rows: int = None,
                             datatype=str,
-                            read_index: bool = False) -> pandas.DataFrame:
+                            read_index: bool = False) -> DataFrame:
     """Reads a datastructure (DataFrame) from file
 
     :param filename: csv file to read.
@@ -151,7 +151,7 @@ def read_dataframe_from_csv(filename: str,
       from the csv file (True) or not (False) for index in the DataFrame.
     :return: dataframe read.
     """
-    if not os.path.isfile(path=filename):
+    if not isfile(path=filename):
         print('read_dataframe_from_csv(): Error, file "' + filename + '" does not exist, exiting...')
         exit(1)
 
@@ -163,7 +163,7 @@ def read_dataframe_from_csv(filename: str,
 
     try:
         # Some inputfiles have problems reading in utf-8
-        csv_data = pandas.read_csv(filename,
+        csv_data = read_csv(filename,
                                    sep=',',
                                    index_col=index_col,
                                    usecols=columns,
@@ -177,7 +177,7 @@ def read_dataframe_from_csv(filename: str,
                                    encoding='utf-8')
     except BaseException:
         print('read_dataframe_from_csv(): error reading in utf-8 format, reading in latin-1 format.')
-        csv_data = pandas.read_csv(filename,
+        csv_data = read_csv(filename,
                                    sep=',',
                                    index_col=index_col,
                                    usecols=columns,

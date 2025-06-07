@@ -42,7 +42,8 @@
 # ########################################################################
 
 
-import requests
+from requests import get, post
+from requests import codes
 from .ricgraph_utils import timestamp, datetimestamp
 from .ricgraph_constants import A_LARGE_NUMBER
 
@@ -88,11 +89,11 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
 
     # Do a first harvest to determine the number of records to harvest.
     if request_type == 'get':
-        response = requests.get(url=url, headers=headers)
+        response = get(url=url, headers=headers)
     else:
-        response = requests.post(url=url, headers=headers, json=body)
+        response = post(url=url, headers=headers, json=body)
 
-    if response.status_code != requests.codes.ok:
+    if response.status_code != codes.ok:
         print('harvest_json(): error during harvest, possibly '
               + 'a missing API-key or mixed up POST body?')
         print('Status code: ' + str(response.status_code))
@@ -131,15 +132,15 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
     while records_harvested <= max_recs_to_harvest:
         if request_type == 'get':
             url_page = url + '&page=' + str(page_nr)
-            response = requests.get(url=url_page, headers=headers)
+            response = get(url=url_page, headers=headers)
         else:
             if max_recs_to_harvest - records_harvested <= chunksize:
                 # We have to harvest the last few (< chunksize).
                 body['size'] = max_recs_to_harvest - records_harvested
             body['offset'] = records_harvested
-            response = requests.post(url=url, headers=headers, json=body)
+            response = post(url=url, headers=headers, json=body)
 
-        if response.status_code != requests.codes.ok:
+        if response.status_code != codes.ok:
             print('harvest_json(): error during harvest, possibly '
                   + 'a missing API-key or mixed up POST body?')
             print('Status code: ' + str(response.status_code))

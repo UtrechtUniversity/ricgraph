@@ -42,7 +42,7 @@
 # ########################################################################
 
 
-import sys
+from sys import getsizeof
 from typing import Union
 from neo4j.graph import Node
 from .ricgraph_constants import MAX_NODES_CACHE_NODELINK, MAX_NODES_CACHE_KEY_ID
@@ -193,5 +193,5 @@ def nodes_cache_nodelink_size() -> tuple[int, float]:
     global _nodes_cache_nodelink
 
     length = len(_nodes_cache_nodelink)
-    size_kb = round(sys.getsizeof(_nodes_cache_nodelink) / 1000, 1)
+    size_kb = round(getsizeof(_nodes_cache_nodelink) / 1000, 1)
     return length, size_kb

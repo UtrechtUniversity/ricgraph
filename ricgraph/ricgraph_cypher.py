@@ -42,7 +42,7 @@
 # ########################################################################
 
 
-import pandas
+from pandas import DataFrame
 from typing import Union
 from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
@@ -221,7 +221,7 @@ def empty_ricgraph(answer: str = '') -> None:
         print('These indexes have been created:')
         records, summary, keys = _graph.execute_query('SHOW INDEXES',
                                                       database_=graphdb_databasename)
-        index_table = pandas.DataFrame(data=records, columns=keys)
+        index_table = DataFrame(data=records, columns=keys)
         print(index_table.to_string(index=False))
         print('')
     elif graphdb_name == 'memgraph':

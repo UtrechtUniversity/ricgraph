@@ -98,8 +98,8 @@ In the default configuration of Ricgraph, the following properties are included:
 """
 
 
-import numpy
-import pandas
+from numpy import nan
+from pandas import DataFrame, concat, set_option
 from typing import Union
 from .ricgraph_graphdb import (timestamp,
                                create_update_node, create_two_nodes_and_edge,
@@ -131,7 +131,7 @@ def get_ricgraph_version() -> str:
 
 
 # Note the similarity with create_nodepairs_and_edges_df().
-def update_nodes_df(nodes: pandas.DataFrame) -> None:
+def update_nodes_df(nodes: DataFrame) -> None:
     """Update the values in a node, but only if values have been changed.
     This is done for all the nodes passed in the DataFrame.
 
@@ -143,7 +143,7 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
     """
     nodes_clean = nodes.copy(deep=True)
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-    nodes_clean.replace('', numpy.nan, inplace=True)
+    nodes_clean.replace('', nan, inplace=True)
     nodes_clean.dropna(axis=0, how='any', inplace=True)
     nodes_clean.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
@@ -171,7 +171,7 @@ def update_nodes_df(nodes: pandas.DataFrame) -> None:
     return
 
 
-def create_nodepairs_and_edges_df(left_and_right_nodepairs: pandas.DataFrame) -> None:
+def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
     """Create two nodes (called 'node pairs') and two directed edges between those nodes.
     This is done for all the nodes passed. The nodes are specified in a DataFrame.
     One row in the DataFrame contains two nodes which are to be connected.
@@ -235,10 +235,10 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
     :return: None.
     """
     if isinstance(value1, str):
-        left_and_right_nodepairs = pandas.DataFrame(data={'value1': value1},
+        left_and_right_nodepairs = DataFrame(data={'value1': value1},
                                                     index=[0])
     else:
-        left_and_right_nodepairs = pandas.DataFrame(data=value1).copy(deep=True)
+        left_and_right_nodepairs = DataFrame(data=value1).copy(deep=True)
         left_and_right_nodepairs.rename(columns={value1.name: 'value1'}, inplace=True)
 
     # This makes programming more efficient
@@ -258,14 +258,14 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
                 if isinstance(other_value, str):
                     left_and_right_nodepairs[prop_name + '1'] = other_value
                 else:
-                    left_and_right_nodepairs = pandas.concat([left_and_right_nodepairs, other_value], axis='columns')
+                    left_and_right_nodepairs = concat([left_and_right_nodepairs, other_value], axis='columns')
                     left_and_right_nodepairs.rename(columns={other_value.name: prop_name + '1'}, inplace=True)
 
             if prop_name + '2' == other_name:
                 if isinstance(other_value, str):
                     left_and_right_nodepairs[prop_name + '2'] = other_value
                 else:
-                    left_and_right_nodepairs = pandas.concat([left_and_right_nodepairs, other_value], axis='columns')
+                    left_and_right_nodepairs = concat([left_and_right_nodepairs, other_value], axis='columns')
                     left_and_right_nodepairs.rename(columns={other_value.name: prop_name + '2'}, inplace=True)
 
     # Reorder a bit, starting with the last, only the name-category-value property, since they will surely exist
@@ -280,7 +280,7 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
     return
 
 
-def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
+def unify_personal_identifiers(personal_identifiers: DataFrame,
                                source_event: Union[dict, str], history_event: Union[dict, str]) -> None:
     """Unify a collection of personal identifiers (e.g. ORCID, ISNI, etc.).
     That means that every column is unified to every other column.
@@ -305,7 +305,7 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
             identifiers = personal_identifiers[[column1, column2]].copy(deep=True)
 
             # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-            identifiers.replace('', numpy.nan, inplace=True)
+            identifiers.replace('', nan, inplace=True)
             # dropna(how='any'): drop row if one or more row values contain NaN
             identifiers.dropna(axis=0, how='any', inplace=True)
             identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -350,10 +350,10 @@ def unify_personal_identifiers(personal_identifiers: pandas.DataFrame,
 # This will be executed on module initialization
 
 # Make sure DataFrames are printed with all columns on full width
-pandas.set_option('display.max_columns', None)
-pandas.set_option('display.width', 500)
+set_option('display.max_columns', None)
+set_option('display.width', 500)
 # To prevent warning
 # "FutureWarning: Downcasting behavior in `replace` is deprecated and will be removed
 # in a future version. To retain the old behavior, explicitly call `result.infer_objects(copy=False)`.
 # To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`"
-pandas.set_option('future.no_silent_downcasting', True)
+set_option('future.no_silent_downcasting', True)

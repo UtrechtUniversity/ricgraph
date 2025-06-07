@@ -42,9 +42,9 @@
 # ########################################################################
 
 
-import re
-import numpy
-import pandas
+from re import sub
+from numpy import nan
+from pandas import DataFrame
 
 
 def create_well_known_url(name: str, value: str) -> str:
@@ -90,12 +90,12 @@ def normalize_doi(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
-    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
-    identifier = re.sub(pattern=r'://', repl='', string=identifier)
-    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
-    identifier = re.sub(pattern=r'doi.org/', repl='', string=identifier)
-    identifier = re.sub(pattern=r'doi', repl='', string=identifier)
-    identifier = re.sub(pattern=r'.proxy.uu.nl/', repl='', string=identifier)
+    identifier = sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = sub(pattern=r'://', repl='', string=identifier)
+    identifier = sub(pattern=r'www.', repl='', string=identifier)
+    identifier = sub(pattern=r'doi.org/', repl='', string=identifier)
+    identifier = sub(pattern=r'doi', repl='', string=identifier)
+    identifier = sub(pattern=r'.proxy.uu.nl/', repl='', string=identifier)
     return identifier
 
 
@@ -108,10 +108,10 @@ def normalize_ror(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
-    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
-    identifier = re.sub(pattern=r'://', repl='', string=identifier)
-    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
-    identifier = re.sub(pattern=r'ror.org/', repl='', string=identifier)
+    identifier = sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = sub(pattern=r'://', repl='', string=identifier)
+    identifier = sub(pattern=r'www.', repl='', string=identifier)
+    identifier = sub(pattern=r'ror.org/', repl='', string=identifier)
     return identifier
 
 
@@ -124,10 +124,10 @@ def normalize_orcid(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
-    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
-    identifier = re.sub(pattern=r'://', repl='', string=identifier)
-    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
-    identifier = re.sub(pattern=r'orcid.org/', repl='', string=identifier)
+    identifier = sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = sub(pattern=r'://', repl='', string=identifier)
+    identifier = sub(pattern=r'www.', repl='', string=identifier)
+    identifier = sub(pattern=r'orcid.org/', repl='', string=identifier)
     identifier = identifier.upper()
     return identifier
 
@@ -141,10 +141,10 @@ def normalize_isni(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
-    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
-    identifier = re.sub(pattern=r'://', repl='', string=identifier)
-    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
-    identifier = re.sub(pattern=r'isni.org/isni/', repl='', string=identifier)
+    identifier = sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = sub(pattern=r'://', repl='', string=identifier)
+    identifier = sub(pattern=r'www.', repl='', string=identifier)
+    identifier = sub(pattern=r'isni.org/isni/', repl='', string=identifier)
     identifier = identifier.upper()
     return identifier
 
@@ -158,10 +158,10 @@ def normalize_openalex(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
-    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
-    identifier = re.sub(pattern=r'://', repl='', string=identifier)
-    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
-    identifier = re.sub(pattern=r'openalex.org/', repl='', string=identifier)
+    identifier = sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = sub(pattern=r'://', repl='', string=identifier)
+    identifier = sub(pattern=r'www.', repl='', string=identifier)
+    identifier = sub(pattern=r'openalex.org/', repl='', string=identifier)
     identifier = identifier.upper()
     return identifier
 
@@ -175,11 +175,11 @@ def normalize_scopus_author_id(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
-    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
-    identifier = re.sub(pattern=r'://', repl='', string=identifier)
-    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
-    identifier = re.sub(pattern=r'scopus.com/authid/detail.uri', repl='', string=identifier)
-    identifier = re.sub(pattern=r'\?authorid\=', repl='', string=identifier)
+    identifier = sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = sub(pattern=r'://', repl='', string=identifier)
+    identifier = sub(pattern=r'www.', repl='', string=identifier)
+    identifier = sub(pattern=r'scopus.com/authid/detail.uri', repl='', string=identifier)
+    identifier = sub(pattern=r'\?authorid\=', repl='', string=identifier)
     return identifier
 
 
@@ -192,10 +192,10 @@ def normalize_researcher_id(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
-    identifier = re.sub(pattern=r'https|http', repl='', string=identifier)
-    identifier = re.sub(pattern=r'://', repl='', string=identifier)
-    identifier = re.sub(pattern=r'www.', repl='', string=identifier)
-    identifier = re.sub(pattern=r'researcherid.com/rid/', repl='', string=identifier)
+    identifier = sub(pattern=r'https|http', repl='', string=identifier)
+    identifier = sub(pattern=r'://', repl='', string=identifier)
+    identifier = sub(pattern=r'www.', repl='', string=identifier)
+    identifier = sub(pattern=r'researcherid.com/rid/', repl='', string=identifier)
     identifier = identifier.upper()
     return identifier
 
@@ -209,8 +209,8 @@ def normalize_digital_author_id(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
-    identifier = re.sub(pattern=r'urn:nbn:nl:ui:', repl='', string=identifier)
-    identifier = re.sub(pattern=r'info:eu-repo/dai/nl/', repl='', string=identifier)
+    identifier = sub(pattern=r'urn:nbn:nl:ui:', repl='', string=identifier)
+    identifier = sub(pattern=r'info:eu-repo/dai/nl/', repl='', string=identifier)
     identifier = identifier.upper()
     return identifier
 
@@ -227,7 +227,7 @@ def normalize_email(identifier: str) -> str:
     return identifier
 
 
-def normalize_identifiers(df: pandas.DataFrame) -> pandas.DataFrame:
+def normalize_identifiers(df: DataFrame) -> DataFrame:
     """Normalize selected identifiers in the dataframe.
     Delete empty rows and duplicates.
 
@@ -237,7 +237,7 @@ def normalize_identifiers(df: pandas.DataFrame) -> pandas.DataFrame:
     df_mod = df.copy(deep=True)
 
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-    df_mod.replace('', numpy.nan, inplace=True)
+    df_mod.replace('', nan, inplace=True)
     # dropna(how='all'): drop row if all row values contain NaN
     df_mod.dropna(axis=0, how='all', inplace=True)
     df_mod.drop_duplicates(keep='first', inplace=True, ignore_index=True)

@@ -42,14 +42,14 @@
 # ########################################################################
 
 
-import os
-import sys
-import random
-import string
+from os import path
+from sys import prefix
+from random import choice
+from string import ascii_lowercase
 from datetime import datetime
-import uuid
+from uuid import uuid4
 from collections import defaultdict
-import configparser
+from configparser import ConfigParser
 from unidecode import unidecode
 from .ricgraph_constants import (RICGRAPH_INI_FILENAME,
                                  RICGRAPH_KEY_SEPARATOR, RICGRAPH_KEY_SEPARATOR_REPLACEMENT,
@@ -62,16 +62,16 @@ def get_ricgraph_ini_file() -> str:
     :return: the location of the ini file.
     """
     # Try to find RICGRAPH_INI_FILENAME in the root of the virtual environment.
-    ricgraph_ini_path = sys.prefix
-    ricgraph_ini = os.path.join(ricgraph_ini_path, RICGRAPH_INI_FILENAME)
-    if os.path.exists(ricgraph_ini):
+    ricgraph_ini_path = prefix
+    ricgraph_ini = path.join(ricgraph_ini_path, RICGRAPH_INI_FILENAME)
+    if path.exists(ricgraph_ini):
         return ricgraph_ini
 
     # Try to find RICGRAPH_INI_FILENAME in the parent directory of the venv,
     # which may happen when using a Python IDE.
-    ricgraph_ini_path_parent = os.path.dirname(ricgraph_ini_path)
-    ricgraph_ini = os.path.join(ricgraph_ini_path_parent, RICGRAPH_INI_FILENAME)
-    if os.path.exists(ricgraph_ini):
+    ricgraph_ini_path_parent = path.dirname(ricgraph_ini_path)
+    ricgraph_ini = path.join(ricgraph_ini_path_parent, RICGRAPH_INI_FILENAME)
+    if path.exists(ricgraph_ini):
         return ricgraph_ini
 
     print('Ricgraph initialization: error, Ricgraph ini file "' + RICGRAPH_INI_FILENAME + '" not found in')
@@ -133,10 +133,10 @@ def create_unique_string(length: int = 0) -> str:
         # The probability to find a duplicate within 103 trillion
         # version-4 UUIDs is one in a billion.
         # https://en.wikipedia.org/wiki/Universally_unique_identifier.
-        return str(uuid.uuid4())
+        return str(uuid4())
 
     # This will generate a pseudo random string.
-    value = ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+    value = ''.join(choice(ascii_lowercase) for _ in range(length))
     return value
 
 
@@ -394,7 +394,7 @@ def get_configfile_key(section: str, key: str) -> str:
     :param key: the name of the key.
     :return: the value of the key (can be ''), or '' if absent.
     """
-    config = configparser.ConfigParser()
+    config = ConfigParser()
     config.read(get_ricgraph_ini_file())
     try:
         value = config[section][key]
