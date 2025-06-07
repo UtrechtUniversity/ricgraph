@@ -82,13 +82,22 @@ from ricgraph_explorer_table import (get_regular_table,
 from ricgraph_explorer_restapi import *
 
 
+page_footer = ''
+
+# Various globals. Make sure all of them are in 'global_vars'.
 graph = None
-name_all = name_personal_all = category_all = source_all = resout_types_all = ''
+name_all = name_personal_all = category_all = source_all = resout_types_all = []
 name_all_datalist = category_all_datalist = source_all_datalist = resout_types_all_datalist = []
 personal_types_all = remainder_types_all = []
 privacy_statement_link = privacy_measures_link = ''
 homepage_intro_html = ''
-page_footer = ''
+global_vars = [
+    'graph', 'name_all', 'name_personal_all', 'category_all', 'source_all', 'resout_types_all',
+    'name_all_datalist', 'category_all_datalist', 'source_all_datalist', 'resout_types_all_datalist',
+    'personal_types_all', 'remainder_types_all', 'privacy_statement_link', 'privacy_measures_link',
+    'homepage_intro_html'
+]
+
 
 
 # We don't show the Swagger REST API page, we use RapiDoc for that (see restapidocpage()
@@ -1198,90 +1207,15 @@ def get_all_globals_from_app_context() -> None:
 
     :return: None.
     """
-    # This function cannot be moved to a separate file since we need
-    # all the globals that we get from the app context in this file.
-    global graph
-    global name_all, name_personal_all, category_all, source_all, resout_types_all
-    global name_all_datalist, category_all_datalist, source_all_datalist, resout_types_all_datalist
-    global personal_types_all, remainder_types_all
-    global privacy_statement_link, privacy_measures_link
-    global homepage_intro_html
+    global global_vars
 
-    if 'graph' in current_app.config:
-        graph = current_app.config.get('graph')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "graph".')
-        exit(1)
-    if 'name_all' in current_app.config:
-        name_all = current_app.config.get('name_all')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "name_all".')
-        exit(1)
-    if 'name_personal_all' in current_app.config:
-        name_personal_all = current_app.config.get('name_personal_all')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "name_personal_all".')
-        exit(1)
-    if 'category_all' in current_app.config:
-        category_all = current_app.config.get('category_all')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "category_all".')
-        exit(1)
-    if 'source_all' in current_app.config:
-        source_all = current_app.config.get('source_all')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "source_all".')
-        exit(1)
-    if 'resout_types_all' in current_app.config:
-        resout_types_all = current_app.config.get('resout_types_all')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "resout_types_all".')
-        exit(1)
-    if 'name_all_datalist' in current_app.config:
-        name_all_datalist = current_app.config.get('name_all_datalist')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "name_all_datalist".')
-        exit(1)
-    if 'category_all_datalist' in current_app.config:
-        category_all_datalist = current_app.config.get('category_all_datalist')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "category_all_datalist".')
-        exit(1)
-    if 'source_all_datalist' in current_app.config:
-        source_all_datalist = current_app.config.get('source_all_datalist')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "source_all_datalist".')
-        exit(1)
-    if 'resout_types_all_datalist' in current_app.config:
-        resout_types_all_datalist = current_app.config.get('resout_types_all_datalist')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "resout_types_all_datalist".')
-        exit(1)
-    if 'personal_types_all' in current_app.config:
-        personal_types_all = current_app.config.get('personal_types_all')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "personal_types_all".')
-        exit(1)
-    if 'remainder_types_all' in current_app.config:
-        remainder_types_all = current_app.config.get('remainder_types_all')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "remainder_types_all".')
-        exit(1)
-    if 'privacy_statement_link' in current_app.config:
-        privacy_statement_link = current_app.config.get('privacy_statement_link')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "privacy_statement_link".')
-        exit(1)
-    if 'privacy_measures_link' in current_app.config:
-        privacy_measures_link = current_app.config.get('privacy_measures_link')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "privacy_measures_link".')
-        exit(1)
-    if 'homepage_intro_html' in current_app.config:
-        homepage_intro_html = current_app.config.get('homepage_intro_html')
-    else:
-        print('get_all_globals_from_app_context(): Error, cannot find global "homepage_intro_html".')
-        exit(1)
+    for var in global_vars:
+        if var in current_app.config:
+            globals()[var] = current_app.config.get(var)
+        else:
+            print('get_all_globals_from_app_context(): Error, cannot find global "' + var + '".')
+            exit(1)
+
     return
 
 
