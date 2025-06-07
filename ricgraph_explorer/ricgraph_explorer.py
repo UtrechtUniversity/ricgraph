@@ -50,7 +50,7 @@
 # ##############################################################################
 
 
-import os
+from os import path
 from connexion import FlaskApp, options
 from flask import current_app, request, send_from_directory
 from neo4j.graph import Node
@@ -118,7 +118,7 @@ ricgraph_explorer.add_api(specification='openapi.yaml',
 # ##############################################################################
 @ricgraph_explorer.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(ricgraph_explorer.app.root_path, 'static'),
+    return send_from_directory(path.join(ricgraph_explorer.app.root_path, 'static'),
                                path='favicon.ico',
                                mimetype='image/png')
 

@@ -40,7 +40,7 @@
 # ########################################################################
 
 
-import os
+from os import path
 from connexion import FlaskApp
 from ricgraph import open_ricgraph, read_all_values_of_property, ROTYPE_ALL
 from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
@@ -58,8 +58,8 @@ def flask_check_file_exists(ricgraph_explorer_app: FlaskApp, filename: str) -> b
     # We are outside the app context, because we are not in a route().
     # That means we need to get the app context.
     this_app = ricgraph_explorer_app.app
-    file_path = os.path.join(this_app.static_folder, filename)
-    if os.path.isfile(path=file_path):
+    file_path = path.join(this_app.static_folder, filename)
+    if path.isfile(path=file_path):
         # The file exists in the static folder.
         return True
     else:
@@ -81,7 +81,7 @@ def flask_read_file(ricgraph_explorer_app: FlaskApp, filename: str) -> str:
     # We are outside the app context, because we are not in a route().
     # That means we need to get the app context.
     this_app = ricgraph_explorer_app.app
-    file_path = os.path.join(this_app.static_folder, filename)
+    file_path = path.join(this_app.static_folder, filename)
     with open(file_path, 'r') as file:
         html = file.read()
     return html

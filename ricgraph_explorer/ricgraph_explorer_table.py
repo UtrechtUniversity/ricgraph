@@ -53,7 +53,7 @@
 # ########################################################################
 
 
-import urllib.parse
+from urllib.parse import urlencode
 from math import ceil, floor
 from typing import Union
 from neo4j.graph import Node
@@ -101,7 +101,7 @@ def view_personal_information(nodes_list: list,
         value = get_valuepart_from_ricgraph_value(node['value'])
         # Don't get the 'additionalpart'.
         item = '<a href=' + url_for('optionspage') + '?'
-        item += urllib.parse.urlencode({'key': key,
+        item += urlencode({'key': key,
                                         'discoverer_mode': discoverer_mode}
                                        | extra_url_parameters) + '>'
         item += value + '</a>'
@@ -120,7 +120,7 @@ def view_personal_information(nodes_list: list,
         key = create_ricgraph_key(name=node['name'], value=node['value'])
         html += '&nbsp;&nbsp;'
         html += '<a href=' + url_for('optionspage') + '?'
-        html += urllib.parse.urlencode({'key': key,
+        html += urlencode({'key': key,
                                         'discoverer_mode': discoverer_mode}
                                        | extra_url_parameters) + '>'
         html += '<img src="' + node['url_main'] + '" alt="' + node['value']
@@ -137,7 +137,7 @@ def view_personal_information(nodes_list: list,
             continue
         key = create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('optionspage') + '?'
-        item += urllib.parse.urlencode({'key': key,
+        item += urlencode({'key': key,
                                         'discoverer_mode': discoverer_mode}
                                        | extra_url_parameters) + '>'
         item += node['value'] + '</a>'
@@ -837,7 +837,7 @@ def get_html_for_tablerow(node: Node,
             value = node['value']
 
         html += '<td><a href=' + url_for('optionspage') + '?'
-        html += urllib.parse.urlencode({'key': key,
+        html += urlencode({'key': key,
                                         'discoverer_mode': discoverer_mode}
                                        | extra_url_parameters) + '>'
         html += value + '</a></td>'

@@ -61,7 +61,7 @@
 from typing import Tuple, Union
 from neo4j.graph import Node
 from flask import url_for
-import urllib.parse
+from urllib.parse import urlencode
 from ricgraph import (get_personroot_node,
                       get_all_neighbor_nodes, read_all_nodes,
                       create_multidimensional_dict)
@@ -689,7 +689,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
         if system in recs_from_one_source:
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
-            html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+            html += urlencode({'name': name, 'category': category, 'value': value,
                                             'system1': system,
                                             'system2': 'singlesource',
                                             'view_mode': 'view_regular_table_overlap_records',
@@ -707,7 +707,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
         if system in recs_from_multiple_sources:
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
-            html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+            html += urlencode({'name': name, 'category': category, 'value': value,
                                             'system1': system,
                                             'system2': 'multiplesource',
                                             'view_mode': 'view_regular_table_overlap_records',
@@ -768,7 +768,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
         if system1 in recs_from_multiple_sources:
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
-            html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+            html += urlencode({'name': name, 'category': category, 'value': value,
                                             'system1': system1,
                                             'system2': 'multiplesource',
                                             'view_mode': 'view_regular_table_overlap_records',
@@ -788,7 +788,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             if system2 in recs_from_multiple_sources_histogram[system1]:
                 html += '<td>'
                 html += '<a href="' + url_for('resultspage') + '?'
-                html += urllib.parse.urlencode({'name': name, 'category': category, 'value': value,
+                html += urlencode({'name': name, 'category': category, 'value': value,
                                                 'system1': system1,
                                                 'system2': system2,
                                                 'view_mode': 'view_regular_table_overlap_records',

@@ -45,7 +45,7 @@
 # ########################################################################
 
 
-import json
+from json import dumps
 from ricgraph import  create_unique_string
 from ricgraph_explorer_utils import get_message
 
@@ -77,7 +77,7 @@ def get_html_for_histogram(histogram_list: list,
 
     # Note: 'histogram_list' is expected to be sorted with the largest value first.
     bar_label_threshold = histogram_list[0]['value']
-    histogram_json = json.dumps(histogram_list)
+    histogram_json = dumps(histogram_list)
 
     # The plot name should be unique, otherwise we get strange side effects.
     plot_name = 'myplot' + '_' + create_unique_string()
