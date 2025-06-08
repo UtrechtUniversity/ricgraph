@@ -606,6 +606,7 @@ __Parameters__
 * name_personal_all: all possible values of the *name* field that contain personal data in a Ricgraph node.
 * category_all: all possible values of the *category* field in a Ricgraph node.
 * personal_types_all: all category values in list *category_all* that are applicable to a person.
+* publication_types_all: all category values in list *category_all* that are applicable to a publication.
 * remainder_types_all: all other category values in list *category_all*, that is
   all values in list *category_all* minus those in *personal_types_all*.
 

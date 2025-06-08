@@ -43,7 +43,8 @@
 from os import path
 from typing import Union
 from connexion import FlaskApp
-from ricgraph import open_ricgraph, read_all_values_of_property, ROTYPE_ALL
+from ricgraph import (open_ricgraph, read_all_values_of_property,
+                      ROTYPE_ALL, ROTYPE_PUBLICATION)
 from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
                                          PRIVACY_STATEMENT_FILE, PRIVACY_MEASURES_FILE)
 
@@ -162,6 +163,15 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     set_ricgraph_explorer_global(name='category_all', value=category_all)
     set_ricgraph_explorer_global(name='source_all', value=source_all)
 
+
+    publication_types_all = list(set(ROTYPE_PUBLICATION).intersection(set(category_all)))
+    publication_types_all = sorted(publication_types_all, key=str.lower)
+    if len(publication_types_all) == 0:
+        print('Warning (possibly Error) in obtaining list with all publication types from property "category".')
+        print('Continuing with an empty list. This might give unexpected results.')
+        publication_all = []
+    set_ricgraph_explorer_global(name='publication_types_all', value=publication_types_all)
+
     name_all_datalist = '<datalist id="name_all_datalist">'
     for property_item in name_all:
         name_all_datalist += '<option value="' + property_item + '">'
@@ -169,7 +179,7 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     set_ricgraph_explorer_global(name='name_all_datalist', value=name_all_datalist)
 
     if 'competence' in category_all:
-        personal_types_all = ['person', 'competence']
+        personal_types_all = ['competence', 'person']
     else:
         personal_types_all = ['person']
     set_ricgraph_explorer_global(name='personal_types_all', value=personal_types_all)

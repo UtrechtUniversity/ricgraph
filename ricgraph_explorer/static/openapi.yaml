@@ -202,6 +202,8 @@ components:
         
         * personal_types_all: all category values in list *category_all* that are applicable to a person.
         
+        * publication_types_all: all category values in list *category_all* that are applicable to a publication.
+        
         * remainder_types_all: all other category values in list *category_all*, that is
           all values in list *category_all* minus those in *personal_types_all*.
         
@@ -212,7 +214,7 @@ components:
       required: True
       schema:
         type: "string"
-        enum: [name_all, name_personal_all, category_all, personal_types_all, remainder_types_all, source_all, resout_types_all]
+        enum: [name_all, name_personal_all, category_all, personal_types_all, publication_types_all, remainder_types_all, source_all, resout_types_all]
 
 tags:
   - name: Person
