@@ -90,8 +90,9 @@ def find_person_share_resouts_cypher(parent_node: Node,
 
     # By using the following statement we can start with both a node and its person-root node.
     personroot_node = get_personroot_node(node=parent_node)
-    cypher_query = 'MATCH (startnode_personroot:RicgraphNode)-[]'
-    cypher_query += '->(neighbor:RicgraphNode)-[]->(neighbor_personroot:RicgraphNode)'
+    cypher_query = 'MATCH (startnode_personroot:RicgraphNode)'
+    cypher_query += '-[]->(neighbor:RicgraphNode)'
+    cypher_query += '-[]->(neighbor_personroot:RicgraphNode)'
     cypher_query += 'WHERE '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'elementId(startnode_personroot)=$startnode_personroot_element_id AND '
@@ -150,9 +151,10 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
 
     # By using the following statement we can start with both a node and its person-root node.
     personroot_node = get_personroot_node(node=parent_node)
-    cypher_query = 'MATCH (startnode_personroot:RicgraphNode)-[]'
-    cypher_query += '->(neighbor:RicgraphNode)-[]->(neighbor_personroot:RicgraphNode)-[]'
-    cypher_query += '->(neighbor_organization:RicgraphNode) '
+    cypher_query = 'MATCH (startnode_personroot:RicgraphNode)'
+    cypher_query += '-[]->(neighbor:RicgraphNode)'
+    cypher_query += '-[]->(neighbor_personroot:RicgraphNode)'
+    cypher_query += '-[]->(neighbor_organization:RicgraphNode) '
     cypher_query += 'WHERE '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'elementId(startnode_personroot)=$startnode_personroot_element_id AND '
@@ -245,14 +247,14 @@ def find_organization_additional_info_cypher(parent_node: Node,
         second_neighbor_category_list += '"]'
 
     # Prepare and execute Cypher query.
-    cypher_query = 'MATCH (node)-[]->(neighbor) '
+    cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'WHERE elementId(node)=$node_element_id '
     else:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += ' AND neighbor.name = "person-root" '
 
-    cypher_query += 'MATCH (neighbor)-[]->(second_neighbor) '
+    cypher_query += 'MATCH (neighbor:RicgraphNode)-[]->(second_neighbor:RicgraphNode) '
     if len(name_list) > 0 or len(category_list) > 0 or source_system != '':
         cypher_query += 'WHERE '
     if len(name_list) > 0:

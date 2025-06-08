@@ -93,11 +93,6 @@ Node.__eq__ = node_eq
 # ##############################################################################
 # Ricgraph general Cypher functions.
 # ##############################################################################
-# These are also functions with cypher:
-# - read_all_nodes()
-# - read_all_values_of_property()
-# - get_all_neighbor_nodes()
-# ##############################################################################
 # Note the use of WHERE clauses below. Some of them uses the function elementId(),
 # which does a _direct_ lookup for a node with that id. That is the fastest way possible,
 # compared to a WHERE clause on node['_key'], which is a search.
@@ -621,7 +616,7 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     cypher_query += 'SET node_to+=$node_merge_to_properties '
     cypher_query += 'WITH node_from, node_to '
     # Only test for an edge in one direction, that is sufficient.
-    cypher_query += 'MATCH (node_from)-[:LINKS_TO]->(neighbor_node) '
+    cypher_query += 'MATCH (node_from:RicgraphNode)-[:LINKS_TO]->(neighbor_node:RicgraphNode) '
     # Prevent creating a self-relationship on node_to.
     cypher_query += 'WHERE node_to <> neighbor_node '
     cypher_query += 'MERGE (node_to)-[:LINKS_TO]->(neighbor_node) '
