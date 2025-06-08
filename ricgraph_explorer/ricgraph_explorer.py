@@ -146,7 +146,7 @@ def homepage() -> str:
     html += get_page_title(title='Ricgraph - Research in context graph')
     html += get_html_for_cardstart()
     html += 'Ricgraph, also known as Research in context graph, enables the exploration of persons, '
-    html += 'teams, their results, '
+    html += 'teams, their results, (sub-)organizations, '
     html += 'collaborations, skills, projects, and the relations between these items. '
     html += 'Ricgraph can store many types of items into a single graph (network). '
     html += 'These items can be obtained from various systems and from '
@@ -155,8 +155,9 @@ def homepage() -> str:
     html += 'items because it infers new relations between items, '
     html += 'relations that are not present in any of the separate source systems. '
     html += 'It is flexible and extensible, and can be adapted to new application areas. '
-    html += 'Only persons that have a person persistent identifier (such as ORCID or ISNI) '
-    html += 'are included in Ricgraph. '
+    html += 'Persons are only included in Ricgraph if they have a '
+    html += 'person persistent identifier (such as ORCID or ISNI) '
+    html += 'in the source systems harvested.'
 
     html += '<p/>'
     html += str(get_ricgraph_explorer_global(name='homepage_intro_html'))
