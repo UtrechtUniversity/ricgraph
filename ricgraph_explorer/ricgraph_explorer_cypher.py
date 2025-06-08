@@ -53,7 +53,7 @@
 # ########################################################################
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September 2023 to May 2025.
+# Extended Rik D.T. Janssen, February, September 2023 to June 2025.
 #
 # ########################################################################
 
@@ -63,6 +63,7 @@ from neo4j.graph import Node
 from ricgraph import (get_personroot_node, get_all_neighbor_nodes,
                       ricgraph_database, ricgraph_databasename)
 from ricgraph_explorer_constants import MAX_ITEMS
+from ricgraph_explorer_init import get_ricgraph_explorer_global
 
 
 def find_person_share_resouts_cypher(parent_node: Node,
@@ -77,8 +78,10 @@ def find_person_share_resouts_cypher(parent_node: Node,
     :param max_nr_items:
     :return:
     """
-    import ricgraph_explorer as rcg_exp
-    rcg_exp.get_all_globals_from_app_context()
+    graph = get_ricgraph_explorer_global(name='graph')
+    if graph is None:
+        print('\nfind_person_sharee_resouts_cypher(): Error: graph has not been initialized or opened.\n\n')
+        return []
 
     if category_want_list is None:
         category_want_list = []
@@ -113,7 +116,7 @@ def find_person_share_resouts_cypher(parent_node: Node,
 
     # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
     # as the common research results (in 'neighbor'). We don't use them at the moment.
-    cypher_result, _, _ = rcg_exp.graph.execute_query(cypher_query,
+    cypher_result, _, _ = graph.execute_query(cypher_query,
                                                       startnode_personroot_element_id=personroot_node.element_id,
                                                       category_want_list=category_want_list,
                                                       category_dontwant_list=category_dontwant_list,
@@ -140,8 +143,10 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
     :param max_nr_items:
     :return:
     """
-    import ricgraph_explorer as rcg_exp
-    rcg_exp.get_all_globals_from_app_context()
+    graph = get_ricgraph_explorer_global(name='graph')
+    if graph is None:
+        print('\nfind_person_sharee_resouts_cypher(): Error: graph has not been initialized or opened.\n\n')
+        return [], []
 
     # By using the following statement we can start with both a node and its person-root node.
     personroot_node = get_personroot_node(node=parent_node)
@@ -172,9 +177,10 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
 
     # Note that 'cypher_result' will contain _all_ organizations that 'parent_node'
     # collaborates with, very probably also the organizations this person works for.
-    cypher_result, _, _ = rcg_exp.graph.execute_query(cypher_query,
+    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+    cypher_result, _, _ = graph.execute_query(cypher_query,
                                                       startnode_personroot_element_id=personroot_node.element_id,
-                                                      resout_types_all=rcg_exp.resout_types_all,
+                                                      resout_types_all=resout_types_all,
                                                       database_=ricgraph_databasename())
 
     # Get the organizations from 'parent_node'.
@@ -217,8 +223,10 @@ def find_organization_additional_info_cypher(parent_node: Node,
     :param max_nr_items:
     :return:
     """
-    import ricgraph_explorer as rcg_exp
-    rcg_exp.get_all_globals_from_app_context()
+    graph = get_ricgraph_explorer_global(name='graph')
+    if graph is None:
+        print('\nfind_person_sharee_resouts_cypher(): Error: graph has not been initialized or opened.\n\n')
+        return []
 
     if name_list is None:
         name_list = []
@@ -262,7 +270,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
     if int(max_nr_items) > 0:
         cypher_query += 'LIMIT ' + max_nr_items
     # print(cypher_query)
-    cypher_result, _, _ = rcg_exp.graph.execute_query(cypher_query,
+    cypher_result, _, _ = graph.execute_query(cypher_query,
                                                       node_element_id=parent_node.element_id,
                                                       database_=ricgraph_databasename())
     if len(cypher_result) == 0:

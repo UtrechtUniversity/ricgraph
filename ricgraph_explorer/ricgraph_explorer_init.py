@@ -35,16 +35,51 @@
 # ########################################################################
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September 2023 to May 2025.
+# Extended Rik D.T. Janssen, February, September 2023 to June 2025.
 #
 # ########################################################################
 
 
 from os import path
+from typing import Union
 from connexion import FlaskApp
 from ricgraph import open_ricgraph, read_all_values_of_property, ROTYPE_ALL
 from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
                                          PRIVACY_STATEMENT_FILE, PRIVACY_MEASURES_FILE)
+
+
+# This global contains the Ricgraph Explorer app context.
+# We need it to store global variables for the app context.
+_ricgraph_explorer_app = None
+
+
+def store_ricgraph_explorer_app(app: FlaskApp) -> None:
+    """Store the Ricgraph Explorer app in a global string. We
+    need it to retrieve global variables.
+
+    :param app: the app.
+    :return: nothing.
+    """
+    global _ricgraph_explorer_app
+    if app is None:
+        print('store_ricgraph_explorer_app(): Error, no Ricgraph Explorer app passed, nothing to store.')
+        return
+
+    _ricgraph_explorer_app = app
+    return
+
+
+def retrieve_ricgraph_explorer_app() -> Union[FlaskApp, None]:
+    """Retrieve the Ricgraph Explorer app from a global string. We
+    need it to retrieve global variables.
+
+    :return: the app, or None on error.
+    """
+    global _ricgraph_explorer_app
+    if _ricgraph_explorer_app is None:
+        print('retrieve_ricgraph_explorer_app(): Error, global Ricgraph Explorer app is None, nothing to retrieve.')
+        return None
+    return _ricgraph_explorer_app
 
 
 def flask_check_file_exists(ricgraph_explorer_app: FlaskApp, filename: str) -> bool:
@@ -95,14 +130,12 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     :param ricgraph_explorer_app: The FlaskApp ricgraph_explorer.
     :return: None.
     """
-    from ricgraph_explorer import store_global_in_app_context
-
+    store_ricgraph_explorer_app(app=ricgraph_explorer_app)
     graph = open_ricgraph()
     if graph is None:
         print('Ricgraph could not be opened.')
         exit(1)
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='graph', value=graph)
+    set_ricgraph_explorer_global(name='graph', value=graph)
 
     name_all = read_all_values_of_property('name')
     if len(name_all) == 0:
@@ -124,28 +157,22 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         print('Warning (possibly Error) in obtaining list with all property values for property "_source".')
         print('Continuing with an empty list. This might give unexpected results.')
         source_all = []
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='name_all', value=name_all)
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='name_personal_all', value=name_personal_all)
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='category_all', value=category_all)
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='source_all', value=source_all)
+    set_ricgraph_explorer_global(name='name_all', value=name_all)
+    set_ricgraph_explorer_global(name='name_personal_all', value=name_personal_all)
+    set_ricgraph_explorer_global(name='category_all', value=category_all)
+    set_ricgraph_explorer_global(name='source_all', value=source_all)
 
     name_all_datalist = '<datalist id="name_all_datalist">'
     for property_item in name_all:
         name_all_datalist += '<option value="' + property_item + '">'
     name_all_datalist += '</datalist>'
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='name_all_datalist', value=name_all_datalist)
+    set_ricgraph_explorer_global(name='name_all_datalist', value=name_all_datalist)
 
     if 'competence' in category_all:
         personal_types_all = ['person', 'competence']
     else:
         personal_types_all = ['person']
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='personal_types_all', value=personal_types_all)
+    set_ricgraph_explorer_global(name='personal_types_all', value=personal_types_all)
 
     resout_types_all = []
     resout_types_all_datalist = '<datalist id="resout_types_all_datalist">'
@@ -160,21 +187,16 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         category_all_datalist += '<option value="' + property_item + '">'
     resout_types_all_datalist += '</datalist>'
     category_all_datalist += '</datalist>'
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='resout_types_all', value=resout_types_all)
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='resout_types_all_datalist', value=resout_types_all_datalist)
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='remainder_types_all', value=remainder_types_all)
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='category_all_datalist', value=category_all_datalist)
+    set_ricgraph_explorer_global(name='resout_types_all', value=resout_types_all)
+    set_ricgraph_explorer_global(name='resout_types_all_datalist', value=resout_types_all_datalist)
+    set_ricgraph_explorer_global(name='remainder_types_all', value=remainder_types_all)
+    set_ricgraph_explorer_global(name='category_all_datalist', value=category_all_datalist)
 
     source_all_datalist = '<datalist id="source_all_datalist">'
     for property_item in source_all:
         source_all_datalist += '<option value="' + property_item + '">'
     source_all_datalist += '</datalist>'
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='source_all_datalist', value=source_all_datalist)
+    set_ricgraph_explorer_global(name='source_all_datalist', value=source_all_datalist)
 
     if flask_check_file_exists(ricgraph_explorer_app=ricgraph_explorer_app,
                                filename=PRIVACY_STATEMENT_FILE):
@@ -182,19 +204,51 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         privacy_statement_link += 'Read the privacy statement</a>. '
     else:
         privacy_statement_link = ''
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='privacy_statement_link', value=privacy_statement_link)
+    set_ricgraph_explorer_global(name='privacy_statement_link', value=privacy_statement_link)
     if flask_check_file_exists(ricgraph_explorer_app=ricgraph_explorer_app,
                                filename=PRIVACY_MEASURES_FILE):
         privacy_measures_link = '<a href=/static/' + PRIVACY_MEASURES_FILE + '>'
         privacy_measures_link += 'Read the privacy measures document</a>. '
     else:
         privacy_measures_link = ''
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='privacy_measures_link', value=privacy_measures_link)
+    set_ricgraph_explorer_global(name='privacy_measures_link', value=privacy_measures_link)
 
     homepage_intro_html = flask_read_file(ricgraph_explorer_app=ricgraph_explorer_app,
                                           filename=HOMEPAGE_INTRO_FILE)
-    store_global_in_app_context(ricgraph_explorer_app=ricgraph_explorer_app,
-                                name='homepage_intro_html', value=homepage_intro_html)
+    set_ricgraph_explorer_global(name='homepage_intro_html', value=homepage_intro_html)
+    store_ricgraph_explorer_app(ricgraph_explorer_app)
     return
+
+
+# ################################################
+# Ricgraph Explorer initialization.
+# ################################################
+def set_ricgraph_explorer_global(name: str, value) -> None:
+    """Set a global variable in the app context.
+    This is required, otherwise we don't have them if we e.g. do
+    a second REST API call.
+
+    :param name: the name of the global.
+    :param value: the value of the global. Note that it does not
+      have a type since it can be any type.
+    :return: None.
+    """
+    current_app = retrieve_ricgraph_explorer_app()
+    with current_app.app.app_context():
+        current_app.app.config[name] = value
+    return
+
+
+def get_ricgraph_explorer_global(name: str):
+    """Get a global variable from the app context.
+
+    :return: the value of that variable (can be anything).
+    """
+    current_app = retrieve_ricgraph_explorer_app()
+    if name in current_app.app.config:
+        value = current_app.app.config.get(name)
+    else:
+        print('get_ricgraph_explorer_global(): Error, cannot find global "' + name + '".')
+        return None
+
+    return value

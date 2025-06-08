@@ -38,7 +38,7 @@
 # ########################################################################
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September 2023 to May 2025.
+# Extended Rik D.T. Janssen, February, September 2023 to June 2025.
 #
 # ########################################################################
 
@@ -50,6 +50,7 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       get_personroot_node, get_all_personroot_nodes,
                       convert_nodes_to_list_of_dict)
 from ricgraph_explorer_constants import MAX_ITEMS, SEARCH_STRING_MIN_LENGTH
+from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_graphdb import (find_person_share_resouts_cypher,
                                        find_person_organization_collaborations_cypher,
                                        find_organization_additional_info_cypher,
@@ -81,10 +82,6 @@ def api_person_all_information(key: str = '',
       and an HTTP response code.
     """
     # This implements view_mode = 'view_unspecified_table_everything'.
-    # graph = current_app.config.get('graph')
-    from ricgraph_explorer import get_all_globals_from_app_context
-
-    get_all_globals_from_app_context()
     if key == '':
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -116,9 +113,6 @@ def api_person_share_research_results(key: str = '',
     """
     # This implements view_mode = 'view_regular_table_person_share_resouts'.
     # See function find_person_share_resouts().
-    from ricgraph_explorer import get_all_globals_from_app_context
-
-    get_all_globals_from_app_context()
     if key == '':
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -161,9 +155,6 @@ def api_person_collaborating_organizations(key: str = '',
     """
     # This implements view_mode = 'view_regular_table_person_organization_collaborations'.
     # See function find_person_organization_collaborations().
-    from ricgraph_explorer import get_all_globals_from_app_context
-
-    get_all_globals_from_app_context()
     if key == '':
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -228,9 +219,6 @@ def api_person_enrich(key: str = '',
     """
     # This implements view_mode = 'view_regular_table_person_enrich_source_system'.
     # See function find_enrich_candidates().
-    import ricgraph_explorer as rcg_exp
-
-    rcg_exp.get_all_globals_from_app_context()
     if name_want is None:
         name_want = []
     if category_want is None:
@@ -240,12 +228,12 @@ def api_person_enrich(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(name_want) - set(rcg_exp.name_all)):
+    if result := list(set(name_want) - set(get_ricgraph_explorer_global(name='name_all'))):
         response, status = create_http_response(message='You have not specified a valid name_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(category_want) - set(rcg_exp.category_all)):
+    if result := list(set(category_want) - set(get_ricgraph_explorer_global(name='category_all'))):
         response, status = create_http_response(message='You have not specified a valid category_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -254,7 +242,7 @@ def api_person_enrich(key: str = '',
         response, status = create_http_response(message='You have not specified a source system',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if source_system not in rcg_exp.source_all:
+    if source_system not in get_ricgraph_explorer_global(name='source_all'):
         response, status = create_http_response(message='You have not specified a valid source system "'
                                                         + source_system + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -394,9 +382,6 @@ def api_organization_enrich(key: str = '',
     """
     # This implements view_mode = 'view_regular_table_organization_addinfo'.
     # See function find_organization_additional_info().
-    import ricgraph_explorer as rcg_exp
-
-    rcg_exp.get_all_globals_from_app_context()
     if name_want is None:
         name_want = []
     if category_want is None:
@@ -406,12 +391,12 @@ def api_organization_enrich(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(name_want) - set(rcg_exp.name_all)):
+    if result := list(set(name_want) - set(get_ricgraph_explorer_global(name='name_all'))):
         response, status = create_http_response(message='You have not specified a valid name_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(category_want) - set(rcg_exp.category_all)):
+    if result := list(set(category_want) - set(get_ricgraph_explorer_global(name='category_all'))):
         response, status = create_http_response(message='You have not specified a valid category_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -420,7 +405,7 @@ def api_organization_enrich(key: str = '',
         response, status = create_http_response(message='You have not specified a source system',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if source_system not in rcg_exp.source_all:
+    if source_system not in get_ricgraph_explorer_global(name='source_all'):
         response, status = create_http_response(message='You have not specified a valid source system "'
                                                         + source_system + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -511,9 +496,6 @@ def api_advanced_search(name: str = '', category: str = '', value: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
-    from ricgraph_explorer import get_all_globals_from_app_context
-
-    get_all_globals_from_app_context()
     if name == '' and category == '' and value == '':
         response, status = create_http_response(message='You have not specified any search string',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -550,9 +532,6 @@ def api_search_general(value: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
-    from ricgraph_explorer import get_all_globals_from_app_context
-
-    get_all_globals_from_app_context()
     if value == '':
         response, status = create_http_response(message='You have not specified a search string',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -600,9 +579,6 @@ def api_all_information_general(key: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
-    from ricgraph_explorer import get_all_globals_from_app_context
-
-    get_all_globals_from_app_context()
     if key == '':
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -637,9 +613,6 @@ def api_get_all_personroot_nodes(key: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
-    from ricgraph_explorer import get_all_globals_from_app_context
-
-    get_all_globals_from_app_context()
     if key == '':
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -684,9 +657,6 @@ def api_get_all_neighbor_nodes(key: str = '',
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
-    import ricgraph_explorer as rcg_exp
-
-    rcg_exp.get_all_globals_from_app_context()
     if name_want is None:
         name_want = []
     if name_dontwant is None:
@@ -700,22 +670,25 @@ def api_get_all_neighbor_nodes(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(name_want) - set(rcg_exp.name_all)):
+
+    name_all = get_ricgraph_explorer_global(name='name_all')
+    category_all = get_ricgraph_explorer_global(name='category_all')
+    if result := list(set(name_want) - set(name_all)):
         response, status = create_http_response(message='You have not specified a valid name_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(name_dontwant) - set(rcg_exp.name_all)):
+    if result := list(set(name_dontwant) - set(name_all)):
         response, status = create_http_response(message='You have not specified a valid name_dontwant: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(category_want) - set(rcg_exp.category_all)):
+    if result := list(set(category_want) - set(category_all)):
         response, status = create_http_response(message='You have not specified a valid category_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(category_dontwant) - set(rcg_exp.category_all)):
+    if result := list(set(category_dontwant) - set(category_all)):
         response, status = create_http_response(message='You have not specified a valid category_dontwant: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -750,30 +723,12 @@ def api_get_ricgraph_list(ricgraph_list_name: str = '') -> Tuple[dict, int]:
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
-    import ricgraph_explorer as rcg_exp
-
-    rcg_exp.get_all_globals_from_app_context()
     if ricgraph_list_name == '':
         response, status = create_http_response(message='You have not specified a name of a Ricgraph list',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
 
-    result_list = []
-    if ricgraph_list_name == 'name_all':
-        result_list = rcg_exp.name_all.copy()
-    if ricgraph_list_name == 'name_personal_all':
-        result_list = rcg_exp.name_personal_all.copy()
-    if ricgraph_list_name == 'category_all':
-        result_list = rcg_exp.category_all.copy()
-    if ricgraph_list_name == 'source_all':
-        result_list = rcg_exp.source_all.copy()
-    if ricgraph_list_name == 'resout_types_all':
-        result_list = rcg_exp.resout_types_all.copy()
-    if ricgraph_list_name == 'personal_types_all':
-        result_list = rcg_exp.personal_types_all.copy()
-    if ricgraph_list_name == 'remainder_types_all':
-        result_list = rcg_exp.remainder_types_all.copy()
-
+    result_list = get_ricgraph_explorer_global(name=ricgraph_list_name)
     if len(result_list) == 0:
         response, status = create_http_response(message='You have not specified a valid name of a Ricgraph list',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)

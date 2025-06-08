@@ -45,18 +45,20 @@
 # ########################################################################
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September 2023 to December 2024.
+# Extended Rik D.T. Janssen, February, September 2023 to June 2025.
 #
 # ##############################################################################
 
 
 from os import path
 from connexion import FlaskApp, options
-from flask import current_app, request, send_from_directory
+from flask import request, send_from_directory
 from neo4j.graph import Node
 from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       nodes_cache_nodelink_create, nodes_cache_nodelink_read,
-                      nodes_cache_nodelink_size, create_ricgraph_key)
+                      nodes_cache_nodelink_size, create_ricgraph_key,
+                      read_all_nodes,
+                      get_personroot_node, get_all_neighbor_nodes)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          html_preamble,
                                          page_footer_wsgi, page_footer_development,
@@ -64,8 +66,9 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          VIEW_MODE_ALL,
                                          DEFAULT_SEARCH_MODE, DEFAULT_DISCOVERER_MODE,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
-                                         RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE)
-from ricgraph_explorer_init import initialize_ricgraph_explorer
+                                         RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
+                                         MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
+from ricgraph_explorer_init import initialize_ricgraph_explorer, get_ricgraph_explorer_global
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_overlap_in_source_systems_records,
                                        find_person_share_resouts,
@@ -79,25 +82,21 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
-from ricgraph_explorer_restapi import *
+# In PyCharm, the import below generates an "Unused import statement", but it is
+# required. PyCharm doesn't seem to understand the line # ricgraph_explorer.add_api() below.
+from ricgraph_explorer_restapi import (api_search_person, api_person_all_information,
+                                       api_person_share_research_results,
+                                       api_person_collaborating_organizations,
+                                       api_search_organization, api_organization_all_information,
+                                       api_organization_information_persons_results,
+                                       api_person_enrich, api_organization_enrich,
+                                       api_search_competence, api_competence_all_information,
+                                       api_broad_search, api_advanced_search,
+                                       api_get_all_personroot_nodes, api_get_all_neighbor_nodes,
+                                       api_get_ricgraph_list)
 
 
 page_footer = ''
-
-# Various globals. Make sure all of them are in 'global_vars'.
-graph = None
-name_all = name_personal_all = category_all = source_all = resout_types_all = []
-name_all_datalist = category_all_datalist = source_all_datalist = resout_types_all_datalist = []
-personal_types_all = remainder_types_all = []
-privacy_statement_link = privacy_measures_link = ''
-homepage_intro_html = ''
-global_vars = [
-    'graph', 'name_all', 'name_personal_all', 'category_all', 'source_all', 'resout_types_all',
-    'name_all_datalist', 'category_all_datalist', 'source_all_datalist', 'resout_types_all_datalist',
-    'personal_types_all', 'remainder_types_all', 'privacy_statement_link', 'privacy_measures_link',
-    'homepage_intro_html'
-]
-
 
 
 # We don't show the Swagger REST API page, we use RapiDoc for that (see restapidocpage()
@@ -141,13 +140,12 @@ def homepage() -> str:
 
     :return: html to be rendered.
     """
-    global page_footer, source_all, category_all, homepage_intro_html
+    global page_footer
 
-    get_all_globals_from_app_context()
     html = html_body_start
     html += get_page_title(title='Ricgraph - Research in context graph')
     html += get_html_for_cardstart()
-    html += 'Ricgraph, also known as Research in context graph, enables the exploration of researchers, '
+    html += 'Ricgraph, also known as Research in context graph, enables the exploration of persons, '
     html += 'teams, their results, '
     html += 'collaborations, skills, projects, and the relations between these items. '
     html += 'Ricgraph can store many types of items into a single graph (network). '
@@ -157,9 +155,11 @@ def homepage() -> str:
     html += 'items because it infers new relations between items, '
     html += 'relations that are not present in any of the separate source systems. '
     html += 'It is flexible and extensible, and can be adapted to new application areas. '
+    html += 'Only persons that have a person persistent identifier (such as ORCID or ISNI) '
+    html += 'are included in Ricgraph. '
 
     html += '<p/>'
-    html += homepage_intro_html
+    html += str(get_ricgraph_explorer_global(name='homepage_intro_html'))
     html += '<p/>'
 
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
@@ -177,7 +177,7 @@ def homepage() -> str:
                                             'category': 'organization'
                                             })
     html += '<p/>'
-    if 'competence' in category_all:
+    if 'competence' in get_ricgraph_explorer_global(name='category_all'):
         html += create_html_form(destination='searchpage',
                                  button_text='search for a skill, expertise area or research area',
                                  hidden_fields={'search_mode': 'value_search',
@@ -225,6 +225,7 @@ def homepage() -> str:
     html += '<ul>'
     html += '<li>'
     html += 'Items from the following source systems: '
+    source_all = get_ricgraph_explorer_global(name='source_all')
     if len(source_all) == 0:
         html += '[no source systems harvested yet]'
     else:
@@ -233,6 +234,7 @@ def homepage() -> str:
     html += '</li>'
     html += '<li>'
     html += 'Types of items: '
+    name_all = get_ricgraph_explorer_global(name='name_all')
     if len(name_all) == 0:
         html += '[no items yet]'
     else:
@@ -241,6 +243,7 @@ def homepage() -> str:
     html += '</li>'
     html += '<li>'
     html += 'Types of items that contain personal data: '
+    name_personal_all = get_ricgraph_explorer_global(name='name_personal_all')
     if len(name_personal_all) == 0:
         html += '[no items that contain personal data yet]'
     else:
@@ -274,9 +277,8 @@ def searchpage() -> str:
 
     returns html to parse.
     """
-    global page_footer, name_all_datalist, category_all, category_all_datalist
+    global page_footer
 
-    get_all_globals_from_app_context()
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
     search_mode = get_url_parameter_value(parameter='search_mode',
@@ -301,14 +303,14 @@ def searchpage() -> str:
         form += '<input id="name" class="w3-input w3-border" list="name_all_datalist"'
         form += 'name=name id=name autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-        form += name_all_datalist
+        form += str(get_ricgraph_explorer_global(name='name_all_datalist'))
         form += '<br/>'
 
         form += '<label for="category">Search for a value in Ricgraph field <em>category</em>:</label>'
         form += '<input id="category" class="w3-input w3-border" list="category_all_datalist"'
         form += 'name=category id=category autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-        form += category_all_datalist
+        form += str(get_ricgraph_explorer_global(name='category_all_datalist'))
         form += '<br/>'
     if search_mode == 'value_search' and name != '':
         form += '<input id="name" type="hidden" name="name" value=' + name + '>'
@@ -331,7 +333,7 @@ def searchpage() -> str:
     radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
     radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
     radio_person_tooltip += 'Also, tables have less columns to reduce information overload. '
-    if 'competence' in category_all:
+    if 'competence' in get_ricgraph_explorer_global(name='category_all'):
         radio_person_tooltip += 'This view has been tailored to the Utrecht University staff pages, since some '
         radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
         radio_person_tooltip += 'These will be presented in a different way using lists. '
@@ -421,7 +423,6 @@ def optionspage() -> str:
     """
     global page_footer
 
-    get_all_globals_from_app_context()
     search_mode = get_url_parameter_value(parameter='search_mode',
                                           allowed_values=['exact_match', 'value_search'],
                                           default_value=DEFAULT_SEARCH_MODE)
@@ -554,7 +555,6 @@ def resultspage() -> str:
     """
     global page_footer
 
-    get_all_globals_from_app_context()
     view_mode = get_url_parameter_value(parameter='view_mode')
     key = get_url_parameter_value(parameter='key', use_escape=False)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
@@ -677,11 +677,16 @@ def create_options_page(node: Node,
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
-    global name_all_datalist, category_all_datalist, source_all_datalist
-    global category_all, resout_types_all, resout_types_all_datalist
-
     if extra_url_parameters is None:
         extra_url_parameters = {}
+
+    name_all_datalist = get_ricgraph_explorer_global(name='name_all_datalist')
+    category_all = get_ricgraph_explorer_global(name='category_all')
+    category_all_datalist = get_ricgraph_explorer_global(name='category_all_datalist')
+    source_all_datalist = get_ricgraph_explorer_global(name='source_all_datalist')
+    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+    resout_types_all_datalist = get_ricgraph_explorer_global(name='resout_types_all_datalist')
+    remainder_types_all = get_ricgraph_explorer_global(name='remainder_types_all')
 
     html = ''
     if node is None:
@@ -691,6 +696,7 @@ def create_options_page(node: Node,
         html += get_you_searched_for_card(key=node['_key'],
                                           discoverer_mode=discoverer_mode,
                                           extra_url_parameters=extra_url_parameters)
+
     html += get_page_title(title='Results page')
     key = node['_key']
     html += get_found_message(node=node,
@@ -930,8 +936,6 @@ def create_results_page(view_mode: str,
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
-    global resout_types_all, personal_types_all, remainder_types_all
-
     if name_list is None:
         name_list = []
     # The following is not used yet.
@@ -948,6 +952,7 @@ def create_results_page(view_mode: str,
         extra_url_parameters = {}
 
     max_nr_items = int(extra_url_parameters['max_nr_items'])
+    personal_types_all = get_ricgraph_explorer_global(name='personal_types_all')
     html = ''
     if (node := nodes_cache_nodelink_read(key=key)) is None:
         result = read_all_nodes(key=key)
@@ -1185,41 +1190,6 @@ def create_results_page(view_mode: str,
 
 
 # ################################################
-# Ricgraph Explorer initialization.
-# ################################################
-def store_global_in_app_context(ricgraph_explorer_app: FlaskApp, name: str, value) -> None:
-    """Stores a global variable in the app context.
-    This is required, otherwise we don't have them if we e.g. do
-    a second REST API call.
-
-    :param ricgraph_explorer_app: The FlaskApp ricgraph_explorer.
-    :param name: the name of the global.
-    :param value: the value of the global.
-    :return: None.
-    """
-    with ricgraph_explorer_app.app.app_context():
-        ricgraph_explorer_app.app.config[name] = value
-    return
-
-
-def get_all_globals_from_app_context() -> None:
-    """Get all global variables from the app context.
-
-    :return: None.
-    """
-    global global_vars
-
-    for var in global_vars:
-        if var in current_app.config:
-            globals()[var] = current_app.config.get(var)
-        else:
-            print('get_all_globals_from_app_context(): Error, cannot find global "' + var + '".')
-            exit(1)
-
-    return
-
-
-# ################################################
 # #### Entry point for WSGI Gunicorn server   ####
 # #### using Uvicorn for ASGI applications    ####
 # ################################################
@@ -1228,10 +1198,12 @@ def create_ricgraph_explorer_app():
 
     initialize_ricgraph_explorer(ricgraph_explorer_app=ricgraph_explorer)
     page_footer = ''
+    privacy_statement_link_loc = get_ricgraph_explorer_global(name='privacy_statement_link')
+    privacy_measures_link_loc = get_ricgraph_explorer_global(name='privacy_measures_link')
     if privacy_statement_link != '' or privacy_measures_link != '':
         page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
-        page_footer += privacy_statement_link
-        page_footer += privacy_measures_link
+        page_footer += privacy_statement_link_loc
+        page_footer += privacy_measures_link_loc
         page_footer += '</footer>'
     page_footer += page_footer_wsgi
 
@@ -1244,6 +1216,8 @@ def create_ricgraph_explorer_app():
 if __name__ == "__main__":
     initialize_ricgraph_explorer(ricgraph_explorer_app=ricgraph_explorer)
     page_footer = ''
+    privacy_statement_link = get_ricgraph_explorer_global(name='privacy_statement_link')
+    privacy_measures_link = get_ricgraph_explorer_global(name='privacy_measures_link')
     if privacy_statement_link != '' or privacy_measures_link != '':
         page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
         page_footer += privacy_statement_link

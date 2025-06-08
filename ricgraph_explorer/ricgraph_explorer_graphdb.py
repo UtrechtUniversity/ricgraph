@@ -53,7 +53,7 @@
 # ########################################################################
 #
 # Original version Rik D.T. Janssen, January 2023.
-# Extended Rik D.T. Janssen, February, September 2023 to May 2025.
+# Extended Rik D.T. Janssen, February, September 2023 to June 2025.
 #
 # ########################################################################
 
@@ -67,6 +67,7 @@ from ricgraph import (get_personroot_node,
                       create_multidimensional_dict)
 from ricgraph_explorer_constants import (MAX_NR_NODES_TO_ENRICH,
                                          RESEARCH_OUTPUT_COLUMNS, DETAIL_COLUMNS)
+from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
                                      get_you_searched_for_card)
@@ -204,13 +205,10 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
-    import ricgraph_explorer as rcg_exp
-    rcg_exp.get_all_globals_from_app_context()
-
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
-    if source_system not in rcg_exp.source_all:
+    if source_system not in get_ricgraph_explorer_global(name='source_all'):
         html = get_message(message='You have not specified a valid source system "'
                                    + source_system + '".')
         return html
