@@ -11,7 +11,7 @@
 #
 # This script simplifies running Ricgraph harvest scripts by 
 # calling bash scripts that are wrappers around these harvest scripts.
-# This script harvests UU and VUA sources.
+# This script harvests UU, VUA, and DUT sources.
 # It also dumps the graph database and modifies organization names.
 #
 # You may want to start this script as follows:
@@ -114,12 +114,24 @@ exit_on_error $?
 # Make sure neo4j is up and running.
 sleep 120
 
+./multiple_harvest_organization.sh --organization DUT --empty_ricgraph no
+exit_on_error $?
+
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-uu+vu+dut-$(date +%y%m%d-%H%M)
+sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+exit_on_error $?
+# Make sure neo4j is up and running.
+sleep 120
+
 cd ../enhance || exit 1
 
 ./rename_organizations.sh --organization UU
 exit_on_error $?
 
 ./rename_organizations.sh --organization VUA
+exit_on_error $?
+
+./rename_organizations.sh --organization DUT
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-all-$(date +%y%m%d-%H%M)
