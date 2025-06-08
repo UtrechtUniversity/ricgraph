@@ -38,7 +38,7 @@ exit_on_error() {
 }
 
 
-echo "This script harvests a number of sources for Ricgraph from both UU and VUA."
+echo "This script harvests a number of sources for Ricgraph from UU, VUA, and DUT."
 
 # Test if we can use 'sudo' without password.
 echo ""
