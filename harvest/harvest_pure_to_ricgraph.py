@@ -314,6 +314,7 @@ ROTYPE_MAPPING_PURE = {
     ROTYPE_PREFIX_PURE + 'contributiontojournal/systematicreview': rcg.ROTYPE_REVIEW,
     ROTYPE_PREFIX_PURE + 'memorandum/academicmemorandum': rcg.ROTYPE_MEMORANDUM,
     ROTYPE_PREFIX_PURE + 'methoddescription': rcg.ROTYPE_METHOD_DESCRIPTION,
+    ROTYPE_PREFIX_PURE + 'nontextual/artefact': rcg.ROTYPE_ARTEFACT,
     ROTYPE_PREFIX_PURE + 'nontextual/database': rcg.ROTYPE_DATASET,
     ROTYPE_PREFIX_PURE + 'nontextual/design': rcg.ROTYPE_DESIGN,
     ROTYPE_PREFIX_PURE + 'nontextual/digitalorvisualproducts': rcg.ROTYPE_DIGITAL_VISUAL_PRODUCT,

@@ -110,6 +110,7 @@ MAX_NR_HISTORYITEMS_TO_ADD = 50
 # https://www.universiteitenvannederland.nl/files/documenten/Domeinen/Onderzoek/SEP_2021-2027.pdf,
 # Appendix E2.
 ROTYPE_ABSTRACT = 'abstract'
+ROTYPE_ARTEFACT = 'artefact'
 ROTYPE_BOOK = 'book'
 ROTYPE_BOOKCHAPTER = 'book chapter'
 ROTYPE_CONFERENCE_ARTICLE = 'conference article'
@@ -139,6 +140,7 @@ ROTYPE_THESIS = 'thesis'
 ROTYPE_WEBSITE = 'website or web publication'
 
 ROTYPE_ALL = [ROTYPE_ABSTRACT,
+              ROTYPE_ARTEFACT,
               ROTYPE_BOOK,
               ROTYPE_BOOKCHAPTER,
               ROTYPE_CONFERENCE_ARTICLE,
