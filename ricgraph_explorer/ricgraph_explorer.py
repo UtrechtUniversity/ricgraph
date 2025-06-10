@@ -1201,7 +1201,7 @@ def create_ricgraph_explorer_app():
     page_footer = ''
     privacy_statement_link_loc = get_ricgraph_explorer_global(name='privacy_statement_link')
     privacy_measures_link_loc = get_ricgraph_explorer_global(name='privacy_measures_link')
-    if privacy_statement_link != '' or privacy_measures_link != '':
+    if privacy_statement_link_loc != '' or privacy_measures_link_loc != '':
         page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
         page_footer += privacy_statement_link_loc
         page_footer += privacy_measures_link_loc
