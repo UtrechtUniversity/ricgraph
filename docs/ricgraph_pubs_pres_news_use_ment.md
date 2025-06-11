@@ -59,6 +59,7 @@ To subscribe to the newsletter email list, go to [Ricgraph Contact](../README.md
 |------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | April 2024 | [Ricgraph newsletter April 2024. Journal article - Ricgraph: A flexible and extensible graph to explore research in context](newsletters/240400-Ricgraph_newsletter_April_2024.md) |
 | July 2024  | [Ricgraph newsletter July 2024](newsletters/240700-Ricgraph_newsletter_July_2024.md)                                                                                               |
+| June 2025  | [Ricgraph newsletter June 2025](newsletters/250600-Ricgraph_newsletter_June_2025.md)
 
 ## Ricgraph projects with students
 
