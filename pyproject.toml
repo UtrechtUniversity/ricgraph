@@ -7,7 +7,7 @@ packages = ["ricgraph"]
 
 [project]
 name = "ricgraph"
-version = "2.12"
+version = "2.13"
 authors = [
   { name="Rik D.T. Janssen" },
 ]
@@ -18,7 +18,6 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
 ]
 license = "MIT"
 keywords = ["Research in context graph", "Ricgraph", "Ricgraph Explorer",
