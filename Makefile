@@ -669,12 +669,19 @@ run_ricgraph_explorer:
 
 run_python_script:
 	@echo ""
-	@echo "This target will run Ricgraph Python script $(python_script)."
-	@echo "You need to specify the path to the script, in a subdirectory"
+	@echo "This target will run Ricgraph Python script"
+	@echo -n "$(python_script)"
+	@if [ "$(cmd_args)" = '' ]; then echo "."; else echo " $(cmd_args)."; fi
+	@echo ""
+	@echo "You can use command line parameter 'python_script'"
+	@echo "to specify another script, or 'cmd_args' to pass arguments"
+	@echo "to the script (e.g. cmd_args='--option1 value1 --option2 value2')."
+	@echo "You will need to specify the path to the script, in a subdirectory"
 	@echo "of the directory this Makefile is in."
 	@echo "The output will be both on screen as well as in file"
 	@echo "$(python_script_log)."
 	@echo "If you don't have write permission to this file, you will get an error."
+	@echo ""
 	@echo "It may take a while before the output appears on screen,"
 	@echo "this is due to buffering of the output."
 	$(call are_you_sure)
@@ -683,30 +690,37 @@ run_python_script:
 	@if [ ! -f $(python_cmd_venv) ]; then echo "Error: python '$(python_cmd_venv)' does not exist."; exit 1; fi
 	@# Check if the path to 'python_script_log' starts with '/'. If so, it is considered a full path.
 	@if [ $(shell echo $(python_script_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) 2>&1 | tee $(python_script_log); \
+		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) $(cmd_args) 2>&1 | tee $(python_script_log); \
 	else \
-		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) 2>&1 | tee ../$(python_script_log); \
+		cd $(dir $(python_script)); ../$(python_cmd_venv) $(notdir $(python_script)) $(cmd_args) 2>&1 | tee ../$(python_script_log); \
 	fi
 
 
 run_bash_script:
 	@echo ""
-	@echo "This target will run Ricgraph bash script $(bash_script)."
-	@echo "You need to specify the path to the script, in a subdirectory"
+	@echo "This target will run Ricgraph bash script"
+	@echo -n "$(bash_script)"
+	@if [ "$(cmd_args)" = '' ]; then echo "."; else echo " $(cmd_args)."; fi
+	@echo ""
+	@echo "You can use command line parameter 'bash_script'"
+	@echo "to specify another script, or 'cmd_args' to pass arguments"
+	@echo "to the script (e.g. cmd_args='--option1 value1 --option2 value2')."
+	@echo "You will need to specify the path to the script, in a subdirectory"
 	@echo "of the directory this Makefile is in."
 	@echo "The output will be both on screen as well as in file"
 	@echo "$(bash_script_log)."
 	@echo "If you don't have write permission to this file, you will get an error."
 	@echo "It may take a while before the output appears on screen,"
+	@echo ""
 	@echo "this is due to buffering of the output."
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(bash_script) ]; then echo "Error: script '$(bash_script)' does not exist."; exit 1; fi
 	@# Check if the path to 'bash_script_log' starts with '/'. If so, it is considered a full path.
 	@if [ $(shell echo $(bash_script_log) | cut -c1) = '/' ]; then \
-		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) 2>&1 | tee $(bash_script_log); \
+		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) $(cmd_args) 2>&1 | tee $(bash_script_log); \
 	else \
-		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) 2>&1 | tee ../$(bash_script_log); \
+		cd $(dir $(bash_script)); ./$(notdir $(bash_script)) $(cmd_args) 2>&1 | tee ../$(bash_script_log); \
 	fi
 
 
