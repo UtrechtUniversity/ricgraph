@@ -47,7 +47,8 @@ from typing import Union
 from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
 from .ricgraph_constants import A_LARGE_NUMBER
-from .ricgraph_utils import *
+from .ricgraph_utils import (get_ricgraph_ini_file, get_configfile_key,
+                             create_ricgraph_key, datetimestamp)
 from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
                              nodes_cache_key_id_delete_id, nodes_cache_key_id_empty)
 
@@ -112,7 +113,7 @@ def open_ricgraph() -> Driver:
     """
     global _graph
 
-    print('Opening Ricgraph.\n')
+    print('Opening Ricgraph at ' + datetimestamp() + '.\n')
     try:
         _graph = GraphDatabase.driver(_GRAPHDB_URL,
                                       auth=(_GRAPHDB_USER, _GRAPHDB_PASSWORD))
@@ -141,7 +142,7 @@ def close_ricgraph() -> None:
         print('\nclose_ricgraph(): Error: graph has not been initialized or opened.\n\n')
         return
 
-    print('Closing Ricgraph.\n')
+    print('Closing Ricgraph at ' + datetimestamp() + '.\n')
     _graph.close()
     return
 
@@ -178,7 +179,7 @@ def empty_ricgraph(answer: str = '') -> None:
         print('empty_ricgraph(): Ricgraph will not be emptied.\n')
         return
 
-    print('empty_ricgraph(): Ricgraph will be emptied.\n')
+    print('empty_ricgraph(): Ricgraph will be emptied at ' + datetimestamp() + '.\n')
     graphdb_name = ricgraph_database()
     graphdb_databasename = ricgraph_databasename()
 
