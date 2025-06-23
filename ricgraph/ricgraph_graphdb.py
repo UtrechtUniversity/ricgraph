@@ -51,7 +51,11 @@ from .ricgraph_cypher import (cypher_create_node, cypher_read_node,
                               cypher_merge_nodes,
                               get_all_neighbor_nodes,
                               ricgraph_nr_edges_of_node)
-from .ricgraph_utils import *
+from .ricgraph_utils import (get_ricgraph_ini_file, get_configfile_key,
+                             convert_string_to_ascii, create_unique_string, datetimestamp,
+                             create_ricgraph_key, create_ricgraph_value,
+                             get_namepart_from_ricgraph_key, get_valuepart_from_ricgraph_key,
+                             get_valuepart_from_ricgraph_value, get_additionalpart_from_ricgraph_value)
 from .ricgraph_researchinfo import create_well_known_url
 
 

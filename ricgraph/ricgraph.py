@@ -101,8 +101,8 @@ In the default configuration of Ricgraph, the following properties are included:
 from numpy import nan
 from pandas import DataFrame, concat, set_option
 from typing import Union
-from .ricgraph_graphdb import (timestamp,
-                               create_update_node, create_two_nodes_and_edge,
+from .ricgraph_utils import timestamp
+from .ricgraph_graphdb import (create_update_node, create_two_nodes_and_edge,
                                RICGRAPH_NODEADD_MODE,
                                RICGRAPH_PROPERTIES_STANDARD, RICGRAPH_PROPERTIES_ADDITIONAL)
 
