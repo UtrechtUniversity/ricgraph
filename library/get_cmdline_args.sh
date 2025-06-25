@@ -17,8 +17,8 @@
 # 
 # Options:
 #         -o, --organization [organization]
-#                 The organization to harvest. Specify the organization
-#                 abbreviation.
+#                 The organization to run this script for.
+#                 Specify the organization abbreviation.
 #         -e, --empty_ricgraph [yes|no]
 #                 Whether to empty Ricgraph before harvesting the
 #                 first organization. If absent, Ricgraph will not be emptied.
@@ -46,8 +46,8 @@
 usage="Usage:\n"
 usage+="$0 [options]\n\nOptions:"
 usage+="\n\t-o, --organization [organization]"
-usage+="\n\t\tThe organization to harvest. Specify the organization"
-usage+="\n\t\tabbreviation."
+usage+="\n\t\tThe organization to run this script for."
+usage+="\n\t\tSpecify the organization abbreviation."
 usage+="\n\t-e, --empty_ricgraph [yes|no]"
 usage+="\n\t\tWhether to empty Ricgraph before harvesting the"
 usage+="\n\t\tfirst organization. If absent, Ricgraph will not be emptied."

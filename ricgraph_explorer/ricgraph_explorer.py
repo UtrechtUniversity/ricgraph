@@ -155,8 +155,8 @@ def homepage() -> str:
     html += 'items because it infers new relations between items, '
     html += 'relations that are not present in any of the separate source systems. '
     html += 'It is flexible and extensible, and can be adapted to new application areas. '
-    html += 'Persons are only included in Ricgraph if they have a '
-    html += 'person persistent identifier (such as ORCID or ISNI) '
+    html += 'Persons are only included in Ricgraph if they have at least '
+    html += 'one person identifier (such as ORCID, ISNI, or a source system identifier) '
     html += 'in the source systems harvested.'
 
     html += '<p/>'
