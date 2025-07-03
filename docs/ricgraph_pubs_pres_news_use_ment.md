@@ -81,6 +81,7 @@ If you use Ricgraph, please let us know so that we can add it to this page.
 | July 2023            | Ricgraph has been used to test the [Elsevier Data Monitor](https://www.elsevier.com/products/data-monitor)                                                                     |
 | July 2023            | Ricgraph has been used to test the [Elsevier Grant Award API](https://epdos.nl/pilots/grants-monitor)                                                                          |
 | February - June, 2025 | Ricgraph is used in an [University of Applied Sciences Utrecht innovation project](#ricgraph-projects-with-students) |
+| June, 2025 | Ricgraph has been used in a [GraspOS (next Generation Research Assessment to Promote Open Science) EU project](https://cordis.europa.eu/project/id/101095129) in a report *Broadening open science: Data affordances for assessing transdisciplinary research* ([DOI](https://doi.org/10.5281/zenodo.15727675) or [pdf](uses/250624-GraspOS-Broadening_open_science_Data_affordances_for_assessing_transdisciplinary_research.pdf)).
 
 ## Ricgraph mentions
 
