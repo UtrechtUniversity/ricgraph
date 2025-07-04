@@ -804,6 +804,7 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
         if label != '':
             for persons in harvest_item[label]:
                 author_name = ''
+                author_externalorg_flag = False
                 if 'person' in persons:                             # internal person
                     if 'uuid' not in persons['person']:
                         # There must be an uuid, otherwise skip
@@ -819,7 +820,17 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                        and 'text' in persons['externalPerson']['name'] \
                        and 'value' in persons['externalPerson']['name']['text'][0]:
                         author_name = persons['externalPerson']['name']['text'][0]['value']
-                        author_name += ' (' + organization + ' external person)'
+                        # 2025-07-04: The more sources we harvest, the less useful this is.
+                        # author_name += ' (' + organization + ' external person)'
+
+                        # Get the external organization of this person.
+                        # There may be many externalOrganizations, for now we only take the first.
+                        if 'externalOrganisations' in persons:
+                            if 'name' in persons['externalOrganisations'][0] \
+                               and 'text' in persons['externalOrganisations'][0]['name'] \
+                               and 'value' in persons['externalOrganisations'][0]['name']['text'][0]:
+                                author_externalorg_flag = True
+                                author_externalorg_name = persons['externalOrganisations'][0]['name']['text'][0]['value']
                 elif 'authorCollaboration' in persons:             # author collaboration
                     if 'uuid' not in persons['authorCollaboration']:
                         # There must be an uuid, otherwise skip
@@ -847,6 +858,8 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                                                              research_output_mapping=ROTYPE_MAPPING_PURE),
                               'AUTHOR_UUID': author_uuid,
                               'FULL_NAME': author_name}
+                if author_externalorg_flag:
+                    parse_line['AUTHOR_EXTERNALORG_NAME'] = author_externalorg_name
                 parse_chunk.append(parse_line)
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
@@ -1422,6 +1435,33 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                      'source_event2', 'history_event2']]
 
     print('The following external persons and author collaborations from '
+          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+    print(resout)
+    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
+
+    # This is specifically for external persons and external organizations. We only
+    # find these while parsing research outputs, not while parsing persons.
+    print('Determining external organizations from external persons...')
+    resout = parsed_content[['AUTHOR_UUID',
+                             'AUTHOR_EXTERNALORG_NAME']].copy(deep=True)
+    resout['AUTHOR_EXTERNALORG_NAME'] = resout['AUTHOR_EXTERNALORG_NAME'].replace('', numpy.nan)
+    resout.dropna(axis=0, how='any', inplace=True)
+    resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    history_event += ' Inserted external organization from ' + HARVEST_SOURCE + ' external author.'
+
+    resout.rename(columns={'AUTHOR_UUID': 'value1',
+                           'AUTHOR_EXTERNALORG_NAME': 'value2'}, inplace=True)
+    new_resout_columns = {'name1': 'PURE_UUID_PERS',
+                          'category1': 'person',
+                          'name2': 'ORGANIZATION_NAME',
+                          'category2': 'organization',
+                          'source_event2': HARVEST_SOURCE,
+                          'history_event2': history_event}
+    resout = resout.assign(**new_resout_columns)
+    resout = resout[['name1', 'category1', 'value1',
+                     'name2', 'category2', 'value2',
+                     'source_event2', 'history_event2']]
+    print('The following external organizations from external persons from '
           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(resout)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
