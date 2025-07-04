@@ -161,6 +161,8 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
 
         # The following results in names and ORCID's of contributors.
         # In case there are no names, the software will be added anyway to Ricgraph.
+        # 'Contributor' contains a number of fields. We add them in one go.
+        # Now it has orcid, affiliation, given_names, and family_names.
         contributor = pandas.json_normalize(software_package, 'contributor')
 
         if package_doi_type == 'version DOI':
@@ -287,10 +289,19 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     print(software)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=software)
 
-    # Note: not implemented yet: a person contribution to a software package, and that person
-    # is working for two different organizations. In this case, the json harvest will have a field:
-    # "affiliation": "Radboud University Nijmegen, Utrecht University".
-    # I expect this to change in RSD the near future.
+    # As of the current implementation of RSD (2023-2025), RSD has organizations in two
+    # different places:
+    # 1. As part of 'contributor', i.e., part of a person.
+    #    Then its name is 'affliation'. This is a free text field in RSD.
+    #    A person has one 'affiliation' field.
+    # 2. As part of the software item.
+    #    This is a field where you can enter a ROR, an organization name that is checked
+    #    by RSD, or a free field.
+    #    A software item can have 1 or more organizations.
+    # In Ricgraph, I use organizations of persons, so (1) is implemented below.
+    # This does not allow for more than one organization for a person. Unless someone
+    # decides to enter multiple organizations in the same field, which is unexpected.
+    # I cannot do (2), since I would not know which organization belongs to which person.
     organizations = parsed_content[['ORCID', 'ORGANIZATION_NAME']].copy(deep=True)
     organizations.dropna(axis=0, how='any', inplace=True)
     organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
