@@ -1,17 +1,32 @@
-"orgname_old","orgname_new"
-"VUA University: Vrije Universiteit Amsterdam","VUA Vrije Universiteit Amsterdam"
-"VUA Hierarchy: VU - Other Units","VUA Hierarchy: Other Units"
-"VUA Hierarchy: VU Faculties","VUA Hierarchy: Faculties"
-"VUA Hierarchy: VU Faculty Research","VUA Hierarchy: Faculty Research"
-"VUA Hierarchy: VU Research Institutes","VUA Hierarchy: Research Institutes"
-"VUA Department: Executive board Vrije Universiteit","VUA Services: Executive Board"
-"VUA Department: University Library","VUA Services: University Library"
-"VUA Department: Institutional Affairs","VUA Services: Institutional Affairs"
-"VUA Department: Student & Educational Affairs","VUA Services: Student & Educational Affairs"
-
-"VU University Amsterdam","VUA Vrije Universiteit Amsterdam"
-"Vrije Universiteit Amsterdam","VUA Vrije Universiteit Amsterdam"
-
-"Academic Center for Dentistry Amsterdam","VUA Faculty: Academic Centre for Dentistry Amsterdam"
-"Academic Centre for Dentistry Amsterdam - ACTA","VUA Faculty: Academic Centre for Dentistry Amsterdam"
-
+orgname_old,orgname_new
+VU Vrije Universiteit - Athena Instituut,VUA Department: Athena Institute
+"Athena Institute, Faculty of Science, Vrije Universiteit Amsterdam, The Netherlands.",VUA Department: Athena Institute
+"Faculty of Science, Athena Institute, Vrije Universiteit Amsterdam, Amsterdam, The Netherlands",VUA Department: Athena Institute
+" Athena Institute, Vrije Universiteit Amsterdam",VUA Department: Athena Institute
+Academic Center for Dentistry Amsterdam,VUA Faculty: Academic Centre for Dentistry Amsterdam
+Academic Centre for Dentistry Amsterdam - ACTA,VUA Faculty: Academic Centre for Dentistry Amsterdam
+"Academic Centre for Dentistry Amsterdam, Amsterdam",VUA Faculty: Academic Centre for Dentistry Amsterdam
+"Faculty of Behavioural & Movement Sciences, Vrije Universiteit Amsterdam, Amsterdam, the Netherlands.",VUA Faculty: Faculty of Behavioural and Movement Sciences
+Vrije Universiteit Amsterdam - Faculty of Humanities,VUA Faculty: Faculty of Social Sciences and Humanities
+VUA Hierarchy: VU Faculties,VUA Hierarchy: Faculties
+VUA Hierarchy: VU Faculty Research,VUA Hierarchy: Faculty Research
+VUA Hierarchy: VU - Other Units,VUA Hierarchy: Other Units
+VUA Hierarchy: VU Research Institutes,VUA Hierarchy: Research Institutes
+VUA Department: Executive board Vrije Universiteit,VUA Services: Executive Board
+VUA Department: Institutional Affairs,VUA Services: Institutional Affairs
+VUA Department: Student & Educational Affairs,VUA Services: Student & Educational Affairs
+VUA Department: University Library,VUA Services: University Library
+VUA University: Vrije Universiteit Amsterdam,VUA Vrije Universiteit Amsterdam
+VU University Amsterdam,VUA Vrije Universiteit Amsterdam
+Vrije Universiteit Amsterdam,VUA Vrije Universiteit Amsterdam
+"UvA, Amsterdam",VUA Vrije Universiteit Amsterdam
+Vrij Universiteit Amsterdam,VUA Vrije Universiteit Amsterdam
+Vrije Universiteit  Amsterdam,VUA Vrije Universiteit Amsterdam
+Vrije Universiteit Amsterdam,VUA Vrije Universiteit Amsterdam
+Vrije Universiteit Amsterdam*,VUA Vrije Universiteit Amsterdam
+"Vrije Universiteit Amsterdam, Amsterdam",VUA Vrije Universiteit Amsterdam
+"Vrije Universiteit, Amsterdam",VUA Vrije Universiteit Amsterdam
+Vrije Universititeit Amsterdam,VUA Vrije Universiteit Amsterdam
+ Vrije Universiteit Amsterdam,VUA Vrije Universiteit Amsterdam
+"VU University Amsterdam, Amsterdam",VUA Vrije Universiteit Amsterdam
+VU AMSTERDAM,VUA Vrije Universiteit Amsterdam

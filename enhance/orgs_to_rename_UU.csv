@@ -1,53 +1,60 @@
-"orgname_old","orgname_new"
-"UU University: Universiteit Utrecht","UU Utrecht University"
-"UU Faculty: Faculteit Geowetenschappen","UU Faculty: Geosciences"
-"UU Faculty: Faculteit Geesteswetenschappen","UU Faculty: Humanities"
-"UU Faculty: Faculteit REBO","UU Faculty: Law, Economics and Governance"
-"UU Faculty: Faculteit Betawetenschappen","UU Faculty: Science"
-"UU Faculty: Faculteit Sociale Wetenschappen","UU Faculty: Social and Behavioural Sciences"
-"UU Faculty: Faculteit Diergeneeskunde","UU Faculty: Veterinary Medicine"
-"UU Faculties / Services: Faculteiten","UU Hierarchy: Faculties"
-"UU Faculties / Services: University Service Departments","UU Hierarchy: University Service Departments"
-"UU Faculties / Services: Corporate Offices","UU Hierarchy: University Corporate Offices"
-"UU Faculties / Services: Utrecht University Library","UU Services: University Library"
-"UU Faculty: Student & Academic Affairs Office","UU Services: Student & Academic Affairs Office"
-"UU Faculty: Information & Technology Services","UU Services: Information & Technology Services"
-"UU Faculty: Centre for Science Communications and Culture","UU Services: Centre for Science Communications and Culture"
-"UU Faculty: Academic Services","UU Services: Academic Services"
-"UU Department: University Museum","UU Services: University Museum"
-
-"Utrecht University, Faculty of Geosciences, Utrecht, the Netherlands","UU Faculty: Geosciences"
-
-"UU Geosciences","UU Faculty: Geosciences"
-"UU Humanities","UU Faculty: Humanities"
+orgname_old,orgname_new
+UU Medicine,University Medical Center Utrecht
+Faculty of Medicine of Utrecht University,University Medical Center Utrecht
+University Medical Centre Utrecht,University Medical Center Utrecht
+Utrecht University Medical Center,University Medical Center Utrecht
+"Environmental hydrogeology, Department of Earth Sciences, Utrecht University, The Netherlands",UU Chair/Subunit: Hydrogeology
+Utrecht University @ BonvinLab,UU Chair/Subunit: Sub NMR Spectroscopy
+"NMR Spectroscopy, Bijvoet Centre for Biomolecular Research, Utrecht University",UU Chair/Subunit: Sub NMR Spectroscopy
+Organic Chemistry & Catalysis - Institute for Sustainable and Circular Chemistry - Utrecht University,UU Chair/Subunit: Sub Organic Chemistry and Catalysis
+Organic Chemistry & Catalysis  - Institute for Sustainable and Circular Chemistry - Utrecht University,UU Chair/Subunit: Sub Organic Chemistry and Catalysis
+"Department of Earth Sciences, Faculty of Geosciences, Utrecht University, Princetonlaan 8a, 3584 CB, Utrecht, the Netherlands.",UU Department: Dep Aardwetenschappen
+Utrecht University - Department of Earth Sciences,UU Department: Dep Aardwetenschappen
+Utrecht University School of Governance,UU Department: Dep Bestuurs- en Organisatiewetenschap
+"Copernicus Institute of Sustainable Development, Utrecht University",UU Department: Dep of Sustainable Development
+Utrecht Institute of Linguistics (UiL OTS),"UU Department: Dep Talen, Literatuur en Communicatie"
+UU Faculty: Faculteit Geowetenschappen,UU Faculty: Geosciences
+"Utrecht University, Faculty of Geosciences, Utrecht, the Netherlands",UU Faculty: Geosciences
+UU Geosciences,UU Faculty: Geosciences
+UU Faculty: Faculteit Geesteswetenschappen,UU Faculty: Humanities
+UU Humanities,UU Faculty: Humanities
+UU Faculty: Faculteit REBO,"UU Faculty: Law, Economics and Governance"
 "UU Law, Economics and Governance","UU Faculty: Law, Economics and Governance"
-"UU Science","UU Faculty: Science"
-"UU Social and Behavioural Sciences","UU Faculty: Social and Behavioural Sciences"
-"UU Veterinary Medicine","UU Faculty: Veterinary Medicine"
-"UU The Executive Board","UU Services: Executive Board"
-"UU Medicine","University Medical Center Utrecht"
-"UU University Corporate Offices","UU Hierarchy: University Corporate Offices"
-"UU University College Utrecht","UU Interfaculty Unit: University College Utrecht"
-"UU Faculty: University College Utrecht","UU Interfaculty Unit: University College Utrecht"
-"UU Utrecht University Library","UU Services: University Library"
-
-"Universiteit Utrecht","UU Utrecht University"
-"Utrecht University","UU Utrecht University"
-"Utrecht University, Utrecht, the Netherlands","UU Utrecht University"
-"Geoneric and Utrecht University","UU Utrecht University"
-"Utrecht, University","UU Utrecht University"
-"Radboud University Nijmegen, Utrecht University","UU Utrecht University"
-
-"Department of Physics, Faculty of Science, Utrecht University, Institute for Marine and Atmospheric Research Utrecht (IMAU), the Netherlands","UU Unit: Afd Marine and Atmospheric Research"
-"Institute for Marine and Atmospheric Research","UU Unit: Afd Marine and Atmospheric Research"
-"Utrecht University @ BonvinLab","UU Chair/Subunit: Sub NMR Spectroscopy"
-"NMR Spectroscopy, Bijvoet Centre for Biomolecular Research, Utrecht University","UU Chair/Subunit: Sub NMR Spectroscopy"
-"Copernicus Institute of Sustainable Development, Utrecht University","UU Department: Dep of Sustainable Development"
-"Department of Earth Sciences, Faculty of Geosciences, Utrecht University, Princetonlaan 8a, 3584 CB, Utrecht, the Netherlands.","UU Department: Dep Aardwetenschappen"
-"Utrecht University - Department of Earth Sciences","UU Department: Dep Aardwetenschappen"
-"Environmental hydrogeology, Department of Earth Sciences, Utrecht University, The Netherlands","UU Chair/Subunit: Hydrogeology"
-"Organic Chemistry & Catalysis - Institute for Sustainable and Circular Chemistry - Utrecht University","UU Chair/Subunit: Sub Organic Chemistry and Catalysis"
-"Organic Chemistry & Catalysis  - Institute for Sustainable and Circular Chemistry - Utrecht University","UU Chair/Subunit: Sub Organic Chemistry and Catalysis"
-"Utrecht University, Department of Sociology","UU Unit: Afd Sociologie"
-"Utrecht University School of Governance","UU Department: Dep Bestuurs- en Organisatiewetenschap"
-"Utrecht Institute of Linguistics (UiL OTS)","UU Department: Dep Talen, Literatuur en Communicatie"
+"Utrecht University, Faculty of Law, Economics and Governance (UU)","UU Faculty: Law, Economics and Governance"
+UU Faculty: Faculteit Betawetenschappen,UU Faculty: Science
+UU Science,UU Faculty: Science
+UU Faculty: Faculteit Sociale Wetenschappen,UU Faculty: Social and Behavioural Sciences
+UU Social and Behavioural Sciences,UU Faculty: Social and Behavioural Sciences
+UU Faculty: Faculteit Diergeneeskunde,UU Faculty: Veterinary Medicine
+UU Veterinary Medicine,UU Faculty: Veterinary Medicine
+UU Faculties / Services: Faculteiten,UU Hierarchy: Faculties
+UU Faculties / Services: Corporate Offices,UU Hierarchy: University Corporate Offices
+UU University Corporate Offices,UU Hierarchy: University Corporate Offices
+UU Faculties / Services: University Service Departments,UU Hierarchy: University Service Departments
+UU University College Utrecht,UU Interfaculty Unit: University College Utrecht
+UU Faculty: Academic Services,UU Services: Academic Services
+UU Faculty: Centre for Science Communications and Culture,UU Services: Centre for Science Communications and Culture
+UU The Executive Board,UU Services: Executive Board
+UU Faculty: Information & Technology Services,UU Services: Information & Technology Services
+UU Faculty: Student & Academic Affairs Office,UU Services: Student & Academic Affairs Office
+UU Faculties / Services: Utrecht University Library,UU Services: University Library
+University Library Utrecht,UU Services: University Library
+UU Department: University Museum,UU Services: University Museum
+Universiteitsmuseum Utrecht,UU Services: University Museum
+"Department of Physics, Faculty of Science, Utrecht University, Institute for Marine and Atmospheric Research Utrecht (IMAU), the Netherlands",UU Unit: Afd Marine and Atmospheric Research
+Institute for Marine and Atmospheric Research,UU Unit: Afd Marine and Atmospheric Research
+"Utrecht University, Department of Sociology",UU Unit: Afd Sociologie
+UU University: Universiteit Utrecht,UU Utrecht University
+Universiteit Utrecht,UU Utrecht University
+Utrecht University,UU Utrecht University
+"Utrecht University, Utrecht, the Netherlands",UU Utrecht University
+Geoneric and Utrecht University,UU Utrecht University
+"Utrecht, University",UU Utrecht University
+"Radboud University Nijmegen, Utrecht University",UU Utrecht University
+@UtrechtUniversity,UU Utrecht University
+University of Utrecht,UU Utrecht University
+University of UtrechtUtrecht,UU Utrecht University
+University Utrecht,UU Utrecht University
+Utrecht Univ.,UU Utrecht University
+Utrecht Unversiteit,UU Utrecht University
+"Utrecht, the Netherlands",UU Utrecht University
