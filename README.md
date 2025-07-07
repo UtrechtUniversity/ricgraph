@@ -80,6 +80,9 @@ Currently, there are people working on the following extensions for Ricgraph:
 * A tool that helps Pure administrators to clean up "external organizations" in Pure.
   Status: planning stage (pre-alpha).
 
+Starting around mid-September, you can see Ricgraph in action with the
+[pilot project Open Ricgraph demo server](pilot-project-open-ricgraph-demo-server.md).
+
 Throughout this documentation, we illustrate how Ricgraph works by applying
 it to the application area research information.
 
