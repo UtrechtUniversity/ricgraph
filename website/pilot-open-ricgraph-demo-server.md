@@ -73,19 +73,19 @@ that require your attention and time:
     of Technology. 
     You can find more information (including the agreements with
     Delft University of Technology) in section 1.6 and chapter 5 
-    of the [document above](#read-more-about-the-pilot-project).
+    of the document above.
   * Your organization needs a *privacy statement* related to this pilot project.
     Possibly the general privacy statement of your organization suffices.
     Your organization might also need additional *privacy measures*
     (beyond those required by Delft University of Technology), 
     and you may wish to conduct a *data classification*. 
-    These topics are also described in chapter 5 
-    of the [document above](#read-more-about-the-pilot-project).
+    These topics are also described in chapter 5
+    of the document above.
 * Execution of the pilot.
   * Someone of your organization needs to participate in the project group, 
     needs time for experimentation, and needs time for sharing findings. 
     In practice, this will take as much time as you are able 
     and willing to allocate, as described in section 1.7
-    of the [document above](#read-more-about-the-pilot-project).
+    of the document above.
  
 For more information, please [contact Rik D.T. Janssen](contact.md).
