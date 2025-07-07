@@ -36,3 +36,5 @@ There are several places where you can start reading about Ricgraph:
 
 ## Next steps
 You might want to continue reading at [Get Ricgraph](get-ricgraph.md).
+Starting around mid-September, you can see Ricgraph in action with the
+[pilot project Open Ricgraph demo server](pilot-project-open-ricgraph-demo-server.md).

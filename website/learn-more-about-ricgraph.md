@@ -54,3 +54,5 @@ Scripts for other sources can be written easily.
 You might want to continue reading at 
 [Read more about Ricgraph](read-more-about-ricgraph.md), 
 or to [Get Ricgraph](get-ricgraph.md).
+Starting around mid-September, you can see Ricgraph in action with the
+[pilot project Open Ricgraph demo server](pilot-project-open-ricgraph-demo-server.md).

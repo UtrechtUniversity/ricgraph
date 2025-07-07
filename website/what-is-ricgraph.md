@@ -38,6 +38,9 @@ Currently, there are people working on the following extensions for Ricgraph:
 * A tool that helps Pure administrators to clean up "external organizations" in Pure.
   Status: planning stage (pre-alpha).
 
+Starting around mid-September, you can see Ricgraph in action with the
+[pilot project Open Ricgraph demo server](pilot-project-open-ricgraph-demo-server.md).
+ 
 ## Motivation
 Ricgraph is software that is about
 relations between items. These items can be collected from various source 
@@ -105,5 +108,7 @@ You might want to continue reading at
 [Learn more about Ricgraph](learn-more-about-ricgraph.md), 
 to [Read more about Ricgraph](read-more-about-ricgraph.md), 
 or to [Get Ricgraph](get-ricgraph.md).
+Starting around mid-September, you can see Ricgraph in action with the
+[pilot project Open Ricgraph demo server](pilot-project-open-ricgraph-demo-server.md).
 
 <img src="images/ricgraph-sticker-1000x688.png" alt="Ricgraph sticker." width="35%">
