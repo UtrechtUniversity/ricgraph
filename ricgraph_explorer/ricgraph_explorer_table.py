@@ -68,6 +68,8 @@ from ricgraph_explorer_constants import (DETAIL_COLUMNS, RESEARCH_OUTPUT_COLUMNS
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message, url_for)
 from ricgraph_explorer_datavis import get_html_for_histogram
+from ricgraph_explorer_javascript import (get_regular_table_javascript, get_tabbed_table_javascript,
+                                          get_html_for_tableend_javascript)
 
 
 def view_personal_information(nodes_list: list,
@@ -248,67 +250,9 @@ def get_regular_table(nodes_list: list,
     if max_nr_table_rows == 0:
         max_nr_table_rows = len_nodes_list
 
-    # This javascript code is for the pagination of the table.
-    javascript = f"""<script>
-                 // Initialize currentPage and totalPages for all tables
-                 currentPage['{table_id}'] = 1; 
-                 totalPages['{table_id}'] = Math.ceil({len_nodes_list} / {max_nr_table_rows});
-                 function showPage(page, tableId) {{
-                     page = parseInt(page);
-                     if (page < 1 || page > totalPages[tableId]) return;
-
-                     // Update table visibility
-                     document.querySelectorAll(`.table-${{tableId}}-page-${{currentPage[tableId]}}`)
-                           .forEach(tr => tr.style.display = 'none');
-                     document.querySelectorAll(`.table-${{tableId}}-page-${{page}}`)
-                           .forEach(tr => tr.style.display = '');
-
-                     currentPage[tableId] = page;
-                     updatePagination(tableId);
-                 }}
-                 function updatePagination(tableId) {{
-                     const buttons = document.querySelectorAll(`.page-num-${{tableId}}`);
-                     const total = totalPages[tableId];
-                     let start = 1;
-                     if (total > 5) {{
-                         if (currentPage[tableId] <= 3) {{
-                             start = 1;
-                         }} else if (currentPage[tableId] >= total - 2) {{
-                             start = total - 4;
-                         }} else {{
-                             start = currentPage[tableId] - 2;
-                         }}
-                     }}
-                     buttons.forEach((btn, index) => {{
-                         const pageNum = start + index;
-                         if (btn) {{
-                             btn.textContent = pageNum;
-                             btn.onclick = function() {{ showPage(pageNum, tableId); }};
-                             btn.classList.toggle('uu-yellow', pageNum === currentPage[tableId]);
-                             btn.style.display = pageNum <= total ? '' : 'none';
-                         }}
-                     }});
-                     const ellipsisLeft = document.querySelector(`.ellipsis-left-${{tableId}}`);
-                     const ellipsisRight = document.querySelector(`.ellipsis-right-${{tableId}}`);
-                     if (ellipsisLeft) ellipsisLeft.style.display = start > 1 ? '' : 'none';
-                     if (ellipsisRight) 
-                        ellipsisRight.style.display = (start + buttons.length - 1) < total ? '' : 'none';
-                     const firstButton = document.querySelector(`a[onclick="showPage(1, '${{tableId}}')"]`);
-                     const prevButton = document.querySelector(`a[onclick=
-                                        "showPage(currentPage['${{tableId}}']-1, '${{tableId}}')"]`);
-                     const nextButton = document.querySelector(`a[onclick=
-                                        "showPage(currentPage['${{tableId}}']+1, '${{tableId}}')"]`);
-                     const lastButton = document.querySelector(`a[onclick="showPage(${{total}}, '${{tableId}}')"]`);
-                     if (firstButton) firstButton.classList.toggle('w3-disabled', currentPage[tableId] === 1);
-                     if (prevButton) prevButton.classList.toggle('w3-disabled', currentPage[tableId] === 1);
-                     if (nextButton) nextButton.classList.toggle('w3-disabled', currentPage[tableId] === total);
-                     if (lastButton) lastButton.classList.toggle('w3-disabled', currentPage[tableId] === total);
-                 }}
-                 document.addEventListener('DOMContentLoaded', () => {{
-                     {f'updatePagination("{table_id}");'}
-                 }});
-                 </script>"""
-
+    javascript = get_regular_table_javascript(table_id=table_id,
+                                              len_nodes_list=len_nodes_list,
+                                              max_nr_table_rows=max_nr_table_rows)
     return javascript + table_html
 
 
@@ -365,7 +309,7 @@ def get_regular_table_worker(nodes_list: list,
     html = get_html_for_cardstart()
     html += '<span style="float:left;">' + table_header + '</span>'
     html += '<span style="float:right;">' + nr_rows_in_table_message + '</span>'
-    html += '<div id="' + table_id + '-container">'     # <div> ends below.
+    html += '<div id="' + table_id + '-container">'     # <div> ends below [A].
     html += get_html_for_tablestart()
     html += '<thead>'
     html += get_html_for_tableheader(table_columns=table_columns)
@@ -385,7 +329,7 @@ def get_regular_table_worker(nodes_list: list,
 
     html += '</tbody>'
     html += get_html_for_tableend(table_id=table_id)
-    html += '</div>'        # Ends </div> from above '<div id="' + table_id + '-container">'.
+    html += '</div>'        # Ends </div> from above [A].
     html += nr_rows_in_table_message
 
     total_pages = ceil(min(len(nodes_list), max_nr_items) / max_nr_table_rows)
@@ -557,26 +501,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
         tab_contents_html += table
         tab_contents_html += '</div>'
 
-    # This code is inspired by https://www.w3schools.com/w3css/w3css_tabulators.asp.
-    tab_javascript = """<script>
-                        function openTab_""" + table_id + """(evt, tabName, table_id) {
-                            var i, x, tablinks;
-                            x = document.getElementsByClassName("tabitem");
-                            for (i = 0; i < x.length; i++) {
-                                if (x[i].className.split(' ').indexOf(table_id) != -1) {
-                                    x[i].style.display = "none";
-                                }
-                            }
-                            tablinks = document.getElementsByClassName("tablink");
-                            for (i = 0; i < x.length; i++) {
-                                if (tablinks[i].className.split(' ').indexOf(table_id) != -1) {
-                                    tablinks[i].className = tablinks[i].className.replace(" uu-orange", "");
-                                }
-                            }
-                            document.getElementById(tabName).style.display = "block";
-                            evt.currentTarget.className += " uu-orange";
-                        }
-                        </script>"""
+    tab_javascript = get_tabbed_table_javascript(table_id=table_id)
 
     nr_rows_in_table_message = ''
     max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
@@ -904,39 +829,13 @@ def get_html_for_tableend(table_id: str = '') -> str:
     if table_id == '':
         return html
 
-    # This javascript code is to export the table with the given tableId as a CSV file.
-    # Only maxRows are exported (as a kind of safety not to be able to export everything).
-    javascript = '''<script>
-                 function exportTableToCSV(tableId, maxRows) {
-                     const rows = document.querySelectorAll(`#${tableId} tr`);
-                     const rowsToExport = [];
-                     // Always include the header row (first row), then up to (maxRows) rows total (header + data)
-                     for (let i = 0; i < rows.length && i <= maxRows; i++) {
-                         rowsToExport.push(rows[i]);
-                     }
-                     // For each row, get all cells (th or td), and for each cell:
-                     // - Replace any double quotes with two double quotes (CSV escaping).
-                     // - Enclose every cell value in double quotes.
-                     // Join each cell in a row with commas, and join rows with newlines.
-                     const csvContent = Array.from(rowsToExport).map(row =>
-                         Array.from(row.children).map(cell =>
-                             '"' + cell.innerText.replace(/"/g, '""') + '"'
-                         ).join(',')
-                     ).join('\\n');
-                     const blob = new Blob([csvContent], {type: 'text/csv'});
-                     // Create a hidden <a> element to trigger the download.
-                     const link = document.createElement('a');
-                     link.href = URL.createObjectURL(blob);
-                     link.download = tableId + '.csv';
-                     document.body.appendChild(link);
-                     link.click();
-                     document.body.removeChild(link);
-                     URL.revokeObjectURL(link.href);
-                 }
-                 </script>'''
+    html += f'''
+            <div style="float:right;">
+                <a href="#" onclick="exportTableToCSV('{table_id}-container', {MAX_ROWS_TO_EXPORT}); return false;">
+                   Export table to CSV file, at most {MAX_ROWS_TO_EXPORT} rows.</a>
+            </div>
+            '''
 
-    html += f'''<div style="float:right;">
-                    <a href="#" onclick="exportTableToCSV('{table_id}-container', {MAX_ROWS_TO_EXPORT}); return false;">
-                        Export table to CSV file, at most {MAX_ROWS_TO_EXPORT} rows.</a>
-                </div>'''
+    figure_filename = 'ricgraph_explorer_export_' + table_id + '.csv'
+    javascript = get_html_for_tableend_javascript(figure_filename=figure_filename)
     return javascript + html
