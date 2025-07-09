@@ -189,3 +189,65 @@ def get_html_for_tableend_javascript(figure_filename: str) -> str:
                  </script>
                  '''
     return javascript
+
+
+def get_html_for_histogram_javascript(histogram_json: str,
+                                      histogram_width: int,
+                                      bar_label_threshold: int,
+                                      plot_name: str) -> str:
+    """JavaScript for creating a histogram using the
+    Observable D3 and Observable Plot framework
+    for data visualization. See https://d3js.org and https://observablehq.com/plot.
+
+    :param histogram_json: The histogram data.
+    :param histogram_width: The width of the histogram, in pixels.
+    :param bar_label_threshold: The largest value in the histogram. This
+      value is used to compute whether a histogram label should be shown
+      in the histogram bar or next to it.
+    :param plot_name: The name of the plot.
+    :return: html to be rendered.
+    """
+
+    javascript = f'''
+                 <script type="module">
+                 const brands = {histogram_json};
+                 const plot = Plot.plot({{
+                   width: {histogram_width},
+                   axis: null,
+                   // Make height dependent on the number of items in brands.
+                   // The "+ 40" is for the horizontal scale.
+                   height: brands.length * 20 + 40,
+                   x: {{ insetRight: 10 }},
+                   marks: [
+                     Plot.axisX({{ anchor: "bottom" }}),
+                     Plot.barX(brands, {{
+                       x: "value",
+                       y: "name",
+                       fill: "#ffcd00",                 // uu-yellow.
+                       sort: {{ y: "x", order: null }}  // no ordering.
+                     }}),
+                     // labels for larger bars.
+                     Plot.text(brands, {{
+                       text: (d) => `${{d.name}} (${{d.value}})`,
+                       y: "name",
+                       frameAnchor: "left",
+                       dx: 3,
+                       filter: (d) => d.value >= {bar_label_threshold / 2},
+                     }}),
+                     // labels for smaller bars.
+                     Plot.text(brands, {{
+                       text: (d) => `${{d.name}} (${{d.value}})`,
+                       y: "name",
+                       x: "value",
+                       textAnchor: "start",
+                       dx: 3,
+                       filter: (d) => d.value < {bar_label_threshold / 2},
+                     }})
+                   ]           // End of marks.
+                 }});         // End of Plot.plot().
+                 const div = document.querySelector("#{plot_name}");
+                 div.append(plot);
+                 </script>
+                 '''
+    return javascript
+

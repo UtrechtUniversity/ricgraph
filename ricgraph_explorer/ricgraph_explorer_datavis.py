@@ -48,13 +48,14 @@
 from json import dumps
 from ricgraph import  create_unique_string
 from ricgraph_explorer_utils import get_message
+from ricgraph_explorer_javascript import get_html_for_histogram_javascript
 
 
 def get_html_for_histogram(histogram_list: list,
                            histogram_width: int = 200,
                            histogram_title: str = ''):
     """This function creates a histogram using the Observable D3 and Observable Plot framework
-     for data visualization. See https://d3js.org and https://observablehq.com/plot.
+    for data visualization. See https://d3js.org and https://observablehq.com/plot.
 
     :param histogram_list: A list of histogram data to be plotted in the histogram.
       Each element in the list has a 'name' and 'value'.
@@ -91,49 +92,8 @@ def get_html_for_histogram(histogram_list: list,
     html += '<div id="' + plot_name + '"></div>'
     html += '</br></div>'
 
-    html += '<script type="module">'
-    html += 'const brands = ' + histogram_json + '; '
-    html += 'const plot = Plot.plot({ '
-    html += 'width: ' + str(histogram_width) + ', '
-    html += """axis: null,
-                // Make height dependent on the number of items in brands.
-                // The "+ 40" is for the horizontal scale.
-                height: brands.length * 20 + 40,
-                x: { insetRight: 10 },
-                marks: [
-                  Plot.axisX({anchor: "bottom"}),
-                  Plot.barX(brands, {
-                    x: "value",
-                    y: "name",
-                    // uu-yellow
-                    fill: "#ffcd00",
-                    // no ordering
-                    sort: { y: "x", order: null }
-                }),
-                // labels for larger bars
-                Plot.text(brands, {
-                  text: (d) => `${d.name} (${d.value})`,
-                  y: "name",
-                  frameAnchor: "left",
-                  dx: 3,
-            """
-    html += 'filter: (d) => d.value >= ' + str(bar_label_threshold/2) + ', '
-    html += """}),
-                // labels for smaller bars
-                Plot.text(brands, {
-                  text: (d) => `${d.name} (${d.value})`,
-                  y: "name",
-                  x: "value",
-                  textAnchor: "start",
-                  dx: 3,
-            """
-    html += 'filter: (d) => d.value < ' + str(bar_label_threshold/2) + ', '
-    html += """})
-            ]           // End of marks
-            });         // End of Plot.plot()
-            """
-    html += 'const div = document.querySelector("#' + plot_name + '");'
-    html += 'div.append(plot);'
-    html += '</script>'
-
-    return html
+    javascript = get_html_for_histogram_javascript(histogram_json=histogram_json,
+                                                   histogram_width=histogram_width,
+                                                   bar_label_threshold=bar_label_threshold,
+                                                   plot_name=plot_name)
+    return html + javascript
