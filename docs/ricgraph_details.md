@@ -5,7 +5,7 @@ On this page, you can find more information about:
 * [Person identifiers](#person-identifiers).
 * The [Person-root node in Ricgraph](#person-root-node-in-ricgraph).
 * [Properties of nodes in Ricgraph](#properties-of-nodes-in-ricgraph).
-* [Conventions for names of (sub-)organizations in Ricgraph](#conventions-for-names-of-sub-organizations-in-ricgraph)
+* [Conventions for names of (sub-)organizations in Ricgraph](#conventions-for-names-of-sub-organizations-in-ricgraph).
 
 You can also look at
 [Example research questions](ricgraph_explorer.md#example-research-questions).
@@ -74,8 +74,9 @@ In the default configuration, the following properties are included:
 
 ## Conventions for names of (sub-)organizations in Ricgraph
 
-In case Ricgraph will contain research information from multiple organizations, it is useful to
-adhere to certain (sub-)organization naming conventions.
+In the case that Ricgraph contains research information from multiple organizations, 
+it is useful to
+adhere to (sub-)organization naming conventions.
 
 * [Organization abbreviation](ricgraph_harvest_scripts.md#organization-abbreviation).
   * Find the organization in the [Research Organization Registry (ROR)](https://ror.org).
@@ -135,10 +136,10 @@ adhere to certain (sub-)organization naming conventions.
     | UU Hierarchy: University Corporate Offices |
     | VUA Hierarchy: Faculties                   |
     | VUA Hierarchy: Research Institutes         |
-* Services name in Ricgraph. In some organizations this is a support organization.
+* Services (support) organization name in Ricgraph.
   * Combine the organization abbreviation, the word "Services", a colon (:),
     and the English name
-    for the faculty as used by the organization (as it is used in Pure).
+    for the sub-organization as used by the organization (as it is used in Pure).
   * Examples:
 
     | Ricgraph name                                  |
