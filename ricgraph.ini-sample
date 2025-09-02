@@ -85,6 +85,17 @@ ricgraph_nodeadd_mode = strict
 # ###############################################################
 
 
+[Ricgraph_explorer]
+# ###############################################################
+# Ricgraph Explorer has two modes to display results.
+# This parameter gives the default mode. Possibilities are:
+# - person_view: show a person card, limit details (e.g. do not show _history)
+# - details_view: show all details.
+ricgraph_explorer_display_results_mode = person_view
+#ricgraph_explorer_display_results_mode = details_view
+# ###############################################################
+
+
 [Organization]
 # ###############################################################
 # Information about your organization.

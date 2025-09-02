@@ -40,17 +40,8 @@
 # ########################################################################
 
 
-from ricgraph import get_ricgraph_version
+from ricgraph import get_ricgraph_version, get_ricgraph_ini_file, get_configfile_key
 
-
-# Ricgraph Explorer is also a "discoverer". This parameter gives the
-# default mode. Possibilities are:
-# - details_view: show all the details.
-# - person_view: show a person card, limit details (e.g. do not show _history & _source)
-# Should be this:
-# DEFAULT_DISCOVERER_MODE = 'person_view'
-# But for development, this one is easier:
-DEFAULT_DISCOVERER_MODE = 'details_view'
 
 # You can search in two different ways in Ricgraph Explorer. This parameter
 # gives the default mode. Possibilities are:
@@ -67,9 +58,9 @@ SEARCH_STRING_MIN_LENGTH = 2
 DETAIL_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
                   'url_main', 'url_other', '_source', '_history']
 RESEARCH_OUTPUT_COLUMNS = ['name', 'category', 'value', 'comment',
-                           'year', 'url_main', 'url_other']
-ORGANIZATION_COLUMNS = ['name', 'value', 'comment', 'url_main']
-ID_COLUMNS = ['name', 'value', 'comment', 'url_main']
+                           'year', 'url_main', 'url_other', '_source']
+ORGANIZATION_COLUMNS = ['name', 'value', 'comment', 'url_main', '_source']
+ID_COLUMNS = ['name', 'value', 'comment', 'url_main', '_source']
 
 # When we do a query, we return at most this number of nodes.
 MAX_ITEMS = 250
@@ -292,3 +283,16 @@ html_body_end += '<script src="/static/d3.min.js"></script>'
 html_body_end += '<script src="/static/plot.min.js"></script>'
 html_body_end += '</body>'
 html_body_end += '</html>'
+
+
+# ############################################
+# ################### main ###################
+# ############################################
+# This will be executed on module initialization
+DEFAULT_DISCOVERER_MODE = get_configfile_key(section='Ricgraph_explorer',
+                                             key='ricgraph_explorer_display_results_mode')
+if DEFAULT_DISCOVERER_MODE != 'person_view' and DEFAULT_DISCOVERER_MODE != 'details_view':
+    print('Ricgraph initialization: error, not existing or unknown value "' + DEFAULT_DISCOVERER_MODE + '"')
+    print('  for "ricgraph_explorer_display_results_mode" in Ricgraph ini')
+    print('  file "' + get_ricgraph_ini_file() + '", exiting.')
+    exit(1)
