@@ -323,6 +323,9 @@ Example corresponding csv files can also be found in directory *enhance*.
 
 The script will read a line from the csv file. Then it will
 rename the (sub-)organization.
+For (sub-)organization naming conventions read
+[Conventions for names of (sub-)organizations in 
+Ricgraph](ricgraph_details.md#conventions-for-names-of-sub-organizations-in-ricgraph).
 
 Bash script:
 ```

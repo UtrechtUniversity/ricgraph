@@ -53,6 +53,7 @@ This table of contents has been generated automatically.
   - [Person identifiers](../docs/ricgraph_details.md#person-identifiers)
   - [Person-root node in Ricgraph](../docs/ricgraph_details.md#person-root-node-in-ricgraph)
   - [Properties of nodes in Ricgraph](../docs/ricgraph_details.md#properties-of-nodes-in-ricgraph)
+  - [Conventions for names of (sub-)organizations in Ricgraph](../docs/ricgraph_details.md#conventions-for-names-of-sub-organizations-in-ricgraph)
 - [Ricgraph Explorer](../docs/ricgraph_explorer.md#ricgraph-explorer)
   - [How to start Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-ricgraph-explorer)
   - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)

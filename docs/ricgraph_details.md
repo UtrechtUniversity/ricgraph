@@ -5,6 +5,7 @@ On this page, you can find more information about:
 * [Person identifiers](#person-identifiers).
 * The [Person-root node in Ricgraph](#person-root-node-in-ricgraph).
 * [Properties of nodes in Ricgraph](#properties-of-nodes-in-ricgraph).
+* [Conventions for names of (sub-)organizations in Ricgraph](#conventions-for-names-of-sub-organizations-in-ricgraph)
 
 You can also look at
 [Example research questions](ricgraph_explorer.md#example-research-questions).
@@ -69,3 +70,79 @@ In the default configuration, the following properties are included:
 * `url_other`: other URL for a node, pointing to e.g. the originating record in the source system;
 * `source_event`: an event to be added to `_source`.
 * `history_event`: an event to be added to `_history`.
+
+
+## Conventions for names of (sub-)organizations in Ricgraph
+
+In case Ricgraph will contain research information from multiple organizations, it is useful to
+adhere to certain (sub-)organization naming conventions.
+
+* [Organization abbreviation](ricgraph_harvest_scripts.md#organization-abbreviation).
+  * Find the organization in the [Research Organization Registry (ROR)](https://ror.org).
+    This will result in an organization name in a certain language. Create an abbreviation
+    from this name, while respecting the language. 
+  * Examples:
+  
+    | ROR organization name          | organization abbreviation |
+    |--------------------------------|---------------------------|
+    | Delft University of Technology | DUT                       |
+    | Utrecht University             | UU                        | 
+    | Vrije Universiteit Amsterdam   | VUA                       | 
+* Organization name in Ricgraph.
+  * Combine the organization abbreviation and the ROR organization name.
+  * Examples:
+
+    | Ricgraph organization name         |
+    |------------------------------------|
+    | DUT Delft University of Technology | 
+    | UU Utrecht University              |
+    | VUA Vrije Universiteit Amsterdam   |
+* Faculty name in Ricgraph.
+  * Combine the organization abbreviation, the word "Faculty", a colon (:), 
+    and the English name
+    for the faculty as used by the organization (as it is used in Pure).
+  * Examples:
+
+    | Ricgraph name                                |
+    |----------------------------------------------|
+    | DUT Faculty: Civil Engineering & Geosciences |
+    | UU Faculty: Geosciences                      |
+    | VUA Faculty: Faculty of Science              |
+* Department, Subdepartement, Chair/Subunit, or other sub-organization name in Ricgraph.
+  * Combine the organization abbreviation, the word for the 
+    sub-organization, a colon (:), and the English name
+    for the sub-organization as used by the organization (as it is used in Pure).
+  * Examples:
+
+    | Ricgraph name                                  |
+    |------------------------------------------------|
+    | DUT Department: Biomechanical Engineering      |
+    | DUT Research Group: Physical and Space Geodesy |
+    | UU Department: Dep Psychologie                 |
+    | UU Chair/Subunit: LS Taal en cultuurstudies    |
+    | VUA Department: Earth Sciences                 |
+    | VUA Subdepartment: Chemistry and Biology       |
+    | VUA Research Institute: Amsterdam Neuroscience |
+* Hierarchy name in Ricgraph. This is a kind of meta category.
+  * Combine the organization abbreviation, the word "Hierarchy", a colon (:),
+    and the English name
+    for the hierarchy as used by the organization (as it is used in Pure).
+  * Examples:
+
+    | Ricgraph name                              |
+    |--------------------------------------------|
+    | UU Hierarchy: Faculties                    |
+    | UU Hierarchy: University Corporate Offices |
+    | VUA Hierarchy: Faculties                   |
+    | VUA Hierarchy: Research Institutes         |
+* Services name in Ricgraph. In some organizations this is a support organization.
+  * Combine the organization abbreviation, the word "Services", a colon (:),
+    and the English name
+    for the faculty as used by the organization (as it is used in Pure).
+  * Examples:
+
+    | Ricgraph name                                  |
+    |------------------------------------------------|
+    | UU Services: Information & Technology Services |
+    | UU Services: University Library                |
+    | VUA Services: University Library               |

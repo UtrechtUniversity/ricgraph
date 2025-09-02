@@ -22,6 +22,7 @@ __C__
 - [Contact](../README.md#contact)
 - [Contact](../docs/ricgraph_documentation_intro.md#contact)
 - [Contact](../docs/ricgraph_tutorial.md#contact)
+- [Conventions for names of (sub-)organizations in Ricgraph](../docs/ricgraph_details.md#conventions-for-names-of-sub-organizations-in-ricgraph)
 - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_category)
 - [Create a Neo4j Community Edition database dump of Ricgraph](../docs/ricgraph_backend_neo4j.md#create-a-neo4j-community-edition-database-dump-of-ricgraph)
 - [Create a Neo4j Desktop database dump of Ricgraph](../docs/ricgraph_backend_neo4j.md#create-a-neo4j-desktop-database-dump-of-ricgraph)
