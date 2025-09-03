@@ -12,7 +12,7 @@ ricgraph.ini
 !enhance/orgs_to_rename_*.csv
 !enhance/pers_to_delete_UU.csv
 harvest_multiple_sources/multiple_harvest_uu_uustaff_generated.sh
-!ricgraph_explorer/manifest.json
+!ricgraph_explorer/static/manifest.json
 
 # ###########################
 # Default .gitignore from GitHub on January 4, 2022.
