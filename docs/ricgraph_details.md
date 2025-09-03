@@ -74,9 +74,19 @@ In the default configuration, the following properties are included:
 
 ## Conventions for names of (sub-)organizations in Ricgraph
 
-In the case that Ricgraph contains research information from multiple organizations, 
+In the case that you have harvested sources from multiple organizations,
 it is useful to
-adhere to (sub-)organization naming conventions.
+adhere to (sub-)organization naming conventions so that you can easily compare
+them (by searching for the same wordings). 
+However, it is advisable to
+do this only for those organizations that you have harvested,
+or that you are specifically interested in,
+and not for all organizations that your organization relates to,
+because the latter may be a lot of work.
+
+You can rename organizations after harvesting using the script
+[Rename (sub-)organizations in Ricgraph 
+(rename_organizations)](ricgraph_misc_scripts.md#rename-sub-organizations-in-ricgraph-rename_organizations).
 
 * [Organization abbreviation](ricgraph_harvest_scripts.md#organization-abbreviation).
   * Find the organization in the [Research Organization Registry (ROR)](https://ror.org).
@@ -110,8 +120,10 @@ adhere to (sub-)organization naming conventions.
     | UU Faculty: Geosciences                      |
     | VUA Faculty: Faculty of Science              |
 * Department, Subdepartement, Chair/Subunit, or other sub-organization name in Ricgraph.
-  * Combine the organization abbreviation, the word for the 
-    sub-organization, a colon (:), and the English name
+  * Combine the organization abbreviation, one of the words in this list
+    ["Department", "Subdepartment", "Chair/Subunit", "Unit",
+    "Research Institute", "Research Group"] (or similar word),
+    a colon (:), and the English name
     for the sub-organization as used by the organization (as it is used in Pure).
   * Examples:
 

@@ -320,12 +320,30 @@ The bash script *rename_organizations.sh* is a wrapper for the
 Python script *rename_orgs.py*.
 Both can be found in the directory *enhance*.
 Example corresponding csv files can also be found in directory *enhance*.
-
 The script will read a line from the csv file. Then it will
 rename the (sub-)organization.
+
 For (sub-)organization naming conventions read
 [Conventions for names of (sub-)organizations in 
 Ricgraph](ricgraph_details.md#conventions-for-names-of-sub-organizations-in-ricgraph).
+
+You can also use this script to "unify" organization names. This may be necessary
+because not every organization name has been spelled the same in the
+sources you have harvested. Also, an organization name may be spelled differently
+in the same source system. For example:
+
+| orgname_old           | orgname_new           |
+|-----------------------|-----------------------|
+| University of Utrecht | UU Utrecht University |
+| University Utrecht    | UU Utrecht University |
+| Utrecht Univ.         | UU Utrecht University |
+| Utrecht Unversiteit   | UU Utrecht University |
+
+However, it is advisable to
+do this only for those organizations that you have harvested,
+or that you are specifically interested in,
+and not for all organizations that your organization relates to,
+because the latter may be a lot of work.
 
 Bash script:
 ```
