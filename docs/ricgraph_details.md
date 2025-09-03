@@ -114,11 +114,11 @@ You can rename organizations after harvesting using the script
     for the faculty as used by the organization (as it is used in Pure).
   * Examples:
 
-    | Ricgraph name                                |
-    |----------------------------------------------|
-    | DUT Faculty: Civil Engineering & Geosciences |
-    | UU Faculty: Geosciences                      |
-    | VUA Faculty: Faculty of Science              |
+    | Ricgraph name                                           |
+    |---------------------------------------------------------|
+    | DUT Faculty: DUT Faculty: Industrial Design Engineering |
+    | UU Faculty: Geosciences                                 |
+    | VUA Faculty: Faculty of Science                         |
 * Department, Subdepartement, Chair/Subunit, or other sub-organization name in Ricgraph.
   * Combine the organization abbreviation, one of the words in this list
     ["Department", "Subdepartment", "Chair/Subunit", "Unit",
