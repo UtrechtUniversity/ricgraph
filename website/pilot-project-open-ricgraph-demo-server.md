@@ -1,7 +1,8 @@
 # Pilot project Open Ricgraph demo server
 
-> Starting around mid-September, we will launch the Open Ricgraph demo server.
-> You can find its URL on this page.
+> The Open Ricgraph demo server is now available for anyone to use.
+> You can access it via 
+> [https://explorer.ricgraph.eu](https://explorer.ricgraph.eu).
 
 ## Aim of the pilot project
 The aim of the pilot project is to demonstrate how Ricgraph
