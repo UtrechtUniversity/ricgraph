@@ -156,6 +156,5 @@ You can rename organizations after harvesting using the script
 
     | Ricgraph name                                  |
     |------------------------------------------------|
-    | UU Services: Information & Technology Services |
     | UU Services: University Library                |
     | VUA Services: University Library               |
