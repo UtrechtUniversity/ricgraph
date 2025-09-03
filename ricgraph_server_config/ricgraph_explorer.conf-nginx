@@ -113,6 +113,11 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    location = /robots.txt {
+    	alias /opt/ricgraph_venv/ricgraph_explorer/static/robots.txt;
+    	allow all;
+    }
+
     error_log /var/log/nginx/WEBSERVER_NAME_error.log;
     access_log /var/log/nginx/WEBSERVER_NAME_access.log;
 

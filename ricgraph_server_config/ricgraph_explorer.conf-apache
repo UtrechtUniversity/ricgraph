@@ -93,10 +93,12 @@ Define APACHE_LOGDIR "/var/log/apache2"
     # Performance improvement: make Apache serve static files,
     # because that is faster than WSGI serving static files.
     Alias /static/ "${RICGRAPH_PATH}/ricgraph_explorer/static/"
+    # Make robots.txt accessible directly.
+    Alias /robots.txt "${RICGRAPH_PATH}/ricgraph_explorer/static/robots.txt"
     <Directory "${RICGRAPH_PATH}/ricgraph_explorer/static/">
-    Require all granted
+        Require all granted
     </Directory>
-    
+
     # The hostname (127.0.0.1) and port (3030) below correspond to the
     # hostname and port where Gunicorn is running. These parameters
     # are set in file 'ricgraph_explorer_gunicorn.service'.
