@@ -694,7 +694,8 @@ endif
 	systemctl restart nginx
 	@echo ""
 	@echo "Done."
-	@echo "You can access Munin monitoring on http://localhost:8060."
+	@echo "You can access Munin monitoring on http://localhost:8060, but"
+	@echo "it may take about 5 minutes before the first data is collected."
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 
@@ -721,7 +722,7 @@ endif
 	@echo "Done."
 	@echo "Don't forget to add an entry to /etc/crontab. Continue reading at:"
 	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-awstats-with-nginx"
-	@echo "Then you can access Munin monitoring on http://localhost:8070."
+	@echo "After doing that you can access Munin monitoring on http://localhost:8070."
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 
