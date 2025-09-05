@@ -85,9 +85,10 @@ Define APACHE_LOGDIR "/var/log/apache2"
     # Do lose time with IP address lookups.
     HostnameLookups On
 
-    # Disable SSLEngine temporarily, restart apache, request a certificate by typing
+    # Disable SSLEngine temporarily (i.e. make the line a comment),
+    # restart apache, request a certificate by typing
     # certbot --apache -d WEBSERVER_NAME
-    # then enable SSLEngine, restart apache.
+    # then enable (uncomment) SSLEngine, restart apache.
     #SSLEngine on
 
     # Performance improvement: make Apache serve static files,
@@ -114,8 +115,10 @@ Define APACHE_LOGDIR "/var/log/apache2"
     ProxyPreserveHost On
 
     LogLevel warn
-    ErrorLog ${APACHE_LOG_DIR}/WEBSERVER_NAME_error.log
-    CustomLog ${APACHE_LOG_DIR}/WEBSERVER_NAME_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\""
-    CustomLog ${APACHE_LOG_DIR}/WEBSERVER_NAME_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+    # These paths are also in /etc/awstats/awstats.ricgraph.conf
+    # (if you use awstats). Know what you do if you change them.
+    ErrorLog ${APACHE_LOG_DIR}/ricgraph_error.log
+    CustomLog ${APACHE_LOG_DIR}/ricgraph_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\""
+    CustomLog ${APACHE_LOG_DIR}/ricgraph_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 
 </VirtualHost>

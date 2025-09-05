@@ -206,6 +206,17 @@ else
 	nginx_vhosts_dir := [not_set]
 endif
 
+# Determine the www root dir.
+ifeq ($(shell test -d /srv/www/htdocs && echo true),true)
+	# E.g. for OpenSUSE Leap & Tumbleweed.
+	wwwroot_dir := /srv/www/htdocs
+else ifeq ($(shell test -d /var/www/html && echo true),true)
+	# E.g. for Ubuntu and Debian.
+	wwwroot_dir := /var/www/html
+else
+	wwwroot_dir := [not_set]
+endif
+
 
 # ########################################################################
 # General targets.
@@ -277,7 +288,7 @@ allhelp: help
 	@echo "- make prepare_webserver_nginx: Prepare webserver Nginx for use with Ricgraph."
 	@echo "       For SURF Research Cloud you will need the Nginx webserver."
 	@echo ""
-	@echo "Various install options:"
+	@echo "Various Ricgraph install options:"
 	@echo "- make install_ricgraph_singleuser_cuttingedge_neo4j_community: Install"
 	@echo "       the 'cutting edge' version of Ricgraph for a single user,"
 	@echo "       i.e. the most current version of Ricgraph"
@@ -317,6 +328,8 @@ allhelp: help
 	@echo "- make specify_graphdb_password: specify (type) a password for the graph"
 	@echo "       database. Write it to file $(graphdb_password_file)."
 	@echo "       Always create this file, even if it already exists."
+	@echo "- make install_munin_nginx: install Munin monitoring for Nginx."
+	@echo "- make install_awstats_nginx: install AWStats web server log analysis for Nginx."
 	@echo ""
 	@echo "Makefile clean options:"
 	@echo "- make clean_singleuser: removes files you have downloaded."
@@ -380,6 +393,7 @@ makefile_variables:
 	@echo "- python_script_log: $(python_script_log)"
 	@echo "- bash_script: $(bash_script) "
 	@echo "- bash_script_log: $(bash_script_log)"
+	@echo "- wwwroot_dir: $(wwwroot_dir)"
 	@echo ""
 
 
@@ -653,6 +667,61 @@ empty_graphdb_neo4j_community: check_user_root generate_graphdb_password check_n
 	@echo "Done."
 	@echo "The graph database of Neo4j Community Edition is now emtpy."
 	@echo "The password to access it can be found in $(graphdb_password_file)."
+	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
+
+
+install_munin_nginx: check_user_root
+	@echo ""
+	@echo "Starting install Munin monitoring for Nginx."
+	@echo "You may want to read more at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#munin-with-nginx"
+	$(call are_you_sure)
+	@echo ""
+	$(package_install_cmd) munin munin-node
+	cp $(ricgraph_server_install_dir)/ricgraph_server_config/munin.conf /etc/munin
+	cp $(ricgraph_server_install_dir)/ricgraph_server_config/munin-node.conf /etc/munin
+	cd /etc/munin/plugins; rm df_inode diskstats entropy fail2ban forks fw_packets if_err_ens3
+	cd /etc/munin/plugins; rm interrupts irqstats open_files open_inodes proc_pri swap vmstat
+	systemctl enable munin-node
+	systemctl start munin-node
+	cp $(ricgraph_server_install_dir)/ricgraph_server_config/munin.conf-nginx $(nginx_vhosts_dir)
+	chmod 600 $(nginx_vhosts_dir)/munin.conf-nginx
+	mv $(nginx_vhosts_dir)/munin.conf-nginx $(nginx_vhosts_dir)/munin.conf
+ifeq ($(linux_edition),Ubuntu)
+	cd $(nginx_vhosts_dir)/../sites-enabled; ln -s ../sites-available/munin.conf
+endif
+	systemctl restart nginx
+	@echo ""
+	@echo "Done."
+	@echo "You can access Munin monitoring on http://localhost:8060."
+	@echo ""
+	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
+
+
+install_awstats_nginx: check_user_root
+	@echo ""
+	@echo "Starting install AWStats web server log analysis for Nginx."
+	@echo "You may want to read more at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#awstats-with-nginx"
+	$(call are_you_sure)
+	@echo ""
+	$(package_install_cmd) awstats
+	cd /etc/awstats; mv awstats.conf awstats.conf-orig
+	cp $(ricgraph_server_install_dir)/ricgraph_server_config/awstats.ricgraph.conf /etc/awstats
+	mkdir $(wwwroot_dir)/awstats
+	cp $(ricgraph_server_install_dir)/ricgraph_server_config/awstats.conf-nginx $(nginx_vhosts_dir)
+	chmod 600 $(nginx_vhosts_dir)/awstats.conf-nginx
+	mv $(nginx_vhosts_dir)/awstats.conf-nginx $(nginx_vhosts_dir)/awstats.conf
+ifeq ($(linux_edition),Ubuntu)
+	cd $(nginx_vhosts_dir)/../sites-enabled; ln -s ../sites-available/awstats.conf
+endif
+	systemctl restart nginx
+	@echo ""
+	@echo "Done."
+	@echo "Don't forget to add an entry to /etc/crontab. Continue reading at:"
+	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-awstats-with-nginx"
+	@echo "Then you can access Munin monitoring on http://localhost:8070."
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 

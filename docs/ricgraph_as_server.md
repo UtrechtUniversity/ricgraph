@@ -31,6 +31,8 @@ On this page, you can find:
 * [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 * [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 * [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
+* [Install Munin monitoring](#install-munin-monitoring)
+* [Install AWStats web server log analysis](#install-awstats-web-server-log-analysis)
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
 * [Steps to take to install Ricgraph as a server by hand](#steps-to-take-to-install-ricgraph-as-a-server-by-hand)
 
@@ -101,6 +103,17 @@ To follow this procedure, you need to be able to change to user *root*.
    or at
    [Use Nginx...](#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
    On success, the Makefile will print *installed successfully*.
+1. Optional: install [Munin monitoring](https://munin-monitoring.org).
+   Munin is a networked resource monitoring tool that can help analyze resource 
+   trends and "what just happened to kill our performance?" problems. 
+   You can only do this if you have installed Apache or Nginx.
+   Read more at
+   [Install Munin monitoring](#install-munin-monitoring).
+1. Optional: install [AWStats](https://awstats.sourceforge.io).
+   AWStats is a real-time logfile analyser, for e.g. web server log files.
+   You can only do this if you have installed Apache or Nginx.
+   Read more at
+   [Install AWStats web server log analysis](#install-awstats-web-server-log-analysis).
 1. Exit from user *root*.
 
 If everything succeeded, you are done installing Ricgraph as a server.
@@ -468,6 +481,74 @@ and Ricgraph data to the outside world.*
   [http://[your IP address]/api](http://[your_IP_address/api) or
   [http://[your hostname]/api](http://[your_hostname/api),
   both followed by a REST API endpoint.
+
+
+## Install Munin monitoring
+[Munin monitoring](https://munin-monitoring.org)
+is a networked resource monitoring tool that can help analyze resource
+trends and "what just happened to kill our performance?" problems.
+You can only do this if you have installed Apache or Nginx.
+
+### Munin with Apache
+Follow the steps at [Munin with Nginx](#munin-with-nginx). 
+You will need to create your own Apache configuration file
+(this has not been done yet).
+
+### Munin with Nginx
+
+* Login as user *root*.
+* Execute:
+   ```
+   make install_munin_nginx
+   ```
+* Exit from user *root*.
+* You can only access Munin on the server you have installed it
+  on. Go to [http://localhost:8060](http://localhost:8060).
+  Note that you will only be able to see any results after `munin-node` has
+  executed at least once. This may take up to 5 minutes after your install.
+
+
+## Install AWStats web server log analysis
+[AWStats](https://awstats.sourceforge.io)
+is a real-time logfile analyser, for e.g. web server log files.
+You can only do this if you have installed Apache or Nginx.
+Also, you have to change the path to the web server log files directory.
+Read the first few lines of file
+*/etc/awstats/awstats.ricgraph.conf* (after installation) how to do that.
+
+### AWStats with Apache
+Follow the steps at [AWStats with Nginx](#awstats-with-nginx).
+You will need to create your own Apache configuration file
+(this has not been done yet).
+
+### AWStats with Nginx
+
+* Login as user *root*.
+* Execute:
+   ```
+   make install_awstats_nginx
+   ```
+* Exit from user *root*.
+
+### Post-install steps AWStats with Nginx
+
+* Login as user *root*.
+* Add the following line at the end of /etc/crontab:
+  ```
+  5 * * * * root (date; /usr/lib/cgi-bin/awstats.pl -config=ricgraph -update; /usr/share/awstats/tools/awstats_buildstaticpages.pl -config=ricgraph -awstatsprog=/usr/lib/cgi-bin/awstats.pl -dir=/var/www/html/awstats ) >> /var/log/cron-awstats.log 2>&1
+  ```
+  However, for OpenSUSE or Tumbleweed do (note the difference in path):
+  ```
+  5 * * * * root (date; /usr/lib/cgi-bin/awstats.pl -config=ricgraph -update; /usr/share/awstats/tools/awstats_buildstaticpages.pl -config=ricgraph -awstatsprog=/usr/lib/cgi-bin/awstats.pl -dir=/srv/www/htdocs/awstats ) >> /var/log/cron-awstats.log 2>&1
+  ```
+* Note that AWStats also has a cron job in file
+  */etc/cron.d/awstats* that comes with the installation of AWStats.
+  We do not use the results it produces (but we let it run).
+* Exit from user *root*.
+* You can only access AWStats on the server you have installed it
+  on. Go to [http://localhost:8070](http://localhost:8070).
+  Note that you will only be able to see any results after `cron` has 
+  executed the crontab entry above at least once.
 
 
 ## How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud

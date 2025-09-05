@@ -81,6 +81,7 @@ server {
 
     # To request a certificate, type
     # certbot --nginx -d WEBSERVER_NAME
+    # You don't need to comment & then uncomment a line (as with Apache).
 
     # Replace with your domain name
     # server_name WEBSERVER_NAME;
@@ -118,7 +119,9 @@ server {
     	allow all;
     }
 
-    error_log /var/log/nginx/WEBSERVER_NAME_error.log;
-    access_log /var/log/nginx/WEBSERVER_NAME_access.log;
+    # These paths are also in /etc/awstats/awstats.ricgraph.conf
+    # (if you use awstats). Know what you do if you change them.
+    error_log /var/log/nginx/ricgraph_error.log;
+    access_log /var/log/nginx/ricgraph_access.log;
 
 }

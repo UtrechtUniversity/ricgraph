@@ -1,0 +1,30 @@
+######################################################################
+#
+# Nginx config file for munin for Ricgraph.
+# Go to http://localhost:8060 to view the result.
+#
+# Rik D.T. Janssen, September 4, 2025.
+#
+######################################################################
+
+
+server {
+    listen 127.0.0.1:8060;
+    server_name localhost;
+
+    # Redirect root URL to /munin/
+    location = / {
+        return 301 /munin/;
+    }
+
+    location /munin/static/ {
+        alias /etc/munin/static/;
+    }
+
+    location /munin/ {
+        alias /var/cache/munin/www/;
+        # Only allow from localhost:
+        allow 127.0.0.1;
+        deny all;
+    }
+}

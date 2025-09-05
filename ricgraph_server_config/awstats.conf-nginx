@@ -1,0 +1,40 @@
+######################################################################
+#
+# Nginx config file for awstats for Ricgraph.
+# Go to http://localhost:8070 to view the result.
+#
+# Rik D.T. Janssen, September 4, 2025.
+#
+######################################################################
+#
+# Many fancy awstats configuration options are not available,
+# since Nginx does not have an easy way to do CGI (Apache does have that).
+# This results in the need for a separate /etc/crontab entry, such as:
+# 5 * * * * root (date; /usr/lib/cgi-bin/awstats.pl -config=ricgraph -update; /usr/share/awstats/tools/awstats_buildstaticpages.pl -config=ricgraph -awstatsprog=/usr/lib/cgi-bin/awstats.pl -dir=/var/www/html/awstats ) >> /var/log/cron-awstats.log 2>&1
+#
+# Also, it is not possible to call awstats with something like:
+# https://localhost:8070/awstats/awstats.pl?config=open-ricgraph-demo-server
+#
+######################################################################
+
+
+server {
+    listen 127.0.0.1:8070;
+    server_name localhost;
+
+    # Redirect root URL to /awstats/awstats.html
+    location = / {
+        return 301 /awstats/awstats.ricgraph.html;
+    }
+
+    location ^~ /awstats-icon/ {
+    	alias /usr/share/awstats/icon/;
+    }
+
+    location /awstats/ {
+	root /var/www/html;
+        # Only allow from localhost:
+        allow 127.0.0.1;
+        deny all;
+    }
+}

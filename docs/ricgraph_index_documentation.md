@@ -9,6 +9,8 @@ __A__
 - [Actions while clicking on a node in Bloom](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node-in-bloom)
 - [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_pubs_pres_news_use_ment.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
+- [AWStats with Apache](../docs/ricgraph_as_server.md#awstats-with-apache)
+- [AWStats with Nginx](../docs/ricgraph_as_server.md#awstats-with-nginx)
 
 __B__
 
@@ -114,7 +116,9 @@ __I__
 - [Install and run the Ricgraph Podman container](../docs/ricgraph_containerized.md#install-and-run-the-ricgraph-podman-container)
 - [Install and start Memgraph](../docs/ricgraph_backend_memgraph.md#install-and-start-memgraph)
 - [Install and start Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
+- [Install AWStats web server log analysis](../docs/ricgraph_as_server.md#install-awstats-web-server-log-analysis)
 - [Install Bloom configuration for Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop)
+- [Install Munin monitoring](../docs/ricgraph_as_server.md#install-munin-monitoring)
 - [Install Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#install-neo4j-desktop)
 - [Install Podman](../docs/ricgraph_containerized.md#install-podman)
 - [Install Ricgraph in a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#install-ricgraph-in-a-surf-research-cloud-workspace)
@@ -139,6 +143,8 @@ __M__
 - [More information](../docs/ricgraph_tutorial.md#more-information)
 - [Motivation](../README.md#motivation)
 - [Motivation](../docs/ricgraph_tutorial.md#motivation)
+- [Munin with Apache](../docs/ricgraph_as_server.md#munin-with-apache)
+- [Munin with Nginx](../docs/ricgraph_as_server.md#munin-with-nginx)
 
 __N__
 
@@ -162,6 +168,7 @@ __P__
 - [Person options page](../docs/ricgraph_explorer.md#person-options-page)
 - [Person-root node in Ricgraph](../docs/ricgraph_details.md#person-root-node-in-ricgraph)
 - [Post-install steps Apache](../docs/ricgraph_as_server.md#post-install-steps-apache)
+- [Post-install steps AWStats with Nginx](../docs/ricgraph_as_server.md#post-install-steps-awstats-with-nginx)
 - [Post-install steps Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#post-install-steps-neo4j-community-edition)
 - [Post-install steps Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#post-install-steps-neo4j-desktop)
 - [Post-install steps Nginx](../docs/ricgraph_as_server.md#post-install-steps-nginx)
