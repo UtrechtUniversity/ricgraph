@@ -512,14 +512,14 @@ You will need to create your own Apache configuration file
 [AWStats](https://awstats.sourceforge.io)
 is a real-time logfile analyser, for e.g. web server log files.
 You can only do this if you have installed Apache or Nginx.
-Also, you have to change the path to the web server log files directory.
-Read the first few lines of file
-*/etc/awstats/awstats.ricgraph.conf* (after installation) how to do that.
 
 ### AWStats with Apache
 Follow the steps at [AWStats with Nginx](#awstats-with-nginx).
 You will need to create your own Apache configuration file
 (this has not been done yet).
+Also, you have to change the path to the web server log files directory.
+Read the first few lines of file
+*/etc/awstats/awstats.ricgraph.conf* (after installation) how to do that.
 
 ### AWStats with Nginx
 
