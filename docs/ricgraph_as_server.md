@@ -335,6 +335,15 @@ and Ricgraph data to the outside world.*
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Apache has been installed.
+* Make sure Certbot has been installed.
+  Execute:
+  ```
+  [Your Linux package install command] certbot python3-certbot-apache
+  ```
+  For some Linux versions you will need to do:
+  ```
+  [Your Linux package install command] python3-certbot python3-certbot-apache
+  ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Enable two Apache modules (they have already been installed when you installed Apache):
   ```
@@ -376,6 +385,10 @@ and Ricgraph data to the outside world.*
   systemctl -l status apache2.service
   journalctl -u apache2.service
   ```
+* Generate a SSL certificate for your host. In the Apache config file is explained how to do
+  that. Then restart Apache.
+  For some specific situations this is not necessary (e.g. if you are running
+  Ricgraph on a local machine).
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer from inside your virtual machine by typing 
   [http://localhost](http://localhost) in your web browser in the virtual machine, or 
@@ -432,6 +445,15 @@ and Ricgraph data to the outside world.*
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Nginx has been installed.
+* Make sure Certbot has been installed.
+  Execute:
+  ```
+  [Your Linux package install command] certbot python3-certbot-nginx
+  ```
+  For some Linux versions you will need to do:
+  ```
+  [Your Linux package install command] python3-certbot python3-certbot-nginx
+  ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Install the Nginx *Ricgraph Explorer* configuration file:
   copy file
@@ -468,6 +490,10 @@ and Ricgraph data to the outside world.*
   systemctl -l status nginx.service
   journalctl -u nginx.service
   ```
+* Generate a SSL certificate for your host. In the Nginx config file is explained how to do
+  that. Then restart Nginx.
+  For some specific situations this is not necessary (e.g. if you are running
+  Ricgraph on a local machine).
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer from inside your virtual machine by typing
   [http://localhost](http://localhost) in your web browser in the virtual machine, or
