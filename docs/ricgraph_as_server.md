@@ -335,7 +335,7 @@ and Ricgraph data to the outside world.*
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Apache has been installed.
-* Make sure Certbot has been installed.
+* Recommended: Make sure Certbot has been installed.
   Execute:
   ```
   [Your Linux package install command] certbot python3-certbot-apache
@@ -343,6 +343,11 @@ and Ricgraph data to the outside world.*
   For some Linux versions you will need to do:
   ```
   [Your Linux package install command] python3-certbot python3-certbot-apache
+  ```
+  Check if Certbot has been set up to renew SSL certificates automatically.
+  Do this by making sure `certbot.timer` is enabled and started:
+  ```
+  systemctl status certbot.timer
   ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Enable two Apache modules (they have already been installed when you installed Apache):
@@ -445,7 +450,7 @@ and Ricgraph data to the outside world.*
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Nginx has been installed.
-* Make sure Certbot has been installed.
+* Recommended: Make sure Certbot has been installed.
   Execute:
   ```
   [Your Linux package install command] certbot python3-certbot-nginx
@@ -453,6 +458,11 @@ and Ricgraph data to the outside world.*
   For some Linux versions you will need to do:
   ```
   [Your Linux package install command] python3-certbot python3-certbot-nginx
+  ```
+  Check if Certbot has been set up to renew SSL certificates automatically.
+  Do this by making sure `certbot.timer` is enabled and started:
+  ```
+  systemctl status certbot.timer
   ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Install the Nginx *Ricgraph Explorer* configuration file:
