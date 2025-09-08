@@ -50,9 +50,19 @@ it will install everything automatically (by using the
    ```
    On success, the Makefile will print *installed successfully*.
 1. Download and install Ricgraph in your home directory.
+   This is recommended.
    Type as regular user (i.e., be sure you are not user *root*):
    ```
    make install_ricgraph_singleuser_neo4j_community
+   ```
+   On success, the Makefile will print *installed successfully*.
+
+   Alternatively, you can
+   download and install the *cutting edge* (most recent) version of
+   Ricgraph in system your home directory.
+   Type as regular user (i.e., be sure you are not user *root*):
+   ```
+   make install_ricgraph_singleuser_cuttingedge_neo4j_community
    ```
    On success, the Makefile will print *installed successfully*.
 1. Harvest two source systems in Ricgraph:

@@ -57,9 +57,18 @@ To follow this procedure, you need to be able to change to user *root*.
    make install_enable_neo4j_community
    ```
    On success, the Makefile will print *installed successfully*.
-1. Download and install Ricgraph in system directory */opt*.
+1. Download and install the last released version of 
+   Ricgraph in system directory */opt*. This is recommended. Type:
    ```
    make install_ricgraph_server
+   ```
+   On success, the Makefile will print *installed successfully*.
+
+   Alternatively, you can 
+   download and install the *cutting edge* (most recent) version of
+   Ricgraph in system directory */opt*. Type:
+   ```
+   make install_ricgraph_server_cuttingedge
    ```
    On success, the Makefile will print *installed successfully*.
 1. Harvest two source systems in Ricgraph:
@@ -335,20 +344,6 @@ and Ricgraph data to the outside world.*
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Apache has been installed.
-* Recommended: Make sure Certbot has been installed.
-  Execute:
-  ```
-  [Your Linux package install command] certbot python3-certbot-apache
-  ```
-  For some Linux versions you will need to do:
-  ```
-  [Your Linux package install command] python3-certbot python3-certbot-apache
-  ```
-  Check if Certbot has been set up to renew SSL certificates automatically.
-  Do this by making sure `certbot.timer` is enabled and started:
-  ```
-  systemctl status certbot.timer
-  ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Enable two Apache modules (they have already been installed when you installed Apache):
   ```
@@ -390,10 +385,25 @@ and Ricgraph data to the outside world.*
   systemctl -l status apache2.service
   journalctl -u apache2.service
   ```
-* Generate a SSL certificate for your host. In the Apache config file is explained how to do
-  that. Then restart Apache.
+* Recommended: Make sure Certbot has been installed.
   For some specific situations this is not necessary (e.g. if you are running
-  Ricgraph on a local machine).
+  Ricgraph on a local machine and only use it locally).
+  Execute:
+  ```
+  [Your Linux package install command] certbot python3-certbot-apache
+  ```
+  For some Linux versions you will need to do:
+  ```
+  [Your Linux package install command] python3-certbot python3-certbot-apache
+  ```
+  Check if Certbot has been set up to renew SSL certificates automatically.
+  Do this by making sure `certbot.timer` is enabled and started:
+  ```
+  systemctl status certbot.timer
+  ```
+  Generate a SSL certificate for your host. 
+  In the Apache config file is explained how to do
+  that. Then restart Apache.
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer from inside your virtual machine by typing 
   [http://localhost](http://localhost) in your web browser in the virtual machine, or 
@@ -450,20 +460,6 @@ and Ricgraph data to the outside world.*
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Nginx has been installed.
-* Recommended: Make sure Certbot has been installed.
-  Execute:
-  ```
-  [Your Linux package install command] certbot python3-certbot-nginx
-  ```
-  For some Linux versions you will need to do:
-  ```
-  [Your Linux package install command] python3-certbot python3-certbot-nginx
-  ```
-  Check if Certbot has been set up to renew SSL certificates automatically.
-  Do this by making sure `certbot.timer` is enabled and started:
-  ```
-  systemctl status certbot.timer
-  ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Install the Nginx *Ricgraph Explorer* configuration file:
   copy file
@@ -500,10 +496,25 @@ and Ricgraph data to the outside world.*
   systemctl -l status nginx.service
   journalctl -u nginx.service
   ```
-* Generate a SSL certificate for your host. In the Nginx config file is explained how to do
-  that. Then restart Nginx.
+* Recommended: Make sure Certbot has been installed.
   For some specific situations this is not necessary (e.g. if you are running
-  Ricgraph on a local machine).
+  Ricgraph on a local machine and only use it locally).
+  Execute:
+  ```
+  [Your Linux package install command] certbot python3-certbot-nginx
+  ```
+  For some Linux versions you will need to do:
+  ```
+  [Your Linux package install command] python3-certbot python3-certbot-nginx
+  ```
+  Check if Certbot has been set up to renew SSL certificates automatically.
+  Do this by making sure `certbot.timer` is enabled and started:
+  ```
+  systemctl status certbot.timer
+  ```
+  Generate a SSL certificate for your host. 
+  In the Nginx config file is explained how to do
+  that. Then restart Nginx.
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer from inside your virtual machine by typing
   [http://localhost](http://localhost) in your web browser in the virtual machine, or
