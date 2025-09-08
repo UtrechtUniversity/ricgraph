@@ -20,7 +20,7 @@ In the left column of this page, you can explore the calls (i.e., the REST API o
 You don't need to provide authentication to use these calls.
 
 ## Technicalities
-The Ricgraph REST API uses the [OpenAPI standard](https://www.openapis.org). It gives access to Ricgraph function calls both in *ricgraph.py* and in *ricgraph_explorer.py*.
+The Ricgraph REST API uses the [OpenAPI standard](https://www.openapis.org). It gives access to Ricgraph function calls.
 Read more about [REST (representational state transfer)](https://en.wikipedia.org/wiki/REST), or read more about [API (application programming interface)](https://en.wikipedia.org/wiki/API). 
 
 ## Base URL
@@ -38,7 +38,7 @@ Read more about [REST (representational state transfer)](https://en.wikipedia.or
 |--------|----------|-------------|
 | GET | [GET /person/search](#get-personsearch) | Search for a person |
 | GET | [GET /person/all_information](#get-personall_information) | Show all information related to this person |
-| GET | [GET /person/share_research_results](#get-personshare_research_results) | Find persons that share any share research result types with this person |
+| GET | [GET /person/share_research_results](#get-personshare_research_results) | Find persons that share any research result types with this person |
 | GET | [GET /person/collaborating_organizations](#get-personcollaborating_organizations) | Find organizations that this person collaborates with |
 | GET | [GET /person/enrich](#get-personenrich) | Find information harvested from other source systems, not present in this source system |
 | GET | [GET /organization/search](#get-organizationsearch) | Search for a (sub-)organization |
@@ -128,7 +128,7 @@ __Responses__
 
 ## GET /person/share_research_results
 
-Find persons that share any share research result types with this person
+Find persons that share any research result types with this person
 
 
 

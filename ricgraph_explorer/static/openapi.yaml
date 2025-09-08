@@ -71,8 +71,7 @@ info:
               
               The Ricgraph REST API uses 
               the [OpenAPI standard](https://www.openapis.org).
-              It gives access to Ricgraph function calls both in *ricgraph.py* 
-              and in *ricgraph_explorer.py*. 
+              It gives access to Ricgraph function calls.
               
               Read more about [REST (representational state transfer)](https://en.wikipedia.org/wiki/REST), or
               read more about [API (application programming interface)](https://en.wikipedia.org/wiki/API).
@@ -265,7 +264,7 @@ paths:
       operationId: "ricgraph_explorer.api_person_share_research_results"
       tags:
         - Person
-      summary: "Find persons that share any share research result types with this person"
+      summary: "Find persons that share any research result types with this person"
       parameters:
         - $ref: "#/components/parameters/key"
         - $ref: "#/components/parameters/max_nr_items"
