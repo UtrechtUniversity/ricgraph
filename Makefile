@@ -574,8 +574,7 @@ endif
 endif
 
 
-# install_certbot: check_user_root
-install_certbot:
+install_certbot: check_user_root
 ifeq ($(shell test ! -d /etc/letsencrypt && echo true),true)
 	@echo "Installing certbot and its webserver plugin."
 	$(package_install_cmd) $(certbot) certbot-systemd-timer
