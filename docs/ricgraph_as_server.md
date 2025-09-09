@@ -168,16 +168,18 @@ To follow this procedure, you need to be able to change to user *root*.
    ```
    mv /opt/ricgraph_venv /opt/ricgraph_venv-old
    ```
-1. Optional: Set a password for the Neo4j Community Edition graph database.
-   If you have no idea what this means, don't do it.
+1. You need to set a password for the Neo4j Community Edition graph database.
+   Get it from your old *ricgraph.ini* file. Search for a line
+   that starts with *graphdb_password =* and does *not* have a *#* in front of it.
+   It should have text after the *=*.
    Type:
    ```
    make specify_graphdb_password
    ```
-   The Makefile will ask you for a password. It will be used for the graph database
-   that you will be creating. If you don't set it, it will be generated automatically.
+   The Makefile will ask you for a password. 
+   Type the password you found above, use the text after the *=*.
 1. Download and install the last released version of
-   Ricgraph in system directory */opt*. This is recommended. Type:
+   Ricgraph in system directory */opt*. This is recommended. Then type:
    ```
    make install_ricgraph_server
    ```
@@ -411,6 +413,17 @@ and Ricgraph data to the outside world.*
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Apache has been installed.
+* Recommended: Make sure Certbot has been installed.
+  For some specific situations this is not necessary (e.g. if you are running
+  Ricgraph on a local machine and only use it locally).
+  Execute:
+  ```
+  [Your Linux package install command] certbot python3-certbot-apache
+  ```
+  For some Linux versions you will need to do:
+  ```
+  [Your Linux package install command] python3-certbot python3-certbot-apache
+  ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Enable two Apache modules (they have already been installed when you installed Apache):
   ```
@@ -452,17 +465,10 @@ and Ricgraph data to the outside world.*
   systemctl -l status apache2.service
   journalctl -u apache2.service
   ```
-* Recommended: Make sure Certbot has been installed.
+* Recommended. 
   For some specific situations this is not necessary (e.g. if you are running
   Ricgraph on a local machine and only use it locally).
-  Execute:
-  ```
-  [Your Linux package install command] certbot python3-certbot-apache
-  ```
-  For some Linux versions you will need to do:
-  ```
-  [Your Linux package install command] python3-certbot python3-certbot-apache
-  ```
+
   Check if Certbot has been set up to renew SSL certificates automatically.
   Do this by making sure `certbot.timer` is enabled and started:
   ```
@@ -527,6 +533,17 @@ and Ricgraph data to the outside world.*
   it](ricgraph_as_server.md#create-a-python-virtual-environment-and-install-ricgraph-in-it).
 * Login as user *root*.
 * Make sure Nginx has been installed.
+* Recommended: Make sure Certbot has been installed.
+  For some specific situations this is not necessary (e.g. if you are running
+  Ricgraph on a local machine and only use it locally).
+  Execute:
+  ```
+  [Your Linux package install command] certbot python3-certbot-nginx
+  ```
+  For some Linux versions you will need to do:
+  ```
+  [Your Linux package install command] python3-certbot python3-certbot-nginx
+  ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
 * Install the Nginx *Ricgraph Explorer* configuration file:
   copy file
@@ -563,17 +580,10 @@ and Ricgraph data to the outside world.*
   systemctl -l status nginx.service
   journalctl -u nginx.service
   ```
-* Recommended: Make sure Certbot has been installed.
+* Recommended.
   For some specific situations this is not necessary (e.g. if you are running
   Ricgraph on a local machine and only use it locally).
-  Execute:
-  ```
-  [Your Linux package install command] certbot python3-certbot-nginx
-  ```
-  For some Linux versions you will need to do:
-  ```
-  [Your Linux package install command] python3-certbot python3-certbot-nginx
-  ```
+
   Check if Certbot has been set up to renew SSL certificates automatically.
   Do this by making sure `certbot.timer` is enabled and started:
   ```

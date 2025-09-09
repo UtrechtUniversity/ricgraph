@@ -153,14 +153,16 @@ This procedure will only update Ricgraph, not Neo4j Community Edition.
    ```
    mv ricgraph_venv ricgraph_venv-old
    ```
-1. Optional: Set a password for the Neo4j Community Edition graph database.
-   If you have no idea what this means, don't do it.
+1. You need to set a password for the Neo4j Community Edition graph database.
+   Get it from your old *ricgraph.ini* file. Search for a line
+   that starts with *graphdb_password =* and does *not* have a *#* in front of it.
+   It should have text after the *=*.
    Type:
    ```
    make specify_graphdb_password
    ```
-   The Makefile will ask you for a password. It will be used for the graph database
-   that you will be creating. If you don't set it, it will be generated automatically.
+   The Makefile will ask you for a password.
+   Type the password you found above, use the text after the *=*.
 1. Download and install Ricgraph in your home directory.
    This is recommended.
    Type as regular user (i.e., be sure you are not user *root*):
