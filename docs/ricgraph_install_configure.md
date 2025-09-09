@@ -28,7 +28,7 @@ On this page, you can find:
 
 ## Fast and recommended way to install Ricgraph for a single user
 
-This text applies to a new install of Ricgraph. For an update, see below.
+This text applies to a new installation of Ricgraph. For an update, see below.
 
 ### You can change to user *root*
 To follow this procedure, you need to be able to change to user *root*.
@@ -437,7 +437,7 @@ Install your graph database backend (choose one of these):
   Edition](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) (recommended, only possible if you are able to change to user *root*).
 * [Install Neo4j Desktop](ricgraph_backend_neo4j.md#install-neo4j-desktop)
   Optional: [Install the Bloom
-  configuration](ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop-optional).
+  configuration](ricgraph_backend_neo4j.md#install-bloom-configuration-for-neo4j-desktop)
 * [Install and start Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
 
 ### Download Ricgraph

@@ -41,7 +41,7 @@ On this page, you can find:
 
 ## Fast and recommended way to install Ricgraph as a server
 To follow this procedure, you need to be able to change to user *root*.
-This text applies to a new install of Ricgraph. For an update, see below.
+This text applies to a new installation of Ricgraph. For an update, see below.
 
 1. [Check the requirements](ricgraph_install_configure.md#requirements-for-ricgraph).
 1. Login as user *root*.
@@ -50,7 +50,7 @@ This text applies to a new install of Ricgraph. For an update, see below.
    ```
 1. Get the most recent Ricgraph Makefile.
    Go to your home directory, not the home directory of user *root*.
-   Do all of the following steps in that directory.
+   Do all following steps in that directory.
    Type:
    ```
    wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
@@ -153,9 +153,11 @@ To follow this procedure, you need to be able to change to user *root*.
    ```
    sudo bash
    ```
-1. Get the most recent Ricgraph Makefile. Type:
+1. Get the most recent Ricgraph Makefile.
+   Go to your home directory, not the home directory of user *root*.
+   Do all following steps in that directory.
+   Type:
    ```
-   cd
    wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
    ```
    Read more at [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile).
@@ -354,7 +356,7 @@ For the REST API, you will need an ASGI environment.
 This section describes how
 to do that with Apache and *gunicorn*. 
 Note that the example configuration file for Apache exposes Ricgraph Explorer
-to the outside world on a http (unencrypted) connection, without any form of authentication.
+to the outside world on an http (unencrypted) connection, without any form of authentication.
 Certainly, this is not the way to do it. At least you should expose Ricgraph Explorer
 and the REST API
 using a https (encrypted) connection, possibly with additional authentication.
@@ -458,7 +460,7 @@ and Ricgraph data to the outside world.*
   ```
   systemctl status certbot.timer
   ```
-  Generate a SSL certificate for your host. 
+  Generate an SSL certificate for your host. 
   In the Apache config file is explained how to do
   that. Then restart Apache.
 * Exit from user *root*.
@@ -569,7 +571,7 @@ and Ricgraph data to the outside world.*
   ```
   systemctl status certbot.timer
   ```
-  Generate a SSL certificate for your host. 
+  Generate an SSL certificate for your host. 
   In the Nginx config file is explained how to do
   that. Then restart Nginx.
 * Exit from user *root*.
@@ -609,7 +611,7 @@ You will need to create your own Apache configuration file
 * You can only access Munin on the server you have installed it
   on. Go to [http://localhost:8060](http://localhost:8060).
   Note that you will only be able to see any results after `munin-node` has
-  executed at least once. This may take up to 5 minutes after your install.
+  executed at least once. This may take up to 5 minutes after your installation.
 
 
 ## Install AWStats web server log analysis
@@ -757,10 +759,10 @@ On the workspace window, you will find the name of the workspace. It will be a
 SURF Research Cloud uses *guacamole*, which provides you with a desktop window
 in your browser. There are two ways to access your workspace and authenticate:
 
-* Use port 443, then you will login on your workspace using SURF conext.
+* Use port 443, then you will log in on your workspace using SURF conext.
   In this case, the link will look like: 
   [https://[name of your workspace].src.surf-hosted.nl](https://[name of your workspace].src.surf-hosted.nl).
-* Use port 3389, then you will login on your workspace using a one time password.
+* Use port 3389, then you will log in on your workspace using a one time password.
   In this case, the link will look like: 
   [https://[name of your workspace].src.surf-hosted.nl:3389](https://[name of your workspace].src.surf-hosted.nl:3389).
 
