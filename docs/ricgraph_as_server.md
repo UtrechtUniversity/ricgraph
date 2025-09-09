@@ -27,6 +27,7 @@ server](#fast-and-recommended-way-to-install-ricgraph-as-a-server).
 On this page, you can find:
 
 * [Fast and recommended way to install Ricgraph as a server](#fast-and-recommended-way-to-install-ricgraph-as-a-server)
+* [Update Ricgraph as a server](#update-ricgraph-as-a-server)
 * [Run Ricgraph scripts from the command line or as a cronjob](#run-ricgraph-scripts-from-the-command-line-or-as-a-cronjob)
 * [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 * [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
@@ -40,18 +41,29 @@ On this page, you can find:
 
 ## Fast and recommended way to install Ricgraph as a server
 To follow this procedure, you need to be able to change to user *root*.
+This text applies to a new install of Ricgraph. For an update, see below.
 
 1. [Check the requirements](ricgraph_install_configure.md#requirements-for-ricgraph).
 1. Login as user *root*.
    ```
    sudo bash
    ```
-1. Get the most recent Ricgraph Makefile. Type:
+1. Get the most recent Ricgraph Makefile.
+   Go to your home directory, not the home directory of user *root*.
+   Do all of the following steps in that directory.
+   Type:
    ```
-   cd
    wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
    ```
    Read more at [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile).
+1. Optional: Set a password for the Neo4j Community Edition graph database.
+   If you have no idea what this means, don't do it.
+   Type:
+   ```
+   make specify_graphdb_password
+   ```
+   The Makefile will ask you for a password. It will be used for the graph database 
+   that you will be creating. If you don't set it, it will be generated automatically.
 1. Install Neo4j Community Edition. Type:
    ```
    make install_enable_neo4j_community
@@ -132,6 +144,51 @@ or [Install and start Neo4j Community Edition graph database
 backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition)
 may help in finding solutions.
 
+
+## Update Ricgraph as a server
+This procedure will only update Ricgraph, not Neo4j Community Edition.
+To follow this procedure, you need to be able to change to user *root*.
+
+1. Login as user *root*.
+   ```
+   sudo bash
+   ```
+1. Get the most recent Ricgraph Makefile. Type:
+   ```
+   cd
+   wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
+   ```
+   Read more at [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile).
+1. Save your old `ricgraph.ini` file, and if you have made changes to
+   `ricgraph_explorer/static/homepage_intro.html`, save it too.
+   If you have changed any other files, save them too.
+1. Save your old installation, type:
+   ```
+   mv /opt/ricgraph_venv /opt/ricgraph_venv-old
+   ```
+1. Download and install the last released version of
+   Ricgraph in system directory */opt*. This is recommended. Type:
+   ```
+   make install_ricgraph_server
+   ```
+   On success, the Makefile will print *installed successfully*.
+
+   Alternatively, you can
+   download and install the *cutting edge* (most recent) version of
+   Ricgraph in system directory */opt*. Type:
+   ```
+   make install_ricgraph_server_cuttingedge
+   ```
+   On success, the Makefile will print *installed successfully*.
+1. Restore the files you have saved above.
+1. If you use gunicorn, restart it, type:
+   ``` 
+   systemctl restart ricgraph_explorer_gunicorn.service
+   ```
+1. If you use a webserver, restart it.
+1. Exit from user *root*.
+
+If everything succeeded, you are done updating Ricgraph as a server.
 
 ## Run Ricgraph scripts from the command line or as a cronjob
 

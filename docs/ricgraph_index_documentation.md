@@ -240,6 +240,8 @@ __T__
 
 __U__
 
+- [Update Ricgraph as a server](../docs/ricgraph_as_server.md#update-ricgraph-as-a-server)
+- [Update Ricgraph as a single user](../docs/ricgraph_install_configure.md#update-ricgraph-as-a-single-user)
 - [Use a Python virtual environment and install Python requirements](../docs/ricgraph_install_configure.md#use-a-python-virtual-environment-and-install-python-requirements)
 - [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](../docs/ricgraph_as_server.md#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 - [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)

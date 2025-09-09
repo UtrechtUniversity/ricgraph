@@ -16,6 +16,7 @@ Ricgraph for a single user](#fast-and-recommended-way-to-install-ricgraph-for-a-
 On this page, you can find:
 
 * [Fast and recommended way to install Ricgraph for a single user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user)
+* [Update Ricgraph as a single user](#update-ricgraph-as-a-single-user)
 * [Requirements for Ricgraph](#requirements-for-ricgraph)
 * [Ricgraph Makefile](#ricgraph-makefile)
 * [Ricgraph initialization file](#ricgraph-initialization-file)
@@ -26,6 +27,8 @@ On this page, you can find:
 
 
 ## Fast and recommended way to install Ricgraph for a single user
+
+This text applies to a new install of Ricgraph. For an update, see below.
 
 ### You can change to user *root*
 To follow this procedure, you need to be able to change to user *root*.
@@ -41,6 +44,14 @@ it will install everything automatically (by using the
    wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
    ```
    Read more at [Ricgraph Makefile](#ricgraph-makefile).
+1. Optional: Set a password for the Neo4j Community Edition graph database.
+   If you have no idea what this means, don't do it.
+   Type:
+   ```
+   make specify_graphdb_password
+   ```
+   The Makefile will ask you for a password. It will be used for the graph database
+   that you will be creating. If you don't set it, it will be generated automatically.
 1. Install Neo4j Community Edition. Only for this step you need to be user *root*.
    Type:
    ```
@@ -124,6 +135,43 @@ If not, sections
 [Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
 or [Install and start Neo4j Community Edition graph database
 backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) may help in finding solutions.
+
+
+## Update Ricgraph as a single user
+This procedure will only update Ricgraph, not Neo4j Community Edition.
+
+1. Get the most recent Ricgraph Makefile. Type:
+   ```
+   cd
+   wget https://raw.githubusercontent.com/UtrechtUniversity/ricgraph/main/Makefile
+   ```
+   Read more at [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile).
+1. Save your old `ricgraph.ini` file, and if you have made changes to
+   `ricgraph_explorer/static/homepage_intro.html`, save it too.
+   If you have changed any other files, save them too.
+1. Save your old installation. Go to your home directory. Type:
+   ```
+   mv ricgraph_venv ricgraph_venv-old
+   ```
+1. Download and install Ricgraph in your home directory.
+   This is recommended.
+   Type as regular user (i.e., be sure you are not user *root*):
+   ```
+   make install_ricgraph_singleuser_neo4j_community
+   ```
+   On success, the Makefile will print *installed successfully*.
+
+   Alternatively, you can
+   download and install the *cutting edge* (most recent) version of
+   Ricgraph in system your home directory.
+   Type as regular user (i.e., be sure you are not user *root*):
+   ```
+   make install_ricgraph_singleuser_cuttingedge_neo4j_community
+   ```
+   On success, the Makefile will print *installed successfully*.
+1. Restore the files you have saved above.
+
+If everything succeeded, you are done updating Ricgraph as a server.
 
 ## Requirements for Ricgraph
 
