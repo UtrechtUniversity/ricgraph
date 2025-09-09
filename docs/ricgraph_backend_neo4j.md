@@ -249,7 +249,7 @@ The following sections show some examples for a quick start using Bloom.
 
 #### Execute queries in Bloom
 
-The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
+The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop)
 contains four different shortcuts for
 [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)):
 
@@ -270,9 +270,9 @@ and [Boom pattern
 search](https://neo4j.com/docs/bloom-user-guide/current/bloom-tutorial/graph-pattern-search).
 
 Nodes found can be examined or expanded as described in the section
-[Actions while clicking on a node](#Actions-while-clicking-on-a-node).
+[Actions while clicking on a node](#actions-while-clicking-on-a-node-in-bloom).
 The result will be visualized as described in section
-[Visualization of nodes](#Visualization-of-nodes).
+[Visualization of nodes](#visualization-of-nodes-in-bloom).
 
 #### Actions while clicking on a node in Bloom
 
@@ -304,7 +304,7 @@ size or color. This can be changed as follows:
    show on the node, and the icon.
 1. In the tab "Rule-based" you can add your own rules.
 
-The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop-optional)
+The [Ricgraph Bloom configuration file](#install-bloom-configuration-for-neo4j-desktop)
 contains a few rules based on the value of properties.
 Rules which determine the color of a node:
 
@@ -398,10 +398,10 @@ in Neo4j Desktop, follow these steps:
 1. A new local graph database is being created. This may take a while.
 1. Hoover over the newly created graph database and click "Start" to run it.
 1. Optional: Once it is active, [install the Bloom 
-   configuration](#install-bloom-configuration-for-neo4j-desktop-optional).
+   configuration](#install-bloom-configuration-for-neo4j-desktop).
 1. Now you are ready to explore the data 
    using [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer) or
-   using [Bloom](#how-to-use-bloom-for-neo4j-desktop-optional).
+   using [Bloom](#neo4j-desktop-with-bloom-optional).
 
 ### Restore a Neo4j Desktop database dump of Ricgraph in Neo4j Community Edition
 To restore a
