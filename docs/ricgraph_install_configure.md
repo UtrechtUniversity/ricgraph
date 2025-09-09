@@ -110,11 +110,11 @@ backend](ricgraph_backend_neo4j.md#install-and-start-neo4j-community-edition) ma
 
 ### You cannot change to user *root*
 If you are not able to change to user *root*,
-change step 3 and 4 in the previous section.
+change step 4 and 5 in the previous section.
 This is a less recommended method to install Ricgraph for a single user,
 since you have to do a number of things manually.
 
-3. Install Neo4j Desktop. Type:
+4. Install Neo4j Desktop. Type:
    ```
    make install_neo4j_desktop
    ```
@@ -123,7 +123,7 @@ since you have to do a number of things manually.
    steps](ricgraph_backend_neo4j.md#post-install-steps-neo4j-desktop).
    Any time you want to use Neo4j Desktop, you will need to start
    it by hand, read [Start Neo4j Desktop](ricgraph_backend_neo4j.md#start-neo4j-desktop).
-4. Download and install Ricgraph in your home directory.
+5. Download and install Ricgraph in your home directory.
    Read more at the sections below. Type:
    ```
    make install_ricgraph_singleuser_neo4j_desktop
@@ -153,6 +153,14 @@ This procedure will only update Ricgraph, not Neo4j Community Edition.
    ```
    mv ricgraph_venv ricgraph_venv-old
    ```
+1. Optional: Set a password for the Neo4j Community Edition graph database.
+   If you have no idea what this means, don't do it.
+   Type:
+   ```
+   make specify_graphdb_password
+   ```
+   The Makefile will ask you for a password. It will be used for the graph database
+   that you will be creating. If you don't set it, it will be generated automatically.
 1. Download and install Ricgraph in your home directory.
    This is recommended.
    Type as regular user (i.e., be sure you are not user *root*):

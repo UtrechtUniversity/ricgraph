@@ -168,6 +168,14 @@ To follow this procedure, you need to be able to change to user *root*.
    ```
    mv /opt/ricgraph_venv /opt/ricgraph_venv-old
    ```
+1. Optional: Set a password for the Neo4j Community Edition graph database.
+   If you have no idea what this means, don't do it.
+   Type:
+   ```
+   make specify_graphdb_password
+   ```
+   The Makefile will ask you for a password. It will be used for the graph database
+   that you will be creating. If you don't set it, it will be generated automatically.
 1. Download and install the last released version of
    Ricgraph in system directory */opt*. This is recommended. Type:
    ```
