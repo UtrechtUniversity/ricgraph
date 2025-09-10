@@ -44,7 +44,7 @@
 # ########################################################################
 # These are the versions of the software to be installed.
 # ########################################################################
-ricgraph_version := 2.13
+ricgraph_version := 3.0
 
 # Find latest versions on https://neo4j.com/deployment-center.
 neo4j_community_version := 2025.03.0

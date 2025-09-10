@@ -10,7 +10,7 @@ pandas
 pyalex
 ratelimit
 requests
-ricgraph==2.13
+ricgraph==3.0
 Sickle
 twine
 unidecode
