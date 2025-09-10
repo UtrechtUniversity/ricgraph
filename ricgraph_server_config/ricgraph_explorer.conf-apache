@@ -42,13 +42,10 @@
 # You will need to change WEBSERVER_NAME below in the name of the
 # webserver that is serving Ricgraph (e.g. ricgraph.example.com).
 #
-# WARNING: 
-# Note that this file, as it is now, serves Ricgraph Explorer and the
-# Ricgraph REST API on a http connection, not secured (no https), 
-# and without authentication.
-# At least you should change this file to use https.
+# WARNING:
+# There are many possible settings.
 # You have to make modifications yourself, since there are too many
-# site specific settings to give example code.
+# site specific settings to give example code for all.
 # Examples of these settings are your external IP address, hostname,
 # web server, domain name, SSL certificate provider, authentication source, etc.
 #
@@ -118,7 +115,7 @@ Define APACHE_LOGDIR "/var/log/apache2"
     # These paths are also in /etc/awstats/awstats.ricgraph.conf
     # (if you use awstats). Know what you do if you change them.
     ErrorLog ${APACHE_LOG_DIR}/ricgraph_error.log
-    CustomLog ${APACHE_LOG_DIR}/ricgraph_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\""
-    CustomLog ${APACHE_LOG_DIR}/ricgraph_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+    CustomLog ${APACHE_LOGDIR}/ricgraph_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\""
+    CustomLog ${APACHE_LOGDIR}/ricgraph_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
 
 </VirtualHost>

@@ -41,12 +41,9 @@
 # webserver that is serving Ricgraph (e.g. ricgraph.example.com).
 #
 # WARNING: 
-# Note that this file, as it is now, serves Ricgraph Explorer and the
-# Ricgraph REST API on a http connection, not secured (no https), 
-# and without authentication.
-# At least you should change this file to use https.
+# There are many possible settings.
 # You have to make modifications yourself, since there are too many
-# site specific settings to give example code.
+# site specific settings to give example code for all.
 # Examples of these settings are your external IP address, hostname,
 # web server, domain name, SSL certificate provider, authentication source, etc.
 #
