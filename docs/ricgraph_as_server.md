@@ -171,7 +171,7 @@ To follow this procedure, you need to be able to change to user *root*.
 1. You need to set a password for the Neo4j Community Edition graph database.
    Get it from your old *ricgraph.ini* file. Search for a line
    that starts with *graphdb_password =* and does *not* have a *#* in front of it.
-   It should have text after the *=*.
+   It should have text after the *=*. That is the password you are looking for.
    Type:
    ```
    make specify_graphdb_password
