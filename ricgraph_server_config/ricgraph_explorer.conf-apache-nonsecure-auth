@@ -1,0 +1,123 @@
+# ########################################################################
+#
+# Ricgraph - Research in context graph
+#
+# ########################################################################
+#
+# MIT License
+#
+# Copyright (c) 2024, 2025 Rik D.T. Janssen
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
+# ########################################################################
+#
+# This file is an example Apache configuration file, containing a
+# VirtualHost for both Ricgraph Explorer,
+# a web based tool to access Ricgraph, and the Ricgraph REST API.
+#
+# This is a very basic Apache config file, intended for the case
+# where you only need unsecure access (http, port 80) with authentication.
+# Note that this is usually not what you would want.
+# If you need a secure config file, use the other Apache
+# config file 'ricgraph_explorer.conf-apache'.
+#
+# This example configuration file uses a file
+# /etc/apache2/htpasswd-ricgraph for authentication.
+# It should have owner & group of the user that runs Apache,
+# probably user 'wwwrun' and group 'wwwrun', and it should
+# have 600 permission (rw for user only):
+# - chown wwwrun:wwwrun /etc/apache2/htpasswd-ricgraph
+# - chmod 600 /etc/apache2/htpasswd-ricgraph
+# You can create this file with the command:
+# htpasswd -c /etc/apache2/htpasswd-ricgraph [user name]
+# It will ask you for a password. 
+#
+# Apache proxies to a local host and port (see below). On that host/port 
+# runs the WSGI Gunicorn server using Uvicorn for ASGI applications.
+# That is done, since a ASGI application server is good practise for 
+# a REST API.
+#
+# READ THIS:
+# To prevent accidental exposure of data in Ricgraph to the outside world,
+# the lines starting with 'ProxyPass' have been commented.
+# Please read the warning above and take appropriate
+# measures before uncommenting it and starting Apache.
+#
+# Original version Rik D.T. Janssen, February, May 2024, May 2025.
+# Version with authentication Sept. 2025.
+#
+# ########################################################################
+
+
+Define RICGRAPH_PATH "/opt/ricgraph_venv"
+Define APACHE_LOGDIR "/var/log/apache2"
+
+
+# This webserver answers to any IP address on http (port 80).
+<VirtualHost *:80>
+    ServerName localhost:80
+    ServerAlias localhost
+    DocumentRoot "${RICGRAPH_PATH}/ricgraph_explorer"
+
+    # Performance improvement: make Apache serve static files,
+    # because that is faster than WSGI serving static files.
+    Alias /static/ "${RICGRAPH_PATH}/ricgraph_explorer/static/"
+    # Make robots.txt accessible directly.
+    Alias /robots.txt "${RICGRAPH_PATH}/ricgraph_explorer/static/robots.txt"
+    <Directory "${RICGRAPH_PATH}/ricgraph_explorer/static/">
+       AuthType Basic
+       AuthName "Ricgraph Explorer static files"
+       AuthUserFile /etc/apache2/htpasswd-ricgraph
+       Require valid-user
+    </Directory>
+
+    # Protect proxy access. Do not use <Location />. In that case,
+    # Apache first proxies, and doing so sends an unauthenticated link
+    # to gunicorn, which then throws an error.
+    # With <Proxy *>, Apache first does authentication, and then proxies.
+    <Proxy *>
+       AuthType Basic
+       AuthName "Ricgraph Explorer"
+       AuthUserFile /etc/apache2/htpasswd-ricgraph
+       Require valid-user
+    </Proxy>
+
+    # The hostname (127.0.0.1) and port (3030) below correspond to the
+    # hostname and port where Gunicorn is running. These parameters
+    # are set in file 'ricgraph_explorer_gunicorn.service'.
+    # If you change these, also change them in that file.
+    
+    # ########## Please modify
+    # To prevent accidental use, the lines with 'ProxyPass' 
+    # have been commented. Remove the comment to make it work.
+    # See 'Warning' and 'Read this' at the start of this file.
+    #ProxyPass / http://127.0.0.1:3030/
+    #ProxyPassReverse / http://127.0.0.1:3030/
+    # ########## End of please modify
+    ProxyPreserveHost On
+
+    LogLevel warn
+    # These paths are also in /etc/awstats/awstats.ricgraph.conf
+    # (if you use awstats). Know what you do if you change them.
+    ErrorLog ${APACHE_LOGDIR}/ricgraph_error.log
+    CustomLog ${APACHE_LOGDIR}/ricgraph_access.log "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\""
+    CustomLog ${APACHE_LOGDIR}/ricgraph_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+</VirtualHost>
