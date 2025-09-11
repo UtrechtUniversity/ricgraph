@@ -29,7 +29,7 @@
 # ########################################################################
 #
 # This file is an example Nginx configuration file, containing a
-# VirtualHost on port 80 (standard http port) for both Ricgraph Explorer, 
+# VirtualHost on port 80 & 443 (http & https port) for both Ricgraph Explorer,
 # a web based tool to access Ricgraph, and the Ricgraph REST API.
 #
 # Nginx proxies to a local host and port (see below). On that host/port 
