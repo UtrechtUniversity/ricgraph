@@ -149,8 +149,7 @@ endif
 # We need a package manager that can install 'rpm' or 'deb' files (for Neo4j Community Edition).
 ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for OpenSUSE Leap & Tumbleweed, Fedora.
-	# To update (not supported in this Makefile) you will need "rpm -iU".
-	package_install_cmd := rpm -i
+	package_install_cmd := zypper --non-interactive install --allow-unsigned-rpm
 	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
 else ifeq ($(shell which apt > /dev/null 2>&1 && echo $$?),0)
@@ -528,11 +527,12 @@ ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service &
 endif
 
 
-prepare_webserver_apache: check_user_root check_webserver_apache full_server_install install_certbot
+prepare_webserver_apache: check_user_root check_webserver_apache full_server_install
 ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf && echo true),true)
 ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && echo true),true)
 	@echo ""
 	@echo "Starting Preparing webserver Apache for use with Ricgraph."
+	@echo "This includes installing certbot, if it is not there yet."
 	@echo "Please make sure you know what you do."
 	@echo "Please, please, do read the documentation at:"
 	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
@@ -542,9 +542,11 @@ ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && ec
 	chmod 600 $(apache_vhosts_dir)/ricgraph_explorer.conf-apache
 	a2enmod mod_proxy
 	a2enmod mod_proxy_http
+	@if [ ! -d /etc/letsencrypt ]; then $(package_install_cmd) $(certbot) certbot-systemd-timer python3-certbot-apache; fi
 	@echo ""
 	@echo "Done."
-	@echo "Webserver Apache has been prepared. To make it work, continue reading at:"
+	@echo "Webserver Apache has been prepared. Certbot has been installed."
+	@echo "To make it work, continue reading at:"
 	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-apache"
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
@@ -552,11 +554,12 @@ endif
 endif
 
 
-prepare_webserver_nginx: check_user_root check_webserver_nginx full_server_install install_certbot
+prepare_webserver_nginx: check_user_root check_webserver_nginx full_server_install
 ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf && echo true),true)
 ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo true),true)
 	@echo ""
 	@echo "Starting Preparing webserver Nginx for use with Ricgraph."
+	@echo "This includes installing certbot, if it is not there yet."
 	@echo "Please make sure you know what you do."
 	@echo "Please, please, do read the documentation at:"
 	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
@@ -564,24 +567,15 @@ ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo
 	@echo ""
 	cp $(ricgraph_server_install_dir)/ricgraph_server_config/ricgraph_explorer.conf-nginx $(nginx_vhosts_dir)
 	chmod 600 $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx
+	@if [ ! -d /etc/letsencrypt ]; then $(package_install_cmd) $(certbot) certbot-systemd-timer python3-certbot-nginx; fi
 	@echo ""
 	@echo "Done."
-	@echo "Webserver Nginx has been prepared. To make it work, continue reading at:"
+	@echo "Webserver Nginx has been prepared. Certbot has been installed."
+	@echo "To make it work, continue reading at:"
 	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-nginx"
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
-endif
-
-
-install_certbot: check_user_root
-ifeq ($(shell test ! -d /etc/letsencrypt && echo true),true)
-	@echo "Installing certbot and its webserver plugin."
-	$(package_install_cmd) $(certbot) certbot-systemd-timer
-	@# Depending on the installed webserver, install its corresponding cerbot plugin.
-	@if [ -f /lib/systemd/system/nginx.service ]; then $(package_install_cmd) python3-certbot-nginx; fi
-	@if [ -f $(apache_service_file) ]; then $(package_install_cmd) python3-certbot-apache; fi
-	@echo "Finished successfully with installing certbot and its plugin."
 endif
 
 
