@@ -1442,6 +1442,10 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # This is specifically for external persons and external organizations. We only
     # find these while parsing research outputs, not while parsing persons.
     print('Determining external organizations from external persons...')
+    if 'AUTHOR_EXTERNALORG_NAME' not in parsed_content:
+        print('There are no external organizations from external persons.')
+        print('\nDone at ' + rcg.timestamp() + '.\n')
+        return
     resout = parsed_content[['AUTHOR_UUID',
                              'AUTHOR_EXTERNALORG_NAME']].copy(deep=True)
     resout['AUTHOR_EXTERNALORG_NAME'] = resout['AUTHOR_EXTERNALORG_NAME'].replace('', numpy.nan)
@@ -1449,6 +1453,10 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     history_event += ' Inserted external organization from ' + HARVEST_SOURCE + ' external author.'
 
+    if 'AUTHOR_EXTERNALORG_NAME' not in resout:
+        print('There are no external organizations from external persons after clean up.')
+        print('\nDone at ' + rcg.timestamp() + '.\n')
+        return
     resout.rename(columns={'AUTHOR_UUID': 'value1',
                            'AUTHOR_EXTERNALORG_NAME': 'value2'}, inplace=True)
     new_resout_columns = {'name1': 'PURE_UUID_PERS',
