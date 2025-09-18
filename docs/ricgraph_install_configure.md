@@ -410,6 +410,10 @@ The easiest way to go is to [Install and use
 Ricgraph in a container](ricgraph_containerized.md#ricgraph-in-a-container).
 This is relatively quick but it offers limited possibilities.
 
+Another way is to install Ricgraph on
+[Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl).
+Continue reading below.
+
 If you would like to go for a "full" install of Ricgraph on Windows using either 
 [Install and configure Ricgraph for a single user](ricgraph_install_configure.md#install-and-configure-ricgraph) or 
 [Install and configure Ricgraph as a server](ricgraph_as_server.md#ricgraph-as-a-server-on-linux),
@@ -421,6 +425,25 @@ I would recommend to create a Linux virtual machine using e.g.
 VirtualBox as explained in section [Requirements](#requirements-for-ricgraph), 
 and install Ricgraph in that 
 virtual machine as described above.
+
+### Installation using Windows Subsystem for Linux
+Windows Subsystem for Linux
+(WSL) allows you to run a Linux environment directly on Windows, without the need for a separate
+virtual machine or dual-boot setup.
+
+First, you need to install WSL, if you have not done so before. Follow the instructions
+on the [Microsoft documentation site for WSL](https://learn.microsoft.com/en-us/windows/wsl/).
+It explains how to install WSL and how to set it up.
+Add a Linux distribution of your choice.
+Then open WSL. Either find the distribution from the Start Menu, or type in 
+Powershell with:
+```
+wsl
+```
+
+If you are in the Linux environment, you can follow the standard Ricgraph installation.
+[Fast and recommended way to install
+Ricgraph for a single user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 
 
 ## Steps to take to install Ricgraph for a single user by hand
