@@ -436,12 +436,13 @@ on the [Microsoft documentation site for WSL](https://learn.microsoft.com/en-us/
 It explains how to install WSL and how to set it up.
 Add a Linux distribution of your choice.
 Then open WSL. Either find the distribution from the Start Menu, or type in 
-Powershell with:
+Powershell:
 ```
 wsl
 ```
 
-If you are in the Linux environment, you can follow the standard Ricgraph installation.
+If you are in the Linux environment, you can follow the standard Ricgraph installation
+method as described above:
 [Fast and recommended way to install
 Ricgraph for a single user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user).
 

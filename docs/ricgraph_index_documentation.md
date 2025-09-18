@@ -128,6 +128,7 @@ __I__
 - [Installation guide](../docs/ricgraph_tutorial.md#installation-guide)
 - [Installation Nginx](../docs/ricgraph_as_server.md#installation-nginx)
 - [Installation of the Ricgraph REST API](../docs/ricgraph_restapi.md#installation-of-the-ricgraph-rest-api)
+- [Installation using Windows Subsystem for Linux](../docs/ricgraph_install_configure.md#installation-using-windows-subsystem-for-linux)
 - [Introduction Apache webserver](../docs/ricgraph_as_server.md#introduction-apache-webserver)
 - [Introduction Nginx webserver](../docs/ricgraph_as_server.md#introduction-nginx-webserver)
 - [Introduction to harvest scripts](../docs/ricgraph_harvest_scripts.md#introduction-to-harvest-scripts)
