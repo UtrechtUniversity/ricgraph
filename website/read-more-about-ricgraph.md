@@ -3,8 +3,8 @@
 There are several places where you can start reading about Ricgraph:
 
 * For a gentle introduction in Ricgraph, please read the reference publication:
-  Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore
-  research in context from various systems. *SoftwareX*, 26(101736).
+  Rik D.T. Janssen (2024). *Ricgraph: A flexible and extensible graph to explore
+  research in context from various systems*. SoftwareX, 26(101736).
   [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
 * We also have an article about collaborations and Ricgraph:
   Rik D.T. Janssen (2025).

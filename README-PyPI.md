@@ -109,8 +109,8 @@ The items surrounded by the red line are the solution to this use case.
 ## Read more about Ricgraph
 
 For a gentle introduction in Ricgraph, read the reference publication: 
-Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore research in
-context from various systems. *SoftwareX*, 26(101736).
+Rik D.T. Janssen (2024). *Ricgraph: A flexible and extensible graph to explore research in
+context from various systems*. SoftwareX, 26(101736).
 [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
 
 You might also want to read the documentation on 

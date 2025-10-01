@@ -86,7 +86,7 @@ institutions, at every organizational level_. You can find the preprint on:
 
 _Abstract_ 
 
-In a research organization, researchers rarely work alone. They work with
+"In a research organization, researchers rarely work alone. They work with
 colleagues from their own and other organizations, often across
 multidisciplinary boundaries. That means that there are a lot of collaborations
 between persons and organizations, on various levels, within and between
@@ -109,7 +109,7 @@ relations between these items. It combines data from various systems and
 multiple organizations, and stores it in a single graph. This design allows to
 infer new relations, relations that are not present in any of the separate
 source systems. As a result, a wider variety of analytical approaches can be
-supported than would be possible with data from one source system.
+supported than would be possible with data from one source system."
 
 The published article will include interactive figures for Figs 6 – 11 that you
 can browse and hover with your web browser. They are listed as “Supporting
@@ -172,7 +172,7 @@ Beschrijving open science infrastructuur componenten:
 2. Optimalisatie- en efficiëntieslag CRIS/repositories en inzet als publicatiekanaal.
 3. Infrastructuur delen en hergebruik (sensitieve) onderzoeksdata.
 4. Infrastructuur delen en hergebruik research software.
-5. Open research informatie, discovery en actieve disseminatie.
+5. Open research informatie, discovery en actieve disseminatie."
 
 2 is about Optimalisatie en efficiëntieverbetering van de huidige
 CRIS/repository systemen, Inzetten van de CRIS/repositories infrastructuur als
