@@ -6,6 +6,11 @@ There are several places where you can start reading about Ricgraph:
   Rik D.T. Janssen (2024). Ricgraph: A flexible and extensible graph to explore
   research in context from various systems. *SoftwareX*, 26(101736).
   [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
+* We also have an article about collaborations and Ricgraph:
+  Rik D.T. Janssen (2025).
+  *Utilizing Ricgraph to gain insights into research collaborations across institutions,
+  at every organizational level*. Submitted to PLOS One [preprint].
+  [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
 * You can read the general presentation about Ricgraph, presenting Ricgraph in
   a visual   manner:
   [https://doi.org/10.5281/zenodo.12634234](https://doi.org/10.5281/zenodo.12634234).
