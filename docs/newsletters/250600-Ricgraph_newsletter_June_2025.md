@@ -1,6 +1,6 @@
 **Subject:**	Ricgraph newsletter June 2025
 
-**Sent:**	Wednesday, 11 June 2024 14:17
+**Sent:**	Wednesday, 11 June 2025 14:17
 
 ---
 
