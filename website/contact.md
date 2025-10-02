@@ -24,6 +24,6 @@ About three to four times a year we send out a newsletter.
 To subscribe, go to 
 [Ricgraph Contact](https://docs.ricgraph.eu/README.html#contact).
 We also have a 
-[newsletter archive](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-newsletters).
+[newsletter archive](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters).
 
 You might want to continue reading at [Get Ricgraph](get-ricgraph.md). 

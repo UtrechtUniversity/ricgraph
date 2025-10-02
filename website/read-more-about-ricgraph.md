@@ -29,14 +29,14 @@ There are several places where you can start reading about Ricgraph:
   in the [GitHub
   repository](https://github.com/UtrechtUniversity/ricgraph).
 * Explore
-  [publications](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-publications),
-  [presentations](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-presentations),
-  [newsletters](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-newsletters)
+  [publications](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-publications),
+  [presentations](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-presentations),
+  [newsletters](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters)
   (to subscribe, go to [Ricgraph
   Contact](https://docs.ricgraph.eu/README.html#contact)),
-  [projects with students](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students),
-  [use](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-use), and
-  [mentions](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-mentions)
+  [projects with students](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students),
+  [use](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-use), and
+  [mentions](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-mentions)
   of Ricgraph.
 
 ## Next steps

@@ -236,12 +236,12 @@ the previous section corresponds to figure (a).
   at every organizational level*. Submitted to PLOS One [preprint].
   [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
 * Read more about
-  [publications](ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
-  [presentations](ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
-  [newsletters](ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters),
-  [projects with students](ricgraph_pubs_pres_news_use_ment.md#ricgraph-projects-with-students),
-  [use](ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
-  [mentions](ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
+  [publications](ricgraph_outreach.md#ricgraph-publications),
+  [presentations](ricgraph_outreach.md#ricgraph-presentations),
+  [newsletters](ricgraph_outreach.md#ricgraph-newsletters),
+  [projects with students](ricgraph_outreach.md#ricgraph-projects-with-students),
+  [use](ricgraph_outreach.md#ricgraph-use), and
+  [mentions](ricgraph_outreach.md#ricgraph-mentions)
   of Ricgraph.
 
 ## Contact

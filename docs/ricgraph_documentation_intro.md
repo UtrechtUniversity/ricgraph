@@ -33,7 +33,7 @@ Currently, there are people working on the following extensions for Ricgraph:
   Status: planning stage (pre-alpha).
 * A project that uses
   [AI and Large Language Models to cluster and visualize large amounts of research
-  information](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students).
+  information](ricgraph_outreach.md#ricgraph-projects-with-students).
   It assigns *topics* to publications,
   data sets, and software. By selecting a number of topics, research results are
   grouped, and possibly experts on these topics can be found.

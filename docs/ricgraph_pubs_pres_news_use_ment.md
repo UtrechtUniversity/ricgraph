@@ -1,4 +1,4 @@
-# Ricgraph publications, presentations, use, and mentions
+# Ricgraph outreach
 This page contains the following sections:
 
 * [Ricgraph publications](#ricgraph-publications)

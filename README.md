@@ -73,7 +73,7 @@ Currently, there are people working on the following extensions for Ricgraph:
   Status: planning stage (pre-alpha).
 * A project that uses
   [AI and Large Language Models to cluster and visualize large amounts of research
-  information](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students).
+  information](docs/ricgraph_outreach.md#ricgraph-projects-with-students).
   It assigns *topics* to publications,
   data sets, and software. By selecting a number of topics, research results are
   grouped, and possibly experts on these topics can be found.
@@ -324,13 +324,13 @@ The following figure shows how three persons have contributed to one research ou
     systems, not present in one's own Pure _A_.
 
 * Read more about
-  [publications](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-publications),
-  [presentations](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-presentations),
-  [newsletters](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters)
+  [publications](docs/ricgraph_outreach.md#ricgraph-publications),
+  [presentations](docs/ricgraph_outreach.md#ricgraph-presentations),
+  [newsletters](docs/ricgraph_outreach.md#ricgraph-newsletters)
   (to subscribe, go to [Ricgraph Contact](#contact)),
-  [projects with students](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-projects-with-students),
-  [use](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-use), and
-  [mentions](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-mentions)
+  [projects with students](docs/ricgraph_outreach.md#ricgraph-projects-with-students),
+  [use](docs/ricgraph_outreach.md#ricgraph-use), and
+  [mentions](docs/ricgraph_outreach.md#ricgraph-mentions)
   of Ricgraph.
 * The Ricgraph main website is www.ricgraph.eu.
   Alternative sites are www.ricgraph.nl and www.ricgraph.com.
@@ -388,7 +388,7 @@ newsletter.
 a subscribe email text. Please complete it
 by filling in your name and email address](mailto:r.d.t.janssen@uu.nl?subject=Please%20add%20me%20to%20the%20Ricgraph%20newsletter%20email%20list&body=Hi%20Rik%2C%0D%0A%0D%0ACan%20you%20please%20add%20me%20to%20your%20Ricgraph%20newsletter%20email%20list%3F%20Thanks!%0D%0A%0D%0ABest%20regards%2C%0D%0A%0D%0A%5Bplease%20replace%20with%20your%20name%5D%0D%0A%5Bplease%20replace%20with%20your%20email%20address%5D).
 We also have a 
-[newsletter archive](docs/ricgraph_pubs_pres_news_use_ment.md#ricgraph-newsletters). 
+[newsletter archive](docs/ricgraph_outreach.md#ricgraph-newsletters). 
 
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right 
 *Star* button on the Ricgraph GitHub page

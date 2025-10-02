@@ -138,7 +138,7 @@ the approval phase, and one will start in October.
 * A 2nd year short project, for a few weeks: Security scan of Ricgraph.
 
 All of these projects will have (do have) a project description at
-[https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students](https://docs.ricgraph.eu/docs/ricgraph_pubs_pres_news_use_ment.html#ricgraph-projects-with-students).
+[https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students).
 For the first project, the description can already be read. The other project
 descriptions will be added when they have been approved and started.
 
