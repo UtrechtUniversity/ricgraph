@@ -357,3 +357,8 @@ set_option('display.width', 500)
 # in a future version. To retain the old behavior, explicitly call `result.infer_objects(copy=False)`.
 # To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`"
 set_option('future.no_silent_downcasting', True)
+
+print('\nThis is Ricgraph, Research in contect graph.')
+print('To learn about Ricgraph, please go to www.ricgraph.eu.')
+print('You are using Ricgraph version ' + get_ricgraph_version() + '.\n')
+
