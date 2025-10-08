@@ -42,7 +42,8 @@
 # ########################################################################
 
 
-from os.path import isfile
+from os import makedirs
+from os.path import isfile, dirname, exists
 from pandas import DataFrame, read_csv
 from csv import QUOTE_ALL
 from json import load, dump
@@ -82,9 +83,19 @@ def write_json_to_file(json_data: list, filename: str) -> None:
 
     :param json_data: a list of records in json format.
     :param filename: filename of the file to use for writing.
+      It will also work if you specify a directory and filename.
     :return: None.
     """
     print('Saving json data to ' + filename + '... ', end='', flush=True)
+    dir_path = dirname(p=filename)
+    if dir_path != '':
+        try:
+            if not exists(path=dir_path):
+                makedirs(name=dir_path, exist_ok=True)
+        except:
+            print('write_json_to_file(): Error, could not create directory "' + dir_path + '", exiting.')
+            exit(1)
+
     with open(filename, 'w') as fd:
         dump(obj=json_data, fp=fd, ensure_ascii=False, indent=2)
     print('Done.')
@@ -116,6 +127,7 @@ def write_dataframe_to_csv(filename: str,
     """Write a datastructure (DataFrame) to file.
 
     :param filename: csv file to write.
+      It will also work if you specify a directory and filename.
     :param df: dataframe to write.
     :param write_index: whether to write the index of the DataFrame
       as first column to the csv file (True) or not (False).
@@ -126,6 +138,15 @@ def write_dataframe_to_csv(filename: str,
         return
 
     print('\nwrite_dataframe_to_csv(): Writing to csv file: ' + filename + '... ', end='', flush=True)
+    dir_path = dirname(p=filename)
+    if dir_path != '':
+        try:
+            if not exists(path=dir_path):
+                makedirs(name=dir_path, exist_ok=True)
+        except:
+            print('write_dataframe_to_csv(): Error, could not create directory "' + dir_path + '", exiting.')
+            exit(1)
+
     df.to_csv(filename,
               sep=',',
               quotechar='"',
