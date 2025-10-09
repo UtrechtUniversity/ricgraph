@@ -93,8 +93,16 @@ def write_json_to_file(json_data: list, filename: str) -> None:
             if not exists(path=dir_path):
                 makedirs(name=dir_path, exist_ok=True)
         except:
-            print('write_json_to_file(): Error, could not create directory "' + dir_path + '", exiting.')
+            print('\nwrite_json_to_file(): Error, could not create directory "' + dir_path + '", exiting.')
             exit(1)
+
+    try:
+        # Try opening the file for writing and immediately close it
+        with open(filename, 'a'):
+            pass
+    except:
+        print('\nwrite_json_to_file(): Error, filename "' + filename + '" is not writable, exiting.')
+        exit(1)
 
     with open(filename, 'w') as fd:
         dump(obj=json_data, fp=fd, ensure_ascii=False, indent=2)
@@ -144,8 +152,16 @@ def write_dataframe_to_csv(filename: str,
             if not exists(path=dir_path):
                 makedirs(name=dir_path, exist_ok=True)
         except:
-            print('write_dataframe_to_csv(): Error, could not create directory "' + dir_path + '", exiting.')
+            print('\nwrite_dataframe_to_csv(): Error, could not create directory "' + dir_path + '", exiting.')
             exit(1)
+
+    try:
+        # Try opening the file for writing and immediately close it
+        with open(filename, 'a'):
+            pass
+    except:
+        print('\nwrite_dataframe_to_csv(): Error, filename "' + filename + '" is not writable, exiting.')
+        exit(1)
 
     df.to_csv(filename,
               sep=',',
