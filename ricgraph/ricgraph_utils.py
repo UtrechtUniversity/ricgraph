@@ -44,6 +44,11 @@
 
 from os import path
 from sys import prefix
+from re import sub
+from numpy import maximum
+from pandas import DataFrame
+from typing import Union
+from ast import literal_eval
 from random import choice
 from string import ascii_lowercase
 from datetime import datetime
@@ -140,6 +145,85 @@ def create_unique_string(length: int = 0) -> str:
     return value
 
 
+def sanitize_string(to_sanitize: str) -> str:
+    """Replace any character that is a non-ASCII letter or digit with '_'.
+    ASCII characters will be converted to lower case.
+
+    :param to_sanitize: the string to sanitize.
+    :return: result.
+    """
+    result = to_sanitize.lower()
+    result = sub(pattern=r'[^a-z0-9]', repl='_', string=result)
+    return result
+
+
+def make_dataframe_square_symmetric(df: DataFrame) -> Union[DataFrame, None]:
+    """Ensure the DataFrame is square by adding missing rows/columns
+    filled with zeros. After that, make it symmetric.
+
+    :param df: the DataFrame.
+    :return: the resulting DataFrame.
+    """
+    if df is None or df.empty:
+        print('make_df_square_symmetric(): Error, DataFrame is empty.')
+        return None
+
+    all_orgs = list(set(df.index).union(df.columns))
+    df = df.reindex(index=all_orgs, columns=all_orgs, fill_value=0)
+
+    # Make it a symmetric matrix. Since collaborations are symmetric,
+    # we use the element wise maximum, using np.maximum().
+    df_symmetric = df.combine(other=df.T, func=maximum)
+
+    return df_symmetric
+
+
+def combine_dataframes(df1: DataFrame, df2: DataFrame) -> Union[DataFrame, None]:
+    """Combines two DataFrames with additive overlapping values
+    and union of indices/columns.
+
+    :param df1: first DataFrame.
+    :param df2: second DataFrame.
+    :return: combined DataFrame.
+    """
+    if (df1 is None or df1.empty) and (df2 is None or df2.empty):
+        # Both DataFrames are emtpy.
+        return None
+    if df1 is None or df1.empty:
+        # DataFrame 1 is empty.
+        return df2.copy(deep=True)
+    if df2 is None or df2.empty:
+        # DataFrame 2 is empty.
+        return df1.copy(deep=True)
+
+    # Note that the top left cell contains the research_result_category/ies
+    # that were used to get the result stored in the DataFrame.
+    # The new DataFrame should have their combined values.
+    index_name1 = str(df1.index.name) if df1.index.name is not None else ''
+    index_name2 = str(df2.index.name) if df2.index.name is not None else ''
+    df1_research_result_category = literal_eval(node_or_string=index_name1)
+    df2_research_result_category = literal_eval(node_or_string=index_name2)
+    df_combined_research_result_category = list(set(df1_research_result_category).union(set(df2_research_result_category)))
+    df_combined_research_result_category.sort(key=lambda s: s.lower())
+    df_combined = df1.copy(deep=True)
+    df_combined = df_combined.add(df2, fill_value=0).fillna(0).astype(int)
+    df_combined.index.name = str(df_combined_research_result_category)
+    return df_combined
+
+
+def extract_organization_abbreviation(org_name: str) -> str:
+    """This function extracts the organization abbreviation from an organization
+    name. It is assumed that the organization name has an organization abbreviation,
+    it should be the first 2 or 3 characters.
+
+    :param org_name: the organization name.
+    :return: uppercase version of the organization abbreviation.
+    """
+    org_abbr = org_name[:3]
+    org_abbr = org_abbr.rstrip()
+    return org_abbr.upper()
+
+
 def create_ricgraph_key(name: str, value: str) -> str:
     """Create a key for a node.
     This function generates a composite key for a node in a graph.
@@ -224,7 +308,7 @@ def get_additionalpart_from_ricgraph_value(key: str) -> str:
 
 
 def create_multidimensional_dict(dimension: int, dict_type):
-    """Create a multimensional dict.
+    """Create a multidimensional dict.
     Non-existing keys will be added automatically.
     From https://stackoverflow.com/questions/29348345/declaring-a-multi-dimensional-dictionary-in-python,
     the second answer.
@@ -394,7 +478,7 @@ def get_configfile_key(section: str, key: str) -> str:
     :param key: the name of the key.
     :return: the value of the key (can be ''), or '' if absent.
     """
-    config = ConfigParser()
+    config = ConfigParser(inline_comment_prefixes='#')
     config.read(get_ricgraph_ini_file())
     try:
         value = config[section][key]
@@ -402,3 +486,34 @@ def get_configfile_key(section: str, key: str) -> str:
         return ''
 
     return value
+
+
+def get_configfile_key_organizations_with_hierarchies() -> Union[DataFrame, None]:
+    """Get the value of the key 'organizations_with_hierarchies'
+    in the Ricgraph config file.
+
+    :return: the value of the key as a DataFrame, or None if absent.
+    """
+    multi_line_str = get_configfile_key(section='Organization',
+                                        key='organizations_with_hierarchies')
+    if multi_line_str == '':
+        return None
+
+    # Split the multiline string into lines and strip spaces
+    lines = multi_line_str.strip().splitlines()
+
+    # Join lines with commas and wrap as a list string
+    list_str = "[" + ",".join(line.strip() for line in lines) + "]"
+
+    orgs_with_hierarchies_list = literal_eval(list_str)
+    if len(orgs_with_hierarchies_list) <= 1:
+        # The first element of the list is the header, so if len <= 1
+        # then there is still no data.
+        return None
+    else:
+        headers = orgs_with_hierarchies_list[0]
+        rows = orgs_with_hierarchies_list[1:]
+        orgs_with_hierarchies = DataFrame(data=rows, columns=headers)
+        orgs_with_hierarchies['org_abbreviation'] = orgs_with_hierarchies['org_abbreviation'].str.upper()
+
+    return orgs_with_hierarchies

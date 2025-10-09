@@ -290,6 +290,51 @@ html_body_end += '</body>'
 html_body_end += '</html>'
 
 
+# ########################################################################
+# Constants for Chord and Sankey diagrams.
+# ########################################################################
+ricgraph_reference = '''
+<!-- This diagram was produced using Ricgraph, also known as
+Research in context graph, https://www.ricgraph.eu.
+For a gentle introduction in Ricgraph, please read
+the reference publication: Rik D.T. Janssen (2024).
+"Ricgraph: A flexible and extensible graph to explore
+research in context from various systems".
+SoftwareX, 26(101736). https://doi.org/10.1016/j.softx.2024.101736.
+-->
+'''
+
+# Header files to load Observable's D3, https://d3js.org.
+d3_headers =  '<script src="https://d3js.org/d3.v7.min.js"></script>'
+d3_headers += '<script src="https://d3js.org/d3-chord.v3.min.js"></script>'
+d3_headers += '<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>'
+d3_headers += '<script src="https://cdn.jsdelivr.net/npm/d3-sankey/dist/d3-sankey.min.js"></script>'
+
+diagram_tooltip_style =  'style="position:absolute; pointer-events:none; background:#fff;'
+diagram_tooltip_style += '       border:1px solid; padding:6px 12px; border-radius:4px;'
+diagram_tooltip_style += '       display:none; z-index:10;"'
+
+# Font family.
+font_family = 'Arial, sans-serif'
+
+# Globals for Chord diagrams (in pixels).
+chord_fontsize = 18
+# Space for labels around the diagram. If they are longer, they will be wrapped.
+chord_space_for_labels = 250
+# The line spacing in the labels.
+chord_label_linespacing = '0.9em'
+
+# Globals for Sankey diagrams (in pixels).
+sankey_fontsize = 18
+# Margin around the diagram.
+sankey_margin = 40
+# Used for computing the height of the diagram.
+sankey_pixels_per_link = 7
+sankey_min_height = 200
+sankey_max_height = 1500
+
+
+
 # ############################################
 # ################### main ###################
 # ############################################

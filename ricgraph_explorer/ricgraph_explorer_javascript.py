@@ -43,6 +43,12 @@
 # ########################################################################
 
 
+from ricgraph_explorer_constants import (font_family,
+                                         chord_fontsize, chord_space_for_labels,
+                                         chord_label_linespacing,
+                                         sankey_margin)
+
+
 def get_regular_table_javascript(table_id: str,
                                  len_nodes_list: int,
                                  max_nr_table_rows: int) -> str:
@@ -250,4 +256,469 @@ def get_html_for_histogram_javascript(histogram_json: str,
                  </script>
                  '''
     return javascript
+
+
+# The following code was inspired heavily by perplexity.ai.
+def create_chord_diagram_javascript(matrix_json: str,
+                                    labels_json: str,
+                                    width: int,
+                                    height: int,
+                                    svg_id: str,
+                                    figure_filename: str) -> str:
+    """The JavaScript code to create a D3 chord diagram from a DataFrame.
+    Chord diagram: https://d3-graph-gallery.com/chord.html.
+
+    :param matrix_json: json with matrix.
+    :param labels_json: json with labels.
+    :param width: the width of the resulting svg image.
+    :param height: the height of the resulting svg image.
+    :param svg_id: svg id to be used.
+    :param figure_filename: the filename of the resulting svg image,
+        in case you choose to use the 'Download this image' button.
+    :return: html to be rendered, or empty ''.
+    """
+    javascript = f'''
+                 <script>
+                 // Function drawChord() allows to change the width of the labels.
+                 function drawChord(newLabelWidth) {{
+                   const matrix = {matrix_json};
+                   const names = {labels_json};
+                   const width = {width}, height = {height};
+                   // For centering the drawing area.
+                   const svg = d3.select("#{svg_id}")
+                         .attr("viewBox", [-width / 2, -height / 2, width, height]);
+                   svg.selectAll("*").remove();
+                   const outerRadius = Math.min(width, height) * 0.5 - newLabelWidth;
+                   const innerRadius = outerRadius - 20;
+                   const color = d3.scaleOrdinal(d3.schemeCategory10);
+                   const chord = d3.chord().padAngle(0.05).sortSubgroups(d3.descending);
+                   const arc = d3.arc().innerRadius(innerRadius).outerRadius(outerRadius);
+                   const ribbon = d3.ribbon().radius(innerRadius);
+                   const chords = chord(matrix);
+
+                   // Draw groups (arcs).
+                   const group = svg.append("g")
+                     .selectAll("g")
+                     .data(chords.groups)
+                     .join("g");
+
+                   group.append("path")
+                     .attr("fill", d => color(d.index))
+                     .attr("stroke", d => color(d.index))
+                     .attr("d", arc);
+
+                   // Sum all connections ending at this endpoint (column d.index).
+                   // d.index is the endpoint's index.
+                   group.on("mouseover", function(event, d) {{
+                     let total = 0;
+                     for (let i = 0; i < matrix.length; i++) {{
+                       total += matrix[i][d.index];
+                     }}
+                     const tooltip = d3.select("#{svg_id}_tooltip");
+                     tooltip
+                       .style("display", "block")
+                       .html(`<strong>Organization:</strong> ${{names[d.index]}}<br/>
+                              <strong>Collaborations:</strong> ${{total}}`);
+                   }})
+                   .on("mousemove", function(event) {{
+                     d3.select("#{svg_id}_tooltip")
+                       .style("left", (event.pageX + 10) + "px")
+                       .style("top", (event.pageY + 10) + "px");
+                   }})
+                   .on("mouseout", function(event, d) {{
+                     d3.select("#{svg_id}_tooltip").style("display", "none");
+                   }});
+                   // End draw groups (arcs).
+
+                   // Draw ribbons (connections).
+                   svg.append("g")
+                     .attr("fill-opacity", 0.7)
+                     .selectAll("path")
+                     .data(chords)
+                     .join("path")
+                       .attr("d", ribbon)
+                       .attr("fill", d => color(d.target.index))
+                       .attr("stroke", d => color(d.target.index))
+                       .on("mouseover", function(event, d) {{
+                         const value = matrix[d.source.index][d.target.index];
+                         const tooltip = d3.select("#{svg_id}_tooltip");
+                         tooltip
+                           .style("display", "block")
+                           .html(`<strong>Between:</strong> ${{names[d.source.index]}}<br/>
+                                  <strong>and:</strong> ${{names[d.target.index]}}<br/>
+                                  <strong>Collaborations:</strong> ${{value}}`);
+                         d3.select(this).attr("fill-opacity", 1.0);
+                       }})
+                       .on("mousemove", function(event) {{
+                         d3.select("#{svg_id}_tooltip")
+                           .style("left", (event.pageX + 10) + "px")
+                           .style("top", (event.pageY + 10) + "px");
+                       }})
+                       .on("mouseout", function(event, d) {{
+                         d3.select("#{svg_id}_tooltip").style("display", "none");
+                         d3.select(this).attr("fill-opacity", 0.7);
+                       }});
+                   // End draw ribbons (connections).
+
+
+                   // Function to wrap text of the labels to 'maxWidth'.
+                   function wrapText(text, maxWidth, fontSize, fontFamily) {{
+                     // Find or create a hidden SVG for measurement. Note, we do only measure here.
+                     let measureSVG = document.getElementById('measureSVG');
+                     if (!measureSVG) {{
+                       measureSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                       measureSVG.setAttribute("id", "measureSVG");
+                       measureSVG.setAttribute("style", "position:absolute; left:-9999px; top:-9999px; visibility:hidden");
+                       document.body.appendChild(measureSVG);
+                     }}
+                     const testElem = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                     testElem.setAttribute("font-size", fontSize + "px");
+                     testElem.setAttribute("font-family", fontFamily);
+                     measureSVG.appendChild(testElem);
+                     const words = text.split(/\\s+/);
+                     const lines = [];
+                     let line = [];
+                     let testLine = '';
+                     for (let word of words) {{
+                       testLine = line.concat(word).join(' ');
+                       testElem.textContent = testLine;
+                       if (testElem.getComputedTextLength() > maxWidth && line.length > 0) {{
+                         lines.push(line.join(' '));
+                         line = [word];
+                       }} else {{
+                         line.push(word);
+                       }}
+                     }}
+                     lines.push(line.join(' '));
+                     measureSVG.removeChild(testElem);
+                     return lines;
+                   }}
+                   // End of function to wrap text of the labels to 'maxWidth'.
+
+                   // Draw labels.
+                   svg.append("g")
+                     .selectAll("text")
+                     .data(chords.groups)
+                     .join("text")
+                       .attr("dy", ".35em")
+                       .attr("transform", d => {{
+                         const angle = (d.startAngle + d.endAngle) / 2;
+                         const rotate = angle * 180 / Math.PI - 90;
+                         const translate = outerRadius + 40; // Make space for organization arc.
+                         return `rotate(${{rotate}}) translate(${{translate}})${{angle > Math.PI ? " rotate(180)" : ""}}`;
+                       }})
+                       .attr("text-anchor", d => ((d.startAngle + d.endAngle) / 2 > Math.PI) ? "end" : "start")
+                       .attr("font-family", "{font_family}")
+                       .attr("font-size", "{chord_fontsize}px")
+                       // Instead of just displaying the label text, wrap it.
+                       .each(function(d) {{
+                         const label = names[d.index];
+                         // The '40' is the same value als in 'const translate'.
+                         const lines = wrapText(label, newLabelWidth - 40, "{chord_fontsize}", "{font_family}");
+                         d3.select(this)
+                           .selectAll("tspan")
+                           .data(lines)
+                           .join("tspan")
+                             .attr("x", 0)
+                             .attr("dy", (line, i) => i === 0 ? "0" : "{chord_label_linespacing}")
+                             .text(line => line);
+                       // End of instead of just displaying the label text, wrap it.
+                       }});
+                   // End draw labels.
+
+                   // Draw organization arcs for groups with same first three letters (may be a space).
+                   // 1. Group label indices by their first three letters.
+                   const prefixGroups = {{}};
+                   names.forEach((name, idx) => {{
+                     const prefix = name.slice(0, 3);
+                     if (!prefixGroups[prefix]) prefixGroups[prefix] = [];
+                     prefixGroups[prefix].push(idx);
+                   }});
+                   // 2. For each group, draw an outer arc if more than one org shares the prefix.
+                   Object.entries(prefixGroups).forEach(([prefix, indices], groupIdx) => {{
+                     // Find angular range for this group.
+                     const startAngle = chords.groups[Math.min(...indices)].startAngle;
+                     const endAngle = chords.groups[Math.max(...indices)].endAngle;
+
+                     // Outer arc generator.
+                     const groupArc = d3.arc()
+                       .innerRadius(outerRadius + 15)
+                       .outerRadius(outerRadius + 30)
+                       .startAngle(startAngle)
+                       .endAngle(endAngle);
+
+                     const fillColor = d3.schemeCategory10[groupIdx % 10];
+                     svg.append("path")
+                       .attr("id", "outerArcPath-" + groupIdx)
+                       .attr("d", groupArc())
+                       .attr("fill", fillColor)
+                       .attr("fill-opacity", 0.25)   // semi-transparent fill.
+
+                       .on("mouseover", function(event) {{
+                         // Sum all incoming connections for all endpoints in this group.
+                         let total = 0;
+                         indices.forEach(idx => {{
+                           for (let i = 0; i < matrix.length; i++) {{
+                             total += matrix[i][idx];
+                           }}
+                         }});
+                         const tooltip = d3.select("#{svg_id}_tooltip");
+                         tooltip
+                           .style("display", "block")
+                           .html(`<strong>Group:</strong> ${{prefix}}<br/>
+                                  <strong>Collaborations:</strong> ${{total}}`);
+                       }})
+                       .on("mousemove", function(event) {{
+                         d3.select("#{svg_id}_tooltip")
+                           .style("left", (event.pageX + 10) + "px")
+                           .style("top", (event.pageY + 10) + "px");
+                       }})
+                       .on("mouseout", function(event) {{
+                         d3.select("#{svg_id}_tooltip").style("display", "none");
+                       }});
+
+                     // Label the group at the midpoint.
+                     if (indices.length <= 2) return; // But no label with <= 2 collabs.
+                     const midAngle = (startAngle + endAngle) / 2;
+                     const labelRadius = outerRadius + 25; // Place in the middle of the arc band.
+                     svg.append("text")
+                       .attr("x", Math.cos(midAngle - Math.PI/2) * labelRadius)
+                       .attr("y", Math.sin(midAngle - Math.PI/2) * labelRadius)
+                       .attr("text-anchor", "middle")
+                       .attr("alignment-baseline", "middle")
+                       .attr("fill", fillColor)
+                       .attr("font-family", "{font_family}")
+                       .attr("font-size", "{chord_fontsize}px")
+                       .text(prefix);
+                   }}); 
+                   // End draw organization arcs for groups.
+                 }} 
+                 // End of function drawChord(). 
+
+                 // Listen for changes in the input box. This changes the width of the labels of the diagram.
+                 document.getElementById("{svg_id}_labelwidth_input").addEventListener("change", function() {{
+                   const newLabelWidth = +this.value;
+                   drawChord(newLabelWidth);
+                 }})
+                 // End listen for changes in the input box.
+
+                 // Initial render of this diagram.
+                 drawChord({chord_space_for_labels});
+
+                 // Download SVG functionality.
+                 document.getElementById("{svg_id}_download_btn").onclick = function() {{
+                   var svg = document.getElementById("{svg_id}");
+                   var serializer = new XMLSerializer();
+                   var source = serializer.serializeToString(svg);
+                   if(!source.match(/^<svg[^>]+xmlns="http\\:\\/\\/www\\.w3\\.org\\/2000\\/svg"/)){{
+                     source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+                   }}
+                   if(!source.match(/^<svg[^>]+"http\\:\\/\\/www\\.w3\\.org\\/1999\\/xlink"/)){{
+                     source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+                   }}
+                   source = '<?xml version="1.0" standalone="no"?>\\r\\n' + source;
+                   var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                   var downloadLink = document.createElement("a");
+                   downloadLink.href = url;
+                   downloadLink.download = "{figure_filename}";
+                   document.body.appendChild(downloadLink);
+                   downloadLink.click();
+                   document.body.removeChild(downloadLink);
+                 }};
+                 // End download SVG functionality.
+                 </script>
+                 '''
+    return javascript
+
+
+# The following code was inspired heavily by perplexity.ai.
+def create_sankey_diagram_javascript(nodes_json: str,
+                                     links_json: str,
+                                     width: int,
+                                     height: int,
+                                     svg_id: str,
+                                     figure_filename: str) -> str:
+    """The JavaScript code to create a D3 Sankey diagram from a DataFrame.
+    Sankey diagram: https://d3-graph-gallery.com/sankey.html.
+
+    :param nodes_json: json with nodes.
+    :param links_json: json with links.
+    :param width: the width of the resulting svg image.
+    :param height: the height of the resulting svg image.
+    :param svg_id: svg id to be used.
+    :param figure_filename: the filename of the resulting svg image,
+        in case you choose to use the 'Download this image' button.
+    :return: html to be rendered, or empty ''.
+    """
+
+    # Note about the absence of an outline around lines in a Sankey diagram.
+    # There is a difference between D3 Chord diagrams and D3 Sankey diagrams,
+    # in that it is easy to have a small outline around a Chord line, but
+    # you cannot do so (easily) for a Sankey line.
+    # Chord diagrams in D3 use the d3.ribbon generator, which creates
+    # closed SVG paths. These paths are like filled shapes, not just lines.
+    # Because the path is closed, you can use both fill and stroke:
+    # 'fill' colors the inside of the ribbon, and
+    # 'stroke' draws a border (outline) around the entire ribbon shape.
+    #
+    # This doesn't work for D3 Sankey links.
+    # Sankey diagrams in D3 use d3.sankeyLinkHorizontal, which generates
+    # open SVG paths. These are not closed shapes, but "fat lines"
+    # (open paths with a width). SVG's stroke property draws the line itself,
+    # but you can't add a second "stroke" behind it (so no border for strokes).
+    # If you set both 'fill' and 'stroke', only the stroke is visible,
+    # because the path is not a closed area, so that will not work.
+    #
+    # An alternative would be to use gradient lines, but since we often have
+    # many small lines, this wouldn't make much of a difference.
+    javascript = f'''
+                 <script>
+                 // Function drawSankey() allows to change the height of the diagram.
+                 function drawSankey(newHeight) {{
+                   const graph = {{ nodes: {nodes_json}, links: {links_json} }};
+                   const totalLinks = graph.links.length;
+                   const width = {width}, height = {height};
+                   const color = d3.scaleOrdinal(d3.schemeCategory10);
+                   const svg = d3.select("#{svg_id}")
+
+                   svg.selectAll("*").remove();
+                   svg.attr("height", newHeight);
+
+                   const sankey = d3.sankey()
+                     .nodeWidth(20)           // Width of a bar in pixels.
+                     .nodePadding(10)         // Vertical space between bars in pixels.
+                     .extent([[{sankey_margin}, {sankey_margin}], [width - {sankey_margin}, newHeight - {sankey_margin}]])
+                     .nodeId(d => d.id)
+                     .nodeAlign(d => d.side === "from" ? 0 : 1)
+                     .nodeSort(null)
+                     .linkSort((a, b) => d3.descending(a.value, b.value));
+                   const {{nodes, links}} = sankey(graph);
+
+                   // Assign color to nodes.
+                   nodes.forEach((d, i) => d.color = color(d.name));
+
+                   // Draw links (lines) -- set all color/opacity as attributes.
+                   svg.append("g")
+                     .selectAll("path")
+                     .data(links)
+                     .join("path")
+                       .attr("class", "link")
+                       .attr("d", d3.sankeyLinkHorizontal())
+                       .attr("stroke-width", d => Math.max(1, d.width))
+                       .attr("stroke", d => nodes.find(n => n.id === d.source.id).color)
+                       .attr("fill", "none")
+                       .attr("stroke-opacity", 0.25)
+                       .on("mouseover", function(event, d) {{
+                         d3.select(this).classed("highlighted", true)
+                           .attr("stroke-opacity", 0.8);
+                         // Show tooltip for link
+                         d3.select("#{svg_id}_tooltip")
+                           .style("display", "block")
+                           .html(`<strong>From:</strong> ${{d.source.name}}<br/>
+                                  <strong>To:</strong> ${{d.target.name}}<br/>
+                                  <strong>Collaborations:</strong> ${{d.value}}`);
+                       }})
+                       .on("mousemove", function(event, d) {{
+                         // Determine if node is on left or right.
+                         const svgWidth = d3.select("#{svg_id}").node().getBoundingClientRect().width;
+                         // We use the mouse's position relative to the SVG.
+                         const mouseX = event.clientX - d3.select("#{svg_id}")
+                           .node().getBoundingClientRect().left;
+                         const isLeftHalf = mouseX < svgWidth / 2;
+                         const offsetX = isLeftHalf ? 10 : -10 - d3.select("#{svg_id}_tooltip")
+                           .node().offsetWidth;
+                         d3.select("#{svg_id}_tooltip")
+                           .style("left", (event.pageX + offsetX) + "px")
+                           .style("top", (event.pageY + 10) + "px");
+                       }})
+                       .on("mouseout", function(event, d) {{
+                         d3.select(this).classed("highlighted", false)
+                           .attr("stroke-opacity", 0.25);
+                         d3.select("#{svg_id}_tooltip").style("display", "none");
+                       }});
+                   // End draw links (lines).
+
+                   // Draw nodes (bars) -- set fill and fill-opacity as attributes.
+                   svg.append("g")
+                     .attr("class", "node")
+                     .selectAll("rect")
+                     .data(nodes)
+                     .join("rect")
+                       .attr("x", d => d.x0)
+                       .attr("y", d => d.y0)
+                       .attr("height", d => d.y1 - d.y0)
+                       .attr("width", d => d.x1 - d.x0)
+                       .attr("fill", d => d.color)
+                       .attr("fill-opacity", 0.7)
+                       .on("mouseover", function(event, d) {{
+                         // Show tooltip for node
+                         d3.select("#{svg_id}_tooltip")
+                           .style("display", "block")
+                           .html(`<strong>Organization:</strong> ${{d.name}}<br/>
+                                  <strong>Total connections:</strong> ${{d.value}}`);
+                       }})
+                       .on("mousemove", function(event, d) {{
+                         // Determine if node is on left or right.
+                         const svgWidth = d3.select("#{svg_id}").node().getBoundingClientRect().width;
+                         const isLeft = d.x0 < svgWidth / 2;
+                         // Offset: right for left bars, left for right bars
+                         const offsetX = isLeft ? 10 : -10 - d3.select("#{svg_id}_tooltip").node().offsetWidth;
+                         d3.select("#{svg_id}_tooltip")
+                           .style("left", (event.pageX + offsetX) + "px")
+                           .style("top", (event.pageY + 10) + "px");
+                       }})
+                       .on("mouseout", function(event, d) {{
+                         d3.select("#{svg_id}_tooltip").style("display", "none");
+                       }});
+                   // End draw nodes (bars).
+
+                   // Draw labels.
+                   svg.append("g")
+                     .selectAll("text")
+                     .data(nodes)
+                     .join("text")
+                       .attr("x", d => d.x0 < width / 2 ? d.x1 + 25 : d.x0 - 25)
+                       .attr("y", d => (d.y1 + d.y0) / 2)
+                       .attr("dy", "0.35em")
+                       .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+                       .text(d => d.name);
+                   // End draw labels.
+                 }} 
+                 // End of function drawSankey(). 
+
+                 // Listen for changes in the input box. This changes the height of the diagram.
+                 document.getElementById("{svg_id}_height_input").addEventListener("change", function() {{
+                   const newHeight = +this.value;
+                   drawSankey(newHeight);
+                 }})
+                 // End listen for changes in the input box.
+
+                 // Initial render of this diagram.
+                 drawSankey({height});
+
+                 // Download SVG functionality.
+                 document.getElementById("{svg_id}_download_btn").onclick = function() {{
+                   var svg = document.getElementById("{svg_id}");
+                   var serializer = new XMLSerializer();
+                   var source = serializer.serializeToString(svg);
+                   if(!source.match(/^<svg[^>]+xmlns="http\\:\\/\\/www\\.w3\\.org\\/2000\\/svg"/)){{
+                     source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+                   }}
+                   if(!source.match(/^<svg[^>]+"http\\:\\/\\/www\\.w3\\.org\\/1999\\/xlink"/)){{
+                     source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+                   }}
+                   source = '<?xml version="1.0" standalone="no"?>\\r\\n' + source;
+                   var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+                   var downloadLink = document.createElement("a");
+                   downloadLink.href = url;
+                   downloadLink.download = "{figure_filename}";
+                   document.body.appendChild(downloadLink);
+                   downloadLink.click();
+                   document.body.removeChild(downloadLink);
+                 }};
+                 // End download SVG functionality.
+                 </script>
+                 '''
+    return javascript
+
 

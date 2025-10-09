@@ -40,11 +40,14 @@
 # ########################################################################
 
 
+from typing import Union
+from pandas import DataFrame
 from flask import request, url_for
 from markupsafe import escape
 from neo4j.graph import Node
-from ricgraph import create_unique_string
-from ricgraph_explorer_constants import button_style, button_width
+from ricgraph import create_unique_string, extract_organization_abbreviation
+from ricgraph_explorer_constants import (button_style, button_width,
+                                         font_family, d3_headers)
 
 
 def get_url_parameter_value(parameter: str,
@@ -349,3 +352,124 @@ def get_html_for_cardline() -> str:
     html += '</div>'
     html += '</section>'
     return html
+
+
+# ##############################################################################
+# DataFrame related functions for diagrams.
+# ##############################################################################
+def remove_hierarchical_orgs(df: DataFrame,
+                             orgs_with_hierarchies: DataFrame,
+                             org_to_keep: str) -> Union[DataFrame, None]:
+    """
+    This function removes hierarchical orgs from a DataFrame, leaving the
+    top level organization only, for the organizations in orgs_with_hierarchies,
+    except for org_to_keep (it will be kept).
+    This is useful if you specifically query for 'org_to_keep'.
+
+    :param df: DataFrame.
+    :param orgs_with_hierarchies: DataFrame with hierarchical orgs.
+    :param org_to_keep: if the row and column name starts with
+      an element of this list or with this string, do NOT remove it.
+      For now, this function only works for str, not list.
+    :return: modified DataFrame, or None on error.
+    """
+    org_keep_abbr = extract_organization_abbreviation(org_name=org_to_keep)
+
+    # No need to check for df is None, will be done in remove_one_hierarchical_org().
+    df = remove_one_hierarchical_org(df=df,
+                                     orgs_to_keep=org_to_keep,
+                                     orgs_to_drop_pattern=org_keep_abbr)
+    if df is None or df.empty:
+        return None
+
+    if orgs_with_hierarchies is None or df.empty:
+        # Nothing more to be done.
+        return df
+
+    for row in orgs_with_hierarchies.itertuples(index=False):
+        org_abbr = row.org_abbreviation
+        orgs_name = row.org_fullname
+        if org_abbr == org_keep_abbr:
+            # Already done.
+            continue
+        df = remove_one_hierarchical_org(df=df,
+                                         orgs_to_keep=orgs_name,
+                                         orgs_to_drop_pattern=org_abbr)
+        if df is None or df.empty:
+            return None
+    return df
+
+
+def remove_one_hierarchical_org(df: DataFrame,
+                                orgs_to_keep: Union[str, list],
+                                orgs_to_drop_pattern: str) -> Union[DataFrame, None]:
+    """
+    Remove rows and columns from DataFrame whose
+    index or column starts with orgs_to_drop_pattern,
+    except for organizations that are in orgs_to_keep.
+    Note that this can be done because all (sub-)organizations of a person
+    are linked to that person in the graph.
+    This means that the column of the top level organization contains
+    counts for its sub-organizations. So the sub-organizations can be removed
+    without loosing data.
+
+    :param df: DataFrame.
+    :param orgs_to_drop_pattern: a string pattern that is matched
+      to index and column name, if it starts with this string, remove it.
+    :param orgs_to_keep: if the index and column name starts with
+      an element of this list or with this string, do NOT remove it.
+    :return: modified DataFrame, or None on error.
+    """
+    if df is None or df.empty:
+        print('remove_one_hierarchical_org(): Error, DataFrame is empty.')
+        return None
+
+    # Define keep-check() functions based on orgs_to_keep type.
+    if isinstance(orgs_to_keep, str):
+        def should_keep(name):
+            return name.startswith(orgs_to_keep)
+    elif isinstance(orgs_to_keep, list):
+        def should_keep(name):
+            return name in orgs_to_keep
+    else:
+        print('remove_one_hierarchical_org(): Error, unknown type for parameter "orgs_to_keep".')
+        return None
+
+    # Find rows and columns to drop
+    rows_to_drop = [idx for idx in df.index
+                    if idx.startswith(orgs_to_drop_pattern) and not should_keep(idx)]
+    cols_to_drop = [col for col in df.columns
+                    if col.startswith(orgs_to_drop_pattern) and not should_keep(col)]
+
+    df_copy = df.copy(deep=True)
+    result = df_copy.drop(index=rows_to_drop, columns=cols_to_drop)
+    return result
+
+
+def create_htmlpage(body_html: str, filename: str) -> None:
+    """Given some HTML, create an HTML page from it,
+    and write it to a file.
+
+    :param body_html: the HTML to convert to a full HTML page.
+    :param filename: the filename to save the html to.
+    :return: None.
+    """
+    # global font_family, d3_headers
+
+    start_html = f'''
+                 <!DOCTYPE html>
+                 <meta charset="utf-8">
+                 <style>body {{ font-family: {font_family}; }}</style>
+                 <body>
+                 {d3_headers}
+                 '''
+
+    end_html = '</body>'
+
+    full_html = start_html + body_html + end_html
+
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(full_html)
+    print('Diagram saved to file: ' + filename + '.')
+    print('')
+    return
