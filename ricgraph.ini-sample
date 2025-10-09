@@ -129,6 +129,32 @@ organization_ror_UG = 012p63287
 organization_ror_VUA = 008xxew50
 # ###############################################################
 
+# ###############################################################
+# List of organizations that have an organization hierarchy in Ricgraph.
+# This depends on the source systems that have been harvested.
+# It allows to remove sub-organizations from e.g. a collaboration
+# diagram, so that only its top-level organization remain.
+# This will reduce the number of organizations in the diagram.
+# Note that this works because all (sub-)organizations of a person
+# are connected to the person-root of that person in Ricgraph.
+# This means that the connection count of the top level organization
+# contains counts for all of its sub-organizations. So the
+# sub-organizations can be removed without loosing their counts.
+#
+# In the list below, do not change the first row.
+# You can add or modify the following rows, according to your harvest.
+# Note that the organization abbreviation and the organization name
+# should be spelled as above (e.g. 'UU' and
+# as the value of 'organization_name_UU').
+#
+# Example:
+# organizations_with_hierarchies = ['org_abbreviation', 'org_fullname']
+#                                  # Add or modify below as your harvest suits.
+#                                  ['UU', 'UU Utrecht University']
+#                                  ['DUT', 'DUT Delft University of Technology']
+organizations_with_hierarchies =
+# ###############################################################
+
 
 [GraphDB]
 # ###############################################################
