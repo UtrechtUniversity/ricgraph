@@ -43,9 +43,7 @@
 
 
 from sys import getsizeof
-from typing import Union
-from neo4j.graph import Node
-from .ricgraph_constants import MAX_NODES_CACHE_NODELINK, MAX_NODES_CACHE_KEY_ID
+from .ricgraph_constants import MAX_NODES_CACHE_KEY_ID
 
 
 # This dict is used as a cache for node id's. If we have a node id, we can
@@ -53,6 +51,9 @@ from .ricgraph_constants import MAX_NODES_CACHE_NODELINK, MAX_NODES_CACHE_KEY_ID
 # The dict has the format: [Ricgraph _key]: [Node element_id].
 _nodes_cache_key_id = {}
 
+# #########
+# This cache is not used anymore, but we leave it for now (Oct. 16, 2025).
+# #########
 # The dict '_nodes_cache_nodelink' is used to be able to pass nodes (i.e. links to Node)
 # between the pages of Ricgraph Explorer. If we would not do this, we would need
 # to search the node again every time we go to a new page. Then we would
@@ -61,7 +62,7 @@ _nodes_cache_key_id = {}
 # able to store any node in the cache at the moment I prefer, as is done
 # in function ricgraph_explorer.py/get_regular_table()).
 # This dict has the format: [Ricgraph _key]: [Node link]
-_nodes_cache_nodelink = {}
+# _nodes_cache_nodelink = {}
 
 
 def nodes_cache_key_id_create(key: str, elementid: str) -> None:
@@ -143,55 +144,71 @@ def nodes_cache_key_id_empty() -> None:
     return
 
 
-def nodes_cache_nodelink_create(key: str, node: Node) -> None:
-    """Create an entry in the cache for nodes.
-
-    :param key: _key of a node.
-    :param node: a node.
-    :return: None.
-    """
-    global _nodes_cache_nodelink
-
-    if len(_nodes_cache_nodelink) > MAX_NODES_CACHE_NODELINK:
-        nodes_cache_nodelink_empty()
-
-    # We use a 'dict', which does not allow for duplicates, so we
-    # do not need to check for it.
-    _nodes_cache_nodelink[key] = node
-    return
-
-
-def nodes_cache_nodelink_read(key: str) -> Union[Node, None]:
-    """Read an entry from the cache for nodes.
-
-    :param key: _key of a node.
-    :return: The node, or None if not present.
-    """
-    global _nodes_cache_nodelink
-
-    if key in _nodes_cache_nodelink:
-        return _nodes_cache_nodelink[key]
-    return None
-
-
-def nodes_cache_nodelink_empty() -> None:
-    """Empty the cache for nodes.
-
-    :return: None.
-    """
-    global _nodes_cache_nodelink
-
-    _nodes_cache_nodelink.clear()
-    return
-
-
-def nodes_cache_nodelink_size() -> tuple[int, float]:
-    """Return the size of the cache for nodes.
+def nodes_cache_key_id_size() -> tuple[int, float]:
+    """Return the size of the cache for node id's.
+    'id' in this sentence is the id assigned by de graph database.
 
     :return: the length of the dict (int) and the size in kB (float).
     """
-    global _nodes_cache_nodelink
+    global _nodes_cache_key_id
 
-    length = len(_nodes_cache_nodelink)
-    size_kb = round(getsizeof(_nodes_cache_nodelink) / 1000, 1)
+    length = len(_nodes_cache_key_id)
+    size_kb = round(getsizeof(_nodes_cache_key_id) / 1000, 1)
     return length, size_kb
+
+
+# #########
+# This cache is not used anymore, but we leave it for now (Oct. 16, 2025).
+# #########
+# def nodes_cache_nodelink_create(key: str, node: Node) -> None:
+#     """Create an entry in the cache for nodes.
+#
+#     :param key: _key of a node.
+#     :param node: a node.
+#     :return: None.
+#     """
+#     global _nodes_cache_nodelink
+#
+#     if len(_nodes_cache_nodelink) > MAX_NODES_CACHE_NODELINK:
+#         nodes_cache_nodelink_empty()
+#
+#     # We use a 'dict', which does not allow for duplicates, so we
+#     # do not need to check for it.
+#     _nodes_cache_nodelink[key] = node
+#     return
+#
+#
+# def nodes_cache_nodelink_read(key: str) -> Union[Node, None]:
+#     """Read an entry from the cache for nodes.
+#
+#     :param key: _key of a node.
+#     :return: The node, or None if not present.
+#     """
+#     global _nodes_cache_nodelink
+#
+#     if key in _nodes_cache_nodelink:
+#         return _nodes_cache_nodelink[key]
+#     return None
+#
+#
+# def nodes_cache_nodelink_empty() -> None:
+#     """Empty the cache for nodes.
+#
+#     :return: None.
+#     """
+#     global _nodes_cache_nodelink
+#
+#     _nodes_cache_nodelink.clear()
+#     return
+#
+#
+# def nodes_cache_nodelink_size() -> tuple[int, float]:
+#     """Return the size of the cache for nodes.
+#
+#     :return: the length of the dict (int) and the size in kB (float).
+#     """
+#     global _nodes_cache_nodelink
+#
+#     length = len(_nodes_cache_nodelink)
+#     size_kb = round(getsizeof(_nodes_cache_nodelink) / 1000, 1)
+#     return length, size_kb

@@ -57,7 +57,7 @@ from urllib.parse import urlencode
 from math import ceil, floor
 from typing import Union
 from neo4j.graph import Node
-from ricgraph import (nodes_cache_nodelink_create,
+from ricgraph import (nodes_cache_key_id_create,
                       create_ricgraph_key,
                       create_unique_string,
                       A_LARGE_NUMBER,
@@ -96,7 +96,7 @@ def view_personal_information(nodes_list: list,
     names = []
     for node in nodes_list:
         key = node['_key']
-        nodes_cache_nodelink_create(key=key, node=node)
+        nodes_cache_key_id_create(key=key, elementid=node.element_id)
         if node['name'] != 'FULL_NAME':
             continue
         key = create_ricgraph_key(name=node['name'], value=node['value'])
@@ -325,7 +325,7 @@ def get_regular_table_worker(nodes_list: list,
                                       extra_url_parameters=extra_url_parameters)
 
         key = node['_key']
-        nodes_cache_nodelink_create(key=key, node=node)
+        nodes_cache_key_id_create(key=key, elementid=node.element_id)
 
     html += '</tbody>'
     html += get_html_for_tableend(table_id=table_id)

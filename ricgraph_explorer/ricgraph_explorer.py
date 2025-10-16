@@ -55,8 +55,8 @@ from connexion import FlaskApp, options
 from flask import request, send_from_directory
 from neo4j.graph import Node
 from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
-                      nodes_cache_nodelink_create, nodes_cache_nodelink_read,
-                      nodes_cache_nodelink_size, create_ricgraph_key,
+                      nodes_cache_key_id_size,
+                      create_ricgraph_key,
                       read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
@@ -258,7 +258,7 @@ def homepage() -> str:
     html += str(nr_nodes) + ' nodes and ' + str(nr_edges) + ' edges.'
     html += '</li>'
     html += '<li>'
-    length, size_kb = nodes_cache_nodelink_size()
+    length, size_kb = nodes_cache_key_id_size()
     html += 'The node cache has ' + str(length) + ' elements, and its size is '
     html += str(size_kb) + ' kB.'
     html += '</li>'
@@ -464,25 +464,9 @@ def optionspage() -> str:
         html += page_footer + html_body_end
         return html
 
-    # First check if the node is in 'nodes_cache'.
-    if key != '':
-        if (node := nodes_cache_nodelink_read(key=key)) is not None:
-            html += create_options_page(node=node,
-                                        discoverer_mode=discoverer_mode,
-                                        extra_url_parameters=extra_url_parameters)
-            html += page_footer + html_body_end
-            return html
-
-    if name != '' and value != '':
-        key_found = create_ricgraph_key(name=name, value=value)
-        if (node := nodes_cache_nodelink_read(key=key_found)) is not None:
-            html += create_options_page(node=node,
-                                        discoverer_mode=discoverer_mode,
-                                        extra_url_parameters=extra_url_parameters)
-            html += page_footer + html_body_end
-            return html
-
-    # No, it is not.
+    # Not necessary to check if the node ('key') is in the cache, that is done in
+    # read_all_nodes() --> cypher_read_node(). It will also be added to the cache
+    # in cypher_read_node() if not present yet.
     if key != '':
         result = read_all_nodes(key=key)
     elif search_mode == 'exact_match':
@@ -521,7 +505,6 @@ def optionspage() -> str:
 
     node = result[0]
     key = create_ricgraph_key(name=node['name'], value=node['value'])
-    nodes_cache_nodelink_create(key=key, node=node)
     html += create_options_page(node=node,
                                 discoverer_mode=discoverer_mode,
                                 extra_url_parameters=extra_url_parameters)
@@ -681,6 +664,11 @@ def create_options_page(node: Node,
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: html to be rendered.
     """
+    # Note: This function gets a 'node', then it extracts '_key' from
+    # node, and passes the key to create_result_page(), which then again
+    # retrieves the node (from the cache). This is one time too many,
+    # but nodes cannot be passed using html forms, so we have to live with it.
+
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
@@ -942,33 +930,24 @@ def create_results_page(view_mode: str,
     """
     if name_list is None:
         name_list = []
-    # The following is not used yet.
-    # name_list_str = ''
-    # if len(name_list) == 1:
-    #     name_list_str = name_list[0]
     if category_list is None:
         category_list = []
-    # The following is not used yet.
-    # category_list_str = ''
-    # if len(category_list) == 1:
-    #     category_list_str = category_list[0]
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
     max_nr_items = int(extra_url_parameters['max_nr_items'])
     personal_types_all = get_ricgraph_explorer_global(name='personal_types_all')
     html = ''
-    if (node := nodes_cache_nodelink_read(key=key)) is None:
-        result = read_all_nodes(key=key)
-        if len(result) == 0 or len(result) > 1:
-            if len(result) == 0:
-                message = 'Ricgraph Explorer could not find anything. '
-            else:
-                message = 'Ricgraph Explorer found too many nodes. '
-            message += 'This should not happen. '
-            return get_message(message=message)
-        nodes_cache_nodelink_create(key=key, node=result[0])
-        node = result[0]
+
+    result = read_all_nodes(key=key)
+    if len(result) == 0 or len(result) > 1:
+        if len(result) == 0:
+            message = 'Ricgraph Explorer could not find anything. '
+        else:
+            message = 'Ricgraph Explorer found too many nodes. '
+        message += 'This should not happen. '
+        return get_message(message=message)
+    node = result[0]
 
     if discoverer_mode == 'details_view':
         table_columns_ids = DETAIL_COLUMNS
@@ -1009,7 +988,7 @@ def create_results_page(view_mode: str,
                                               extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_organizations' \
-            or view_mode == 'view_regular_table_category':
+      or view_mode == 'view_regular_table_category':
         if view_mode == 'view_regular_table_category':
             personroot_node = node
         else:
@@ -1080,7 +1059,7 @@ def create_results_page(view_mode: str,
                                      extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_unspecified_table_resouts' \
-            or view_mode == 'view_unspecified_table_everything_except_ids':
+      or view_mode == 'view_unspecified_table_everything_except_ids':
         personroot_node = get_personroot_node(node=node)
         neighbor_nodes = get_all_neighbor_nodes(node=personroot_node,
                                                 name_want=name_list,
