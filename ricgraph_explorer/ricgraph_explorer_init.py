@@ -44,6 +44,7 @@ from os import path
 from typing import Union
 from connexion import FlaskApp
 from ricgraph import (open_ricgraph, read_all_values_of_property,
+                      memcached_open_connection, nodes_cache_key_id_type_size,
                       ROTYPE_ALL, ROTYPE_PUBLICATION)
 from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
                                          PRIVACY_STATEMENT_FILE, PRIVACY_MEASURES_FILE)
@@ -136,6 +137,10 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     if graph is None:
         print('Ricgraph could not be opened.')
         exit(1)
+
+    memcached_open_connection()
+    print(nodes_cache_key_id_type_size() + '\n')
+
     set_ricgraph_explorer_global(name='graph', value=graph)
 
     name_all = read_all_values_of_property('name')
@@ -169,7 +174,7 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     if len(publication_types_all) == 0:
         print('Warning (possibly Error) in obtaining list with all publication types from property "category".')
         print('Continuing with an empty list. This might give unexpected results.')
-        publication_all = []
+        publication_types_all = []
     set_ricgraph_explorer_global(name='publication_types_all', value=publication_types_all)
 
     name_all_datalist = '<datalist id="name_all_datalist">'

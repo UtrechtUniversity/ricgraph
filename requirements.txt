@@ -8,6 +8,7 @@ numpy
 openapi_markdown
 pandas
 pyalex
+pymemcache
 ratelimit
 requests
 ricgraph==3.0

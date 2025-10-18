@@ -216,6 +216,9 @@ else
 	wwwroot_dir := [not_set]
 endif
 
+# Packages for memcached.
+memcached_packages := memcached libmemcached
+
 
 # ########################################################################
 # General targets.
@@ -393,6 +396,7 @@ makefile_variables:
 	@echo "- bash_script: $(bash_script) "
 	@echo "- bash_script_log: $(bash_script_log)"
 	@echo "- wwwroot_dir: $(wwwroot_dir)"
+	@echo "- memcached_packages: $(memcached_packages)"
 	@echo ""
 
 
@@ -506,6 +510,7 @@ install_enable_ricgraphexplorer_restapi: check_user_root full_server_install
 ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service && echo true),true)
 	@echo ""
 	@echo "Starting Install and enable Ricgraph Explorer and REST API."
+	@echo "Memcached will also be installed."
 	@echo "You may want to read more at:"
 	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api"
 	$(call are_you_sure)
@@ -514,9 +519,16 @@ ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service &
 	$(systemctl_cmd) daemon-reload
 	$(systemctl_cmd) enable ricgraph_explorer_gunicorn.service
 	$(systemctl_cmd) start ricgraph_explorer_gunicorn.service
+	@echo "Finished Install and enable Ricgraph Explorer and REST API."
+	@echo ""
+	@echo "Starting Install and enable Memcached."
+	$(package_install_cmd) $(memcached_packages)
+	$(systemctl_cmd) enable memcached.service
+	$(systemctl_cmd) start memcached.service
+	@echo "Finished Install and enable Memcached."
 	@echo ""
 	@echo "Done."
-	@echo "Ricgraph Explorer and the Ricgraph REST API have"
+	@echo "Ricgraph Explorer, the Ricgraph REST API, and Memcached have"
 	@echo "been enabled, started, and will be run at system start."
 	@echo "These are only accessible at this (local) machine."
 	@echo "You can use Ricgraph Explorer by typing http://localhost:3030 in"

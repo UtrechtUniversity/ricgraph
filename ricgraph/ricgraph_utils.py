@@ -45,6 +45,7 @@
 from os import path
 from sys import prefix
 from re import sub
+from pickle import loads, dumps
 from numpy import maximum
 from pandas import DataFrame
 from typing import Union
@@ -155,6 +156,25 @@ def sanitize_string(to_sanitize: str) -> str:
     result = to_sanitize.lower()
     result = sub(pattern=r'[^a-z0-9]', repl='_', string=result)
     return result
+
+
+def serialize_value(value: str) -> bytes:
+    """Serialize a value using module pickle (convert to bytes).
+
+    :param value: the value.
+    :return: its serialized value.
+    """
+    return dumps(value)
+
+
+def deserialize_value(serialized: bytes) -> str:
+    """De-serialize a value using module pickle (convert back from bytes).
+
+    :param serialized: the serialized value.
+    :return: its deserialized value.
+    """
+    return loads(serialized)
+
 
 
 def make_dataframe_square_symmetric(df: DataFrame) -> Union[DataFrame, None]:

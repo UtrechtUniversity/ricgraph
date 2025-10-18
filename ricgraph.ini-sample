@@ -156,6 +156,24 @@ organizations_with_hierarchies =
 # ###############################################################
 
 
+[Memcached]
+# ###############################################################
+# You can use Memcached (https://en.wikipedia.org/wiki/Memcached)
+# for a global cache. This is only useful for Ricgraph Explorer,
+# when accessed using gunicorn, because gunicorn has a number of
+# 'workers' (ricgraph_explorer.py) that do not have a common
+# memory (cache). It is not useful for harvesting.
+# You will also need to install Memcached (e.g. with the Makefile).
+# The Memcached host and port to be used (these are default
+# values after install of Memcached).
+memcached_host = localhost
+memcached_port = 11211
+# Set ricgraph_explorer_uses_memcached to 'True' to use Memcached.
+# Any other value (also 'true') means don't use Memcached.
+ricgraph_explorer_uses_memcached = False
+# ###############################################################
+
+
 [GraphDB]
 # ###############################################################
 # You can use various graph databases as backend. This section 

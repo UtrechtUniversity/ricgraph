@@ -109,7 +109,8 @@ This text applies to a new installation of Ricgraph. For an update, see below.
    Read more at [Ricgraph Explorer](ricgraph_explorer.md).
    For the Ricgraph REST API, read
    more on the [Ricgraph REST API page](ricgraph_restapi.md#ricgraph-rest-api).
-1. Optional: use a service unit file to run Ricgraph Explorer and the Ricgraph REST API. Type:
+1. Optional: use a service unit file to run Ricgraph Explorer and the Ricgraph REST API,
+   and install Memcached. Type:
    ```
    make install_enable_ricgraphexplorer_restapi
    ```
@@ -301,6 +302,20 @@ After the steps in this section,
 Ricgraph Explorer and the Ricgraph REST API are run
 automatically at the start of the virtual machine, so you can immediately start giving the demo.
 
+For this, two packages are used:
+
+* [Gunicorn](https://en.wikipedia.org/wiki/Gunicorn).
+  Gunicorn spawns a number of *workers* that handle web requests. Gunicorn is a kind of
+  load balancer.
+  Every new web request (either someone accessing a web page or a REST API request)
+  will be sent to a different worker, not necessarily the same as the user was
+  connected to when viewing the previous web page.
+* Optional: [Memcached](https://en.wikipedia.org/wiki/Memcached).
+  Memcached makes it possible to have one global (shared) cache for the different workers
+  spawned by Gunicorn. If you don't use Memcached, each of the spawned workers
+  will have their own memory.
+  If you want to use Memcached, you need to enable it (see below).
+
 For comparison, if you had installed the graph database backend
 and Ricgraph for a single user, as
 described in 
@@ -317,6 +332,11 @@ command:
 make install_enable_ricgraphexplorer_restapi
 ```
 or follow the steps below.
+After you have done this, and if you want to use Memcached, set this value in your
+[Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file):
+```
+ricgraph_explorer_uses_memcached = True
+```
 
 Using a service unit file will *not* expose Ricgraph Explorer,
 the Ricgraph REST API, and Ricgraph data to 
@@ -334,6 +354,7 @@ the outside world. All data will only be accessible in the virtual machine.
   ```
   Make it run by typing:
   ``` 
+  systemctl daemon-reload
   systemctl enable ricgraph_explorer_gunicorn.service
   systemctl start ricgraph_explorer_gunicorn.service
   ```
@@ -342,6 +363,17 @@ the outside world. All data will only be accessible in the virtual machine.
   systemctl -l status ricgraph_explorer_gunicorn.service
   journalctl -u ricgraph_explorer_gunicorn.service
   ```
+* Install, enable, and start *Memcached*.
+  To install, execute:
+  ```
+  [Your Linux package install command] memcached libmemcached
+  ```
+  To enable and start, execute:
+  ```
+  systemctl enable memcached.service
+  systemctl start memcached.service
+  ```
+  You may want to check the log for any errors, as above.
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer by typing
   [http://localhost:3030](http://localhost:3030) in your web browser (i.e., the web browser of
@@ -425,6 +457,9 @@ and Ricgraph data to the outside world.*
   [Your Linux package install command] python3-certbot python3-certbot-apache
   ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
+  It has been enabled and started in section 
+  [Use a service unit file...](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
+  *Memcached* has been installed, enabled and started in that same section.
 * Enable two Apache modules (they have already been installed when you installed Apache):
   ```
   a2enmod mod_proxy
@@ -545,6 +580,9 @@ and Ricgraph data to the outside world.*
   [Your Linux package install command] python3-certbot python3-certbot-nginx
   ```
 * *Gunicorn* has already been installed when you installed the Python requirements.
+  It has been enabled and started in section
+  [Use a service unit file...](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
+  *Memcached* has been installed, enabled and started in that same section.
 * Install the Nginx *Ricgraph Explorer* configuration file:
   copy file
   *ricgraph_server_config/ricgraph_explorer.conf-nginx*

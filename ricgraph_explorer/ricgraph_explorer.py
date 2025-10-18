@@ -55,8 +55,7 @@ from connexion import FlaskApp, options
 from flask import request, send_from_directory
 from neo4j.graph import Node
 from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
-                      nodes_cache_key_id_size,
-                      create_ricgraph_key,
+                      nodes_cache_key_id_type_size,
                       read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
@@ -258,9 +257,7 @@ def homepage() -> str:
     html += str(nr_nodes) + ' nodes and ' + str(nr_edges) + ' edges.'
     html += '</li>'
     html += '<li>'
-    length, size_kb = nodes_cache_key_id_size()
-    html += 'The node cache has ' + str(length) + ' elements, and its size is '
-    html += str(size_kb) + ' kB.'
+    html += nodes_cache_key_id_type_size()
     html += '</li>'
     html += '</ul>'
     html += get_html_for_cardend()
@@ -504,7 +501,6 @@ def optionspage() -> str:
         return html
 
     node = result[0]
-    key = create_ricgraph_key(name=node['name'], value=node['value'])
     html += create_options_page(node=node,
                                 discoverer_mode=discoverer_mode,
                                 extra_url_parameters=extra_url_parameters)

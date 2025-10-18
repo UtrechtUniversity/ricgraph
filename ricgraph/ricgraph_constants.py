@@ -72,13 +72,8 @@ HTTP_RESPONSE_INVALID_SEARCH = 251
 # The dict '_nodes_cache_key_id' is used to cache IDs to nodes. This is the cache size.
 # The dict itself is defined in ricgraph_cache.py.
 # This dict will be emptied if it reaches this number of elements.
-MAX_NODES_CACHE_KEY_ID = 100000
-
-# The dict '_nodes_cache_nodelink' is used to be able to pass nodes (i.e. links to Node)
-# between the pages of Ricgraph Explorer.
-# The dict itself is defined in ricgraph_cache.py.
-# This dict will be emptied if it reaches this number of elements.
-MAX_NODES_CACHE_NODELINK = 100000
+# A cache entry is approx. 20 - 30 bytes. 30 x 2000000 ~ 60MB.
+MAX_NODES_CACHE_KEY_ID = 2000000
 
 # In merge_two_nodes(node_merge_from, node_merge_to), we are constructing a list of
 # all the nodes that are to be merged with node_merge_to, to add to property _history
