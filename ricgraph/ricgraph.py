@@ -336,10 +336,21 @@ def unify_personal_identifiers(personal_identifiers: DataFrame,
                     identifiers.drop_duplicates(subset=column1, keep=False, inplace=True, ignore_index=True)
                     identifiers.drop_duplicates(subset=column2, keep=False, inplace=True, ignore_index=True)
 
-            create_nodepairs_and_edges_params(name1=column1, category1='person', value1=identifiers[column1],
-                                              name2=column2, category2='person', value2=identifiers[column2],
-                                              source_event1=source_event, source_event2=source_event,
-                                              history_event1=history_event, history_event2=history_event)
+            identifiers.rename(columns={column1: 'value1',
+                                        column2: 'value2'}, inplace=True)
+            new_identifiers_columns = {'name1': column1,
+                                       'category1': 'person',
+                                       'name2': column2,
+                                       'category2': 'person',
+                                       'source_event1': source_event,
+                                       'history_event1': history_event,
+                                       'source_event2': source_event,
+                                       'history_event2': history_event}
+            identifiers = identifiers.assign(**new_identifiers_columns)
+            identifiers = identifiers[['name1', 'category1', 'value1', 'source_event1', 'history_event1',
+                                       'name2', 'category2', 'value2', 'source_event2', 'history_event2']]
+            create_nodepairs_and_edges_df(left_and_right_nodepairs=identifiers)
+
     print('\nDone at ' + timestamp() + '.\n')
     return
 
