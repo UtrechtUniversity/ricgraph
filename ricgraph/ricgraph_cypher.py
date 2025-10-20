@@ -50,7 +50,7 @@ from .ricgraph_constants import A_LARGE_NUMBER
 from .ricgraph_utils import (get_ricgraph_ini_file, get_configfile_key,
                              create_ricgraph_key, datetimestamp)
 from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
-                             nodes_cache_key_id_delete_key, nodes_cache_key_id_empty)
+                             nodes_cache_key_id_delete_key)
 
 
 # The graph. '_graph = None' will not work.
@@ -571,9 +571,9 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
     if 'name' in node_properties or 'value' in node_properties:
         # 'name' or 'value' will change and thus '_key' will change.
         # Delete old node from the cache.
-        node = cypher_read_node_elementid(node_element_id=node_element_id)
-        node_key = node['_key']
-        nodes_cache_key_id_delete_key(key=node_key)
+        old_node = cypher_read_node_elementid(node_element_id=node_element_id)
+        old_node_key = old_node['_key']
+        nodes_cache_key_id_delete_key(key=old_node_key)
 
     cypher_query = 'MATCH (node:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
@@ -637,6 +637,17 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
                                              node_properties=node_merge_to_properties)
         return node
 
+    # Delete node_merge_from_element_id from the cache, it will be deleted.
+    old_node = cypher_read_node_elementid(node_element_id=node_merge_from_element_id)
+    old_node_key = old_node['_key']
+    nodes_cache_key_id_delete_key(key=old_node_key)
+
+    # Even 'name' or 'value' from node_merge_to_element_id may be changed,
+    # delete it too, just to be sure the cache is correct.
+    old_node = cypher_read_node_elementid(node_element_id=node_merge_to_element_id)
+    old_node_key = old_node['_key']
+    nodes_cache_key_id_delete_key(key=old_node_key)
+
     cypher_query = 'MATCH (node_from:RicgraphNode) '
     if graphdb_name == 'neo4j':
         cypher_query += 'WHERE elementId(node_from)=$node_merge_from_element_id '
@@ -685,9 +696,10 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     _graphdb_nr_reads += 2 * nr_edges        # Approximation: edges are in two directions.
     _graphdb_nr_updates += 2 * nr_edges      # Approximation: edges are in two directions.
 
-    # Too much may have happened, no idea how to efficiently update nodes_cache_key_id, just empty it.
-    nodes_cache_key_id_empty()
-    return nodes[0]
+    # Add the new node to the cache.
+    node = nodes[0]
+    nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
+    return node
 
 
 def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_element_id: str) -> None:

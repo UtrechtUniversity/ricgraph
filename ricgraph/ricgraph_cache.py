@@ -152,6 +152,7 @@ def nodes_cache_key_id_create(key: str, elementid: str) -> None:
     # tells that Python dict keys and values can have _almost_ any type.
     # So we do not need to serialize and deserialize.
     _nodes_cache_key_id[key] = elementid
+    # print('Create: ' + str(key) + ' -- ' + _nodes_cache_key_id[key])
     return
 
 
@@ -184,6 +185,7 @@ def nodes_cache_key_id_read(key: str) -> str:
             return elementid
 
     if key in _nodes_cache_key_id:
+        # print('Read: ' + str(key) + ' -- ' + _nodes_cache_key_id[key])
         return _nodes_cache_key_id[key]
     return ''
 
@@ -213,6 +215,7 @@ def nodes_cache_key_id_delete_key(key: str) -> None:
         return
 
     if key in _nodes_cache_key_id:
+        # print('Delete: ' + str(key) + ' -- ' + _nodes_cache_key_id[key])
         _nodes_cache_key_id.pop(key)
     return
 
@@ -235,6 +238,7 @@ def nodes_cache_key_id_empty() -> None:
             exit(1)
         return
 
+    # print('Clear cache.')
     _nodes_cache_key_id.clear()
     return
 
