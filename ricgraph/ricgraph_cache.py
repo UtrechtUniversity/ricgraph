@@ -46,7 +46,7 @@ from sys import getsizeof
 from typing import Optional
 from pymemcache.client.base import Client
 from .ricgraph_constants import MAX_NODES_CACHE_KEY_ID
-from .ricgraph_utils import (get_configfile_key, sanitize_string,
+from .ricgraph_utils import (get_configfile_key,
                              serialize_value, deserialize_value)
 
 

@@ -175,7 +175,6 @@ def deserialize_value(serialized: bytes) -> str:
     return serialized.decode(encoding='utf-8')
 
 
-
 def make_dataframe_square_symmetric(df: DataFrame) -> Union[DataFrame, None]:
     """Ensure the DataFrame is square by adding missing rows/columns
     filled with zeros. After that, make it symmetric.
