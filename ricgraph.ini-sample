@@ -37,11 +37,13 @@
 # Ricgraph uses the term 'organization abbreviation'.
 # This is a string of a few letters that can be passed to some harvest
 # scripts to determine for which organisation such a script will harvest
-# data.  Examples are UU, UMCU, DUT, EUR, etc, see below.
+# data.  Examples are UU, UMC, DUT, EUR, etc, see below.
 #
 # You will see this in keys such as 'organization_name_UU' or
-# 'organization_name_UMCU'. The general format is 'key_XXXX,' with 'XXXX' 
+# 'organization_name_UMC'. The general format is 'key_XXX,' with 'XXX'
 # the 'organization abbreviation'.
+# XXX may be at most MAX_ORG_ABBREVIATION_LENGTH characters long
+# (ricgraph_constants.py).
 #
 # If your organization abbreviation is not in this file, feel free to add one. 
 # You can take any (short) string and pass it to a harvest script. You only
@@ -100,15 +102,17 @@ ricgraph_explorer_display_results_mode = person_view
 # ###############################################################
 # Information about your organization.
 # The organization names used on https://ror.org are considered
-# to be authorative. E.g., at that website, UU uses an English name,
+# to be authoritative. E.g., at that website, UU uses an English name,
 # while VUA uses a Dutch name.
 # Add your own 'organization abbreviation' if it is not present.
-# Format: organization_name_XXXX with 'XXXX' the organization abbreviation.
+# Format: organization_name_XXX with 'XXX' the organization abbreviation.
+# XXX may be at most MAX_ORG_ABBREVIATION_LENGTH characters long
+# (ricgraph_constants.py).
 # You only need key and value for the organization(s) you are planning
 # to harvest.
 # The name of your organization (without quotes):
 organization_name_UU = Utrecht University
-organization_name_UMCU = University Medical Center Utrecht
+organization_name_UMC = University Medical Center Utrecht
 organization_name_DUT = Delft University of Technology
 organization_name_EUR = Erasmus University Rotterdam
 organization_name_EUT = Eindhoven University of Technology
@@ -121,7 +125,7 @@ organization_name_VUA = Vrije Universiteit Amsterdam
 # need key and value for the organization(s) you are planning to harvest.
 # The ROR of your organization (without quotes and without 'https://ror.org/'):
 organization_ror_UU = 04pp8hn57
-organization_ror_UMCU = 0575yy874
+organization_ror_UMC = 0575yy874
 organization_ror_DUT = 02e2c7k09
 organization_ror_EUR = 057w15z03
 organization_ror_EUT = 02c2kyt77
@@ -148,11 +152,11 @@ organization_ror_VUA = 008xxew50
 # as the value of 'organization_name_UU').
 #
 # Example:
-# organizations_with_hierarchies = ['org_abbreviation', 'org_fullname']
+# organizations_with_hierarchies = ['org_abbreviation', 'org_name']
 #                                  # Add or modify below as your harvest suits.
-#                                  ['UU', 'UU Utrecht University']
-#                                  ['DUT', 'DUT Delft University of Technology']
-organizations_with_hierarchies =
+#                                  ['UU', 'Utrecht University']
+#                                  ['DUT', 'Delft University of Technology']
+# organizations_with_hierarchies =
 # ###############################################################
 
 
@@ -223,12 +227,12 @@ graphdb_port = 7687
 # ###############################################################
 # The URL to Pure portal.
 # Add your own 'organization abbreviation' if it is not present.
-# Format: pure_url_XXXX with 'XXXX' the organization abbreviation.
+# Format: pure_url_XXX with 'XXX' the organization abbreviation.
 # You only need key and value for the organization(s) you are planning
 # to harvest.
 # Your URL to Pure portal (without quotes):
 pure_url_UU = 
-pure_url_UMCU =
+pure_url_UMC =
 pure_url_DUT =
 pure_url_EUR =
 pure_url_EUT =
@@ -240,7 +244,7 @@ pure_url_VUA =
 # need key and value for the organization(s) you are planning to harvest.
 # Your Pure API key (without quotes):
 pure_api_key_UU = 
-pure_api_key_UMCU =
+pure_api_key_UMC =
 pure_api_key_DUT =
 pure_api_key_EUR =
 pure_api_key_EUT =
@@ -259,7 +263,7 @@ yoda_url = https://oai.datacite.org/oai
 #
 # The set to harvest (without quotes):
 yoda_set_UU = delft.uu
-yoda_set_UMCU =
+yoda_set_UMC =
 yoda_set_DUT =
 yoda_set_EUR =
 yoda_set_EUT =
@@ -276,12 +280,12 @@ yoda_set_VUA = delft.vudata
 rsd_url = https://research-software-directory.org
 #
 # Add your own 'organization abbreviation' if it is not present.
-# Format: rsd_organization_XXXX with 'XXXX' the organization abbreviation.
+# Format: rsd_organization_XXX with 'XXX' the organization abbreviation.
 # You only need key and value for the organization(s) you are planning
 # to harvest.
 # The organization to harvest (without quotes):
 rsd_organization_UU = utrecht-university
-rsd_organization_UMCU = university-medical-center-utrecht
+rsd_organization_UMC = university-medical-center-utrecht
 rsd_organization_DUT = delft-university-of-technology
 rsd_organization_EUR = erasmus-university-rotterdam
 rsd_organization_EUT = eindhoven-university-of-technology
