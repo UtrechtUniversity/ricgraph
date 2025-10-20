@@ -50,7 +50,7 @@ from .ricgraph_constants import A_LARGE_NUMBER
 from .ricgraph_utils import (get_ricgraph_ini_file, get_configfile_key,
                              create_ricgraph_key, datetimestamp)
 from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
-                             nodes_cache_key_id_delete_id, nodes_cache_key_id_empty)
+                             nodes_cache_key_id_delete_key, nodes_cache_key_id_empty)
 
 
 # The graph. '_graph = None' will not work.
@@ -377,6 +377,37 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
         return node
 
 
+def cypher_read_node_elementid(node_element_id: str) -> Union[Node, None]:
+    """
+    Read a node from the graph database, based on elementid.
+
+    :param node_element_id: the element_id of the node.
+    :return: the node found, or None if not present.
+    """
+    global _graph, _graphdb_nr_reads
+
+    if _graph is None:
+        print('\ncypher_read_node_elementid(): Error: graph has not been initialized or opened.\n\n')
+        return None
+
+    cypher_query = 'MATCH (node:RicgraphNode) '
+    if ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE elementId(node)=$node_element_id '
+    else:
+        cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
+    cypher_query += 'RETURN node'
+    nodes = _graph.execute_query(cypher_query,
+                                 node_element_id=node_element_id,
+                                 result_transformer_=Result.value,
+                                 database_=ricgraph_databasename())
+    _graphdb_nr_reads += 1
+    if len(nodes) == 0:
+        return None
+    else:
+        node = nodes[0]
+        return node
+
+
 def cypher_read_node(name: str, value: str) -> Union[Node, None]:
     """
     Read a node from the graph database.
@@ -391,24 +422,16 @@ def cypher_read_node(name: str, value: str) -> Union[Node, None]:
         print('\ncypher_read_node(): Error: graph has not been initialized or opened.\n\n')
         return None
 
-    node_in_cache = False
     key = create_ricgraph_key(name=name, value=value)
-    cypher_query = 'MATCH (node:RicgraphNode) '
     if (node_element_id := nodes_cache_key_id_read(key=key)) != '':
-        node_in_cache = True
-        if ricgraph_database() == 'neo4j':
-            cypher_query += 'WHERE elementId(node)=$node_element_id '
-        else:
-            cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
-        cypher_query += 'RETURN node'
-        nodes = _graph.execute_query(cypher_query,
-                                     node_element_id=node_element_id,
-                                     result_transformer_=Result.value,
-                                     database_=ricgraph_databasename())
-    else:
-        cypher_query += 'WHERE (node._key=$node_key) '
-        cypher_query += 'RETURN node'
-        nodes = _graph.execute_query(cypher_query,
+        # Node is in the cache, we can read it in O(1).
+        node = cypher_read_node_elementid(node_element_id=node_element_id)
+        return node
+
+    cypher_query = 'MATCH (node:RicgraphNode) '
+    cypher_query += 'WHERE (node._key=$node_key) '
+    cypher_query += 'RETURN node'
+    nodes = _graph.execute_query(cypher_query,
                                      node_key=key,
                                      result_transformer_=Result.value,
                                      database_=ricgraph_databasename())
@@ -417,8 +440,7 @@ def cypher_read_node(name: str, value: str) -> Union[Node, None]:
         return None
     else:
         node = nodes[0]
-        if not node_in_cache:
-            nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
+        nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
         return node
 
 
@@ -505,6 +527,12 @@ def cypher_delete_node(node_element_id: str) -> None:
         print('\ncypher_delete_node(): Error: graph has not been initialized or opened.\n\n')
         return
 
+    # Delete node from the cache.
+    node = cypher_read_node_elementid(node_element_id=node_element_id)
+    node_key = node['_key']
+    nodes_cache_key_id_delete_key(key=node_key)
+
+    # Then delete it from the graph database.
     cypher_query = 'MATCH (node:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'WHERE elementId(node)=$node_element_id '
@@ -518,7 +546,6 @@ def cypher_delete_node(node_element_id: str) -> None:
 
     nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_element_id)
     _graphdb_nr_deletes += 1 + nr_edges      # '1' for node, add all of its edges.
-    nodes_cache_key_id_delete_id(elementid=node_element_id)
     return
 
 
@@ -540,6 +567,13 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
     if _graph is None:
         print('\ncypher_update_node_properties(): Error: graph has not been initialized or opened.\n\n')
         return None
+
+    if 'name' in node_properties or 'value' in node_properties:
+        # 'name' or 'value' will change and thus '_key' will change.
+        # Delete old node from the cache.
+        node = cypher_read_node_elementid(node_element_id=node_element_id)
+        node_key = node['_key']
+        nodes_cache_key_id_delete_key(key=node_key)
 
     cypher_query = 'MATCH (node:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
@@ -565,7 +599,7 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
         node = nodes[0]
         if 'name' in node_properties or 'value' in node_properties:
             # 'name' or 'value' has changed and thus '_key' has changed.
-            nodes_cache_key_id_delete_id(elementid=node_element_id)
+            # Put new node in the cache.
             nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
         return node
 
@@ -807,7 +841,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
         return []
     result_list = [record['entry'] for record in result]
 
-    # We need 'key' to do a case insenstive search.
+    # We need 'key' to do a case-insensitive search.
     result_list_sorted = sorted(result_list, key=str.lower)
     return result_list_sorted
 

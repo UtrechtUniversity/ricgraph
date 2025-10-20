@@ -217,32 +217,6 @@ def nodes_cache_key_id_delete_key(key: str) -> None:
     return
 
 
-def nodes_cache_key_id_delete_id(elementid: str) -> None:
-    """Delete a value 'elementid' from the cache for node id's.
-    'id' in this sentence is the id assigned by de graph database.
-    This need to iterate over the full dict, so it is not efficient.
-
-    :param elementid: the id of a node.
-    :return: None.
-    """
-    # global _nodes_cache_key_id, _memcached_available
-
-    # Very, very inefficient if the cache is large.
-    # This was the old code:
-    # key_to_delete = ''
-    # for key in _nodes_cache_key_id:
-    #     if _nodes_cache_key_id[key] == elementid:
-    #         key_to_delete = key
-    #         break
-    # if key_to_delete != '':
-    #     nodes_cache_key_id_delete_key(key=key_to_delete)
-    # Possibly there is a more efficient way to do this.
-
-    # For now, we just empty the cache.
-    nodes_cache_key_id_empty()
-    return
-
-
 def nodes_cache_key_id_empty() -> None:
     """Empty the cache for node id's.
     'id' in this sentence is the id assigned by de graph database.
