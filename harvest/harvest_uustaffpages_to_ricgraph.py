@@ -684,6 +684,7 @@ else:
     exit(1)
 
 rcg.graphdb_nr_accesses_print()
+print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 # ########## Code block A ##########
 # You can use 'True' or 'False' depending on your needs to harvest.
@@ -712,6 +713,7 @@ if True:              # Comment this line to comment out code block A
         parsed_pure_uustaffpages_to_ricgraph(parsed_content=parsed_results)
 
     rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
 # ########## End of code block A ##########
 
 
@@ -742,5 +744,6 @@ if True:
         parsed_uustaff_persons_to_ricgraph(parsed_content=parse_uustaff)
 
     rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 rcg.close_ricgraph()

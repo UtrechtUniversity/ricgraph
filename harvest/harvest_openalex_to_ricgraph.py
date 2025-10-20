@@ -458,6 +458,7 @@ else:
     exit(1)
 
 rcg.graphdb_nr_accesses_print()
+print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 for year in OPENALEX_RESOUT_YEARS:
     data_file_year = OPENALEX_DATA_FILENAME.split('.')[0] \
@@ -489,5 +490,6 @@ for year in OPENALEX_RESOUT_YEARS:
         parsed_resout_to_ricgraph(parsed_content=parse_persons_resout)
 
     rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 rcg.close_ricgraph()

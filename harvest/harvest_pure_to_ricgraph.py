@@ -82,7 +82,7 @@ from typing import Union
 import requests
 import pathlib
 import ricgraph as rcg
-
+from ricgraph import construct_extended_org_name
 
 # ######################################################
 # General parameters for harvesting from Pure.
@@ -695,15 +695,17 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
             # Note: 'type' and 'name' must exist, otherwise we wouldn't have gotten here.
             if PURE_API_VERSION == PURE_READ_API_VERSION:
                 # We are in Pure READ API.
-                org_type_name = str(harvest_item['type']['term']['text'][0]['value'])
+                # org_type_name = str(harvest_item['type']['term']['text'][0]['value'])
                 org_name = str(harvest_item['name']['text'][0]['value'])
             else:
                 # We are in Pure CRUD API.
-                org_type_name = str(harvest_item['type']['term']['en_GB'])
+                # org_type_name = str(harvest_item['type']['term']['en_GB'])
                 org_name = str(harvest_item['name']['en_GB'])
             # Only necessary to add the top level organization to the dict with organization names.
             # organization_names[str(harvest_item['uuid'])] = org_type_name + ': ' + org_name
-            organization_names[str(harvest_item['uuid'])] = organization + ' ' + org_type_name + ': ' + org_name
+            # organization_names[str(harvest_item['uuid'])] = organization + ' ' + org_type_name + ': ' + org_name
+            organization_names[str(harvest_item['uuid'])] = construct_extended_org_name(org_name=org_name,
+                                                                                        org_abbr=organization)
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
@@ -805,6 +807,7 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
             for persons in harvest_item[label]:
                 author_name = ''
                 author_externalorg_flag = False
+                author_externalorg_name = ''
                 if 'person' in persons:                             # internal person
                     if 'uuid' not in persons['person']:
                         # There must be an uuid, otherwise skip
@@ -1442,7 +1445,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # This is specifically for external persons and external organizations. We only
     # find these while parsing research outputs, not while parsing persons.
     print('Determining external organizations from external persons...')
-    if 'AUTHOR_EXTERNALORG_NAME' not in parsed_content:
+    if 'AUTHOR_EXTERNALORG_NAME' not in parsed_content.columns:
         print('There are no external organizations from external persons.')
         print('\nDone at ' + rcg.timestamp() + '.\n')
         return
@@ -1453,7 +1456,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     history_event += ' Inserted external organization from ' + HARVEST_SOURCE + ' external author.'
 
-    if 'AUTHOR_EXTERNALORG_NAME' not in resout:
+    if 'AUTHOR_EXTERNALORG_NAME' not in resout.columns:
         print('There are no external organizations from external persons after clean up.')
         print('\nDone at ' + rcg.timestamp() + '.\n')
         return
@@ -1758,6 +1761,7 @@ data_file = PURE_PERSONS_DATA_FILENAME.split('.')[0] \
             + PURE_PERSONS_DATA_FILENAME.split('.')[1]
 
 rcg.graphdb_nr_accesses_print()
+print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 # if False:
 if True:
@@ -1784,6 +1788,7 @@ if True:
         parsed_persons_to_ricgraph(parsed_content=parse_persons)
 
     rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 org_and_all_parents = {}
 
@@ -1824,6 +1829,7 @@ if True:
                                          organization_and_all_parents=org_and_all_parents)
 
     rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 
 # ########################################################################
@@ -1865,6 +1871,7 @@ if True:
             parsed_resout_to_ricgraph(parsed_content=parse_resout)
 
         rcg.graphdb_nr_accesses_print()
+        print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 
 # ########################################################################
@@ -1902,5 +1909,6 @@ if HARVEST_PROJECTS:
                                     organization_and_all_parents=org_and_all_parents)
 
     rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 rcg.close_ricgraph()

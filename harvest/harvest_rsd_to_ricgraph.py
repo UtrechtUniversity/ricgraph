@@ -292,7 +292,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # As of the current implementation of RSD (2023-2025), RSD has organizations in two
     # different places:
     # 1. As part of 'contributor', i.e., part of a person.
-    #    Then its name is 'affliation'. This is a free text field in RSD.
+    #    Then its name is 'affiliation'. This is a free text field in RSD.
     #    A person has one 'affiliation' field.
     # 2. As part of the software item.
     #    This is a field where you can enter a ROR, an organization name that is checked
@@ -356,6 +356,7 @@ else:
     exit(1)
 
 rcg.graphdb_nr_accesses_print()
+print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 data_file = RSD_DATA_FILENAME.split('.')[0] \
             + '-' + organization + '.' \
@@ -381,4 +382,5 @@ else:
     parsed_software_to_ricgraph(parsed_content=rsd_data)
 
 rcg.graphdb_nr_accesses_print()
+print(rcg.nodes_cache_key_id_type_size() + '\n')
 rcg.close_ricgraph()
