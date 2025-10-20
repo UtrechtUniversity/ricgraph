@@ -152,15 +152,20 @@ ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
 	package_install_cmd := zypper --non-interactive install --allow-unsigned-rpm
 	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
+
+	memcached_packages := memcached libmemcached
 else ifeq ($(shell which apt > /dev/null 2>&1 && echo $$?),0)
 	# E.g. for Ubuntu and Debian.
 	package_install_cmd := apt-get install --yes
 	neo4j_community_path := $(neo4j_download)/deb/neo4j_$(neo4j_community_version)_all.deb
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell_$(neo4j_community_version)_all.deb
+
+	memcached_packages := memcached libmemcached-tools
 else
 	package_install_cmd := [not_set]
 	neo4j_community_path := [not_set]
 	neo4j_cyphershell_path := [not_set]
+	memcached_packages := [not_set]
 endif
 neo4j_desktop_path := $(neo4j_download)/neo4j-desktop/linux-offline/neo4j-desktop-$(neo4j_desktop_version)-x86_64.AppImage
 neo4j_desktop := $(shell basename $(neo4j_desktop_path))
@@ -215,9 +220,6 @@ else ifeq ($(shell test -d /var/www/html && echo true),true)
 else
 	wwwroot_dir := [not_set]
 endif
-
-# Packages for memcached.
-memcached_packages := memcached libmemcached
 
 
 # ########################################################################
