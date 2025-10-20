@@ -82,7 +82,8 @@ def memcached_open_connection() -> None:
         return
 
     try:
-        memcached_client = Client(server=(_MEMCACHED_HOST, int(_MEMCACHED_PORT)))
+        memcached_client = Client(server=(_MEMCACHED_HOST, int(_MEMCACHED_PORT)),
+                                  allow_unicode_keys=True)
 
         # Test connection by setting and deleting a test key.
         memcached_client.set(key='test_key', value=b'test', expire=1)
@@ -127,9 +128,15 @@ def nodes_cache_key_id_create(key: str, elementid: str) -> None:
         return
 
     if memcached_check_available():
+        # The docs are unclear whether I need to serialize the key if I
+        # use flag allow_unicode_keys=True in Client() above.
+        # So I do serialize to be sure. Since keys cannot have spaces,
+        # these are replaced first.
+        key_serialized = serialize_value(value=key.replace(' ', '_'))
+        elementid_serialized = serialize_value(value=elementid)
         try:
-            _memcached_client.set(key=sanitize_string(to_sanitize=key),
-                                  value=serialize_value(value=elementid),
+            _memcached_client.set(key=key_serialized,
+                                  value=elementid_serialized,
                                   expire=0)
         except:
             print('nodes_cache_key_id_create(): Warning, connection to Memcached lost, continuing...')
@@ -140,7 +147,10 @@ def nodes_cache_key_id_create(key: str, elementid: str) -> None:
         nodes_cache_key_id_empty()
 
     # We use a 'dict', which does not allow for duplicates, so we
-    # do not need to check for it.
+    # do not need to check for duplicates.
+    # https://docs.python.org/3/library/stdtypes.html#mapping-types-dict
+    # tells that Python dict keys and values can have _almost_ any type.
+    # So we do not need to serialize and deserialize.
     _nodes_cache_key_id[key] = elementid
     return
 
@@ -158,18 +168,19 @@ def nodes_cache_key_id_read(key: str) -> str:
         return ''
 
     if memcached_check_available():
+        key_serialized = serialize_value(value=key.replace(' ', '_'))
         try:
-            serialized_elementid = _memcached_client.get(key=sanitize_string(to_sanitize=key))
+            elementid_serialized = _memcached_client.get(key=key_serialized)
         except:
             print('nodes_cache_key_id_read(): Warning, connection to Memcached lost, continuing...')
             # Continue, hopefully the connection will come back soon.
             return ''
 
-        if serialized_elementid is None:
+        if elementid_serialized is None:
             # Key not found.
             return ''
         else:
-            elementid = deserialize_value(serialized=serialized_elementid)
+            elementid = deserialize_value(serialized=elementid_serialized)
             return elementid
 
     if key in _nodes_cache_key_id:
@@ -190,9 +201,10 @@ def nodes_cache_key_id_delete_key(key: str) -> None:
         return
 
     if memcached_check_available():
+        key_serialized = serialize_value(value=key.replace(' ', '_'))
         try:
             # Works regardless whether the key is present or not.
-            _memcached_client.delete(key=sanitize_string(to_sanitize=key))
+            _memcached_client.delete(key=key_serialized)
         except:
             print('nodes_cache_key_id_delete(): Error, connection to Memcached lost, exiting...')
             # Exit because the cache gets in an unexpected state:
@@ -294,7 +306,3 @@ _MEMCACHED_PORT = get_configfile_key(section='Memcached',
                                      key='memcached_port')
 _MEMCACHED_TO_BE_USED = get_configfile_key(section='Memcached',
                                            key='ricgraph_explorer_uses_memcached')
-
-# For testing, to empty the cache.
-# nodes_cache_key_id_empty()
-
