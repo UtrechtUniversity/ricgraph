@@ -81,6 +81,9 @@ MAX_NODES_CACHE_KEY_ID = 2000000
 # values that are too long).
 MAX_NR_HISTORYITEMS_TO_ADD = 50
 
+# The maximum length of the organization abbreviation.
+MAX_ORG_ABBREVIATION_LENGTH = 3
+
 
 # ########################################################################
 # Research output types used in Ricgraph.

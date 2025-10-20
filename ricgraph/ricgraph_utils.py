@@ -58,7 +58,8 @@ from configparser import ConfigParser
 from unidecode import unidecode
 from .ricgraph_constants import (RICGRAPH_INI_FILENAME,
                                  RICGRAPH_KEY_SEPARATOR, RICGRAPH_KEY_SEPARATOR_REPLACEMENT,
-                                 RICGRAPH_VALUE_SEPARATOR, RICGRAPH_VALUE_SEPARATOR_REPLACEMENT)
+                                 RICGRAPH_VALUE_SEPARATOR, RICGRAPH_VALUE_SEPARATOR_REPLACEMENT,
+                                 MAX_ORG_ABBREVIATION_LENGTH)
 
 
 def get_ricgraph_ini_file() -> str:
@@ -237,9 +238,21 @@ def extract_organization_abbreviation(org_name: str) -> str:
     :param org_name: the organization name.
     :return: uppercase version of the organization abbreviation.
     """
-    org_abbr = org_name[:3]
+    org_abbr = org_name[:MAX_ORG_ABBREVIATION_LENGTH]
     org_abbr = org_abbr.rstrip()
     return org_abbr.upper()
+
+
+def construct_extended_org_name(org_name: str, org_abbr: str) -> str:
+    """Construct the extended organization name.
+    This is done by appending the organization abbreviation and the
+    organization name.
+
+    :param org_name: the organization name.
+    :param org_abbr: the organization abbreviation.
+    :return: the combination of both.
+    """
+    return org_abbr.upper() + ' ' + org_name
 
 
 def create_ricgraph_key(name: str, value: str) -> str:
@@ -533,5 +546,7 @@ def get_configfile_key_organizations_with_hierarchies() -> Union[DataFrame, None
         rows = orgs_with_hierarchies_list[1:]
         orgs_with_hierarchies = DataFrame(data=rows, columns=headers)
         orgs_with_hierarchies['org_abbreviation'] = orgs_with_hierarchies['org_abbreviation'].str.upper()
+        orgs_with_hierarchies['org_fullname'] = orgs_with_hierarchies['org_abbreviation'] + ' ' + orgs_with_hierarchies['org_name']
+        orgs_with_hierarchies = orgs_with_hierarchies.drop(columns=['org_name'])
 
     return orgs_with_hierarchies
