@@ -119,6 +119,7 @@ This table of contents has been generated automatically.
   - [Order of running the harvest scripts](../docs/ricgraph_harvest_scripts.md#order-of-running-the-harvest-scripts)
   - [How to make your own harvesting scripts](../docs/ricgraph_harvest_scripts.md#how-to-make-your-own-harvesting-scripts)
 - [Ricgraph miscellaneous scripts](../docs/ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts)
+  - [Find (sub-)organization collaborations (organization_collaborations_batch.csv)](../docs/ricgraph_misc_scripts.md#find-sub-organization-collaborations-organization_collaborations_batchcsv)
   - [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)](../docs/ricgraph_misc_scripts.md#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csv)
   - [Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv)](../docs/ricgraph_misc_scripts.md#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csv)
   - [Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv)](../docs/ricgraph_misc_scripts.md#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csv)
