@@ -14,6 +14,7 @@ or about
 On this page, you can find:
 
 * Script for collaborations between (sub-)organizations ((directory *enhance*):
+  * [Find (sub-)organization collaborations (organization_collaborations_batch.py)](#find-sub-organization-collaborations-organization_collaborations_batchpy)
 * Scripts for importing and exporting (directory *import_export*):
   * [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)](#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csv)
   * [Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv)](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csv)
@@ -35,9 +36,12 @@ All code is documented and hints to use it can be found in the source files.
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
-## Find (sub-)organization collaborations (organization_collaborations_batch.csv)
-This script collects collaborations within and between (sub-)organizations
-in Ricgraph. You can choose between two types of diagrams: 
+## Find (sub-)organization collaborations (organization_collaborations_batch.py)
+The script *organization_collaborations_batch.py*
+collects collaborations within and between (sub-)organizations
+in Ricgraph. It can be found in the directory *enhance*.
+
+You can choose between two types of diagrams:
 [Chord diagrams](https://en.wikipedia.org/wiki/Chord_diagram_(information_visualization))
 and [Sankey diagrams](https://en.wikipedia.org/wiki/Sankey_diagram).
 The script is a batch example script, so you can adapt it for your own situation by
