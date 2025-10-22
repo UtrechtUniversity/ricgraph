@@ -14,7 +14,7 @@ or about
 On this page, you can find:
 
 * Script for collaborations between (sub-)organizations ((directory *enhance*):
-  * [Find (sub-)organization collaborations (organization_collaborations_batch.py)](#find-sub-organization-collaborations-organization_collaborations_batchpy)
+  * [Find (sub-)organization collaborations (organization_collaborations_batch)](#find-sub-organization-collaborations-organization_collaborations_batch)
 * Scripts for importing and exporting (directory *import_export*):
   * [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)](#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csv)
   * [Import nodes and edges from a csv file, raw version (ricgraph_import_raw_from_csv)](#import-nodes-and-edges-from-a-csv-file-raw-version-ricgraph_import_raw_from_csv)
@@ -36,7 +36,7 @@ All code is documented and hints to use it can be found in the source files.
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 
-## Find (sub-)organization collaborations (organization_collaborations_batch.py)
+## Find (sub-)organization collaborations (organization_collaborations_batch)
 The script *organization_collaborations_batch.py*
 collects collaborations within and between (sub-)organizations
 in Ricgraph. It can be found in the directory *enhance*.
