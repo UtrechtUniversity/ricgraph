@@ -73,17 +73,17 @@ def harvest_json_and_write_to_file(filename: str, url: str, headers: dict, body:
                              chunksize=chunksize)
     if len(json_data) == 0:
         return []
-    write_json_to_file(json_data=json_data, filename=filename)
+    write_json_to_file(filename=filename, json_data=json_data)
     return json_data
 
 
-def write_json_to_file(json_data: list, filename: str) -> None:
+def write_json_to_file(filename:str, json_data: list) -> None:
     """Write json data to a file.
     If no records are harvested, nothing is written.
 
-    :param json_data: a list of records in json format.
     :param filename: filename of the file to use for writing.
       It will also work if you specify a directory and filename.
+    :param json_data: a list of records in json format.
     :return: None.
     """
     print('Writing json data to file ' + filename + '...')

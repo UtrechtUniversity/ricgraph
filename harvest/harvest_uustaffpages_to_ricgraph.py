@@ -374,8 +374,8 @@ def harvest_json_and_write_to_file_uustaffpages(filename: str,
                                           max_recs_to_harvest=max_recs_to_harvest)
     if len(json_data) == 0:
         return []
-    rcg.write_json_to_file(json_data=json_data,
-                           filename=filename)
+    rcg.write_json_to_file(filename=filename,
+                           json_data=json_data)
     return json_data
 
 
