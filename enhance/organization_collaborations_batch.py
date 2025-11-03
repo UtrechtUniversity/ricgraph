@@ -73,7 +73,8 @@
 
 import ricgraph as rcg
 from ricgraph_explorer import initialize_ricgraph_explorer, ricgraph_explorer
-from ricgraph_explorer_datavis import collabs_org_with_org, collabs_three_orgs_chord
+from ricgraph_explorer_datavis import (org_collaborations_diagram,
+                                       three_org_collaborations_chord)
 
 
 output_dir = 'collabs/'
@@ -90,26 +91,26 @@ if orgs_with_hierarchies is None or orgs_with_hierarchies.empty:
 
 # Get organization collaborations between:
 # - UU Faculty and VUA Faculty, in a Sankey diagram.
-collabs_org_with_org(orgs_with_hierarchies=orgs_with_hierarchies,
-                     start_organizations='UU Faculty',
-                     collab_organizations='VUA Faculty',
-                     research_result_category=rcg.ROTYPE_PUBLICATION,
-                     filename=output_dir + 'uufac-vuafac')
+org_collaborations_diagram(start_organizations='UU Faculty',
+                           collab_organizations='VUA Faculty',
+                           research_result_category=rcg.ROTYPE_PUBLICATION,
+                           orgs_with_hierarchies=orgs_with_hierarchies,
+                           filename=output_dir + 'uufac-vuafac')
 
 # Get organization collaborations between:
 # - UU Faculty, VUA Faculty, and DUT Faculty, in a Chord diagram.
-collabs_three_orgs_chord(first_org='UU Faculty',
-                         second_org='VUA Faculty',
-                         third_org='DUT Faculty',
-                         research_result_category=rcg.ROTYPE_PUBLICATION,
-                         filename=output_dir + 'uufac-vuafac-dutfac')
+three_org_collaborations_chord(first_org='UU Faculty',
+                               second_org='VUA Faculty',
+                               third_org='DUT Faculty',
+                               research_result_category=rcg.ROTYPE_PUBLICATION,
+                               filename=output_dir + 'uufac-vuafac-dutfac')
 
 # Get organization collaborations between:
 # - UU Faculty and UU Faculty, in a Sankey diagram.
-collabs_org_with_org(orgs_with_hierarchies=orgs_with_hierarchies,
-                     start_organizations='UU Faculty',
-                     collab_organizations='UU Faculty',
-                     research_result_category=rcg.ROTYPE_PUBLICATION,
-                     filename=output_dir + 'uufac-uufac')
+org_collaborations_diagram(start_organizations='UU Faculty',
+                           collab_organizations='UU Faculty',
+                           research_result_category=rcg.ROTYPE_PUBLICATION,
+                           orgs_with_hierarchies=orgs_with_hierarchies,
+                           filename=output_dir + 'uufac-uufac')
 
 rcg.close_ricgraph()

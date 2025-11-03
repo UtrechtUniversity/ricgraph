@@ -37,7 +37,7 @@
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
 # Updated Rik D.T. Janssen, February to June, September to December  2024.
-# Updated Rik D.T. Janssen, January to June 2025.
+# Updated Rik D.T. Janssen, January to June, October 2025.
 #
 # ########################################################################
 
@@ -228,6 +228,54 @@ def combine_dataframes(df1: DataFrame, df2: DataFrame) -> Union[DataFrame, None]
     df_combined = df_combined.add(df2, fill_value=0).fillna(0).astype(int)
     df_combined.index.name = str(df_combined_research_result_category)
     return df_combined
+
+
+def convert_cypher_recordslist_to_nodeslist(records_list:list) -> list:
+    """Convert a Cypher list with Records to a list of Nodes.
+    This is necessary since cypher_result, _, _ = graph.execute_query()
+    returns a list of Records, and most of the time I need a list of Nodes.
+    Note that the nodes should have name 'node', so do something like
+    'RETURN personroot AS node' in your Cypher query.
+
+    :param records_list: the list of Records.
+    :return: the list of Nodes, or [] if the list of Records is empty.
+    """
+    if len(records_list) == 0:
+        return []
+
+    if not 'node' in records_list[0].keys():
+        print('convert_cypher_recordslist_to_nodeslist(): Error. The elements in the')
+        print('list of Records do not have name "node". They should. Exiting...')
+        exit(1)
+
+    nodes_list = [record['node'] for record in records_list]
+    return nodes_list
+
+
+def convert_nodeslist_to_dataframe(nodes_list: list,
+                                   columns_and_order: list = None) -> Union[None, DataFrame]:
+    """Convert a list of RicgraphNode nodes to a DataFrame,
+    with selected columns in an order given.
+
+    :param nodes_list: the list of nodes.
+    :param columns_and_order: only return these columns, and in the order given.
+    :return: the DataFrame, or None if empty.
+    """
+    if len(nodes_list) == 0:
+        return None
+    if columns_and_order is None:
+        print('convert_nodeslist_to_dataframe(): Warning, columns_and_order not specified, continuing...')
+        return None
+
+    nodes_dict = [dict(node) for node in nodes_list]
+    result = DataFrame(data=nodes_dict)
+    # Make sure we select only columns that exist.
+    present_columns = [col for col in columns_and_order if col in result.columns]
+    result = result[present_columns]
+    if result is None or result.empty:
+        return None
+    result.set_index(keys='name', inplace=True)
+    return result
 
 
 def extract_organization_abbreviation(org_name: str) -> str:

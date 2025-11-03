@@ -37,7 +37,7 @@
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
 # Updated Rik D.T. Janssen, February to June, September to December  2024.
-# Updated Rik D.T. Janssen, January to June 2025.
+# Updated Rik D.T. Janssen, January to June, October 2025.
 #
 # ########################################################################
 
@@ -86,14 +86,18 @@ def write_json_to_file(json_data: list, filename: str) -> None:
       It will also work if you specify a directory and filename.
     :return: None.
     """
-    print('Saving json data to ' + filename + '... ', end='', flush=True)
+    print('Writing json data to file ' + filename + '...')
+    if filename == '':
+        print('write_json_to_file(): Error, filename is empty, exiting.')
+        exit(1)
+
     dir_path = dirname(p=filename)
     if dir_path != '':
         try:
             if not exists(path=dir_path):
                 makedirs(name=dir_path, exist_ok=True)
         except:
-            print('\nwrite_json_to_file(): Error, could not create directory "' + dir_path + '", exiting.')
+            print('write_json_to_file(): Error, could not create directory "' + dir_path + '", exiting.')
             exit(1)
 
     try:
@@ -101,7 +105,9 @@ def write_json_to_file(json_data: list, filename: str) -> None:
         with open(filename, 'a'):
             pass
     except:
-        print('\nwrite_json_to_file(): Error, filename "' + filename + '" is not writable, exiting.')
+        # Generates a 'Local variable 'filename' might be referenced before assignment'
+        # warning in PyCharm.
+        print('write_json_to_file(): Error, filename "' + filename + '" is not writable, exiting.')
         exit(1)
 
     with open(filename, 'w') as fd:
@@ -116,11 +122,11 @@ def read_json_from_file(filename: str) -> list:
     :param filename: filename of the file to use for writing.
     :return: list of records in json format, or empty list if nothing found.
     """
+    print('Reading json data from file ' + filename + '...')
     if not isfile(path=filename):
         print('read_json_from_file(): Error, file "' + filename + '" does not exist, exiting...')
         exit(1)
 
-    print('Reading json data from ' + filename + '... ', end='', flush=True)
     with open(filename) as fd:
         json_data = load(fp=fd)
     print('Done.')
@@ -129,10 +135,48 @@ def read_json_from_file(filename: str) -> list:
     return json_data
 
 
+def write_text_to_file(filename: str, text: str) -> None:
+    """Write text data to a file, in utf-8 format.
+
+    :param filename: filename of the file to use for writing.
+      It will also work if you specify a directory and filename.
+    :param text: the text data to write to the file.
+    :return: None.
+    """
+    print('Writing text data to file ' + filename + '...')
+    if filename == '':
+        print('write_text_to_file(): Error, filename is empty, exiting.')
+        exit(1)
+
+    dir_path = dirname(p=filename)
+    if dir_path != '':
+        try:
+            if not exists(path=dir_path):
+                makedirs(name=dir_path, exist_ok=True)
+        except:
+            print('write_text_to_file(): Error, could not create directory "' + dir_path + '", exiting.')
+            exit(1)
+
+    try:
+        # Try opening the file for writing and immediately close it
+        with open(filename, 'a'):
+            pass
+    except:
+        # Generates a 'Local variable 'filename' might be referenced before assignment'
+        # warning in PyCharm.
+        print('write_text_to_file(): Error, filename "' + filename + '" is not writable, exiting.')
+        exit(1)
+
+    with open(filename, 'w', encoding='utf-8') as fd:
+        fd.write(text)
+    print('Done.')
+    return
+
+
 def write_dataframe_to_csv(filename: str,
                            df: DataFrame,
                            write_index: bool = False) -> None:
-    """Write a datastructure (DataFrame) to file.
+    """Write a DataFrame to file.
 
     :param filename: csv file to write.
       It will also work if you specify a directory and filename.
@@ -141,18 +185,22 @@ def write_dataframe_to_csv(filename: str,
       as first column to the csv file (True) or not (False).
     :return: None.
     """
+    print('Writing DataFrame to csv file ' + filename + '...')
     if df is None or df.empty:
         print('write_dataframe_to_csv(): Empty DataFrame, nothing to write, continuing.')
         return
 
-    print('\nwrite_dataframe_to_csv(): Writing to csv file: ' + filename + '... ', end='', flush=True)
+    if filename == '':
+        print('write_dataframe_to_file(): Error, filename is empty, exiting.')
+        exit(1)
+
     dir_path = dirname(p=filename)
     if dir_path != '':
         try:
             if not exists(path=dir_path):
                 makedirs(name=dir_path, exist_ok=True)
         except:
-            print('\nwrite_dataframe_to_csv(): Error, could not create directory "' + dir_path + '", exiting.')
+            print('write_dataframe_to_csv(): Error, could not create directory "' + dir_path + '", exiting.')
             exit(1)
 
     try:
@@ -160,7 +208,9 @@ def write_dataframe_to_csv(filename: str,
         with open(filename, 'a'):
             pass
     except:
-        print('\nwrite_dataframe_to_csv(): Error, filename "' + filename + '" is not writable, exiting.')
+        # Generates a 'Local variable 'filename' might be referenced before assignment'
+        # warning in PyCharm.
+        print('write_dataframe_to_csv(): Error, filename "' + filename + '" is not writable, exiting.')
         exit(1)
 
     df.to_csv(filename,
@@ -178,7 +228,7 @@ def read_dataframe_from_csv(filename: str,
                             nr_rows: int = None,
                             datatype=str,
                             read_index: bool = False) -> DataFrame:
-    """Reads a datastructure (DataFrame) from file
+    """Read a DataFrame from csv file.
 
     :param filename: csv file to read.
     :param columns: which columns to read.
@@ -188,6 +238,7 @@ def read_dataframe_from_csv(filename: str,
       from the csv file (True) or not (False) for index in the DataFrame.
     :return: dataframe read.
     """
+    print('Reading DataFrame from csv file ' + filename + '...')
     if not isfile(path=filename):
         print('read_dataframe_from_csv(): Error, file "' + filename + '" does not exist, exiting...')
         exit(1)
@@ -199,31 +250,31 @@ def read_dataframe_from_csv(filename: str,
         index_col = False
 
     try:
-        # Some inputfiles have problems reading in utf-8
+        # Some input files have problems reading in utf-8.
         csv_data = read_csv(filename,
-                                   sep=',',
-                                   index_col=index_col,
-                                   usecols=columns,
-                                   dtype=datatype,
-                                   engine='python',
-                                   nrows=nr_rows,
-                                   keep_default_na=False,
-                                   parse_dates=False,
-                                   iterator=False,
-                                   quotechar='"',
-                                   encoding='utf-8')
+                            sep=',',
+                            index_col=index_col,
+                            usecols=columns,
+                            dtype=datatype,
+                            engine='python',
+                            nrows=nr_rows,
+                            keep_default_na=False,
+                            parse_dates=False,
+                            iterator=False,
+                            quotechar='"',
+                            encoding='utf-8')
     except BaseException:
         print('read_dataframe_from_csv(): error reading in utf-8 format, reading in latin-1 format.')
         csv_data = read_csv(filename,
-                                   sep=',',
-                                   index_col=index_col,
-                                   usecols=columns,
-                                   dtype=datatype,
-                                   engine='python',
-                                   nrows=nr_rows,
-                                   keep_default_na=False,
-                                   parse_dates=False,
-                                   iterator=False,
-                                   quotechar='"',
-                                   encoding='latin-1')
+                            sep=',',
+                            index_col=index_col,
+                            usecols=columns,
+                            dtype=datatype,
+                            engine='python',
+                            nrows=nr_rows,
+                            keep_default_na=False,
+                            parse_dates=False,
+                            iterator=False,
+                            quotechar='"',
+                            encoding='latin-1')
     return csv_data

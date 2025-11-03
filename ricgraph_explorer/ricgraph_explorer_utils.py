@@ -36,6 +36,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to May 2025.
+# Extended Rik D.T. Janssen, October 2025.
 #
 # ########################################################################
 
@@ -446,16 +447,13 @@ def remove_one_hierarchical_org(df: DataFrame,
     return result
 
 
-def create_htmlpage(body_html: str, filename: str) -> None:
+def create_full_htmlpage(body_html: str) -> str:
     """Given some HTML, create an HTML page from it,
-    and write it to a file.
+    and return it.
 
     :param body_html: the HTML to convert to a full HTML page.
-    :param filename: the filename to save the html to.
-    :return: None.
+    :return: the full HTML page.
     """
-    # global font_family, d3_headers
-
     start_html = f'''
                  <!DOCTYPE html>
                  <meta charset="utf-8">
@@ -463,13 +461,6 @@ def create_htmlpage(body_html: str, filename: str) -> None:
                  <body>
                  {d3_headers}
                  '''
-
     end_html = '</body>'
-
     full_html = start_html + body_html + end_html
-
-    with open(filename, "w", encoding="utf-8") as f:
-        f.write(full_html)
-    print('Diagram saved to file: ' + filename + '.')
-    print('')
-    return
+    return full_html

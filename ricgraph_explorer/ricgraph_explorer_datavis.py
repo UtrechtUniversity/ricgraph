@@ -41,6 +41,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to May 2025.
+# Extended Rik D.T. Janssen, October 2025.
 #
 # ########################################################################
 
@@ -50,18 +51,18 @@ from json import dumps
 from pandas import DataFrame
 from functools import wraps
 from inspect import signature
-from ricgraph import (ROTYPE_PUBLICATION, datetimestamp,
-                      create_unique_string, sanitize_string,
+from ricgraph import (datetimestamp, create_unique_string,
                       combine_dataframes, make_dataframe_square_symmetric,
-                      write_dataframe_to_csv)
+                      convert_nodeslist_to_dataframe,
+                      write_text_to_file, write_dataframe_to_csv)
 from ricgraph_explorer_constants import (ricgraph_reference, diagram_tooltip_style,
                                          font_family,
                                          chord_fontsize, chord_space_for_labels,
                                          sankey_fontsize, sankey_pixels_per_link,
                                          sankey_min_height, sankey_max_height)
 from ricgraph_explorer_utils import (get_message, remove_hierarchical_orgs,
-                                     create_htmlpage)
-from ricgraph_explorer_cypher import find_collab_orgs_write_read_file
+                                     create_full_htmlpage)
+from ricgraph_explorer_cypher import find_collab_orgs_matrix, find_collab_orgs_persons_results
 from ricgraph_explorer_javascript import (get_html_for_histogram_javascript,
                                           create_chord_diagram_javascript,
                                           create_sankey_diagram_javascript)
@@ -311,11 +312,11 @@ def create_sankey_diagram(df: DataFrame,
 # ########################################################################
 def error_check(func):
     """This is a decorator function for other functions.
-    It checks if the function called returns True or False,
-    and if that function returns False it prints an error message.
+    It checks if the function called returns an empty string ('') or not,
+    and if that function returns '' it prints an error message.
 
     :param func: the function that this function is a decorator of.
-    :return: True or False.
+    :return: '' or the return value of the function called.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -327,7 +328,7 @@ def error_check(func):
 
         # Call the function.
         result = func(*args, **kwargs)
-        if result is False:
+        if result == '':
             print('--> Function ' + str(func.__name__) + '() gave no results.')
             print('    These were the parameters passed:')
             for name, value in bound.arguments.items():
@@ -338,188 +339,155 @@ def error_check(func):
     return wrapper
 
 
-# WARNING: the following function has not been tested extensively yet.
-## It may be necessary to rewrite it, to bring it more in line with
-# collabs_org_with_org() and collabs_three_orgs_chord().
 @error_check
-def collabs_org_with_all_dataset_software_pub(orgs_with_hierarchies: DataFrame,
-                                              start_organizations: str,
-                                              collab_organizations: str = '',
-                                              filename: str = '') -> bool:
-    """Find all collaborations of start_organizations with any other organizations,
-    or with a number of organizations.
-    For data sets, software, and publications.
-    For now, you can only use it to return top level organizations (due to the call
-    to remove_orgs_from_df_uu_vua_dut()). I may modify this at some point in time.
+def org_collaborations_persons_results(start_organizations: str,
+                                       collab_organizations: str,
+                                       research_result_category: Union[str, list],
+                                       mode: str = 'return_research_results') -> list:
+    """Find all collaborations of an organizations starting with a string,
+    with other organizations with the same starting string
+    (e.g. UU Faculty and UU Faculty).
+    Return the result of 'mode' in a list.
 
-    :param orgs_with_hierarchies: DataFrame with hierarchical orgs.
     :param start_organizations: see find_collab_orgs().
     :param collab_organizations: see find_collab_orgs().
-    :param filename: this will the base of the filename.
-      If you do not specify it, it will be set to a preformatted string.
-    :return: False if no result or on error, else True.
+    :param research_result_category: see find_collab_orgs().
+    :param mode: one of the following:
+      - mode = 'return_research_results': return the research results.
+      - mode = 'return_startorg_persons': return the person-roots from start_organizations.
+      - mode = 'return_collaborg_persons': return the person-roots from collab_organizations.
+    :return: a list of nodes, or [] if nothing found.
     """
-    print('-- collabs_org_with_all_dataset_software_pub(): start at ' + datetimestamp() + '.')
-    preformatted_string = False
-    if filename == '':
-        preformatted_string = True
-        filename = sanitize_string(to_sanitize=start_organizations) + '-vs-all-collabs'
+    print('-- org_collaborations_start_org_persons(): start at ' + datetimestamp() + '.')
+    nodes_list = find_collab_orgs_persons_results(start_organizations=start_organizations,
+                                                  collab_organizations=collab_organizations,
+                                                  research_result_category=research_result_category,
+                                                  mode=mode)
+    # No need to check for nothing found, if so, nodes_list will be [].
+    print('-- org_collaborations_start_org_persons(): finished at ' + datetimestamp() + '.\n')
+    return nodes_list
 
-    # Data sets.
-    collabs_datasets = find_collab_orgs_write_read_file(filename=filename + '-datasets-raw.csv',
-                                                        start_organizations=start_organizations,
-                                                        collab_organizations=collab_organizations,
-                                                        research_result_category='data set',
-                                                        mode='count_collaborations')
-    if collabs_datasets is not None:
-        #collabs_datasets = remove_orgs_from_df_uu_vua_dut(df=collabs_datasets,
-        #                                                  orgs_to_keep=start_organizations)
-        collabs_datasets = remove_hierarchical_orgs(df=collabs_datasets,
-                                                    orgs_with_hierarchies=orgs_with_hierarchies,
-                                                    org_to_keep=start_organizations)
-        if collabs_datasets is not None:
-            collabs_datasets.rename(index={start_organizations: start_organizations + ' (data sets)'}, inplace=True)
 
-    # Software.
-    collabs_software = find_collab_orgs_write_read_file(filename=filename + '-software-raw.csv',
-                                                        start_organizations=start_organizations,
-                                                        collab_organizations=collab_organizations,
-                                                        research_result_category='software',
-                                                        mode='count_collaborations')
-    if collabs_software is not None:
-        #collabs_software = remove_orgs_from_df_uu_vua_dut(df=collabs_software,
-        #                                                  orgs_to_keep=start_organizations)
-        collabs_software = remove_hierarchical_orgs(df=collabs_software,
-                                                    orgs_with_hierarchies=orgs_with_hierarchies,
-                                                    org_to_keep=start_organizations)
-        if collabs_software is not None:
-            collabs_software.rename(index={start_organizations: start_organizations + ' (software)'}, inplace=True)
+def org_collaborations_persons_results_df(start_organizations: str,
+                                          collab_organizations: str,
+                                          research_result_category: Union[str, list],
+                                          mode: str = 'return_research_results',
+                                          filename: str = '') -> Union[None, DataFrame]:
+    """Find all collaborations of an organizations starting with a string,
+    with other organizations with the same starting string
+    (e.g. UU Faculty and UU Faculty).
+    Return the result of 'mode' in a DataFrame.
 
-    # Publications.
-    collabs_pubs = find_collab_orgs_write_read_file(filename=filename + '-pubs-raw.csv',
-                                                    start_organizations=start_organizations,
+    :param start_organizations: see find_collab_orgs().
+    :param collab_organizations: see find_collab_orgs().
+    :param research_result_category: see find_collab_orgs().
+    :param mode: one of the following:
+      - mode = 'return_research_results': return the research results.
+      - mode = 'return_startorg_persons': return the person-roots from start_organizations.
+      - mode = 'return_collaborg_persons': return the person-roots from collab_organizations.
+    :param filename: this will the base of the filename, you can use it
+      to reflect the type of query.
+      It will also work if you specify a directory and filename.
+      If you specify '', no files will be produced.
+    :return: the DataFrame with the result, or None if nothing found.
+    """
+    nodes_list = org_collaborations_persons_results(start_organizations=start_organizations,
                                                     collab_organizations=collab_organizations,
-                                                    research_result_category=ROTYPE_PUBLICATION,
-                                                    mode='count_collaborations')
-    if collabs_pubs is not None:
-        #collabs_pubs = remove_orgs_from_df_uu_vua_dut(df=collabs_pubs,
-        #                                              orgs_to_keep=start_organizations)
-        collabs_pubs = remove_hierarchical_orgs(df=collabs_pubs,
-                                                orgs_with_hierarchies=orgs_with_hierarchies,
-                                                org_to_keep=start_organizations)
-        if collabs_pubs is not None:
-            collabs_pubs.rename(index={start_organizations: start_organizations + ' (publications)'}, inplace=True)
-
-    # Combine data sets, software and publications.
-    combine_df = combine_dataframes(df1=collabs_datasets, df2=collabs_software)
-    if combine_df is None or combine_df.empty:
-        if collabs_pubs is None or collabs_pubs.empty:
-            return False
-        else:
-            combine_df = collabs_pubs.copy(deep=True)
-    else:
-        combine_df = combine_dataframes(df1=combine_df, df2=collabs_pubs)
-    # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
-    combine_df = combine_df.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
-    write_dataframe_to_csv(filename=filename + '-combined.csv',
-                               df=combine_df,
-                               write_index=True)
-
-    caption = 'Overview of publications (years 2022-2025), data sets and software for ' + start_organizations + '. '
-    if preformatted_string:
-        filename += '-sankey'
-    html = create_sankey_diagram(df=combine_df,
-                                 height=5000,
-                                 figure_caption=caption,
-                                 figure_filename=filename + '.svg')
-    create_htmlpage(body_html=html, filename=filename + '.html')
-    print('-- collabs_org_with_all_dataset_software_pub(): finished at ' + datetimestamp() + '.')
-    return True
+                                                    research_result_category=research_result_category,
+                                                    mode=mode)
+    if len(nodes_list) == 0:
+        return None
+    result = convert_nodeslist_to_dataframe(nodes_list=nodes_list,
+                                            columns_and_order=['name', 'category', 'value',
+                                                               'comment', 'year',
+                                                               'url_main', 'url_other', '_source'])
+    if filename != '':
+        write_dataframe_to_csv(filename=filename + '.csv', df=result, write_index=True)
+    return result
 
 
-@error_check
-def collabs_org_with_org(orgs_with_hierarchies: DataFrame,
-                         start_organizations: str,
-                         collab_organizations: str,
-                         research_result_category: Union[str, list],
-                         filename_part: str = '',
-                         filename: str = '') -> bool:
+def org_collaborations_diagram(start_organizations: str,
+                               collab_organizations: str,
+                               research_result_category: Union[str, list],
+                               orgs_with_hierarchies: DataFrame = None,
+                               diagram_type: str = 'sankey',
+                               filename: str = '',
+                               generate_full_html: bool = True) -> str:
     """Find all collaborations of an organizations starting with a string,
     with other organizations with the same starting string
     (e.g. UU Faculty and UU Faculty).
 
-    :param orgs_with_hierarchies: DataFrame with hierarchical orgs.
     :param start_organizations: see find_collab_orgs().
     :param collab_organizations: see find_collab_orgs().
     :param research_result_category: see find_collab_orgs().
-    :param filename_part: this will be part of the filename, you can use it
-      to reflect the type of query. Also see param filename.
+    :param orgs_with_hierarchies: DataFrame with hierarchical orgs.
+    :param diagram_type: the type of diagram to create, 'sankey' or 'chord'.
     :param filename: this will the base of the filename, you can use it
-      to reflect the type of query. Also see param filename_part.
-      If you also use filename_part, filename will be ignored.
+      to reflect the type of query.
       It will also work if you specify a directory and filename.
-    :return: False if no result or on error, else True.
+      If you specify '', no files will be produced.
+    :param generate_full_html: whether to return full HTML for a page, or only body HTML.
+    :return: the HTML produced (either full or body, see 'generate_full_html'),
+      or '' if no HTML produced.
     """
-    print('-- collabs_org_with_org(): start at ' + datetimestamp() + '.')
+    print('-- org_collaborations_diagram(): start at ' + datetimestamp() + '.')
+    if diagram_type != 'sankey' and diagram_type != 'chord':
+        print('org_collaborations_diagram(): Error, unknown diagram type "' + diagram_type + '", exiting.')
+        exit(1)
 
-    if filename_part != '':
-        filename = sanitize_string(to_sanitize=start_organizations) + '-vs-'
-        if collab_organizations == '':
-            filename += 'all'
-        else:
-            filename += sanitize_string(to_sanitize=collab_organizations)
-        filename += '-collabs-'
-        filename += sanitize_string(filename_part)
+    collabs_orgs_raw = find_collab_orgs_matrix(start_organizations=start_organizations,
+                                               collab_organizations=collab_organizations,
+                                               research_result_category=research_result_category)
+    if collabs_orgs_raw is None:
+        return ''
 
-    # Publications.
-    collabs_orgs = find_collab_orgs_write_read_file(filename=filename + '-raw.csv',
-                                                    start_organizations=start_organizations,
-                                                    collab_organizations=collab_organizations,
-                                                    research_result_category=research_result_category,
-                                                    mode='count_collaborations')
-    if collabs_orgs is None:
-        return False
-
+    collabs_orgs = collabs_orgs_raw.copy(deep=True)
     if collab_organizations == '':
+        if orgs_with_hierarchies is None:
+            print('org_collaborations_diagram(): Error, you should have specified "orgs_with_hierarchies", exiting...')
+            exit(1)
         collabs_orgs = remove_hierarchical_orgs(df=collabs_orgs,
                                                 orgs_with_hierarchies=orgs_with_hierarchies,
                                                 org_to_keep=start_organizations)
-
     if start_organizations == collab_organizations:
         collabs_orgs = make_dataframe_square_symmetric(df=collabs_orgs)
 
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     collabs_orgs = collabs_orgs.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
-    write_dataframe_to_csv(filename=filename + '.csv',
-                               df=collabs_orgs,
-                               write_index=True)
-
-    if filename_part != '':
-        caption = 'Overview of ' + filename_part + ' of a number of years for '
-    else:
-        caption = 'Overview of ' + filename + ' of a number of years for '
-
+    caption = 'Overview of ' + filename + ' of a number of years for '
     caption += start_organizations + ' and '
     if collab_organizations == '':
         caption += 'all' + '.'
     else:
         caption += collab_organizations + '.'
-    if filename_part != '':
-        filename += '-sankey'
-    html = create_sankey_diagram(df=collabs_orgs,
-                                 figure_caption=caption,
-                                 figure_filename=filename + '.svg')
-    create_htmlpage(body_html=html, filename=filename + '.html')
-    print('-- collabs_org_with_org(): finished at ' + datetimestamp() + '.')
-    return True
+    if diagram_type == 'sankey':
+        body_html = create_sankey_diagram(df=collabs_orgs,
+                                          figure_caption=caption,
+                                          figure_filename=filename + '.svg')
+    else:
+        body_html = create_chord_diagram(df=collabs_orgs,
+                                         figure_caption=caption,
+                                         figure_filename=filename + '.svg')
+
+    if generate_full_html:
+        return_html = create_full_htmlpage(body_html=body_html)
+    else:
+        return_html = body_html
+    if filename != '':
+        write_dataframe_to_csv(filename=filename + '-raw.csv', df=collabs_orgs_raw, write_index=True)
+        write_dataframe_to_csv(filename=filename + '.csv', df=collabs_orgs, write_index=True)
+        write_text_to_file(filename=filename + '.html', text=return_html)
+    print('-- org_collaborations_diagram(): finished at ' + datetimestamp() + '.\n')
+    return return_html
 
 
 @error_check
-def collabs_three_orgs_chord(first_org: str,
-                             second_org: str,
-                             third_org: str,
-                             research_result_category: Union[str, list],
-                             filename: str = '') -> bool:
+def three_org_collaborations_chord(first_org: str,
+                                   second_org: str,
+                                   third_org: str,
+                                   research_result_category: Union[str, list],
+                                   filename: str = '',
+                                   generate_full_html: bool = True) -> str:
     """Find all collaborations for three (sub-)organizations.
     These may be part of sub-organizations, such as 'UU Faculty'.
     This function will very probably only work (or be useful) if you
@@ -530,39 +498,30 @@ def collabs_three_orgs_chord(first_org: str,
     :param third_org: the third (sub-)organization or substring of it.
     :param research_result_category: do it for this category,
       either a str or list of categories.
-    :param filename: this will the base of the filename.
-      If you do not specify it, it will be set to a preformatted string.
-    :return: False if no result or on error, else True.
+    :param filename: this will the base of the filename, you can use it
+      to reflect the type of query.
+      It will also work if you specify a directory and filename.
+      If you specify '', no files will be produced.
+    :param generate_full_html: whether to return full HTML for a page, or only body HTML.
+    :return: the HTML produced (either full or body, see 'generate_full_html'),
+      or '' if no HTML produced.
     """
     print('-- collabs_three_orgs(): start at ' + datetimestamp() + '.')
-    preformatted_string = False
-    if filename == '':
-        preformatted_string = True
-        filename = 'collabs-three-orgs'
-
-    collabs_1st_2nd = find_collab_orgs_write_read_file(filename=filename + '-1st2nd-raw.csv',
-                                                       start_organizations=first_org,
-                                                       collab_organizations=second_org,
-                                                       research_result_category=research_result_category,
-                                                       mode='count_collaborations')
+    collabs_1st_2nd = find_collab_orgs_matrix(start_organizations=first_org,
+                                              collab_organizations=second_org,
+                                              research_result_category=research_result_category)
     if collabs_1st_2nd is None:
-        return False
-
-    collabs_1st_3rd = find_collab_orgs_write_read_file(filename=filename + '-1st3rd-raw.csv',
-                                                       start_organizations=first_org,
-                                                       collab_organizations=third_org,
-                                                       research_result_category=research_result_category,
-                                                       mode='count_collaborations')
+        return ''
+    collabs_1st_3rd = find_collab_orgs_matrix(start_organizations=first_org,
+                                              collab_organizations=third_org,
+                                              research_result_category=research_result_category)
     if collabs_1st_3rd is None:
-        return False
-
-    collabs_2nd_3rd = find_collab_orgs_write_read_file(filename=filename + '-2nd3rd-raw.csv',
-                                                       start_organizations=second_org,
-                                                       collab_organizations=third_org,
-                                                       research_result_category=research_result_category,
-                                                       mode='count_collaborations')
+        return ''
+    collabs_2nd_3rd = find_collab_orgs_matrix(start_organizations=second_org,
+                                              collab_organizations=third_org,
+                                              research_result_category=research_result_category)
     if collabs_2nd_3rd is None:
-        return False
+        return ''
 
     # Combine data sets, software and publications.
     combine_df = combine_dataframes(df1=collabs_1st_2nd, df2=collabs_1st_3rd)
@@ -570,18 +529,21 @@ def collabs_three_orgs_chord(first_org: str,
     combine_df = make_dataframe_square_symmetric(df=combine_df)
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     combine_df = combine_df.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
-    write_dataframe_to_csv(filename=filename + '-combined.csv',
-                               df=combine_df,
-                               write_index=True)
-
     caption = 'Overview of ' + str(research_result_category)
     caption += ' of a number of years for the (sub-)organizations '
     caption += first_org + ', ' + second_org + ', and ' + third_org + '.'
-    if preformatted_string:
-        filename += '-chord'
-    html = create_chord_diagram(df=combine_df,
-                                figure_caption=caption,
-                                figure_filename=filename + '.svg')
-    create_htmlpage(body_html=html, filename=filename + '.html')
+    body_html = create_chord_diagram(df=combine_df,
+                                     figure_caption=caption,
+                                     figure_filename=filename + '.svg')
+    if generate_full_html:
+        return_html = create_full_htmlpage(body_html=body_html)
+    else:
+        return_html = body_html
+    if filename != '':
+        write_dataframe_to_csv(filename=filename + '-1st2nd-raw.csv', df=collabs_1st_2nd, write_index=True)
+        write_dataframe_to_csv(filename=filename + '-1st3rd-raw.csv', df=collabs_1st_3rd, write_index=True)
+        write_dataframe_to_csv(filename=filename + '-2nd3rd-raw.csv', df=collabs_2nd_3rd, write_index=True)
+        write_dataframe_to_csv(filename=filename + '-combined.csv', df=combine_df, write_index=True)
+        write_text_to_file(filename=filename + '.html', text=return_html)
     print('-- collabs_three_orgs(): finished at ' + datetimestamp() + '.')
-    return True
+    return return_html
