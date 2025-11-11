@@ -11,7 +11,7 @@ pyalex
 pymemcache
 ratelimit
 requests
-ricgraph==3.0
+ricgraph==3.1
 Sickle
 twine
 unidecode

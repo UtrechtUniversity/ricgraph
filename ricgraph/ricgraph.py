@@ -116,7 +116,7 @@ __package__ = 'Ricgraph'
 # __version__ should be placed here instead of in __init__.py.
 # If not here, it cannot be found when executing something like
 # PYTHONPATH=../ricgraph ../bin/python ricgraph_explorer.py
-__version__ = '3.0'
+__version__ = '3.1'
 
 
 # ##############################################################################
