@@ -123,7 +123,7 @@ identifiers:
     value: "10.5281/zenodo.17092199"
   - description: "Ricgraph DOI v3.1"
     type: doi
-    value: "10.5281/zenodo.XXXXXXXX"
+    value: "10.5281/zenodo.17579331"
 abstract: >-
   Ricgraph, also known as Research in context graph, enables the exploration of
   researchers, teams, their results, collaborations, skills, projects, and the
