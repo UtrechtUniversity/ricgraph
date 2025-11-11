@@ -51,13 +51,13 @@ Currently, there are people working on the following extensions for Ricgraph:
   Status: planning stage (pre-alpha).
 * A project with six students from the University of Applied Sciences, Utrecht, that aims to
   [create a general harvester for
-  Ricgraph](docs/ricgraph_outreach.md#ricgraph-projects-with-students).
+  Ricgraph](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students).
   It will remove a lot of code duplication in the harvest scripts, and will
   make it easier to add new harvest sources.
   Status: planning stage (pre-alpha).
 * A project with a student from the University of Applied Sciences, Utrecht, that aims to use
   [AI and Large Language Models to find topics and visualize large amounts of research
-  information](docs/ricgraph_outreach.md#ricgraph-projects-with-students).
+  information](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students).
   It assigns *topics* to publications,
   data sets, and software. By selecting a number of topics, research results are
   grouped, and possibly experts on these topics can be found.
