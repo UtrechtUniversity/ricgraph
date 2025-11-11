@@ -54,6 +54,27 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
+Throughout this documentation, we illustrate how Ricgraph works by applying
+it to the application area research information.
+
+## Ricgraph news
+
+Read my recent preprint:
+
+* Rik D.T. Janssen (2025).
+  *Utilizing Ricgraph to gain insights into research collaborations across institutions,
+  at every organizational level*. Submitted to SoftwareX [preprint].
+  [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
+
+See Ricgraph in action:
+
+* Use the Open Ricgraph demo server 
+  via [https://explorer.ricgraph.eu](https://explorer.ricgraph.eu).
+  Read more (and join) at
+  [pilot project Open Ricgraph demo 
+  server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+
+
 Currently, there are people working on the following extensions for Ricgraph:
 
 * [BackToPure](https://github.com/UtrechtUniversity/backtopure)
@@ -71,8 +92,14 @@ Currently, there are people working on the following extensions for Ricgraph:
   or "With what organizations does that faculty collaborate?".
   It uses a local Large Language Model.
   Status: planning stage (pre-alpha).
-* A project that uses
-  [AI and Large Language Models to cluster and visualize large amounts of research
+* A project with six students from the University of Applied Sciences, Utrecht, that aims to
+  [create a general harvester for
+  Ricgraph](docs/ricgraph_outreach.md#ricgraph-projects-with-students).
+  It will remove a lot of code duplication in the harvest scripts, and will
+  make it easier to add new harvest sources.
+  Status: planning stage (pre-alpha).
+* A project with a student from the University of Applied Sciences, Utrecht, that aims to use
+  [AI and Large Language Models to find topics and visualize large amounts of research
   information](docs/ricgraph_outreach.md#ricgraph-projects-with-students).
   It assigns *topics* to publications,
   data sets, and software. By selecting a number of topics, research results are
@@ -80,12 +107,6 @@ Currently, there are people working on the following extensions for Ricgraph:
   Status: planning stage (pre-alpha).
 * A tool that helps Pure administrators to clean up "external organizations" in Pure.
   Status: planning stage (pre-alpha).
-
-Starting around mid-September, you can see Ricgraph in action with the
-[pilot project Open Ricgraph demo server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
-
-Throughout this documentation, we illustrate how Ricgraph works by applying
-it to the application area research information.
 
 
 ## Motivation
@@ -307,7 +328,7 @@ The following figure shows how three persons have contributed to one research ou
 * We also have an article about collaborations and Ricgraph:
   Rik D.T. Janssen (2025). 
   *Utilizing Ricgraph to gain insights into research collaborations across institutions, 
-  at every organizational level*. Submitted to PLOS One [preprint].
+  at every organizational level*. Submitted to SoftwareX [preprint].
   [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
 * For a further introduction, you might want to read these two presentations:
   * A general presentation about Ricgraph, presenting Ricgraph in a visual manner:

@@ -201,6 +201,8 @@ __R__
 - [Ricgraph Makefile](../docs/ricgraph_install_configure.md#ricgraph-makefile)
 - [Ricgraph mentions](../docs/ricgraph_outreach.md#ricgraph-mentions)
 - [Ricgraph miscellaneous scripts](../docs/ricgraph_misc_scripts.md#ricgraph-miscellaneous-scripts)
+- [Ricgraph news](../README.md#ricgraph-news)
+- [Ricgraph news](../docs/ricgraph_documentation_intro.md#ricgraph-news)
 - [Ricgraph newsletters](../docs/ricgraph_outreach.md#ricgraph-newsletters)
 - [Ricgraph on Windows](../docs/ricgraph_install_configure.md#ricgraph-on-windows)
 - [Ricgraph outreach](../docs/ricgraph_outreach.md#ricgraph-outreach)
