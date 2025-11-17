@@ -44,17 +44,63 @@
 
 
 from typing import Tuple
+from flask import Blueprint
 from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       HTTP_RESPONSE_NOTHING_FOUND, HTTP_RESPONSE_INVALID_SEARCH,
                       read_all_nodes, get_all_neighbor_nodes,
                       get_personroot_node, get_all_personroot_nodes,
                       convert_nodes_to_list_of_dict)
-from ricgraph_explorer_constants import MAX_ITEMS, SEARCH_STRING_MIN_LENGTH
+from ricgraph_explorer_constants import (html_preamble,
+                                         MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_graphdb import (find_person_share_resouts_cypher,
                                        find_person_organization_collaborations_cypher,
                                        find_organization_additional_info_cypher,
                                        find_enrich_candidates_one_person)
+
+
+restapidocpage_bp = Blueprint(name='restapidocpage', import_name=__name__)
+
+
+@restapidocpage_bp.route(rule='/restapidocpage/', methods=['GET'])
+def restapidocpage() -> str:
+    """Show the documentation for the Ricgraph REST API. Ricgraph uses RapiDoc.
+
+    :return: html to be rendered.
+    """
+    # For more information, see: https://rapidocweb.com and https://github.com/rapi-doc/RapiDoc.
+    # For options see: https://rapidocweb.com/api.html.
+    html = '<!DOCTYPE html>'
+    html += '<html>'
+    html += '<head>'
+    html += html_preamble
+    html += '<script type="module" src="/static/rapidoc-min.js"></script>'
+    html += '<title>Ricgraph REST API</title>'
+    html += '</head>'
+    html += """<body>
+              <style>
+                rapi-doc { --font-regular:"Open Sans",sans-serif; }
+                rapi-doc::part(section-navbar) { /* <<< targets navigation bar */
+                    background:#ffcd00;              /* uu-yellow */
+                }
+              </style>
+              <rapi-doc
+                show-header="false"
+                spec-url="/static/openapi.yaml"
+                nav-text-color="#000000"        /* black */
+                nav-hover-text-color="#5287c6"  /* uu-blue */
+                sort-endpoints-by="none"
+              > 
+              <div slot="nav-logo">
+                <img slot="nav-logo" src="/static/images/ricgraph_logo.png" width="200" 
+                  style="vertical-align:middle;padding-right:0.5em;">REST API</img>
+                <p/>
+                <a href="/">Return to Ricgraph Explorer</a>
+              </div>
+              </rapi-doc>
+              </body>
+              </html>"""
+    return html
 
 
 def api_search_person(value: str = '',

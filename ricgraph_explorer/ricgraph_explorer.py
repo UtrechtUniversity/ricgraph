@@ -59,7 +59,6 @@ from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
-                                         html_preamble,
                                          page_footer_wsgi, page_footer_development,
                                          button_style, button_width,
                                          VIEW_MODE_ALL,
@@ -86,7 +85,8 @@ from ricgraph_explorer_osm import osmpage_bp
 from ricgraph_explorer_topics import topicspage_bp
 # In PyCharm, the import below generates an "Unused import statement", but it is
 # required. PyCharm doesn't seem to understand the line # ricgraph_explorer.add_api() below.
-from ricgraph_explorer_restapi import (api_search_person, api_person_all_information,
+from ricgraph_explorer_restapi import (restapidocpage_bp,
+                                       api_search_person, api_person_all_information,
                                        api_person_share_research_results,
                                        api_person_collaborating_organizations,
                                        api_search_organization, api_organization_all_information,
@@ -114,6 +114,7 @@ ricgraph_explorer.add_api(specification='openapi.yaml',
                           swagger_ui_options=swagger_ui_options)
 ricgraph_explorer.app.register_blueprint(blueprint=osmpage_bp)
 ricgraph_explorer.app.register_blueprint(blueprint=topicspage_bp)
+ricgraph_explorer.app.register_blueprint(blueprint=restapidocpage_bp)
 
 
 # ##############################################################################
@@ -615,47 +616,6 @@ def resultspage() -> str:
                                 extra_url_parameters=extra_url_parameters)
 
     html += page_footer + html_body_end
-    return html
-
-
-@ricgraph_explorer.route(rule='/restapidocpage/', methods=['GET'])
-def restapidocpage() -> str:
-    """Show the documentation for the Ricgraph REST API. Ricgraph uses RapiDoc.
-
-    :return: html to be rendered.
-    """
-    # For more information, see: https://rapidocweb.com and https://github.com/rapi-doc/RapiDoc.
-    # For options see: https://rapidocweb.com/api.html.
-    html = '<!DOCTYPE html>'
-    html += '<html>'
-    html += '<head>'
-    html += html_preamble
-    html += '<script type="module" src="/static/rapidoc-min.js"></script>'
-    html += '<title>Ricgraph REST API</title>'
-    html += '</head>'
-    html += """<body>
-              <style>
-                rapi-doc { --font-regular:"Open Sans",sans-serif; }
-                rapi-doc::part(section-navbar) { /* <<< targets navigation bar */
-                    background:#ffcd00;              /* uu-yellow */
-                }
-              </style>
-              <rapi-doc
-                show-header="false"
-                spec-url="/static/openapi.yaml"
-                nav-text-color="#000000"        /* black */
-                nav-hover-text-color="#5287c6"  /* uu-blue */
-                sort-endpoints-by="none"
-              > 
-              <div slot="nav-logo">
-                <img slot="nav-logo" src="/static/images/ricgraph_logo.png" width="200" 
-                  style="vertical-align:middle;padding-right:0.5em;">REST API</img>
-                <p/>
-                <a href="/">Return to Ricgraph Explorer</a>
-              </div>
-              </rapi-doc>
-              </body>
-              </html>"""
     return html
 
 
