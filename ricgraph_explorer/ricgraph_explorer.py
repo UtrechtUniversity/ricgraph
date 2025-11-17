@@ -67,7 +67,8 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
                                          RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
-from ricgraph_explorer_init import initialize_ricgraph_explorer, get_ricgraph_explorer_global
+from ricgraph_explorer_init import (initialize_ricgraph_explorer,
+                                    set_ricgraph_explorer_global,  get_ricgraph_explorer_global)
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_overlap_in_source_systems_records,
                                        find_person_share_resouts,
@@ -81,6 +82,8 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
+from ricgraph_explorer_osm import osmpage_bp
+from ricgraph_explorer_topics import topicspage_bp
 # In PyCharm, the import below generates an "Unused import statement", but it is
 # required. PyCharm doesn't seem to understand the line # ricgraph_explorer.add_api() below.
 from ricgraph_explorer_restapi import (api_search_person, api_person_all_information,
@@ -109,6 +112,8 @@ ricgraph_explorer = FlaskApp(import_name=__name__,
                              swagger_ui_options=swagger_ui_options)
 ricgraph_explorer.add_api(specification='openapi.yaml',
                           swagger_ui_options=swagger_ui_options)
+ricgraph_explorer.app.register_blueprint(blueprint=osmpage_bp)
+ricgraph_explorer.app.register_blueprint(blueprint=topicspage_bp)
 
 
 # ##############################################################################
@@ -132,6 +137,9 @@ def favicon():
 # 3. optionspage, this page depends on the node type found.
 # 3. resultspage, this page depends on what the user would like to see.
 # 4. restapidocpage, this page shows the documentation of the REST API.
+#
+# 5. osmpage, this page allows to explore open science monitoring.
+# 6. topicspage, this page allows to explore topics.
 # ##############################################################################
 @ricgraph_explorer.route(rule='/')
 def homepage() -> str:
@@ -183,6 +191,13 @@ def homepage() -> str:
                                  hidden_fields={'search_mode': 'value_search',
                                                 'category': 'competence'
                                                 })
+        html += '<p/>'
+    html += create_html_form(destination='osmpage',
+                             button_text='explore open science monitoring')
+    html += '<p/>'
+    if 'topic' in get_ricgraph_explorer_global(name='category_all'):
+        html += create_html_form(destination='topicspage',
+                                 button_text='explore topics')
         html += '<p/>'
     html += create_html_form(destination='searchpage',
                              button_text='search for anything (broad search)',
@@ -1185,6 +1200,7 @@ def create_ricgraph_explorer_app():
         page_footer += privacy_measures_link_loc
         page_footer += '</footer>'
     page_footer += page_footer_wsgi
+    set_ricgraph_explorer_global(name='page_footer', value=page_footer)
 
     return ricgraph_explorer
 
@@ -1203,5 +1219,6 @@ if __name__ == "__main__":
         page_footer += privacy_measures_link
         page_footer += '</footer>'
     page_footer += page_footer_development
+    set_ricgraph_explorer_global(name='page_footer', value=page_footer)
 
     ricgraph_explorer.run(port=3030)
