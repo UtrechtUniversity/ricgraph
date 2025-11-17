@@ -47,7 +47,7 @@ from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_page_title)
 
-topicspage_bp = Blueprint('topicspage', __name__)
+topicspage_bp = Blueprint(name='topicspage', import_name=__name__)
 
 
 @topicspage_bp.route(rule='/topicspage/', methods=['GET'])

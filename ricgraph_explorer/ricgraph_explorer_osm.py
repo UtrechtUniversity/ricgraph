@@ -57,7 +57,7 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
                                      get_message, get_found_message,
                                      get_you_searched_for_card, get_page_title)
 
-osmpage_bp = Blueprint('osmpage', __name__)
+osmpage_bp = Blueprint(name='osmpage', import_name=__name__)
 
 
 @osmpage_bp.route(rule='/osmpage/', methods=['GET'])
