@@ -55,7 +55,7 @@ def topicspage() -> str:
     """Ricgraph Explorer entry, this 'page' does not have any parameters.
     The Topics page.
 
-    returns html to parse.
+    :return: html to be rendered.
     """
     page_footer = get_ricgraph_explorer_global('page_footer')
 

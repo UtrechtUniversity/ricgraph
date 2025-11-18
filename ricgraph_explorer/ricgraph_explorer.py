@@ -146,6 +146,9 @@ def favicon():
 def homepage() -> str:
     """Ricgraph Explorer entry, the home page, when you access '/'.
 
+    Possible url parameters are:
+    - none.
+
     :return: html to be rendered.
     """
     global page_footer
@@ -286,13 +289,16 @@ def searchpage() -> str:
     """Ricgraph Explorer entry, this 'page' shows the search form, both the
     exact match search form and the broad search on the 'value' field form.
 
-    Possible parameters are:
-    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
-      or 'person_view' to have a nicer layout.
+    Possible url parameters are:
+    - name: name of the nodes to find.
+    - category: category of the nodes to find.
     - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
       search on field 'value').
+    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
+      or 'person_view' to have a nicer layout.
+    - max_nr_items: the maximum number of items to return, or 0 to return all items.
 
-    returns html to parse.
+    :return: html to be rendered.
     """
     global page_footer
 
@@ -422,21 +428,21 @@ def optionspage() -> str:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     Find nodes based on URL parameters passed.
 
-    Possible parameters are:
-
+    Possible url parameters are:
     - key: key of the nodes to find. If present, this field is preferred above
       'name', 'category' or 'value'.
     - name: name of the nodes to find.
     - category: category of the nodes to find.
     - value: value of the nodes to find.
-    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
-      or 'person_view' to have a nicer layout.
     - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
       search on field 'value').
-    - extra_url_parameters: a dict containing url parameters to be passed with each
-      url generated. This dict can be extended as desired.
+    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
+      or 'person_view' to have a nicer layout.
+    - max_nr_items: the maximum number of items to return, or 0 to return all items.
+    - max_nr_table_rows: the maximum number of rows in a table to return (the page
+      size of the table), or 0 to return all rows.
 
-    returns html to parse.
+    :return: html to be rendered.
     """
     global page_footer
 
@@ -532,12 +538,13 @@ def resultspage() -> str:
     value of 'view_mode', is determined what will be viewed.
     This function will only be called with one node, so we can use 'key' to find it.
 
-    Possible parameters are:
-
+    Possible url parameters are:
     - view_mode: determines what will be shown in create_results_page().
       This view_mode is first set in create_options_page(), and then
       caught first in resultspage() and then in create_results_page().
     - key: key of the nodes to find.
+    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
+      or 'person_view' to have a nicer layout.
     - name_list: either a string which indicates that we only want neighbor
       nodes where the property 'name' is equal to 'name_list'
       (e.g. 'ORCID'), or a list containing several node names, indicating
@@ -545,12 +552,12 @@ def resultspage() -> str:
       one of the names in the list 'name_list' (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
       If empty (empty string), return all nodes.
     - category_list: similar to 'name_list', but now for the property 'category'.
-    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
-      or 'person_view' to have a nicer layout.
-    - extra_url_parameters: a dict containing url parameters to be passed with each
-      url generated. This dict can be extended as desired.
+    - view_mode: indicates which page to create in create_results_page().
+    - max_nr_items: the maximum number of items to return, or 0 to return all items.
+    - max_nr_table_rows: the maximum number of rows in a table to return (the page
+      size of the table), or 0 to return all rows.
 
-    returns html to parse.
+    :return: html to be rendered.
     """
     global page_footer
 
@@ -632,7 +639,8 @@ def create_options_page(node: Node,
 
     :param node: the node that is found and that determines the possible choices.
     :param discoverer_mode: as usual.
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param extra_url_parameters: a dict containing url parameters to be passed
+      with each url. This dict can be extended as desired.
     :return: html to be rendered.
     """
     # Note: This function gets a 'node', then it extracts '_key' from
@@ -896,7 +904,8 @@ def create_results_page(view_mode: str,
       If empty , return all nodes.
     :param category_list: as name_str, but for category.
     :param discoverer_mode: as usual.
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param extra_url_parameters: a dict containing url parameters to be passed
+      with each url. This dict can be extended as desired.
     :return: html to be rendered.
     """
     if name_list is None:

@@ -88,6 +88,7 @@ PRIVACY_MEASURES_FILE = 'privacy_measures.pdf'
 HOMEPAGE_INTRO_FILE = 'homepage_intro.html'
 
 # These are all the 'view_mode's that are allowed.
+# The view mode indicates which page to create in create_results_page().
 VIEW_MODE_ALL = ['view_regular_table_personal',
                  'view_regular_table_organizations',
                  'view_regular_table_persons_of_org',
