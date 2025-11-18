@@ -75,6 +75,7 @@ def find_person_share_resouts_cypher(parent_node: Node,
                                      category_dontwant_list: list = None,
                                      max_nr_items: str = str(MAX_ITEMS)) -> list:
     """ For documentation, see find_person_share_resouts().
+    This is the cypher functionality for that function.
 
     :param parent_node:
     :param category_want_list:
@@ -142,7 +143,8 @@ def find_person_share_resouts_cypher(parent_node: Node,
 
 def find_person_organization_collaborations_cypher(parent_node: Node,
                                                    max_nr_items: str = str(MAX_ITEMS)) -> Tuple[list, list]:
-    """ For documentation, see find_person_organization_collaborations_cypher().
+    """ For documentation, see find_person_organization_collaborations().
+    This is the cypher functionality for that function.
 
     :param parent_node:
     :param max_nr_items:
@@ -221,6 +223,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
                                              source_system: str = '',
                                              max_nr_items: str = str(MAX_ITEMS)) -> list:
     """For documentation, see find_organization_additional_info().
+    This is the cypher functionality for that function.
 
     :param parent_node:
     :param name_list:

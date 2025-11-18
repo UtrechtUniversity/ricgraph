@@ -348,10 +348,12 @@ def org_collaborations_persons_results(start_organizations: str,
     with other organizations with the same starting string
     (e.g. UU Faculty and UU Faculty).
     Return the result of 'mode' in a list.
+    Note the similarity with org_collaborations_persons_results_df(),
+    that does the same but returns a DataFrame.
 
-    :param start_organizations: see find_collab_orgs().
-    :param collab_organizations: see find_collab_orgs().
-    :param research_result_category: see find_collab_orgs().
+    :param start_organizations: see find_collab_orgs_persons_results().
+    :param collab_organizations: see find_collab_orgs_persons_results().
+    :param research_result_category: see find_collab_orgs_persons_results().
     :param mode: one of the following:
       - mode = 'return_research_results': return the research results.
       - mode = 'return_startorg_persons': return the person-roots from start_organizations.
@@ -377,10 +379,12 @@ def org_collaborations_persons_results_df(start_organizations: str,
     with other organizations with the same starting string
     (e.g. UU Faculty and UU Faculty).
     Return the result of 'mode' in a DataFrame.
+    Note the similarity with org_collaborations_persons_results(),
+    that does the same but returns a list of nodes.
 
-    :param start_organizations: see find_collab_orgs().
-    :param collab_organizations: see find_collab_orgs().
-    :param research_result_category: see find_collab_orgs().
+    :param start_organizations: see find_collab_orgs_persons_results().
+    :param collab_organizations: see find_collab_orgs_persons_results().
+    :param research_result_category: see find_collab_orgs_persons_results().
     :param mode: one of the following:
       - mode = 'return_research_results': return the research results.
       - mode = 'return_startorg_persons': return the person-roots from start_organizations.
@@ -416,10 +420,12 @@ def org_collaborations_diagram(start_organizations: str,
     """Find all collaborations of an organizations starting with a string,
     with other organizations with the same starting string
     (e.g. UU Faculty and UU Faculty).
+    Note the similarity with three_org_collaborations_chord(),
+    that does the same but for three organizations in a Chord diagram.
 
-    :param start_organizations: see find_collab_orgs().
-    :param collab_organizations: see find_collab_orgs().
-    :param research_result_category: see find_collab_orgs().
+    :param start_organizations: see find_collab_orgs_matrix().
+    :param collab_organizations: see find_collab_orgs_matrix().
+    :param research_result_category: see find_collab_orgs_matrix().
     :param orgs_with_hierarchies: DataFrame with hierarchical orgs.
     :param diagram_type: the type of diagram to create, 'sankey' or 'chord'.
     :param filename: this will the base of the filename, you can use it
@@ -492,6 +498,8 @@ def three_org_collaborations_chord(first_org: str,
     These may be part of sub-organizations, such as 'UU Faculty'.
     This function will very probably only work (or be useful) if you
     choose (sub-)organizations from the same level.
+    Note the similarity with org_collaborations_diagram(),
+    that does the same but for two organizations.
 
     :param first_org: the first (sub-)organization or substring of it.
     :param second_org: the second (sub-)organization or substring of it.
