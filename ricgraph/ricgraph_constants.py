@@ -104,6 +104,8 @@ MAX_ORG_ABBREVIATION_LENGTH = 3
 # If you add a type, also add it to ROTYPE_ALL.
 # If you add a type that is a publication, also add it to ROTYPE_PUBLICATION.
 #
+# ROTYPE_* are used in the Ricgraph 'category' field.
+#
 # This list is inspired by the Strategy Evaluation Protocol 2021-2027
 # https://www.universiteitenvannederland.nl/files/documenten/Domeinen/Onderzoek/SEP_2021-2027.pdf,
 # Appendix E2.
@@ -167,6 +169,9 @@ ROTYPE_ALL = [ROTYPE_ABSTRACT,
               ROTYPE_THESIS,
               ROTYPE_WEBSITE]
 
+# A resout_type_all is defined in initialize_ricgraph_explorer().
+# These are elements of ROTYPE_ALL that are present in your Ricgraph.
+# I.e., those have been harvested from the source systems that you chose to harvest.
 
 ROTYPE_PUBLICATION = [ROTYPE_ABSTRACT,
                       ROTYPE_BOOK,
@@ -188,3 +193,7 @@ ROTYPE_PUBLICATION = [ROTYPE_ABSTRACT,
                       ROTYPE_RETRACTION,
                       ROTYPE_REVIEW,
                       ROTYPE_THESIS]
+
+# A resout_type_pub is defined in initialize_ricgraph_explorer().
+# These are elements of ROTYPE_PUBLICATION that are present in your Ricgraph.
+# I.e., those have been harvested from the source systems that you chose to harvest.

@@ -38,15 +38,34 @@
 # ########################################################################
 #
 # Original version Rik D.T. Janssen, 2023.
-# Extended Rik D.T. Janssen, July 2025.
+# Extended Rik D.T. Janssen, July, November 2025.
 #
 # ########################################################################
 
 
+from urllib.parse import urlencode
+from flask import url_for
 from ricgraph_explorer_constants import (font_family,
                                          chord_fontsize, chord_space_for_labels,
                                          chord_label_linespacing,
                                          sankey_margin)
+
+
+def get_spinner_javascript() -> str:
+    """JavaScript to create a spinner.
+
+    :return: html to be rendered.
+    """
+    javascript = f'''
+                 <script>
+                 // Hide the spinner on load, including when navigating back.
+                 window.addEventListener("pageshow", function(){{
+                   document.getElementById("ricgraph_spinner").style.display="none";}});
+                 document.querySelector("form").addEventListener("submit", function(){{
+                   document.getElementById("ricgraph_spinner").style.display="block";}});
+                 </script>
+                 '''
+    return javascript
 
 
 def get_regular_table_javascript(table_id: str,
@@ -534,6 +553,8 @@ def create_chord_diagram_javascript(matrix_json: str,
 # The following code was inspired heavily by perplexity.ai.
 def create_sankey_diagram_javascript(nodes_json: str,
                                      links_json: str,
+                                     research_result_category: list,
+                                     tooltip_show_links: bool,
                                      width: int,
                                      height: int,
                                      svg_id: str,
@@ -543,6 +564,13 @@ def create_sankey_diagram_javascript(nodes_json: str,
 
     :param nodes_json: json with nodes.
     :param links_json: json with links.
+    :param research_result_category: if specified, only return collaborations
+      for this research result category. If not, return all collaborations,
+      regardless of the research result category.
+      The value can be both a string containing one category, or
+      a list of categories.
+    :param tooltip_show_links: whether to show the 'drill down links' in
+      the tooltip or not.
     :param width: the width of the resulting svg image.
     :param height: the height of the resulting svg image.
     :param svg_id: svg id to be used.
@@ -571,8 +599,91 @@ def create_sankey_diagram_javascript(nodes_json: str,
     #
     # An alternative would be to use gradient lines, but since we often have
     # many small lines, this wouldn't make much of a difference.
+    if len(research_result_category) == 0:
+        print('create_sankey_diagram_javascript(): Error: Research result category is empty. Exiting...')
+        return ''
+    if tooltip_show_links:
+        base_url = url_for(endpoint='collabsresultpage.collabsresultpage') + '?'
+        base_url += urlencode(query={'category_list': research_result_category}, doseq=True)
+        #url_style = 'style="display:inline-block; background:#ddd; width:14em; '
+        #url_style += 'margin:0.2em 0em; text-align:center;"'
+        url_style = 'style="display:inline-block; background:buttonface; width:14em; '
+        # url_style += 'border:2px solid buttonborder; border-radius:4px; text-decoration:none; '
+        url_style += 'border:1px solid buttonborder; border-radius:4px; text-decoration:none; '
+        url_style += 'margin:0.2em 0em; text-align:center;"'
+    else:
+        base_url = ''
+        url_style = ''
+
     javascript = f'''
                  <script>
+                 let pathHovered = false;
+                 let tooltipHovered = false;
+                 let tooltipPinned = false;
+                 const tooltip = d3.select("#{svg_id}_tooltip");
+                 const tooltip_show_links = {str(tooltip_show_links).lower()};
+                 
+                 tooltip
+                   .on("mouseenter", function() {{
+                     tooltipHovered = true;
+                     tooltip.style("display", "block");
+                   }})
+                   .on("mouseleave", function() {{
+                     tooltipHovered = false;
+                     if (!pathHovered && !tooltipPinned)
+                       tooltip.style("display", "none");
+                   }});
+               
+                 // Create a tooltip at a certain position (left, top) that has 
+                 // clickable elements in it. For this to work, it must be pinnable.
+                 // This allows to 'drill down' on the collaborations.
+                 function updateTooltip(event, d, left, top) {{
+                   let popup = `<strong>From:</strong> ${{d.source.name}}<br/>`
+                   
+                   popup += `<strong>To:</strong> ${{d.target.name}}<br/>`
+                   popup += `<strong>Collaborations:</strong> ${{d.value}}<br/>`
+                   if (tooltip_show_links) {{
+                     const orgs_url = "{base_url}" +
+                                      "&start_orgs=" + encodeURIComponent(d.source.name) +
+                                      "&collab_orgs=" + encodeURIComponent(d.target.name);
+                     const startorg_persons_url = `${{orgs_url}}&collab_mode=return_startorg_persons`;
+                     const research_results_url = `${{orgs_url}}&collab_mode=return_research_results`;
+                     const collaborg_persons_url = `${{orgs_url}}&collab_mode=return_collaborg_persons`;
+                     
+                     popup += `<a href="${{startorg_persons_url}}"  {url_style} `
+                     popup += `  target="_blank">persons from <em>start organizations</em></a> `
+                     popup += `<a href="${{research_results_url}}" {url_style} `
+                     popup += `  target="_blank">research results</a> `
+                     popup += `<a href="${{collaborg_persons_url}}" {url_style} `
+                     popup += `  target="_blank">persons from <em>collaborating organizations</em></a> `
+                     popup += `<br/>Note that finding these collaborations may take (very) long.<br/> `
+                   }};
+                   popup += `<button id="close_tooltip">close</button>`
+                   
+                   tooltip
+                     .style("display", "block")
+                     .style("left", left + "px")
+                     .style("top", top + "px")
+                     .html(popup);
+                   d3.select("#{svg_id}_tooltip #close_tooltip").on("click", function() {{
+                     tooltipPinned = false;
+                     tooltip.style("display", "none");
+                   }});
+                 }}
+                 // End create a tooltip.
+                
+                 // Get the position of the tooltip.
+                 function getTooltipPosition(event, svg_id, tooltip_id) {{
+                   const svgWidth = d3.select("#{svg_id}").node().getBoundingClientRect().width;
+                   const mouseX = event.clientX - d3.select("#{svg_id}").node().getBoundingClientRect().left;
+                   const isLeftHalf = mouseX < svgWidth / 2;
+                   const offsetX = isLeftHalf ? 10 : -10 - d3.select("#{svg_id}_tooltip").node().offsetWidth;
+                   const left = event.pageX + offsetX;
+                   const top = event.pageY + 10;
+                   return {{ left, top }};
+                 }}
+                 // End get the position of the tooltip.
+
                  // Function drawSankey() allows to change the height of the diagram.
                  function drawSankey(newHeight) {{
                    const graph = {{ nodes: {nodes_json}, links: {links_json} }};
@@ -596,7 +707,7 @@ def create_sankey_diagram_javascript(nodes_json: str,
 
                    // Assign color to nodes.
                    nodes.forEach((d, i) => d.color = color(d.name));
-
+                   
                    // Draw links (lines) -- set all color/opacity as attributes.
                    svg.append("g")
                      .selectAll("path")
@@ -609,32 +720,37 @@ def create_sankey_diagram_javascript(nodes_json: str,
                        .attr("fill", "none")
                        .attr("stroke-opacity", 0.25)
                        .on("mouseover", function(event, d) {{
-                         d3.select(this).classed("highlighted", true)
-                           .attr("stroke-opacity", 0.8);
-                         // Show tooltip for link
-                         d3.select("#{svg_id}_tooltip")
-                           .style("display", "block")
-                           .html(`<strong>From:</strong> ${{d.source.name}}<br/>
-                                  <strong>To:</strong> ${{d.target.name}}<br/>
-                                  <strong>Collaborations:</strong> ${{d.value}}`);
+                          pathHovered = true;               // Set hover state.
+                          if (!tooltipPinned) {{            // Don't update if pinned.
+                            d3.select(this).classed("highlighted", true).attr("stroke-opacity", 0.8);
+                            const pos = getTooltipPosition(event, "{{svg_id}}", "{{svg_id}}_tooltip");
+                            updateTooltip(event, d, pos.left, pos.top);
+                          }}
                        }})
                        .on("mousemove", function(event, d) {{
-                         // Determine if node is on left or right.
-                         const svgWidth = d3.select("#{svg_id}").node().getBoundingClientRect().width;
-                         // We use the mouse's position relative to the SVG.
-                         const mouseX = event.clientX - d3.select("#{svg_id}")
-                           .node().getBoundingClientRect().left;
-                         const isLeftHalf = mouseX < svgWidth / 2;
-                         const offsetX = isLeftHalf ? 10 : -10 - d3.select("#{svg_id}_tooltip")
-                           .node().offsetWidth;
-                         d3.select("#{svg_id}_tooltip")
-                           .style("left", (event.pageX + offsetX) + "px")
-                           .style("top", (event.pageY + 10) + "px");
+                         if (!tooltipPinned) {{    
+                           // Determine if node is on left or right.
+                           const svgWidth = d3.select("#{svg_id}").node().getBoundingClientRect().width;
+                           // We use the mouse's position relative to the SVG.
+                           const mouseX = event.clientX - d3.select("#{svg_id}")
+                             .node().getBoundingClientRect().left;
+                           const isLeftHalf = mouseX < svgWidth / 2;
+                           const offsetX = isLeftHalf ? 10 : -10 - d3.select("#{svg_id}_tooltip")
+                             .node().offsetWidth;
+                           d3.select("#{svg_id}_tooltip")
+                             .style("left", (event.pageX + offsetX) + "px")
+                             .style("top", (event.pageY + 10) + "px");
+                         }}
+                       }})
+                       .on("click", function(event, d) {{
+                         tooltipPinned = true;              // Stick tooltip on click.
+                         const pos = getTooltipPosition(event, "{{svg_id}}", "{{svg_id}}_tooltip");
+                         updateTooltip(event, d, pos.left, pos.top);
                        }})
                        .on("mouseout", function(event, d) {{
-                         d3.select(this).classed("highlighted", false)
-                           .attr("stroke-opacity", 0.25);
-                         d3.select("#{svg_id}_tooltip").style("display", "none");
+                          pathHovered = false;              // Remove hover state.
+                          d3.select(this).classed("highlighted", false)
+                            .attr("stroke-opacity", 0.25);
                        }});
                    // End draw links (lines).
 

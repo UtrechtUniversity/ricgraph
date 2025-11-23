@@ -46,13 +46,14 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to June 2025.
+# Extended Rik D.T. Janssen, November 2025.
 #
 # ##############################################################################
 
 
 from os import path
 from connexion import FlaskApp, options
-from flask import request, send_from_directory
+from flask import send_from_directory
 from neo4j.graph import Node
 from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       nodes_cache_key_id_type_size,
@@ -61,8 +62,8 @@ from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          page_footer_wsgi, page_footer_development,
                                          button_style, button_width,
-                                         VIEW_MODE_ALL,
-                                         DEFAULT_SEARCH_MODE, DEFAULT_DISCOVERER_MODE,
+                                         VIEW_MODE_ALL, DEFAULT_SEARCH_MODE,
+                                         DISCOVERER_MODE_ALL, DISCOVERER_MODE_DEFAULT,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
                                          RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
@@ -75,13 +76,14 @@ from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_person_organization_collaborations,
                                        find_organization_additional_info)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     create_html_form, get_url_parameter_value,
+                                     create_html_form,
+                                     get_url_parameter_value, get_url_parameter_list,
                                      get_message, get_found_message,
                                      get_you_searched_for_card, get_page_title)
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
-from ricgraph_explorer_osm import osmpage_bp
+from ricgraph_explorer_osm import osmpage_bp, collabspage_bp, collabsresultpage_bp
 from ricgraph_explorer_topics import topicspage_bp
 # In PyCharm, the import below generates an "Unused import statement", but it is
 # required. PyCharm doesn't seem to understand the line # ricgraph_explorer.add_api() below.
@@ -113,6 +115,8 @@ ricgraph_explorer = FlaskApp(import_name=__name__,
 ricgraph_explorer.add_api(specification='openapi.yaml',
                           swagger_ui_options=swagger_ui_options)
 ricgraph_explorer.app.register_blueprint(blueprint=osmpage_bp)
+ricgraph_explorer.app.register_blueprint(blueprint=collabspage_bp)
+ricgraph_explorer.app.register_blueprint(blueprint=collabsresultpage_bp)
 ricgraph_explorer.app.register_blueprint(blueprint=topicspage_bp)
 ricgraph_explorer.app.register_blueprint(blueprint=restapidocpage_bp)
 
@@ -196,8 +200,12 @@ def homepage() -> str:
                                                 'category': 'competence'
                                                 })
         html += '<p/>'
-    html += create_html_form(destination='osmpage',
-                             button_text='explore open science monitoring')
+    # For future use.
+    # html += create_html_form(destination='osmpage',
+    #                          button_text='explore open science monitoring')
+    # html += '<p/>'
+    html += create_html_form(destination='collabspage',
+                             button_text='explore collaborations')
     html += '<p/>'
     if 'topic' in get_ricgraph_explorer_global(name='category_all'):
         html += create_html_form(destination='topicspage',
@@ -308,8 +316,8 @@ def searchpage() -> str:
                                           allowed_values=['exact_match', 'value_search'],
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=['details_view', 'person_view'],
-                                              default_value=DEFAULT_DISCOVERER_MODE)
+                                              allowed_values=DISCOVERER_MODE_ALL,
+                                              default_value=DISCOVERER_MODE_DEFAULT)
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
     if not max_nr_items.isnumeric():
@@ -324,14 +332,14 @@ def searchpage() -> str:
     if search_mode == 'exact_match':
         form += '<label for="name">Search for a value in Ricgraph field <em>name</em>:</label>'
         form += '<input id="name" class="w3-input w3-border" list="name_all_datalist"'
-        form += 'name=name id=name autocomplete=off>'
+        form += 'name=name autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
         form += str(get_ricgraph_explorer_global(name='name_all_datalist'))
         form += '<br/>'
 
         form += '<label for="category">Search for a value in Ricgraph field <em>category</em>:</label>'
         form += '<input id="category" class="w3-input w3-border" list="category_all_datalist"'
-        form += 'name=category id=category autocomplete=off>'
+        form += 'name=category autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
         form += str(get_ricgraph_explorer_global(name='category_all_datalist'))
         form += '<br/>'
@@ -355,7 +363,7 @@ def searchpage() -> str:
     radio_person_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg" alt="Click for more information">'
     radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
     radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
-    radio_person_tooltip += 'Also, tables have less columns to reduce information overload. '
+    radio_person_tooltip += 'Also, tables have fewer columns to reduce information overload. '
     if 'competence' in get_ricgraph_explorer_global(name='category_all'):
         radio_person_tooltip += 'This view has been tailored to the Utrecht University staff pages, since some '
         radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
@@ -450,8 +458,8 @@ def optionspage() -> str:
                                           allowed_values=['exact_match', 'value_search'],
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=['details_view', 'person_view'],
-                                              default_value=DEFAULT_DISCOVERER_MODE)
+                                              allowed_values=DISCOVERER_MODE_ALL,
+                                              default_value=DISCOVERER_MODE_DEFAULT)
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
@@ -564,8 +572,8 @@ def resultspage() -> str:
     view_mode = get_url_parameter_value(parameter='view_mode')
     key = get_url_parameter_value(parameter='key', use_escape=False)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=['details_view', 'person_view'],
-                                              default_value=DEFAULT_DISCOVERER_MODE)
+                                              allowed_values=DISCOVERER_MODE_ALL,
+                                              default_value=DISCOVERER_MODE_DEFAULT)
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
@@ -579,8 +587,8 @@ def resultspage() -> str:
     if not max_nr_table_rows.isnumeric():
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
-    name_list = request.args.getlist('name_list')
-    category_list = request.args.getlist('category_list')
+    name_list = get_url_parameter_list('name_list')
+    category_list = get_url_parameter_list('category_list')
     # HTML forms with an empty field named e.g. 'aa' will result in a URL parameter '...&aa=&...'.
     # In this case, getlist() returns [''].
     # This is undesirable behaviour, since I'd rather have an empty list. Correct for it.

@@ -144,6 +144,9 @@ organization_ror_VUA = 008xxew50
 # This means that the connection count of the top level organization
 # contains counts for all of its sub-organizations. So the
 # sub-organizations can be removed without loosing their counts.
+# For more info, read the "Design decision" at function
+# org_collaborations_diagram()
+# in file ../ricgraph_explorer/ricgraph_explorer_datavis.py.
 #
 # In the list below, do not change the first row.
 # You can add or modify the following rows, according to your harvest.

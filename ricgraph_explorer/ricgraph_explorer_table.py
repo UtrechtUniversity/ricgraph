@@ -57,6 +57,7 @@ from urllib.parse import urlencode
 from math import ceil, floor
 from typing import Union
 from neo4j.graph import Node
+from flask import url_for
 from ricgraph import (nodes_cache_key_id_create,
                       create_ricgraph_key,
                       create_unique_string,
@@ -66,7 +67,7 @@ from ricgraph_explorer_constants import (DETAIL_COLUMNS, RESEARCH_OUTPUT_COLUMNS
                                          MAX_ROWS_TO_EXPORT, ID_COLUMNS,
                                          button_style)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     get_message, url_for)
+                                     get_message)
 from ricgraph_explorer_datavis import get_html_for_histogram
 from ricgraph_explorer_javascript import (get_regular_table_javascript, get_tabbed_table_javascript,
                                           get_html_for_tableend_javascript)
@@ -104,8 +105,8 @@ def view_personal_information(nodes_list: list,
         # Don't get the 'additionalpart'.
         item = '<a href=' + url_for('optionspage') + '?'
         item += urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}
-                                       | extra_url_parameters) + '>'
+                           'discoverer_mode': discoverer_mode}
+                          | extra_url_parameters) + '>'
         item += value + '</a>'
         names.append(item)
     if len(names) == 1:
@@ -123,8 +124,8 @@ def view_personal_information(nodes_list: list,
         html += '&nbsp;&nbsp;'
         html += '<a href=' + url_for('optionspage') + '?'
         html += urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}
-                                       | extra_url_parameters) + '>'
+                           'discoverer_mode': discoverer_mode}
+                          | extra_url_parameters) + '>'
         html += '<img src="' + node['url_main'] + '" alt="' + node['value']
         html += '" title="' + node['value'] + '" height="100"></a>'
     html += '</p>'
@@ -140,8 +141,8 @@ def view_personal_information(nodes_list: list,
         key = create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('optionspage') + '?'
         item += urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}
-                                       | extra_url_parameters) + '>'
+                           'discoverer_mode': discoverer_mode}
+                          | extra_url_parameters) + '>'
         item += node['value'] + '</a>'
         if node['name'] == 'SKILL':
             skills.append(item)
@@ -763,8 +764,8 @@ def get_html_for_tablerow(node: Node,
 
         html += '<td><a href=' + url_for('optionspage') + '?'
         html += urlencode({'key': key,
-                                        'discoverer_mode': discoverer_mode}
-                                       | extra_url_parameters) + '>'
+                           'discoverer_mode': discoverer_mode}
+                          | extra_url_parameters) + '>'
         html += value + '</a></td>'
     if 'comment' in table_columns:
         if isinstance(node['comment'], str):

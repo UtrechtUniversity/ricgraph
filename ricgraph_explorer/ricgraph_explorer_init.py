@@ -45,7 +45,8 @@ from typing import Union
 from connexion import FlaskApp
 from ricgraph import (open_ricgraph, read_all_values_of_property,
                       memcached_open_connection, nodes_cache_key_id_type_size,
-                      ROTYPE_ALL, ROTYPE_PUBLICATION)
+                      ROTYPE_ALL, ROTYPE_PUBLICATION,
+                      get_configfile_key_organizations_with_hierarchies)
 from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
                                          PRIVACY_STATEMENT_FILE, PRIVACY_MEASURES_FILE)
 
@@ -163,19 +164,14 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         print('Warning (possibly Error) in obtaining list with all property values for property "_source".')
         print('Continuing with an empty list. This might give unexpected results.')
         source_all = []
+    name_all = sorted(name_all, key=lambda x: x.lower())
+    name_personal_all = sorted(name_personal_all, key=lambda x: x.lower())
+    category_all = sorted(category_all, key=lambda x: x.lower())
+    source_all = sorted(source_all, key=lambda x: x.lower())
     set_ricgraph_explorer_global(name='name_all', value=name_all)
     set_ricgraph_explorer_global(name='name_personal_all', value=name_personal_all)
     set_ricgraph_explorer_global(name='category_all', value=category_all)
     set_ricgraph_explorer_global(name='source_all', value=source_all)
-
-
-    publication_types_all = list(set(ROTYPE_PUBLICATION).intersection(set(category_all)))
-    publication_types_all = sorted(publication_types_all, key=str.lower)
-    if len(publication_types_all) == 0:
-        print('Warning (possibly Error) in obtaining list with all publication types from property "category".')
-        print('Continuing with an empty list. This might give unexpected results.')
-        publication_types_all = []
-    set_ricgraph_explorer_global(name='publication_types_all', value=publication_types_all)
 
     name_all_datalist = '<datalist id="name_all_datalist">'
     for property_item in name_all:
@@ -189,21 +185,34 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         personal_types_all = ['person']
     set_ricgraph_explorer_global(name='personal_types_all', value=personal_types_all)
 
-    resout_types_all = []
-    resout_types_all_datalist = '<datalist id="resout_types_all_datalist">'
     remainder_types_all = []
     category_all_datalist = '<datalist id="category_all_datalist">'
+    # 'resout_types_all' are elements of ROTYPE_ALL that are present in your Ricgraph.
+    # I.e., those have been harvested from the source systems that you chose to harvest.
+    resout_types_all = []
+    resout_types_all_datalist = '<datalist id="resout_types_all_datalist">'
+    # These are elements of ROTYPE_PUBLICATION that are present in your Ricgraph.
+    # I.e., those have been harvested from the source systems that you chose to harvest.
+    resout_types_pub = []
+    resout_types_pub_datalist = '<datalist id="resout_types_pub_datalist">'
+    # Since 'category_all' is sorted, all vars derived from it will be sorted too.
     for property_item in category_all:
         if property_item in ROTYPE_ALL:
             resout_types_all.append(property_item)
             resout_types_all_datalist += '<option value="' + property_item + '">'
+        if property_item in ROTYPE_PUBLICATION:
+            resout_types_pub.append(property_item)
+            resout_types_pub_datalist += '<option value="' + property_item + '">'
         if property_item not in personal_types_all:
             remainder_types_all.append(property_item)
         category_all_datalist += '<option value="' + property_item + '">'
     resout_types_all_datalist += '</datalist>'
+    resout_types_pub_datalist += '</datalist>'
     category_all_datalist += '</datalist>'
     set_ricgraph_explorer_global(name='resout_types_all', value=resout_types_all)
     set_ricgraph_explorer_global(name='resout_types_all_datalist', value=resout_types_all_datalist)
+    set_ricgraph_explorer_global(name='resout_types_pub', value=resout_types_all)
+    set_ricgraph_explorer_global(name='resout_types_pub_datalist', value=resout_types_all_datalist)
     set_ricgraph_explorer_global(name='remainder_types_all', value=remainder_types_all)
     set_ricgraph_explorer_global(name='category_all_datalist', value=category_all_datalist)
 
@@ -212,6 +221,9 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         source_all_datalist += '<option value="' + property_item + '">'
     source_all_datalist += '</datalist>'
     set_ricgraph_explorer_global(name='source_all_datalist', value=source_all_datalist)
+
+    orgs_with_hierarchies = get_configfile_key_organizations_with_hierarchies()
+    set_ricgraph_explorer_global(name='orgs_with_hierarchies', value=orgs_with_hierarchies)
 
     if flask_check_file_exists(ricgraph_explorer_app=ricgraph_explorer_app,
                                filename=PRIVACY_STATEMENT_FILE):
@@ -231,7 +243,7 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     homepage_intro_html = flask_read_file(ricgraph_explorer_app=ricgraph_explorer_app,
                                           filename=HOMEPAGE_INTRO_FILE)
     set_ricgraph_explorer_global(name='homepage_intro_html', value=homepage_intro_html)
-    store_ricgraph_explorer_app(ricgraph_explorer_app)
+    store_ricgraph_explorer_app(app=ricgraph_explorer_app)
     return
 
 

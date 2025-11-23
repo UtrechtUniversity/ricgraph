@@ -36,7 +36,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to May 2025.
-# Extended Rik D.T. Janssen, October 2025.
+# Extended Rik D.T. Janssen, October, November 2025.
 #
 # ########################################################################
 
@@ -47,8 +47,10 @@ from flask import request, url_for
 from markupsafe import escape
 from neo4j.graph import Node
 from ricgraph import create_unique_string, extract_organization_abbreviation
-from ricgraph_explorer_constants import (button_style, button_width,
-                                         font_family, d3_headers)
+from ricgraph_explorer_constants import (spinner_style,
+                                         button_style, button_width,
+                                         font_family)
+from ricgraph_explorer_javascript import get_spinner_javascript
 
 
 def get_url_parameter_value(parameter: str,
@@ -87,6 +89,37 @@ def get_url_parameter_value(parameter: str,
             value = str(default_value)
 
     return value
+
+
+def get_url_parameter_list(parameter: str,
+                           use_escape: bool = True) -> list:
+    """Get a URL parameter list and its values.
+
+    :param parameter: name of the URL parameter.
+    :param use_escape: whether to call escape() or not for the values of the URL
+        parameter. We should do this for safety, however, we cannot always do
+        this, because for some cases we cannot search correctly in Ricgraph.
+        For example, if we would use escape() for a URL parameter that contains an '&',
+        such as in 'Department: Research & Data Management Services',
+        that '&' will be translated to the HTML character '&amp;', which then
+        will not be found in Ricgraph.
+    :return: the list of values of the URL parameter.
+    """
+    raw_value_list = request.args.getlist(parameter)
+    if len(raw_value_list) == 0:
+        # This fires if URL parameter 'parameter' is not present.
+        return []
+    if len(raw_value_list) == 1 and raw_value_list[0] == '':
+        # This fires if URL parameter 'parameter' is present and is emtpy
+        # (as in /some/path?parameter=).
+        return []
+
+    if use_escape:
+        value_list = [str(escape(item)) for item in raw_value_list]
+    else:
+        value_list = raw_value_list.copy()
+
+    return value_list
 
 
 def get_message(message: str, please_try_again: bool = True) -> str:
@@ -312,6 +345,24 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
     return html
 
 
+def get_spinner(message: str = '') -> str:
+    """Get a spinner, indicating that an operation may take a long time.
+
+    :param message: message to show below the spinner.
+    :return: html to be rendered.
+    """
+    html = f'''
+           <div id="ricgraph_spinner" class="ricgraph_spinner_overlay w3-center">
+             <div class="{button_style}" style="width:30vw;">
+               <span class="ricgraph_spinner"></span>
+               <div style="margin-left: 10px; white-space:normal;">{message}</div>
+             </div>
+           </div>
+           '''
+    javascript = get_spinner_javascript()
+    return spinner_style + html + javascript
+
+
 # ##############################################################################
 # The HTML for the W3CSS cards is generated here.
 # ##############################################################################
@@ -454,12 +505,16 @@ def create_full_htmlpage(body_html: str) -> str:
     :param body_html: the HTML to convert to a full HTML page.
     :return: the full HTML page.
     """
+    # A non-zero margin looks better when we create a full html page.
+    # Therefore, for 'figure' 'margin': this needs to be
+    # (re)set, because it is set at 0px in create_sankey_diagram() and
+    # create_chord_diagram().
     start_html = f'''
                  <!DOCTYPE html>
                  <meta charset="utf-8">
-                 <style>body {{ font-family: {font_family}; }}</style>
+                 <style>body {{ font-family: {font_family}; }}
+                        figure {{ margin: 1em 40px !important; }}</style>
                  <body>
-                 {d3_headers}
                  '''
     end_html = '</body>'
     full_html = start_html + body_html + end_html

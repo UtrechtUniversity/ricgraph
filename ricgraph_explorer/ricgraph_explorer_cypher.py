@@ -65,7 +65,9 @@ from neo4j.graph import Node
 from ricgraph import (ROTYPE_PUBLICATION,
                       read_node,
                       get_personroot_node, get_all_neighbor_nodes,
-                      ricgraph_database, ricgraph_databasename, convert_cypher_recordslist_to_nodeslist)
+                      ricgraph_database, ricgraph_databasename,
+                      convert_cypher_recordslist_to_nodeslist,
+                      extract_organization_abbreviation)
 from ricgraph_explorer_constants import MAX_ITEMS
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 
@@ -318,6 +320,7 @@ def find_collabs_cypher(start_organizations: str,
       0 = return all collaborating organizations,
     :return: a list of nodes conforming to the cypher query, or [] if nothing found.
     """
+    orgs_with_hierarchies = get_ricgraph_explorer_global('orgs_with_hierarchies')
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
         print('\nfind_collab_orgs_cypher(): Error: graph has not been initialized or opened.\n\n')
@@ -377,7 +380,16 @@ def find_collabs_cypher(start_organizations: str,
     cypher_query += 'AND start_orgs._key<>collab_orgs._key '
     cypher_query += 'AND collab_orgs.name="ORGANIZATION_NAME" '
 
-    if collab_organizations != '':
+    if collab_organizations == '':
+        # If we are to match any organization...
+        org_abbr = extract_organization_abbreviation(org_name=start_organizations)
+        if org_abbr in orgs_with_hierarchies['org_abbreviation'].values:
+            # ... and 'start_organization' has sub-organizations (which is specified
+            # in orgs_with_hierarchies), do not match any (sub-)organizations of it in
+            # 'collab_organizations'.
+            # Please also read the design decision at org_collaborations_diagram().
+            cypher_query += 'AND NOT collab_orgs.value STARTS WITH "' + org_abbr + '" '
+    else:
         # We are to find collaborations limited to certain organization(s).
         if read_node(name='ORGANIZATION_NAME', value=collab_organizations) is None:
             # We are to find collaborations from start_organizations with multiple organizations,
@@ -435,6 +447,13 @@ def find_collab_orgs_matrix(start_organizations: str,
       the columns to collab_organizations, and the cell value to the number
       of collaborations between start_organizations and collab_organizations.
     """
+    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+
+    if isinstance(research_result_category, str) and research_result_category == '':
+        research_result_category = resout_types_all.copy()
+    if isinstance(research_result_category, list) and len(research_result_category) == 0:
+        research_result_category = resout_types_all.copy()
+
     cypher_return_clause = 'RETURN '
     cypher_return_clause += '  start_orgs.value AS start_orgs, '
     cypher_return_clause += '  collab_orgs.value AS collab_orgs, '
@@ -503,6 +522,13 @@ def find_collab_orgs_persons_results(start_organizations: str,
       0 = return all collaborating organizations,
     :return: for all modes: a list of nodes, or [] if nothing found.
     """
+    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+
+    if isinstance(research_result_category, str) and research_result_category == '':
+        research_result_category = resout_types_all.copy()
+    if isinstance(research_result_category, list) and len(research_result_category) == 0:
+        research_result_category = resout_types_all.copy()
+
     if mode != 'return_research_results' \
        and mode != 'return_startorg_persons' \
        and mode != 'return_collaborg_persons':
@@ -519,10 +545,10 @@ def find_collab_orgs_persons_results(start_organizations: str,
     cypher_return_clause += 'AS node '
 
     records_list = find_collabs_cypher(start_organizations=start_organizations,
-                                     collab_organizations=collab_organizations,
-                                     research_result_category=research_result_category,
-                                     cypher_return_clause=cypher_return_clause,
-                                     max_nr_nodes=max_nr_nodes)
+                                       collab_organizations=collab_organizations,
+                                       research_result_category=research_result_category,
+                                       cypher_return_clause=cypher_return_clause,
+                                       max_nr_nodes=max_nr_nodes)
     if len(records_list) == 0:
         return []
     nodes_list = convert_cypher_recordslist_to_nodeslist(records_list=records_list)

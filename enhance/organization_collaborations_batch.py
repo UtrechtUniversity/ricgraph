@@ -94,7 +94,6 @@ if orgs_with_hierarchies is None or orgs_with_hierarchies.empty:
 org_collaborations_diagram(start_organizations='UU Faculty',
                            collab_organizations='VUA Faculty',
                            research_result_category=rcg.ROTYPE_PUBLICATION,
-                           orgs_with_hierarchies=orgs_with_hierarchies,
                            filename=output_dir + 'uufac-vuafac')
 
 # Get organization collaborations between:
@@ -110,7 +109,6 @@ three_org_collaborations_chord(first_org='UU Faculty',
 org_collaborations_diagram(start_organizations='UU Faculty',
                            collab_organizations='UU Faculty',
                            research_result_category=rcg.ROTYPE_PUBLICATION,
-                           orgs_with_hierarchies=orgs_with_hierarchies,
                            filename=output_dir + 'uufac-uufac')
 
 rcg.close_ricgraph()

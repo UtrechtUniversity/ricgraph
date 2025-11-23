@@ -41,12 +41,12 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to May 2025.
-# Extended Rik D.T. Janssen, October 2025.
+# Extended Rik D.T. Janssen, October, November 2025.
 #
 # ########################################################################
 
-
 from typing import Union
+from ast import literal_eval
 from json import dumps
 from pandas import DataFrame
 from functools import wraps
@@ -56,10 +56,11 @@ from ricgraph import (datetimestamp, create_unique_string,
                       convert_nodeslist_to_dataframe,
                       write_text_to_file, write_dataframe_to_csv)
 from ricgraph_explorer_constants import (ricgraph_reference, diagram_tooltip_style,
-                                         font_family,
-                                         chord_fontsize, chord_space_for_labels,
-                                         sankey_fontsize, sankey_pixels_per_link,
+                                         d3_headers,
+                                         chord_space_for_labels,
+                                         sankey_pixels_per_link,
                                          sankey_min_height, sankey_max_height)
+from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_message, remove_hierarchical_orgs,
                                      create_full_htmlpage)
 from ricgraph_explorer_cypher import find_collab_orgs_matrix, find_collab_orgs_persons_results
@@ -152,13 +153,11 @@ def create_chord_diagram(df: DataFrame,
     stats = 'This diagram was created on ' + timestamp + '.'
 
     intro_html = f'''
+                 {d3_headers}
                  <div id="{svg_id}_diagram">
                  {ricgraph_reference}
                  <!-- This Chord diagram was created on {timestamp}. -->
-                 <style>
-                   #{svg_id}_tooltip {{ font-family: {font_family}; font-size: {chord_fontsize}px; }}
-                 </style>
-                 <figure>
+                 <figure style="margin:0px;">
                  '''
     if figure_caption == '':
         intro_html += f'<figcaption>{stats}</figcaption>'
@@ -174,8 +173,7 @@ def create_chord_diagram(df: DataFrame,
                  <button id="{svg_id}_download_btn" style="margin-top:10px;">
                    Download this image</button>
                  </div>
-                 <svg id="{svg_id}" width="{width}" height="{height}">
-                      style="font-family: {font_family}; font-size: {chord_fontsize}px;"></svg>
+                 <svg id="{svg_id}" width="{width}" height="{height}"></svg>
                  <div id="{svg_id}_tooltip" {diagram_tooltip_style}></div>
                  </figure>
                  '''
@@ -192,6 +190,7 @@ def create_chord_diagram(df: DataFrame,
 
 
 def create_sankey_diagram(df: DataFrame,
+                          tooltip_show_links: bool = False,
                           width: int = 1200,
                           height: int = 0,
                           figure_caption: str = '',
@@ -200,6 +199,8 @@ def create_sankey_diagram(df: DataFrame,
     Sankey diagram: https://d3-graph-gallery.com/sankey.html.
 
     :param df: the DataFrame (orgs as index/columns).
+    :param tooltip_show_links: whether to show the 'drill down links' in
+      the tooltip or not.
     :param width: the width of the resulting svg image.
     :param height: the height of the resulting svg image.
       If you specify 0, the height will be computed automatically,
@@ -218,6 +219,16 @@ def create_sankey_diagram(df: DataFrame,
     links = []
     sources = sorted(df.index.tolist())
     targets = sorted(df.columns.tolist())
+
+    research_result_category_str = str(df.index.name)
+    if research_result_category_str == '':
+        research_result_category = []
+    else:
+        research_result_category = literal_eval(research_result_category_str)
+        if len(research_result_category) == 0 and research_result_category[0] == '':
+            # If research_result_category_str is [''], literal_eval() returns [''],
+            # a list of length 1. I want a list of length 0.
+            research_result_category = []
 
     for org in sources:
         node_id = f"{org}_from"
@@ -267,12 +278,10 @@ def create_sankey_diagram(df: DataFrame,
             total_connections = int(total_connections / 2)
 
     intro_html = f'''
+                 {d3_headers}
                  <div id="{svg_id}_diagram">
                  {ricgraph_reference}
-                 <style>
-                   #{svg_id}_tooltip {{ font-family: {font_family}; font-size: {sankey_fontsize}px; }}
-                 </style>
-                 <figure>
+                 <figure style="margin:0px;">
                  '''
     if figure_caption == '':
         intro_html += f'<figcaption>{stats}</figcaption>'
@@ -290,8 +299,7 @@ def create_sankey_diagram(df: DataFrame,
                   <button id="{svg_id}_download_btn" style="margin-top:10px;">
                       Download this image</button>
                   </div>
-                  <svg id="{svg_id}" width="{width}" height="{height}"
-                      style="font-family: {font_family}; font-size: {sankey_fontsize}px;"></svg>
+                  <svg id="{svg_id}" width="{width}" height="{height}"></svg>
                   <div id="{svg_id}_tooltip" {diagram_tooltip_style}></div>
                   </figure>
                   '''
@@ -299,6 +307,8 @@ def create_sankey_diagram(df: DataFrame,
 
     javascript = create_sankey_diagram_javascript(nodes_json=nodes_json,
                                                   links_json=links_json,
+                                                  research_result_category=research_result_category,
+                                                  tooltip_show_links=tooltip_show_links,
                                                   width=width,
                                                   height=height,
                                                   svg_id=svg_id,
@@ -351,6 +361,8 @@ def org_collaborations_persons_results(start_organizations: str,
     Note the similarity with org_collaborations_persons_results_df(),
     that does the same but returns a DataFrame.
 
+    Please read the design decision at org_collaborations_diagram().
+
     :param start_organizations: see find_collab_orgs_persons_results().
     :param collab_organizations: see find_collab_orgs_persons_results().
     :param research_result_category: see find_collab_orgs_persons_results().
@@ -381,6 +393,8 @@ def org_collaborations_persons_results_df(start_organizations: str,
     Return the result of 'mode' in a DataFrame.
     Note the similarity with org_collaborations_persons_results(),
     that does the same but returns a list of nodes.
+
+    Please read the design decision at org_collaborations_diagram().
 
     :param start_organizations: see find_collab_orgs_persons_results().
     :param collab_organizations: see find_collab_orgs_persons_results().
@@ -413,9 +427,9 @@ def org_collaborations_persons_results_df(start_organizations: str,
 def org_collaborations_diagram(start_organizations: str,
                                collab_organizations: str,
                                research_result_category: Union[str, list],
-                               orgs_with_hierarchies: DataFrame = None,
                                diagram_type: str = 'sankey',
                                filename: str = '',
+                               caption: str = 'default_caption',
                                generate_full_html: bool = True) -> str:
     """Find all collaborations of an organizations starting with a string,
     with other organizations with the same starting string
@@ -423,19 +437,40 @@ def org_collaborations_diagram(start_organizations: str,
     Note the similarity with three_org_collaborations_chord(),
     that does the same but for three organizations in a Chord diagram.
 
+    Design decision.
+    If collab_organizations == '', i.e., it is
+    'any organization', only top level organizations will be
+    counted (and returned). So, if you have organizations
+    with sub-organizations, the sub-organizations will not be returned.
+    Since a top level organization may have a lot of sub-organizations,
+    this may confuse the user (and clutter the diagram).
+    To be able to remove these sub-organizations,
+    we need a list of organizations that have hierarchies.
+    Ultimately, this parameter is set in 'ricgraph.ini', since it
+    is dependent on the sources you have harvested.
+    Note that this is not necessary for org_collaborations_persons_results()
+    and org_collaborations_persons_results_df(), since they return
+    unique persons and research results.
+    It is also not necessary for three_org_collaborations_chord(),
+    function since it find collaborations for three organizations.
+
     :param start_organizations: see find_collab_orgs_matrix().
     :param collab_organizations: see find_collab_orgs_matrix().
     :param research_result_category: see find_collab_orgs_matrix().
-    :param orgs_with_hierarchies: DataFrame with hierarchical orgs.
     :param diagram_type: the type of diagram to create, 'sankey' or 'chord'.
     :param filename: this will the base of the filename, you can use it
       to reflect the type of query.
       It will also work if you specify a directory and filename.
       If you specify '', no files will be produced.
+    :param caption: the caption of the diagram. If it is 'default_caption',
+      the default caption will be generated (including statistics).
+      If it is '', only statistics will be shown.
     :param generate_full_html: whether to return full HTML for a page, or only body HTML.
     :return: the HTML produced (either full or body, see 'generate_full_html'),
       or '' if no HTML produced.
     """
+    orgs_with_hierarchies = get_ricgraph_explorer_global('orgs_with_hierarchies')
+
     print('-- org_collaborations_diagram(): start at ' + datetimestamp() + '.')
     if diagram_type != 'sankey' and diagram_type != 'chord':
         print('org_collaborations_diagram(): Error, unknown diagram type "' + diagram_type + '", exiting.')
@@ -460,14 +495,25 @@ def org_collaborations_diagram(start_organizations: str,
 
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     collabs_orgs = collabs_orgs.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
-    caption = 'Overview of ' + filename + ' of a number of years for '
-    caption += start_organizations + ' and '
-    if collab_organizations == '':
-        caption += 'all' + '.'
-    else:
-        caption += collab_organizations + '.'
+    if caption == 'default_caption':
+        caption = 'Overview of '
+        if filename == '':
+            caption += 'collaborations'
+        else:
+            caption += filename
+        caption += ' of a number of years for '
+        caption += start_organizations + ' and '
+        if collab_organizations == '':
+            caption += 'all' + '.'
+        else:
+            caption += collab_organizations + '.'
     if diagram_type == 'sankey':
+        if generate_full_html:
+            tooltip_show_links = False
+        else:
+            tooltip_show_links = True
         body_html = create_sankey_diagram(df=collabs_orgs,
+                                          tooltip_show_links=tooltip_show_links,
                                           figure_caption=caption,
                                           figure_filename=filename + '.svg')
     else:
@@ -500,6 +546,10 @@ def three_org_collaborations_chord(first_org: str,
     choose (sub-)organizations from the same level.
     Note the similarity with org_collaborations_diagram(),
     that does the same but for two organizations.
+
+    Please read the design decision at org_collaborations_diagram().
+    It is not applicable for this function since it find collaborations
+    for three organizations.
 
     :param first_org: the first (sub-)organization or substring of it.
     :param second_org: the second (sub-)organization or substring of it.

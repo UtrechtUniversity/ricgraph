@@ -36,6 +36,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to May 2025.
+# Extended Rik D.T. Janssen, November 2025.
 #
 # ########################################################################
 
@@ -51,6 +52,11 @@ DEFAULT_SEARCH_MODE = 'value_search'
 
 # Minimum length of a value in a search field (in characters).
 SEARCH_STRING_MIN_LENGTH = 2
+
+# These are all the discoverer modes that are allowed.
+DISCOVERER_MODE_ALL = ['details_view',
+                       'person_view'
+                      ]
 
 # Ricgraph Explorer shows tables. You can specify which columns you need.
 # You do this by making a list of one or more fields in a Ricgraph node.
@@ -104,6 +110,13 @@ VIEW_MODE_ALL = ['view_regular_table_personal',
                  'view_regular_table_person_organization_collaborations',
                  'view_regular_table_organization_addinfo',
                  ]
+
+# These are all the collaboration modes that are allowed.
+COLLABORATION_MODES_ALL = ['return_research_results',
+                           'return_startorg_persons',
+                           'return_collaborg_persons',
+                           'return_collab_sankey'
+                          ]
 
 
 # ########################################################################
@@ -187,6 +200,26 @@ stylesheet += '{display:block; font-size:80%; font-style:italic;}}'
 # End of Firefox dropdown list css.
 
 stylesheet += '</style>'
+
+
+# ########################################################################
+# HTML spinner. Only include it on a page where a spinner is needed.
+# ########################################################################
+spinner_style =  '<style>'
+spinner_style += '.ricgraph_spinner { '
+spinner_style += '  border:8px solid white; border-top:8px solid black; '
+spinner_style += '  border-radius:50%; width:40px; height:40px; '
+spinner_style += '  animation: spin 1s linear infinite; '
+spinner_style += '  display:inline-block; vertical-align:middle; '
+spinner_style += '} '
+spinner_style += '.ricgraph_spinner_overlay { '
+spinner_style += '  display:none; position:fixed; top:50%; left:50%; '
+spinner_style += '  transform:translate(-50%,-50%); z-index:1000; '
+spinner_style += '} '
+spinner_style += '@keyframes spin { '
+spinner_style += '  0% { transform:rotate(0deg);} 100% { transform:rotate(360deg);}'
+spinner_style += '} '
+spinner_style += '</style>'
 
 
 # ########################################################################
@@ -311,7 +344,7 @@ d3_headers += '<script src="https://d3js.org/d3-chord.v3.min.js"></script>'
 d3_headers += '<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>'
 d3_headers += '<script src="https://cdn.jsdelivr.net/npm/d3-sankey/dist/d3-sankey.min.js"></script>'
 
-diagram_tooltip_style =  'style="position:absolute; pointer-events:none; background:#fff;'
+diagram_tooltip_style =  'style="position:absolute; pointer-events:auto; background:#fff;'
 diagram_tooltip_style += '       border:1px solid; padding:6px 12px; border-radius:4px;'
 diagram_tooltip_style += '       display:none; z-index:10;"'
 
@@ -340,10 +373,10 @@ sankey_max_height = 1500
 # ################### main ###################
 # ############################################
 # This will be executed on module initialization
-DEFAULT_DISCOVERER_MODE = get_configfile_key(section='Ricgraph_explorer',
+DISCOVERER_MODE_DEFAULT = get_configfile_key(section='Ricgraph_explorer',
                                              key='ricgraph_explorer_display_results_mode')
-if DEFAULT_DISCOVERER_MODE != 'person_view' and DEFAULT_DISCOVERER_MODE != 'details_view':
-    print('Ricgraph initialization: error, not existing or unknown value "' + DEFAULT_DISCOVERER_MODE + '"')
+if DISCOVERER_MODE_DEFAULT not in DISCOVERER_MODE_ALL:
+    print('Ricgraph initialization: error, not existing or unknown value "' + DISCOVERER_MODE_DEFAULT + '"')
     print('  for "ricgraph_explorer_display_results_mode" in Ricgraph ini')
     print('  file "' + get_ricgraph_ini_file() + '", exiting.')
     exit(1)
