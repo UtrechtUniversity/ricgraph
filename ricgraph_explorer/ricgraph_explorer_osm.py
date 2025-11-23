@@ -159,7 +159,6 @@ def collabspage() -> str:
     form += '<input id="category_list" class="w3-input w3-border" list="resout_types_all_datalist"'
     form += 'name=category_list autocomplete=off>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    #form += str(get_ricgraph_explorer_global(name='category_all_datalist'))
     form += str(get_ricgraph_explorer_global(name='resout_types_all_datalist'))
 
     form += '<br/>'
