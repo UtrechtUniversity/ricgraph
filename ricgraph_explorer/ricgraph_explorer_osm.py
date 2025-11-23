@@ -62,13 +62,13 @@ from ricgraph_explorer_datavis import (org_collaborations_diagram,
 
 
 
-osmpage_bp = Blueprint(name='osmpage', import_name=__name__)
-collabspage_bp = Blueprint(name='collabspage', import_name=__name__)
-collabsresultpage_bp = Blueprint(name='collabsresultpage', import_name=__name__)
+_osmpage_bp = Blueprint(name='osmpage', import_name=__name__)
+_collabspage_bp = Blueprint(name='collabspage', import_name=__name__)
+_collabsresultpage_bp = Blueprint(name='collabsresultpage', import_name=__name__)
 
 
 # For future usage.
-@osmpage_bp.route(rule='/osmpage/', methods=['GET'])
+@_osmpage_bp.route(rule='/osmpage/', methods=['GET'])
 def osmpage() -> str:
     """Ricgraph Explorer entry, this 'page' does not have any url parameters.
     Probably, in the future, it should have.
@@ -94,7 +94,7 @@ def osmpage() -> str:
     return html
 
 
-@collabspage_bp.route(rule='/collabspage/', methods=['GET'])
+@_collabspage_bp.route(rule='/collabspage/', methods=['GET'])
 def collabspage() -> str:
     """Ricgraph Explorer entry, this 'page' does not have any url parameters.
     Probably, in the future, it should have.
@@ -142,9 +142,10 @@ def collabspage() -> str:
     search_org_link += 'Click here to search for a (sub-)organization</a>'
     form = '<form method="get" action="/collabsresultpage/">'
     form += '<label for="start_orgs">Type the name for <em>start organization</em> '
-    form += '(or enter text that begins a (sub-)organization name) '
-    form += '(' + search_org_link + '):</label>'
+    form += '(or enter text that begins a (sub-)organization name):</label>'
     form += '<input id="start_orgs" class="w3-input w3-border" type=text name=start_orgs>'
+    form += search_org_link + '.'
+    form += '<br/>'
     form += '<br/>'
     form += '<label for="collab_orgs">Type the name for <em>collaborating organization</em> '
     form += '(or enter text that begins a (sub-)organization name, or leave it empty to '
@@ -211,7 +212,7 @@ def collabspage() -> str:
     return html
 
 
-@collabsresultpage_bp.route(rule='/collabsresultpage/', methods=['GET'])
+@_collabsresultpage_bp.route(rule='/collabsresultpage/', methods=['GET'])
 def collabsresultpage() -> str:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     Find collaborations based on URL parameters passed.

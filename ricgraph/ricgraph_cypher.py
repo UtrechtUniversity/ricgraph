@@ -53,8 +53,8 @@ from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
                              nodes_cache_key_id_delete_key)
 
 
-# The graph. '_graph = None' will not work.
-global _graph
+# The graph.
+_graph = None
 
 # These counters are used to count the number of accesses to the
 # graph database backend.
@@ -113,6 +113,10 @@ def open_ricgraph() -> Driver:
     """
     global _graph
 
+    if _graph is not None:
+        # We have already opened the graph.
+        return _graph
+
     print('Opening Ricgraph at ' + datetimestamp() + '.\n')
     try:
         _graph = GraphDatabase.driver(_GRAPHDB_URL,
@@ -169,6 +173,11 @@ def empty_ricgraph(answer: str = '') -> None:
     :return: None.
     """
     global _graph
+
+    if _graph is None:
+        print('\nempty_ricgraph(): Error: graph has not been initialized or opened, cannot empty it.')
+        print('Exiting.')
+        exit(1)
 
     if answer != 'yes' and answer != 'no':
         print('empty_ricgraph(): invalid answer "' + answer + '" on the question')

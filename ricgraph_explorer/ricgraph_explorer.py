@@ -67,7 +67,7 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
                                          RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
-from ricgraph_explorer_init import (initialize_ricgraph_explorer,
+from ricgraph_explorer_init import (initialize_ricgraph_explorer, construct_page_footer,
                                     set_ricgraph_explorer_global,  get_ricgraph_explorer_global)
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_overlap_in_source_systems_records,
@@ -83,11 +83,11 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
-from ricgraph_explorer_osm import osmpage_bp, collabspage_bp, collabsresultpage_bp
-from ricgraph_explorer_topics import topicspage_bp
+from ricgraph_explorer_osm import _osmpage_bp, _collabspage_bp, _collabsresultpage_bp
+from ricgraph_explorer_topics import _topicspage_bp
 # In PyCharm, the import below generates an "Unused import statement", but it is
-# required. PyCharm doesn't seem to understand the line # ricgraph_explorer.add_api() below.
-from ricgraph_explorer_restapi import (restapidocpage_bp,
+# required. PyCharm doesn't seem to understand the line _ricgraph_explorer.add_api() below.
+from ricgraph_explorer_restapi import (_restapidocpage_bp,
                                        api_search_person, api_person_all_information,
                                        api_person_share_research_results,
                                        api_person_collaborating_organizations,
@@ -100,33 +100,33 @@ from ricgraph_explorer_restapi import (restapidocpage_bp,
                                        api_get_ricgraph_list)
 
 
-page_footer = ''
+_page_footer = ''
 
 
 # We don't show the Swagger REST API page, we use RapiDoc for that (see restapidocpage()
-# endpoint below). 'swagger_ui_options' is taken from
+# endpoint below). '_swagger_ui_options' is taken from
 # https://connexion.readthedocs.io/en/latest/swagger_ui.html#connexion.options.SwaggerUIOptions.
 # 'swagger_ui_config' options are on this page:
 # https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration
-swagger_ui_options = options.SwaggerUIOptions(swagger_ui=False)
-ricgraph_explorer = FlaskApp(import_name=__name__,
-                             specification_dir='./static/',
-                             swagger_ui_options=swagger_ui_options)
-ricgraph_explorer.add_api(specification='openapi.yaml',
-                          swagger_ui_options=swagger_ui_options)
-ricgraph_explorer.app.register_blueprint(blueprint=osmpage_bp)
-ricgraph_explorer.app.register_blueprint(blueprint=collabspage_bp)
-ricgraph_explorer.app.register_blueprint(blueprint=collabsresultpage_bp)
-ricgraph_explorer.app.register_blueprint(blueprint=topicspage_bp)
-ricgraph_explorer.app.register_blueprint(blueprint=restapidocpage_bp)
+_swagger_ui_options = options.SwaggerUIOptions(swagger_ui=False)
+_ricgraph_explorer = FlaskApp(import_name=__name__,
+                              specification_dir='./static/',
+                              swagger_ui_options=_swagger_ui_options)
+_ricgraph_explorer.add_api(specification='openapi.yaml',
+                           swagger_ui_options=_swagger_ui_options)
+_ricgraph_explorer.app.register_blueprint(blueprint=_osmpage_bp)
+_ricgraph_explorer.app.register_blueprint(blueprint=_collabspage_bp)
+_ricgraph_explorer.app.register_blueprint(blueprint=_collabsresultpage_bp)
+_ricgraph_explorer.app.register_blueprint(blueprint=_topicspage_bp)
+_ricgraph_explorer.app.register_blueprint(blueprint=_restapidocpage_bp)
 
 
 # ##############################################################################
 # Favicon
 # ##############################################################################
-@ricgraph_explorer.route('/favicon.ico')
+@_ricgraph_explorer.route('/favicon.ico')
 def favicon():
-    return send_from_directory(path.join(ricgraph_explorer.app.root_path, 'static'),
+    return send_from_directory(path.join(_ricgraph_explorer.app.root_path, 'static'),
                                path='favicon.ico',
                                mimetype='image/png')
 
@@ -146,7 +146,7 @@ def favicon():
 # 5. osmpage, this page allows to explore open science monitoring.
 # 6. topicspage, this page allows to explore topics.
 # ##############################################################################
-@ricgraph_explorer.route(rule='/')
+@_ricgraph_explorer.route(rule='/')
 def homepage() -> str:
     """Ricgraph Explorer entry, the home page, when you access '/'.
 
@@ -155,7 +155,7 @@ def homepage() -> str:
 
     :return: html to be rendered.
     """
-    global page_footer
+    global _page_footer
 
     html = html_body_start
     html += get_page_title(title='Ricgraph - Research in context graph')
@@ -288,11 +288,11 @@ def homepage() -> str:
     html += '</li>'
     html += '</ul>'
     html += get_html_for_cardend()
-    html += page_footer + html_body_end
+    html += _page_footer + html_body_end
     return html
 
 
-@ricgraph_explorer.route(rule='/searchpage/', methods=['GET'])
+@_ricgraph_explorer.route(rule='/searchpage/', methods=['GET'])
 def searchpage() -> str:
     """Ricgraph Explorer entry, this 'page' shows the search form, both the
     exact match search form and the broad search on the 'value' field form.
@@ -308,7 +308,7 @@ def searchpage() -> str:
 
     :return: html to be rendered.
     """
-    global page_footer
+    global _page_footer
 
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
@@ -427,11 +427,11 @@ def searchpage() -> str:
     html += get_html_for_cardstart()
     html += form
     html += get_html_for_cardend()
-    html += page_footer + html_body_end
+    html += _page_footer + html_body_end
     return html
 
 
-@ricgraph_explorer.route(rule='/optionspage/', methods=['GET'])
+@_ricgraph_explorer.route(rule='/optionspage/', methods=['GET'])
 def optionspage() -> str:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     Find nodes based on URL parameters passed.
@@ -452,7 +452,7 @@ def optionspage() -> str:
 
     :return: html to be rendered.
     """
-    global page_footer
+    global _page_footer
 
     search_mode = get_url_parameter_value(parameter='search_mode',
                                           allowed_values=['exact_match', 'value_search'],
@@ -488,7 +488,7 @@ def optionspage() -> str:
 
     if name == '' and category == '' and value == '' and key == '':
         html += get_message(message='Ricgraph Explorer could not find anything.')
-        html += page_footer + html_body_end
+        html += _page_footer + html_body_end
         return html
 
     # Not necessary to check if the node ('key') is in the cache, that is done in
@@ -503,7 +503,7 @@ def optionspage() -> str:
         if len(value) < SEARCH_STRING_MIN_LENGTH:
             html += get_message(message='The search string should be at least '
                                         + str(SEARCH_STRING_MIN_LENGTH) + ' characters.')
-            html += page_footer + html_body_end
+            html += _page_footer + html_body_end
             return html
         if name == 'FULL_NAME':
             # We also need to search on FULL_NAME_ASCII, therefore the 'name_is_exact_match = False'.
@@ -518,7 +518,7 @@ def optionspage() -> str:
     if len(result) == 0:
         # We didn't find anything.
         html += get_message(message='Ricgraph Explorer could not find anything.')
-        html += page_footer + html_body_end
+        html += _page_footer + html_body_end
         return html
     if len(result) > 1:
         html += get_page_title(title='Results page')
@@ -527,18 +527,18 @@ def optionspage() -> str:
                                   table_header=table_header,
                                   discoverer_mode=discoverer_mode,
                                   extra_url_parameters=extra_url_parameters)
-        html += page_footer + html_body_end
+        html += _page_footer + html_body_end
         return html
 
     node = result[0]
     html += create_options_page(node=node,
                                 discoverer_mode=discoverer_mode,
                                 extra_url_parameters=extra_url_parameters)
-    html += page_footer + html_body_end
+    html += _page_footer + html_body_end
     return html
 
 
-@ricgraph_explorer.route(rule='/resultspage/', methods=['GET'])
+@_ricgraph_explorer.route(rule='/resultspage/', methods=['GET'])
 def resultspage() -> str:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     View the results based on the values passed.
@@ -567,7 +567,7 @@ def resultspage() -> str:
 
     :return: html to be rendered.
     """
-    global page_footer
+    global _page_footer
 
     view_mode = get_url_parameter_value(parameter='view_mode')
     key = get_url_parameter_value(parameter='key', use_escape=False)
@@ -601,7 +601,7 @@ def resultspage() -> str:
 
     if view_mode not in VIEW_MODE_ALL:
         html += get_message(message='Unknown view_mode: "' + view_mode + '".')
-        html += page_footer + html_body_end
+        html += _page_footer + html_body_end
         return html
 
     if view_mode == 'view_regular_table_overlap_records':
@@ -620,7 +620,7 @@ def resultspage() -> str:
                                                        discoverer_mode=discoverer_mode,
                                                        overlap_mode=overlap_mode,
                                                        extra_url_parameters=extra_url_parameters)
-        html += page_footer + html_body_end
+        html += _page_footer + html_body_end
         return html
 
     html += create_results_page(view_mode=view_mode,
@@ -630,7 +630,7 @@ def resultspage() -> str:
                                 discoverer_mode=discoverer_mode,
                                 extra_url_parameters=extra_url_parameters)
 
-    html += page_footer + html_body_end
+    html += _page_footer + html_body_end
     return html
 
 
@@ -1165,37 +1165,21 @@ def create_results_page(view_mode: str,
 # #### using Uvicorn for ASGI applications    ####
 # ################################################
 def create_ricgraph_explorer_app():
-    global page_footer, ricgraph_explorer
+    global _page_footer, _ricgraph_explorer
 
-    initialize_ricgraph_explorer(ricgraph_explorer_app=ricgraph_explorer)
-    page_footer = ''
-    privacy_statement_link_loc = get_ricgraph_explorer_global(name='privacy_statement_link')
-    privacy_measures_link_loc = get_ricgraph_explorer_global(name='privacy_measures_link')
-    if privacy_statement_link_loc != '' or privacy_measures_link_loc != '':
-        page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
-        page_footer += privacy_statement_link_loc
-        page_footer += privacy_measures_link_loc
-        page_footer += '</footer>'
-    page_footer += page_footer_wsgi
-    set_ricgraph_explorer_global(name='page_footer', value=page_footer)
+    initialize_ricgraph_explorer(ricgraph_explorer_app=_ricgraph_explorer)
+    _page_footer = construct_page_footer(footer=page_footer_wsgi)
+    set_ricgraph_explorer_global(name='page_footer', value=_page_footer)
 
-    return ricgraph_explorer
+    return _ricgraph_explorer
 
 
 # ############################################
 # ################### main ###################
 # ############################################
 if __name__ == "__main__":
-    initialize_ricgraph_explorer(ricgraph_explorer_app=ricgraph_explorer)
-    page_footer = ''
-    privacy_statement_link = get_ricgraph_explorer_global(name='privacy_statement_link')
-    privacy_measures_link = get_ricgraph_explorer_global(name='privacy_measures_link')
-    if privacy_statement_link != '' or privacy_measures_link != '':
-        page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
-        page_footer += privacy_statement_link
-        page_footer += privacy_measures_link
-        page_footer += '</footer>'
-    page_footer += page_footer_development
-    set_ricgraph_explorer_global(name='page_footer', value=page_footer)
+    initialize_ricgraph_explorer(ricgraph_explorer_app=_ricgraph_explorer)
+    _page_footer = construct_page_footer(footer=page_footer_development)
+    set_ricgraph_explorer_global(name='page_footer', value=_page_footer)
 
-    ricgraph_explorer.run(port=3030)
+    _ricgraph_explorer.run(port=3030)

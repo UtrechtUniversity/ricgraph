@@ -56,6 +56,24 @@ from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
 _ricgraph_explorer_app = None
 
 
+def construct_page_footer(footer: str = '') -> str:
+    """Construct the page footer. Include a privacy statement or
+    privacy measures document, if present in .../static.
+
+    :param footer: the footer will consist of this.
+    :return: the complete footer.
+    """
+    html = ''
+    privacy_statement_link_loc = get_ricgraph_explorer_global(name='privacy_statement_link')
+    privacy_measures_link_loc = get_ricgraph_explorer_global(name='privacy_measures_link')
+    if privacy_statement_link_loc != '' or privacy_measures_link_loc != '':
+        html += '<footer class="w3-container rj-gray" style="font-size:80%">'
+        html += privacy_statement_link_loc
+        html += privacy_measures_link_loc
+        html += '</footer>'
+    return html + footer
+
+
 def store_ricgraph_explorer_app(app: FlaskApp) -> None:
     """Store the Ricgraph Explorer app in a global string. We
     need it to retrieve global variables.

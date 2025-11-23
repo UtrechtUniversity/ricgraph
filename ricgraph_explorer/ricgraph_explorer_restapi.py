@@ -59,10 +59,10 @@ from ricgraph_explorer_graphdb import (find_person_share_resouts_cypher,
                                        find_enrich_candidates_one_person)
 
 
-restapidocpage_bp = Blueprint(name='restapidocpage', import_name=__name__)
+_restapidocpage_bp = Blueprint(name='restapidocpage', import_name=__name__)
 
 
-@restapidocpage_bp.route(rule='/restapidocpage/', methods=['GET'])
+@_restapidocpage_bp.route(rule='/restapidocpage/', methods=['GET'])
 def restapidocpage() -> str:
     """Show the documentation for the Ricgraph REST API. Ricgraph uses RapiDoc.
 
