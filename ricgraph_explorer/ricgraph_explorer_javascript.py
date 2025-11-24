@@ -605,8 +605,9 @@ def create_sankey_diagram_javascript(nodes_json: str,
     if tooltip_show_links:
         base_url = url_for(endpoint='collabsresultpage.collabsresultpage') + '?'
         base_url += urlencode(query={'category_list': research_result_category}, doseq=True)
-        url_style = 'style="display:inline-block; background:buttonface; width:14em; '
-        url_style += 'border:1px solid buttonborder; border-radius:4px; text-decoration:none; '
+        url_style = 'style="display:inline-block; background:#ddd; width:14em;'
+        url_style += 'border:1px solid black; border-radius:4px; '
+        url_style += 'text-decoration:none; cursor:pointer; '
         url_style += 'margin:0.2em 0em; text-align:center;"'
     else:
         base_url = ''
@@ -655,7 +656,7 @@ def create_sankey_diagram_javascript(nodes_json: str,
                      popup += `  target="_blank">persons from <em>collaborating organizations</em></a> `
                      popup += `<br/>Note that finding these collaborations may take (very) long.<br/> `
                    }};
-                   popup += `<button id="close_tooltip">close</button>`
+                   popup += `<button id="close_tooltip" {url_style}>close</button>`
                    
                    tooltip
                      .style("display", "block")

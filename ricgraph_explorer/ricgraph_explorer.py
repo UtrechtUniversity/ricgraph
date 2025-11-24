@@ -83,7 +83,8 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
-from ricgraph_explorer_osm import _osmpage_bp, _collabspage_bp, _collabsresultpage_bp
+from ricgraph_explorer_osm import _osmpage_bp
+from ricgraph_explorer_collabs import _collabspage_bp, _collabsresultpage_bp
 from ricgraph_explorer_topics import _topicspage_bp
 # In PyCharm, the import below generates an "Unused import statement", but it is
 # required. PyCharm doesn't seem to understand the line _ricgraph_explorer.add_api() below.

@@ -154,11 +154,12 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     store_ricgraph_explorer_app(app=ricgraph_explorer_app)
     graph = open_ricgraph()
     if graph is None:
-        print('Ricgraph could not be opened.')
+        print('initialize_ricgraph_explorer(): Error, Ricgraph could not be opened.')
         exit(1)
 
+    print('Initializing Ricgraph Explorer...')
     memcached_open_connection()
-    print(nodes_cache_key_id_type_size() + '\n')
+    print(nodes_cache_key_id_type_size())
 
     set_ricgraph_explorer_global(name='graph', value=graph)
 
@@ -262,6 +263,7 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
                                           filename=HOMEPAGE_INTRO_FILE)
     set_ricgraph_explorer_global(name='homepage_intro_html', value=homepage_intro_html)
     store_ricgraph_explorer_app(app=ricgraph_explorer_app)
+    print('Done initializing Ricgraph Explorer.\n')
     return
 
 
