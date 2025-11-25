@@ -99,7 +99,7 @@ graph = rcg.open_ricgraph()
 personal_ids = rcg.read_dataframe_from_csv(filename=filename, datatype=str)
 
 # Make sure every column we expect is in personal_ids.
-for prop in rcg.RICGRAPH_PROPERTIES_STANDARD:
+for prop in rcg.get_ricgraph_properties_standard():
     if prop == 'category':
         continue
     if prop not in personal_ids.columns:

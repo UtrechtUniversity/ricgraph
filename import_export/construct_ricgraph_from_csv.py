@@ -105,7 +105,7 @@ else:
 df_nodes = rcg.read_dataframe_from_csv(filename=filename_nodes, datatype=str)
 df_edges = rcg.read_dataframe_from_csv(filename=filename_edges, datatype=str)
 
-all_properties = list(rcg.RICGRAPH_PROPERTIES_STANDARD + rcg.RICGRAPH_PROPERTIES_ADDITIONAL)
+all_properties = list(rcg.get_ricgraph_properties_standard() + rcg.get_ricgraph_properties_additional())
 
 # We don't do the hidden properties (they will be created by Ricgraph), nor these.
 all_properties.remove('source_event')

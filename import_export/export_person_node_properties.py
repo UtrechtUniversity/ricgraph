@@ -44,7 +44,7 @@ import ricgraph as rcg
 
 EXPORT_FILENAME = 'ricgraph_export_node_properties.csv'
 EXPORT_MAX_RECS = 0                   # 0 = all records
-EXPORT_PROPERTIES = rcg.RICGRAPH_PROPERTIES_STANDARD + ('_source',)
+EXPORT_PROPERTIES = rcg.get_ricgraph_properties_standard() + ('_source',)
 
 
 # ############################################
@@ -71,7 +71,7 @@ else:
 
 print('Exporting record: 0  ', end='', flush=True)
 count = 0
-export_properties = EXPORT_PROPERTIES + rcg.RICGRAPH_PROPERTIES_ADDITIONAL
+export_properties = EXPORT_PROPERTIES + rcg.get_ricgraph_properties_additional()
 for personroot_node in all_personroot_nodes:
     if count >= max_nodes_to_export:
         break

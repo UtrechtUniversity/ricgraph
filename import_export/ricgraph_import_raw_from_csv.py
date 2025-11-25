@@ -134,9 +134,9 @@ print('shortage of memory. In that case, you may want to set a limit in this scr
 df_nodes = rcg.read_dataframe_from_csv(filename=filename_nodes, datatype=str)
 df_edges = rcg.read_dataframe_from_csv(filename=filename_edges, datatype=str)
 
-all_properties = list(rcg.RICGRAPH_PROPERTIES_STANDARD
-                      + rcg.RICGRAPH_PROPERTIES_ADDITIONAL
-                      + rcg.RICGRAPH_PROPERTIES_HIDDEN)
+all_properties = list(rcg.get_ricgraph_properties_standard()
+                      + rcg.get_ricgraph_properties_additional()
+                      + rcg.get_ricgraph_properties_hidden())
 # Don't do these.
 all_properties.remove('source_event')
 all_properties.remove('history_event')

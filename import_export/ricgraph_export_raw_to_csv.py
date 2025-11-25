@@ -98,9 +98,9 @@ print('If you export a large number of nodes or edges, this script may crash due
 print('shortage of memory. In that case, you may want to set a limit in this script.\n')
 
 # ### Start with exporting nodes.
-all_properties = rcg.RICGRAPH_PROPERTIES_STANDARD \
-                 + rcg.RICGRAPH_PROPERTIES_ADDITIONAL \
-                 + rcg.RICGRAPH_PROPERTIES_HIDDEN
+all_properties = rcg.get_ricgraph_properties_standard() \
+                 + rcg.get_ricgraph_properties_additional() \
+                 + rcg.get_ricgraph_properties_hidden()
 as_phrase = ', '.join(str('node.' + prop + ' AS ' + prop) for prop in all_properties)
 
 # Construct Cypher query to get all nodes.
