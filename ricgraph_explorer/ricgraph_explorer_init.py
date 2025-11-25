@@ -46,8 +46,11 @@ from connexion import FlaskApp
 from ricgraph import (open_ricgraph, read_all_values_of_property,
                       memcached_open_connection, nodes_cache_key_id_type_size,
                       ROTYPE_ALL, ROTYPE_PUBLICATION,
+                      get_ricgraph_ini_file,
+                      get_configfile_key,
                       get_configfile_key_organizations_with_hierarchies)
 from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
+                                         DISCOVERER_MODE_ALL,
                                          PRIVACY_STATEMENT_FILE, PRIVACY_MEASURES_FILE)
 
 
@@ -143,6 +146,9 @@ def flask_read_file(ricgraph_explorer_app: FlaskApp, filename: str) -> str:
     return html
 
 
+# ################################################
+# Ricgraph Explorer initialization.
+# ################################################
 def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     """Initialize Ricgraph Explorer.
 
@@ -158,9 +164,17 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         exit(1)
 
     print('Initializing Ricgraph Explorer...')
+    # ####################################################################
+    # Open the global cache (for nodes).
+    # These are not constant, they change while running Ricgraph Explorer.
+    # ####################################################################
     memcached_open_connection()
     print(nodes_cache_key_id_type_size())
 
+    # #############################################################################
+    # Read a lot of things from the graph database and store it in the app context.
+    # These are all constant in Ricgraph Explorer.
+    # #############################################################################
     set_ricgraph_explorer_global(name='graph', value=graph)
 
     name_all = read_all_values_of_property('name')
@@ -241,8 +255,21 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     source_all_datalist += '</datalist>'
     set_ricgraph_explorer_global(name='source_all_datalist', value=source_all_datalist)
 
+    # ################################################
+    # Read a lot of things from the Ricgraph ini file.
+    # These are all constant in Ricgraph Explorer.
+    # ################################################
     orgs_with_hierarchies = get_configfile_key_organizations_with_hierarchies()
     set_ricgraph_explorer_global(name='orgs_with_hierarchies', value=orgs_with_hierarchies)
+
+    discoverer_mode_default = get_configfile_key(section='Ricgraph_explorer',
+                                                 key='ricgraph_explorer_display_results_mode')
+    if discoverer_mode_default not in DISCOVERER_MODE_ALL:
+        print('Ricgraph initialization: error, not existing or unknown value "' + discoverer_mode_default + '"')
+        print('  for "ricgraph_explorer_display_results_mode" in Ricgraph ini')
+        print('  file "' + get_ricgraph_ini_file() + '", exiting.')
+        exit(1)
+    set_ricgraph_explorer_global(name='discoverer_mode_default', value=discoverer_mode_default)
 
     if flask_check_file_exists(ricgraph_explorer_app=ricgraph_explorer_app,
                                filename=PRIVACY_STATEMENT_FILE):
@@ -267,9 +294,6 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     return
 
 
-# ################################################
-# Ricgraph Explorer initialization.
-# ################################################
 def set_ricgraph_explorer_global(name: str, value) -> None:
     """Set a global variable in the app context.
     This is required, otherwise we don't have them if we e.g. do

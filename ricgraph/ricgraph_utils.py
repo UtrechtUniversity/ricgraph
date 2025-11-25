@@ -598,3 +598,51 @@ def get_configfile_key_organizations_with_hierarchies() -> Union[DataFrame, None
         orgs_with_hierarchies = orgs_with_hierarchies.drop(columns=['org_name'])
 
     return orgs_with_hierarchies
+
+
+def get_configfile_key_graphdb_parameters() -> tuple[str, str, str, str, str]:
+    """Get the value of multiple keys in the Ricgraph config file
+    that relate to the graph database.
+
+    :return: the value of the graph database parameters, as a python tuple.
+    """
+    graphdb = get_configfile_key(section='GraphDB', key='graphdb')
+    graphdb_hostname = get_configfile_key(section='GraphDB', key='graphdb_hostname')
+    graphdb_databasename = get_configfile_key(section='GraphDB', key='graphdb_databasename')
+    graphdb_user = get_configfile_key(section='GraphDB', key='graphdb_user')
+    graphdb_password = get_configfile_key(section='GraphDB', key='graphdb_password')
+    graphdb_scheme = get_configfile_key(section='GraphDB', key='graphdb_scheme')
+    graphdb_port = get_configfile_key(section='GraphDB', key='graphdb_port')
+    if graphdb == '' or graphdb_hostname == '' or graphdb_databasename == '' \
+            or graphdb_user == '' or graphdb_password == '' \
+            or graphdb_scheme == '' or graphdb_port == '':
+        print('Ricgraph initialization: error, one or more of the GraphDB parameters')
+        print('  not existing or empty in Ricgraph ini')
+        print('  file "' + get_ricgraph_ini_file() + '", exiting.')
+        exit(1)
+
+    graphdb_url = '{scheme}://{hostname}:{port}'.format(scheme=graphdb_scheme,
+                                                         hostname=graphdb_hostname,
+                                                         port=graphdb_port)
+    return graphdb, graphdb_url, graphdb_databasename, graphdb_user, graphdb_password
+
+
+def get_configfile_key_memcached_parameters() -> tuple[bool, str, int]:
+    """Get the value of multiple keys in the Ricgraph config file
+    that relate to the Memcached cache.
+
+    :return: the value of the Memcached parameters, as a python tuple.
+    """
+    memcached_to_be_used_str = get_configfile_key(section='Memcached',
+                                                  key='ricgraph_explorer_uses_memcached')
+    memcached_host = get_configfile_key(section='Memcached',
+                                         key='memcached_host')
+    memcached_port_str = get_configfile_key(section='Memcached',
+                                        key='memcached_port')
+
+    memcached_to_be_used = False
+    if memcached_to_be_used_str == 'True':
+        memcached_to_be_used = True
+    memcached_port = int(memcached_port_str)
+
+    return memcached_to_be_used, memcached_host, memcached_port

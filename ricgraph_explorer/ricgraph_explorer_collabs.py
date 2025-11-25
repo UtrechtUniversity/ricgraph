@@ -46,7 +46,7 @@ from flask import Blueprint, url_for
 from ricgraph import ROTYPE_PUBLICATION
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          button_style, button_width,
-                                         DISCOVERER_MODE_ALL, DISCOVERER_MODE_DEFAULT,
+                                         DISCOVERER_MODE_ALL,
                                          COLLABORATION_MODES_ALL,
                                          MAX_ROWS_IN_TABLE,
                                          MAX_ITEMS)
@@ -230,7 +230,7 @@ def collabsresultpage() -> str:
     collab_mode = get_url_parameter_value(parameter='collab_mode')
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=DISCOVERER_MODE_DEFAULT)
+                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))

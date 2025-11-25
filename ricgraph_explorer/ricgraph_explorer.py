@@ -63,7 +63,7 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          page_footer_wsgi, page_footer_development,
                                          button_style, button_width,
                                          VIEW_MODE_ALL, DEFAULT_SEARCH_MODE,
-                                         DISCOVERER_MODE_ALL, DISCOVERER_MODE_DEFAULT,
+                                         DISCOVERER_MODE_ALL,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
                                          RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
@@ -318,7 +318,7 @@ def searchpage() -> str:
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=DISCOVERER_MODE_DEFAULT)
+                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
     if not max_nr_items.isnumeric():
@@ -460,7 +460,7 @@ def optionspage() -> str:
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=DISCOVERER_MODE_DEFAULT)
+                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
@@ -574,7 +574,7 @@ def resultspage() -> str:
     key = get_url_parameter_value(parameter='key', use_escape=False)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=DISCOVERER_MODE_DEFAULT)
+                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))

@@ -47,7 +47,8 @@ from typing import Union
 from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
 from .ricgraph_constants import A_LARGE_NUMBER
-from .ricgraph_utils import (get_ricgraph_ini_file, get_configfile_key,
+from .ricgraph_utils import (get_ricgraph_ini_file,
+                             get_configfile_key_graphdb_parameters,
                              create_ricgraph_key, datetimestamp)
 from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
                              nodes_cache_key_id_delete_key)
@@ -55,6 +56,8 @@ from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
 
 # The graph.
 _graph = None
+_GRAPHDB = ''
+_GRAPHDB_DATABASENAME = ''
 
 # These counters are used to count the number of accesses to the
 # graph database backend.
@@ -111,26 +114,31 @@ def open_ricgraph() -> Driver:
 
     :return: graph that has been opened.
     """
-    global _graph
+    global _graph, _GRAPHDB, _GRAPHDB_DATABASENAME
 
     if _graph is not None:
         # We have already opened the graph.
         return _graph
 
     print('Opening Ricgraph at ' + datetimestamp() + '.\n')
+    (graphdb, graphdb_url, graphdb_databasename,
+     graphdb_user, graphdb_password) = get_configfile_key_graphdb_parameters()
+    _GRAPHDB = graphdb
+    _GRAPHDB_DATABASENAME = graphdb_databasename
     try:
-        _graph = GraphDatabase.driver(_GRAPHDB_URL,
-                                      auth=(_GRAPHDB_USER, _GRAPHDB_PASSWORD))
+        _graph = GraphDatabase.driver(graphdb_url,
+                                      auth=(graphdb_user, graphdb_password))
         _graph.verify_connectivity()
     except Exception as e:
         print('open_ricgraph(): An exception occurred. Name: ' + type(e).__name__ + ',')
         print('  error message: ' + str(e) + '.')
         print('Error opening graph database backend using these parameters:')
-        print('_GRAPHDB_URL: ' + _GRAPHDB_URL)
-        print('_GRAPHDB_DATABASENAME: ' + ricgraph_databasename())
-        print('_GRAPHDB_USER: ' + _GRAPHDB_USER)
-        print('_GRAPHDB_PASSWORD: [see file ' + get_ricgraph_ini_file() + ']')
-        print('\nAre these parameters correct and did you start your graph database backend "' + _GRAPHDB + '"?')
+        print('graphdb_url: ' + graphdb_url)
+        print('graphdb_databasename: ' + ricgraph_databasename())
+        print('graphdb_user: ' + graphdb_user)
+        print('graphdb_password: [see file ' + get_ricgraph_ini_file() + ']')
+        print('\nAre these parameters correct and did you start your graph database backend "'
+              + ricgraph_database()+ '"?')
         print('Exiting.')
         exit(1)
 
@@ -154,12 +162,26 @@ def close_ricgraph() -> None:
 def ricgraph_database() -> str:
     """Return the name of the Ricgraph database backend.
     """
+    global _graph, _GRAPHDB
+
+    if _graph is None:
+        print('\nricgraph_database(): Error: graph has not been initialized or opened.')
+        print('Exiting.')
+        exit(1)
+
     return _GRAPHDB
 
 
 def ricgraph_databasename() -> str:
     """Return the name of the database in the Ricgraph database backend.
     """
+    global _graph, _GRAPHDB_DATABASENAME
+
+    if _graph is None:
+        print('\nricgraph_databasename(): Error: graph has not been initialized or opened.')
+        print('Exiting.')
+        exit(1)
+
     return _GRAPHDB_DATABASENAME
 
 
@@ -481,11 +503,11 @@ def cypher_find_nodes(name: str, category: str, value: str,
     cypher_query = 'MATCH (node:RicgraphNode) WHERE '
     if name != '':
         if name_is_exact_match:
-            cypher_query += '(node.name="' + name + '") AND '
+            cypher_query += '(node.name=$node_name) AND '
         else:
-            cypher_query += '(toLower(node.name) CONTAINS toLower("' + name + '")) AND '
+            cypher_query += '(toLower(node.name) CONTAINS toLower($node_name)) AND '
     if category != '':
-        cypher_query += '(node.category="' + category + '") AND '
+        cypher_query += '(node.category=$node_category) AND '
     if value != '':
         # Value may contain special characters.
         if value_is_exact_match:
@@ -500,17 +522,23 @@ def cypher_find_nodes(name: str, category: str, value: str,
     cypher_query += 'RETURN node '
 
     if max_nr_nodes > 0:
-        cypher_query += 'LIMIT ' + str(max_nr_nodes)
+        cypher_query += 'LIMIT $max_nr_nodes '
     # print(cypher_query)
 
     if value != '':
         # Value may contain special characters.
         nodes = _graph.execute_query(cypher_query,
+                                     node_name=name,
+                                     node_category=category,
                                      node_value=value,
+                                     max_nr_nodes=max_nr_nodes,
                                      result_transformer_=Result.value,
                                      database_=ricgraph_databasename())
     else:
         nodes = _graph.execute_query(cypher_query,
+                                     node_name=name,
+                                     node_category=category,
+                                     max_nr_nodes=max_nr_nodes,
                                      result_transformer_=Result.value,
                                      database_=ricgraph_databasename())
 
@@ -851,19 +879,20 @@ def read_all_values_of_property(node_property: str = '') -> list:
     else:
         # This UNWIND is only necessary for node_property = _source. It 'flattens' the list.
         # For other values of node_property it does not really matter.
-        cypher_query += 'UNWIND node.' + node_property + ' AS value '
+        cypher_query += 'UNWIND node[$node_property] AS value '
         cypher_query += 'RETURN DISTINCT value AS entry '
 
     # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
     # have gotten a list of dicts instead of a list.
     result, _, _ = _graph.execute_query(cypher_query,
+                                        node_property=node_property,
                                         database_=ricgraph_databasename())
     if len(result) == 0:
         return []
     result_list = [record['entry'] for record in result]
 
     # We need 'key' to do a case-insensitive search.
-    result_list_sorted = sorted(result_list, key=str.lower)
+    result_list_sorted = sorted(result_list, key=lambda x: x.lower())
     return result_list_sorted
 
 
@@ -913,6 +942,15 @@ def get_all_neighbor_nodes(node: Node,
     if category_dontwant is None:
         category_dontwant = []
 
+    if isinstance(name_want, str):
+        name_want = [] if name_want == '' else [name_want]
+    if isinstance(name_dontwant, str):
+        name_dontwant = [] if name_dontwant == '' else [name_dontwant]
+    if isinstance(category_want, str):
+        category_want = [] if category_want == '' else [category_want]
+    if isinstance(category_dontwant, str):
+        category_dontwant = [] if category_dontwant == '' else [category_dontwant]
+
     cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'WHERE (elementId(node)=$node_element_id) '
@@ -920,41 +958,19 @@ def get_all_neighbor_nodes(node: Node,
         cypher_query += 'WHERE (id(node)=toInteger($node_element_id)) '
 
     nr_of_not_clauses = 0
-    if isinstance(name_want, str):
-        if name_want != '':
-            cypher_query += 'AND (neighbor.name IN ["' + name_want + '"]) '
-    else:
-        if len(name_want) > 0:
-            string_list = '["' + '", "'.join(str(item) for item in name_want) + '"]'
-            cypher_query += 'AND (neighbor.name IN ' + string_list + ') '
+    if len(name_want) > 0:
+        cypher_query += 'AND (neighbor.name IN $name_want) '
 
-    if isinstance(name_dontwant, str):
-        if name_dontwant != '':
-            cypher_query += 'AND (NOT neighbor.name IN ["' + name_dontwant + '"]) '
-            nr_of_not_clauses += 1
-    else:
-        if len(name_dontwant) > 0:
-            string_list = '["' + '", "'.join(str(item) for item in name_dontwant) + '"]'
-            cypher_query += 'AND (NOT neighbor.name IN ' + string_list + ') '
-            nr_of_not_clauses += 1
+    if len(name_dontwant) > 0:
+        cypher_query += 'AND (neighbor.name NOT IN $name_dontwant) '
+        nr_of_not_clauses += 1
 
-    if isinstance(category_want, str):
-        if category_want != '':
-            cypher_query += 'AND (neighbor.category IN ["' + category_want + '"]) '
-    else:
-        if len(category_want) > 0:
-            string_list = '["' + '", "'.join(str(item) for item in category_want) + '"]'
-            cypher_query += 'AND (neighbor.category IN ' + string_list + ') '
+    if len(category_want) > 0:
+        cypher_query += 'AND (neighbor.category IN $category_want) '
 
-    if isinstance(category_dontwant, str):
-        if category_dontwant != '':
-            cypher_query += 'AND (NOT neighbor.category IN ["' + category_dontwant + '"]) '
-            nr_of_not_clauses += 1
-    else:
-        if len(category_dontwant) > 0:
-            string_list = '["' + '", "'.join(str(item) for item in category_dontwant) + '"]'
-            cypher_query += 'AND (NOT neighbor.category IN ' + string_list + ') '
-            nr_of_not_clauses += 1
+    if len(category_dontwant) > 0:
+        cypher_query += 'AND (neighbor.category NOT IN $category_dontwant) '
+        nr_of_not_clauses += 1
 
     if nr_of_not_clauses >= 2:
         # This is a special case in which the Cypher query produces unexpected results.
@@ -968,11 +984,16 @@ def get_all_neighbor_nodes(node: Node,
 
     cypher_query += 'RETURN DISTINCT neighbor '
     if max_nr_neighbor_nodes > 0:
-        cypher_query += 'LIMIT ' + str(max_nr_neighbor_nodes)
+        cypher_query += 'LIMIT $max_nr_neighbor_nodes '
     # print(cypher_query)
 
     neighbor_nodes = _graph.execute_query(cypher_query,
                                           node_element_id=node.element_id,
+                                          name_want=name_want,
+                                          name_dontwant=name_dontwant,
+                                          category_want=category_want,
+                                          category_dontwant=category_dontwant,
+                                          max_nr_neighbor_nodes=max_nr_neighbor_nodes,
                                           result_transformer_=Result.value,
                                           database_=ricgraph_databasename())
     nr_neighbors = len(neighbor_nodes)
@@ -1097,27 +1118,3 @@ def get_all_neighbor_nodes_loop(node: Node,
     # Unsure what to count here, this seems reasonable. '+ 1' for 'node'.
     _graphdb_nr_reads += len(neighbor_nodes) + 1
     return neighbor_nodes
-
-
-# ############################################
-# ################### main ###################
-# ############################################
-# This will be executed on module initialization
-_GRAPHDB = get_configfile_key(section='GraphDB', key='graphdb')
-_GRAPHDB_HOSTNAME = get_configfile_key(section='GraphDB', key='graphdb_hostname')
-_GRAPHDB_DATABASENAME = get_configfile_key(section='GraphDB', key='graphdb_databasename')
-_GRAPHDB_USER = get_configfile_key(section='GraphDB', key='graphdb_user')
-_GRAPHDB_PASSWORD = get_configfile_key(section='GraphDB', key='graphdb_password')
-_GRAPHDB_SCHEME = get_configfile_key(section='GraphDB', key='graphdb_scheme')
-_GRAPHDB_PORT = get_configfile_key(section='GraphDB', key='graphdb_port')
-if _GRAPHDB == '' or _GRAPHDB_HOSTNAME == '' or _GRAPHDB_DATABASENAME == '' \
-   or _GRAPHDB_USER == '' or _GRAPHDB_PASSWORD == '' \
-   or _GRAPHDB_SCHEME == '' or _GRAPHDB_PORT == '':
-    print('Ricgraph initialization: error, one or more of the GraphDB parameters')
-    print('  not existing or empty in Ricgraph ini')
-    print('  file "' + get_ricgraph_ini_file() + '", exiting.')
-    exit(1)
-
-_GRAPHDB_URL = '{scheme}://{hostname}:{port}'.format(scheme=_GRAPHDB_SCHEME,
-                                                     hostname=_GRAPHDB_HOSTNAME,
-                                                     port=_GRAPHDB_PORT)

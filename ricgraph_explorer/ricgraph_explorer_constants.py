@@ -41,7 +41,7 @@
 # ########################################################################
 
 
-from ricgraph import get_ricgraph_version, get_ricgraph_ini_file, get_configfile_key
+from ricgraph import get_ricgraph_version
 
 
 # You can search in two different ways in Ricgraph Explorer. This parameter
@@ -344,9 +344,15 @@ d3_headers += '<script src="https://d3js.org/d3-chord.v3.min.js"></script>'
 d3_headers += '<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>'
 d3_headers += '<script src="https://cdn.jsdelivr.net/npm/d3-sankey/dist/d3-sankey.min.js"></script>'
 
-diagram_tooltip_style =  'style="position:absolute; pointer-events:auto; background:#fff;'
-diagram_tooltip_style += '       border:1px solid; padding:6px 12px; border-radius:4px;'
-diagram_tooltip_style += '       display:none; z-index:10;"'
+# Style for the tooltip of the Sankey & Chord diagram.
+diagram_tooltip_style = 'style="position:absolute; pointer-events:auto; background:#fff; '
+diagram_tooltip_style +=       'border:1px solid; padding:6px 12px; border-radius:4px; '
+diagram_tooltip_style +=       'display:none; z-index:10;"'
+# Style for the links & button in the tooltip of the Sankey diagram.
+diagram_tooltip_link_button_style = 'style="display:inline-block; background:#ddd; width:14em; '
+diagram_tooltip_link_button_style +=       'border:1px solid black; border-radius:4px; '
+diagram_tooltip_link_button_style +=       'text-decoration:none; cursor:pointer; '
+diagram_tooltip_link_button_style +=       'margin:0.2em 0em; text-align:center;"'
 
 # Font family.
 font_family = 'Arial, sans-serif'
@@ -366,17 +372,3 @@ sankey_margin = 40
 sankey_pixels_per_link = 7
 sankey_min_height = 200
 sankey_max_height = 1500
-
-
-
-# ############################################
-# ################### main ###################
-# ############################################
-# This will be executed on module initialization
-DISCOVERER_MODE_DEFAULT = get_configfile_key(section='Ricgraph_explorer',
-                                             key='ricgraph_explorer_display_results_mode')
-if DISCOVERER_MODE_DEFAULT not in DISCOVERER_MODE_ALL:
-    print('Ricgraph initialization: error, not existing or unknown value "' + DISCOVERER_MODE_DEFAULT + '"')
-    print('  for "ricgraph_explorer_display_results_mode" in Ricgraph ini')
-    print('  file "' + get_ricgraph_ini_file() + '", exiting.')
-    exit(1)

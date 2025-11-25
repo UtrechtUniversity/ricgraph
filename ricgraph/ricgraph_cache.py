@@ -46,7 +46,7 @@ from sys import getsizeof
 from typing import Optional
 from pymemcache.client.base import Client
 from .ricgraph_constants import MAX_NODES_CACHE_KEY_ID
-from .ricgraph_utils import (get_configfile_key,
+from .ricgraph_utils import (get_configfile_key_memcached_parameters,
                              serialize_value, deserialize_value)
 
 
@@ -70,19 +70,21 @@ def memcached_open_connection() -> None:
     If Memcached is not available, then return None.
     Set the Memcached client in a global variable.
     """
-    global _MEMCACHED_HOST, _MEMCACHED_PORT
     global _memcached_available, _memcached_client
 
-    if _MEMCACHED_TO_BE_USED != 'True':
+    memcached_to_be_used, memcached_host, memcached_port = get_configfile_key_memcached_parameters()
+    if memcached_to_be_used:
+        _memcached_available = True
+    else:
         _memcached_available = False
         return
 
-    if _MEMCACHED_HOST == '' or _MEMCACHED_PORT == '':
+    if memcached_host == '':
         _memcached_available = False
         return
 
     try:
-        memcached_client = Client(server=(_MEMCACHED_HOST, int(_MEMCACHED_PORT)),
+        memcached_client = Client(server=(memcached_host, memcached_port),
                                   allow_unicode_keys=True)
 
         # Test connection by setting and deleting a test key.
@@ -93,6 +95,8 @@ def memcached_open_connection() -> None:
         _memcached_client = memcached_client
         return
     except:
+        print('memcached_open_connection(): Warning: could not reach Memcached cache daemon,')
+        print('     it is probably not running, continuing with local cache.')
         _memcached_available = False
         _memcached_client = None
         return
@@ -271,16 +275,3 @@ def nodes_cache_key_id_type_size() -> str:
     result += 'This cache has ' + str(items) + ' elements, and its size is '
     result += str(size_kb) + ' kB.'
     return result
-
-
-# ############################################
-# ################### main ###################
-# ############################################
-# This will be executed on module initialization
-_MEMCACHED_HOST = get_configfile_key(section='Memcached',
-                                     key='memcached_host')
-# This returns a str, will be converted to int later on.
-_MEMCACHED_PORT = get_configfile_key(section='Memcached',
-                                     key='memcached_port')
-_MEMCACHED_TO_BE_USED = get_configfile_key(section='Memcached',
-                                           key='ricgraph_explorer_uses_memcached')

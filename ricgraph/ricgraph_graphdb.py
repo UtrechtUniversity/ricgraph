@@ -190,13 +190,13 @@ def create_update_node(name: str, category: str, value: str,
     node = read_node(name=lname, value=lvalue)
     if node is None:
         # Create a node.
-        # First do the properties in RICGRAPH_PROPERTIES_STANDARD.
+        # First do the properties in _RICGRAPH_PROPERTIES_STANDARD.
         node_properties['name'] = lname
         node_properties['category'] = lcategory
         node_properties['value'] = lvalue
 
-        # Then do the properties in RICGRAPH_PROPERTIES_ADDITIONAL.
-        for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
+        # Then do the properties in _RICGRAPH_PROPERTIES_ADDITIONAL.
+        for prop_name in _RICGRAPH_PROPERTIES_ADDITIONAL:
             if prop_name in other_properties:
                 node_properties[prop_name] = str(other_properties[prop_name])
             else:
@@ -207,7 +207,7 @@ def create_update_node(name: str, category: str, value: str,
         if node_properties['url_main'] == '' and url != '':
             node_properties['url_main'] = url
 
-        # Then do the properties in RICGRAPH_PROPERTIES_HIDDEN.
+        # Then do the properties in _RICGRAPH_PROPERTIES_HIDDEN.
         node_properties['_key'] = create_ricgraph_key(name=lname, value=lvalue)
         if node_properties['source_event'] == '':
             node_properties['_source'] = []
@@ -224,7 +224,7 @@ def create_update_node(name: str, category: str, value: str,
         new_node = cypher_create_node(node_properties=node_properties)
         return new_node
 
-    if RICGRAPH_NODEADD_MODE == 'strict' and node['name'] == 'FULL_NAME':
+    if _RICGRAPH_NODEADD_MODE == 'strict' and node['name'] == 'FULL_NAME':
         # We only get here if we want to connect some other node A to this FULL_NAME node B.
         # This FULL_NAME node B already exists. Most probably it is connected to a person-root C
         # and that person-root C to some other nodes D and E.
@@ -237,7 +237,7 @@ def create_update_node(name: str, category: str, value: str,
     # Update a node.
     history_line = ''
 
-    # First do the properties in RICGRAPH_PROPERTIES_STANDARD.
+    # First do the properties in _RICGRAPH_PROPERTIES_STANDARD.
     # It is not possible to update 'name' or 'value'.
     if node['category'] != lcategory:
         history_line += create_history_line(property_name='category',
@@ -245,8 +245,8 @@ def create_update_node(name: str, category: str, value: str,
                                             new_value=lcategory)
         node_properties['category'] = lcategory
 
-    # Then do the properties in RICGRAPH_PROPERTIES_ADDITIONAL.
-    for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
+    # Then do the properties in _RICGRAPH_PROPERTIES_ADDITIONAL.
+    for prop_name in _RICGRAPH_PROPERTIES_ADDITIONAL:
         if prop_name not in other_properties:
             continue
         if prop_name == 'history_event' or prop_name == 'source_event':
@@ -264,7 +264,7 @@ def create_update_node(name: str, category: str, value: str,
                                                 old_value=present_val,
                                                 new_value=str(other_properties[prop_name]))
 
-    # Finally do the properties in RICGRAPH_PROPERTIES_HIDDEN.
+    # Finally do the properties in _RICGRAPH_PROPERTIES_HIDDEN.
     # It is not possible to update '_key'.
     if 'source_event' in other_properties:
         if other_properties['source_event'] != '':
@@ -722,10 +722,10 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         # Already connected, nothing to do.
         return
 
-    # Only continue depending on RICGRAPH_NODEADD_MODE.
-    if RICGRAPH_NODEADD_MODE == 'strict':
+    # Only continue depending on _RICGRAPH_NODEADD_MODE.
+    if _RICGRAPH_NODEADD_MODE == 'strict':
         # For more explanation, see file docs/ricgraph_install_configure.md,
-        # section RICGRAPH_NODEADD_MODE.
+        # section _RICGRAPH_NODEADD_MODE.
         return
 
     # Connect crosswise.
@@ -813,7 +813,7 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
     """
     node_properties1 = {}
     node_properties2 = {}
-    for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
+    for prop_name in _RICGRAPH_PROPERTIES_ADDITIONAL:
         for other_name, other_value in other_properties.items():
             if prop_name + '1' == other_name:
                 node_properties1.update({prop_name: other_value})
@@ -876,7 +876,7 @@ def print_node_values(node: Node) -> None:
     print('name:     ' + node['name'])
     print('category: ' + node['category'])
     print('value:    ' + node['value'])
-    for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
+    for prop_name in _RICGRAPH_PROPERTIES_ADDITIONAL:
         print(prop_name + ': ' + node[prop_name])
     print('source:')
     for source in node['_source']:
@@ -957,22 +957,60 @@ def convert_nodes_to_list_of_dict(nodes_list: list,
     return result_list
 
 
+def get_ricgraph_properties_hidden() -> tuple:
+    """Return the standard properties in Ricgraph.
+    These are defined in the Ricgraph ini file.
+
+    :return: hidden properties.
+    """
+    return _RICGRAPH_PROPERTIES_HIDDEN
+
+
+def get_ricgraph_properties_standard() -> tuple:
+    """Return the standard properties in Ricgraph.
+    These are defined in the Ricgraph ini file.
+
+    :return: standard properties.
+    """
+    return _RICGRAPH_PROPERTIES_STANDARD
+
+
+def get_ricgraph_properties_additional() -> tuple:
+    """Return the standard properties in Ricgraph.
+    These are defined in the Ricgraph ini file.
+
+    :return: additional properties.
+    """
+    return _RICGRAPH_PROPERTIES_ADDITIONAL
+
+
+def get_ricgraph_nodeadd_mode() -> str:
+    """Return the Ricgraph nodeadd mode.
+    These are defined in the Ricgraph ini file.
+    For more explanation, see file docs/ricgraph_install_configure.md,
+    section RICGRAPH_NODEADD_MODE.
+
+    :return: nodeadd mode.
+    """
+    return _RICGRAPH_NODEADD_MODE
+
+
 # ############################################
 # ################### main ###################
 # ############################################
 # This will be executed on module initialization
-RICGRAPH_PROPERTIES_STANDARD = tuple(get_configfile_key(section='Ricgraph',
-                                                        key='ricgraph_properties_standard').split(','))
-RICGRAPH_PROPERTIES_HIDDEN = tuple(get_configfile_key(section='Ricgraph',
-                                                      key='ricgraph_properties_hidden').split(','))
-RICGRAPH_PROPERTIES_ADDITIONAL = tuple(get_configfile_key(section='Ricgraph',
-                                                          key='ricgraph_properties_additional').split(','))
-if len(RICGRAPH_PROPERTIES_STANDARD) == 0 \
-   or len(RICGRAPH_PROPERTIES_HIDDEN) == 0 \
-   or len(RICGRAPH_PROPERTIES_ADDITIONAL) == 0 \
-   or RICGRAPH_PROPERTIES_STANDARD[0] == '' \
-   or RICGRAPH_PROPERTIES_HIDDEN[0] == '' \
-   or RICGRAPH_PROPERTIES_ADDITIONAL[0] == '':
+_RICGRAPH_PROPERTIES_STANDARD = tuple(get_configfile_key(section='Ricgraph',
+                                                         key='ricgraph_properties_standard').split(','))
+_RICGRAPH_PROPERTIES_HIDDEN = tuple(get_configfile_key(section='Ricgraph',
+                                                       key='ricgraph_properties_hidden').split(','))
+_RICGRAPH_PROPERTIES_ADDITIONAL = tuple(get_configfile_key(section='Ricgraph',
+                                                           key='ricgraph_properties_additional').split(','))
+if len(_RICGRAPH_PROPERTIES_STANDARD) == 0 \
+   or len(_RICGRAPH_PROPERTIES_HIDDEN) == 0 \
+   or len(_RICGRAPH_PROPERTIES_ADDITIONAL) == 0 \
+   or _RICGRAPH_PROPERTIES_STANDARD[0] == '' \
+   or _RICGRAPH_PROPERTIES_HIDDEN[0] == '' \
+   or _RICGRAPH_PROPERTIES_ADDITIONAL[0] == '':
     print('Ricgraph initialization: error, "ricgraph_properties_standard" and/or')
     print('  "ricgraph_properties_hidden" and/or "ricgraph_properties_additional"')
     print('  are not existing or empty in Ricgraph ini')
@@ -981,11 +1019,11 @@ if len(RICGRAPH_PROPERTIES_STANDARD) == 0 \
 
 # For more explanation, see file docs/ricgraph_install_configure.md,
 # section RICGRAPH_NODEADD_MODE.
-RICGRAPH_NODEADD_MODE = get_configfile_key(section='Ricgraph', key='ricgraph_nodeadd_mode')
-if RICGRAPH_NODEADD_MODE != 'strict' and RICGRAPH_NODEADD_MODE != 'lenient':
-    print('Ricgraph initialization: error, not existing or unknown value "' + RICGRAPH_NODEADD_MODE + '"')
+_RICGRAPH_NODEADD_MODE = get_configfile_key(section='Ricgraph', key='ricgraph_nodeadd_mode')
+if _RICGRAPH_NODEADD_MODE != 'strict' and _RICGRAPH_NODEADD_MODE != 'lenient':
+    print('Ricgraph initialization: error, not existing or unknown value "' + _RICGRAPH_NODEADD_MODE + '"')
     print('  for "ricgraph_nodeadd_mode" in Ricgraph ini')
     print('  file "' + get_ricgraph_ini_file() + '", exiting.')
     exit(1)
 
-print('Ricgraph is using "' + RICGRAPH_NODEADD_MODE + '" for "ricgraph_nodeadd_mode".')
+print('Ricgraph is using "' + _RICGRAPH_NODEADD_MODE + '" for "ricgraph_nodeadd_mode".')

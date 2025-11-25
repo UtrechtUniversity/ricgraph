@@ -112,14 +112,13 @@ def find_person_share_resouts_cypher(parent_node: Node,
     if len(category_dontwant_list) > 0:
         cypher_query += 'NOT neighbor.category IN $category_dontwant_list AND '
     cypher_query += 'neighbor_personroot.name="person-root" AND '
-    # cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'elementId(neighbor_personroot)<>elementId(startnode_personroot) '
     else:
         cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
     cypher_query += 'RETURN DISTINCT neighbor_personroot '
     if int(max_nr_items) > 0:
-        cypher_query += 'LIMIT ' + max_nr_items
+        cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
 
     # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
@@ -128,6 +127,7 @@ def find_person_share_resouts_cypher(parent_node: Node,
                                               startnode_personroot_element_id=personroot_node.element_id,
                                               category_want_list=category_want_list,
                                               category_dontwant_list=category_dontwant_list,
+                                              max_nr_items=int(max_nr_items),
                                               database_=ricgraph_databasename())
 
     # Convert 'cypher_result' to a list of Node's.
@@ -179,7 +179,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
     cypher_query += 'neighbor_organization.category="organization" '
     cypher_query += 'RETURN DISTINCT neighbor_organization '
     if int(max_nr_items) > 0:
-        cypher_query += 'LIMIT ' + max_nr_items
+        cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
     # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
     # as the collaborating researchers (in 'neighbor_personroot') and the common research
@@ -191,6 +191,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
     cypher_result, _, _ = graph.execute_query(cypher_query,
                                               startnode_personroot_element_id=personroot_node.element_id,
                                               resout_types_all=resout_types_all,
+                                              max_nr_items=int(max_nr_items),
                                               database_=ricgraph_databasename())
 
     # Get the organizations from 'parent_node'.
@@ -244,17 +245,6 @@ def find_organization_additional_info_cypher(parent_node: Node,
     if category_list is None:
         category_list = []
 
-    second_neighbor_name_list = ''
-    second_neighbor_category_list = ''
-    if len(name_list) > 0:
-        second_neighbor_name_list = '["'
-        second_neighbor_name_list += '", "'.join(str(item) for item in name_list)
-        second_neighbor_name_list += '"]'
-    if len(category_list) > 0:
-        second_neighbor_category_list = '["'
-        second_neighbor_category_list += '", "'.join(str(item) for item in category_list)
-        second_neighbor_category_list += '"]'
-
     # Prepare and execute Cypher query.
     cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
@@ -267,11 +257,11 @@ def find_organization_additional_info_cypher(parent_node: Node,
     if len(name_list) > 0 or len(category_list) > 0 or source_system != '':
         cypher_query += 'WHERE '
     if len(name_list) > 0:
-        cypher_query += 'second_neighbor.name IN ' + second_neighbor_name_list + ' '
+        cypher_query += 'second_neighbor.name IN $name_list '
     if len(name_list) > 0 and len(category_list) > 0:
         cypher_query += 'AND '
     if len(category_list) > 0:
-        cypher_query += 'second_neighbor.category IN ' + second_neighbor_category_list + ' '
+        cypher_query += 'second_neighbor.category IN $category_list '
     if source_system != '':
         if len(name_list) > 0 or len(category_list) > 0:
             cypher_query += 'AND '
@@ -279,10 +269,13 @@ def find_organization_additional_info_cypher(parent_node: Node,
     cypher_query += 'RETURN DISTINCT second_neighbor, count(second_neighbor) as count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
     if int(max_nr_items) > 0:
-        cypher_query += 'LIMIT ' + max_nr_items
+        cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
     cypher_result, _, _ = graph.execute_query(cypher_query,
                                               node_element_id=parent_node.element_id,
+                                              name_list=name_list,
+                                              category_list=category_list,
+                                              max_nr_items=int(max_nr_items),
                                               database_=ricgraph_databasename())
     if len(cypher_result) == 0:
         return []
@@ -373,6 +366,7 @@ def find_collabs_cypher(start_organizations: str,
     else:
         print('find_collab_orgs_cypher(): unknown type for research_result_category "'
               + str(research_result_category) + '".')
+        exit(1)
 
     cypher_query += 'AND persroot1.name="person-root" '
     cypher_query += 'AND persroot2.name="person-root" '
@@ -380,6 +374,7 @@ def find_collabs_cypher(start_organizations: str,
     cypher_query += 'AND start_orgs._key<>collab_orgs._key '
     cypher_query += 'AND collab_orgs.name="ORGANIZATION_NAME" '
 
+    org_abbr = ''
     if collab_organizations == '':
         # If we are to match any organization...
         org_abbr = extract_organization_abbreviation(org_name=start_organizations)
@@ -388,7 +383,7 @@ def find_collabs_cypher(start_organizations: str,
             # in orgs_with_hierarchies), do not match any (sub-)organizations of it in
             # 'collab_organizations'.
             # Please also read the design decision at org_collaborations_diagram().
-            cypher_query += 'AND NOT collab_orgs.value STARTS WITH "' + org_abbr + '" '
+            cypher_query += 'AND NOT collab_orgs.value STARTS WITH $org_abbr '
     else:
         # We are to find collaborations limited to certain organization(s).
         if read_node(name='ORGANIZATION_NAME', value=collab_organizations) is None:
@@ -403,7 +398,7 @@ def find_collabs_cypher(start_organizations: str,
     cypher_query += cypher_return_clause + ' '
 
     if max_nr_nodes > 0:
-        cypher_query += 'LIMIT ' + str(max_nr_nodes)
+        cypher_query += 'LIMIT $max_nr_nodes '
     # print(cypher_query)
 
     # This call returns a list of Records and not a list of Nodes, which
@@ -412,6 +407,8 @@ def find_collabs_cypher(start_organizations: str,
                                               start_orgs=start_organizations,
                                               collab_orgs=collab_organizations,
                                               research_result_category=research_result_category,
+                                              org_abbr=org_abbr,
+                                              max_nr_nodes=max_nr_nodes,
                                               database_=ricgraph_databasename())
 
     if len(cypher_result) == 0:

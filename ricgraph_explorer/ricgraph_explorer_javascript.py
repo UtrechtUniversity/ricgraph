@@ -45,10 +45,10 @@
 
 from urllib.parse import urlencode
 from flask import url_for
-from ricgraph_explorer_constants import (font_family,
+from ricgraph_explorer_constants import (font_family, sankey_margin,
                                          chord_fontsize, chord_space_for_labels,
                                          chord_label_linespacing,
-                                         sankey_margin)
+                                         diagram_tooltip_link_button_style)
 
 
 def get_spinner_javascript() -> str:
@@ -605,13 +605,8 @@ def create_sankey_diagram_javascript(nodes_json: str,
     if tooltip_show_links:
         base_url = url_for(endpoint='collabsresultpage.collabsresultpage') + '?'
         base_url += urlencode(query={'category_list': research_result_category}, doseq=True)
-        url_style = 'style="display:inline-block; background:#ddd; width:14em;'
-        url_style += 'border:1px solid black; border-radius:4px; '
-        url_style += 'text-decoration:none; cursor:pointer; '
-        url_style += 'margin:0.2em 0em; text-align:center;"'
     else:
         base_url = ''
-        url_style = ''
 
     javascript = f'''
                  <script>
@@ -648,15 +643,15 @@ def create_sankey_diagram_javascript(nodes_json: str,
                      const research_results_url = `${{orgs_url}}&collab_mode=return_research_results`;
                      const collaborg_persons_url = `${{orgs_url}}&collab_mode=return_collaborg_persons`;
                      
-                     popup += `<a href="${{startorg_persons_url}}"  {url_style} `
+                     popup += `<a href="${{startorg_persons_url}}"  {diagram_tooltip_link_button_style} `
                      popup += `  target="_blank">persons from <em>start organizations</em></a> `
-                     popup += `<a href="${{research_results_url}}" {url_style} `
+                     popup += `<a href="${{research_results_url}}" {diagram_tooltip_link_button_style} `
                      popup += `  target="_blank">research results</a> `
-                     popup += `<a href="${{collaborg_persons_url}}" {url_style} `
+                     popup += `<a href="${{collaborg_persons_url}}" {diagram_tooltip_link_button_style} `
                      popup += `  target="_blank">persons from <em>collaborating organizations</em></a> `
                      popup += `<br/>Note that finding these collaborations may take (very) long.<br/> `
                    }};
-                   popup += `<button id="close_tooltip" {url_style}>close</button>`
+                   popup += `<button id="close_tooltip" {diagram_tooltip_link_button_style}>close</button>`
                    
                    tooltip
                      .style("display", "block")

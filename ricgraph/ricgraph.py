@@ -103,8 +103,8 @@ from pandas import DataFrame, concat, set_option
 from typing import Union
 from .ricgraph_utils import timestamp
 from .ricgraph_graphdb import (create_update_node, create_two_nodes_and_edge,
-                               RICGRAPH_NODEADD_MODE,
-                               RICGRAPH_PROPERTIES_STANDARD, RICGRAPH_PROPERTIES_ADDITIONAL)
+                               get_ricgraph_nodeadd_mode,
+                               get_ricgraph_properties_standard, get_ricgraph_properties_additional)
 
 
 __author__ = 'Rik D.T. Janssen'
@@ -159,7 +159,7 @@ def update_nodes_df(nodes: DataFrame) -> None:
             print('(' + timestamp() + ')\n', end='', flush=True)
 
         node_properties = {}
-        for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
+        for prop_name in get_ricgraph_properties_additional():
             for other_name in columns:
                 if prop_name == other_name:
                     node_properties[prop_name] = getattr(row, other_name)
@@ -195,7 +195,7 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
             print('(' + timestamp() + ')\n', end='', flush=True)
 
         node_properties = {}
-        for prop_name in RICGRAPH_PROPERTIES_ADDITIONAL:
+        for prop_name in get_ricgraph_properties_additional():
             for other_name in columns:
                 if prop_name + '1' == other_name:
                     node_properties[prop_name + '1'] = getattr(row, other_name)
@@ -242,7 +242,7 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
         left_and_right_nodepairs.rename(columns={value1.name: 'value1'}, inplace=True)
 
     # This makes programming more efficient
-    allowed_properties = RICGRAPH_PROPERTIES_ADDITIONAL + RICGRAPH_PROPERTIES_STANDARD
+    allowed_properties = get_ricgraph_properties_additional() + get_ricgraph_properties_standard()
     ext_other_properties = other_properties.copy()
     ext_other_properties['name1'] = name1
     ext_other_properties['name2'] = name2
@@ -310,7 +310,7 @@ def unify_personal_identifiers(personal_identifiers: DataFrame,
             identifiers.dropna(axis=0, how='any', inplace=True)
             identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-            if RICGRAPH_NODEADD_MODE == 'strict':
+            if get_ricgraph_nodeadd_mode() == 'strict':
                 # Remove rows which have a cell value that occurs more than once.
                 # There are two situations: (1) nodes with unique value; (2) nodes with non-unique value.
                 # (1) We assume that in one source system, always the same ID is used to connect to
