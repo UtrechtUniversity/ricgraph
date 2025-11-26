@@ -316,11 +316,11 @@ def find_collabs_cypher(start_organizations: str,
     orgs_with_hierarchies = get_ricgraph_explorer_global('orgs_with_hierarchies')
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
-        print('\nfind_collab_orgs_cypher(): Error: graph has not been initialized or opened.\n\n')
+        print('\nfind_collabs_cypher(): Error: graph has not been initialized or opened.\n\n')
         return []
 
     if cypher_return_clause == '':
-        print('find_collab_orgs_cypher(): Error, you have not specified a cypher RETURN clause, exiting.')
+        print('find_collabs_cypher(): Error, you have not specified a cypher RETURN clause, exiting.')
         exit(1)
 
     print('Finding collaborations')
@@ -378,6 +378,9 @@ def find_collabs_cypher(start_organizations: str,
     if collab_organizations == '':
         # If we are to match any organization...
         org_abbr = extract_organization_abbreviation(org_name=start_organizations)
+        if orgs_with_hierarchies is None or orgs_with_hierarchies.empty:
+            print('find_collabs_cypher(): Error, you should have specified "orgs_with_hierarchies", exiting...')
+            exit(1)
         if org_abbr in orgs_with_hierarchies['org_abbreviation'].values:
             # ... and 'start_organization' has sub-organizations (which is specified
             # in orgs_with_hierarchies), do not match any (sub-)organizations of it in

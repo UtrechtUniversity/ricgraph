@@ -484,7 +484,7 @@ def org_collaborations_diagram(start_organizations: str,
 
     collabs_orgs = collabs_orgs_raw.copy(deep=True)
     if collab_organizations == '':
-        if orgs_with_hierarchies is None:
+        if orgs_with_hierarchies is None or orgs_with_hierarchies.empty:
             print('org_collaborations_diagram(): Error, you should have specified "orgs_with_hierarchies", exiting...')
             exit(1)
         collabs_orgs = remove_hierarchical_orgs(df=collabs_orgs,
