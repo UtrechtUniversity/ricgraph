@@ -267,7 +267,7 @@ def collabsresultpage() -> str:
     # A fragment of text to be reused. Escape organization names for safety, since
     # they will be included in the HTML of the webpage that is being generated.
     start_collab_html = '"' + str(escape(start_orgs)) + '" and '
-    start_collab_html += 'any organization.' if collab_orgs == '' else '"' + str(escape(collab_orgs)) + '"'
+    start_collab_html += 'any organization' if collab_orgs == '' else '"' + str(escape(collab_orgs)) + '"'
     if collab_mode == 'return_collab_sankey':
         header = 'This Sankey diagram shows the collaborations between '
         header += start_collab_html + '. '

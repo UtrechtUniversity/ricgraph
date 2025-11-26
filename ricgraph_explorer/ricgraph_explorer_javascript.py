@@ -744,6 +744,10 @@ def create_sankey_diagram_javascript(nodes_json: str,
                           pathHovered = false;              // Remove hover state.
                           d3.select(this).classed("highlighted", false)
                             .attr("stroke-opacity", 0.25);
+                          // Hide tooltip on leave, unless pinned or hovered.
+                          if (!tooltipPinned && !tooltipHovered) {{
+                            tooltip.style("display", "none");
+                          }}
                        }});
                    // End draw links (lines).
 
