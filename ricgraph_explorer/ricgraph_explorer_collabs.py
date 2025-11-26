@@ -42,6 +42,7 @@
 
 from urllib.parse import urlencode
 from flask import Blueprint, url_for
+from markupsafe import escape
 
 from ricgraph import ROTYPE_PUBLICATION
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
@@ -116,13 +117,23 @@ def collabspage() -> str:
     base_url = url_for(endpoint='searchpage') + '?'
     base_url += urlencode(query={'search_mode': 'value_search',
                                  'category': 'organization'})
-    search_org_link = '<a href="' + base_url + '" target="_blank">'
-    search_org_link += 'Click here to search for a (sub-)organization</a>'
     form = '<form method="get" action="/collabsresultpage/">'
     form += '<label for="start_orgs">Type the name for <em>start organization</em> '
     form += '(or enter text that begins a (sub-)organization name):</label>'
     form += '<input id="start_orgs" class="w3-input w3-border" type=text name=start_orgs>'
-    form += search_org_link + '.'
+
+    form += 'Note. For now, you have to type the exact spelling in this field, '
+    form += 'including correct upper and lower case. '
+    form += '<a href="' + base_url + '" target="_blank">'
+    form += 'Click here to search for a (sub-)organization '
+    form += 'and find this correct spelling</a>. '
+    form += 'Then you can copy and paste it in the <em>start organization</em> '
+    form += 'input field above. '
+    form += 'This also holds for the <em>collaborating organization</em> input '
+    form += 'field below. For example, if you have "DUT", you can type e.g. '
+    form += '"DUT", "DUT Faculty", or "DUT Faculty: Mechanical Engineering", '
+    form += 'but not "Faculty", "dut faculty", or "Faculty: Mechanical Engineering" '
+    form += '(in fact, you can, but they will not match DUT sub-organizations). '
     form += '<br/>'
     form += '<br/>'
     form += '<label for="collab_orgs">Type the name for <em>collaborating organization</em> '
@@ -253,11 +264,13 @@ def collabsresultpage() -> str:
 
     html += get_page_title(title='Collaborations related to these organizations')
     html += get_html_for_cardstart()
+    # A fragment of text to be reused. Escape organization names for safety, since
+    # they will be included in the HTML of the webpage that is being generated.
+    start_collab_html = '"' + str(escape(start_orgs)) + '" and '
+    start_collab_html += 'any organization.' if collab_orgs == '' else '"' + str(escape(collab_orgs)) + '"'
     if collab_mode == 'return_collab_sankey':
-        header = 'This Sankey diagram shows the '
-        header += 'collaborations between "'
-        header += start_orgs + '" and '
-        header += 'any organization.' if collab_orgs == '' else '"' + collab_orgs + '".'
+        header = 'This Sankey diagram shows the collaborations between '
+        header += start_collab_html + '. '
         if collab_orgs == '':
             result_html = org_collaborations_diagram(start_organizations=start_orgs,
                                                      collab_organizations=collab_orgs,
@@ -288,20 +301,17 @@ def collabsresultpage() -> str:
     else:
         header = 'This table shows the '
         if collab_mode == 'return_research_results':
-            header += 'research results that originate from the collaborations between "'
-            header += start_orgs + '" and '
-            header += 'any organization.' if collab_orgs == '' else '"' + collab_orgs + '".'
+            header += 'research results that originate from the collaborations between '
+            header += start_collab_html + '. '
             what = 'research results'
         elif collab_mode == 'return_startorg_persons':
-            header += 'persons that are participating in the collaborations between "'
-            header += start_orgs + '" and '
-            header += 'any organization' if collab_orgs == '' else '"' + collab_orgs + '"'
+            header += 'persons that are participating in the collaborations between '
+            header += start_collab_html
             header += ', they are member of the first organization.'
             what = 'collaborations'
         else:
-            header += 'persons that are participating in the collaborations between "'
-            header += start_orgs + '" and '
-            header += 'any organization' if collab_orgs == '' else '"' + collab_orgs + '"'
+            header += 'persons that are participating in the collaborations between '
+            header += start_collab_html
             header += ', they are member of the latter organization(s).'
             what = 'collaborations'
         if len(category_list) == 0:

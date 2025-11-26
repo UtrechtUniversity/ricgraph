@@ -43,7 +43,7 @@
 
 
 from pandas import DataFrame
-from typing import Union
+from typing import Union, Optional
 from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
 from .ricgraph_constants import A_LARGE_NUMBER
@@ -55,7 +55,10 @@ from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
 
 
 # The graph.
-_graph = None
+# Global for connection to Memcached.
+# Type hint necessary to avoid PyCharm warning.
+_graph: Optional[Driver] = None
+
 _GRAPHDB = ''
 _GRAPHDB_DATABASENAME = ''
 
@@ -525,23 +528,13 @@ def cypher_find_nodes(name: str, category: str, value: str,
         cypher_query += 'LIMIT $max_nr_nodes '
     # print(cypher_query)
 
-    if value != '':
-        # Value may contain special characters.
-        nodes = _graph.execute_query(cypher_query,
-                                     node_name=name,
-                                     node_category=category,
-                                     node_value=value,
-                                     max_nr_nodes=max_nr_nodes,
-                                     result_transformer_=Result.value,
-                                     database_=ricgraph_databasename())
-    else:
-        nodes = _graph.execute_query(cypher_query,
-                                     node_name=name,
-                                     node_category=category,
-                                     max_nr_nodes=max_nr_nodes,
-                                     result_transformer_=Result.value,
-                                     database_=ricgraph_databasename())
-
+    nodes = _graph.execute_query(cypher_query,
+                                 node_name=name,
+                                 node_category=category,
+                                 node_value=value,
+                                 max_nr_nodes=max_nr_nodes,
+                                 result_transformer_=Result.value,
+                                 database_=ricgraph_databasename())
     nr_nodes = len(nodes)
     # Unsure what to count here, this seems reasonable. '+ 1' for first node.
     _graphdb_nr_reads += nr_nodes + 1
@@ -1006,10 +999,10 @@ def get_all_neighbor_nodes(node: Node,
 
 
 def get_all_neighbor_nodes_loop(node: Node,
-                                name_want: Union[str, list] = '',
-                                name_dontwant: Union[str, list] = '',
-                                category_want: Union[str, list] = '',
-                                category_dontwant: Union[str, list] = '',
+                                name_want: list,
+                                name_dontwant: list,
+                                category_want: list,
+                                category_dontwant: list,
                                 max_nr_neighbor_nodes: int = 0) -> list:
     """Get all the neighbors of 'node' in a list.
     You can restrict the nodes returned by specifying one or more of the
@@ -1017,30 +1010,22 @@ def get_all_neighbor_nodes_loop(node: Node,
 
     This is the same function as get_all_neighbor_nodes() but it is much slower
     since it uses a loop. We need this in case
-    len(name_dontwant_list) > 0 and len(category_dontwant_list) > 0.
+    len(name_dontwant) > 0 and len(category_dontwant) > 0.
+
+    For this function, well-formed parameter lists are expected for
+    name_* and category_* params. This is sensible, since the only place
+    this function is called from is get_all_neighbor_nodes() that creates
+    these well-formed parameters.
 
     :param node: the node we need neighbors from.
-    :param name_want: either a string which indicates that we only want neighbor
-      nodes where the property 'name' is equal to 'name_want'
-      (e.g. 'ORCID'),
-      or a list containing several node names, indicating
-      that we want all neighbor nodes where the property 'name' equals
-      one of the names in the list 'name_want'
-      (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
-      If empty (empty string), return all nodes.
-    :param name_dontwant: similar, but for property 'name' and nodes we don't want.
-      If empty (empty string), all nodes are 'wanted'.
-    :param category_want: similar to 'name_want', but now for the property 'category'.
-    :param category_dontwant: similar, but for property 'category' and nodes we don't want.
+    :param name_want: as in get_all_neighbor_nodes().
+    :param name_dontwant: as in get_all_neighbor_nodes().
+    :param category_want: as in get_all_neighbor_nodes().
+    :param category_dontwant: as in get_all_neighbor_nodes().
     :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :return: the list of neighboring nodes satisfying all these criteria.
     """
-    global _graph
     global _graphdb_nr_reads
-
-    if _graph is None:
-        print('\nget_all_neighbor_nodes_loop(): Error: graph has not been initialized or opened.\n\n')
-        return []
 
     if node is None:
         return []
@@ -1048,39 +1033,6 @@ def get_all_neighbor_nodes_loop(node: Node,
     candidate_neighbor_nodes = get_all_neighbor_nodes(node=node)
     if len(candidate_neighbor_nodes) == 0:
         return []
-
-    # If 'name_want' etc. are strings, convert them to lists.
-    if isinstance(name_want, str):
-        if name_want == '':
-            name_want_list = []
-        else:
-            name_want_list = [name_want]
-    else:
-        name_want_list = name_want
-
-    if isinstance(name_dontwant, str):
-        if name_dontwant == '':
-            name_dontwant_list = []
-        else:
-            name_dontwant_list = [name_dontwant]
-    else:
-        name_dontwant_list = name_dontwant
-
-    if isinstance(category_want, str):
-        if category_want == '':
-            category_want_list = []
-        else:
-            category_want_list = [category_want]
-    else:
-        category_want_list = category_want
-
-    if isinstance(category_dontwant, str):
-        if category_dontwant == '':
-            category_dontwant_list = []
-        else:
-            category_dontwant_list = [category_dontwant]
-    else:
-        category_dontwant_list = category_dontwant
 
     count = 0
     all_nodes = A_LARGE_NUMBER
@@ -1092,24 +1044,23 @@ def get_all_neighbor_nodes_loop(node: Node,
             break
         if node == neighbor:
             continue
-        if neighbor['name'] in name_dontwant_list:
+        if neighbor['name'] in name_dontwant:
             continue
-        if neighbor['category'] in category_dontwant_list:
+        if neighbor['category'] in category_dontwant:
             continue
         if len(name_want) == 0 and len(category_want) == 0:
             neighbor_nodes.append(neighbor)
             count += 1
             continue
-        if neighbor['name'] in name_want_list \
-                and neighbor['category'] in category_want_list:
+        if neighbor['name'] in name_want and neighbor['category'] in category_want:
             neighbor_nodes.append(neighbor)
             count += 1
             continue
-        if neighbor['name'] in name_want_list and len(category_want_list) == 0:
+        if neighbor['name'] in name_want and len(category_want) == 0:
             neighbor_nodes.append(neighbor)
             count += 1
             continue
-        if len(name_want_list) == 0 and neighbor['category'] in category_want_list:
+        if len(name_want) == 0 and neighbor['category'] in category_want:
             neighbor_nodes.append(neighbor)
             count += 1
             continue
