@@ -23,7 +23,7 @@ Read my recent preprint:
 
 * Rik D.T. Janssen (2025).
   *Utilizing Ricgraph to gain insights into research collaborations across institutions,
-  at every organizational level*. Submitted to SoftwareX [preprint].
+  at every organizational level*. [preprint].
   [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
 
 See Ricgraph in action:

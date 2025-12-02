@@ -9,7 +9,7 @@ There are several places where you can start reading about Ricgraph:
 * We also have an article about collaborations and Ricgraph:
   Rik D.T. Janssen (2025).
   *Utilizing Ricgraph to gain insights into research collaborations across institutions,
-  at every organizational level*. Submitted to SoftwareX [preprint].
+  at every organizational level*. [preprint].
   [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
 * You can read the general presentation about Ricgraph, presenting Ricgraph in
   a visual   manner:
