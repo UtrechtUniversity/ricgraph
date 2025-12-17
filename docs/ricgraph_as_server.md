@@ -695,17 +695,49 @@ Read the first few lines of file
 ### Post-install steps AWStats with Nginx
 
 * Login as user *root*.
-* Add the following line at the end of /etc/crontab:
-  ```
-  5 * * * * root (date; /usr/lib/cgi-bin/awstats.pl -config=ricgraph -update; /usr/share/awstats/tools/awstats_buildstaticpages.pl -config=ricgraph -awstatsprog=/usr/lib/cgi-bin/awstats.pl -dir=/var/www/html/awstats ) >> /var/log/cron-awstats.log 2>&1
-  ```
-  However, for OpenSUSE or Tumbleweed do (note the difference in path):
-  ```
-  5 * * * * root (date; /usr/lib/cgi-bin/awstats.pl -config=ricgraph -update; /usr/share/awstats/tools/awstats_buildstaticpages.pl -config=ricgraph -awstatsprog=/usr/lib/cgi-bin/awstats.pl -dir=/srv/www/htdocs/awstats ) >> /var/log/cron-awstats.log 2>&1
-  ```
-* Note that AWStats also has a cron job in file
-  */etc/cron.d/awstats* that comes with the installation of AWStats.
-  We do not use the results it produces (but we let it run).
+* The AWStats cron job in file
+  */etc/cron.d/awstats* (that comes with the installation of AWStats)
+  generates the statistics from the logfiles of your webserver.
+  These statistics will be saved in directory */var/lib/awstats*.
+* You can choose whether you would like to have static web pages
+  showing the AWStats statistics, or dynamic webpages.
+  * Static webpages: you will need to add a line to */etc/crontab* to create
+    these webpages.
+  
+    Add the following line at the end of */etc/crontab*
+    (change the frequency or timing as desired):
+    ```
+    5 * * * * root (date; /usr/share/awstats/tools/awstats_buildstaticpages.pl -config=ricgraph -awstatsprog=/usr/lib/cgi-bin/awstats.pl -dir=/var/www/html/awstats ) >> /var/log/cron-awstats.log 2>&1
+    ```
+    However, for OpenSUSE or Tumbleweed do (note the difference in path):
+    ```
+    5 * * * * root (date; /usr/share/awstats/tools/awstats_buildstaticpages.pl -config=ricgraph -awstatsprog=/usr/lib/cgi-bin/awstats.pl -dir=/srv/www/htdocs/awstats ) >> /var/log/cron-awstats.log 2>&1
+    ```
+    
+    Note that static pages do not generate monthly reports (dynamic pages will do).
+    You may need to use
+    a script like the following to create them (and you might need to run it 
+    as root since it accesses files in the webserver log dir):
+    ```
+    #!/bin/bash
+    CONFIG="ricgraph"
+    YEAR=2025                       # Adapt for the year.
+    OUTPUT_DIR=awstats_output       # The output directory.
+    
+    echo "You might need to run this script as root."
+    for MONTH in $(seq -w 1 12); do
+      echo "Generating report for $YEAR-$MONTH..."
+      BUILD_DATE="${YEAR}-${MONTH}"
+      perl "/usr/share/awstats/tools/awstats_buildstaticpages.pl" -config="$CONFIG" -update -month="$MONTH" -year="$YEAR" -awstatsprog="/usr/lib/cgi-bin/awstats.pl" -dir="$OUTPUT_DIR" -builddate="$BUILD_DATE"
+    done
+    
+    # The following to your user & group may be necessary.
+    # chown [user]:[group] ${OUTPUT_DIR}/*
+    echo "All monthly reports generated."
+    ```
+  * Dynamic webpages: you will need to use CGI, so you will need to install CGI.
+    [At some moment in time this should be explained.]
+    You will not need to add a line to */etc/crontab*.
 * Exit from user *root*.
 * You can only access AWStats on the server you have installed it
   on. Go to [http://localhost:8070](http://localhost:8070).
