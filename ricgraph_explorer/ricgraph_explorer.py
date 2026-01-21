@@ -58,7 +58,8 @@ from neo4j.graph import Node
 from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       nodes_cache_key_id_type_size,
                       read_all_nodes,
-                      get_personroot_node, get_all_neighbor_nodes)
+                      get_personroot_node, get_all_neighbor_nodes,
+                      ROTYPE_PUBLICATION, ROTYPE_PUBLICATION_ALL)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          page_footer_wsgi, page_footer_development,
                                          button_style, button_width,
@@ -809,7 +810,9 @@ def create_options_page(node: Node,
 
         html += '<br/>'
         label_text = 'By entering a value in the field below, '
-        label_text += 'you will get a list of persons who share a specific research result type with this person:'
+        label_text += 'you will get a list of persons who share a specific research result type with this person '
+        label_text += '(you can also type <em>' + ROTYPE_PUBLICATION_ALL
+        label_text += '</em> to match any publication research result):'
         input_spec = ('list', 'category_list', 'resout_types_all_datalist', resout_types_all_datalist)
         html += create_html_form(destination='resultspage',
                                  button_text='find persons that share a specific research result type with this person',
@@ -921,6 +924,9 @@ def create_results_page(view_mode: str,
         name_list = []
     if category_list is None:
         category_list = []
+    if len(category_list) == 1 and category_list[0] == ROTYPE_PUBLICATION_ALL:
+        # Special case: return all publication type research results.
+        category_list = ROTYPE_PUBLICATION.copy()
     if extra_url_parameters is None:
         extra_url_parameters = {}
 

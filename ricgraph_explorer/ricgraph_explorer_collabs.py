@@ -44,7 +44,7 @@ from urllib.parse import urlencode
 from flask import Blueprint, url_for
 from markupsafe import escape
 
-from ricgraph import ROTYPE_PUBLICATION
+from ricgraph import ROTYPE_PUBLICATION, ROTYPE_PUBLICATION_ALL
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          button_style, button_width,
                                          DISCOVERER_MODE_ALL,
@@ -145,7 +145,8 @@ def collabspage() -> str:
     form += '<label for="category_list">Restrict the collaborations to research results '
     form += 'of a specific <em>category</em> '
     form += '(or leave it empty to match research results of any category, or type '
-    form += '<em>publication_all</em> to match any publication research result):</label>'
+    form += '<em>' + ROTYPE_PUBLICATION_ALL + '</em> '
+    form += 'to match any publication research result):</label>'
     form += '<input id="category_list" class="w3-input w3-border" list="resout_types_all_datalist"'
     form += 'name=category_list autocomplete=off>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
@@ -235,7 +236,7 @@ def collabsresultpage() -> str:
     start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
     collab_orgs = get_url_parameter_value(parameter='collab_orgs', use_escape=False)
     category_list = get_url_parameter_list(parameter='category_list')
-    if len(category_list) == 1 and category_list[0] == 'publication_all':
+    if len(category_list) == 1 and category_list[0] == ROTYPE_PUBLICATION_ALL:
         # Special case: return all publication type research results.
         category_list = ROTYPE_PUBLICATION.copy()
     collab_mode = get_url_parameter_value(parameter='collab_mode')

@@ -139,6 +139,12 @@ ROTYPE_SOFTWARE = 'software'
 ROTYPE_THESIS = 'thesis'
 ROTYPE_WEBSITE = 'website or web publication'
 
+# ########################################################################
+# This is a special research output type allowing to select all publication
+# types.
+ROTYPE_PUBLICATION_ALL = 'publication_all'
+
+
 ROTYPE_ALL = [ROTYPE_ABSTRACT,
               ROTYPE_ARTEFACT,
               ROTYPE_BOOK,

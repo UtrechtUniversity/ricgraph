@@ -45,7 +45,7 @@ from typing import Union
 from connexion import FlaskApp
 from ricgraph import (open_ricgraph, read_all_values_of_property,
                       memcached_open_connection, nodes_cache_key_id_type_size,
-                      ROTYPE_ALL, ROTYPE_PUBLICATION,
+                      ROTYPE_ALL, ROTYPE_PUBLICATION, ROTYPE_PUBLICATION_ALL,
                       get_ricgraph_ini_file,
                       get_configfile_key,
                       get_configfile_key_organizations_with_hierarchies)
@@ -224,11 +224,16 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     # I.e., those have been harvested from the source systems that you chose to harvest.
     resout_types_all = []
     resout_types_all_datalist = '<datalist id="resout_types_all_datalist">'
+    # Add the meta type representing all publications, as first item.
+    # This only happens in the list of items that you can choose from
+    # in a text entry field. You will need to catch it further on in the code.
+    resout_types_all_datalist += '<option value="' + ROTYPE_PUBLICATION_ALL + '">'
     # These are elements of ROTYPE_PUBLICATION that are present in your Ricgraph.
     # I.e., those have been harvested from the source systems that you chose to harvest.
     resout_types_pub = []
     resout_types_pub_datalist = '<datalist id="resout_types_pub_datalist">'
-    # Since 'category_all' is sorted, all vars derived from it will be sorted too.
+    # Since 'category_all' is sorted, all vars derived from it will be sorted too,
+    # except for resout_types_all_datalist.
     for property_item in category_all:
         if property_item in ROTYPE_ALL:
             resout_types_all.append(property_item)
