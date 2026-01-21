@@ -130,11 +130,9 @@ def find_person_share_resouts(parent_node: Node,
         message += 'with other persons.'
         return html + get_message(message=message)
 
-    if len(category_want_list) == 1:
-        table_header = 'This person shares research result type "' + category_want_list[0] + '" '
-    else:
-        table_header = 'This person shares various research result types '
-    table_header += 'with these persons:'
+    table_header = 'This person shares research results with the following persons '
+    table_header += 'for these categories: '
+    table_header += str(category_want_list) + '.'
     html += get_regular_table(nodes_list=connected_persons,
                               table_header=table_header,
                               table_columns=table_columns,
