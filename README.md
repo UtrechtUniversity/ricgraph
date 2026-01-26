@@ -59,9 +59,24 @@ it to the application area research information.
 
 ## Ricgraph introduction videos
 
-| Use cases video Ricgraph (1'30") | Introduction video Ricgraph with use cases (2'28")                                     |
-|-----|----------------------------------------------------------------------------------------|
-| <video src="docs/videos/ricgraph_usecases.mp4" controls></video> | <video src="docs/videos/ricgraph_intro_usecases.mp4" controls></video> |
+You may want to watch the following videos about Ricgraph. The left one is a
+short video, only including the Ricgraph use cases. The right one is a more
+extensive one (also including the use cases).
+
+<table>
+  <tr>
+    <td style="width:50%;">Ricgraph use cases video (1m30s)</td>
+    <td style="width:50%;">Ricgraph introduction video including use cases (2m28s)</td>
+  </tr>
+  <tr>
+    <td><video src="docs/videos/ricgraph_usecases.mp4" controls width="90%">Ricgraph use cases video (1m30s)</video></td>
+    <td><video src="docs/videos/ricgraph_intro_usecases.mp4" controls width="90%">Ricgraph introduction video including use cases (2m28s)</video></td>
+  </tr>
+  <tr>
+   <td>[Click to play or download this video](docs/videos/ricgraph_usecases.mp4)</td>
+   <td>[Click to play or download this video](docs/videos/ricgraph_intro_usecases.mp4)</td>
+  </tr>
+</table>
 
 ## Ricgraph news
 

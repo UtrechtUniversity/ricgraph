@@ -17,6 +17,27 @@ adapted to new application areas.
 Throughout this documentation, we illustrate how Ricgraph works by applying
 it to the application area research information.
 
+## Ricgraph videos
+
+You may want to watch the following videos about Ricgraph. The left one is a
+short video, only including the Ricgraph use cases. The right one is a more
+extensive one (also including the use cases).
+
+<table>
+  <tr>
+    <td style="width:50%;">Ricgraph use cases video (1m30s)</td>
+    <td style="width:50%;">Ricgraph introduction video including use cases (2m28s)</td>
+  </tr>
+  <tr>
+    <td><video src="videos/ricgraph_usecases.mp4" controls width="90%">Ricgraph use cases video (1m30s)</video></td>
+    <td><video src="videos/ricgraph_intro_usecases.mp4" controls width="90%">Ricgraph introduction video including use cases (2m28s)</video></td>
+  </tr>
+  <tr>
+   <td>[Click to play or download this video](videos/ricgraph_usecases.mp4)</td>
+   <td>[Click to play or download this video](videos/ricgraph_intro_usecases.mp4)</td>
+  </tr>
+</table>
+
 ## Ricgraph news
 
 Read my recent preprint:

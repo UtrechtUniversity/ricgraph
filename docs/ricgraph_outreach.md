@@ -3,6 +3,7 @@ This page contains the following sections:
 
 * [Ricgraph publications](#ricgraph-publications)
 * [Ricgraph presentations](#ricgraph-presentations)
+* [Ricgraph videos](#ricgraph-videos)
 * [Ricgraph newsletters](#ricgraph-newsletters)
 * [Ricgraph projects with students](#ricgraph-projects-with-students)
 * [Ricgraph use](#ricgraph-use)
@@ -55,6 +56,27 @@ If you give a presentation about Ricgraph, please let us know so that we can add
 | September 3, 2025  | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802)                                                                 | Presentation at University of Applied Sciences, Utrecht, NL                           | Ricgraph - Research in context graph (presentation consisted of excerpts of the presentations of February 14, 2024 and February 4, 2025)                                                                                                                              |
 | November 3, 2025   | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802)                                                                 | Presentation at Utrecht University, Utrecht, NL                                       | [Ricgraph - Research in context graph, introduction and developments](presentations/251103-RDTJanssen-Ricgraph_intro+dev_UU_Library_Publishing_Support+Research_Data_Services_presentation.pdf)                                                                       |
 | December 1, 2025   | [Rik D.T. Janssen](https://orcid.org/0000-0001-9510-0802)                                                                 | Presentation for Research Intelligence Network Netherlands, Amsterdam, NL             | [Utilizing Ricgraph to gain insights into research collaborations across institutions, at every organizational level](presentations/251201-RDTJanssen-Utilizing_Ricgraph_to_gain_insights_into_research_collaborations-RINN_presentation.pdf)                         | [DOI 10.5281/zenodo.17786559](https://doi.org/10.5281/zenodo.17786559) |
+
+## Ricgraph videos
+
+You may want to watch the following videos about Ricgraph. The left one is a
+short video, only including the Ricgraph use cases. The right one is a more
+extensive one (also including the use cases).
+
+<table>
+  <tr>
+    <td style="width:50%;">Ricgraph use cases video (1m30s)</td>
+    <td style="width:50%;">Ricgraph introduction video including use cases (2m28s)</td>
+  </tr>
+  <tr>
+    <td><video src="videos/ricgraph_usecases.mp4" controls width="90%">Ricgraph use cases video (1m30s)</video></td>
+    <td><video src="videos/ricgraph_intro_usecases.mp4" controls width="90%">Ricgraph introduction video including use cases (2m28s)</video></td>
+  </tr>
+  <tr>
+   <td>[Click to play or download this video](videos/ricgraph_usecases.mp4)</td>
+   <td>[Click to play or download this video](videos/ricgraph_intro_usecases.mp4)</td>
+  </tr>
+</table>
 
 ## Ricgraph newsletters
 

@@ -3,6 +3,7 @@ This table of contents has been generated automatically.
 
 - [Ricgraph - Research in context graph](../README.md#ricgraph---research-in-context-graph)
   - [What is Ricgraph?](../README.md#what-is-ricgraph)
+  - [Ricgraph introduction videos](../README.md#ricgraph-introduction-videos)
   - [Ricgraph news](../README.md#ricgraph-news)
   - [Motivation](../README.md#motivation)
     - [Use case for a journalist](../README.md#use-case-for-a-journalist)
@@ -88,6 +89,7 @@ This table of contents has been generated automatically.
   - [Install and start Memgraph](../docs/ricgraph_backend_memgraph.md#install-and-start-memgraph)
 - [Documentation Ricgraph - Research in context graph](../docs/ricgraph_documentation_intro.md#documentation-ricgraph---research-in-context-graph)
   - [What is Ricgraph?](../docs/ricgraph_documentation_intro.md#what-is-ricgraph)
+  - [Ricgraph videos](../docs/ricgraph_documentation_intro.md#ricgraph-videos)
   - [Ricgraph news](../docs/ricgraph_documentation_intro.md#ricgraph-news)
   - [What to find on the Documentation website for Ricgraph?](../docs/ricgraph_documentation_intro.md#what-to-find-on-the-documentation-website-for-ricgraph)
   - [Contact](../docs/ricgraph_documentation_intro.md#contact)
@@ -212,6 +214,7 @@ This table of contents has been generated automatically.
 - [Ricgraph outreach](../docs/ricgraph_outreach.md#ricgraph-outreach)
   - [Ricgraph publications](../docs/ricgraph_outreach.md#ricgraph-publications)
   - [Ricgraph presentations](../docs/ricgraph_outreach.md#ricgraph-presentations)
+  - [Ricgraph videos](../docs/ricgraph_outreach.md#ricgraph-videos)
   - [Ricgraph newsletters](../docs/ricgraph_outreach.md#ricgraph-newsletters)
   - [Ricgraph projects with students](../docs/ricgraph_outreach.md#ricgraph-projects-with-students)
   - [Ricgraph use](../docs/ricgraph_outreach.md#ricgraph-use)
