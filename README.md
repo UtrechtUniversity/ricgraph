@@ -57,6 +57,12 @@ adapted to new application areas.
 Throughout this documentation, we illustrate how Ricgraph works by applying
 it to the application area research information.
 
+## Ricgraph introduction videos
+
+| Use cases video Ricgraph (1'30") | Introduction video Ricgraph with use cases (2'28")                                     |
+|-----|----------------------------------------------------------------------------------------|
+| <video src="docs/videos/ricgraph_usecases.mp4" controls></video> | <video src="docs/videos/ricgraph_intro_usecases.mp4" controls></video> |
+
 ## Ricgraph news
 
 Read my recent preprint:
