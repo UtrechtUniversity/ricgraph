@@ -348,6 +348,8 @@ The following figure shows how three persons have contributed to one research ou
 
 * Explore the full documentation of Ricgraph on
   [https://docs.ricgraph.eu](https://docs.ricgraph.eu).
+* Play the [Ricgraph use cases video](docs/videos/ricgraph_usecases.mp4), or the
+  [Ricgraph introduction video](docs/videos/ricgraph_intro_usecases.mp4).
 * For a gentle introduction in Ricgraph, read the reference publication:
   Rik D.T. Janssen (2024). *Ricgraph: A flexible and extensible graph to explore research in
   context from various systems*. SoftwareX, 26(101736).

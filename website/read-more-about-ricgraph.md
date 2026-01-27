@@ -11,6 +11,8 @@ There are several places where you can start reading about Ricgraph:
   *Utilizing Ricgraph to gain insights into research collaborations across institutions,
   at every organizational level*. [preprint].
   [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
+* Play the [Ricgraph use cases video](docs/videos/ricgraph_usecases.mp4), or the
+  [Ricgraph introduction video](docs/videos/ricgraph_intro_usecases.mp4).
 * You can read the general presentation about Ricgraph, presenting Ricgraph in
   a visual   manner:
   [https://doi.org/10.5281/zenodo.12634234](https://doi.org/10.5281/zenodo.12634234).
