@@ -25,16 +25,22 @@ extensive one (also including the use cases).
 
 <table>
   <tr>
-    <td style="width:50%;">Ricgraph use cases video (1m30s)</td>
-    <td style="width:50%;">Ricgraph introduction video including use cases (2m28s)</td>
+    <td style="width:50%;"><b>Ricgraph use cases video (1m30s)</b></td>
+    <td style="width:50%;"><b>Ricgraph introduction video including use cases (2m28s)</b></td>
   </tr>
   <tr>
     <td><video src="videos/ricgraph_usecases.mp4" controls width="90%">Ricgraph use cases video (1m30s)</video></td>
     <td><video src="videos/ricgraph_intro_usecases.mp4" controls width="90%">Ricgraph introduction video including use cases (2m28s)</video></td>
   </tr>
   <tr>
-   <td>[Click to play or download this video](videos/ricgraph_usecases.mp4)</td>
-   <td>[Click to play or download this video](videos/ricgraph_intro_usecases.mp4)</td>
+   <td>
+     <a href="https://docs.ricgraph.eu/docs/videos/ricgraph_usecases.mp4" target="_blank">
+     Click to play or download the use Ricgraph cases video</a>.
+   </td>
+   <td>
+     <a href="https://docs.ricgraph.eu/docs/videos/ricgraph_intro_usecases.mp4" target="_blank">
+     Click to play or download the Ricgraph introduction video</a>.
+   </td>
   </tr>
 </table>
 
