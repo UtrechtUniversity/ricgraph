@@ -460,10 +460,11 @@ and Ricgraph data to the outside world.*
   It has been enabled and started in section 
   [Use a service unit file...](#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api).
   *Memcached* has been installed, enabled and started in that same section.
-* Enable two Apache modules (they have already been installed when you installed Apache):
+* Enable three Apache modules (they have already been installed when you installed Apache):
   ```
   a2enmod mod_proxy
   a2enmod mod_proxy_http
+  a2enmod headers
   ```
 * Install the Apache *Ricgraph Explorer* configuration file:
   copy file

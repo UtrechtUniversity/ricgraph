@@ -556,6 +556,7 @@ ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && ec
 	chmod 600 $(apache_vhosts_dir)/ricgraph_explorer.conf-apache
 	a2enmod mod_proxy
 	a2enmod mod_proxy_http
+	a2enmod headers
 	@if [ ! -d /etc/letsencrypt ]; then $(package_install_cmd) $(certbot) certbot-systemd-timer python3-certbot-apache; fi
 	@echo ""
 	@echo "Done."

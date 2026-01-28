@@ -339,10 +339,18 @@ SoftwareX, 26(101736). https://doi.org/10.1016/j.softx.2024.101736.
 '''
 
 # Header files to load Observable's D3, https://d3js.org.
-d3_headers =  '<script src="https://d3js.org/d3.v7.min.js"></script>'
-d3_headers += '<script src="https://d3js.org/d3-chord.v3.min.js"></script>'
-d3_headers += '<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>'
-d3_headers += '<script src="https://cdn.jsdelivr.net/npm/d3-sankey/dist/d3-sankey.min.js"></script>'
+# We also need d3.v7.min.js, but that one is already included in html_body_end above.
+# d3.v7.min.js is the same file as d3.min.js.
+# Unfortunately, it is included too late (in body_end), so we include it again.
+# d3_headers =  '<script src="https://d3js.org/d3.v7.min.js"></script>'
+d3_headers =  '<script src="/static/d3.min.js"></script>'
+# Instead of downloading, we use the local files in /static.
+# d3_headers = '<script src="https://d3js.org/d3-chord.v3.min.js"></script>'
+d3_headers += '<script src="/static/d3-chord.v3.min.js"></script>'
+# d3_headers += '<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>'
+d3_headers += '<script src="/static/d3-scale-chromatic.v1.min.js"></script>'
+# d3_headers += '<script src="https://cdn.jsdelivr.net/npm/d3-sankey/dist/d3-sankey.min.js"></script>'
+d3_headers += '<script src="/static/d3-sankey.min.js"></script>'
 
 # Style for the tooltip of the Sankey & Chord diagram.
 diagram_tooltip_style = 'style="position:absolute; pointer-events:auto; background:#fff; '

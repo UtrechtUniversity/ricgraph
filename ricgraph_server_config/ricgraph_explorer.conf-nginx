@@ -93,6 +93,17 @@ server {
         alias /opt/ricgraph_venv/ricgraph_explorer/static/;
     }
 
+    # Security headers.
+    server_tokens off;
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header Cross-Origin-Opener-Policy "same-origin" always;
+    add_header Cross-Origin-Resource-Policy "same-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; base-uri 'self'; form-action 'self'; frame-ancestors 'none';" always;
+    # End of Security headers.
+
     # The hostname (127.0.0.1) and port (3030) below correspond to the
     # hostname and port where Gunicorn is running. These parameters
     # are set in file 'ricgraph_explorer_gunicorn.service'.
