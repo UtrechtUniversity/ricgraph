@@ -147,8 +147,15 @@ endif
 
 # Determine which package install command to use, and subsequently which package names to use.
 # We need a package manager that can install 'rpm' or 'deb' files (for Neo4j Community Edition).
-ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
-	# E.g. for OpenSUSE Leap & Tumbleweed, Fedora.
+ifeq ($(shell which dnf > /dev/null 2>&1 && echo $$?),0)
+	# E.g. for Fedora. It both has rpm and dnf. So Fedora must be tested for first. We need dnf.
+	package_install_cmd := dnf install -y
+	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
+	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
+
+	memcached_packages := memcached libmemcached
+else ifeq ($(shell which rpm > /dev/null 2>&1 && echo $$?),0)
+	# E.g. for OpenSUSE Leap & Tumbleweed.
 	package_install_cmd := zypper --non-interactive install --allow-unsigned-rpm
 	neo4j_community_path := $(neo4j_download)/rpm/neo4j-$(neo4j_community_version)-1.noarch.rpm
 	neo4j_cyphershell_path := $(neo4j_download)/cypher-shell/cypher-shell-$(neo4j_community_version)-1.noarch.rpm
