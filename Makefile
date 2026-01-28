@@ -1015,6 +1015,7 @@ define install_ricgraph
 	@if [ "$(2)" = "server" ]; then \
 		chown -R ricgraph:ricgraph $(dir $(1)); \
 		chmod -R go-w $(dir $(1)); \
+		chmod 600 $(dir $(1))/ricgraph.ini; \
 	fi
 	@echo ""
 	@echo "Done."
