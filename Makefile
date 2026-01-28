@@ -1013,9 +1013,9 @@ define install_ricgraph
 		sed -i 's/^#graphdb_port = 7687/graphdb_port = 7687/' $(1)/ricgraph.ini; \
 	fi
 	@if [ "$(2)" = "server" ]; then \
-		chown -R ricgraph:ricgraph $(dir $(1)); \
-		chmod -R go-w $(dir $(1)); \
-		chmod 600 $(dir $(1))/ricgraph.ini; \
+		chown -R ricgraph:ricgraph $(1); \
+		chmod -R go-w $(1); \
+		chmod 600 $(1)/ricgraph.ini; \
 	fi
 	@echo ""
 	@echo "Done."
