@@ -191,6 +191,11 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
                 # There must be an id, otherwise skip.
                 continue
 
+            if authors['author']['id'] is None:
+                # Weirdly, OpenAlex sometimes has authors
+                # without an OpenAlex id. Skip them.
+                continue
+
             path = pathlib.PurePath(authors['author']['id'])
             openalex_id = str(path.name)
 
