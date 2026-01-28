@@ -321,7 +321,7 @@ html_body_end += '</html>'
 
 
 # ########################################################################
-# Constants for Chord and Sankey diagrams.
+# Constants for histograms, Chord and Sankey diagrams.
 # ########################################################################
 ricgraph_reference = '''
 <!-- This diagram was produced using Ricgraph, also known as
@@ -336,14 +336,14 @@ SoftwareX, 26(101736). https://doi.org/10.1016/j.softx.2024.101736.
 
 # Required for the Observable D3 and Observable Plot framework for data visualization,
 # https://d3js.org and https://observablehq.com/plot.
-# Sources:
+# For the histograms. Sources:
 # https://d3js.org/d3.v7.min.js
 # https://observablehq.com/plot/plot.min.js
 observable_plot = '<script src="/static/d3.v7.min.js"></script>'
 observable_plot += '<script src="/static/plot.v0.6.17.min.js"></script>'
 
 # Required for Observable D3 framework, https://d3js.org.
-# Sources:
+# For the Sankey and Chord diagrams. Sources:
 # https://d3js.org/d3.v7.min.js
 # https://d3js.org/d3-chord.v3.min.js
 # https://d3js.org/d3-scale-chromatic.v1.min.js
