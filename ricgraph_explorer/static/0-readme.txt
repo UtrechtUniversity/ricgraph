@@ -30,22 +30,22 @@ Date copied: December 1, 2023
 Changes: changed color from black to UU yellow (#ffcd00)
 
 
-Required for the Observable D3 and Observable Plot framework for data visualization,
-  https://d3js.org and https://observablehq.com/plot.
-Files: d3.min.js and plot.min.js
-From: https://observablehq.com/plot/getting-started
-Date copied: May 1, 2024
-Changes: none
-Note: These are the minified files, for the original files see the link.
-
-Required for Sankey and Chord diagrams.
-Files: d3-chord.v3.min.js, d3-scale-chromatic.v1.min.js,
-       d3-sankey.min.js
-       and d3.min.js as above.
-From: https://d3js.org/d3-chord.v3.min.js
+Required for the Observable D3 and Observable Plot framework for 
+  data visualization, such as histograms, Sankey, and Chord diagrams.
+  Note that some files have been renamed to include their version.
+Links: https://d3js.org and https://observablehq.com/plot.
+From: https://d3js.org/d3.v7.min.js
+      https://observablehq.com/plot/plot.min.js
+      https://d3js.org/d3-chord.v3.min.js
       https://d3js.org/d3-scale-chromatic.v1.min.js
       https://cdn.jsdelivr.net/npm/d3-sankey/dist/d3-sankey.min.js
+Files: d3.v7.min.js
+       plot.v0.6.17.min.js
+       d3-chord.v3.min.js
+       d3-scale-chromatic.v1.min.js
+       d3-sankey.v0.12.3.min.js
 Date downloaded: January 28, 2026.
+Note: These are the minified files, for the original files see the link.
 Changes: none
 
 

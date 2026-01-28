@@ -316,10 +316,6 @@ html_body_start += page_header
 # The last part of the HTML page, from page_footer (not included) to script inclusion.
 # ########################################################################
 html_body_end = '<script src="/static/ricgraph_sorttable.js"></script>'
-# Required for the Observable D3 and Observable Plot framework for data visualization,
-# https://d3js.org and https://observablehq.com/plot.
-html_body_end += '<script src="/static/d3.min.js"></script>'
-html_body_end += '<script src="/static/plot.min.js"></script>'
 html_body_end += '</body>'
 html_body_end += '</html>'
 
@@ -338,19 +334,24 @@ SoftwareX, 26(101736). https://doi.org/10.1016/j.softx.2024.101736.
 -->
 '''
 
-# Header files to load Observable's D3, https://d3js.org.
-# We also need d3.v7.min.js, but that one is already included in html_body_end above.
-# d3.v7.min.js is the same file as d3.min.js.
-# Unfortunately, it is included too late (in body_end), so we include it again.
-# d3_headers =  '<script src="https://d3js.org/d3.v7.min.js"></script>'
-d3_headers =  '<script src="/static/d3.min.js"></script>'
-# Instead of downloading, we use the local files in /static.
-# d3_headers = '<script src="https://d3js.org/d3-chord.v3.min.js"></script>'
-d3_headers += '<script src="/static/d3-chord.v3.min.js"></script>'
-# d3_headers += '<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>'
-d3_headers += '<script src="/static/d3-scale-chromatic.v1.min.js"></script>'
-# d3_headers += '<script src="https://cdn.jsdelivr.net/npm/d3-sankey/dist/d3-sankey.min.js"></script>'
-d3_headers += '<script src="/static/d3-sankey.min.js"></script>'
+# Required for the Observable D3 and Observable Plot framework for data visualization,
+# https://d3js.org and https://observablehq.com/plot.
+# Sources:
+# https://d3js.org/d3.v7.min.js
+# https://observablehq.com/plot/plot.min.js
+observable_plot = '<script src="/static/d3.v7.min.js"></script>'
+observable_plot += '<script src="/static/plot.v0.6.17.min.js"></script>'
+
+# Required for Observable D3 framework, https://d3js.org.
+# Sources:
+# https://d3js.org/d3.v7.min.js
+# https://d3js.org/d3-chord.v3.min.js
+# https://d3js.org/d3-scale-chromatic.v1.min.js
+# https://cdn.jsdelivr.net/npm/d3-sankey/dist/d3-sankey.min.js
+observable_d3 = '<script src="/static/d3.v7.min.js"></script>'
+observable_d3 += '<script src="/static/d3-chord.v3.min.js"></script>'
+observable_d3 += '<script src="/static/d3-scale-chromatic.v1.min.js"></script>'
+observable_d3 += '<script src="/static/d3-sankey.v0.12.3.min.js"></script>'
 
 # Style for the tooltip of the Sankey & Chord diagram.
 diagram_tooltip_style = 'style="position:absolute; pointer-events:auto; background:#fff; '

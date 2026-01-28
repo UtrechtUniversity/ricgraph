@@ -56,7 +56,7 @@ from ricgraph import (datetimestamp, create_unique_string,
                       convert_nodeslist_to_dataframe,
                       write_text_to_file, write_dataframe_to_csv)
 from ricgraph_explorer_constants import (ricgraph_reference, diagram_tooltip_style,
-                                         d3_headers,
+                                         observable_plot, observable_d3,
                                          chord_space_for_labels,
                                          sankey_pixels_per_link,
                                          sankey_min_height, sankey_max_height)
@@ -114,7 +114,7 @@ def get_html_for_histogram(histogram_list: list,
                                                    histogram_width=histogram_width,
                                                    bar_label_threshold=bar_label_threshold,
                                                    plot_name=plot_name)
-    return html + javascript
+    return observable_plot + html + javascript
 
 
 # ########################################################################
@@ -153,7 +153,6 @@ def create_chord_diagram(df: DataFrame,
     stats = 'This diagram was created on ' + timestamp + '.'
 
     intro_html = f'''
-                 {d3_headers}
                  <div id="{svg_id}_diagram">
                  {ricgraph_reference}
                  <!-- This Chord diagram was created on {timestamp}. -->
@@ -186,7 +185,7 @@ def create_chord_diagram(df: DataFrame,
                                                  svg_id=svg_id,
                                                  figure_filename=figure_filename)
 
-    return intro_html + javascript + outro_html
+    return observable_d3 + intro_html + javascript + outro_html
 
 
 def create_sankey_diagram(df: DataFrame,
@@ -278,7 +277,6 @@ def create_sankey_diagram(df: DataFrame,
             total_connections = int(total_connections / 2)
 
     intro_html = f'''
-                 {d3_headers}
                  <div id="{svg_id}_diagram">
                  {ricgraph_reference}
                  <figure style="margin:0px;">
@@ -314,7 +312,7 @@ def create_sankey_diagram(df: DataFrame,
                                                   svg_id=svg_id,
                                                   figure_filename=figure_filename)
 
-    return intro_html + javascript + outro_html
+    return observable_d3 + intro_html + javascript + outro_html
 
 
 # ########################################################################
