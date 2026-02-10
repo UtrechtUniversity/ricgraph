@@ -281,13 +281,16 @@ def convert_nodeslist_to_dataframe(nodes_list: list,
 def extract_organization_abbreviation(org_name: str) -> str:
     """This function extracts the organization abbreviation from an organization
     name. It is assumed that the organization name has an organization abbreviation,
-    it should be the first 2 or 3 characters.
+    it should be the first 2 to MAX_ORG_ABBREVIATION_LENGTH characters.
 
     :param org_name: the organization name.
     :return: uppercase version of the organization abbreviation.
     """
     org_abbr = org_name[:MAX_ORG_ABBREVIATION_LENGTH]
     org_abbr = org_abbr.rstrip()
+    if ' ' in org_abbr:
+        # Split at the first space character, keep everything before the space.
+        org_abbr = org_abbr.split(sep=' ', maxsplit=1)[0]
     return org_abbr.upper()
 
 
