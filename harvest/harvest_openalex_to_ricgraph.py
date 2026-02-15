@@ -54,6 +54,10 @@
 #           file.
 #           If this option is not present, the script will prompt the user
 #           what to do.
+#   --year_first <first year of harvest>
+#           Start the harvest from this year on.
+#   --year_last <last year of harvest>
+#           End the harvest at this year.
 #
 # ########################################################################
 
@@ -86,13 +90,11 @@ OPENALEX_HARVEST_FILENAME = 'openalex_harvest.json'
 
 # Set this to True to read data from the csv file. No harvest will be done, this would
 # not make sense. If False, a harvest will be done.
-# Make sure OPENALEX_RESOUT_YEARS has been set correctly.
 # If True, the value of OPENALEX_READ_HARVEST_FROM_FILE does not matter.
 OPENALEX_READ_DATA_FROM_FILE = False
 # OPENALEX_READ_DATA_FROM_FILE = True
 OPENALEX_DATA_FILENAME = 'openalex_data.csv'
 
-OPENALEX_RESOUT_YEARS = ['2022', '2023', '2024', '2025']
 # This number is the max recs to harvest per year, not total.
 OPENALEX_MAX_RECS_TO_HARVEST = 0                        # 0 = all records
 OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships'
@@ -429,6 +431,22 @@ if (organization := rcg.get_commandline_argument_organization(argument_list=sys.
     print('Exiting.\n')
     exit(1)
 
+print('')
+if (year_first := rcg.get_commandline_argument_year_first(argument_list=sys.argv)) == '':
+    print('Error: you did not specify a valid first year. Exiting.\n')
+    exit(1)
+
+if (year_last := rcg.get_commandline_argument_year_last(argument_list=sys.argv)) == '':
+    print('Error: you did not specify a valid last year. Exiting.\n')
+    exit(1)
+
+if int(year_first) > int(year_last):
+    print('Error: you did not specify a valid year range [' + year_first + ', ' + year_last + '].')
+    print('Exiting.\n')
+    exit(1)
+
+print('\nHarvesting first year: ' + year_first + ', last year: ' + year_last + '.')
+
 org_name = 'organization_name_' + organization
 org_ror = 'organization_ror_' + organization
 ORGANIZATION_NAME = rcg.get_configfile_key(section='Organization', key=org_name)
@@ -465,7 +483,8 @@ else:
 rcg.graphdb_nr_accesses_print()
 print(rcg.nodes_cache_key_id_type_size() + '\n')
 
-for year in OPENALEX_RESOUT_YEARS:
+for year_int in range(int(year_first), int(year_last) + 1):
+    year = str(year_int)
     data_file_year = OPENALEX_DATA_FILENAME.split('.')[0] \
                      + '-' + year + '-' + organization + '.' \
                      + OPENALEX_DATA_FILENAME.split('.')[1]

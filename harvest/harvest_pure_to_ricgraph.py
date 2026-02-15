@@ -66,6 +66,10 @@
 #           file.
 #           If this option is not present, the script will prompt the user
 #           what to do.
+#   --year_first <first year of harvest>
+#           Start the harvest from this year on.
+#   --year_last <last year of harvest>
+#           End the harvest at this year.
 #   --harvest_projects <yes|no>
 #           'yes': projects will be harvested.
 #           'no' (or any other answer): projects will not be harvested.
@@ -204,13 +208,6 @@ PURE_RESOUT_READ_DATA_FROM_FILE = False
 # PURE_RESOUT_READ_DATA_FROM_FILE = True
 PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
 
-global PURE_RESOUT_YEARS
-# The Pure READ API allows to specify years to harvest.
-# PURE_READ_RESOUT_YEARS = ['2021']
-PURE_READ_RESOUT_YEARS = ['2022', '2023', '2024', '2025']
-# The Pure CRUD API does not allow this. This might cause memory problems.
-# You might want to set PURE_RESOUT_MAX_RECS_TO_HARVEST.
-PURE_CRUD_RESOUT_YEARS = ['all']
 # For Pure READ API: this number is the max recs to harvest per year, not total
 # For Pure CRUD API: this number is the max recs to harvest total.
 PURE_RESOUT_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
@@ -461,15 +458,21 @@ def restructure_parse_projects(df: pandas.DataFrame) -> pandas.DataFrame:
     return df_mod
 
 
-def parse_pure_persons(harvest: list) -> pandas.DataFrame:
+def parse_pure_persons(harvest: list,
+                       year_start: str = '') -> pandas.DataFrame:
     """Parse the harvested persons from Pure.
 
     :param harvest: the harvest.
+    :param year_start: the first year that we would like to harvest.
     :return: the harvested persons in a DataFrame.
     """
+    if year_start == '':
+        print('parse_pure_persons(): Invalid value for "year_start" passed, exiting.')
+        exit(1)
+
     if PURE_API_VERSION == PURE_READ_API_VERSION:
         # We use the Pure READ API.
-        lowest_resout_year = int(min(PURE_RESOUT_YEARS)) - PURE_PERSONS_INCLUDE_YEARS_BEFORE
+        lowest_resout_year = int(year_start) - PURE_PERSONS_INCLUDE_YEARS_BEFORE
     else:
         lowest_resout_year = PURE_PERSONS_LOWEST_YEAR
 
@@ -1053,7 +1056,8 @@ def parse_pure_projects(harvest: list) -> pandas.DataFrame:
 
 def harvest_and_parse_pure_data(mode: str, endpoint: str,
                                 headers: dict, body: dict,
-                                harvest_filename: str) -> Union[pandas.DataFrame, None]:
+                                harvest_filename: str,
+                                year_start:str = '') -> Union[pandas.DataFrame, None]:
     """Harvest and parse data from Pure.
 
     :param mode: 'persons', 'organizations' or 'research outputs', to indicate what to harvest.
@@ -1061,6 +1065,8 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     :param headers: headers for Pure.
     :param body: the body of a POST request, or '' for a GET request.
     :param harvest_filename: filename to write harvest results to.
+    :param year_start: the first year that we would like to harvest.
+        Only relevant when parsing persons.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     if mode != 'persons' \
@@ -1101,7 +1107,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     harvest_data = rcg.read_json_from_file(filename=harvest_filename)
     parse = pandas.DataFrame()
     if mode == 'persons':
-        parse = parse_pure_persons(harvest=harvest_data)
+        parse = parse_pure_persons(harvest=harvest_data, year_start=year_start)
     elif mode == 'organizations':
         parse = parse_pure_organizations(harvest=harvest_data)
     elif mode == 'research outputs':
@@ -1376,13 +1382,13 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                            lambda row: create_urlother(type_id=row['name1'],
                                                        uuid_value=row['RESOUT_UUID']), axis=1)
     # Now replace all empty strings in column DOI for NaNs
-    # The next statement will result in a 'behaviour will change in pandas 3.0' warning.
+    # The next statement will result in a 'behavior will change in pandas 3.0' warning.
     # resout['DOI'].replace('', numpy.nan, inplace=True)
     resout['DOI'] = resout['DOI'].replace('', numpy.nan)
     # Then fill the column 'value1' with the value from column DOI, unless the value is NaN,
     # then fill with the value from column RESOUT_UUID.
     resout['value1'] = resout['DOI'].copy(deep=True)
-    # The next statement will result in a 'behaviour will change in pandas 3.0' warning.
+    # The next statement will result in a 'behavior will change in pandas 3.0' warning.
     # resout.value1.fillna(resout['RESOUT_UUID'], inplace=True)
     resout['RESOUT_UUID'] = resout.value1.fillna(resout['RESOUT_UUID'])
 
@@ -1419,7 +1425,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # find these while parsing research outputs, not while parsing persons.
     resout = parsed_content[['AUTHOR_UUID', 'FULL_NAME']].copy(deep=True)
     # Replace all empty strings in column FULL_NAME for NaNs
-    # The next statement will result in a 'behaviour will change in pandas 3.0' warning.
+    # The next statement will result in a 'behavior will change in pandas 3.0' warning.
     # resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
     resout['FULL_NAME'] = resout['FULL_NAME'].replace('', numpy.nan)
     resout.dropna(axis=0, how='any', inplace=True)
@@ -1679,6 +1685,22 @@ if (organization := rcg.get_commandline_argument_organization(argument_list=sys.
     print('Exiting.\n')
     exit(1)
 
+print('')
+if (year_first := rcg.get_commandline_argument_year_first(argument_list=sys.argv)) == '':
+    print('Error: you did not specify a valid first year. Exiting.\n')
+    exit(1)
+
+if (year_last := rcg.get_commandline_argument_year_last(argument_list=sys.argv)) == '':
+    print('Error: you did not specify a valid last year. Exiting.\n')
+    exit(1)
+
+if int(year_first) > int(year_last):
+    print('Error: you did not specify a valid year range [' + year_first + ', ' + year_last + '].')
+    print('Exiting.\n')
+    exit(1)
+
+print('\nHarvesting first year: ' + year_first + ', last year: ' + year_last + '.')
+
 if (harvest_projects := rcg.get_commandline_argument_harvest_projects(argument_list=sys.argv)) == 'yes':
     HARVEST_PROJECTS = True
 else:
@@ -1708,7 +1730,6 @@ if read_response.status_code == requests.codes.ok:
     PURE_PERSONS_ENDPOINT = PURE_READ_PERSONS_ENDPOINT
     PURE_ORGANIZATIONS_ENDPOINT = PURE_READ_ORGANIZATIONS_ENDPOINT
     PURE_RESOUT_ENDPOINT = PURE_READ_RESOUT_ENDPOINT
-    PURE_RESOUT_YEARS = PURE_READ_RESOUT_YEARS
     PURE_RESOUT_FIELDS = PURE_READ_RESOUT_FIELDS
     PURE_PROJECTS_ENDPOINT = PURE_READ_PROJECTS_ENDPOINT
 elif crud_response.status_code == requests.codes.ok:
@@ -1717,7 +1738,6 @@ elif crud_response.status_code == requests.codes.ok:
     PURE_PERSONS_ENDPOINT = PURE_CRUD_PERSONS_ENDPOINT
     PURE_ORGANIZATIONS_ENDPOINT = PURE_CRUD_ORGANIZATIONS_ENDPOINT
     PURE_RESOUT_ENDPOINT = PURE_CRUD_RESOUT_ENDPOINT
-    PURE_RESOUT_YEARS = PURE_CRUD_RESOUT_YEARS
     PURE_RESOUT_FIELDS = PURE_CRUD_RESOUT_FIELDS
     # No harvesting of projects with CRUD API.
 else:
@@ -1778,7 +1798,8 @@ if True:
                                                     endpoint=PURE_PERSONS_ENDPOINT,
                                                     headers=PURE_HEADERS,
                                                     body=PURE_PERSONS_FIELDS,
-                                                    harvest_filename=harvest_file)
+                                                    harvest_filename=harvest_file,
+                                                    year_start=year_first)
         rcg.write_dataframe_to_csv(filename=data_file, df=parse_persons)
 
     parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
@@ -1836,7 +1857,12 @@ if True:
 # Code for harvesting research outputs.
 # if False:
 if True:
-    for year in PURE_RESOUT_YEARS:
+    # Note that in 2023, the Pure CRUD API did not allow
+    # harvesting separate years. This might cause memory problems.
+    # You might want to set PURE_RESOUT_MAX_RECS_TO_HARVEST.
+    # The Pure READ API does allow to specify years to harvest.
+    for year_int in range(int(year_first), int(year_last) + 1):
+        year = str(year_int)
         data_file_year = PURE_RESOUT_DATA_FILENAME.split('.')[0] \
                          + '-' + year + '-' + organization + '.' \
                          + PURE_RESOUT_DATA_FILENAME.split('.')[1]
@@ -1848,8 +1874,6 @@ if True:
         else:
             error_message = 'There are no research outputs from ' + HARVEST_SOURCE
             error_message += ' for year ' + year + ' to harvest.\n'
-            print('Harvesting research outputs from ' + HARVEST_SOURCE + ' for year '
-                  + year + ' from file ' + data_file_year + '.')
             print('Harvesting research outputs from ' + HARVEST_SOURCE
                   + ' for year ' + year + '.')
             harvest_file_year = PURE_RESOUT_HARVEST_FILENAME.split('.')[0] \

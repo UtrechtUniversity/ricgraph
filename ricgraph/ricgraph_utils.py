@@ -553,6 +553,44 @@ def get_commandline_argument_filename(argument_list: list) -> str:
     return answer
 
 
+def get_commandline_argument_year_first(argument_list: list) -> str:
+    """Get the value of a command line argument '--year_first'.
+    Prompt if no argument is given.
+
+    :param argument_list: the argument list.
+    :return: the year as a str, or '' if no answer is given.
+    """
+    answer = get_commandline_argument(argument='--year_first',
+                                      argument_list=argument_list)
+    if answer == '':
+        answer = input('Please enter the first year from which you would like to harvest: ')
+        if answer == '':
+            return ''
+
+    if not answer.isdigit():
+        return ''
+    return answer
+
+
+def get_commandline_argument_year_last(argument_list: list) -> str:
+    """Get the value of a command line argument '--year_last'.
+    Prompt if no argument is given.
+
+    :param argument_list: the argument list.
+    :return: the year as a str, or '' if no answer is given.
+    """
+    answer = get_commandline_argument(argument='--year_last',
+                                      argument_list=argument_list)
+    if answer == '':
+        answer = input('Please enter the last year from which you would like to harvest: ')
+        if answer == '':
+            return ''
+
+    if not answer.isdigit():
+        return ''
+    return answer
+
+
 def get_configfile_key(section: str, key: str) -> str:
     """Get the value of a key in the Ricgraph config file.
 

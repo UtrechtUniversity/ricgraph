@@ -105,7 +105,7 @@ exit_on_error $?
 # Make sure neo4j is up and running.
 sleep 120
 
-./multiple_harvest_organization.sh --organization VUA --empty_ricgraph no
+./multiple_harvest_organization.sh --organization VUA --empty_ricgraph no --year_first 2022 --year_last 2025
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-uu+vu-$(date +%y%m%d-%H%M)
@@ -114,7 +114,7 @@ exit_on_error $?
 # Make sure neo4j is up and running.
 sleep 120
 
-./multiple_harvest_organization.sh --organization DUT --empty_ricgraph no
+./multiple_harvest_organization.sh --organization DUT --empty_ricgraph no --year_first 2022 --year_last 2025
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-uu+vu+dut-$(date +%y%m%d-%H%M)

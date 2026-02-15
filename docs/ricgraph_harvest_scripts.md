@@ -105,6 +105,10 @@ Options:
         -e, --empty_ricgraph [yes|no]
                 Whether to empty Ricgraph before harvesting the
                 first organization. If absent, Ricgraph will not be emptied.
+        -f, --year_first [year]
+                First year of the harvest.
+        -l, --year_last [year]
+                Last year of the harvest.
         -c, --python_cmd [python interpreter]
                 The python interpreter to use. If absent, and a python
                 virtual environment is used, that interpreter is used.
@@ -155,6 +159,10 @@ Options:
           file.
           If this option is not present, the script will prompt the user
           what to do.
+  --year_first <first year of harvest>
+          Start the harvest from this year on.
+  --year_last <last year of harvest>
+          End the harvest at this year.
 ```
 This script harvests OpenAlex Works, and by harvesting these
 Works, it also harvests OpenAlex Authors.
@@ -167,7 +175,7 @@ and *openalex_polite_pool_email* to be set in the
 There is a lot of data in OpenAlex, so your harvest may take a long time. You may
 reduce this by adjusting parameters at the start of the script. Look in the section
 "Parameters for harvesting persons and research outputs from OpenAlex":
-*OPENALEX_RESOUT_YEARS* and *OPENALEX_MAX_RECS_TO_HARVEST*.
+*OPENALEX_MAX_RECS_TO_HARVEST*.
 
 ### Harvest of Pure (harvest_pure_to_ricgraph)
 
@@ -194,6 +202,10 @@ Options:
           'no' (or any other answer): projects will not be harvested.
           If this option is not present, projects will not be harvested,
           the script will not prompt the user.
+  --year_first <first year of harvest>
+          Start the harvest from this year on.
+  --year_last <last year of harvest>
+          End the harvest at this year.
 ```
 With this script, you can harvest persons, organizations and research outputs.
 This script needs two parameters in the
@@ -206,9 +218,8 @@ Pure [API](https://en.wikipedia.org/wiki/API) key in *pure_api_key_XXXX*.
 There is a lot of data in Pure, so your harvest may take a long time. You may
 reduce this by adjusting parameters at the start of the script. Look in the sections
 "Parameters for harvesting persons/organizations/research outputs from Pure".
-E.g., for research outputs you can adjust
-the years to harvest with the parameter *PURE_RESOUT_YEARS* and the maximum number of
-records to harvest with *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
+E.g., for the maximum number of
+records to harvest you can adjust *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
 
 #### Pure READ and Pure CRUD API
 Pure has two APIs, a READ and a CRUD API.

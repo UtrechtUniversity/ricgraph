@@ -31,8 +31,8 @@
 
 
 harvest_pure() {
-  echo "Harvesting Pure for organization '$organization'."
-  PYTHONPATH=$python_path $python_cmd harvest_pure_to_ricgraph.py --empty_ricgraph "$empty_ricgraph" --organization "$organization" --harvest_projects no
+  echo "Harvesting Pure for organization '$organization', first year: '$year_first', last year: '$year_last'."
+  PYTHONPATH=$python_path $python_cmd harvest_pure_to_ricgraph.py --empty_ricgraph "$empty_ricgraph" --organization "$organization" --harvest_projects no --year_first "$year_first" --year_last "$year_last"
   exit_code=$?
   if [ "$exit_code" = "0" ] ; then
     echo "Done with harvesting Pure-$organization."
@@ -44,8 +44,8 @@ harvest_pure() {
 
 
 harvest_openalex() {
-  echo "Harvesting OpenAlex for organization '$organization'."
-  PYTHONPATH=$python_path $python_cmd harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization "$organization"
+  echo "Harvesting OpenAlex for organization '$organization', first year: '$year_first', last year: '$year_last'."
+  PYTHONPATH=$python_path $python_cmd harvest_openalex_to_ricgraph.py --empty_ricgraph no --organization "$organization" --year_first "$year_first" --year_last "$year_last"
   exit_code=$?
   if [ "$exit_code" = "0" ] ; then
     echo "Done with harvesting OpenAlex-$organization."

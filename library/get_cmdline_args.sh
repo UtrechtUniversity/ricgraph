@@ -40,6 +40,7 @@
 # - $python_path: the PYTHONPATH to be used for the python interpreter.
 #
 # Original version Rik D.T. Janssen, April 2025.
+# Updated Rik D.T. Janssen, February 2026.
 #
 # ########################################################################
 
@@ -51,6 +52,10 @@ usage+="\n\t\tSpecify the organization abbreviation."
 usage+="\n\t-e, --empty_ricgraph [yes|no]"
 usage+="\n\t\tWhether to empty Ricgraph before harvesting the"
 usage+="\n\t\tfirst organization. If absent, Ricgraph will not be emptied."
+usage+="\n\t-f, --year_first [year]"
+usage+="\n\t\tFirst year of the harvest."
+usage+="\n\t-l, --year_last [year]"
+usage+="\n\t\tLast year of the harvest."
 usage+="\n\t-c, --python_cmd [python interpreter]"
 usage+="\n\t\tThe python interpreter to use. If absent, and a python"
 usage+="\n\t\tvirtual environment is used, that interpreter is used."
@@ -67,7 +72,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # the ':' after a parameter tells us it needs a parameter value.
-args=$(getopt --options o:e:c:p:h --longoptions organization:,empty_ricgraph:,python_cmd:,python_path:,help -n "$0" -- "$@")
+args=$(getopt --options o:e:f:l:c:p:h --longoptions organization:,empty_ricgraph:,year_first:,year_last:,python_cmd:,python_path:,help -n "$0" -- "$@")
 exit_code=$?
 if [ "$exit_code" != "0" ] ; then
   # 'getopt' went wrong, e.g. it got an invalid option.
@@ -79,6 +84,8 @@ while true; do
   case "$1" in
   -o|--organization) organization=$2; shift 2;;
   -e|--empty_ricgraph) empty_ricgraph=$2; shift 2;;
+  -f|--year_first) year_first=$2; shift 2;;
+  -l|--year_last) year_last=$2; shift 2;;
   -c|--python_cmd) python_cmd=$2; shift 2;;
   -p|--python_path) python_path=$2; shift 2;;
   -h|--help) echo -e "$usage"; exit 1;;
@@ -95,7 +102,7 @@ fi
 # Convert organization to uppercase.
 organization=${organization^^}
 
-# Process $empty_ricgrapy.
+# Process $empty_ricgraph.
 if [ -z "$empty_ricgraph" ]; then
   empty_ricgraph=no
 fi
@@ -103,6 +110,20 @@ fi
 empty_ricgraph=${empty_ricgraph,,}
 if [ "$empty_ricgraph" != "yes" ]; then
   empty_ricgraph=no
+fi
+
+# Process $year_first. Do not check if it is a valid value, that will
+# be done in other scripts.
+if [ -z "$year_first" ]; then
+  echo "Error: year_first must be present."
+  exit 1
+fi
+
+# Process $year_last. Do not check if it is a valid value, that will
+# be done in other scripts.
+if [ -z "$year_last" ]; then
+  echo "Error: year_last must be present."
+  exit 1
 fi
 
 # Process $python_cmd.
@@ -151,6 +172,7 @@ echo ""
 echo "The following parameter values will be used:"
 echo "Organization: '$organization'."
 echo "Ricgraph is emptied before harvesting: $empty_ricgraph."
+echo "First year: '$year_first', last year: '$year_last'."
 echo "Python interpreter: '$python_cmd'."
 echo "Python path: '$python_path'."
 echo ""
