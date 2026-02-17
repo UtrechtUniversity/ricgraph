@@ -5,7 +5,7 @@
 #
 # ########################################################################
 #
-# MIT License, Copyright (c) 2025 Rik D.T. Janssen
+# MIT License, Copyright (c) 2025 - 2026 Rik D.T. Janssen
 #
 # ########################################################################
 #
@@ -72,7 +72,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # the ':' after a parameter tells us it needs a parameter value.
-args=$(getopt --options o:e:f:l:c:p:h --longoptions organization:,empty_ricgraph:,year_first:,year_last:,python_cmd:,python_path:,help -n "$0" -- "$@")
+args=$(getopt --options o:e:flc:p:h --longoptions organization:,empty_ricgraph:,year_first,year_last,python_cmd:,python_path:,help -n "$0" -- "$@")
 exit_code=$?
 if [ "$exit_code" != "0" ] ; then
   # 'getopt' went wrong, e.g. it got an invalid option.
@@ -115,15 +115,13 @@ fi
 # Process $year_first. Do not check if it is a valid value, that will
 # be done in other scripts.
 if [ -z "$year_first" ]; then
-  echo "Error: year_first must be present."
-  exit 1
+  echo "Are you sure you do not want to specify "year_first"? Continuing..."
 fi
 
 # Process $year_last. Do not check if it is a valid value, that will
 # be done in other scripts.
 if [ -z "$year_last" ]; then
-  echo "Error: year_last must be present."
-  exit 1
+  echo "Are you sure you do not want to specify "year_last"? Continuing..."
 fi
 
 # Process $python_cmd.
@@ -154,7 +152,7 @@ fi
 
 # Process $python_path.
 if [ -z "$python_path" ]; then
-  python_path=.
+  python_path=..
 fi
 if [ ! -d "$python_path" ]; then
   echo "Error: python path (PYTHONPATH) directory '$python_path' does not exist."

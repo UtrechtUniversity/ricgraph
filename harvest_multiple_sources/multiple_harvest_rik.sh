@@ -96,7 +96,7 @@ mkdir "$harvest_result_dir"
 
 echo "$0 start at $(date)."
 
-./multiple_harvest_uu.sh
+./multiple_harvest_organization.sh --organization UU --empty_ricgraph yes --year_first 2022 --year_last 2025
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-uu-$(date +%y%m%d-%H%M)
