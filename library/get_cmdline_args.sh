@@ -72,7 +72,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # the ':' after a parameter tells us it needs a parameter value.
-args=$(getopt --options o:e:flc:p:h --longoptions organization:,empty_ricgraph:,year_first,year_last,python_cmd:,python_path:,help -n "$0" -- "$@")
+args=$(getopt --options o:e:f:l:c:p:h --longoptions organization:,empty_ricgraph:,year_first:,year_last:,python_cmd:,python_path:,help -n "$0" -- "$@")
 exit_code=$?
 if [ "$exit_code" != "0" ] ; then
   # 'getopt' went wrong, e.g. it got an invalid option.
