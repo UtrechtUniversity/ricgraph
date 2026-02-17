@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023, 2024, 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -108,7 +108,7 @@ from .ricgraph_graphdb import (create_update_node, create_two_nodes_and_edge,
 
 
 __author__ = 'Rik D.T. Janssen'
-__copyright__ = 'Copyright (c) 2023, 2024, 2025 Rik D.T. Janssen'
+__copyright__ = 'Copyright (c) 2023 - 2026 Rik D.T. Janssen'
 __email__ = ''
 __license__ = 'MIT License'
 __package__ = 'Ricgraph'

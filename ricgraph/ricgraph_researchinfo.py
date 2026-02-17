@@ -65,8 +65,8 @@ def create_well_known_url(name: str, value: str) -> str:
         return 'https://isni.org/isni/' + value
     elif name == 'LINKEDIN':
         return 'https://www.linkedin.com/in/' + value
-    # elif name == 'OPENALEX':
-    #     return 'https://openalex.org/' + value
+    elif name == 'OPENALEX':
+        return 'https://openalex.org/authors/' + value
     elif name == 'ORCID':
         return 'https://orcid.org/' + value
     elif name == 'RESEARCHER_ID':

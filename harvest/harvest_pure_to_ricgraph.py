@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2022-2025 Rik D.T. Janssen
+# Copyright (c) 2022 - 2026 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -48,6 +48,7 @@
 #
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, April, October, November 2023, February 2025.
+# Updated Rik D.T. Janssen, February 2026.
 #
 # ########################################################################
 #
@@ -862,7 +863,7 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
                               'YEAR': str(publication_year),
                               'TYPE': rcg.lookup_resout_type(research_output_type=str(harvest_item['type']['uri']),
                                                              research_output_mapping=ROTYPE_MAPPING_PURE),
-                              'AUTHOR_UUID': author_uuid,
+                              'PURE_UUID_PERS': author_uuid,
                               'FULL_NAME': author_name}
                 if author_externalorg_flag:
                     parse_line['AUTHOR_EXTERNALORG_NAME'] = author_externalorg_name
@@ -1130,32 +1131,22 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    timestamp = rcg.datetimestamp()
-    print('Inserting persons from ' + HARVEST_SOURCE + ' in Ricgraph at '
-          + timestamp + '...')
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' persons at ' + timestamp + '.'
-
-    # Since Pure is the first system we harvest, the order of the columns in
-    # this DataFrame does not really matter.
     person_identifiers = parsed_content[['PURE_UUID_PERS', 'FULL_NAME',
                                          'ORCID', 'ISNI',
-                                          'SCOPUS_AUTHOR_ID', 'DIGITAL_AUTHOR_ID',
-                                          'RESEARCHER_ID', 'EMPLOYEE_ID'
+                                         'SCOPUS_AUTHOR_ID', 'DIGITAL_AUTHOR_ID',
+                                         'RESEARCHER_ID', 'EMPLOYEE_ID'
                                        ]].copy(deep=True)
-    person_identifiers.dropna(axis=0, how='all', inplace=True)
-    person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-
-    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event=HARVEST_SOURCE,
-                                   history_event=history_event)
-
-    # Note that the URL to this person in Pure is set in
-    # parsed_organizations_to_ricgraph(). It could have been done here, but doing it there
-    # is more efficient.
-
+    rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
+                                          harvest_source=HARVEST_SOURCE)
+    # Add the URL to this person in Pure. Some persons do not seem to have
+    # this page.
+    nodes_to_update = parsed_content[['PURE_UUID_PERS']].copy(deep=True)
+    nodes_to_update['URL_MAIN'] = nodes_to_update[['PURE_UUID_PERS']].apply(
+                                  lambda row: create_pure_url(name='PURE_UUID_PERS',
+                                                              value=row['PURE_UUID_PERS']), axis=1)
+    rcg.update_urls_in_ricgraph(entities=nodes_to_update,
+                               harvest_source=HARVEST_SOURCE,
+                               what='URLs of PURE_UUID_PERS nodes')
     return
 
 
@@ -1315,39 +1306,15 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     persorgnodes = pandas.DataFrame()
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     persorgnodes = pandas.concat([persorgnodes, parse_chunk_df], ignore_index=True)
-
-    # This could have been done in parsed_persons_to_ricgraph(), but doing it here
-    # is more efficient.
-    persorgnodes['url_main1'] = persorgnodes[['PURE_UUID_PERS']].apply(
-                                lambda row: create_pure_url(name='PURE_UUID_PERS',
-                                                            value=row['PURE_UUID_PERS']), axis=1)
-    persorgnodes['url_main2'] = persorgnodes[['PURE_UUID_ORG']].apply(
-                                lambda row: create_pure_url(name='PURE_UUID_ORG',
-                                                            value=row['PURE_UUID_ORG']), axis=1)
+    # Add the URL to this organization in Pure. Some organizations do
+    # not seem to have this page.
+    persorgnodes['URL_MAIN'] = persorgnodes[['PURE_UUID_ORG']].apply(
+                               lambda row: create_pure_url(name='PURE_UUID_ORG',
+                                                           value=row['PURE_UUID_ORG']), axis=1)
     persorgnodes.drop(labels='PURE_UUID_ORG', axis='columns', inplace=True)
-    persorgnodes.dropna(axis=0, how='any', inplace=True)
-    persorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    persorgnodes.rename(columns={'PURE_UUID_PERS': 'value1',
-                                 'FULL_ORG_NAME': 'value2'}, inplace=True)
-    new_persorgnodes_columns = {'name1': 'PURE_UUID_PERS',
-                                'category1': 'person',
-                                'name2': 'ORGANIZATION_NAME',
-                                'category2': 'organization',
-                                'source_event2': HARVEST_SOURCE,
-                                'history_event2': history_event}
-    persorgnodes = persorgnodes.assign(**new_persorgnodes_columns)
-    persorgnodes = persorgnodes[['name1', 'category1', 'value1',
-                                 'url_main1',
-                                 'name2', 'category2', 'value2',
-                                 'url_main2',
-                                 'source_event2', 'history_event2']]
-
-    print('The following organizations and persons from organizations from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(persorgnodes)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=persorgnodes)
-    print('\nDone at ' + rcg.timestamp() + '.\n')
-
+    persorgnodes.rename(columns={'FULL_ORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=persorgnodes,
+                                                harvest_source=HARVEST_SOURCE)
     return
 
 
@@ -1359,94 +1326,52 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     """
     global resout_uuid_or_doi
 
-    timestamp = rcg.datetimestamp()
-    print('Inserting research outputs from ' + HARVEST_SOURCE + ' in Ricgraph at '
-          + timestamp + '...')
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' research outputs at ' + timestamp + '.'
-
-    resout = parsed_content[['RESOUT_UUID', 'TITLE', 'YEAR', 'TYPE', 'DOI', 'AUTHOR_UUID']].copy(deep=True)
-    resout.dropna(axis=0, how='all', inplace=True)
-    resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    resout['DOI'] = resout['DOI'].fillna('')
+    # Do some shuffling to prepare insert of research outputs in Ricgraph.
+    resouts = parsed_content[['RESOUT_UUID', 'TITLE', 'YEAR', 'TYPE', 'DOI', 'PURE_UUID_PERS']].copy(deep=True)
+    resouts.dropna(axis=0, how='all', inplace=True)
+    resouts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    resouts['DOI'] = resouts['DOI'].fillna('')
 
     # A number of research outputs in Pure have a DOI, but not all. We prefer the DOI above PURE_UUID_RESOUT.
     # So if there is a DOI, use it, otherwise use PURE_UUID_RESOUT UUID. Some shuffling is required.
     # First, fill the column 'name1' with 'DOI', unless the value is '', then fill with 'PURE_UUID_RESOUT'.
-    resout['name1'] = resout[['DOI']].apply(lambda x: 'PURE_UUID_RESOUT' if x.item() == '' else 'DOI', axis=1)
+    resouts['RESOUT_ID'] = resouts[['DOI']].apply(lambda x: 'PURE_UUID_RESOUT' if x.item() == '' else 'DOI', axis=1)
     # Make sure we have the correct URL.
-    resout['url_main1'] = resout[['name1', 'DOI', 'RESOUT_UUID']].apply(
-                          lambda row: create_urlmain(type_id=row['name1'],
+    resouts['URL_MAIN'] = resouts[['RESOUT_ID', 'DOI', 'RESOUT_UUID']].apply(
+                          lambda row: create_urlmain(type_id=row['RESOUT_ID'],
                                                      doi_value=row['DOI'],
                                                      uuid_value=row['RESOUT_UUID']), axis=1)
-    resout['url_other1'] = resout[['name1', 'DOI', 'RESOUT_UUID']].apply(
-                           lambda row: create_urlother(type_id=row['name1'],
+    resouts['URL_OTHER'] = resouts[['RESOUT_ID', 'DOI', 'RESOUT_UUID']].apply(
+                           lambda row: create_urlother(type_id=row['RESOUT_ID'],
                                                        uuid_value=row['RESOUT_UUID']), axis=1)
     # Now replace all empty strings in column DOI for NaNs
     # The next statement will result in a 'behavior will change in pandas 3.0' warning.
-    # resout['DOI'].replace('', numpy.nan, inplace=True)
-    resout['DOI'] = resout['DOI'].replace('', numpy.nan)
+    resouts['DOI'] = resouts['DOI'].replace('', numpy.nan)
     # Then fill the column 'value1' with the value from column DOI, unless the value is NaN,
     # then fill with the value from column RESOUT_UUID.
-    resout['value1'] = resout['DOI'].copy(deep=True)
+    resouts['value1'] = resouts['DOI'].copy(deep=True)
     # The next statement will result in a 'behavior will change in pandas 3.0' warning.
-    # resout.value1.fillna(resout['RESOUT_UUID'], inplace=True)
-    resout['RESOUT_UUID'] = resout.value1.fillna(resout['RESOUT_UUID'])
+    resouts['RESOUT_UUID'] = resouts.value1.fillna(resouts['RESOUT_UUID'])
+    resouts.rename(columns={'RESOUT_UUID': 'RESOUT_VALUE'}, inplace=True)
 
     if HARVEST_PROJECTS:
         # This is only necessary if we are going to harvest projects later on.
         if resout_uuid_or_doi == {}:
-            resout_uuid_or_doi = dict(zip(resout.RESOUT_UUID, resout.value1))
+            resout_uuid_or_doi = dict(zip(resouts.RESOUT_UUID, resouts.value1))
         else:
-            resout_uuid_or_doi.update((zip(resout.RESOUT_UUID, resout.value1)))
+            resout_uuid_or_doi.update((zip(resouts.RESOUT_UUID, resouts.value1)))
 
-    resout.rename(columns={'TYPE': 'category1',
-                           'TITLE': 'comment1',
-                           'YEAR': 'year1',
-                           'AUTHOR_UUID': 'value2'}, inplace=True)
-    new_resout_columns = {'source_event1': HARVEST_SOURCE,
-                          'history_event1': history_event,
-                          'name2': 'PURE_UUID_PERS',
-                          'category2': 'person',
-                          'source_event2': HARVEST_SOURCE,
-                          'history_event2': history_event}
-    resout = resout.assign(**new_resout_columns)
-    resout = resout[['name1', 'category1', 'value1',
-                     'comment1', 'year1', 'url_main1', 'url_other1',
-                     'source_event1', 'history_event1',
-                     'name2', 'category2', 'value2',
-                     'source_event2', 'history_event2']]
-
-    print('The following research outputs from ' + HARVEST_SOURCE
-          + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(resout)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
+    resouts = resouts[['PURE_UUID_PERS', 'RESOUT_ID', 'RESOUT_VALUE',
+                       'TITLE', 'YEAR', 'TYPE', 'URL_MAIN', 'URL_OTHER']].copy(deep=True)
+    rcg.create_parsed_entities_in_ricgraph(entities=resouts,
+                                           harvest_source=HARVEST_SOURCE,
+                                           what='research outputs')
 
     # This is specifically for external persons and author collaborations. We only
     # find these while parsing research outputs, not while parsing persons.
-    resout = parsed_content[['AUTHOR_UUID', 'FULL_NAME']].copy(deep=True)
-    # Replace all empty strings in column FULL_NAME for NaNs
-    # The next statement will result in a 'behavior will change in pandas 3.0' warning.
-    # resout['FULL_NAME'].replace('', numpy.nan, inplace=True)
-    resout['FULL_NAME'] = resout['FULL_NAME'].replace('', numpy.nan)
-    resout.dropna(axis=0, how='any', inplace=True)
-    resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    resout.rename(columns={'AUTHOR_UUID': 'value1',
-                           'FULL_NAME': 'value2'}, inplace=True)
-    new_resout_columns = {'name1': 'PURE_UUID_PERS',
-                          'category1': 'person',
-                          'name2': 'FULL_NAME',
-                          'category2': 'person',
-                          'source_event2': HARVEST_SOURCE,
-                          'history_event2': history_event}
-    resout = resout.assign(**new_resout_columns)
-    resout = resout[['name1', 'category1', 'value1',
-                     'name2', 'category2', 'value2',
-                     'source_event2', 'history_event2']]
-
-    print('The following external persons and author collaborations from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(resout)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
+    external_persons = parsed_content[['PURE_UUID_PERS', 'FULL_NAME']].copy(deep=True)
+    rcg.create_external_persons_in_ricgraph(authors=external_persons,
+                                            harvest_source=HARVEST_SOURCE)
 
     # This is specifically for external persons and external organizations. We only
     # find these while parsing research outputs, not while parsing persons.
@@ -1455,35 +1380,11 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
         print('There are no external organizations from external persons.')
         print('\nDone at ' + rcg.timestamp() + '.\n')
         return
-    resout = parsed_content[['AUTHOR_UUID',
-                             'AUTHOR_EXTERNALORG_NAME']].copy(deep=True)
-    resout['AUTHOR_EXTERNALORG_NAME'] = resout['AUTHOR_EXTERNALORG_NAME'].replace('', numpy.nan)
-    resout.dropna(axis=0, how='any', inplace=True)
-    resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    history_event += ' Inserted external organization from ' + HARVEST_SOURCE + ' external author.'
-
-    if 'AUTHOR_EXTERNALORG_NAME' not in resout.columns:
-        print('There are no external organizations from external persons after clean up.')
-        print('\nDone at ' + rcg.timestamp() + '.\n')
-        return
-    resout.rename(columns={'AUTHOR_UUID': 'value1',
-                           'AUTHOR_EXTERNALORG_NAME': 'value2'}, inplace=True)
-    new_resout_columns = {'name1': 'PURE_UUID_PERS',
-                          'category1': 'person',
-                          'name2': 'ORGANIZATION_NAME',
-                          'category2': 'organization',
-                          'source_event2': HARVEST_SOURCE,
-                          'history_event2': history_event}
-    resout = resout.assign(**new_resout_columns)
-    resout = resout[['name1', 'category1', 'value1',
-                     'name2', 'category2', 'value2',
-                     'source_event2', 'history_event2']]
-    print('The following external organizations from external persons from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(resout)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
-
-    print('\nDone at ' + rcg.timestamp() + '.\n')
+    persorgnodes = parsed_content[['PURE_UUID_PERS',
+                                   'AUTHOR_EXTERNALORG_NAME']].copy(deep=True)
+    persorgnodes.rename(columns={'AUTHOR_EXTERNALORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=persorgnodes,
+                                                harvest_source=HARVEST_SOURCE)
     return
 
 
@@ -1497,6 +1398,9 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
       followed by nothing if no parent for organization UUID exists.
     :return: None.
     """
+    # RDTJ, February 17, 2026. This code should be cleaned up. Calls to
+    # create_nodepairs_and_edges_df() should be moved to file ricgraph_harvest.py,
+    # as has been done above.
     timestamp = rcg.datetimestamp()
     print('Inserting projects from ' + HARVEST_SOURCE + ' in Ricgraph at '
           + timestamp + '...')

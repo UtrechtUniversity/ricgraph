@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2022-2025 Rik D.T. Janssen
+# Copyright (c) 2022 - 2026 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@
 #
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, April, October 2023, February 2025.
+# Updated Rik D.T. Janssen, February 2026.
 #
 # ########################################################################
 #
@@ -61,7 +62,6 @@
 
 
 import sys
-from numpy import nan
 import pandas
 import xmltodict
 from sickle import Sickle
@@ -119,7 +119,7 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     # We assume these fields are present.
     df_mod.rename(columns={'contributorName': 'FULL_NAME',
                            'affiliation': 'ORGANIZATION_NAME',
-                           'resourceType': 'DOI_TYPE',
+                           'resourceType': 'TYPE',
                            }, inplace=True)
 
     # But for these, we do not know for sure.
@@ -144,11 +144,21 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     else:
         df_mod['DIGITAL_AUTHOR_ID'] = ''
 
-    df_mod = df_mod[['DOI', 'DOI_TYPE', 'FULL_NAME',
+    if 'titles' in df_mod.columns:
+        df_mod.rename(columns={'titles': 'TITLE'}, inplace=True)
+    else:
+        df_mod['TITLE'] = ''
+
+    if 'publicationYear' in df_mod.columns:
+        df_mod.rename(columns={'publicationYear': 'YEAR'}, inplace=True)
+    else:
+        df_mod['YEAR'] = ''
+
+    df_mod = df_mod[['DOI', 'TYPE', 'FULL_NAME',
                      'DIGITAL_AUTHOR_ID',
                      'ORCID', 'SCOPUS_AUTHOR_ID',
                      'ISNI', 'RESEARCHER_ID',
-                     'titles', 'publicationYear',
+                     'TITLE', 'YEAR',
                      'ORGANIZATION_NAME'
                      ]].copy(deep=True)
     return df_mod
@@ -175,8 +185,8 @@ def process_parsed_data(df: pandas.DataFrame) -> pandas.DataFrame:
     # Finally, a reset_index(drop=True) is used to create a new unique index for all rows.
     df_mod = df_mod.explode('ORGANIZATION_NAME').reset_index(drop=True)
 
-    df_mod['DOI_TYPE'] = df_mod[['DOI_TYPE']].apply(
-        lambda row: rcg.lookup_resout_type(research_output_type=row['DOI_TYPE'],
+    df_mod['TYPE'] = df_mod[['TYPE']].apply(
+        lambda row: rcg.lookup_resout_type(research_output_type=row['TYPE'],
                                            research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
 
     return df_mod
@@ -403,7 +413,8 @@ def harvest_xml_and_write_to_file(url: str, headers: dict, harvest_filename: str
     :param harvest_filename: filename to write harvest results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-    # Sickle takes care of resumptionToken if present, our source does not deliver all records in one xml
+    # Sickle takes care of resumptionToken if present, our source does
+    # not deliver all records in one XML.
     print('Getting data from ' + HARVEST_SOURCE + ' from ' + url + '... ', end='')
     connection = Sickle(url)
     data = connection.ListRecords(**headers)
@@ -412,7 +423,7 @@ def harvest_xml_and_write_to_file(url: str, headers: dict, harvest_filename: str
     iters = errors = 0
     print('Saving data to ' + harvest_filename + '...')
     print('Getting record: 0  ', end='')
-    # Sickle doesn't deliver wellformed xml, so we place tags around it
+    # Sickle doesn't deliver wellformed XML, so we place tags around it.
     with open(harvest_filename, 'w') as f:
         f.write('<makewellformedxml>')
 
@@ -472,11 +483,6 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    timestamp = rcg.datetimestamp()
-    print('Inserting data sets from ' + HARVEST_SOURCE + ' in Ricgraph at '
-          + timestamp + '...')
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' at ' + timestamp + '.'
-
     # The order of the columns in the DataFrame below is not random.
     # A good choice is to have in the first two columns:
     # a. the identifier that appears the most in the system we harvest.
@@ -487,209 +493,42 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     person_identifiers = parsed_content[['ORCID', 'SCOPUS_AUTHOR_ID',
                                          'FULL_NAME', 'DIGITAL_AUTHOR_ID',
                                          'ISNI', 'RESEARCHER_ID']].copy(deep=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    person_identifiers.dropna(axis=0, how='all', inplace=True)
-    person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-
-    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event=HARVEST_SOURCE,
-                                   history_event=history_event)
-
-    parsed_content.replace('', nan, inplace=True)
+    rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
+                                          harvest_source=HARVEST_SOURCE)
 
     # We need to connect a data set to a person-root. However, there is no single
     # person identifier that every person has. So we will need to connect DOIs to
     # every person-identifier we have.
-    print('The following data sets (DOIs) from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(parsed_content)
+    datasets = parsed_content[['ORCID', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
 
-    datasets = parsed_content[['DOI_TYPE', 'DOI', 'titles', 'publicationYear', 'ORCID']].copy(deep=True)
-    datasets.dropna(axis=0, how='any', inplace=True)
-    datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    datasets.rename(columns={'DOI_TYPE': 'category1',
-                             'DOI': 'value1',
-                             'titles': 'comment1',
-                             'publicationYear': 'year1',
-                             'ORCID': 'value2'}, inplace=True)
-    new_datasets_columns = {'name1': 'DOI',
-                            'source_event1': HARVEST_SOURCE,
-                            'history_event1': history_event,
-                            'name2': 'ORCID',
-                            'category2': 'person'}
-    datasets = datasets.assign(**new_datasets_columns)
-    datasets = datasets[['name1', 'category1', 'value1',
-                         'comment1', 'year1', 'source_event1', 'history_event1',
-                         'name2', 'category2', 'value2']]
-    print('\nAdding DOIs and ORCIDs at ' + rcg.timestamp() + '...')
-    print(datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=datasets)
+    datasets = parsed_content[['DIGITAL_AUTHOR_ID', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
 
-    # Don't need to add a source_event to the following calls, since we have already inserted
-    # each source above, here we are connecting them.
-    datasets = parsed_content[['DOI_TYPE', 'DOI', 'DIGITAL_AUTHOR_ID']].copy(deep=True)
-    datasets.dropna(axis=0, how='any', inplace=True)
-    datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    datasets.rename(columns={'DOI_TYPE': 'category1',
-                             'DOI': 'value1',
-                             'DIGITAL_AUTHOR_ID': 'value2'}, inplace=True)
-    new_datasets_columns = {'name1': 'DOI',
-                            'name2': 'DIGITAL_AUTHOR_ID',
-                            'category2': 'person'}
-    datasets = datasets.assign(**new_datasets_columns)
-    datasets = datasets[['name1', 'category1', 'value1',
-                         'name2', 'category2', 'value2']]
-    print('\nAdding DOIs and DIGITAL_AUTHOR_IDs at ' + rcg.timestamp() + '...')
-    print(datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=datasets)
+    datasets = parsed_content[['SCOPUS_AUTHOR_ID', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
 
-    # ###
-    datasets = parsed_content[['DOI_TYPE', 'DOI', 'SCOPUS_AUTHOR_ID']].copy(deep=True)
-    datasets.dropna(axis=0, how='any', inplace=True)
-    datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    datasets.rename(columns={'DOI_TYPE': 'category1',
-                             'DOI': 'value1',
-                             'SCOPUS_AUTHOR_ID': 'value2'}, inplace=True)
-    new_datasets_columns = {'name1': 'DOI',
-                            'name2': 'SCOPUS_AUTHOR_ID',
-                            'category2': 'person'}
-    datasets = datasets.assign(**new_datasets_columns)
-    datasets = datasets[['name1', 'category1', 'value1',
-                         'name2', 'category2', 'value2']]
-    print('\nAdding DOIs and SCOPUS_AUTHOR_IDs at ' + rcg.timestamp() + '...')
-    print(datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=datasets)
+    datasets = parsed_content[['RESEARCHER_ID', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
 
-    # ###
-    datasets = parsed_content[['DOI_TYPE', 'DOI', 'RESEARCHER_ID']].copy(deep=True)
-    datasets.dropna(axis=0, how='any', inplace=True)
-    datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    datasets.rename(columns={'DOI_TYPE': 'category1',
-                             'DOI': 'value1',
-                             'RESEARCHER_ID': 'value2'}, inplace=True)
-    new_datasets_columns = {'name1': 'DOI',
-                            'name2': 'RESEARCHER_ID',
-                            'category2': 'person'}
-    datasets = datasets.assign(**new_datasets_columns)
-    datasets = datasets[['name1', 'category1', 'value1',
-                         'name2', 'category2', 'value2']]
-    print('\nAdding DOIs and RESEARCHER_IDs at ' + rcg.timestamp() + '...')
-    print(datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=datasets)
-
-    # ###
-    datasets = parsed_content[['DOI_TYPE', 'DOI', 'ISNI']].copy(deep=True)
-    datasets.dropna(axis=0, how='any', inplace=True)
-    datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    datasets.rename(columns={'DOI_TYPE': 'category1',
-                             'DOI': 'value1',
-                             'ISNI': 'value2'}, inplace=True)
-    new_datasets_columns = {'name1': 'DOI',
-                            'name2': 'ISNI',
-                            'category2': 'person'}
-    datasets = datasets.assign(**new_datasets_columns)
-    datasets = datasets[['name1', 'category1', 'value1',
-                         'name2', 'category2', 'value2']]
-    print('\nAdding DOIs and ISNIs at ' + rcg.timestamp() + '...')
-    print(datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=datasets)
-
+    datasets = parsed_content[['ISNI', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
 
     # Same for organizations.
-    print('The following organizations from person from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(parsed_content)
+    organizations = parsed_content[['ORCID', 'ORGANIZATION_NAME']].copy(deep=True)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
 
-    orgs_datasets = parsed_content[['ORGANIZATION_NAME', 'ORCID']].copy(deep=True)
-    orgs_datasets.dropna(axis=0, how='any', inplace=True)
-    orgs_datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    orgs_datasets.rename(columns={'ORGANIZATION_NAME': 'value1',
-                                  'ORCID': 'value2'}, inplace=True)
-    new_orgs_datasets_columns = {'name1': 'ORGANIZATION_NAME',
-                                 'category1': 'organization',
-                                 'source_event1': HARVEST_SOURCE,
-                                 'history_event1': history_event,
-                                 'name2': 'ORCID',
-                                 'category2': 'person'}
-    orgs_datasets = orgs_datasets.assign(**new_orgs_datasets_columns)
-    orgs_datasets = orgs_datasets[['name1', 'category1', 'value1',
-                                   'source_event1', 'history_event1',
-                                   'name2', 'category2', 'value2']]
-    print('\nAdding organizations and ORCIDs at ' + rcg.timestamp() + '...')
-    print(orgs_datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=orgs_datasets)
+    organizations = parsed_content[['DIGITAL_AUTHOR_ID', 'ORGANIZATION_NAME']].copy(deep=True)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
 
-    # Don't need to add a source_event to the following calls, since we have already inserted
-    # each source above, here we are connecting them.
-    orgs_datasets = parsed_content[['ORGANIZATION_NAME', 'DIGITAL_AUTHOR_ID']].copy(deep=True)
-    orgs_datasets.dropna(axis=0, how='any', inplace=True)
-    orgs_datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    orgs_datasets.rename(columns={'ORGANIZATION_NAME': 'value1',
-                                  'DIGITAL_AUTHOR_ID': 'value2'}, inplace=True)
-    new_orgs_datasets_columns = {'name1': 'ORGANIZATION_NAME',
-                                 'category1': 'organization',
-                                 'name2': 'DIGITAL_AUTHOR_ID',
-                                 'category2': 'person'}
-    orgs_datasets = orgs_datasets.assign(**new_orgs_datasets_columns)
-    orgs_datasets = orgs_datasets[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2']]
-    print('\nAdding organizations and DIGITAL_AUTHOR_IDs at ' + rcg.timestamp() + '...')
-    print(orgs_datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=orgs_datasets)
+    organizations = parsed_content[['SCOPUS_AUTHOR_ID', 'ORGANIZATION_NAME']].copy(deep=True)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
 
-    # ###
-    orgs_datasets = parsed_content[['ORGANIZATION_NAME', 'SCOPUS_AUTHOR_ID']].copy(deep=True)
-    orgs_datasets.dropna(axis=0, how='any', inplace=True)
-    orgs_datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    orgs_datasets.rename(columns={'ORGANIZATION_NAME': 'value1',
-                                  'SCOPUS_AUTHOR_ID': 'value2'}, inplace=True)
-    new_orgs_datasets_columns = {'name1': 'ORGANIZATION_NAME',
-                                 'category1': 'organization',
-                                 'name2': 'SCOPUS_AUTHOR_ID',
-                                 'category2': 'person'}
-    orgs_datasets = orgs_datasets.assign(**new_orgs_datasets_columns)
-    orgs_datasets = orgs_datasets[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2']]
-    print('\nAdding organizations and SCOPUS_AUTHOR_ID at ' + rcg.timestamp() + '...')
-    print(orgs_datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=orgs_datasets)
+    organizations = parsed_content[['RESEARCHER_ID', 'ORGANIZATION_NAME']].copy(deep=True)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
 
-    # ###
-    orgs_datasets = parsed_content[['ORGANIZATION_NAME', 'RESEARCHER_ID']].copy(deep=True)
-    orgs_datasets.dropna(axis=0, how='any', inplace=True)
-    orgs_datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    orgs_datasets.rename(columns={'ORGANIZATION_NAME': 'value1',
-                                  'RESEARCHER_ID': 'value2'}, inplace=True)
-    new_orgs_datasets_columns = {'name1': 'ORGANIZATION_NAME',
-                                 'category1': 'organization',
-                                 'name2': 'RESEARCHER_ID',
-                                 'category2': 'person'}
-    orgs_datasets = orgs_datasets.assign(**new_orgs_datasets_columns)
-    orgs_datasets = orgs_datasets[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2']]
-    print('\nAdding organizations and RESEARCHER_IDs at ' + rcg.timestamp() + '...')
-    print(orgs_datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=orgs_datasets)
-
-    # ###
-    orgs_datasets = parsed_content[['ORGANIZATION_NAME', 'ISNI']].copy(deep=True)
-    orgs_datasets.dropna(axis=0, how='any', inplace=True)
-    orgs_datasets.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    orgs_datasets.rename(columns={'ORGANIZATION_NAME': 'value1',
-                                  'ISNI': 'value2'}, inplace=True)
-    new_orgs_datasets_columns = {'name1': 'ORGANIZATION_NAME',
-                                 'category1': 'organization',
-                                 'name2': 'ISNI',
-                                 'category2': 'person'}
-    orgs_datasets = orgs_datasets.assign(**new_orgs_datasets_columns)
-    orgs_datasets = orgs_datasets[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2']]
-    print('\nAdding organizations and ISNIs at ' + rcg.timestamp() + '...')
-    print(orgs_datasets)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=orgs_datasets)
-
-
-    print('\nDone at ' + rcg.timestamp() + '.\n')
+    organizations = parsed_content[['ISNI', 'ORGANIZATION_NAME']].copy(deep=True)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
     return
 
 

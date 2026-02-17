@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,12 +38,17 @@
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
 # Updated Rik D.T. Janssen, February to June, September to December  2024.
 # Updated Rik D.T. Janssen, January to June 2025.
+# Updated Rik D.T. Janssen, February 2026.
 #
 # ########################################################################
 
 
+from numpy import nan
+from pandas import DataFrame
 from requests import get, post
 from requests import codes
+from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
+                       update_nodes_df)
 from .ricgraph_utils import timestamp, datetimestamp
 from .ricgraph_constants import A_LARGE_NUMBER
 
@@ -58,14 +63,14 @@ from .ricgraph_constants import A_LARGE_NUMBER
 # with the above-mentioned files, and add the filename of the new harvest script.
 # #####
 def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
-    """Harvest json data from a file.
+    """Harvest JSON data from a file.
 
     :param url: URL to harvest.
     :param headers: headers required.
     :param body: the body of a POST request, or [] for a GET request.
     :param max_recs_to_harvest: maximum records to harvest.
     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
-    :return: list of records in json format, or empty list if nothing found.
+    :return: list of records in JSON format, or empty list if nothing found.
     """
     if body is None:
         body = []
@@ -174,3 +179,364 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
 
     print(' Done at ' + timestamp() + '.\n')
     return json_data
+
+
+def create_parsed_persons_in_ricgraph(person_identifiers: DataFrame,
+                                      harvest_source: str) -> None:
+    """Insert the parsed persons in Ricgraph.
+
+    :param person_identifiers: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        A good choice is to have in the first two columns:
+        a. the identifier that appears the most in the system we harvest.
+        b. the identifier(s) that is already present in Ricgraph from previous harvests,
+           since new identifiers from this harvest will be  linked to an already existing
+           person-root.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    print('Inserting persons from ' + harvest_source + ' in Ricgraph at ' + timestamp() + '...')
+    history_event = 'Source: Harvest "' + harvest_source + '" persons at ' + datetimestamp() + '.'
+
+    # dropna(how='all'): drop row if all row values contain NaN
+    person_identifiers.dropna(axis=0, how='all', inplace=True)
+    person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    print('The following persons will be inserted in Ricgraph:')
+    print(person_identifiers)
+    unify_personal_identifiers(personal_identifiers=person_identifiers,
+                               source_event=harvest_source,
+                               history_event=history_event)
+    print('Done inserting persons at ' + timestamp() + '.')
+    return
+
+
+def create_parsed_entities_in_ricgraph(entities: DataFrame,
+                                       harvest_source: str,
+                                       what: str) -> None:
+    """Insert the parsed entities in Ricgraph.
+
+    :param entities: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - In the 2nd column: a research output name identifier (DOI, etc.).
+          The name of this column must be RESOUT_ID.
+          The 'name' property in the research output will get the value
+          in this columns' row.
+        - In the 3rd column: the value of a research output identifier
+          (DOI value, etc.).
+          The name of this column must be RESOUT_VALUE.
+          The 'value' property in the research output will get the value
+          in this columns' row.
+        - The other column should be named 'TYPE'.
+        - Optionally, there may be columns 'TITLE', 'YEAR', 'URL_MAIN'
+          and 'URL_OTHER'.
+    :param harvest_source: The source system we harvest from.
+    :param what: Text to show to the user and in '_source'
+    :return: None.
+    """
+    if 'RESOUT_ID' not in entities.columns:
+        print('create_parsed_entities_in_ricgraph(): Error, missing column "RESOUT_ID".')
+        exit(1)
+    if 'RESOUT_VALUE' not in entities.columns:
+        print('create_parsed_entities_in_ricgraph(): Error, missing column "RESOUT_VALUE".')
+        exit(1)
+    if 'TYPE' not in entities.columns:
+        print('create_parsed_entities_in_ricgraph(): Error, missing column "TYPE".')
+        exit(1)
+
+    print('Inserting ' + what + ' from ' + harvest_source
+          + ' in Ricgraph at ' + timestamp() + '...')
+    history_event = 'Source: Harvest "' + harvest_source + '" '
+    history_event += what + ' at ' + datetimestamp() + '.'
+
+    personal_id_name = entities.columns[0]
+
+    # Ensure that all '' values in the important columns are NaN,
+    # so that those rows can be easily removed with dropna().
+    entities[[personal_id_name, 'RESOUT_VALUE']] = entities[[personal_id_name,
+                                                           'RESOUT_VALUE']].replace(to_replace='', value=nan)
+
+    # Drop a row from selected columns if any of its value is NaN.
+    entities.dropna(subset=[personal_id_name, 'RESOUT_VALUE'], how='any', inplace=True)
+    entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    entities.rename(columns={'RESOUT_ID': 'name1',
+                            'TYPE': 'category1',
+                            'RESOUT_VALUE': 'value1',
+                             personal_id_name: 'value2'}, inplace=True)
+    new_entities_columns = {'source_event1': harvest_source,
+                            'history_event1': history_event,
+                            'name2': personal_id_name,
+                            'category2': 'person'}
+    entities = entities.assign(**new_entities_columns)
+
+    cols = ['name1', 'category1', 'value1']
+    if 'TITLE' in entities.columns:
+        entities.rename(columns={'TITLE': 'comment1'}, inplace=True)
+        cols.append('comment1')
+    if 'YEAR' in entities.columns:
+        entities.rename(columns={'YEAR': 'year1'}, inplace=True)
+        cols.append('year1')
+    if 'URL_MAIN' in entities.columns:
+        entities.rename(columns={'URL_MAIN': 'url_main1'}, inplace=True)
+        cols.append('url_main1')
+    if 'URL_OTHER' in entities.columns:
+        entities.rename(columns={'URL_OTHER': 'url_other1'}, inplace=True)
+        cols.append('url_other1')
+    cols.extend(['source_event1', 'history_event1', 'name2', 'category2', 'value2'])
+    entities = entities[cols]
+
+    print('The following ' + what + ' will be inserted in Ricgraph:')
+    print(entities)
+    create_nodepairs_and_edges_df(left_and_right_nodepairs=entities)
+    print('\nDone inserting ' + what + ' at ' + timestamp() + '.\n')
+    return
+
+
+def create_parsed_dois_in_ricgraph(resouts: DataFrame,
+                                   harvest_source: str) -> None:
+    """Insert the parsed research outputs in Ricgraph.
+
+    :param resouts: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - The other columns should be named 'DOI', 'TITLE', 'YEAR', and 'TYPE'.
+        - Optionally, there may be a column 'URL_MAIN', referring to
+          the main URL.
+        - Optionally, there may be a column 'URL_OTHER', referring to
+          the URL in the source system.
+          If URL_MAIN is not present, note that the URL to the
+          DOI will be added automatically.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    resouts.rename(columns={'DOI': 'RESOUT_VALUE'}, inplace=True)
+    resouts.insert(loc=1, column='RESOUT_ID', value='DOI')
+    create_parsed_entities_in_ricgraph(entities=resouts,
+                                       harvest_source=harvest_source,
+                                       what='research outputs')
+    return
+
+
+def create_parsed_organizations_in_ricgraph(organizations: DataFrame,
+                                            harvest_source: str) -> None:
+    """Insert the parsed research outputs in Ricgraph.
+
+    :param organizations: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - The other column should be named 'ORGANIZATION_NAME'.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    organizations.rename(columns={'ORGANIZATION_NAME': 'RESOUT_VALUE'}, inplace=True)
+    organizations.insert(loc=1, column='RESOUT_ID', value='ORGANIZATION_NAME')
+    organizations['TYPE'] = 'organization'
+    create_parsed_entities_in_ricgraph(entities=organizations,
+                                       harvest_source=harvest_source,
+                                       what='organizations')
+    return
+
+
+def create_parsed_rors_in_ricgraph(organizations: DataFrame,
+                                   harvest_source: str) -> None:
+    """Insert the parsed research outputs in Ricgraph.
+
+    :param organizations: The records to insert in Ricgraph, if not present yet.
+        We expect two columns: ROR' and 'ORGANIZATION_NAME'.
+        The order does not matter.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    if 'ROR' not in organizations.columns:
+        print('create_parsed_rors_in_ricgraph(): Error, missing column "ROR".')
+        exit(1)
+    if 'ORGANIZATION_NAME' not in organizations.columns:
+        print('create_parsed_rors_in_ricgraph(): Error, missing column "ORGANIZATION_NAME".')
+        exit(1)
+
+    print('Inserting organization RORs from ' + harvest_source + ' in Ricgraph at ' + timestamp() + '...')
+    history_event = 'Source: Harvest "' + harvest_source + '" organization RORs at ' + datetimestamp() + '.'
+
+    # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
+    organizations.replace(to_replace='', value=nan, inplace=True)
+    # Drop a row if any of its values is NaN.
+    organizations.dropna(axis=0, how='any', inplace=True)
+    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    organizations.rename(columns={'ORGANIZATION_NAME': 'value1',
+                                  'ROR': 'value2'}, inplace=True)
+    new_organization_columns = {'name1': 'ORGANIZATION_NAME',
+                                'category1': 'organization',
+                                'name2': 'ROR',
+                                'category2': 'organization',
+                                'source_event2': harvest_source,
+                                'history_event2': history_event}
+    organizations = organizations.assign(**new_organization_columns)
+    organizations = organizations[['name1', 'category1', 'value1',
+                                   'name2', 'category2', 'value2',
+                                   'source_event2', 'history_event2']]
+
+    print('The following organization RORs will be inserted in Ricgraph:')
+    print(organizations)
+    create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+    print('\nDone inserting organization RORs at ' + timestamp() + '.\n')
+    return
+
+
+def create_parsed_expertise_areas_in_ricgraph(competences: DataFrame,
+                                              harvest_source: str) -> None:
+    """Insert the parsed research outputs in Ricgraph.
+
+    :param competences: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - The other two columns should be named
+          'EXPERTISE_AREA_NAME' and 'EXPERTISE_AREA_URL'.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    competences.rename(columns={'EXPERTISE_AREA_NAME': 'RESOUT_VALUE',
+                                'EXPERTISE_AREA_URL': 'URL_MAIN'}, inplace=True)
+    competences.insert(loc=1, column='RESOUT_ID', value='EXPERTISE_AREA')
+    competences['TYPE'] = 'competence'
+    create_parsed_entities_in_ricgraph(entities=competences,
+                                       harvest_source=harvest_source,
+                                       what='expertise areas')
+    return
+
+
+def create_parsed_research_areas_in_ricgraph(competences: DataFrame,
+                                              harvest_source: str) -> None:
+    """Insert the parsed research outputs in Ricgraph.
+
+    :param competences: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - The other two columns should be named
+          'RESEARCH_AREA_NAME' and 'RESEARCH_AREA_URL'
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    competences.rename(columns={'RESEARCH_AREA_NAME': 'RESOUT_VALUE',
+                                'RESEARCH_AREA_URL': 'URL_MAIN'}, inplace=True)
+    competences.insert(loc=1, column='RESOUT_ID', value='RESEARCH_AREA')
+    competences['TYPE'] = 'competence'
+    create_parsed_entities_in_ricgraph(entities=competences,
+                                       harvest_source=harvest_source,
+                                       what='research areas')
+    return
+
+
+def create_parsed_skills_in_ricgraph(competences: DataFrame,
+                                     harvest_source: str) -> None:
+    """Insert the parsed research outputs in Ricgraph.
+
+    :param competences: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - The other two columns should be named
+          'SKILL_NAME' and 'SKILL_URL'.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    competences.rename(columns={'SKILL_NAME': 'RESOUT_VALUE',
+                                'SKILL_URL': 'URL_MAIN'}, inplace=True)
+    competences.insert(loc=1, column='RESOUT_ID', value='SKILL')
+    competences['TYPE'] = 'competence'
+    create_parsed_entities_in_ricgraph(entities=competences,
+                                       harvest_source=harvest_source,
+                                       what='skills')
+    return
+
+
+def create_external_persons_in_ricgraph(authors: DataFrame,
+                                        harvest_source: str) -> None:
+    """Insert the external persons and author collaborations in Ricgraph.
+
+    :param authors: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - The other column should be named 'FULL_NAME'.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    authors.rename(columns={'FULL_NAME': 'RESOUT_VALUE'}, inplace=True)
+    authors.insert(loc=1, column='RESOUT_ID', value='FULL_NAME')
+    authors['TYPE'] = 'person'
+    create_parsed_entities_in_ricgraph(entities=authors,
+                                       harvest_source=harvest_source,
+                                       what='external persons and author collaborations')
+    return
+
+
+def update_urls_in_ricgraph(entities: DataFrame,
+                            harvest_source: str,
+                            what: str) -> None:
+    """Update the URLs of the parsed entities in Ricgraph.
+
+    :param entities: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - The other column should be named 'URL_MAIN'.
+    :param harvest_source: The source system we harvest from.
+    :param what: Text to show to the user and in '_source'
+    :return: None.
+    """
+    if 'URL_MAIN' not in entities.columns:
+        print('update_url_in_ricgraph(): Error, missing column "URL_MAIN".')
+        exit(1)
+
+    print('Updating ' + what + ' from ' + harvest_source
+          + ' in Ricgraph at ' + timestamp() + '...')
+
+    personal_id_name = entities.columns[0]
+
+    # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
+    entities.replace(to_replace='', value=nan, inplace=True)
+    # Drop a row if any of its values is NaN.
+    entities.dropna(axis=0, how='any', inplace=True)
+    entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    entities.rename(columns={personal_id_name: 'value',
+                             'URL_MAIN': 'url_main'}, inplace=True)
+    new_entities_columns = {'name': personal_id_name,
+                            'category': 'person'}
+    entities = entities.assign(**new_entities_columns)
+    entities = entities[['name', 'category', 'value', 'url_main']]
+
+    print('The following ' + what + ' will be updated in Ricgraph:')
+    print(entities)
+    update_nodes_df(nodes=entities)
+    print('\nDone updating ' + what + ' at ' + timestamp() + '.\n')
+    return
+

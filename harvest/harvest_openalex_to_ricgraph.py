@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023-2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@
 #
 # Original version Rik D.T. Janssen, March 2023.
 # Updated Rik D.T. Janssen, April, October, November 2023, October 2024, February 2025.
+# Updated Rik D.T. Janssen, February 2026.
 #
 # ########################################################################
 #
@@ -134,25 +135,6 @@ ROTYPE_MAPPING_OPENALEX = {
 # ######################################################
 # Utility functions related to harvesting of OpenAlex
 # ######################################################
-
-def create_openalex_url(name: str, value: str) -> str:
-    """Create a URL to refer to the source of a node.
-    The id for an author in the json looks like a URL. I am not sure if it is
-    supposed to be a URL that works, but now (November 2023) it does not.
-    Since there is no other URL which shows author information, we use a link
-    to the json for the author in the API.
-
-    :param name: an identifier name.
-    :param value: the value.
-    :return: a URL.
-    """
-    if name == '' or value == '':
-        return ''
-
-    if name == 'AUTHOR':
-        return OPENALEX_API_URL + 'authors/' + value
-    else:
-        return ''
 
 
 # ######################################################
@@ -254,10 +236,10 @@ def parse_openalex(harvest: list) -> pandas.DataFrame:
             else:
                 parse_line['YEAR'] = ''
             if harvest_item['type'] is None:
-                parse_line['DOI_TYPE'] = str(rcg.lookup_resout_type(research_output_type='',
+                parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type='',
                                                                 research_output_mapping=ROTYPE_MAPPING_OPENALEX))
             else:
-                parse_line['DOI_TYPE'] = str(rcg.lookup_resout_type(research_output_type=harvest_item['type'],
+                parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type=harvest_item['type'],
                                                                 research_output_mapping=ROTYPE_MAPPING_OPENALEX))
             parse_chunk.append(parse_line)
 
@@ -312,10 +294,6 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    timestamp = rcg.datetimestamp()
-    print('Inserting persons from ' + HARVEST_SOURCE + ' in Ricgraph at '
-          + timestamp + '...')
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' persons at ' + timestamp + '.'
 
     # The order of the columns in the DataFrame below is not random.
     # A good choice is to have in the first two columns:
@@ -325,64 +303,17 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     #    person-root.
     # If you have 2 of type (b), use these as the first 2 columns.
     person_identifiers = parsed_content[['OPENALEX', 'ORCID', 'FULL_NAME']].copy(deep=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    person_identifiers.dropna(axis=0, how='all', inplace=True)
-    person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-
-    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event=HARVEST_SOURCE,
-                                   history_event=history_event)
+    rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
+                                          harvest_source=HARVEST_SOURCE)
 
     # Connect organizations to persons.
     organizations = parsed_content[['OPENALEX', 'ORGANIZATION_NAME']].copy(deep=True)
-    organizations['url_main1'] = organizations[['OPENALEX']].apply(
-                                 lambda row: create_openalex_url(name='AUTHOR',
-                                                                 value=row['OPENALEX']), axis=1)
-    organizations.dropna(axis=0, how='any', inplace=True)
-    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'OPENALEX': 'value1', 'ORGANIZATION_NAME': 'value2'}, inplace=True)
-    new_organization_columns = {'name1': 'OPENALEX',
-                                'category1': 'person',
-                                'name2': 'ORGANIZATION_NAME',
-                                'category2': 'organization',
-                                'source_event2': HARVEST_SOURCE,
-                                'history_event2': history_event}
-    organizations = organizations.assign(**new_organization_columns)
-    organizations = organizations[['name1', 'category1', 'value1',
-                                   'url_main1',
-                                   'name2', 'category2', 'value2',
-                                   'source_event2', 'history_event2']]
-
-    print('The following organizations from persons from ' + HARVEST_SOURCE
-          + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(organizations)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
 
     # Connect organization name to organization ROR.
     organizations = parsed_content[['ROR', 'ORGANIZATION_NAME']].copy(deep=True)
-    organizations.dropna(axis=0, how='any', inplace=True)
-    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'ROR': 'value1', 'ORGANIZATION_NAME': 'value2'}, inplace=True)
-    new_organization_columns = {'name1': 'ROR',
-                                'category1': 'organization',
-                                'source_event1': HARVEST_SOURCE,
-                                'history_event1': history_event,
-                                'name2': 'ORGANIZATION_NAME',
-                                'category2': 'organization'}
-    organizations = organizations.assign(**new_organization_columns)
-    organizations = organizations[['name1', 'category1', 'value1',
-                                   'source_event1', 'history_event1',
-                                   'name2', 'category2', 'value2']]
+    rcg.create_parsed_rors_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
 
-    print('The following organization RORs to organization names from persons from ' + HARVEST_SOURCE
-          + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(organizations)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
-
-    print('\nDone at ' + rcg.timestamp() + '.\n')
     return
 
 
@@ -392,34 +323,8 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    timestamp = rcg.datetimestamp()
-    print('Inserting research outputs from ' + HARVEST_SOURCE + ' in Ricgraph at '
-          + timestamp + '...')
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' research outputs at ' + timestamp + '.'
-
-    resout = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'DOI_TYPE']].copy(deep=True)
-    resout.dropna(axis=0, how='any', inplace=True)
-    resout.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    resout.rename(columns={'DOI_TYPE': 'category1',
-                           'DOI': 'value1',
-                           'TITLE': 'comment1',
-                           'YEAR': 'year1',
-                           'OPENALEX': 'value2'}, inplace=True)
-    new_resout_columns = {'name1': 'DOI',
-                          'source_event1': HARVEST_SOURCE,
-                          'history_event1': history_event,
-                          'name2': 'OPENALEX',
-                          'category2': 'person'}
-    resout = resout.assign(**new_resout_columns)
-    resout = resout[['name1', 'category1', 'value1', 'comment1', 'year1',
-                     'source_event1', 'history_event1',
-                     'name2', 'category2', 'value2']]
-
-    print('The following research outputs from ' + HARVEST_SOURCE
-          + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(resout)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=resout)
-    print('\nDone at ' + rcg.timestamp() + '.\n')
+    resouts = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+    rcg.create_parsed_dois_in_ricgraph(resouts=resouts, harvest_source=HARVEST_SOURCE)
     return
 
 

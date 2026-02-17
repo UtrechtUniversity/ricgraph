@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2023-2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@
 #
 # Original version Rik D.T. Janssen, March 2023.
 # Updated Rik D.T. Janssen, April, November 2023, February 2025.
+# Updated Rik D.T. Janssen, February 2026.
 #
 # ########################################################################
 #
@@ -66,6 +67,7 @@ import ricgraph as rcg
 # ######################################################
 ORGANIZATION = 'UU'
 UUSTAFF_MAX_FACULTY_NR = 25
+HARVEST_SOURCE = 'UU staff pages'
 
 # Harvesting UU staff pages is a three-step process and differs from
 # e.g. harvesting Pure.
@@ -77,7 +79,7 @@ UUSTAFF_MAX_FACULTY_NR = 25
 #    to connect to something that is already in Ricgraph (after
 #    the Pure harvest).
 # 2. Then we can harvest the other data from the UU staff pages.
-#    This will produce a json file with the harvested data in
+#    This will produce a JSON file with the harvested data in
 #    UUSTAFF_HARVEST_FILENAME.
 # 3. Finally, we insert the data from step 2 in Ricgraph.
 #    This will produce a csv file in UUSTAFF_DATA_FILENAME.
@@ -279,13 +281,13 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
 # ######################################################
 
 def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
-    """Harvest json data from a file.
+    """Harvest JSON data from a file.
 
     :param url: URL to harvest.
     :param max_recs_to_harvest: maximum records to harvest.
-    :return: list of records in json format, or empty list if nothing found.
+    :return: list of records in JSON format, or empty list if nothing found.
     """
-    print('Harvesting json data from ' + url + '.')
+    print('Harvesting JSON data from ' + url + '.')
     print('Getting data...')
 
     all_records = 9999999999                # a large number
@@ -362,13 +364,13 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
 def harvest_json_and_write_to_file_uustaffpages(filename: str,
                                                 url: str,
                                                 max_recs_to_harvest: int = 0) -> list:
-    """Harvest json data and write the data found to a file.
-    This data is a list of records in json format. If no records are harvested, nothing is written.
+    """Harvest JSON data and write the data found to a file.
+    This data is a list of records in JSON format. If no records are harvested, nothing is written.
 
     :param filename: filename of the file to use for writing.
     :param url: URL to harvest.
     :param max_recs_to_harvest: maximum records to harvest.
-    :return: list of records in json format, or empty list if nothing found.
+    :return: list of records in JSON format, or empty list if nothing found.
     """
     json_data = harvest_json_uustaffpages(url=url,
                                           max_recs_to_harvest=max_recs_to_harvest)
@@ -413,11 +415,6 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    timestamp = rcg.datetimestamp()
-    print('Inserting persons from UU staff pages in Ricgraph at '
-          + timestamp + '...')
-    history_event = 'Source: Harvest UU staff pages persons at ' + timestamp + '.'
-
     # The order of the columns in the DataFrame below is not random.
     # A good choice is to have in the first two columns:
     # a. the identifier that appears the most in the system we harvest.
@@ -436,144 +433,50 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                          'EMAIL', 'PHOTO_ID',
                                          'TWITTER', 'LINKEDIN',
                                          'GITHUB']].copy(deep=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    person_identifiers.dropna(axis=0, how='all', inplace=True)
-    person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
+                                          harvest_source=HARVEST_SOURCE)
 
-    print('The following persons from UU staff pages will be inserted in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event='UU staff pages',
-                                   history_event=history_event)
-
-    # ####### Add weblinks (by using 'url_main') to nodes we have inserted above.
+    # ####### Add weblinks to staff page nodes we have inserted above.
     nodes_to_update = parsed_content[['UUSTAFF_PAGE_ID', 'UUSTAFF_PAGE_URL']].copy(deep=True)
-    nodes_to_update.rename(columns={'UUSTAFF_PAGE_ID': 'value',
-                                    'UUSTAFF_PAGE_URL': 'url_main'}, inplace=True)
-    nodes_to_update_columns = {'name': 'UUSTAFF_PAGE_ID',
-                               'category': 'person'}
-    nodes_to_update = nodes_to_update.assign(**nodes_to_update_columns)
-    nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main']]
-    print('\nThe following page nodes will be updated in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(nodes_to_update)
-    rcg.update_nodes_df(nodes=nodes_to_update)
+    nodes_to_update.rename(columns={'UUSTAFF_PAGE_URL': 'URL_MAIN'}, inplace=True)
+    rcg.update_urls_in_ricgraph(entities=nodes_to_update,
+                                harvest_source=HARVEST_SOURCE,
+                                what='URLs of UU staff page nodes')
 
-    # ####### Add weblinks (by using 'url_main') to nodes we have inserted above.
+    # ####### Add weblinks to photo nodes we have inserted above.
     nodes_to_update = parsed_content[['PHOTO_ID', 'PHOTO_URL']].copy(deep=True)
-    nodes_to_update.rename(columns={'PHOTO_ID': 'value',
-                                    'PHOTO_URL': 'url_main'}, inplace=True)
-    nodes_to_update_columns = {'name': 'PHOTO_ID',
-                               'category': 'person'}
-    nodes_to_update = nodes_to_update.assign(**nodes_to_update_columns)
-    nodes_to_update = nodes_to_update[['name', 'category', 'value', 'url_main']]
-    print('\nThe following photo nodes will be updated in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(nodes_to_update)
-    rcg.update_nodes_df(nodes=nodes_to_update)
+    nodes_to_update.rename(columns={'PHOTO_URL': 'URL_MAIN'}, inplace=True)
+    rcg.update_urls_in_ricgraph(entities=nodes_to_update,
+                                harvest_source=HARVEST_SOURCE,
+                                what='URLs of UU staff photo nodes')
 
     # ####### Insert organizations (faculties only).
     organizations = parsed_content[['UUSTAFF_PAGE_ID', 'FACULTY']].copy(deep=True)
-    organizations.dropna(axis=0, how='any', inplace=True)
-    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'UUSTAFF_PAGE_ID': 'value1',
-                                  'FACULTY': 'value2'}, inplace=True)
-    new_organization_columns = {'name1': 'UUSTAFF_PAGE_ID',
-                                'category1': 'person',
-                                'name2': 'ORGANIZATION_NAME',
-                                'category2': 'organization',
-                                'source_event2': 'UU staff pages',
-                                'history_event2': history_event}
-    organizations = organizations.assign(**new_organization_columns)
-    organizations = organizations[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2',
-                                   'source_event2', 'history_event2']]
-    print('The following organizations from UU staff pages will be inserted in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(organizations)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+    organizations.rename(columns={'FACULTY': 'ORGANIZATION_NAME'}, inplace=True)
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
 
-    # ####### Insert organizations (connect all to Utrecht University, all staff is part of UU).
-    organizations.drop(columns={'value2'}, inplace=True)
-    organizations['value2'] = 'Utrecht University'
-    organizations = organizations[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2',
-                                   'source_event2', 'history_event2']]
-    print('"Utrecht University" will be connected to anyone from UU staff pages in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(organizations)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+    # ####### Insert organizations (connect all to 'UU Utrecht University',
+    # all staff is part of UU).
+    organizations = parsed_content[['UUSTAFF_PAGE_ID']].copy(deep=True)
+    organizations['ORGANIZATION_NAME'] = 'UU Utrecht University'
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
 
     # ####### Insert expertises.
     expertises = parsed_content[['UUSTAFF_PAGE_ID', 'EXPERTISE_AREA_NAME',
                                  'EXPERTISE_AREA_URL']].copy(deep=True)
-    expertises.dropna(axis=0, how='any', inplace=True)
-    expertises.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    expertises.rename(columns={'UUSTAFF_PAGE_ID': 'value1',
-                               'EXPERTISE_AREA_NAME': 'value2',
-                               'EXPERTISE_AREA_URL': 'url_main2'}, inplace=True)
-    new_expertises_columns = {'name1': 'UUSTAFF_PAGE_ID',
-                              'category1': 'person',
-                              'name2': 'EXPERTISE_AREA',
-                              'category2': 'competence',
-                              'source_event2': 'UU staff pages',
-                              'history_event2': history_event}
-    expertises = expertises.assign(**new_expertises_columns)
-    expertises = expertises[['name1', 'category1', 'value1',
-                             'name2', 'category2', 'value2',
-                             'url_main2', 'source_event2', 'history_event2']]
-    print('The following expertises from UU staff pages will be inserted in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(expertises)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=expertises)
+    rcg.create_parsed_expertise_areas_in_ricgraph(competences=expertises,
+                                                  harvest_source=HARVEST_SOURCE)
 
     # ####### Insert research areas.
     research_areas = parsed_content[['UUSTAFF_PAGE_ID', 'RESEARCH_AREA_NAME',
                                      'RESEARCH_AREA_URL']].copy(deep=True)
-    research_areas.dropna(axis=0, how='any', inplace=True)
-    research_areas.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    research_areas.rename(columns={'UUSTAFF_PAGE_ID': 'value1',
-                                   'RESEARCH_AREA_NAME': 'value2',
-                                   'RESEARCH_AREA_URL': 'url_main2'}, inplace=True)
-    new_research_areas_columns = {'name1': 'UUSTAFF_PAGE_ID',
-                                  'category1': 'person',
-                                  'name2': 'RESEARCH_AREA',
-                                  'category2': 'competence',
-                                  'source_event2': 'UU staff pages',
-                                  'history_event2': history_event}
-    research_areas = research_areas.assign(**new_research_areas_columns)
-    research_areas = research_areas[['name1', 'category1', 'value1',
-                                     'name2', 'category2', 'value2',
-                                     'url_main2', 'source_event2', 'history_event2']]
-    print('The following research areas from UU staff pages will be inserted in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(research_areas)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=research_areas)
+    rcg.create_parsed_research_areas_in_ricgraph(competences=research_areas,
+                                                 harvest_source=HARVEST_SOURCE)
 
     # ####### Insert skills.
     skills = parsed_content[['UUSTAFF_PAGE_ID', 'SKILL_NAME', 'SKILL_URL']].copy(deep=True)
-    skills.dropna(axis=0, how='any', inplace=True)
-    skills.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    skills.rename(columns={'UUSTAFF_PAGE_ID': 'value1',
-                           'SKILL_NAME': 'value2',
-                           'SKILL_URL': 'url_main2'}, inplace=True)
-    new_skills_columns = {'name1': 'UUSTAFF_PAGE_ID',
-                          'category1': 'person',
-                          'name2': 'SKILL',
-                          'category2': 'competence',
-                          'source_event2': 'UU staff pages',
-                          'history_event2': history_event}
-    skills = skills.assign(**new_skills_columns)
-    skills = skills[['name1', 'category1', 'value1',
-                     'name2', 'category2', 'value2',
-                     'url_main2', 'source_event2', 'history_event2']]
-    print('The following skills from UU staff pages will be inserted in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(skills)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=skills)
-
-    print('\nDone at ' + rcg.timestamp() + '.\n')
+    rcg.create_parsed_skills_in_ricgraph(competences=skills,
+                                         harvest_source=HARVEST_SOURCE)
     return
 
 
@@ -667,6 +570,8 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
 # ############################################
 # ################### main ###################
 # ############################################
+print('\nNote: You need to have harvested Pure-UU first before you can use this script.\n')
+
 rcg.print_commandline_arguments(argument_list=sys.argv)
 UUSTAFF_URL = rcg.get_configfile_key(section='UU_staff_pages_harvesting', key='uustaff_url')
 if UUSTAFF_URL == '':

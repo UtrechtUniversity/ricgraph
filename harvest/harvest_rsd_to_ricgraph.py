@@ -6,7 +6,7 @@
 #
 # MIT License
 # 
-# Copyright (c) 2022-2025 Rik D.T. Janssen
+# Copyright (c) 2022 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@
 #
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, April, October 2023, February 2025.
+# Updated Rik D.T. Janssen, February 2026.
 #
 # ########################################################################
 #
@@ -107,7 +108,11 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     df_mod.rename(columns={'package_doi': 'DOI',
                            'orcid': 'ORCID',
                            'affiliation': 'ORGANIZATION_NAME',
+                           'package_name': 'TITLE',
+                           'package_year': 'YEAR',
+                           'package_url': 'URL_OTHER'
                            }, inplace=True)
+    df_mod['TYPE'] = rcg.ROTYPE_SOFTWARE
     return df_mod
 
 
@@ -185,9 +190,9 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
 # ######################################################
 
 def rsd_harvest_json_and_write_to_file(filename: str, url: str, headers: dict) -> list:
-    """Harvest json data from the Research Software Directory and write the data found to a file.
-    This data is a list of records in json format. If no records are harvested, nothing is written.
-    We cannot use ricgraph.harvest_json_and_write_to_file() since RSDs json
+    """Harvest JSON data from the Research Software Directory and write the data found to a file.
+    This data is a list of records in JSON format. If no records are harvested, nothing is written.
+    We cannot use ricgraph.harvest_json_and_write_to_file() since RSDs JSON
     does not conform to the standard.
     This is understandable, since at the moment there is no "official, correct" way of harvesting
     RSD yet, that is future work for RSD [December 2022].
@@ -195,7 +200,7 @@ def rsd_harvest_json_and_write_to_file(filename: str, url: str, headers: dict) -
     :param filename: filename of the file to use for writing.
     :param url: URL to harvest.
     :param headers: headers required.
-    :return: list of records in json format, or empty list if nothing found.
+    :return: list of records in JSON format, or empty list if nothing found.
     """
     print('Getting data from ' + url + '...')
     request = urllib.request.Request(url=url, headers=headers)
@@ -247,48 +252,14 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    timestamp = rcg.datetimestamp()
-    print('Inserting software packages from ' + HARVEST_SOURCE + ' in Ricgraph at '
-          + timestamp + '...')
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' at ' + timestamp + '.'
-
     person_identifiers = parsed_content[['ORCID', 'FULL_NAME']].copy(deep=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    person_identifiers.dropna(axis=0, how='all', inplace=True)
-    person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
+                                          harvest_source=HARVEST_SOURCE)
 
-    print('The following persons from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(person_identifiers)
-    rcg.unify_personal_identifiers(personal_identifiers=person_identifiers,
-                                   source_event=HARVEST_SOURCE,
-                                   history_event=history_event)
+    software = parsed_content[['ORCID', 'DOI', 'TITLE', 'YEAR', 'TYPE', 'URL_OTHER']].copy(deep=True)
+    rcg.create_parsed_dois_in_ricgraph(resouts=software, harvest_source=HARVEST_SOURCE)
 
-    software = parsed_content.copy(deep=True)
-    software.dropna(axis=0, how='all', inplace=True)
-    software.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    software.rename(columns={'DOI': 'value1',
-                             'package_name': 'comment1',
-                             'package_year': 'year1',
-                             'package_url': 'url_other1',
-                             'ORCID': 'value2'}, inplace=True)
-    new_software_columns = {'name1': 'DOI',
-                            'category1': rcg.ROTYPE_SOFTWARE,
-                            'source_event1': HARVEST_SOURCE,
-                            'history_event1': history_event,
-                            'name2': 'ORCID',
-                            'category2': 'person',
-                            'source_event2': HARVEST_SOURCE,
-                            'history_event2': history_event}
-    software = software.assign(**new_software_columns)
-    software = software[['name1', 'category1', 'value1', 'comment1', 'year1', 'url_other1',
-                         'source_event1', 'history_event1',
-                         'name2', 'category2', 'value2',
-                         'source_event2', 'history_event2']]
-
-    print('The following software packages from ' + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(software)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=software)
-
+    # ####
     # As of the current implementation of RSD (2023-2025), RSD has organizations in two
     # different places:
     # 1. As part of 'contributor', i.e., part of a person.
@@ -303,26 +274,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # decides to enter multiple organizations in the same field, which is unexpected.
     # I cannot do (2), since I would not know which organization belongs to which person.
     organizations = parsed_content[['ORCID', 'ORGANIZATION_NAME']].copy(deep=True)
-    organizations.dropna(axis=0, how='any', inplace=True)
-    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'ORCID': 'value1',
-                                  'ORGANIZATION_NAME': 'value2'}, inplace=True)
-    new_organizations_columns = {'name1': 'ORCID',
-                                 'category1': 'person',
-                                 'name2': 'ORGANIZATION_NAME',
-                                 'category2': 'organization',
-                                 'source_event2': HARVEST_SOURCE,
-                                 'history_event2': history_event}
-    organizations = organizations.assign(**new_organizations_columns)
-    organizations = organizations[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2', 'source_event2', 'history_event2']]
-
-    print('The following organizations and persons from organizations from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph:')
-    print(organizations)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
-
-    print('\nDone at ' + rcg.timestamp() + '.\n')
+    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
     return
 
 
