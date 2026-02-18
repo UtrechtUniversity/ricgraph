@@ -350,8 +350,6 @@ if int(year_first) > int(year_last):
     print('Exiting.\n')
     exit(1)
 
-print('\nHarvesting first year: ' + year_first + ', last year: ' + year_last + '.')
-
 org_name = 'organization_name_' + organization
 org_ror = 'organization_ror_' + organization
 ORGANIZATION_NAME = rcg.get_configfile_key(section='Organization', key=org_name)
@@ -362,6 +360,8 @@ if ORGANIZATION_NAME == '' or ORGANIZATION_ROR == '':
     exit(1)
 
 HARVEST_SOURCE = 'OpenAlex-' + organization
+
+print('\nHarvesting ' + HARVEST_SOURCE + ', first year: ' + year_first + ', last year: ' + year_last + '.')
 
 # The OpenAlex 'polite pool' has much faster and more consistent response times.
 # See https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication#the-polite-pool.

@@ -570,6 +570,8 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
 # ############################################
 # ################### main ###################
 # ############################################
+print('\nHarvesting ' + HARVEST_SOURCE + '.')
+
 print('\nNote: You need to have harvested Pure-UU first before you can use this script.\n')
 
 rcg.print_commandline_arguments(argument_list=sys.argv)

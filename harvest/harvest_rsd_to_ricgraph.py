@@ -297,6 +297,8 @@ if RSD_URL == '' or RSD_ORGANIZATION == '':
 FULL_RSD_URL = RSD_URL + '/' + RSD_ENDPOINT + '?slug=eq.' + RSD_ORGANIZATION + '&select=' + RSD_FIELDS
 HARVEST_SOURCE = 'Research Software Directory-' + organization
 
+print('\nHarvesting ' + HARVEST_SOURCE + '.')
+
 print('\nPreparing graph...')
 rcg.open_ricgraph()
 

@@ -551,6 +551,8 @@ if YODA_URL == '' or YODA_SET == '':
 YODA_HEADERS['set'] = YODA_SET
 HARVEST_SOURCE = 'Yoda-DataCite-' + organization
 
+print('\nHarvesting ' + HARVEST_SOURCE + '.')
+
 print('\nPreparing graph...')
 rcg.open_ricgraph()
 

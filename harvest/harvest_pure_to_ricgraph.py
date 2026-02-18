@@ -1603,8 +1603,6 @@ if int(year_first) > int(year_last):
     print('Exiting.\n')
     exit(1)
 
-print('\nHarvesting first year: ' + year_first + ', last year: ' + year_last + '.')
-
 if (harvest_projects := rcg.get_commandline_argument_harvest_projects(argument_list=sys.argv)) == 'yes':
     HARVEST_PROJECTS = True
 else:
@@ -1657,6 +1655,8 @@ else:
     exit(1)
 
 HARVEST_SOURCE = 'Pure-' + organization
+
+print('\nHarvesting ' + HARVEST_SOURCE + ', first year: ' + year_first + ', last year: ' + year_last + '.')
 
 print('\nPreparing graph...')
 rcg.open_ricgraph()
