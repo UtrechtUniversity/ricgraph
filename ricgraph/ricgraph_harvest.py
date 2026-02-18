@@ -49,7 +49,8 @@ from requests import get, post
 from requests import codes
 from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
                        update_nodes_df)
-from .ricgraph_utils import timestamp, datetimestamp
+from .ricgraph_utils import (timestamp, datetimestamp,
+                             timestamp_posix, print_records_per_minute)
 from .ricgraph_constants import A_LARGE_NUMBER
 
 
@@ -132,6 +133,7 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
 
     json_data = []
     records_harvested = 0
+    start_ts = timestamp_posix()
     page_nr = 1
     # And now start the real harvesting.
     while records_harvested <= max_recs_to_harvest:
@@ -177,9 +179,20 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
         records_harvested += chunksize
         page_nr += 1
 
-    print(' Done at ' + timestamp() + '.\n')
+    print(' Done at ' + timestamp() + '.')
+    end_ts = timestamp_posix()
+    print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
+                             nr_records=records_harvested,
+                             what='Harvested')
+    print('')
     return json_data
 
+
+# ######################################################
+# Functions to get harvested results in Ricgraph.
+# The functions below all have a 'person' node as
+# first element in the DataFrame.
+# ######################################################
 
 def create_parsed_persons_in_ricgraph(person_identifiers: DataFrame,
                                       harvest_source: str) -> None:
@@ -349,51 +362,6 @@ def create_parsed_organizations_in_ricgraph(organizations: DataFrame,
     return
 
 
-def create_parsed_rors_in_ricgraph(organizations: DataFrame,
-                                   harvest_source: str) -> None:
-    """Insert the parsed research outputs in Ricgraph.
-
-    :param organizations: The records to insert in Ricgraph, if not present yet.
-        We expect two columns: ROR' and 'ORGANIZATION_NAME'.
-        The order does not matter.
-    :param harvest_source: The source system we harvest from.
-    :return: None.
-    """
-    if 'ROR' not in organizations.columns:
-        print('create_parsed_rors_in_ricgraph(): Error, missing column "ROR".')
-        exit(1)
-    if 'ORGANIZATION_NAME' not in organizations.columns:
-        print('create_parsed_rors_in_ricgraph(): Error, missing column "ORGANIZATION_NAME".')
-        exit(1)
-
-    print('Inserting organization RORs from ' + harvest_source + ' in Ricgraph at ' + timestamp() + '...')
-    history_event = 'Source: Harvest "' + harvest_source + '" organization RORs at ' + datetimestamp() + '.'
-
-    # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-    organizations.replace(to_replace='', value=nan, inplace=True)
-    # Drop a row if any of its values is NaN.
-    organizations.dropna(axis=0, how='any', inplace=True)
-    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'ORGANIZATION_NAME': 'value1',
-                                  'ROR': 'value2'}, inplace=True)
-    new_organization_columns = {'name1': 'ORGANIZATION_NAME',
-                                'category1': 'organization',
-                                'name2': 'ROR',
-                                'category2': 'organization',
-                                'source_event2': harvest_source,
-                                'history_event2': history_event}
-    organizations = organizations.assign(**new_organization_columns)
-    organizations = organizations[['name1', 'category1', 'value1',
-                                   'name2', 'category2', 'value2',
-                                   'source_event2', 'history_event2']]
-
-    print('The following organization RORs will be inserted in Ricgraph:')
-    print(organizations)
-    create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
-    print('\nDone inserting organization RORs at ' + timestamp() + '.\n')
-    return
-
-
 def create_parsed_expertise_areas_in_ricgraph(competences: DataFrame,
                                               harvest_source: str) -> None:
     """Insert the parsed research outputs in Ricgraph.
@@ -472,6 +440,30 @@ def create_parsed_skills_in_ricgraph(competences: DataFrame,
     return
 
 
+def connect_two_uustaff_persons_in_ricgraph(persons: DataFrame,
+                                            harvest_source: str) -> None:
+    """Connect two persons in Ricgraph from UU staff pages.
+
+    :param persons: The records to insert in Ricgraph, if not present yet.
+        The order of the columns in this DataFrame is not random.
+        We expect:
+        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+          The 'name' property in the person node will get the name
+          of this column.
+          The 'value' property will be the value in this columns' row.
+        - The other column should be named 'UUSTAFF_PAGE_ID'.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    persons.rename(columns={'UUSTAFF_PAGE_ID': 'RESOUT_VALUE'}, inplace=True)
+    persons.insert(loc=1, column='RESOUT_ID', value='UUSTAFF_PAGE_ID')
+    persons['TYPE'] = 'person'
+    create_parsed_entities_in_ricgraph(entities=persons,
+                                       harvest_source=harvest_source,
+                                       what='connections between EMPLOYEE_ID and UUSTAFF_PAGE_ID')
+    return
+
+
 def create_external_persons_in_ricgraph(authors: DataFrame,
                                         harvest_source: str) -> None:
     """Insert the external persons and author collaborations in Ricgraph.
@@ -539,4 +531,57 @@ def update_urls_in_ricgraph(entities: DataFrame,
     update_nodes_df(nodes=entities)
     print('\nDone updating ' + what + ' at ' + timestamp() + '.\n')
     return
+
+
+# ######################################################
+# Functions to get harvested results in Ricgraph.
+# The function below has two organizations in
+# the DataFrame (and subsequently is different from the
+# ones above).
+# ######################################################
+
+def create_parsed_rors_in_ricgraph(organizations: DataFrame,
+                                   harvest_source: str) -> None:
+    """Insert the parsed research outputs in Ricgraph.
+
+    :param organizations: The records to insert in Ricgraph, if not present yet.
+        We expect two columns: ROR' and 'ORGANIZATION_NAME'.
+        The order does not matter.
+    :param harvest_source: The source system we harvest from.
+    :return: None.
+    """
+    if 'ROR' not in organizations.columns:
+        print('create_parsed_rors_in_ricgraph(): Error, missing column "ROR".')
+        exit(1)
+    if 'ORGANIZATION_NAME' not in organizations.columns:
+        print('create_parsed_rors_in_ricgraph(): Error, missing column "ORGANIZATION_NAME".')
+        exit(1)
+
+    print('Inserting organization RORs from ' + harvest_source + ' in Ricgraph at ' + timestamp() + '...')
+    history_event = 'Source: Harvest "' + harvest_source + '" organization RORs at ' + datetimestamp() + '.'
+
+    # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
+    organizations.replace(to_replace='', value=nan, inplace=True)
+    # Drop a row if any of its values is NaN.
+    organizations.dropna(axis=0, how='any', inplace=True)
+    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    organizations.rename(columns={'ORGANIZATION_NAME': 'value1',
+                                  'ROR': 'value2'}, inplace=True)
+    new_organization_columns = {'name1': 'ORGANIZATION_NAME',
+                                'category1': 'organization',
+                                'name2': 'ROR',
+                                'category2': 'organization',
+                                'source_event2': harvest_source,
+                                'history_event2': history_event}
+    organizations = organizations.assign(**new_organization_columns)
+    organizations = organizations[['name1', 'category1', 'value1',
+                                   'name2', 'category2', 'value2',
+                                   'source_event2', 'history_event2']]
+
+    print('The following organization RORs will be inserted in Ricgraph:')
+    print(organizations)
+    create_nodepairs_and_edges_df(left_and_right_nodepairs=organizations)
+    print('\nDone inserting organization RORs at ' + timestamp() + '.\n')
+    return
+
 

@@ -126,12 +126,14 @@ def timestamp_posix() -> int:
 
 
 def print_records_per_minute(start_ts: int, end_ts: int,
-                             nr_records: int) -> None:
+                             nr_records: int,
+                             what: str = 'Processed') -> None:
     """Prints processing rate in records per minute using POSIX timestamps.
 
     :param start_ts: Start time (POSIX timestamp, seconds since epoch).
     :param end_ts: End time (POSIX timestamp, seconds since epoch).
     :param nr_records: Number of records processed.
+    :param what: What the "processed" message means.
     :return: None.
     """
     if start_ts > end_ts:
@@ -140,13 +142,13 @@ def print_records_per_minute(start_ts: int, end_ts: int,
         exit(1)
 
     elapsed_ts = end_ts - start_ts
-    if elapsed_ts <= 60:
-        print('Processed ' + str(nr_records) + ' records in almost no time.')
+    if elapsed_ts <= 120:
+        print(what + ' ' + str(nr_records) + ' records in almost no time.')
     else:
-        # Only show the number of records/min if elapsed_ts > 1 min.
+        # Only show the number of records/min if elapsed_ts > 2 min.
         rpm = str(round((nr_records / elapsed_ts) * 60))
         elapsed = str(round(elapsed_ts / 60))
-        print('Processed ' + str(nr_records) + ' records in ' + elapsed
+        print(what + ' ' + str(nr_records) + ' records in ' + elapsed
               + ' minutes, that is ' + rpm + ' records/minute.')
     return
 

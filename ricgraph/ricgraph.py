@@ -173,7 +173,9 @@ def update_nodes_df(nodes: DataFrame) -> None:
 
     print(count, '(' + timestamp() + ')\n', end='', flush=True)
     end_ts = timestamp_posix()
-    print_records_per_minute(start_ts=start_ts, end_ts=end_ts, nr_records=count)
+    print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
+                             nr_records=count,
+                             what='Updated')
     return
 
 
@@ -215,7 +217,9 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
                                   **node_properties)
     print(count, '(' + timestamp() + ')\n', end='', flush=True)
     end_ts = timestamp_posix()
-    print_records_per_minute(start_ts=start_ts, end_ts=end_ts, nr_records=count)
+    print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
+                             nr_records=count,
+                             what='Created')
     return
 
 
