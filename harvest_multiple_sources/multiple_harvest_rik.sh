@@ -5,7 +5,7 @@
 #
 # ########################################################################
 #
-# MIT License, Copyright (c) 2025 Rik D.T. Janssen
+# MIT License, Copyright (c) 2025 - 2026 Rik D.T. Janssen
 #
 # ########################################################################
 #
@@ -14,14 +14,16 @@
 # This script harvests UU, VUA, and DUT sources.
 # It also dumps the graph database and modifies organization names.
 #
-# You may want to start this script as follows:
-# [name of this script] | tee output.txt
-# In this case, output is written both to the terminal and to
-# file 'output.txt'.
-# Or use the Makefile and type:
-# make bash_script=harvest_multiple_sources/multiple_harvest_rik.sh run_bash_script
+# You can run this script as follows:
+# - In directory .../ricgraph:
+#   make bash_script=harvest_multiple_sources/multiple_harvest_rik.sh run_bash_script
+#   This does a 'tee', like in: "[name of this script] | tee output.txt".
+#   Output will be written both to the terminal and to file 'output.txt'.
+# - In directory .../ricgraph/harvest_multiple_sources:
+#   ./multiple_harvest_rik.sh
 #
 # Original version Rik D.T. Janssen, April 2025.
+# Updated Rik D.T. Janssen, February 2026.
 #
 # ########################################################################
 

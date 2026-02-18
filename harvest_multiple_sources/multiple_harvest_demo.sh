@@ -19,17 +19,13 @@
 # A best practise is to start the harvest with that harvest script of which
 # you expect the most data.
 #
-# You may want to start this script as follows:
-# [name of this script] | tee output.txt
-# In this case, output is written both to the terminal and to 
-# file 'output.txt'.
-#
-# Other examples to run this script:
-# In directory .../ricgraph:
-# make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_demo.sh \
-#    cmd_args="--organization UU --empty_ricgraph yes"
-# In directory .../ricgraph/harvest_multiple_sources:
-# ./multiple_harvest_demo.sh --organization UU --empty_ricgraph yes
+# You can run this script as follows:
+# - In directory .../ricgraph:
+#   make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_demo.sh
+#   This does a 'tee', like in: "[name of this script] | tee output.txt".
+#   Output will be written both to the terminal and to file 'output.txt'.
+# - In directory .../ricgraph/harvest_multiple_sources:
+#   ./multiple_harvest_demo.sh
 #
 # Original version Rik D.T. Janssen, April 2025.
 # Updated Rik D.T. Janssen, February 2026.
@@ -88,13 +84,13 @@ harvest_yoda() {
 }
 
 
-echo "This script harvests the Research Software Directory."
-echo "It also harvests Yoda if your organization uses it."
+echo "This script harvests the Research Software Directory and Yoda"
+echo "for Utrecht University."
 
 # The following script returns $python_cmd, $python_path,
 # $organization, and $empty_ricgraph.
 # $year_first and $year_last are not necessary for RSD and Yoda.
-source ../library/get_cmdline_args.sh
+source ../library/get_cmdline_args.sh --organization UU --empty_ricgraph yes
 
 cd ../harvest || exit 1
 

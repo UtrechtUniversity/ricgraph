@@ -21,18 +21,14 @@
 # A best practise is to start the harvest with that harvest script of which
 # you expect the most data.
 #
-# You may want to start this script as follows:
-# [name of this script] | tee output.txt
-# In this case, output is written both to the terminal and to 
-# file 'output.txt'.
-
-# Other examples to run this script:
-# In directory .../ricgraph:
-# make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_organization.sh \
+# You can run this script as follows:
+# - In directory .../ricgraph:
+#   make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_organization.sh \
 #    cmd_args="--organization UU --empty_ricgraph yes"
-# In directory .../ricgraph/harvest_multiple_sources:
-# ./multiple_harvest_organization.sh --organization UU --empty_ricgraph yes
-#
+#   This does a 'tee', like in: "[name of this script] | tee output.txt".
+#   Output will be written both to the terminal and to file 'output.txt'.
+# - In directory .../ricgraph/harvest_multiple_sources:
+#   ./multiple_harvest_organization.sh --organization UU --empty_ricgraph yes
 #
 # Original version Rik D.T. Janssen, April 2025.
 # Updated Rik D.T. Janssen, February 2026.
