@@ -148,8 +148,8 @@ def print_records_per_minute(start_ts: int, end_ts: int,
         # Only show the number of records/min if elapsed_ts > 2 min.
         rpm = str(round((nr_records / elapsed_ts) * 60))
         elapsed = str(round(elapsed_ts / 60))
-        print(what + ' ' + str(nr_records) + ' records in ' + elapsed
-              + ' minutes, that is ' + rpm + ' records/minute.')
+        print(what + ' ' + str(nr_records) + ' records in (rounded) ' + elapsed
+              + ' minutes, or ' + rpm + ' records/minute.')
     return
 
 
