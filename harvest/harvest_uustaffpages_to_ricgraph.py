@@ -225,6 +225,14 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
                         parse_line['GITHUB'] = path_name
                     elif 'twitter' in name_identifier:
                         parse_line['TWITTER'] = path_name
+                    elif 'instagram' in name_identifier:
+                        parse_line['INSTAGRAM'] = path_name
+                    elif 'bluesky' in name_identifier:
+                        parse_line['BLUESKY'] = path_name
+                    elif 'youtube' in name_identifier:
+                        parse_line['YOUTUBE'] = path_name
+                    elif 'facebook' in name_identifier:
+                        parse_line['FACEBOOK'] = path_name
                     else:
                         parse_line[links['Name']] = value_identifier
 
@@ -288,13 +296,16 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
     :return: list of records in JSON format, or empty list if nothing found.
     """
     print('Harvesting JSON data from ' + url + '.')
-    print('Getting data...')
 
     all_records = 9999999999                # a large number
     if max_recs_to_harvest == 0:
         max_recs_to_harvest = all_records
+    if max_recs_to_harvest != all_records:
+        print('At most ' + str(max_recs_to_harvest) + ' items.')
+    print('Getting data...')
     json_data = []
     count = 0
+    start_ts = rcg.timestamp_posix()
     for faculty_nr in range(UUSTAFF_MAX_FACULTY_NR):
         if count >= max_recs_to_harvest:
             break
@@ -357,7 +368,12 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
             if count % 500 == 0:
                 print('\n', end='', flush=True)
 
-    print(' Done at ' + rcg.timestamp() + '.\n')
+    print(' Done at ' + rcg.timestamp() + '.')
+    end_ts = rcg.timestamp_posix()
+    rcg.print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
+                                 nr_records=count,
+                                 what='Harvested')
+    print('')
     return json_data
 
 
@@ -428,11 +444,12 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     # (in parsed_pure_uustaffpages_to_ricgraph()).
 
     # ####### Insert persons.
-    person_identifiers = parsed_content[['UUSTAFF_PAGE_ID', 'ORCID',
-                                         'UUSTAFF_ID_PERS', 'FULL_NAME',
-                                         'EMAIL', 'PHOTO_ID',
-                                         'TWITTER', 'LINKEDIN',
-                                         'GITHUB']].copy(deep=True)
+    # We use this approach to prevent errors of missing columns.
+    all_possible_cols = ['UUSTAFF_PAGE_ID', 'ORCID', 'UUSTAFF_ID_PERS', 'FULL_NAME',
+                         'EMAIL', 'PHOTO_ID', 'TWITTER', 'LINKEDIN', 'GITHUB',
+                         'INSTAGRAM', 'BLUESKY', 'YOUTUBE', 'FACEBOOK']
+    existing_cols = [c for c in all_possible_cols if c in parsed_content.columns]
+    person_identifiers = parsed_content[existing_cols].copy(deep=True)
     rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
                                           harvest_source=HARVEST_SOURCE)
 
@@ -480,27 +497,37 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     return
 
 
-def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
+def connect_pure_with_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> Union[pandas.DataFrame, None]:
     """Connect Pure with the UU staff pages.
     Get SolisID from Ricgraph and harvest the corresponding data from the
     UU staff pages.
 
     :param url: url to the UU staff pages.
+    :param max_recs_to_harvest: maximum records to harvest (to connect).
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Connect Pure SolisIDs with corresponding persons from UU staff pages at '
           + rcg.datetimestamp() + '...')
+
+    all_records = 9999999999                # a large number
+    if max_recs_to_harvest == 0:
+        max_recs_to_harvest = all_records
+    if max_recs_to_harvest != all_records:
+        print('At most ' + str(max_recs_to_harvest) + ' items.')
     nodes_with_solisid = rcg.read_all_nodes(name='EMPLOYEE_ID')
     print('There are ' + str(len(nodes_with_solisid)) + ' SolisID records, parsing record: 0  ', end='')
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
     count = 0
+    start_ts = rcg.timestamp_posix()
     for node in nodes_with_solisid:
         count += 1
         if count % 50 == 0:
             print(count, ' ', end='', flush=True)
         if count % 500 == 0:
             print('(' + rcg.timestamp() + ')\n', end='', flush=True)
+        if count >= max_recs_to_harvest:
+            break
 
         solis_id = node['value']
         solis_url = url + UUSTAFF_SOLISID_ENDPOINT + solis_id
@@ -528,7 +555,12 @@ def connect_pure_with_uustaffpages(url: str) -> Union[pandas.DataFrame, None]:
         parse_chunk.append(parse_line)
 
     print(count, '\n', end='', flush=True)
-    print('Done at ' + rcg.timestamp() + '.\n')
+    print(' Done at ' + rcg.timestamp() + '.')
+    end_ts = rcg.timestamp_posix()
+    rcg.print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
+                                 nr_records=count,
+                                 what='Connected')
+    print('')
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
@@ -541,29 +573,9 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    timestamp = rcg.datetimestamp()
-    history_event = 'Source: Harvest UU staff pages connect EMPLOYEE_ID and UUSTAFF_PAGE_ID at ' + timestamp + '.'
-
     solisids_staffids = parsed_content[['EMPLOYEE_ID', 'UUSTAFF_PAGE_ID']].copy(deep=True)
-    solisids_staffids.rename(columns={'EMPLOYEE_ID': 'value1',
-                                      'UUSTAFF_PAGE_ID': 'value2'}, inplace=True)
-    new_solisids_staffids_columns = {'name1': 'EMPLOYEE_ID',
-                                     'category1': 'person',
-                                     'name2': 'UUSTAFF_PAGE_ID',
-                                     'category2': 'person',
-                                     'source_event2': 'UU staff pages',
-                                     'history_event2': history_event}
-    solisids_staffids = solisids_staffids.assign(**new_solisids_staffids_columns)
-    solisids_staffids = solisids_staffids[['name1', 'category1', 'value1',
-                                           'name2', 'category2', 'value2',
-                                           'source_event2', 'history_event2']]
-
-    print('The following Pure SolisIDs and corresponding persons from UU staff pages will be inserted in Ricgraph at '
-          + rcg.timestamp() + ':')
-    print(solisids_staffids)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=solisids_staffids)
-
-    print('Done at ' + rcg.timestamp() + '.\n')
+    rcg.connect_two_uustaff_persons_in_ricgraph(persons=solisids_staffids,
+                                                harvest_source=HARVEST_SOURCE)
     return
 
 
@@ -610,7 +622,7 @@ if True:              # Comment this line to comment out code block A
     else:
         error_message = 'There are no Pure SolisIDs to connect to UU staff pages to harvest.\n'
         print('Harvesting Pure SolisIDs to connect to UU staff pages to harvest.')
-        parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL)
+        parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL, max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST)
         rcg.write_dataframe_to_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME, df=parsed_results)
 
     parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME, datatype=str)
