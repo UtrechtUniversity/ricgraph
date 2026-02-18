@@ -146,10 +146,10 @@ if [ "$organization" = "UU" ] ; then
   harvest_uustaffpages
 fi
 
-harvest_openalex
-
 harvest_rsd
 
 harvest_yoda
+
+harvest_openalex
 
 echo "Done with harvesting."
