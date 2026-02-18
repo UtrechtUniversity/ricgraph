@@ -114,6 +114,43 @@ def datetimestamp(seconds: bool = False) -> str:
     return datetime_stamp
 
 
+def timestamp_posix() -> int:
+    """Get a timestamp in seconds, in posix format.
+    This is different from timestamp(), that function
+    uses Python datetime (a complex type).
+
+    :return: the timestamp.
+    """
+    now = int(datetime.now().timestamp())
+    return now
+
+
+def print_records_per_minute(start_ts: int, end_ts: int,
+                             nr_records: int) -> None:
+    """Prints processing rate in records per minute using POSIX timestamps.
+
+    :param start_ts: Start time (POSIX timestamp, seconds since epoch).
+    :param end_ts: End time (POSIX timestamp, seconds since epoch).
+    :param nr_records: Number of records processed.
+    :return: None.
+    """
+    if start_ts > end_ts:
+        print('print_records_per_minute(): Error, start_ts (' + str(start_ts)
+              + ') is larger than end_ts (' + str(end_ts) + '). Exiting.')
+        exit(1)
+
+    elapsed_ts = end_ts - start_ts
+    if elapsed_ts <= 60:
+        print('Processed ' + str(nr_records) + ' records in almost no time.')
+    else:
+        # Only show the number of records/min if elapsed_ts > 1 min.
+        rpm = str(round((nr_records / elapsed_ts) * 60))
+        elapsed = str(round(elapsed_ts / 60))
+        print('Processed ' + str(nr_records) + ' records in ' + elapsed
+              + ' minutes, that is ' + rpm + ' records/minute.')
+    return
+
+
 def convert_string_to_ascii(value: str = '') -> str:
     """Convert all accented etc. characters to their ASCII equivalent.
     We use Unidecode from https://github.com/avian2/unidecode.
