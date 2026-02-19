@@ -63,6 +63,7 @@
 
 import sys
 import pandas
+from typing import Union
 import xmltodict
 from sickle import Sickle
 import ricgraph as rcg
@@ -355,12 +356,17 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
     return new_record
 
 
-def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
+def parse_yoda_datacite(harvest: dict,
+                        filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested data sets (and other research outputs) from Yoda datacite.
+    In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :return: the harvested research outputs in a DataFrame.
     """
+    if len(harvest) == 0:
+        return None
     list_of_records = harvest['makewellformedxml']['record']
     rowdict = []
     for item in list_of_records:
@@ -392,8 +398,9 @@ def parse_yoda_datacite(harvest: dict) -> pandas.DataFrame:
 
     datacite_data = pandas.DataFrame(rowdict)
     datacite_data = restructure_parse(df=datacite_data)
-    datacite_data = process_parsed_data(df=datacite_data)
-    return rcg.normalize_identifiers(df=datacite_data)
+    parse_result = process_parsed_data(df=datacite_data)
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=filename)
 
 
 # ######################################################
@@ -450,12 +457,16 @@ def harvest_xml_and_write_to_file(url: str, headers: dict, harvest_filename: str
     return
 
 
-def harvest_and_parse_yoda_datacite_data(url: str, headers: dict, harvest_filename: str) -> pandas.DataFrame:
+def harvest_and_parse_yoda_datacite_data(url: str,
+                                         headers: dict,
+                                         harvest_filename: str,
+                                         df_filename: str) -> Union[pandas.DataFrame, None]:
     """Harvest and parse data from Yoda datacite.
 
     :param url: URL to harvest from.
     :param headers: headers for harvest.
     :param harvest_filename: filename to write harvest results to.
+    :param df_filename: filename to write the DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting from ' + HARVEST_SOURCE + '...')
@@ -467,7 +478,9 @@ def harvest_and_parse_yoda_datacite_data(url: str, headers: dict, harvest_filena
     with open(harvest_filename) as fd:
         doc = xmltodict.parse(fd.read())
 
-    parse = parse_yoda_datacite(harvest=doc)
+    if (parse := parse_yoda_datacite(harvest=doc, filename=df_filename)) is None:
+        return None
+
     print('The harvested data from ' + HARVEST_SOURCE + ' are:')
     print(parse)
     return parse
@@ -573,6 +586,7 @@ data_file = YODA_DATA_FILENAME.split('.')[0] \
 if YODA_READ_DATA_FROM_FILE:
     error_message = 'There are no data from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
     print('Reading data from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
+    parse_yoda_data = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 else:
     error_message = 'There are no data from ' + HARVEST_SOURCE + ' to harvest.\n'
     print('Harvesting data from ' + HARVEST_SOURCE + '.')
@@ -581,10 +595,9 @@ else:
                    + YODA_HARVEST_FILENAME.split('.')[1]
     parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
                                                            headers=YODA_HEADERS,
-                                                           harvest_filename=harvest_file)
-    rcg.write_dataframe_to_csv(filename=data_file, df=parse_yoda_data)
+                                                           harvest_filename=harvest_file,
+                                                           df_filename=data_file)
 
-parse_yoda_data = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 if parse_yoda_data is None or parse_yoda_data.empty:
     print(error_message)
 else:

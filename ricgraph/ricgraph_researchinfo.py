@@ -45,6 +45,7 @@
 from re import sub
 from numpy import nan
 from pandas import DataFrame
+from .ricgraph_file import write_dataframe_to_csv, read_dataframe_from_csv
 
 
 def create_well_known_url(name: str, value: str) -> str:
@@ -257,6 +258,23 @@ def normalize_identifiers(df: DataFrame) -> DataFrame:
             df_mod[identifier] = df_mod[identifier].apply(
                 lambda x: globals()[function_name](x) if isinstance(x, str) else x)
     return df_mod
+
+
+def normalize_identifiers_write_read(parse_result: DataFrame, filename: str = '') -> DataFrame:
+    """Normalize identifiers.
+    In case filename != '', write it to a file and read it back.
+
+    :param parse_result: The result of the parse to be normalized.
+    :param filename: If filename != '', write it to a file and read it back.
+    :return: The normalized DataFrame.
+    """
+    normalize_result = normalize_identifiers(df=parse_result)
+    if filename == '':
+        return normalize_result
+
+    write_dataframe_to_csv(filename=filename, df=normalize_result)
+    parse = read_dataframe_from_csv(filename=filename, datatype=str)
+    return parse
 
 
 def lookup_resout_type(research_output_type: str,

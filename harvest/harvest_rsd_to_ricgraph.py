@@ -61,9 +61,7 @@
 
 import sys
 import numpy
-import json
 import pandas
-import urllib.request
 from typing import Union
 import ricgraph as rcg
 
@@ -84,9 +82,10 @@ RSD_FIELDS = 'software(brand_name,slug,concept_doi,' \
              + 'release(mention(doi,doi_registration_date,publication_year)),' \
              + 'contributor(family_names,given_names,orcid,affiliation))' \
              + '&software.release.mention.order=doi_registration_date.desc'
-RSD_HEADERS = {
-    'User-Agent': 'Harvesting from RSD'
-}
+# 19-2-2026: Does not seem to be necessary anymore.
+# RSD_HEADERS = {
+#     'User-Agent': 'Harvesting from RSD'
+# }
 
 
 # ######################################################
@@ -116,10 +115,12 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     return df_mod
 
 
-def parse_rsd_software(harvest: list) -> Union[pandas.DataFrame, None]:
+def parse_rsd_software(harvest: list,
+                       filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested software from Research Software Directory.
 
     :param harvest: the harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :return: the harvested software in a DataFrame, or None if nothing to parse.
     """
     if len(harvest) == 0:
@@ -183,21 +184,23 @@ def parse_rsd_software(harvest: list) -> Union[pandas.DataFrame, None]:
         contributor.insert(0, 'package_doi', str(package_doi).lower())
         rsd_parse = pandas.concat([rsd_parse, contributor], ignore_index=True)
 
-    rsd_parse = restructure_parse(df=rsd_parse)
-    return rcg.normalize_identifiers(df=rsd_parse)
+    parse_result = restructure_parse(df=rsd_parse)
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=filename)
 
 
 # ######################################################
 # Harvesting and parsing
 # ######################################################
 
-def harvest_and_parse_software(headers: dict, url: str,
-                               harvest_filename: str) -> Union[pandas.DataFrame, None]:
+def harvest_and_parse_software(url: str,
+                               harvest_filename: str,
+                               df_filename: str) -> Union[pandas.DataFrame, None]:
     """Harvest and parse software from Research Software Directory.
 
-    :param headers: headers for RSD.
     :param url: url to RSD.
     :param harvest_filename: filename to write harvest results to.
+    :param df_filename: filename to write the DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting software packages from ' + HARVEST_SOURCE + '...')
@@ -206,7 +209,8 @@ def harvest_and_parse_software(headers: dict, url: str,
     else:
         harvest_data = rcg.harvest_json(url=url, filename=harvest_filename)
 
-    if (parse := parse_rsd_software(harvest=harvest_data)) is None:
+    if (parse := parse_rsd_software(harvest=harvest_data,
+                                    filename=df_filename)) is None:
         return None
 
     print('The harvested software packages are:')
@@ -290,18 +294,17 @@ data_file = RSD_DATA_FILENAME.split('.')[0] \
 if RSD_READ_DATA_FROM_FILE:
     error_message = 'There are no software packages from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
     print('Reading software packages from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
+    rsd_data = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 else:
     error_message = 'There are no software packages from ' + HARVEST_SOURCE + ' to harvest.\n'
     print('Harvesting software packages from ' + HARVEST_SOURCE + '.')
     harvest_file = RSD_HARVEST_FILENAME.split('.')[0] \
                    + '-' + organization + '.' \
                    + RSD_HARVEST_FILENAME.split('.')[1]
-    rsd_data = harvest_and_parse_software(headers=RSD_HEADERS,
-                                          url=FULL_RSD_URL,
-                                          harvest_filename=harvest_file)
-    rcg.write_dataframe_to_csv(filename=data_file, df=rsd_data)
+    rsd_data = harvest_and_parse_software(url=FULL_RSD_URL,
+                                          harvest_filename=harvest_file,
+                                          df_filename=data_file)
 
-rsd_data = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 if rsd_data is None or rsd_data.empty:
     print(error_message)
 else:

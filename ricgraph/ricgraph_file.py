@@ -107,6 +107,23 @@ def read_json_from_file(filename: str) -> list:
     return json_data
 
 
+def write_read_json_file(json_data: list,
+                         filename: str = '') -> list:
+    """In case filename != '', write the JSON to a file and
+    then read it back. In any case, return the JSON data received.
+
+    :param json_data: a list of records in json format.
+    :param filename: If filename != '', write it to a file and read it back.
+    :return: The JSON data received.
+    """
+    if filename == '':
+        return json_data
+
+    write_json_to_file(filename=filename, json_data=json_data)
+    json_from_file = read_json_from_file(filename=filename)
+    return json_from_file
+
+
 def write_text_to_file(filename: str, text: str) -> None:
     """Write text data to a file, in utf-8 format.
 

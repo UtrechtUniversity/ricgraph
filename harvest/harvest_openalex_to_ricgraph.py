@@ -141,10 +141,13 @@ ROTYPE_MAPPING_OPENALEX = {
 # Parsing
 # ######################################################
 
-def parse_openalex(harvest: list) -> Union[pandas.DataFrame, None]:
+def parse_openalex(harvest: list,
+                   filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons and research outputs from OpenAlex.
+    In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :return: the harvested persons in a DataFrame, or None if nothing to parse.
     """
     if len(harvest) == 0:
@@ -249,7 +252,8 @@ def parse_openalex(harvest: list) -> Union[pandas.DataFrame, None]:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    return rcg.normalize_identifiers(df=parse_result)
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=filename)
 
 
 # ######################################################
@@ -258,12 +262,14 @@ def parse_openalex(harvest: list) -> Union[pandas.DataFrame, None]:
 
 def harvest_and_parse_openalex(harvest_year: str,
                                headers: dict,
-                               harvest_filename: str) -> Union[pandas.DataFrame, None]:
+                               harvest_filename: str,
+                               df_filename: str) -> Union[pandas.DataFrame, None]:
     """Harvest and parse data from OpenAlex.
 
     :param harvest_year: the year to harvest.
     :param headers: headers for OpenAlex.
     :param harvest_filename: filename to write harvest results to.
+    :param df_filename: filename to write the DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting persons and research outputs from ' + HARVEST_SOURCE + '...')
@@ -278,7 +284,7 @@ def harvest_and_parse_openalex(harvest_year: str,
                                         chunksize=OPENALEX_CHUNKSIZE,
                                         filename=harvest_filename)
 
-    if (parse := parse_openalex(harvest=harvest_data)) is None:
+    if (parse := parse_openalex(harvest=harvest_data, filename=df_filename)) is None:
         return None
 
     print('The harvested persons and research outputs from ' + HARVEST_SOURCE + ' are:')
@@ -400,6 +406,8 @@ for year_int in range(int(year_first), int(year_last) + 1):
         error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
         print('Reading persons and research outputs from ' + HARVEST_SOURCE
               + ' for year ' + year + ' from file ' + data_file_year + '.')
+        parse_persons_resout = rcg.read_dataframe_from_csv(filename=data_file_year,
+                                                           datatype=str)
     else:
         error_message = 'There are no persons or research outputs from ' + HARVEST_SOURCE
         error_message += ' for year ' + year + ' to harvest.\n'
@@ -410,10 +418,9 @@ for year_int in range(int(year_first), int(year_last) + 1):
                             + OPENALEX_HARVEST_FILENAME.split('.')[1]
         parse_persons_resout = harvest_and_parse_openalex(harvest_year=year,
                                                           headers=OPENALEX_HEADERS,
-                                                          harvest_filename=harvest_file_year)
-        rcg.write_dataframe_to_csv(filename=data_file_year, df=parse_persons_resout)
+                                                          harvest_filename=harvest_file_year,
+                                                          df_filename=data_file_year)
 
-    parse_persons_resout = rcg.read_dataframe_from_csv(filename=data_file_year, datatype=str)
     if parse_persons_resout is None or parse_persons_resout.empty:
         print(error_message)
     else:

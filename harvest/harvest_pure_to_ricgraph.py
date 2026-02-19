@@ -460,10 +460,13 @@ def restructure_parse_projects(df: pandas.DataFrame) -> pandas.DataFrame:
 
 
 def parse_pure_persons(harvest: list,
+                       filename: str = '',
                        year_start: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons from Pure.
+    In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :param year_start: the first year that we would like to harvest.
     :return: the harvested persons in a DataFrame, or None if nothing to parse.
     """
@@ -601,13 +604,17 @@ def parse_pure_persons(harvest: list,
         exit(1)
 
     parse_result = restructure_parse_persons(df=parse_result)
-    return rcg.normalize_identifiers(df=parse_result)
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=filename)
 
 
-def parse_pure_organizations(harvest: list) -> Union[pandas.DataFrame, None]:
+def parse_pure_organizations(harvest: list,
+                             filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested organizations from Pure.
+    In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :return: the harvested organizations in a DataFrame,
         or None if nothing to parse.
     """
@@ -725,14 +732,17 @@ def parse_pure_organizations(harvest: list) -> Union[pandas.DataFrame, None]:
                                             find_organization_name(uuid=row['PARENT_UUID'],
                                                                    organization_names=organization_names),
                                             axis=1))
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=filename)
 
-    return rcg.normalize_identifiers(df=parse_result)
 
-
-def parse_pure_resout(harvest: list) -> Union[pandas.DataFrame, None]:
+def parse_pure_resout(harvest: list,
+                      filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested research outputs from Pure.
+    In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :return: the harvested research outputs in a DataFrame,
         or None if nothing to parse.
     """
@@ -891,13 +901,17 @@ def parse_pure_resout(harvest: list) -> Union[pandas.DataFrame, None]:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    return rcg.normalize_identifiers(df=parse_result)
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=filename)
 
 
-def parse_pure_projects(harvest: list) -> Union[pandas.DataFrame, None]:
+def parse_pure_projects(harvest: list,
+                        filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested projects from Pure.
+    In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :return: the harvested persons in a DataFrame,
         or None if nothing to parse.
     """
@@ -1059,7 +1073,8 @@ def parse_pure_projects(harvest: list) -> Union[pandas.DataFrame, None]:
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
     parse_result = restructure_parse_projects(df=parse_result)
-    return rcg.normalize_identifiers(df=parse_result)
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=filename)
 
 
 # ######################################################
@@ -1069,6 +1084,7 @@ def parse_pure_projects(harvest: list) -> Union[pandas.DataFrame, None]:
 def harvest_and_parse_pure_data(mode: str, endpoint: str,
                                 headers: dict, body: dict,
                                 harvest_filename: str,
+                                df_filename: str,
                                 year_start:str = '') -> Union[pandas.DataFrame, None]:
     """Harvest and parse data from Pure.
 
@@ -1077,6 +1093,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     :param headers: headers for Pure.
     :param body: the body of a POST request, or '' for a GET request.
     :param harvest_filename: filename to write harvest results to.
+    :param df_filename: filename to write the DataFrame results to.
     :param year_start: the first year that we would like to harvest.
         Only relevant when parsing persons.
     :return: the DataFrame harvested, or None if nothing harvested.
@@ -1118,13 +1135,14 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     # Local variable 'parse' might be referenced before assignment.
     parse = pandas.DataFrame()
     if mode == 'persons':
-        parse = parse_pure_persons(harvest=harvest_data, year_start=year_start)
+        parse = parse_pure_persons(harvest=harvest_data, filename=df_filename,
+                                   year_start=year_start)
     elif mode == 'organizations':
-        parse = parse_pure_organizations(harvest=harvest_data)
+        parse = parse_pure_organizations(harvest=harvest_data, filename=df_filename)
     elif mode == 'research outputs':
-        parse = parse_pure_resout(harvest=harvest_data)
+        parse = parse_pure_resout(harvest=harvest_data, filename=df_filename)
     elif mode == 'projects':
-        parse = parse_pure_projects(harvest=harvest_data)
+        parse = parse_pure_projects(harvest=harvest_data, filename=df_filename)
 
     if parse is None:
         return None
@@ -1704,6 +1722,7 @@ if True:
     if PURE_PERSONS_READ_DATA_FROM_FILE:
         error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print('Reading persons from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
+        parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     else:
         error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to harvest.\n'
         print('Harvesting person from ' + HARVEST_SOURCE + '.')
@@ -1715,10 +1734,9 @@ if True:
                                                     headers=PURE_HEADERS,
                                                     body=PURE_PERSONS_FIELDS,
                                                     harvest_filename=harvest_file,
+                                                    df_filename=data_file,
                                                     year_start=year_first)
-        rcg.write_dataframe_to_csv(filename=data_file, df=parse_persons)
 
-    parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     if parse_persons is None or parse_persons.empty:
         print(error_message)
     else:
@@ -1744,6 +1762,8 @@ if True:
     if PURE_ORGANIZATIONS_READ_DATA_FROM_FILE:
         error_message = 'There are no organizations from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print('Reading organizations from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
+        parse_organizations = rcg.read_dataframe_from_csv(filename=data_file,
+                                                          datatype=str)
     else:
         error_message = 'There are no organizations from ' + HARVEST_SOURCE + ' to harvest.\n'
         print('Harvesting organizations from ' + HARVEST_SOURCE + '.')
@@ -1754,10 +1774,9 @@ if True:
                                                           endpoint=PURE_ORGANIZATIONS_ENDPOINT,
                                                           headers=PURE_HEADERS,
                                                           body=PURE_ORGANIZATIONS_FIELDS,
-                                                          harvest_filename=harvest_file)
-        rcg.write_dataframe_to_csv(filename=data_file, df=parse_organizations)
+                                                          harvest_filename=harvest_file,
+                                                          df_filename=data_file)
 
-    parse_organizations = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     if parse_organizations is None or parse_organizations.empty:
         print(error_message)
     else:
@@ -1788,6 +1807,8 @@ if True:
             error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
             print('Reading research outputs from ' + HARVEST_SOURCE + ' for year '
                   + year + ' from file ' + data_file_year + '.')
+            parse_resout = rcg.read_dataframe_from_csv(filename=data_file_year,
+                                                       datatype=str)
         else:
             error_message = 'There are no research outputs from ' + HARVEST_SOURCE
             error_message += ' for year ' + year + ' to harvest.\n'
@@ -1802,10 +1823,9 @@ if True:
                                                        endpoint=PURE_RESOUT_ENDPOINT,
                                                        headers=PURE_HEADERS,
                                                        body=PURE_RESOUT_FIELDS,
-                                                       harvest_filename=harvest_file_year)
-            rcg.write_dataframe_to_csv(filename=data_file_year, df=parse_resout)
+                                                       harvest_filename=harvest_file_year,
+                                                       df_filename=data_file_year)
 
-        parse_resout = rcg.read_dataframe_from_csv(filename=data_file_year, datatype=str)
         if parse_resout is None or parse_resout.empty:
             print(error_message)
         else:
@@ -1829,6 +1849,8 @@ if HARVEST_PROJECTS:
     if PURE_PROJECTS_READ_DATA_FROM_FILE:
         error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print('Reading projects from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
+        parse_projects = rcg.read_dataframe_from_csv(filename=data_file,
+                                                     datatype=str)
     else:
         error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to harvest.\n'
         print('Harvesting projects from ' + HARVEST_SOURCE + '.')
@@ -1839,10 +1861,9 @@ if HARVEST_PROJECTS:
                                                      endpoint=PURE_PROJECTS_ENDPOINT,
                                                      headers=PURE_HEADERS,
                                                      body=PURE_PROJECTS_FIELDS,
-                                                     harvest_filename=harvest_file)
-        rcg.write_dataframe_to_csv(filename=data_file, df=parse_projects)
+                                                     harvest_filename=harvest_file,
+                                                     df_filename=data_file)
 
-    parse_projects = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     if parse_projects is None or parse_projects.empty:
         print(error_message)
     else:

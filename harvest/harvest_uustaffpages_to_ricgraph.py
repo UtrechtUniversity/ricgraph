@@ -144,12 +144,17 @@ UUSTAFF_PHOTO_ENDPOINT = '/Public/GetImage?Employee='
 # Parsing
 # ######################################################
 
-def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
+def parse_uustaff_persons(harvest: list,
+                          filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons from  the UU staff pages.
+    In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :return: the harvested persons in a DataFrame.
     """
+    if len(harvest) == 0:
+        return None
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' person records ('
@@ -281,18 +286,23 @@ def parse_uustaff_persons(harvest: list) -> pandas.DataFrame:
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    return rcg.normalize_identifiers(df=parse_result)
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=filename)
 
 
 # ######################################################
 # Harvesting and parsing
 # ######################################################
 
-def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
+def harvest_json_uustaffpages(url: str,
+                              max_recs_to_harvest: int = 0,
+                              filename: str = '') -> list:
     """Harvest JSON data from a file.
+    In case filename != '', write it to a file and read it back.
 
     :param url: URL to harvest.
     :param max_recs_to_harvest: maximum records to harvest.
+    :param filename: If filename != '', write it to a file and read it back.
     :return: list of records in JSON format, or empty list if nothing found.
     """
     print('Harvesting JSON data from ' + url + '.')
@@ -374,48 +384,30 @@ def harvest_json_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> list:
                                  nr_records=count,
                                  what='Harvested')
     print('')
-    return json_data
-
-
-def harvest_json_and_write_to_file_uustaffpages(filename: str,
-                                                url: str,
-                                                max_recs_to_harvest: int = 0) -> list:
-    """Harvest JSON data and write the data found to a file.
-    This data is a list of records in JSON format. If no records are harvested, nothing is written.
-
-    :param filename: filename of the file to use for writing.
-    :param url: URL to harvest.
-    :param max_recs_to_harvest: maximum records to harvest.
-    :return: list of records in JSON format, or empty list if nothing found.
-    """
-    json_data = harvest_json_uustaffpages(url=url,
-                                          max_recs_to_harvest=max_recs_to_harvest)
-    if len(json_data) == 0:
-        return []
-    rcg.write_json_to_file(filename=filename,
-                           json_data=json_data)
-    return json_data
+    return rcg.write_read_json_file(json_data=json_data,
+                                    filename=filename)
 
 
 def harvest_and_parse_uustaffpages_data(url: str,
-                                        harvest_filename: str) -> Union[pandas.DataFrame, None]:
+                                        harvest_filename: str,
+                                        df_filename: str) -> Union[pandas.DataFrame, None]:
     """Harvest and parse data from UU staff pages.
 
     :param url: API link to UU staff pages.
     :param harvest_filename: filename to write harvest results to.
+    :param df_filename: filename to write the DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting UU staff pages...')
-    if not UUSTAFF_READ_HARVEST_FROM_FILE:
-        retval = harvest_json_and_write_to_file_uustaffpages(filename=harvest_filename,
-                                                             url=url,
-                                                             max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST)
-        if len(retval) == 0:
-            # Nothing found.
-            return None
+    if UUSTAFF_READ_HARVEST_FROM_FILE:
+        harvest_data = rcg.read_json_from_file(filename=harvest_filename)
+    else:
+        harvest_data = harvest_json_uustaffpages(url=url,
+                                                 max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST,
+                                                 filename=harvest_filename)
 
-    harvest_data = rcg.read_json_from_file(filename=harvest_filename)
-    parse = parse_uustaff_persons(harvest=harvest_data)
+    if (parse := parse_uustaff_persons(harvest=harvest_data, filename=df_filename)) is None:
+        return None
     print('The harvested records are:')
     print(parse)
     return parse
@@ -497,13 +489,17 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     return
 
 
-def connect_pure_with_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> Union[pandas.DataFrame, None]:
+def connect_pure_with_uustaffpages(url: str,
+                                   max_recs_to_harvest: int = 0,
+                                   df_filename: str = '') -> Union[pandas.DataFrame, None]:
     """Connect Pure with the UU staff pages.
     Get SolisID from Ricgraph and harvest the corresponding data from the
     UU staff pages.
+    In case df_filename != '', write it to a file and read it back.
 
     :param url: url to the UU staff pages.
     :param max_recs_to_harvest: maximum records to harvest (to connect).
+    :param df_filename: filename to write the DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Connect Pure SolisIDs with corresponding persons from UU staff pages at '
@@ -564,7 +560,8 @@ def connect_pure_with_uustaffpages(url: str, max_recs_to_harvest: int = 0) -> Un
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
     parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
-    return rcg.normalize_identifiers(df=parse_result)
+    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+                                                filename=df_filename)
 
 
 def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
@@ -619,13 +616,16 @@ if True:              # Comment this line to comment out code block A
         error_message += 'from file ' + UUSTAFF_HARVEST_CONNECT_FILENAME + '.\n'
         print('Reading Pure SolisIDs to connect to UU staff pages to harvest from file '
               + UUSTAFF_HARVEST_CONNECT_FILENAME + '.')
+        parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME,
+                                                     datatype=str)
     else:
         error_message = 'There are no Pure SolisIDs to connect to UU staff pages to harvest.\n'
         print('Harvesting Pure SolisIDs to connect to UU staff pages to harvest.')
-        parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL, max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST)
+        parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL,
+                                                        max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST,
+                                                        df_filename=UUSTAFF_HARVEST_CONNECT_FILENAME)
         rcg.write_dataframe_to_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME, df=parsed_results)
 
-    parsed_results = rcg.read_dataframe_from_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME, datatype=str)
     if parsed_results is None or parsed_results.empty:
         print(error_message)
     else:
@@ -646,14 +646,15 @@ if True:
         error_message = 'There are no UU staff data to harvest '
         error_message += 'from file ' + UUSTAFF_HARVEST_FILENAME + '.\n'
         print('Reading UU staff data to harvest from file ' + UUSTAFF_HARVEST_FILENAME + '.')
+        parse_uustaff = rcg.read_dataframe_from_csv(filename=UUSTAFF_DATA_FILENAME,
+                                                    datatype=str)
     else:
         error_message = 'There are no UU staff data to harvest.\n'
         print('Harvesting UU staff data.')
         parse_uustaff = harvest_and_parse_uustaffpages_data(url=UUSTAFF_URL,
-                                                            harvest_filename=UUSTAFF_HARVEST_FILENAME)
-        rcg.write_dataframe_to_csv(filename=UUSTAFF_DATA_FILENAME, df=parse_uustaff)
+                                                            harvest_filename=UUSTAFF_HARVEST_FILENAME,
+                                                            df_filename=UUSTAFF_DATA_FILENAME)
 
-    parse_uustaff = rcg.read_dataframe_from_csv(filename=UUSTAFF_DATA_FILENAME, datatype=str)
     if parse_uustaff is None or parse_uustaff.empty:
         print(error_message)
     else:

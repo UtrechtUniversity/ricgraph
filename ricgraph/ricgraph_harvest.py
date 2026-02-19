@@ -49,7 +49,8 @@ from requests import get, post
 from requests import codes
 from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
                        update_nodes_df)
-from .ricgraph_file import write_json_to_file, read_json_from_file
+from .ricgraph_file import (write_json_to_file, read_json_from_file,
+                            write_read_json_file)
 from .ricgraph_utils import (timestamp, datetimestamp,
                              timestamp_posix, print_records_per_minute)
 from .ricgraph_constants import A_LARGE_NUMBER
@@ -121,12 +122,8 @@ def harvest_json(url: str,
 
     chunk_json_data = response.json()
     if len(headers) == 0:
-        if filename == '':
-            return chunk_json_data
-
-        write_json_to_file(filename=filename, json_data=chunk_json_data)
-        harvest_data = read_json_from_file(filename=filename)
-        return harvest_data
+        return write_read_json_file(json_data=chunk_json_data,
+                                    filename=filename)
 
     total_records = 0
     if request_type == 'get':
@@ -205,12 +202,8 @@ def harvest_json(url: str,
                              nr_records=records_harvested,
                              what='Harvested')
     print('')
-    if filename == '':
-        return json_data
-
-    write_json_to_file(filename=filename, json_data=json_data)
-    harvest_data = read_json_from_file(filename=filename)
-    return harvest_data
+    return write_read_json_file(json_data=json_data,
+                                filename=filename)
 
 
 # ######################################################
