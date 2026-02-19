@@ -49,8 +49,7 @@ from requests import get, post
 from requests import codes
 from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
                        update_nodes_df)
-from .ricgraph_file import (write_json_to_file, read_json_from_file,
-                            write_read_json_file)
+from .ricgraph_file import write_read_json_file
 from .ricgraph_utils import (timestamp, datetimestamp,
                              timestamp_posix, print_records_per_minute)
 from .ricgraph_constants import A_LARGE_NUMBER

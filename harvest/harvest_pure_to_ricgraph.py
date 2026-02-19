@@ -1804,6 +1804,8 @@ if True:
                   + ' for year ' + year + '.')
             harvest_file_year = rcg.construct_filename(base_filename=PURE_RESOUT_HARVEST_FILENAME,
                                                        year=year, organization=organization)
+            # The following create a PyCharm warning
+            # Unexpected type(s):(str, str)Possible type(s):(str, list[str])(str, list[str]).
             PURE_RESOUT_FIELDS['publishedBeforeDate'] = year + '-12-31'
             PURE_RESOUT_FIELDS['publishedAfterDate'] = year + '-01-01'
             parse_resout = harvest_and_parse_pure_data(mode='research outputs',

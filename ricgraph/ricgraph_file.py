@@ -202,6 +202,8 @@ def write_dataframe_to_csv(filename: str,
         print('write_dataframe_to_csv(): Error, filename "' + filename + '" is not writable, exiting.')
         exit(1)
 
+    # PyCharm generates a warning
+    # "Unexpected type(s):(str, str, bool, str, int, str) [etc]...".
     df.to_csv(filename,
               sep=',',
               quotechar='"',
