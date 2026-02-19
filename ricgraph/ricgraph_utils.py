@@ -472,7 +472,7 @@ def construct_filename(base_filename: str,
         filename += '-' + year
     if organization != '':
         organization += '-' + organization
-    filename = '.' + base_filename.split('.')[1]
+    filename += '.' + base_filename.split('.')[1]
     return filename
 
 
