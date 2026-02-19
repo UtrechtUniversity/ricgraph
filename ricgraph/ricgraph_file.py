@@ -47,34 +47,6 @@ from os.path import isfile, dirname, exists
 from pandas import DataFrame, read_csv
 from csv import QUOTE_ALL
 from json import load, dump
-from .ricgraph_harvest import harvest_json
-
-
-def harvest_json_and_write_to_file(filename: str, url: str, headers: dict, body: dict = None,
-                                   max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
-    """Harvest json data and write the data found to a file.
-    This data is a list of records in json format. If no records are harvested, nothing is written.
-
-    :param filename: filename of the file to use for writing.
-    :param url: URL to harvest.
-    :param headers: headers required.
-    :param body: the body of a POST request, or '' for a GET request.
-    :param max_recs_to_harvest: maximum records to harvest.
-    :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
-    :return: list of records in json format, or empty list if nothing found.
-    """
-    if body is None:
-        body = []
-
-    json_data = harvest_json(url=url,
-                             headers=headers,
-                             body=body,
-                             max_recs_to_harvest=max_recs_to_harvest,
-                             chunksize=chunksize)
-    if len(json_data) == 0:
-        return []
-    write_json_to_file(filename=filename, json_data=json_data)
-    return json_data
 
 
 def write_json_to_file(filename:str, json_data: list) -> None:

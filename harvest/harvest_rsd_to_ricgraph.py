@@ -116,12 +116,14 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     return df_mod
 
 
-def parse_rsd_software(harvest: list) -> pandas.DataFrame:
+def parse_rsd_software(harvest: list) -> Union[pandas.DataFrame, None]:
     """Parse the harvested software from Research Software Directory.
 
     :param harvest: the harvest.
-    :return: the harvested software in a DataFrame.
+    :return: the harvested software in a DataFrame, or None if nothing to parse.
     """
+    if len(harvest) == 0:
+        return None
     rsd_parse = pandas.DataFrame()
     for software_package in harvest[0]['software']:
         package_name = software_package['brand_name']
@@ -189,35 +191,8 @@ def parse_rsd_software(harvest: list) -> pandas.DataFrame:
 # Harvesting and parsing
 # ######################################################
 
-def rsd_harvest_json_and_write_to_file(filename: str, url: str, headers: dict) -> list:
-    """Harvest JSON data from the Research Software Directory and write the data found to a file.
-    This data is a list of records in JSON format. If no records are harvested, nothing is written.
-    We cannot use ricgraph.harvest_json_and_write_to_file() since RSDs JSON
-    does not conform to the standard.
-    This is understandable, since at the moment there is no "official, correct" way of harvesting
-    RSD yet, that is future work for RSD [December 2022].
-
-    :param filename: filename of the file to use for writing.
-    :param url: URL to harvest.
-    :param headers: headers required.
-    :return: list of records in JSON format, or empty list if nothing found.
-    """
-    print('Getting data from ' + url + '...')
-    request = urllib.request.Request(url=url, headers=headers)
-    response = urllib.request.urlopen(request, timeout=5)
-    body = response.read().decode('utf-8')
-    json_data = json.loads(body)
-    print('Done.')
-
-    if len(json_data) == 0:
-        return []
-
-    rcg.write_json_to_file(filename=filename,
-                           json_data=json_data)
-    return json_data
-
-
-def harvest_and_parse_software(headers: dict, url: str, harvest_filename: str) -> Union[pandas.DataFrame, None]:
+def harvest_and_parse_software(headers: dict, url: str,
+                               harvest_filename: str) -> Union[pandas.DataFrame, None]:
     """Harvest and parse software from Research Software Directory.
 
     :param headers: headers for RSD.
@@ -226,16 +201,13 @@ def harvest_and_parse_software(headers: dict, url: str, harvest_filename: str) -
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting software packages from ' + HARVEST_SOURCE + '...')
-    if not RSD_READ_HARVEST_FROM_FILE:
-        retval = rsd_harvest_json_and_write_to_file(filename=harvest_filename,
-                                                    url=url,
-                                                    headers=headers)
-        if len(retval) == 0:
-            # Nothing found
-            return None
+    if RSD_READ_HARVEST_FROM_FILE:
+        harvest_data = rcg.read_json_from_file(filename=harvest_filename)
+    else:
+        harvest_data = rcg.harvest_json(url=url, filename=harvest_filename)
 
-    harvest_data = rcg.read_json_from_file(filename=harvest_filename)
-    parse = parse_rsd_software(harvest=harvest_data)
+    if (parse := parse_rsd_software(harvest=harvest_data)) is None:
+        return None
 
     print('The harvested software packages are:')
     print(parse)

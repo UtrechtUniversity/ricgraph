@@ -141,12 +141,14 @@ ROTYPE_MAPPING_OPENALEX = {
 # Parsing
 # ######################################################
 
-def parse_openalex(harvest: list) -> pandas.DataFrame:
+def parse_openalex(harvest: list) -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons and research outputs from OpenAlex.
 
     :param harvest: the harvest.
-    :return: the harvested persons in a DataFrame.
+    :return: the harvested persons in a DataFrame, or None if nothing to parse.
     """
+    if len(harvest) == 0:
+        return None
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' person and research output records ('
@@ -265,20 +267,20 @@ def harvest_and_parse_openalex(harvest_year: str,
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting persons and research outputs from ' + HARVEST_SOURCE + '...')
-    if not OPENALEX_READ_HARVEST_FROM_FILE:
+    if OPENALEX_READ_HARVEST_FROM_FILE:
+        harvest_data = rcg.read_json_from_file(filename=harvest_filename)
+    else:
         url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT + '?filter=institutions.ror:' + ORGANIZATION_ROR
         url += ',publication_year:' + harvest_year + '&select=' + OPENALEX_FIELDS
-        retval = rcg.harvest_json_and_write_to_file(filename=harvest_filename,
-                                                    url=url,
-                                                    headers=headers,
-                                                    max_recs_to_harvest=OPENALEX_MAX_RECS_TO_HARVEST,
-                                                    chunksize=OPENALEX_CHUNKSIZE)
-        if len(retval) == 0:
-            # Nothing found
-            return None
+        harvest_data = rcg.harvest_json(url=url,
+                                        headers=headers,
+                                        max_recs_to_harvest=OPENALEX_MAX_RECS_TO_HARVEST,
+                                        chunksize=OPENALEX_CHUNKSIZE,
+                                        filename=harvest_filename)
 
-    harvest_data = rcg.read_json_from_file(filename=harvest_filename)
-    parse = parse_openalex(harvest=harvest_data)
+    if (parse := parse_openalex(harvest=harvest_data)) is None:
+        return None
+
     print('The harvested persons and research outputs from ' + HARVEST_SOURCE + ' are:')
     print(parse)
     return parse

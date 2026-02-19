@@ -460,13 +460,15 @@ def restructure_parse_projects(df: pandas.DataFrame) -> pandas.DataFrame:
 
 
 def parse_pure_persons(harvest: list,
-                       year_start: str = '') -> pandas.DataFrame:
+                       year_start: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons from Pure.
 
     :param harvest: the harvest.
     :param year_start: the first year that we would like to harvest.
-    :return: the harvested persons in a DataFrame.
+    :return: the harvested persons in a DataFrame, or None if nothing to parse.
     """
+    if len(harvest) == 0:
+        return None
     if year_start == '':
         print('parse_pure_persons(): Invalid value for "year_start" passed, exiting.')
         exit(1)
@@ -602,14 +604,17 @@ def parse_pure_persons(harvest: list,
     return rcg.normalize_identifiers(df=parse_result)
 
 
-def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
+def parse_pure_organizations(harvest: list) -> Union[pandas.DataFrame, None]:
     """Parse the harvested organizations from Pure.
 
     :param harvest: the harvest.
-    :return: the harvested organizations in a DataFrame.
+    :return: the harvested organizations in a DataFrame,
+        or None if nothing to parse.
     """
     global organization
 
+    if len(harvest) == 0:
+        return None
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
     organization_names = {}
@@ -724,14 +729,17 @@ def parse_pure_organizations(harvest: list) -> pandas.DataFrame:
     return rcg.normalize_identifiers(df=parse_result)
 
 
-def parse_pure_resout(harvest: list) -> pandas.DataFrame:
+def parse_pure_resout(harvest: list) -> Union[pandas.DataFrame, None]:
     """Parse the harvested research outputs from Pure.
 
     :param harvest: the harvest.
-    :return: the harvested research outputs in a DataFrame.
+    :return: the harvested research outputs in a DataFrame,
+        or None if nothing to parse.
     """
     global organization
 
+    if len(harvest) == 0:
+        return None
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' research output records ('
@@ -886,15 +894,18 @@ def parse_pure_resout(harvest: list) -> pandas.DataFrame:
     return rcg.normalize_identifiers(df=parse_result)
 
 
-def parse_pure_projects(harvest: list) -> pandas.DataFrame:
+def parse_pure_projects(harvest: list) -> Union[pandas.DataFrame, None]:
     """Parse the harvested projects from Pure.
 
     :param harvest: the harvest.
-    :return: the harvested persons in a DataFrame.
+    :return: the harvested persons in a DataFrame,
+        or None if nothing to parse.
     """
     global resout_uuid_or_doi
     global organization
 
+    if len(harvest) == 0:
+        return None
     parse_result = pandas.DataFrame()
     parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' project records ('
@@ -1095,17 +1106,16 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
        or (mode == 'research outputs' and not PURE_RESOUT_READ_HARVEST_FROM_FILE) \
        or (mode == 'projects' and not PURE_PROJECTS_READ_HARVEST_FROM_FILE):
         url = PURE_URL + '/' + PURE_API_VERSION + '/' + endpoint
-        retval = rcg.harvest_json_and_write_to_file(filename=harvest_filename,
-                                                    url=url,
-                                                    headers=headers,
-                                                    body=body,
-                                                    max_recs_to_harvest=max_recs_to_harvest,
-                                                    chunksize=PURE_CHUNKSIZE)
-        if len(retval) == 0:
-            # Nothing found
-            return None
+        harvest_data = rcg.harvest_json(url=url,
+                                        headers=headers, body=body,
+                                        max_recs_to_harvest=max_recs_to_harvest,
+                                        chunksize=PURE_CHUNKSIZE,
+                                        filename=harvest_filename)
+    else:
+        harvest_data = rcg.read_json_from_file(filename=harvest_filename)
 
-    harvest_data = rcg.read_json_from_file(filename=harvest_filename)
+    # To prevent PyCharm warning
+    # Local variable 'parse' might be referenced before assignment.
     parse = pandas.DataFrame()
     if mode == 'persons':
         parse = parse_pure_persons(harvest=harvest_data, year_start=year_start)
@@ -1116,6 +1126,8 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     elif mode == 'projects':
         parse = parse_pure_projects(harvest=harvest_data)
 
+    if parse is None:
+        return None
     print('The harvested ' + mode + ' are:')
     print(parse)
     return parse
@@ -1750,6 +1762,7 @@ if True:
         print(error_message)
     else:
         org_and_all_parents = determine_all_parent_organizations(parsed_content_organizations=parse_organizations)
+        # Next may generate a PyCharm warning "Name 'parse_persons' can be undefined".
         parsed_organizations_to_ricgraph(parsed_content_persons=parse_persons,
                                          organization_and_all_parents=org_and_all_parents)
 

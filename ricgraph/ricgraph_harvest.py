@@ -49,6 +49,7 @@ from requests import get, post
 from requests import codes
 from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
                        update_nodes_df)
+from .ricgraph_file import write_json_to_file, read_json_from_file
 from .ricgraph_utils import (timestamp, datetimestamp,
                              timestamp_posix, print_records_per_minute)
 from .ricgraph_constants import A_LARGE_NUMBER
@@ -63,18 +64,28 @@ from .ricgraph_constants import A_LARGE_NUMBER
 # Possibly for other harvests some changes should be made. Please also test the result
 # with the above-mentioned files, and add the filename of the new harvest script.
 # #####
-def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest: int = 0, chunksize: int = 0) -> list:
+def harvest_json(url: str,
+                 headers: dict = None, body: dict = None,
+                 max_recs_to_harvest: int = 0, chunksize: int = 0,
+                 filename: str = '') -> list:
     """Harvest JSON data from a file.
+    In case filename != '', write it to a file and read it back.
 
     :param url: URL to harvest.
     :param headers: headers required.
-    :param body: the body of a POST request, or [] for a GET request.
+        If headers is None, we can get all data in one go, we do not need
+        the 'while' loop below. This is the case for
+        e.g. Research Software Directory.
+    :param body: the body of a POST request, or None/{} for a GET request.
     :param max_recs_to_harvest: maximum records to harvest.
     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
+    :param filename: If filename != '', write it to a file and read it back.
     :return: list of records in JSON format, or empty list if nothing found.
     """
     if body is None:
-        body = []
+        body = {}
+    if headers is None:
+        headers = {}
 
     print('Harvesting json data from ' + url + '.')
     print('Getting data at ' + datetimestamp() + '...')
@@ -87,7 +98,8 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
     if len(body) == 0:
         # GET http request
         request_type = 'get'
-        url += '&per_page=' + str(chunksize)
+        if len(headers) > 0:
+            url += '&per_page=' + str(chunksize)
     else:
         # POST http request
         request_type = 'post'
@@ -108,6 +120,14 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
         exit(1)
 
     chunk_json_data = response.json()
+    if len(headers) == 0:
+        if filename == '':
+            return chunk_json_data
+
+        write_json_to_file(filename=filename, json_data=chunk_json_data)
+        harvest_data = read_json_from_file(filename=filename)
+        return harvest_data
+
     total_records = 0
     if request_type == 'get':
         if 'meta' in chunk_json_data:
@@ -185,7 +205,12 @@ def harvest_json(url: str, headers: dict, body: dict = None, max_recs_to_harvest
                              nr_records=records_harvested,
                              what='Harvested')
     print('')
-    return json_data
+    if filename == '':
+        return json_data
+
+    write_json_to_file(filename=filename, json_data=json_data)
+    harvest_data = read_json_from_file(filename=filename)
+    return harvest_data
 
 
 # ######################################################
