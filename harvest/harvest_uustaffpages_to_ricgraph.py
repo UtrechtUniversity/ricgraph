@@ -307,7 +307,7 @@ def harvest_json_uustaffpages(url: str,
     """
     print('Harvesting JSON data from ' + url + '.')
 
-    all_records = 9999999999                # a large number
+    all_records = rcg.A_LARGE_NUMBER
     if max_recs_to_harvest == 0:
         max_recs_to_harvest = all_records
     if max_recs_to_harvest != all_records:
@@ -505,7 +505,7 @@ def connect_pure_with_uustaffpages(url: str,
     print('Connect Pure SolisIDs with corresponding persons from UU staff pages at '
           + rcg.datetimestamp() + '...')
 
-    all_records = 9999999999                # a large number
+    all_records = rcg.A_LARGE_NUMBER
     if max_recs_to_harvest == 0:
         max_recs_to_harvest = all_records
     if max_recs_to_harvest != all_records:
