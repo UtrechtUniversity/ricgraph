@@ -47,7 +47,7 @@ from sys import prefix
 from re import sub
 from numpy import maximum
 from pandas import DataFrame
-from typing import Union
+from typing import Union, Tuple
 from ast import literal_eval
 from random import choice
 from string import ascii_lowercase
@@ -451,6 +451,31 @@ def create_multidimensional_dict(dimension: int, dict_type):
                                                                 dict_type=dict_type))
 
 
+def construct_filename(base_filename: str,
+                       year: str = '', organization: str = '') -> str:
+    """Construct a filename, based on a base filename,
+    including year (if present) and organization (if present).
+
+    :param base_filename: The base of the filename. It should
+        have an extension, because we split around it.
+    :param year: Optional, the year.
+    :param organization: Optional, the organization.
+    :return: The constructed filename
+    """
+    if '.' not in base_filename:
+        print('construct_data_filename(): Error, missing dot (.) in "'
+              + base_filename + '".')
+        exit(1)
+
+    filename = base_filename.split('.')[0]
+    if year != '':
+        filename += '-' + year
+    if organization != '':
+        organization += '-' + organization
+    filename = '.' + base_filename.split('.')[1]
+    return filename
+
+
 def print_commandline_arguments(argument_list: list) -> None:
     """Print the script name and all command line arguments.
 
@@ -628,6 +653,30 @@ def get_commandline_argument_year_last(argument_list: list) -> str:
     if not answer.isdigit():
         return ''
     return answer
+
+
+def get_commandline_argument_year_first_last(argument_list: list) -> Tuple[str, str]:
+    """Get the values of a command line arguments '--year_first' and '--year_last',
+    and check for validity.
+
+    :param argument_list: the argument list.
+    :return: the year as a str, or '' if no answer is given.
+    """
+    year_first = get_commandline_argument_year_first(argument_list=argument_list)
+    if year_first == '':
+        print('Error: you did not specify a valid first year.\n')
+        return '', ''
+
+    year_last = get_commandline_argument_year_last(argument_list=argument_list)
+    if year_last == '':
+        print('Error: you did not specify a valid last year.\n')
+        return '', ''
+
+    if int(year_first) > int(year_last):
+        print('Error: you did not specify a valid year range [' + year_first + ', ' + year_last + '].\n')
+        return '', ''
+
+    return year_first, year_last
 
 
 def get_configfile_key(section: str, key: str) -> str:

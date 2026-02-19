@@ -348,6 +348,9 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
     :param harvest_source: The source system we harvest from.
     :return: None.
     """
+    if 'DOI' not in resouts.columns:
+        print('create_parsed_dois_in_ricgraph(): Error, missing column "DOI".')
+        exit(1)
     resouts.rename(columns={'DOI': 'RESOUT_VALUE'}, inplace=True)
     resouts.insert(loc=1, column='RESOUT_ID', value='DOI')
     create_parsed_entities_in_ricgraph(entities=resouts,
@@ -371,6 +374,9 @@ def create_parsed_organizations_in_ricgraph(organizations: DataFrame,
     :param harvest_source: The source system we harvest from.
     :return: None.
     """
+    if 'ORGANIZATION_NAME' not in organizations.columns:
+        print('create_parsed_organizations_in_ricgraph(): Error, missing column "ORGANIZATION_NAME".')
+        exit(1)
     organizations.rename(columns={'ORGANIZATION_NAME': 'RESOUT_VALUE'}, inplace=True)
     organizations.insert(loc=1, column='RESOUT_ID', value='ORGANIZATION_NAME')
     organizations['TYPE'] = 'organization'
@@ -396,6 +402,12 @@ def create_parsed_expertise_areas_in_ricgraph(competences: DataFrame,
     :param harvest_source: The source system we harvest from.
     :return: None.
     """
+    if 'EXPERTISE_AREA_NAME' not in competences.columns:
+        print('create_parsed_expertise_areas_in_ricgraph(): Error, missing column "EXPERTISE_AREA_NAME".')
+        exit(1)
+    if 'EXPERTISE_AREA_URL' not in competences.columns:
+        print('create_parsed_expertise_areas_in_ricgraph(): Error, missing column "EXPERTISE_AREA_URL".')
+        exit(1)
     competences.rename(columns={'EXPERTISE_AREA_NAME': 'RESOUT_VALUE',
                                 'EXPERTISE_AREA_URL': 'URL_MAIN'}, inplace=True)
     competences.insert(loc=1, column='RESOUT_ID', value='EXPERTISE_AREA')
@@ -422,6 +434,12 @@ def create_parsed_research_areas_in_ricgraph(competences: DataFrame,
     :param harvest_source: The source system we harvest from.
     :return: None.
     """
+    if 'RESEARCH_AREA_NAME' not in competences.columns:
+        print('create_parsed_research_areas_in_ricgraph(): Error, missing column "RESEARCH_AREA_NAME".')
+        exit(1)
+    if 'RESEARCH_AREA_URL' not in competences.columns:
+        print('create_parsed_research_areas_in_ricgraph(): Error, missing column "RESEARCH_AREA_URL".')
+        exit(1)
     competences.rename(columns={'RESEARCH_AREA_NAME': 'RESOUT_VALUE',
                                 'RESEARCH_AREA_URL': 'URL_MAIN'}, inplace=True)
     competences.insert(loc=1, column='RESOUT_ID', value='RESEARCH_AREA')
@@ -448,6 +466,12 @@ def create_parsed_skills_in_ricgraph(competences: DataFrame,
     :param harvest_source: The source system we harvest from.
     :return: None.
     """
+    if 'SKILL_NAME' not in competences.columns:
+        print('create_parsed_skills_in_ricgraph(): Error, missing column "SKILL_NAME".')
+        exit(1)
+    if 'SKILL_URL' not in competences.columns:
+        print('create_parsed_skills_in_ricgraph(): Error, missing column "SKILL_URL".')
+        exit(1)
     competences.rename(columns={'SKILL_NAME': 'RESOUT_VALUE',
                                 'SKILL_URL': 'URL_MAIN'}, inplace=True)
     competences.insert(loc=1, column='RESOUT_ID', value='SKILL')
@@ -473,6 +497,9 @@ def connect_two_uustaff_persons_in_ricgraph(persons: DataFrame,
     :param harvest_source: The source system we harvest from.
     :return: None.
     """
+    if 'UUSTAFF_PAGE_ID' not in persons.columns:
+        print('connect_two_uustaff_persons_in_ricgraph(): Error, missing column "UUSTAFF_PAGE_ID".')
+        exit(1)
     persons.rename(columns={'UUSTAFF_PAGE_ID': 'RESOUT_VALUE'}, inplace=True)
     persons.insert(loc=1, column='RESOUT_ID', value='UUSTAFF_PAGE_ID')
     persons['TYPE'] = 'person'
@@ -497,6 +524,9 @@ def create_external_persons_in_ricgraph(authors: DataFrame,
     :param harvest_source: The source system we harvest from.
     :return: None.
     """
+    if 'FULL_NAME' not in authors.columns:
+        print('create_external_persons_in_ricgraph(): Error, missing column "FULL_NAME".')
+        exit(1)
     authors.rename(columns={'FULL_NAME': 'RESOUT_VALUE'}, inplace=True)
     authors.insert(loc=1, column='RESOUT_ID', value='FULL_NAME')
     authors['TYPE'] = 'person'
@@ -526,7 +556,6 @@ def update_urls_in_ricgraph(entities: DataFrame,
     if 'URL_MAIN' not in entities.columns:
         print('update_url_in_ricgraph(): Error, missing column "URL_MAIN".')
         exit(1)
-
     print('Updating ' + what + ' from ' + harvest_source
           + ' in Ricgraph at ' + timestamp() + '...')
 

@@ -579,9 +579,8 @@ else:
 rcg.graphdb_nr_accesses_print()
 print(rcg.nodes_cache_key_id_type_size() + '\n')
 
-data_file = YODA_DATA_FILENAME.split('.')[0] \
-            + '-' + organization + '.' \
-            + YODA_DATA_FILENAME.split('.')[1]
+data_file = rcg.construct_filename(base_filename=YODA_DATA_FILENAME,
+                                   organization=organization)
 
 if YODA_READ_DATA_FROM_FILE:
     error_message = 'There are no data from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
@@ -590,9 +589,8 @@ if YODA_READ_DATA_FROM_FILE:
 else:
     error_message = 'There are no data from ' + HARVEST_SOURCE + ' to harvest.\n'
     print('Harvesting data from ' + HARVEST_SOURCE + '.')
-    harvest_file = YODA_HARVEST_FILENAME.split('.')[0] \
-                   + '-' + organization + '.' \
-                   + YODA_HARVEST_FILENAME.split('.')[1]
+    harvest_file = rcg.construct_filename(base_filename=YODA_HARVEST_FILENAME,
+                                          organization=organization)
     parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
                                                            headers=YODA_HEADERS,
                                                            harvest_filename=harvest_file,

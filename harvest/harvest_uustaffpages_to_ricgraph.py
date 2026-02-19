@@ -590,6 +590,7 @@ if UUSTAFF_URL == '':
     print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
 
+print('\nPreparing graph...')
 rcg.open_ricgraph()
 
 empty_graph = rcg.get_commandline_argument_empty_ricgraph(argument_list=sys.argv)
@@ -624,7 +625,6 @@ if True:              # Comment this line to comment out code block A
         parsed_results = connect_pure_with_uustaffpages(url=UUSTAFF_URL,
                                                         max_recs_to_harvest=UUSTAFF_MAX_RECS_TO_HARVEST,
                                                         df_filename=UUSTAFF_HARVEST_CONNECT_FILENAME)
-        rcg.write_dataframe_to_csv(filename=UUSTAFF_HARVEST_CONNECT_FILENAME, df=parsed_results)
 
     if parsed_results is None or parsed_results.empty:
         print(error_message)

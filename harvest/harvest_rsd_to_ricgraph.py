@@ -288,9 +288,8 @@ else:
 rcg.graphdb_nr_accesses_print()
 print(rcg.nodes_cache_key_id_type_size() + '\n')
 
-data_file = RSD_DATA_FILENAME.split('.')[0] \
-            + '-' + organization + '.' \
-            + RSD_DATA_FILENAME.split('.')[1]
+data_file = rcg.construct_filename(base_filename=RSD_DATA_FILENAME,
+                                   organization=organization)
 if RSD_READ_DATA_FROM_FILE:
     error_message = 'There are no software packages from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
     print('Reading software packages from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
@@ -298,9 +297,8 @@ if RSD_READ_DATA_FROM_FILE:
 else:
     error_message = 'There are no software packages from ' + HARVEST_SOURCE + ' to harvest.\n'
     print('Harvesting software packages from ' + HARVEST_SOURCE + '.')
-    harvest_file = RSD_HARVEST_FILENAME.split('.')[0] \
-                   + '-' + organization + '.' \
-                   + RSD_HARVEST_FILENAME.split('.')[1]
+    harvest_file = rcg.construct_filename(base_filename=RSD_HARVEST_FILENAME,
+                                          organization=organization)
     rsd_data = harvest_and_parse_software(url=FULL_RSD_URL,
                                           harvest_filename=harvest_file,
                                           df_filename=data_file)

@@ -1620,17 +1620,10 @@ if (organization := rcg.get_commandline_argument_organization(argument_list=sys.
     exit(1)
 
 print('')
-if (year_first := rcg.get_commandline_argument_year_first(argument_list=sys.argv)) == '':
-    print('Error: you did not specify a valid first year. Exiting.\n')
-    exit(1)
-
-if (year_last := rcg.get_commandline_argument_year_last(argument_list=sys.argv)) == '':
-    print('Error: you did not specify a valid last year. Exiting.\n')
-    exit(1)
-
-if int(year_first) > int(year_last):
-    print('Error: you did not specify a valid year range [' + year_first + ', ' + year_last + '].')
-    print('Exiting.\n')
+year_first, year_last = rcg.get_commandline_argument_year_first_last(argument_list=sys.argv)
+if year_first == '' or year_last == '':
+    # An error message has already been printed
+    # in get_commandline_argument_year_first_last().
     exit(1)
 
 if (harvest_projects := rcg.get_commandline_argument_harvest_projects(argument_list=sys.argv)) == 'yes':
@@ -1710,9 +1703,8 @@ resout_uuid_or_doi = {}
 
 # ########################################################################
 # Code for harvesting persons. Harvested persons are required for organizations.
-data_file = PURE_PERSONS_DATA_FILENAME.split('.')[0] \
-            + '-' + organization + '.' \
-            + PURE_PERSONS_DATA_FILENAME.split('.')[1]
+data_file = rcg.construct_filename(base_filename=PURE_PERSONS_DATA_FILENAME,
+                                   organization=organization)
 
 rcg.graphdb_nr_accesses_print()
 print(rcg.nodes_cache_key_id_type_size() + '\n')
@@ -1726,9 +1718,8 @@ if True:
     else:
         error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to harvest.\n'
         print('Harvesting person from ' + HARVEST_SOURCE + '.')
-        harvest_file = PURE_PERSONS_HARVEST_FILENAME.split('.')[0] \
-                       + '-' + organization + '.' \
-                       + PURE_PERSONS_HARVEST_FILENAME.split('.')[1]
+        harvest_file = rcg.construct_filename(base_filename=PURE_PERSONS_HARVEST_FILENAME,
+                                              organization=organization)
         parse_persons = harvest_and_parse_pure_data(mode='persons',
                                                     endpoint=PURE_PERSONS_ENDPOINT,
                                                     headers=PURE_HEADERS,
@@ -1756,9 +1747,8 @@ if True:
     # at the top of this file.
     # parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 
-    data_file = PURE_ORGANIZATIONS_DATA_FILENAME.split('.')[0] \
-                + '-' + organization + '.' \
-                + PURE_ORGANIZATIONS_DATA_FILENAME.split('.')[1]
+    data_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_DATA_FILENAME,
+                                       organization=organization)
     if PURE_ORGANIZATIONS_READ_DATA_FROM_FILE:
         error_message = 'There are no organizations from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print('Reading organizations from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
@@ -1767,9 +1757,8 @@ if True:
     else:
         error_message = 'There are no organizations from ' + HARVEST_SOURCE + ' to harvest.\n'
         print('Harvesting organizations from ' + HARVEST_SOURCE + '.')
-        harvest_file = PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[0] \
-                       + '-' + organization + '.' \
-                       + PURE_ORGANIZATIONS_HARVEST_FILENAME.split('.')[1]
+        harvest_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME,
+                                              organization=organization)
         parse_organizations = harvest_and_parse_pure_data(mode='organizations',
                                                           endpoint=PURE_ORGANIZATIONS_ENDPOINT,
                                                           headers=PURE_HEADERS,
@@ -1799,9 +1788,8 @@ if True:
     # The Pure READ API does allow to specify years to harvest.
     for year_int in range(int(year_first), int(year_last) + 1):
         year = str(year_int)
-        data_file_year = PURE_RESOUT_DATA_FILENAME.split('.')[0] \
-                         + '-' + year + '-' + organization + '.' \
-                         + PURE_RESOUT_DATA_FILENAME.split('.')[1]
+        data_file_year = rcg.construct_filename(base_filename=PURE_RESOUT_DATA_FILENAME,
+                                                year=year, organization=organization)
         if PURE_RESOUT_READ_DATA_FROM_FILE:
             error_message = 'There are no research outputs from ' + HARVEST_SOURCE
             error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
@@ -1814,9 +1802,8 @@ if True:
             error_message += ' for year ' + year + ' to harvest.\n'
             print('Harvesting research outputs from ' + HARVEST_SOURCE
                   + ' for year ' + year + '.')
-            harvest_file_year = PURE_RESOUT_HARVEST_FILENAME.split('.')[0] \
-                                + '-' + year + '-' + organization + '.' \
-                                + PURE_RESOUT_HARVEST_FILENAME.split('.')[1]
+            harvest_file_year = rcg.construct_filename(base_filename=PURE_RESOUT_HARVEST_FILENAME,
+                                                       year=year, organization=organization)
             PURE_RESOUT_FIELDS['publishedBeforeDate'] = year + '-12-31'
             PURE_RESOUT_FIELDS['publishedAfterDate'] = year + '-01-01'
             parse_resout = harvest_and_parse_pure_data(mode='research outputs',
@@ -1843,9 +1830,8 @@ if HARVEST_PROJECTS:
         print('Harvesting projects from Pure using the CRUD API is not implemented yet.')
         exit(1)
 
-    data_file = PURE_PROJECTS_DATA_FILENAME.split('.')[0] \
-                + '-' + organization + '.' \
-                + PURE_PROJECTS_DATA_FILENAME.split('.')[1]
+    data_file = rcg.construct_filename(base_filename=PURE_PROJECTS_DATA_FILENAME,
+                                       organization=organization)
     if PURE_PROJECTS_READ_DATA_FROM_FILE:
         error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print('Reading projects from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
@@ -1854,9 +1840,8 @@ if HARVEST_PROJECTS:
     else:
         error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to harvest.\n'
         print('Harvesting projects from ' + HARVEST_SOURCE + '.')
-        harvest_file = PURE_PROJECTS_HARVEST_FILENAME.split('.')[0] \
-                       + '-' + organization + '.' \
-                       + PURE_PROJECTS_HARVEST_FILENAME.split('.')[1]
+        harvest_file = rcg.construct_filename(base_filename=PURE_PROJECTS_HARVEST_FILENAME,
+                                              organization=organization)
         parse_projects = harvest_and_parse_pure_data(mode='projects',
                                                      endpoint=PURE_PROJECTS_ENDPOINT,
                                                      headers=PURE_HEADERS,

@@ -345,17 +345,10 @@ if (organization := rcg.get_commandline_argument_organization(argument_list=sys.
     exit(1)
 
 print('')
-if (year_first := rcg.get_commandline_argument_year_first(argument_list=sys.argv)) == '':
-    print('Error: you did not specify a valid first year. Exiting.\n')
-    exit(1)
-
-if (year_last := rcg.get_commandline_argument_year_last(argument_list=sys.argv)) == '':
-    print('Error: you did not specify a valid last year. Exiting.\n')
-    exit(1)
-
-if int(year_first) > int(year_last):
-    print('Error: you did not specify a valid year range [' + year_first + ', ' + year_last + '].')
-    print('Exiting.\n')
+year_first, year_last = rcg.get_commandline_argument_year_first_last(argument_list=sys.argv)
+if year_first == '' or year_last == '':
+    # An error message has already been printed
+    # in get_commandline_argument_year_first_last().
     exit(1)
 
 org_name = 'organization_name_' + organization
@@ -398,9 +391,8 @@ print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 for year_int in range(int(year_first), int(year_last) + 1):
     year = str(year_int)
-    data_file_year = OPENALEX_DATA_FILENAME.split('.')[0] \
-                     + '-' + year + '-' + organization + '.' \
-                     + OPENALEX_DATA_FILENAME.split('.')[1]
+    data_file_year = rcg.construct_filename(base_filename=OPENALEX_DATA_FILENAME,
+                                            year=year, organization=organization)
     if OPENALEX_READ_DATA_FROM_FILE:
         error_message = 'There are no persons or research outputs from ' + HARVEST_SOURCE
         error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
@@ -413,9 +405,8 @@ for year_int in range(int(year_first), int(year_last) + 1):
         error_message += ' for year ' + year + ' to harvest.\n'
         print('Harvesting persons and research outputs from ' + HARVEST_SOURCE
               + ' for year ' + year + '.')
-        harvest_file_year = OPENALEX_HARVEST_FILENAME.split('.')[0] \
-                            + '-' + year + '-' + organization + '.' \
-                            + OPENALEX_HARVEST_FILENAME.split('.')[1]
+        harvest_file_year = rcg.construct_filename(base_filename=OPENALEX_HARVEST_FILENAME,
+                                                   year=year, organization=organization)
         parse_persons_resout = harvest_and_parse_openalex(harvest_year=year,
                                                           headers=OPENALEX_HEADERS,
                                                           harvest_filename=harvest_file_year,
