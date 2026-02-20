@@ -250,7 +250,8 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # decides to enter multiple organizations in the same field, which is unexpected.
     # I cannot do (2), since I would not know which organization belongs to which person.
     organizations = parsed_content[['ORCID', 'ORGANIZATION_NAME']].copy(deep=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
+    rcg.create_parsed_entities_in_ricgraph(entities=organizations,
+                                           harvest_source=HARVEST_SOURCE)
     return
 
 

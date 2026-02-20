@@ -263,7 +263,7 @@ def parse_uustaff_persons(harvest: list,
             for expertise in harvest_item['Expertises']:
                 if 'Name' in expertise and 'Url' in expertise:
                     parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
-                                  'EXPERTISE_AREA_NAME': str(expertise['Name']),
+                                  'EXPERTISE_AREA': str(expertise['Name']),
                                   'EXPERTISE_AREA_URL': UU_WEBSITE + str(expertise['Url'])}
                     parse_chunk.append(parse_line)
         if 'FocusAreas' in harvest_item:
@@ -271,14 +271,14 @@ def parse_uustaff_persons(harvest: list,
                 if 'Name' in focusarea and 'Url' in focusarea:
                     # Focus areas are called 'Research areas' on the UU website.
                     parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
-                                  'RESEARCH_AREA_NAME': str(focusarea['Name']),
+                                  'RESEARCH_AREA': str(focusarea['Name']),
                                   'RESEARCH_AREA_URL': UU_WEBSITE + str(focusarea['Url'])}
                     parse_chunk.append(parse_line)
         if 'Skills' in harvest_item:
             for skill in harvest_item['Skills']:
                 if 'Name' in skill and 'Url' in skill:
                     parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
-                                  'SKILL_NAME': str(skill['Name']),
+                                  'SKILL': str(skill['Name']),
                                   'SKILL_URL': UU_WEBSITE + str(skill['Url'])}
                     parse_chunk.append(parse_line)
 
@@ -462,30 +462,33 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     # ####### Insert organizations (faculties only).
     organizations = parsed_content[['UUSTAFF_PAGE_ID', 'FACULTY']].copy(deep=True)
     organizations.rename(columns={'FACULTY': 'ORGANIZATION_NAME'}, inplace=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
+    rcg.create_parsed_entities_in_ricgraph(entities=organizations,
+                                           harvest_source=HARVEST_SOURCE)
 
     # ####### Insert organizations (connect all to 'UU Utrecht University',
     # all staff is part of UU).
     organizations = parsed_content[['UUSTAFF_PAGE_ID']].copy(deep=True)
     organizations['ORGANIZATION_NAME'] = 'UU Utrecht University'
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
+    rcg.create_parsed_entities_in_ricgraph(entities=organizations,
+                                           harvest_source=HARVEST_SOURCE)
 
     # ####### Insert expertises.
-    expertises = parsed_content[['UUSTAFF_PAGE_ID', 'EXPERTISE_AREA_NAME',
+    expertises = parsed_content[['UUSTAFF_PAGE_ID', 'EXPERTISE_AREA',
                                  'EXPERTISE_AREA_URL']].copy(deep=True)
-    rcg.create_parsed_expertise_areas_in_ricgraph(competences=expertises,
-                                                  harvest_source=HARVEST_SOURCE)
+    rcg.create_parsed_entities_in_ricgraph(entities=expertises,
+                                           harvest_source=HARVEST_SOURCE)
 
     # ####### Insert research areas.
-    research_areas = parsed_content[['UUSTAFF_PAGE_ID', 'RESEARCH_AREA_NAME',
+    research_areas = parsed_content[['UUSTAFF_PAGE_ID', 'RESEARCH_AREA',
                                      'RESEARCH_AREA_URL']].copy(deep=True)
-    rcg.create_parsed_research_areas_in_ricgraph(competences=research_areas,
-                                                 harvest_source=HARVEST_SOURCE)
+    rcg.create_parsed_entities_in_ricgraph(entities=research_areas,
+                                           harvest_source=HARVEST_SOURCE)
 
     # ####### Insert skills.
-    skills = parsed_content[['UUSTAFF_PAGE_ID', 'SKILL_NAME', 'SKILL_URL']].copy(deep=True)
-    rcg.create_parsed_skills_in_ricgraph(competences=skills,
-                                         harvest_source=HARVEST_SOURCE)
+    skills = parsed_content[['UUSTAFF_PAGE_ID', 'SKILL',
+                             'SKILL_URL']].copy(deep=True)
+    rcg.create_parsed_entities_in_ricgraph(entities=skills,
+                                           harvest_source=HARVEST_SOURCE)
     return
 
 
@@ -571,8 +574,8 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
     :return: None.
     """
     solisids_staffids = parsed_content[['EMPLOYEE_ID', 'UUSTAFF_PAGE_ID']].copy(deep=True)
-    rcg.connect_two_uustaff_persons_in_ricgraph(persons=solisids_staffids,
-                                                harvest_source=HARVEST_SOURCE)
+    rcg.create_parsed_entities_in_ricgraph(entities=solisids_staffids,
+                                           harvest_source=HARVEST_SOURCE)
     return
 
 

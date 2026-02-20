@@ -316,11 +316,14 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     # Connect organizations to persons.
     organizations = parsed_content[['OPENALEX', 'ORGANIZATION_NAME']].copy(deep=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
+    rcg.create_parsed_entities_in_ricgraph(entities=organizations,
+                                           harvest_source=HARVEST_SOURCE)
 
-    # Connect organization name to organization ROR.
-    organizations = parsed_content[['ROR', 'ORGANIZATION_NAME']].copy(deep=True)
-    rcg.create_parsed_rors_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
+    if 'ROR' in parsed_content.columns:
+        # Connect organization name to organization ROR.
+        organizations = parsed_content[['ROR', 'ORGANIZATION_NAME']].copy(deep=True)
+        rcg.create_parsed_rors_in_ricgraph(organizations=organizations,
+                                           harvest_source=HARVEST_SOURCE)
 
     return
 

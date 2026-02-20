@@ -1161,11 +1161,11 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    person_identifiers = parsed_content[['PURE_UUID_PERS', 'FULL_NAME',
-                                         'ORCID', 'ISNI',
-                                         'SCOPUS_AUTHOR_ID', 'DIGITAL_AUTHOR_ID',
-                                         'RESEARCHER_ID', 'EMPLOYEE_ID'
-                                       ]].copy(deep=True)
+    all_possible_cols = ['PURE_UUID_PERS', 'FULL_NAME', 'ORCID', 'ISNI',
+                         'SCOPUS_AUTHOR_ID', 'DIGITAL_AUTHOR_ID',
+                         'RESEARCHER_ID', 'EMPLOYEE_ID']
+    existing_cols = [c for c in all_possible_cols if c in parsed_content.columns]
+    person_identifiers = parsed_content[existing_cols].copy(deep=True)
     rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
                                           harvest_source=HARVEST_SOURCE)
     # Add the URL to this person in Pure. Some persons do not seem to have
@@ -1343,8 +1343,8 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
                                                            value=row['PURE_UUID_ORG']), axis=1)
     persorgnodes.drop(labels='PURE_UUID_ORG', axis='columns', inplace=True)
     persorgnodes.rename(columns={'FULL_ORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=persorgnodes,
-                                                harvest_source=HARVEST_SOURCE)
+    rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
+                                           harvest_source=HARVEST_SOURCE)
     return
 
 
@@ -1393,28 +1393,26 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
     resouts = resouts[['PURE_UUID_PERS', 'RESOUT_ID', 'RESOUT_VALUE',
                        'TITLE', 'YEAR', 'TYPE', 'URL_MAIN', 'URL_OTHER']].copy(deep=True)
-    rcg.create_parsed_entities_in_ricgraph(entities=resouts,
-                                           harvest_source=HARVEST_SOURCE,
-                                           what='research outputs')
+    rcg.create_parsed_entities_in_ricgraph_general(entities=resouts,
+                                                   harvest_source=HARVEST_SOURCE,
+                                                   what='research outputs')
 
-    # This is specifically for external persons and author collaborations. We only
-    # find these while parsing research outputs, not while parsing persons.
-    external_persons = parsed_content[['PURE_UUID_PERS', 'FULL_NAME']].copy(deep=True)
-    rcg.create_external_persons_in_ricgraph(authors=external_persons,
-                                            harvest_source=HARVEST_SOURCE)
+    if 'FULL_NAME' in parsed_content.columns:
+        # This is specifically for external persons and author collaborations. We only
+        # find these while parsing research outputs, not while parsing persons.
+        external_persons = parsed_content[['PURE_UUID_PERS', 'FULL_NAME']].copy(deep=True)
+        rcg.create_parsed_entities_in_ricgraph(entities=external_persons,
+                                               harvest_source=HARVEST_SOURCE)
 
-    # This is specifically for external persons and external organizations. We only
-    # find these while parsing research outputs, not while parsing persons.
-    print('Determining external organizations from external persons...')
-    if 'AUTHOR_EXTERNALORG_NAME' not in parsed_content.columns:
-        print('There are no external organizations from external persons.')
-        print('\nDone at ' + rcg.timestamp() + '.\n')
-        return
-    persorgnodes = parsed_content[['PURE_UUID_PERS',
-                                   'AUTHOR_EXTERNALORG_NAME']].copy(deep=True)
-    persorgnodes.rename(columns={'AUTHOR_EXTERNALORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=persorgnodes,
-                                                harvest_source=HARVEST_SOURCE)
+    if 'AUTHOR_EXTERNALORG_NAME' in parsed_content.columns:
+        # This is specifically for external persons and external organizations. We only
+        # find these while parsing research outputs, not while parsing persons.
+        print('Determining external organizations from external persons...')
+        persorgnodes = parsed_content[['PURE_UUID_PERS',
+                                       'AUTHOR_EXTERNALORG_NAME']].copy(deep=True)
+        persorgnodes.rename(columns={'AUTHOR_EXTERNALORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
+        rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
+                                               harvest_source=HARVEST_SOURCE)
     return
 
 

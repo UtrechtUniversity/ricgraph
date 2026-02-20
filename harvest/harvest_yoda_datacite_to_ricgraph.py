@@ -503,45 +503,28 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     #    since new identifiers from this harvest will be  linked to an already existing
     #    person-root.
     # If you have 2 of type (b), use these as the first 2 columns.
-    person_identifiers = parsed_content[['ORCID', 'SCOPUS_AUTHOR_ID',
-                                         'FULL_NAME', 'DIGITAL_AUTHOR_ID',
-                                         'ISNI', 'RESEARCHER_ID']].copy(deep=True)
+    all_possible_cols = ['ORCID', 'SCOPUS_AUTHOR_ID', 'FULL_NAME',
+                         'DIGITAL_AUTHOR_ID', 'ISNI', 'RESEARCHER_ID']
+    existing_cols = [c for c in all_possible_cols if c in parsed_content.columns]
+    person_identifiers = parsed_content[existing_cols].copy(deep=True)
     rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
                                           harvest_source=HARVEST_SOURCE)
 
     # We need to connect a data set to a person-root. However, there is no single
     # person identifier that every person has. So we will need to connect DOIs to
     # every person-identifier we have.
-    datasets = parsed_content[['ORCID', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
-    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
+    # Similar for organizations.
+    all_possible_cols = ['ORCID', 'SCOPUS_AUTHOR_ID',
+                         'DIGITAL_AUTHOR_ID', 'ISNI', 'RESEARCHER_ID']
+    existing_cols = [c for c in all_possible_cols if c in parsed_content.columns]
+    for identifier in existing_cols:
+        datasets = parsed_content[[identifier, 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+        rcg.create_parsed_dois_in_ricgraph(resouts=datasets,
+                                           harvest_source=HARVEST_SOURCE)
 
-    datasets = parsed_content[['DIGITAL_AUTHOR_ID', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
-    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
-
-    datasets = parsed_content[['SCOPUS_AUTHOR_ID', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
-    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
-
-    datasets = parsed_content[['RESEARCHER_ID', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
-    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
-
-    datasets = parsed_content[['ISNI', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
-    rcg.create_parsed_dois_in_ricgraph(resouts=datasets, harvest_source=HARVEST_SOURCE)
-
-    # Same for organizations.
-    organizations = parsed_content[['ORCID', 'ORGANIZATION_NAME']].copy(deep=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
-
-    organizations = parsed_content[['DIGITAL_AUTHOR_ID', 'ORGANIZATION_NAME']].copy(deep=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
-
-    organizations = parsed_content[['SCOPUS_AUTHOR_ID', 'ORGANIZATION_NAME']].copy(deep=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
-
-    organizations = parsed_content[['RESEARCHER_ID', 'ORGANIZATION_NAME']].copy(deep=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
-
-    organizations = parsed_content[['ISNI', 'ORGANIZATION_NAME']].copy(deep=True)
-    rcg.create_parsed_organizations_in_ricgraph(organizations=organizations, harvest_source=HARVEST_SOURCE)
+        organizations = parsed_content[[identifier, 'ORGANIZATION_NAME']].copy(deep=True)
+        rcg.create_parsed_entities_in_ricgraph(entities=organizations,
+                                               harvest_source=HARVEST_SOURCE)
     return
 
 
