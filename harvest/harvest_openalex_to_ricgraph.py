@@ -66,7 +66,7 @@
 import sys
 import pandas
 from typing import Union
-import pathlib
+from pathlib import PurePath
 import ricgraph as rcg
 
 
@@ -164,44 +164,27 @@ def parse_openalex(harvest: list,
         if count % 10000 == 0:
             print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
-        if 'authorships' not in harvest_item:
-            # There must be authors, otherwise skip.
-            continue
-
-        for authors in harvest_item['authorships']:
-            # Previously, we only inserted authors from ORGANIZATION_ROR.
-            # Now we insert authors from any organization.
-            if 'author' not in authors \
-               or 'institutions' not in authors:
-                # They must be present, otherwise skip this author.
-                continue
-
-            if 'id' not in authors['author']:
+        for authors in rcg.json_item_get_list(json_item=harvest_item,
+                                              json_path='authorships'):
+            if (openalex_path := rcg.json_item_get_str(json_item=authors,
+                                                       json_path='author.id')) == '':
                 # There must be an id, otherwise skip.
                 continue
 
-            if authors['author']['id'] is None:
-                # Weirdly, OpenAlex sometimes has authors
-                # without an OpenAlex id. Skip them.
-                continue
+            openalex_id = PurePath(openalex_path).name
+            if (orcid_path := rcg.json_item_get_str(json_item=authors,
+                                                    json_path='author.orcid')) != '':
+                parse_line = {'OPENALEX': openalex_id,
+                              'ORCID': PurePath(orcid_path).name}
+                parse_chunk.append(parse_line)
 
-            path = pathlib.PurePath(authors['author']['id'])
-            openalex_id = str(path.name)
+            if (display_name := rcg.json_item_get_str(json_item=authors,
+                                                      json_path='author.display_name')) != '':
+                parse_line = {'OPENALEX': openalex_id,
+                              'FULL_NAME': display_name}
+                parse_chunk.append(parse_line)
 
-            if 'orcid' in authors['author']:
-                if authors['author']['orcid'] is not None:
-                    parse_line = {'OPENALEX': openalex_id}
-                    path = pathlib.PurePath(authors['author']['orcid'])
-                    parse_line['ORCID'] = str(path.name)
-                    parse_chunk.append(parse_line)
-
-            if 'display_name' in authors['author']:
-                if authors['author']['display_name'] is not None:
-                    parse_line = {'OPENALEX': openalex_id,
-                                  'FULL_NAME': str(authors['author']['display_name'])}
-                    parse_chunk.append(parse_line)
-
-            for institution in authors['institutions']:
+            for institution in rcg.json_item_get_list(json_item=authors, json_path='institutions'):
                 # An author can work at multiple institutions.
                 # With the code in this for, we collect in the parse
                 # any institution connected to this author.
@@ -212,46 +195,39 @@ def parse_openalex(harvest: list,
                 # 3. Only collect institutions to an author if the author is NOT
                 #    from our own organization (then path.name != ORGANIZATION_ROR).
                 # In the code below, we do (2).
-                if 'ror' not in institution:
-                    continue
-                if institution['ror'] is None:
+                if (ror_path := rcg.json_item_get_str(json_item=institution,
+                                                      json_path='ror')) == '':
                     continue
 
-                path = pathlib.PurePath(institution['ror'])
                 parse_line = {'OPENALEX': openalex_id,
-                              'ROR': str(path.name)}
-                if 'display_name' in institution and institution['display_name'] is not None:
-                    parse_line['ORGANIZATION_NAME'] = str(institution['display_name'])
+                              'ROR': PurePath(ror_path).name}
+                if (display_name := rcg.json_item_get_str(json_item=institution,
+                                                          json_path='display_name')) != '':
+                    parse_line['ORGANIZATION_NAME'] = display_name
                 parse_chunk.append(parse_line)
 
-            if 'doi' not in harvest_item:
-                continue
-            if 'title' not in harvest_item:
-                continue
-            if 'type' not in harvest_item:
-                continue
-            if harvest_item['doi'] is None or harvest_item['title'] is None:
+            if (doi := rcg.json_item_get_str(json_item=harvest_item,
+                                             json_path='doi')) == '' \
+               or (title := rcg.json_item_get_str(json_item=harvest_item,
+                                                  json_path='title')) == '' \
+               or (type := rcg.json_item_get_str(json_item=harvest_item,
+                                                 json_path='type')) == '':
                 continue
 
+            publication_year = rcg.json_item_get_str(json_item=harvest_item,
+                                                     json_path='publication_year')
             parse_line = {'OPENALEX': openalex_id,
-                          'DOI': rcg.normalize_doi(identifier=str(harvest_item['doi'])),
-                          'TITLE': str(harvest_item['title'])}
-            if 'publication_year' in harvest_item:
-                parse_line['YEAR'] = str(harvest_item['publication_year'])
-            else:
-                parse_line['YEAR'] = ''
-            if harvest_item['type'] is None:
-                parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type='',
-                                                                research_output_mapping=ROTYPE_MAPPING_OPENALEX))
-            else:
-                parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type=harvest_item['type'],
-                                                                research_output_mapping=ROTYPE_MAPPING_OPENALEX))
+                          'DOI': rcg.normalize_doi(identifier=doi),
+                          'TITLE': title,
+                          'YEAR': publication_year}
+            parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type=type,
+                                                            research_output_mapping=ROTYPE_MAPPING_OPENALEX))
             parse_chunk.append(parse_line)
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
     parse_chunk_df = pandas.DataFrame(parse_chunk)
-    parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    parse_result = pandas.concat(objs=[parse_result, parse_chunk_df], ignore_index=True)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
                                                 filename=filename)
 

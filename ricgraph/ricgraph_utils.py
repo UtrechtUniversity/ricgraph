@@ -44,7 +44,7 @@
 
 from os import path
 from sys import prefix
-from re import sub
+from re import sub, findall
 from numpy import maximum
 from pandas import DataFrame
 from typing import Union, Tuple
@@ -471,7 +471,7 @@ def construct_filename(base_filename: str,
     if year != '':
         filename += '-' + year
     if organization != '':
-        organization += '-' + organization
+        filename += '-' + organization
     filename += '.' + base_filename.split('.')[1]
     return filename
 
@@ -775,3 +775,129 @@ def get_configfile_key_memcached_parameters() -> tuple[bool, str, int]:
     memcached_port = int(memcached_port_str)
 
     return memcached_to_be_used, memcached_host, memcached_port
+
+
+def _json_item_get(json_item: dict, json_path: str,
+                   verbose: bool = False) -> Union[str, list, None]:
+    """Safely retrieve a nested value from a JSON-like structure
+    using a string path. Either a str or list return value is expected.
+
+    :param json_item: The JSON item.
+    :param json_path: The path to be returned in the JSON item.
+    :param verbose: If True, explain what went wrong.
+    :return: the value of that path, or None if it does not exist.
+    """
+    parts = findall(pattern=r"[^\.\[\]]+", string=json_path)
+    current_path = []
+
+    try:
+        for key in parts:
+            current_path.append(key)
+            if isinstance(json_item, dict):
+                json_item = json_item[key]
+            elif isinstance(json_item, list):
+                json_item = json_item[int(key)]
+            else:
+                raise TypeError('Cannot access "' + key
+                                + '" (current value type: '
+                                + type(json_item).__name__ + ').')
+
+    except (KeyError, IndexError, TypeError, ValueError) as e:
+        if verbose:
+            print('_json_item_get(): Error parsing json_item, failed at path: "'
+                + '.'.join(current_path) + '".')
+            print('    json_item: "' + str(json_item) + '".')
+            print('    reason: ' + type(e).__name__ + ': ' + str(e))
+        return None
+
+    return json_item
+
+
+def json_item_get_str(json_item: dict, json_path: str,
+                      verbose: bool = False) -> str:
+    """Safely retrieve a nested value from a JSON-like structure
+    using a string path. A str return value is expected.
+    Examples:
+        json_get_str(data, 'workflow.workflowStep')
+        json_get_str(data, 'references[0].title.text[0].value')
+
+    :param json_item: The JSON item.
+    :param json_path: The path to be returned in the JSON item.
+    :param verbose: If True, explain what went wrong.
+    :return: the value of that path, or '' if it does not exist.
+    """
+    value = _json_item_get(json_item=json_item, json_path=json_path,
+                           verbose=verbose)
+    if isinstance(value, str):
+        return value
+    elif isinstance(value, int):
+        return str(value)
+    else:
+        return ''
+
+
+def json_item_get_list(json_item: dict, json_path: str,
+                       verbose: bool = False) -> list:
+    """Safely retrieve a nested value from a JSON-like structure
+    using a string path. A list return value is expected.
+    For examples see json_get_str().
+
+    :param json_item: The JSON item.
+    :param json_path: The path to be returned in the JSON item.
+    :param verbose: If True, explain what went wrong.
+    :return: the value of that path, or [] if it does not exist.
+    """
+    value = _json_item_get(json_item=json_item, json_path=json_path,
+                           verbose=verbose)
+    if isinstance(value, list):
+        return value
+    else:
+        return []
+
+
+def json_item_get_int(json_item: dict, json_path: str) -> Union[int, None]:
+    """Safely retrieve a nested value from a JSON-like structure
+    using a string path. An int return value is expected.
+    For examples see json_get_str().
+
+    :param json_item: The JSON item.
+    :param json_path: The path to be returned in the JSON item.
+    :return: the value of that path, or None if it does not exist.
+    """
+    value = _json_item_get(json_item=json_item, json_path=json_path)
+    if isinstance(value, int):
+        return value
+    else:
+        return None
+
+
+def json_item_get_dict(json_item: dict, json_path: str) -> dict:
+    """Safely retrieve a nested value from a JSON-like structure
+    using a string path. A dict return value is expected.
+    For examples see json_get_str().
+
+    :param json_item: The JSON item.
+    :param json_path: The path to be returned in the JSON item.
+    :return: the value of that path, or {} if it does not exist.
+    """
+    value = _json_item_get(json_item=json_item, json_path=json_path)
+    if isinstance(value, dict):
+        return value
+    else:
+        return {}
+
+
+def json_item_get_bool(json_item: dict, json_path: str) -> Union[bool, None]:
+    """Safely retrieve a nested value from a JSON-like structure
+    using a string path. A bool return value is expected.
+    For examples see json_get_str().
+
+    :param json_item: The JSON item.
+    :param json_path: The path to be returned in the JSON item.
+    :return: the value of that path, or None if it does not exist.
+    """
+    value = _json_item_get(json_item=json_item, json_path=json_path)
+    if isinstance(value, bool):
+        return value
+    else:
+        return None

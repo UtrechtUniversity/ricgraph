@@ -126,63 +126,48 @@ def parse_rsd_software(harvest: list,
     if len(harvest) == 0:
         return None
     rsd_parse = pandas.DataFrame()
-    for software_package in harvest[0]['software']:
-        package_name = software_package['brand_name']
+    for software_package in rcg.json_item_get_list(json_item=harvest[0],
+                                                   json_path='software'):
+        if (package_name := rcg.json_item_get_str(json_item=software_package,
+                                                  json_path='brand_name')) == '':
+            # Package has empty name.
+            continue
+
         package_url = RSD_URL + '/software/' + software_package['slug']
 
         # RSD has several DOIs: 'Concept DOI' and 'Version DOI'. The Concept DOI always
         # represents the most recent version, and the Version DOI is specific to a version.
         # We prefer the Concept DOI, and if not present, take the first DOI in the list
         # as the correct one.
-        if 'concept_doi' in software_package and software_package['concept_doi'] is not None:
-            package_doi = software_package['concept_doi']
-            package_doi_type = 'concept DOI'
-        else:
-            if 'release' not in software_package:
-                continue
-            release = software_package['release']
-            if release is None:
-                continue
-
-            if 'mention' not in release:
-                continue
-            mention = release['mention']
-            if len(mention) == 0:
-                continue
-
-            # DOIs are sorted on date, most recent first. Not sure what is 'correct' if there are DOIs
+        if (package_doi := rcg.json_item_get_str(json_item=software_package,
+                                                 json_path='concept_doi')) != '':
+            pass
+        elif (package_doi := rcg.json_item_get_str(json_item=software_package,
+                                                   json_path='release.mention.0.doi')) != '':
+            # Note that DOIs are sorted on date, most recent first.
+            # Not sure what is 'correct' if there are DOIs
             # from the same date. Just take the first.
-            first_doi_date = mention[0]
-            package_doi = first_doi_date['doi']
-            package_doi_type = 'version DOI'
+            package_name = package_name + ' (version DOI)'
+        else:
+            # No DOI found.
+            continue
 
         # Get year of most recent DOI, we assume that is the publication year of the software package.
-        publication_year_most_recent_doi = ''
-        if 'release' in software_package:
-            release = software_package['release']
-            if release is not None:
-                if 'mention' in release:
-                    mention = release['mention']
-                    if len(mention) != 0:
-                        if 'publication_year' in mention[0]:
-                            publication_year_most_recent_doi = str(mention[0]['publication_year'])
+        publication_year_most_recent_doi = rcg.json_item_get_str(json_item=software_package,
+                                                                 json_path='release.mention.0.publication_year')
 
         # The following results in names and ORCID's of contributors.
         # In case there are no names, the software will be added anyway to Ricgraph.
         # 'Contributor' contains a number of fields. We add them in one go.
         # Now it has orcid, affiliation, given_names, and family_names.
-        contributor = pandas.json_normalize(software_package, 'contributor')
-
-        if package_doi_type == 'version DOI':
-            package_name = package_name + ' (' + package_doi_type + ')'
-
+        contributor = pandas.json_normalize(software_package, record_path='contributor')
         contributor.fillna(value=numpy.nan, inplace=True)
         contributor['FULL_NAME'] = contributor['family_names'] + ', ' + contributor['given_names']
-        contributor.insert(0, 'package_year', publication_year_most_recent_doi)
-        contributor.insert(0, 'package_name', package_name)
-        contributor.insert(0, 'package_url', package_url)
-        contributor.insert(0, 'package_doi', str(package_doi).lower())
-        rsd_parse = pandas.concat([rsd_parse, contributor], ignore_index=True)
+        contributor.insert(loc=0, column='package_year', value=publication_year_most_recent_doi)
+        contributor.insert(loc=0, column='package_name', value=package_name)
+        contributor.insert(loc=0, column='package_url', value=package_url)
+        contributor.insert(loc=0, column='package_doi', value=rcg.normalize_doi(identifier=package_doi))
+        rsd_parse = pandas.concat(objs=[rsd_parse, contributor], ignore_index=True)
 
     parse_result = restructure_parse(df=rsd_parse)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,

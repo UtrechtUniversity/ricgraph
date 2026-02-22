@@ -85,7 +85,7 @@ import pandas
 import numpy
 from typing import Union
 import requests
-import pathlib
+from pathlib import PurePath
 import ricgraph as rcg
 from ricgraph import construct_extended_org_name
 
@@ -500,94 +500,81 @@ def parse_pure_persons(harvest: list,
         if count % 10000 == 0:
             print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
-        if 'uuid' not in harvest_item:
-            # There must be an uuid, otherwise skip
+        if (pers_uuid := rcg.json_item_get_str(json_item=harvest_item,
+                                               json_path='uuid')) == '':
+            # There must be an uuid, otherwise skip.
             continue
-        if 'name' in harvest_item:
-            if 'lastName' in harvest_item['name']:
-                parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
-                              'FULL_NAME': harvest_item['name']['lastName']}
-                if 'firstName' in harvest_item['name']:
-                    parse_line['FULL_NAME'] += ', ' + harvest_item['name']['firstName']
-                parse_chunk.append(parse_line)
-        if 'orcid' in harvest_item:
-            parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
-                          'ORCID': str(harvest_item['orcid'])}
+        if (lastname := rcg.json_item_get_str(json_item=harvest_item,
+                                              json_path='name.lastName')) != '':
+            parse_line = {'PURE_UUID_PERS': pers_uuid,
+                          'FULL_NAME': lastname}
+            if (firstname := rcg.json_item_get_str(json_item=harvest_item,
+                                                   json_path='name.firstName')) != '':
+                parse_line['FULL_NAME'] += ', ' + firstname
             parse_chunk.append(parse_line)
-        if 'ids' in harvest_item:
-            # Field in Pure READ API.
-            for identities in harvest_item['ids']:
-                if 'value' in identities and 'type' in identities:
-                    value_identifier = str(identities['value']['value'])
-                    name_identifier = str(identities['type']['term']['text'][0]['value'])
-                    parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
-                                  name_identifier: value_identifier}
-                    parse_chunk.append(parse_line)
-        if 'identifiers' in harvest_item:
-            # Field in Pure CRUD API.
-            for identities in harvest_item['identifiers']:
-                if 'id' in identities and 'type' in identities:
-                    value_identifier = str(identities['id'])
-                    name_identifier = str(identities['type']['term']['en_GB'])
-                    parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
-                                  name_identifier: value_identifier}
-                    parse_chunk.append(parse_line)
-        label = ''
-        if 'staffOrganisationAssociations' in harvest_item:
-            # Field in Pure READ API.
-            label = 'staffOrganisationAssociations'
-        elif 'staffOrganizationAssociations' in harvest_item:
-            # Field in Pure CRUD API.
-            label = 'staffOrganizationAssociations'
-        if label != '':
-            for stafforg in harvest_item[label]:
-                if 'period' in stafforg:
-                    if 'endDate' in stafforg['period'] and stafforg['period']['endDate'] != '':
-                        # Only consider persons of current organizations, that is an organization
-                        # where endData is not existing or empty. If not, then skip.
-                        end_year = int(stafforg['period']['endDate'][:4])
-                        if end_year < lowest_resout_year:
-                            continue
-                        # else:
-                        #     # In 2023:
-                        #     # Put in the DataFrame with harvested persons to be returned.
-                        #     # We do not add its organization because it is very probably outdated.
-                        #     # No need to check if it is already there, it that is the case it will
-                        #     # be filtered out from the dataframe below.
-                        #     #
-                        #     # Sept 2024: In 2023 I thought not to add the organization of such a person
-                        #     # because it seemed very probably outdated.
-                        #     # But it appears that some organizations use an endDate in the future (instead
-                        #     # of no endDate) for persons employed.
-                        #     # So we do need to add the organization of these persons.
-                        #     # So I commented this 'else'.
-                        #     parse_chunk_final.extend(parse_chunk)
-                        #     continue
-                else:
-                    # If there is no period skip
-                    continue
+        if (orcid := rcg.json_item_get_str(json_item=harvest_item,
+                                           json_path='orcid')) != '':
+            parse_line = {'PURE_UUID_PERS': pers_uuid,
+                          'ORCID': orcid}
+            parse_chunk.append(parse_line)
 
-                if 'organisationalUnit' in stafforg:
-                    # Field in Pure READ API.
-                    orgunit = stafforg['organisationalUnit']
-                    if 'type' in orgunit:
-                        pure_org_uri = str(orgunit['type']['uri'])
-                        if pure_org_uri[-3] == 'r':
-                            # Skip research organizations (with an 'r' in the uri, like ..../r05)
-                            continue
-                elif 'organization' in stafforg:
-                    # Field in Pure CRUD API.
-                    orgunit = stafforg['organization']
-                    # We don't have the 'type' in Pure CRUD API.
-                else:
-                    continue
-
-                parse_line = {'PURE_UUID_PERS': str(harvest_item['uuid']),
-                              'PURE_UUID_ORG': str(orgunit['uuid'])}
+        for identities in rcg.json_item_get_list(json_item=harvest_item,
+                                                 json_path='ids'):
+            # Field in Pure READ API.
+            if (value_identifier := rcg.json_item_get_str(json_item=identities,
+                                                          json_path='value.value')) != '' \
+               and (name_identifier := rcg.json_item_get_str(json_item=identities,
+                                                            json_path='type.term.text.0.value')) != '':
+                parse_line = {'PURE_UUID_PERS': pers_uuid,
+                              name_identifier: value_identifier}
+                parse_chunk.append(parse_line)
+        for identities in rcg.json_item_get_list(json_item=harvest_item,
+                                                 json_path='identifiers'):
+            # Field in Pure CRUD API.
+            if (value_identifier := rcg.json_item_get_str(json_item=identities,
+                                                          json_path='id')) != '' \
+               and (name_identifier := rcg.json_item_get_str(json_item=identities,
+                                                             json_path='type.term.en_GB')) != '':
+                parse_line = {'PURE_UUID_PERS': pers_uuid,
+                              name_identifier: value_identifier}
                 parse_chunk.append(parse_line)
 
-                # Put in the DataFrame with harvested persons to be returned.
-                parse_chunk_final.extend(parse_chunk)
+        for stafforg in rcg.json_item_get_list(json_item=harvest_item,
+                                               json_path='staffOrganisationAssociations'):
+            if (period := rcg.json_item_get_dict(json_item=stafforg,
+                                                 json_path='period')) == {}:
+                # There is no period, skip.
+                continue
+            if (enddate := rcg.json_item_get_str(json_item=stafforg,
+                                                 json_path='period.endDate')) != '':
+                # Only consider persons of current organizations, that is an organization
+                # where endData is not existing or empty. If not, then skip.
+                end_year = int(enddate[:4])
+                if end_year < lowest_resout_year:
+                    continue
+                # Add all other organizations, because some organizations
+                # use an endDate in the future (instead of no endDate)
+                # for persons employed.
+            if (org_uuid := rcg.json_item_get_str(json_item=stafforg,
+                                                  json_path='organisationalUnit.uuid')) != '':
+                # Field in Pure READ API.
+                if (org_uri := rcg.json_item_get_str(json_item=stafforg,
+                                                     json_path='organisationalUnit.type.uri')) != '':
+                    if org_uri[-3] == 'r':
+                        # Skip research organizations (with an 'r' in the uri, like ..../r05)
+                        continue
+            elif (org_uuid := rcg.json_item_get_str(json_item=stafforg,
+                                                    json_path='organisation.uuid')) != '':
+                # Field in Pure CRUD API, where we don't have 'type'.
+                pass
+            else:
+                continue
+
+            parse_line = {'PURE_UUID_PERS': pers_uuid,
+                          'PURE_UUID_ORG': org_uuid}
+            parse_chunk.append(parse_line)
+            # Put in the DataFrame with harvested persons to be returned.
+            parse_chunk_final.extend(parse_chunk)
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
@@ -635,93 +622,83 @@ def parse_pure_organizations(harvest: list,
         if count % 10000 == 0:
             print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
-        if 'uuid' not in harvest_item:
-            # There must be an uuid, otherwise skip
+        if (org_uuid := rcg.json_item_get_str(json_item=harvest_item,
+                                              json_path='uuid')) == '':
+            # There must be an uuid, otherwise skip.
             continue
-        label = ''
-        if 'period' in harvest_item:
+
+        # Only consider current organizations, that is an organization
+        # where endDate is not existing or empty. If not, then skip.
+        if rcg.json_item_get_str(json_item=harvest_item,
+                                 json_path='period.endDate') != '':
             # Field in Pure READ API.
-            label = 'period'
-        elif 'lifecycle' in harvest_item:
-            # Field in Pure CRUD API.
-            label = 'lifecycle'
-        if label != '':
-            if 'endDate' in harvest_item[label] and harvest_item[label]['endDate'] != '':
-                # Only consider current organizations, that is an organization
-                # where endDate is not existing or empty. If not, then skip.
-                continue
-        else:
-            # If there is no period or lifecycle skip
             continue
-        if 'type' in harvest_item:
-            pure_org_uri = str(harvest_item['type']['uri'])
-            if pure_org_uri[-3] == 'r':
+        elif rcg.json_item_get_str(json_item=harvest_item,
+                                   json_path='lifecycle.endDate') != '':
+            # Field in Pure CRUD API.
+            continue
+        if (org_uri := rcg.json_item_get_str(json_item=harvest_item,
+                                             json_path='type.uri')) != '':
+            if org_uri[-3] == 'r':
                 # Skip research organizations (with an 'r' in the uri, like ..../r05)
                 continue
         else:
             # If there is no type skip
             continue
-        if 'name' not in harvest_item:
-            # If there is no name skip
+        if (rcg.json_item_get_dict(json_item=harvest_item,
+                                   json_path='name')) == {}:
+            # If there is no name dict skip
             continue
+
         # Skip the organization ids. There are only a few, and it
         # seems to complicated to implement for now (we will need
         # something like 'organization-root' aka 'person-root').
-        # if 'ids' in harvest_item:
-        #     for identities in harvest_item['ids']:
-        #         if 'value' in identities and 'type' in identities:
-        #             value_identifier = str(identities['value']['value'])
-        #             name_identifier = str(identities['type']['term']['text'][0]['value'])
-        #             parse_line = {}
-        #             parse_line['UUID'] = str(harvest_item['uuid'])
-        #             parse_line[name_identifier] = value_identifier
-        #             parse_chunk.append(parse_line)
-        if 'parents' in harvest_item:
-            for parentsorg in harvest_item['parents']:
-                if 'uuid' not in parentsorg:
-                    # There must be an uuid, otherwise skip
-                    continue
-                # Note: 'parents' does not have a 'period', so we don't need to do something.
-                # Note: 'type' and 'name' must exist, otherwise we wouldn't have gotten here.
-                if 'type' in parentsorg:
-                    # Field in Pure READ API.
-                    pure_parentsorg_uri = str(parentsorg['type']['uri'])
-                    if pure_parentsorg_uri[-3] == 'r':
-                        # Skip research organizations (with an 'r' in the uri, like ..../r05)
-                        continue
 
-                    org_type_name = str(harvest_item['type']['term']['text'][0]['value'])
-                    org_name = str(harvest_item['name']['text'][0]['value'])
-                elif 'systemName' in parentsorg:
-                    # Field in Pure CRUD API.
-                    org_type_name = str(harvest_item['type']['term']['en_GB'])
-                    org_name = str(harvest_item['name']['en_GB'])
-                else:
-                    continue
-
-                parse_line = {'PURE_UUID_ORG': str(harvest_item['uuid']),
-                              'ORG_TYPE_NAME': org_type_name,
-                              'ORG_NAME': org_name,
-                              'FULL_ORG_NAME': organization + ' ' + org_type_name + ': ' + org_name,
-                              'PARENT_UUID': str(parentsorg['uuid'])}
-                parse_chunk.append(parse_line)
-                organization_names[parse_line['PURE_UUID_ORG']] = parse_line['FULL_ORG_NAME']
+        if PURE_API_VERSION == PURE_READ_API_VERSION:
+            # We are in Pure READ API.
+            org_type_name = rcg.json_item_get_str(json_item=harvest_item,
+                                                  json_path='type.term.text.0.value')
+            org_name = rcg.json_item_get_str(json_item=harvest_item,
+                                             json_path='name.text.0.value')
         else:
+            # We are in Pure CRUD API.
+            org_type_name = rcg.json_item_get_str(json_item=harvest_item,
+                                                  json_path='type.term.en_GB')
+            org_name = rcg.json_item_get_str(json_item=harvest_item,
+                                             json_path='name.en_GB')
+        if len(parents := rcg.json_item_get_list(json_item=harvest_item,
+                                                 json_path='parents')) == 0:
             # Assume it is the top level organization since it doesn't have a parent.
-            # Note: 'type' and 'name' must exist, otherwise we wouldn't have gotten here.
-            if PURE_API_VERSION == PURE_READ_API_VERSION:
-                # We are in Pure READ API.
-                # org_type_name = str(harvest_item['type']['term']['text'][0]['value'])
-                org_name = str(harvest_item['name']['text'][0]['value'])
-            else:
-                # We are in Pure CRUD API.
-                # org_type_name = str(harvest_item['type']['term']['en_GB'])
-                org_name = str(harvest_item['name']['en_GB'])
             # Only necessary to add the top level organization to the dict with organization names.
-            # organization_names[str(harvest_item['uuid'])] = org_type_name + ': ' + org_name
-            # organization_names[str(harvest_item['uuid'])] = organization + ' ' + org_type_name + ': ' + org_name
-            organization_names[str(harvest_item['uuid'])] = construct_extended_org_name(org_name=org_name,
-                                                                                        org_abbr=organization)
+            organization_names[org_uuid] = construct_extended_org_name(org_name=org_name,
+                                                                       org_abbr=organization)
+            continue
+
+        for parentorg in parents:
+            if (parentorg_uuid := rcg.json_item_get_str(json_item=parentorg,
+                                                         json_path='uuid')) == '':
+                # There must be an uuid, otherwise skip.
+                continue
+            # Note: 'parents' does not have a 'period', so we don't need to do something.
+            if (parentorg_uri := rcg.json_item_get_str(json_item=parentorg,
+                                                        json_path='type.uri')) != '':
+                # Field in Pure READ API.
+                if parentorg_uri[-3] == 'r':
+                    # Skip research organizations (with an 'r' in the uri, like ..../r05)
+                    continue
+            elif (rcg.json_item_get_str(json_item=parentorg,
+                                        json_path='systemName')) != '':
+                # Field in Pure CRUD API.
+                pass
+            else:
+                continue
+            parse_line = {'PURE_UUID_ORG': org_uuid,
+                          'ORG_TYPE_NAME': org_type_name,
+                          'ORG_NAME': org_name,
+                          'FULL_ORG_NAME': organization + ' ' + org_type_name + ': ' + org_name,
+                          'PARENT_UUID': parentorg_uuid}
+            parse_chunk.append(parse_line)
+            organization_names[org_uuid] = parse_line['FULL_ORG_NAME']
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
@@ -762,130 +739,111 @@ def parse_pure_resout(harvest: list,
         if count % 10000 == 0:
             print('(' + rcg.timestamp() + ')\n', end='', flush=True)
 
-        if 'uuid' not in harvest_item:
-            # There must be an uuid, otherwise skip
+        if (resout_uuid := rcg.json_item_get_str(json_item=harvest_item,
+                                                 json_path='uuid')) == '':
+            # There must be an uuid, otherwise skip.
             continue
-        if 'title' not in harvest_item:
-            # There must be a title, otherwise skip
+        if (title := rcg.json_item_get_str(json_item=harvest_item,
+                                           json_path='title.value')) == '':
+            # There must be a title, otherwise skip.
             continue
-        if 'confidential' in harvest_item:
-            if harvest_item['confidential']:
-                # Skip the confidential ones
+        if rcg.json_item_get_bool(json_item=harvest_item,
+                                  json_path='confidential'):
+            # Skip the confidential ones. Assume non-confidential if not present.
+            continue
+        if (type := rcg.json_item_get_str(json_item=harvest_item,
+                                          json_path='type.uri')) == '':
+            # There must be a type of this resout, otherwise skip.
+            continue
+        if (workflow_step := rcg.json_item_get_str(json_item=harvest_item,
+                                                   json_path='workflow.workflowStep')) != '':
+            # Field in Pure READ API.
+            if workflow_step != 'validated' and workflow_step != 'approved':
+                # Only 'validated' or 'approved' resouts.
                 continue
-        if 'type' not in harvest_item:
-            # There must be a type of this resout, otherwise skip
-            continue
-        if 'workflow' in harvest_item:
-            if 'workflowStep' in harvest_item['workflow']:
-                # Field in Pure READ API.
-                if harvest_item['workflow']['workflowStep'] != 'validated' \
-                   and harvest_item['workflow']['workflowStep'] != 'approved':
-                    # Only 'validated' or 'approved' resouts.
-                    continue
-            if 'step' in harvest_item['workflow']:
-                # Field in Pure CRUD API.
-                if harvest_item['workflow']['step'] != 'validated' \
-                        and harvest_item['workflow']['step'] != 'approved':
-                    # Only 'validated' or 'approved' resouts.
-                    continue
+        elif (workflow_step := rcg.json_item_get_str(json_item=harvest_item,
+                                                     json_path='workflow.step')) != '':
+            if workflow_step != 'validated' and workflow_step != 'approved':
+                # Only 'validated' or 'approved' resouts.
+                continue
         else:
-            # Skip if no workflow
+            # Skip if no workflow.
             continue
+        if len(rcg.json_item_get_list(json_item=harvest_item,
+                                      json_path='publicationStatuses')) == 0:
+            # Skip if no publicationStatuses.
+            continue
+        published_found = False
         publication_year = ''
-        if 'publicationStatuses' in harvest_item:
-            # We need a current status.
-            published_found = False
-            for pub_item in harvest_item['publicationStatuses']:
-                if pub_item['current']:
-                    if 'publicationDate' in pub_item:
-                        if 'year' in pub_item['publicationDate']:
-                            publication_year = pub_item['publicationDate']['year']
-                    if 'publicationStatus' in pub_item:
-                        if pathlib.PurePath(pub_item['publicationStatus']['uri']).name == 'published':
-                            published_found = True
-                            break
-
-            if not published_found:
-                continue
-        else:
-            # Skip if no publicationStatuses
+        for pub_item in rcg.json_item_get_list(json_item=harvest_item,
+                                               json_path='publicationStatuses'):
+            if pub_item['current']:
+                publication_year = str(rcg.json_item_get_int(json_item=pub_item,
+                                                             json_path='publicationDate.year'))
+                publication_path = rcg.json_item_get_str(json_item=pub_item,
+                                                         json_path='publicationStatus.uri')
+                if PurePath(publication_path).name == 'published':
+                    published_found = True
+                    break
+        if not published_found:
+            # We need a 'published' status.
             continue
         doi = ''
-        if 'electronicVersions' in harvest_item:
-            for elecversions in harvest_item['electronicVersions']:
-                # Take the last doi found for a resout
-                if 'doi' in elecversions:
-                    doi = str(elecversions['doi'])
-                    doi = rcg.normalize_doi(identifier=doi)
-
-        label = ''
-        if 'personAssociations' in harvest_item:
+        for dois in rcg.json_item_get_list(json_item=harvest_item,
+                                           json_path='electronicVersions'):
+            # Take the last doi found for a resout.
+            if (newdoi := rcg.json_item_get_str(json_item=dois, json_path='doi')) != '':
+                doi = newdoi
+                doi = rcg.normalize_doi(identifier=doi)
+        if len(list_of_persons := rcg.json_item_get_list(json_item=harvest_item,
+                                                         json_path='personAssociations')) > 0:
             # Field in Pure READ API.
-            label = 'personAssociations'
-        elif 'contributors' in harvest_item:
+            pass
+        elif len(list_of_persons := rcg.json_item_get_list(json_item=harvest_item,
+                                                           json_path='contributors')) > 0:
             # Field in Pure CRUD API.
-            label = 'contributors'
-        if label != '':
-            for persons in harvest_item[label]:
+            pass
+        else:
+            continue
+        for persons in list_of_persons:
+            author_externalorg_name = ''
+            if (author_uuid := rcg.json_item_get_str(json_item=persons,
+                                                     json_path='person.uuid')) != '':
+                # Internal person, don't set 'author_name', it is not necessary.
                 author_name = ''
-                author_externalorg_flag = False
-                author_externalorg_name = ''
-                if 'person' in persons:                             # internal person
-                    if 'uuid' not in persons['person']:
-                        # There must be an uuid, otherwise skip
-                        continue
-                    author_uuid = str(persons['person']['uuid'])
-                    # Don't set 'author_name', it is not necessary.
-                elif 'externalPerson' in persons:                  # external person
-                    if 'uuid' not in persons['externalPerson']:
-                        # There must be an uuid, otherwise skip
-                        continue
-                    author_uuid = str(persons['externalPerson']['uuid'])
-                    if 'name' in persons['externalPerson'] \
-                       and 'text' in persons['externalPerson']['name'] \
-                       and 'value' in persons['externalPerson']['name']['text'][0]:
-                        author_name = persons['externalPerson']['name']['text'][0]['value']
-                        # 2025-07-04: The more sources we harvest, the less useful this is.
-                        # author_name += ' (' + organization + ' external person)'
+            elif (author_uuid := rcg.json_item_get_str(json_item=persons,
+                                                       json_path='externalPerson.uuid')) != '':
+                # External person.
+                author_name = rcg.json_item_get_str(json_item=persons,
+                                                    json_path='externalPerson.name.text.0.value')
+                # Get the external organization of this person.
+                # There may be many externalOrganizations, for now we only take the first.
+                author_externalorg_name = rcg.json_item_get_str(json_item=persons,
+                                                                json_path='externalOrganisations.0.name.text.0.value')
+            elif (author_uuid := rcg.json_item_get_str(json_item=persons,
+                                                       json_path='authorCollaboration.uuid')) != '':
+                # Author collaboration.
+                author_name = rcg.json_item_get_str(json_item=persons,
+                                                    json_path='authorCollaboration.name.text.0.value')
+                author_name += ' (' + organization + ' author collaboration)'
+            else:
+                # If we get here you might want to add another "elif" above with
+                # the missing personAssociation. Sometimes there is none, then it is ok.
+                # Do not print a warning message, most of the time it is an external person
+                # without any identifier.
+                continue
 
-                        # Get the external organization of this person.
-                        # There may be many externalOrganizations, for now we only take the first.
-                        if 'externalOrganisations' in persons:
-                            if 'name' in persons['externalOrganisations'][0] \
-                               and 'text' in persons['externalOrganisations'][0]['name'] \
-                               and 'value' in persons['externalOrganisations'][0]['name']['text'][0]:
-                                author_externalorg_flag = True
-                                author_externalorg_name = persons['externalOrganisations'][0]['name']['text'][0]['value']
-                elif 'authorCollaboration' in persons:             # author collaboration
-                    if 'uuid' not in persons['authorCollaboration']:
-                        # There must be an uuid, otherwise skip
-                        continue
-                    author_uuid = str(persons['authorCollaboration']['uuid'])
-                    if 'name' in persons['authorCollaboration'] \
-                            and 'text' in persons['authorCollaboration']['name'] \
-                            and 'value' in persons['authorCollaboration']['name']['text'][0]:
-                        author_name = persons['authorCollaboration']['name']['text'][0]['value']
-                        author_name += ' (' + organization + ' author collaboration)'
-                else:
-                    # If we get here you might want to add another "elif" above with
-                    # the missing personAssociation. Sometimes there is none, then it is ok.
-                    # Do not print a warning message, most of the time it is an external person
-                    # without any identifier.
-                    # print('\nparse_pure_resout(): Warning: Unknown personAssociation/contributor for publication '
-                    #      + str(harvest_item['uuid']))
-                    continue
-
-                parse_line = {'RESOUT_UUID': str(harvest_item['uuid']),
-                              'DOI': doi,
-                              'TITLE': str(harvest_item['title']['value']),
-                              'YEAR': str(publication_year),
-                              'TYPE': rcg.lookup_resout_type(research_output_type=str(harvest_item['type']['uri']),
-                                                             research_output_mapping=ROTYPE_MAPPING_PURE),
-                              'PURE_UUID_PERS': author_uuid,
-                              'FULL_NAME': author_name}
-                if author_externalorg_flag:
-                    parse_line['AUTHOR_EXTERNALORG_NAME'] = author_externalorg_name
-                parse_chunk.append(parse_line)
+            parse_line = {'RESOUT_UUID': resout_uuid,
+                          'DOI': doi,
+                          'TITLE': title,
+                          'YEAR': publication_year,
+                          'TYPE': rcg.lookup_resout_type(research_output_type=type,
+                                                         research_output_mapping=ROTYPE_MAPPING_PURE),
+                          'PURE_UUID_PERS': author_uuid,
+                          'FULL_NAME': author_name}
+            if author_externalorg_name != '':
+                parse_line['AUTHOR_EXTERNALORG_NAME'] = author_externalorg_name
+            parse_chunk.append(parse_line)
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
 
@@ -991,7 +949,7 @@ def parse_pure_projects(harvest: list,
                 value = str(harvest_item['ids'][0]['value']['value'])
             if 'type' in harvest_item['ids'][0] \
                and 'uri' in harvest_item['ids'][0]['type']:
-                name = str(pathlib.PurePath(harvest_item['ids'][0]['type']['uri']).name)
+                name = str(PurePath(harvest_item['ids'][0]['type']['uri']).name)
             if name == '' or value == '':
                 continue
             title = '[' + name + ': ' + value + '] ' + title
