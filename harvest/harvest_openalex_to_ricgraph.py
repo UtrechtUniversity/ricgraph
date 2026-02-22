@@ -210,8 +210,8 @@ def parse_openalex(harvest: list,
                                              json_path='doi')) == '' \
                or (title := rcg.json_item_get_str(json_item=harvest_item,
                                                   json_path='title')) == '' \
-               or (type := rcg.json_item_get_str(json_item=harvest_item,
-                                                 json_path='type')) == '':
+               or (resout_type := rcg.json_item_get_str(json_item=harvest_item,
+                                                        json_path='type')) == '':
                 continue
 
             publication_year = rcg.json_item_get_str(json_item=harvest_item,
@@ -219,9 +219,9 @@ def parse_openalex(harvest: list,
             parse_line = {'OPENALEX': openalex_id,
                           'DOI': rcg.normalize_doi(identifier=doi),
                           'TITLE': title,
-                          'YEAR': publication_year}
-            parse_line['TYPE'] = str(rcg.lookup_resout_type(research_output_type=type,
-                                                            research_output_mapping=ROTYPE_MAPPING_OPENALEX))
+                          'YEAR': publication_year,
+                          'TYPE': rcg.lookup_resout_type(research_output_type=resout_type,
+                                                         research_output_mapping=ROTYPE_MAPPING_OPENALEX)}
             parse_chunk.append(parse_line)
 
     print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)

@@ -541,8 +541,8 @@ def parse_pure_persons(harvest: list,
 
         for stafforg in rcg.json_item_get_list(json_item=harvest_item,
                                                json_path='staffOrganisationAssociations'):
-            if (period := rcg.json_item_get_dict(json_item=stafforg,
-                                                 json_path='period')) == {}:
+            if (rcg.json_item_get_dict(json_item=stafforg,
+                                       json_path='period')) == {}:
                 # There is no period, skip.
                 continue
             if (enddate := rcg.json_item_get_str(json_item=stafforg,
@@ -751,8 +751,8 @@ def parse_pure_resout(harvest: list,
                                   json_path='confidential'):
             # Skip the confidential ones. Assume non-confidential if not present.
             continue
-        if (type := rcg.json_item_get_str(json_item=harvest_item,
-                                          json_path='type.uri')) == '':
+        if (resout_type := rcg.json_item_get_str(json_item=harvest_item,
+                                                 json_path='type.uri')) == '':
             # There must be a type of this resout, otherwise skip.
             continue
         if (workflow_step := rcg.json_item_get_str(json_item=harvest_item,
@@ -837,7 +837,7 @@ def parse_pure_resout(harvest: list,
                           'DOI': doi,
                           'TITLE': title,
                           'YEAR': publication_year,
-                          'TYPE': rcg.lookup_resout_type(research_output_type=type,
+                          'TYPE': rcg.lookup_resout_type(research_output_type=resout_type,
                                                          research_output_mapping=ROTYPE_MAPPING_PURE),
                           'PURE_UUID_PERS': author_uuid,
                           'FULL_NAME': author_name}
@@ -1238,7 +1238,6 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     timestamp = rcg.datetimestamp()
     print('\nInserting organizations and persons from organizations from '
           + HARVEST_SOURCE + ' in Ricgraph at ' + timestamp + '...')
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' organizations at ' + timestamp + '.'
 
     print('Determining all links between persons and all of their organizations... ', end='', flush=True)
     parsed_content = parsed_content_persons[['PURE_UUID_PERS',
