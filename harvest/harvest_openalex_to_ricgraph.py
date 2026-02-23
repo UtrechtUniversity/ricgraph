@@ -152,18 +152,12 @@ def parse_openalex(harvest: list,
     """
     if len(harvest) == 0:
         return None
-    parse_result = pandas.DataFrame()
-    parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' person and research output records ('
-          + rcg.timestamp() + '), parsing record: 0  ', end='')
+          + rcg.timestamp() + '), parsing record:')
+    parse_chunk = []                # list of dictionaries
     count = 0
     for harvest_item in harvest:
-        count += 1
-        if count % 1000 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
-
+        count = rcg.print_progress(count=count, interval=1000)
         for authors in rcg.json_item_get_list(json_item=harvest_item,
                                               json_path='authorships'):
             if (openalex_path := rcg.json_item_get_str(json_item=authors,
@@ -224,10 +218,8 @@ def parse_openalex(harvest: list,
                                                          research_output_mapping=ROTYPE_MAPPING_OPENALEX)}
             parse_chunk.append(parse_line)
 
-    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
-
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
-    parse_result = pandas.concat(objs=[parse_result, parse_chunk_df], ignore_index=True)
+    rcg.print_progress(count=count, now=True)
+    parse_result = pandas.DataFrame(parse_chunk)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
                                                 filename=filename)
 

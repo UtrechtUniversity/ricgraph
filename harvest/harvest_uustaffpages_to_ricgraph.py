@@ -155,18 +155,12 @@ def parse_uustaff_persons(harvest: list,
     """
     if len(harvest) == 0:
         return None
-    parse_result = pandas.DataFrame()
-    parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' person records ('
-          + rcg.timestamp() + '), parsing record: 0  ', end='')
+          + rcg.timestamp() + '), parsing record:', end='')
+    parse_chunk = []                # list of dictionaries
     count = 0
     for harvest_item in harvest:
-        count += 1
-        if count % 1000 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
-
+        count = rcg.print_progress(count=count, interval=1000)
         if 'Employee_Url' in harvest_item:
             path = pathlib.PurePath(harvest_item['Employee_Url'])
             uustaff_page_id = str(path.name)
@@ -282,10 +276,8 @@ def parse_uustaff_persons(harvest: list,
                                   'SKILL_URL': UU_WEBSITE + str(skill['Url'])}
                     parse_chunk.append(parse_line)
 
-    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
-
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
-    parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    rcg.print_progress(count=count, now=True)
+    parse_result = pandas.DataFrame(parse_chunk)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
                                                 filename=filename)
 
@@ -372,13 +364,9 @@ def harvest_json_uustaffpages(url: str,
                             parse[element] = tmp
                 json_data.append(parse)
 
-            count += 1
-            if count % 50 == 0:
-                print(count, '(' + rcg.timestamp() + ')  ', end='', flush=True)
-            if count % 500 == 0:
-                print('\n', end='', flush=True)
+            count = rcg.print_progress(count=count, interval=50)
 
-    print(' Done at ' + rcg.timestamp() + '.')
+    rcg.print_progress(count=count, now=True)
     end_ts = rcg.timestamp_posix()
     rcg.print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
                                  nr_records=count,
@@ -514,17 +502,13 @@ def connect_pure_with_uustaffpages(url: str,
     if max_recs_to_harvest != all_records:
         print('At most ' + str(max_recs_to_harvest) + ' items.')
     nodes_with_solisid = rcg.read_all_nodes(name='EMPLOYEE_ID')
-    print('There are ' + str(len(nodes_with_solisid)) + ' SolisID records, parsing record: 0  ', end='')
-    parse_result = pandas.DataFrame()
+    print('There are ' + str(len(nodes_with_solisid))
+          + ' SolisID records, parsing record:', end='')
     parse_chunk = []                # list of dictionaries
     count = 0
     start_ts = rcg.timestamp_posix()
     for node in nodes_with_solisid:
-        count += 1
-        if count % 50 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 500 == 0:
-            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
+        count = rcg.print_progress(count=count, interval=50)
         if count >= max_recs_to_harvest:
             break
 
@@ -553,16 +537,14 @@ def connect_pure_with_uustaffpages(url: str,
                       'UUSTAFF_PAGE_ID': str(path.name)}
         parse_chunk.append(parse_line)
 
-    print(count, '\n', end='', flush=True)
-    print(' Done at ' + rcg.timestamp() + '.')
+    rcg.print_progress(count=count, now=True)
     end_ts = rcg.timestamp_posix()
     rcg.print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
                                  nr_records=count,
                                  what='Connected')
     print('')
 
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
-    parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    parse_result = pandas.DataFrame(parse_chunk)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
                                                 filename=df_filename)
 

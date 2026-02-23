@@ -103,7 +103,8 @@ from pandas import DataFrame, concat, set_option
 from typing import Union
 
 from .ricgraph_utils import (timestamp, timestamp_posix,
-                             print_records_per_minute)
+                             print_records_per_minute,
+                             print_progress)
 from .ricgraph_graphdb import (create_update_node, create_two_nodes_and_edge,
                                get_ricgraph_nodeadd_mode,
                                get_ricgraph_properties_standard,
@@ -151,17 +152,12 @@ def update_nodes_df(nodes: DataFrame) -> None:
     nodes_clean.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
     print('There are ' + str(len(nodes_clean)) + ' nodes ('
-          + timestamp() + '), updating node: 0  ', end='')
+          + timestamp() + '), updating node:', end='')
     count = 0
     start_ts = timestamp_posix()
     columns = nodes_clean.columns
     for row in nodes_clean.itertuples():
-        count += 1
-        if count % 250 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 2500 == 0:
-            print('(' + timestamp() + ')\n', end='', flush=True)
-
+        count = print_progress(count=count, interval=250)
         node_properties = {}
         for prop_name in get_ricgraph_properties_additional():
             for other_name in columns:
@@ -171,7 +167,7 @@ def update_nodes_df(nodes: DataFrame) -> None:
         create_update_node(name=row.name, category=row.category, value=row.value,
                            other_properties=node_properties)
 
-    print(count, '(' + timestamp() + ')\n', end='', flush=True)
+    print_progress(count=count, now=True)
     end_ts = timestamp_posix()
     print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
                              nr_records=count,
@@ -192,17 +188,12 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
     :return: None.
     """
     print('There are ' + str(len(left_and_right_nodepairs)) + ' rows ('
-          + timestamp() + '), creating nodes and edges for row: 0  ', end='')
+          + timestamp() + '), creating nodes and edges for row:', end='')
     count = 0
     start_ts = timestamp_posix()
     columns = left_and_right_nodepairs.columns
     for row in left_and_right_nodepairs.itertuples():
-        count += 1
-        if count % 250 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 2500 == 0:
-            print('(' + timestamp() + ')\n', end='', flush=True)
-
+        count = print_progress(count=count, interval=250)
         node_properties = {}
         for prop_name in get_ricgraph_properties_additional():
             for other_name in columns:
@@ -215,7 +206,7 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
         create_two_nodes_and_edge(name1=row.name1, category1=row.category1, value1=row.value1,
                                   name2=row.name2, category2=row.category2, value2=row.value2,
                                   **node_properties)
-    print(count, '(' + timestamp() + ')\n', end='', flush=True)
+    print_progress(count=count, now=True)
     end_ts = timestamp_posix()
     print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
                              nr_records=count,

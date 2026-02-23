@@ -482,24 +482,16 @@ def parse_pure_persons(harvest: list,
     else:
         lowest_resout_year = PURE_PERSONS_LOWEST_YEAR
 
-    # parse_chunk_final: things we want to put in the DataFrame parse_result with
-    # harvested persons to be returned.
-    parse_chunk_final = []
-    parse_result = pandas.DataFrame()
     print('There are ' + str(len(harvest)) + ' person records ('
-          + rcg.timestamp() + '), parsing record: 0  ', end='')
+          + rcg.timestamp() + '), parsing record:', end='')
+    parse_chunk_final = []
     count = 0
     for harvest_item in harvest:
         # parse_chunk: things of this loop we might want to put in the DataFrame with
         # harvested persons to be returned. If so, we add them to parse_chunk_final.
         # If not they will not end up in the harvested persons.
         parse_chunk = []
-        count += 1
-        if count % 1000 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
-
+        count = rcg.print_progress(count=count, interval=1000)
         if (pers_uuid := rcg.json_item_get_str(json_item=harvest_item,
                                                json_path='uuid')) == '':
             # There must be an uuid, otherwise skip.
@@ -576,10 +568,8 @@ def parse_pure_persons(harvest: list,
             # Put in the DataFrame with harvested persons to be returned.
             parse_chunk_final.extend(parse_chunk)
 
-    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
-
-    parse_chunk_df = pandas.DataFrame(parse_chunk_final)
-    parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    rcg.print_progress(count=count, now=True)
+    parse_result = pandas.DataFrame(parse_chunk_final)
 
     if 'PURE_UUID_ORG' not in parse_result.columns \
        and PURE_API_VERSION == PURE_CRUD_API_VERSION:
@@ -609,19 +599,13 @@ def parse_pure_organizations(harvest: list,
 
     if len(harvest) == 0:
         return None
-    parse_result = pandas.DataFrame()
+    print('There are ' + str(len(harvest)) + ' organization records ('
+          + rcg.timestamp() + '), parsing record:', end='')
     parse_chunk = []                # list of dictionaries
     organization_names = {}
-    print('There are ' + str(len(harvest)) + ' organization records ('
-          + rcg.timestamp() + '), parsing record: 0  ', end='')
     count = 0
     for harvest_item in harvest:
-        count += 1
-        if count % 1000 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
-
+        count = rcg.print_progress(count=count, interval=1000)
         if (org_uuid := rcg.json_item_get_str(json_item=harvest_item,
                                               json_path='uuid')) == '':
             # There must be an uuid, otherwise skip.
@@ -700,10 +684,8 @@ def parse_pure_organizations(harvest: list,
             parse_chunk.append(parse_line)
             organization_names[org_uuid] = parse_line['FULL_ORG_NAME']
 
-    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
-
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
-    parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    rcg.print_progress(count=count, now=True)
+    parse_result = pandas.DataFrame(parse_chunk)
     parse_result['FULL_PARENT_NAME'] = (
         parse_result[['PARENT_UUID']].apply(lambda row:
                                             find_organization_name(uuid=row['PARENT_UUID'],
@@ -727,18 +709,12 @@ def parse_pure_resout(harvest: list,
 
     if len(harvest) == 0:
         return None
-    parse_result = pandas.DataFrame()
-    parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' research output records ('
-          + rcg.timestamp() + '), parsing record: 0  ', end='')
+          + rcg.timestamp() + '), parsing record:', end='')
+    parse_chunk = []                # list of dictionaries
     count = 0
     for harvest_item in harvest:
-        count += 1
-        if count % 1000 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
-
+        count = rcg.print_progress(count=count, interval=1000)
         if (resout_uuid := rcg.json_item_get_str(json_item=harvest_item,
                                                  json_path='uuid')) == '':
             # There must be an uuid, otherwise skip.
@@ -845,8 +821,7 @@ def parse_pure_resout(harvest: list,
                 parse_line['AUTHOR_EXTERNALORG_NAME'] = author_externalorg_name
             parse_chunk.append(parse_line)
 
-    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
-
+    rcg.print_progress(count=count, now=True)
     if len(parse_chunk) == 0 \
        and PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('\nPure is harvested using the Pure CRUD API.')
@@ -857,8 +832,7 @@ def parse_pure_resout(harvest: list,
         print('Please ask your Pure administrator to export these fields. Exiting.')
         exit(1)
 
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
-    parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    parse_result = pandas.DataFrame(parse_chunk)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
                                                 filename=filename)
 
@@ -873,23 +847,20 @@ def parse_pure_projects(harvest: list,
     :return: the harvested persons in a DataFrame,
         or None if nothing to parse.
     """
+    # RDTJ, February 22, 2026. This code should be cleaned up,
+    # just as the functions for persons,organizations, and research outputs above.
+    # Also rewrite parsed_projects_to_ricgraph().
     global resout_uuid_or_doi
     global organization
 
     if len(harvest) == 0:
         return None
-    parse_result = pandas.DataFrame()
-    parse_chunk = []                # list of dictionaries
     print('There are ' + str(len(harvest)) + ' project records ('
-          + rcg.timestamp() + '), parsing record: 0  ', end='')
+          + rcg.timestamp() + '), parsing record:', end='')
+    parse_chunk = []                # list of dictionaries
     count = 0
     for harvest_item in harvest:
-        count += 1
-        if count % 1000 == 0:
-            print(count, ' ', end='', flush=True)
-        if count % 10000 == 0:
-            print('(' + rcg.timestamp() + ')\n', end='', flush=True)
-
+        count = rcg.print_progress(count=count, interval=1000)
         if 'uuid' in harvest_item:
             uuid = str(harvest_item['uuid'])
         else:
@@ -1026,10 +997,8 @@ def parse_pure_projects(harvest: list,
                               'PURE_PROJECT_RELATEDPROJECT_UUID': related_project_uuid}
                 parse_chunk.append(parse_line)
 
-    print(count, '(' + rcg.timestamp() + ')\n', end='', flush=True)
-
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
-    parse_result = pandas.concat([parse_result, parse_chunk_df], ignore_index=True)
+    rcg.print_progress(count=count, now=True)
+    parse_result = pandas.DataFrame(parse_chunk)
     parse_result = restructure_parse_projects(df=parse_result)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
                                                 filename=filename)
@@ -1290,9 +1259,7 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
         print('No link found between persons and all of their organizations.')
         return
 
-    persorgnodes = pandas.DataFrame()
-    parse_chunk_df = pandas.DataFrame(parse_chunk)
-    persorgnodes = pandas.concat([persorgnodes, parse_chunk_df], ignore_index=True)
+    persorgnodes = pandas.DataFrame(parse_chunk)
     # Add the URL to this organization in Pure. Some organizations do
     # not seem to have this page.
     persorgnodes['URL_MAIN'] = persorgnodes[['PURE_UUID_ORG']].apply(
@@ -1386,6 +1353,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
     # RDTJ, February 17, 2026. This code should be cleaned up. Calls to
     # create_nodepairs_and_edges_df() should be moved to file ricgraph_harvest.py,
     # as has been done above.
+    # Also rewrite parse_pure_projects().
     timestamp = rcg.datetimestamp()
     print('Inserting projects from ' + HARVEST_SOURCE + ' in Ricgraph at '
           + timestamp + '...')
