@@ -1268,7 +1268,8 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     persorgnodes.drop(labels='PURE_UUID_ORG', axis='columns', inplace=True)
     persorgnodes.rename(columns={'FULL_ORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
     rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
-                                           harvest_source=HARVEST_SOURCE)
+                                           harvest_source=HARVEST_SOURCE,
+                                           what='organizations')
     return
 
 
@@ -1326,17 +1327,18 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
         # find these while parsing research outputs, not while parsing persons.
         external_persons = parsed_content[['PURE_UUID_PERS', 'FULL_NAME']].copy(deep=True)
         rcg.create_parsed_entities_in_ricgraph(entities=external_persons,
-                                               harvest_source=HARVEST_SOURCE)
+                                               harvest_source=HARVEST_SOURCE,
+                                               what='external persons and author collaborations')
 
     if 'AUTHOR_EXTERNALORG_NAME' in parsed_content.columns:
         # This is specifically for external persons and external organizations. We only
         # find these while parsing research outputs, not while parsing persons.
-        print('Determining external organizations from external persons...')
         persorgnodes = parsed_content[['PURE_UUID_PERS',
                                        'AUTHOR_EXTERNALORG_NAME']].copy(deep=True)
         persorgnodes.rename(columns={'AUTHOR_EXTERNALORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
         rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
-                                               harvest_source=HARVEST_SOURCE)
+                                               harvest_source=HARVEST_SOURCE,
+                                               what='external organizations from external persons')
     return
 
 

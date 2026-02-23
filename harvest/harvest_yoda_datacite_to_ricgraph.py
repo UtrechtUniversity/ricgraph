@@ -524,7 +524,8 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
         organizations = parsed_content[[identifier, 'ORGANIZATION_NAME']].copy(deep=True)
         rcg.create_parsed_entities_in_ricgraph(entities=organizations,
-                                               harvest_source=HARVEST_SOURCE)
+                                               harvest_source=HARVEST_SOURCE,
+                                               what='organizations')
     return
 
 

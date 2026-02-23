@@ -373,7 +373,8 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
 
 
 def create_parsed_entities_in_ricgraph(entities: DataFrame,
-                                       harvest_source: str) -> None:
+                                       harvest_source: str,
+                                       what: str = 'entities') -> None:
     """Insert the parsed research outputs in Ricgraph.
 
     :param entities: The records to insert in Ricgraph, if not present yet.
@@ -388,7 +389,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
         - Optionally there may be a 3rd column that contains the URLs
           to the entity in the 2nd column.
     :param harvest_source: The source system we harvest from.
-    :param harvest_source: The source system we harvest from.
+    :param what: Text to show to the user and in '_source'
     :return: None.
     """
     entity_name = entities.columns[1]
@@ -416,7 +417,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
 
     create_parsed_entities_in_ricgraph_general(entities=entities,
                                                harvest_source=harvest_source,
-                                               what='organizations')
+                                               what=what)
     return
 
 

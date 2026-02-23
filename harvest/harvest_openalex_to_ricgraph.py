@@ -285,7 +285,8 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # Connect organizations to persons.
     organizations = parsed_content[['OPENALEX', 'ORGANIZATION_NAME']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph(entities=organizations,
-                                           harvest_source=HARVEST_SOURCE)
+                                           harvest_source=HARVEST_SOURCE,
+                                           what='organizations')
 
     if 'ROR' in parsed_content.columns:
         # Connect organization name to organization ROR.
