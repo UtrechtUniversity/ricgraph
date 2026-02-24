@@ -110,7 +110,7 @@ sleep 120
 ./multiple_harvest_organization.sh --organization VUA --empty_ricgraph no --year_first 2022 --year_last 2025
 exit_on_error $?
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-uu+vu-$(date +%y%m%d-%H%M)
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-uu+vua-$(date +%y%m%d-%H%M)
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 # Make sure neo4j is up and running.
@@ -119,7 +119,7 @@ sleep 120
 ./multiple_harvest_organization.sh --organization DUT --empty_ricgraph no --year_first 2022 --year_last 2025
 exit_on_error $?
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-uu+vu+dut-$(date +%y%m%d-%H%M)
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-uu+vua+dut-$(date +%y%m%d-%H%M)
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 # Make sure neo4j is up and running.
