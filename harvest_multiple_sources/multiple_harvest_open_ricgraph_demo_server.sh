@@ -98,7 +98,7 @@ mkdir "$harvest_result_dir"
 
 echo "$0 start at $(date)."
 
-./multiple_harvest_organization.sh --organization DUT --empty_ricgraph yes --year_first 2022 --year_last 2025
+./multiple_harvest_organization.sh --organization DUT --empty_ricgraph yes --year_first 2022 --year_last 2026
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut-$(date +%y%m%d-%H%M)
@@ -107,9 +107,25 @@ exit_on_error $?
 # Make sure neo4j is up and running.
 sleep 120
 
+./multiple_harvest_organization.sh --organization AUMC --empty_ricgraph no --year_first 2022 --year_last 2026
+exit_on_error $?
+
+# AUMC is twice in RSD, harvest the other one (the first one has already been harvested above).
+source ../library/get_cmdline_args.sh  --organization AUM2;  PYTHONPATH=$python_path $python_cmd ../harvest/harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization "$organization"
+exit_on_error $?
+
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc-$(date +%y%m%d-%H%M)
+sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+exit_on_error $?
+# Make sure neo4j is up and running.
+sleep 120
+
 cd ../enhance || exit 1
 
 ./rename_organizations.sh --organization DUT
+exit_on_error $?
+
+./rename_organizations.sh --organization AUMC
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-all-$(date +%y%m%d-%H%M)
