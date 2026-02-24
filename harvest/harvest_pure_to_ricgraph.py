@@ -401,9 +401,7 @@ def find_organization_name(uuid: str, organization_names: dict):
 def restructure_parse_persons(df: pandas.DataFrame) -> pandas.DataFrame:
     """Restructure the parsed data from the source system.
     This means: convert all field names found in the source system
-    to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI'),
-    and make sure that every column that is expected further down
-    this code is present (i.e. insert an empty column if needed).
+    to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI').
     No processing of data in columns is done.
 
     :param df: dataframe with identifiers.
@@ -411,31 +409,17 @@ def restructure_parse_persons(df: pandas.DataFrame) -> pandas.DataFrame:
     """
     df_mod = df.copy(deep=True)
 
-    if 'ORCID' not in df_mod.columns:
-        df_mod['ORCID'] = ''
-
-    if 'ISNI' not in df_mod.columns:
-        df_mod['ISNI'] = ''
-
     if 'Scopus Author ID' in df_mod.columns:
         df_mod.rename(columns={'Scopus Author ID': 'SCOPUS_AUTHOR_ID'}, inplace=True)
-    else:
-        df_mod['SCOPUS_AUTHOR_ID'] = ''
 
     if 'Researcher ID' in df_mod.columns:
         df_mod.rename(columns={'Researcher ID': 'RESEARCHER_ID'}, inplace=True)
-    else:
-        df_mod['RESEARCHER_ID'] = ''
 
     if 'Digital author ID' in df_mod.columns:
         df_mod.rename(columns={'Digital author ID': 'DIGITAL_AUTHOR_ID'}, inplace=True)
-    else:
-        df_mod['DIGITAL_AUTHOR_ID'] = ''
 
     if 'Employee ID' in df_mod.columns:
         df_mod.rename(columns={'Employee ID': 'EMPLOYEE_ID'}, inplace=True)
-    else:
-        df_mod['EMPLOYEE_ID'] = ''
 
     return df_mod
 
@@ -1326,6 +1310,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
         # This is specifically for external persons and author collaborations. We only
         # find these while parsing research outputs, not while parsing persons.
         external_persons = parsed_content[['PURE_ID_PERS', 'EXTERNAL_AUTHOR_NAME']].copy(deep=True)
+        external_persons.rename(columns={'EXTERNAL_AUTHOR_NAME': 'FULL_NAME'}, inplace=True)
         rcg.create_parsed_entities_in_ricgraph(entities=external_persons,
                                                harvest_source=HARVEST_SOURCE,
                                                what='external persons and author collaborations')

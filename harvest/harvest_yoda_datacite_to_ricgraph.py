@@ -110,6 +110,8 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI'),
     and make sure that every column that is expected further down
     this code is present (i.e. insert an empty column if needed).
+    We also need to clean up the DataFrame, because it contains a lot of
+    columns that were useful while parsing, but are not useful anymore.
     No processing of data in columns is done.
 
     :param df: dataframe with identifiers.
@@ -155,6 +157,8 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     else:
         df_mod['YEAR'] = ''
 
+    # We really need to clean up the DataFrame, because it contains a lot of
+    # columns that were useful while parsing, but are not useful anymore.
     df_mod = df_mod[['DOI', 'CATEGORY', 'FULL_NAME',
                      'DIGITAL_AUTHOR_ID',
                      'ORCID', 'SCOPUS_AUTHOR_ID',
@@ -397,6 +401,11 @@ def parse_yoda_datacite(harvest: dict,
                     rowdict.append(newdict)
 
     datacite_data = pandas.DataFrame(rowdict)
+    # Write the raw DataFrame to a file.
+    parts = filename.split(sep='.')
+    filename_raw = parts[0] + '-raw.' + parts[1]
+    rcg.write_dataframe_to_csv(filename=filename_raw, df=datacite_data)
+    # restructure_parse() will also clean up the raw DataFrame by removing columns.
     datacite_data = restructure_parse(df=datacite_data)
     parse_result = process_parsed_data(df=datacite_data)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
