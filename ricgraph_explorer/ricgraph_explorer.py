@@ -1087,9 +1087,14 @@ def create_results_page(view_mode: str,
         html += node_found
         neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
                                                          category_want=personal_types_all)
-        neighbor_nodes_remainder = get_all_neighbor_nodes(node=personroot_node,
-                                                          name_want=name_list,
-                                                          category_want=category_list)
+        if len(category_list) == 0:
+            # We have only personal identifier records for this person,
+            # so there are no other categories of nodes to show.
+            neighbor_nodes_remainder = []
+        else:
+            neighbor_nodes_remainder = get_all_neighbor_nodes(node=personroot_node,
+                                                              name_want=name_list,
+                                                              category_want=category_list)
         if discoverer_mode == 'details_view':
             html += get_tabbed_table(nodes_list=neighbor_nodes_personal,
                                      table_header='This is personal information related to this person:',
