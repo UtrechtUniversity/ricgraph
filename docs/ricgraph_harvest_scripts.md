@@ -84,15 +84,19 @@ to harvest.
 ## Scripts that harvest multiple sources
 These bash scripts are in directory *harvest_multiple_sources*.
 
-There are two general scripts to harvest multiple sources:
+There is one general script to harvest multiple sources:
+*multiple_harvest_organization.sh*. This script harvests, in turn:
 
-* *multiple_harvest_organization_rsd_yoda.sh*: harvests the 
-  [Research Software Directory](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph) and
-  [Yoda](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraph).
-* *multiple_harvest_organization.sh*: harvest
-  [Pure](#harvest-of-pure-harvest_pure_to_ricgraph) and
-  [OpenAlex](#harvest-of-openalex-harvest_openalex_to_ricgraph).
-  Then, it calls script  *multiple_harvest_organization_rsd_yoda.sh*.
+* [Pure](#harvest-of-pure-harvest_pure_to_ricgraph);
+* Only if your organization is Utrecht University:
+  [Utrecht University staff pages](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraph);
+* [Research Software Directory](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph);
+* Only if there is a *set name* for your organization 
+  in *ricgraph.ini*: [Yoda-DataCite](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraph);
+* [OpenAlex](#harvest-of-openalex-harvest_openalex_to_ricgraph).
+
+To be able to do this, the correct entries have to be set in the
+[Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file).
 
 ```
 Usage:
@@ -122,12 +126,14 @@ Options:
 There are three wrapper scripts:
 
 * *multiple_harvest_demo.sh*: 
-  calls script *multiple_harvest_organization_rsd_yoda.sh* with organization *UU*. These sources can be used
+  harvests the Research Software Directory and Yoda-DataCite.
+  These sources can be used
   to demonstrate Ricgraph, since these sources do not need a REST API key.
-* *multiple_harvest_uu.sh*: 
-  calls *multiple_harvest_organization.sh* for organization *UU*, and also harvests 
-  [the UU staff pages](#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraph).
-* *multiple_harvest_rik.sh*: a script that harvests the favorite sources of the author of Ricgraph.
+* *multiple_harvest_open_ricgraph_demo_server.sh*: a script that harvests 
+  the organizations for the [Open Ricgraph demo 
+  server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+* *multiple_harvest_rik.sh*: a script that harvests the favorite 
+  sources of the author of Ricgraph.
 
 You can use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
 to run these harvest scripts, e.g. to run *multiple_harvest_demo.sh*,
@@ -135,6 +141,11 @@ execute command:
 
 ```
 make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_demo.sh
+```
+or to run *multiple_harvest_organization.sh*,
+where you will need to pass arguments, execute command:
+```
+make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_organization.sh cmd_args="--organization UU --empty_ricgraph yes"
 ```
 
 ## Scripts that harvest a single source
@@ -350,16 +361,19 @@ It can be used out of the box since it doesn't need an
 [API](https://en.wikipedia.org/wiki/API) key.
 
 ## Order of running the harvest scripts
-The order of running the harvesting scripts does matter. The author harvests
-only records for Utrecht University and uses this order:
+The order of running the harvesting scripts does matter. When the author 
+is harvesting records for Utrecht University, the following order is used:
 
 1. *harvest_pure_to_ricgraph.py* (since it has a lot of data which is mostly correct);
-1. *harvest_yoda_datacite_to_ricgraph.py* (not too much data, so harvest is fast, but it 
+1. *harvest_uustaffpages_to_ricgraph.py* (results in a lot of personal identifiers,
+   which is useful for following harvests);
+1. *harvest_rsd_to_ricgraph.py* (not too much data, so harvest is fast);
+1. *harvest_yoda_datacite_to_ricgraph.py* (not too much data, so harvest is fast, but it
    contains several data entry errors);
-1. *harvest_rsd_to_ricgraph.py* (not too much data);
 1. *harvest_openalex_to_ricgraph.py* (a lot of data from a [number of 
-   sources](https://docs.openalex.org/additional-help/faq#where-does-your-data-come-from)); 
-1. *harvest_uustaffpages_to_ricgraph.py*.
+   sources](https://docs.openalex.org/additional-help/faq#where-does-your-data-come-from)).
+
+Note that the same order is used in *multiple_harvest_organization.sh*.
 
 Best practice is to start with that source that has the most data.
 If you don't have an API key for Pure, one can best start with the harvest
