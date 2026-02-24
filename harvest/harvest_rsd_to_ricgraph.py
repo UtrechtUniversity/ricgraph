@@ -111,7 +111,7 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
                            'package_year': 'YEAR',
                            'package_url': 'URL_OTHER'
                            }, inplace=True)
-    df_mod['TYPE'] = rcg.ROTYPE_SOFTWARE
+    df_mod['CATEGORY'] = rcg.ROTYPE_SOFTWARE
     return df_mod
 
 
@@ -217,7 +217,7 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
                                           harvest_source=HARVEST_SOURCE)
 
-    software = parsed_content[['ORCID', 'DOI', 'TITLE', 'YEAR', 'TYPE', 'URL_OTHER']].copy(deep=True)
+    software = parsed_content[['ORCID', 'DOI', 'TITLE', 'YEAR', 'CATEGORY', 'URL_OTHER']].copy(deep=True)
     rcg.create_parsed_dois_in_ricgraph(resouts=software, harvest_source=HARVEST_SOURCE)
 
     # ####

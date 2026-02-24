@@ -100,7 +100,7 @@ MAX_ORG_ABBREVIATION_LENGTH = 4
 #    'software': ROTYPE_SOFTWARE
 # }
 #
-# Call the function lookup_resout_type() to do this mapping.
+# Call the function lookup_resout_category() to do this mapping.
 # If you add a type, also add it to ROTYPE_ALL.
 # If you add a type that is a publication, also add it to ROTYPE_PUBLICATION.
 #

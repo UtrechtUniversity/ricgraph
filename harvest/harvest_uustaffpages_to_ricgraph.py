@@ -467,7 +467,7 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                  'EXPERTISE_AREA_URL']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph(entities=expertises,
                                            harvest_source=HARVEST_SOURCE,
-                                           what='expertises')
+                                           what='expertise areas')
 
     # ####### Insert research areas.
     research_areas = parsed_content[['UUSTAFF_PAGE_ID', 'RESEARCH_AREA',

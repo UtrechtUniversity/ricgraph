@@ -918,12 +918,12 @@ def print_progress(count: int, now: bool = False, interval: int = 250) -> int:
             # Only print a newline if we did not do that
             # in the previous iteration.
             print('\n', end='', flush=True)
-        print('Done at count ' + str(count) + ' (' + timestamp() + ').\n', end='', flush=True)
+        print('Done at ' + str(count) + ' (' + timestamp() + ').\n', end='', flush=True)
         return count
 
     count += 1
-    if (count % interval == 0):
+    if (count % interval) == 0:
         print(count, ' ', end='', flush=True)
-    if (count % (interval * 10) == 0):
+    if (count % (interval * 10)) == 0:
         print('(' + timestamp() + ')\n', end='', flush=True)
     return count

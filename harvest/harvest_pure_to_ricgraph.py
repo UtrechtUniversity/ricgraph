@@ -627,7 +627,7 @@ def parse_pure_organizations(harvest: list,
                 # Skip research organizations (with an 'r' in the uri, like ..../r05)
                 continue
         else:
-            # If there is no type skip
+            # If there is no organization type skip
             continue
         if (rcg.json_item_get_dict(json_item=harvest_item,
                                    json_path='name')) == {}:
@@ -727,9 +727,9 @@ def parse_pure_resout(harvest: list,
                                   json_path='confidential'):
             # Skip the confidential ones. Assume non-confidential if not present.
             continue
-        if (resout_type := rcg.json_item_get_str(json_item=harvest_item,
-                                                 json_path='type.uri')) == '':
-            # There must be a type of this resout, otherwise skip.
+        if (category := rcg.json_item_get_str(json_item=harvest_item,
+                                              json_path='type.uri')) == '':
+            # There must be a type (category) of this resout, otherwise skip.
             continue
         if (workflow_step := rcg.json_item_get_str(json_item=harvest_item,
                                                    json_path='workflow.workflowStep')) != '':
@@ -813,8 +813,8 @@ def parse_pure_resout(harvest: list,
                           'DOI': doi,
                           'TITLE': title,
                           'YEAR': publication_year,
-                          'TYPE': rcg.lookup_resout_type(research_output_type=resout_type,
-                                                         research_output_mapping=ROTYPE_MAPPING_PURE),
+                          'CATEGORY': rcg.lookup_resout_category(research_output_category=category,
+                                                                 research_output_mapping=ROTYPE_MAPPING_PURE),
                           'PURE_UUID_PERS': author_uuid,
                           'FULL_NAME': author_name}
             if author_externalorg_name != '':
@@ -958,8 +958,8 @@ def parse_pure_projects(harvest: list,
                     continue
                 if 'type' in resout \
                    and 'uri' in resout['type']:
-                    resout_category = rcg.lookup_resout_type(research_output_type=str(resout['type']['uri']),
-                                                             research_output_mapping=ROTYPE_MAPPING_PURE)
+                    category = rcg.lookup_resout_category(research_output_category=str(resout['type']['uri']),
+                                                          research_output_mapping=ROTYPE_MAPPING_PURE)
                 else:
                     continue
 
@@ -978,7 +978,7 @@ def parse_pure_projects(harvest: list,
                                                                        value=uuid),
                               'PURE_PROJECT_TITLE': title,
                               'PURE_PROJECT_RESOUT_NAME': resout_name,
-                              'PURE_PROJECT_RESOUT_CATEGORY': resout_category,
+                              'PURE_PROJECT_RESOUT_CATEGORY': category,
                               'PURE_PROJECT_RESOUT_VALUE': resout_value}
                 parse_chunk.append(parse_line)
 
@@ -1282,7 +1282,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     global resout_uuid_or_doi
 
     # Do some shuffling to prepare insert of research outputs in Ricgraph.
-    resouts = parsed_content[['RESOUT_UUID', 'TITLE', 'YEAR', 'TYPE', 'DOI', 'PURE_UUID_PERS']].copy(deep=True)
+    resouts = parsed_content[['RESOUT_UUID', 'TITLE', 'YEAR', 'CATEGORY', 'DOI', 'PURE_UUID_PERS']].copy(deep=True)
     resouts.dropna(axis=0, how='all', inplace=True)
     resouts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     resouts['DOI'] = resouts['DOI'].fillna('')
@@ -1317,7 +1317,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
             resout_uuid_or_doi.update((zip(resouts.RESOUT_UUID, resouts.value1)))
 
     resouts = resouts[['PURE_UUID_PERS', 'RESOUT_ID', 'RESOUT_VALUE',
-                       'TITLE', 'YEAR', 'TYPE', 'URL_MAIN', 'URL_OTHER']].copy(deep=True)
+                       'TITLE', 'YEAR', 'CATEGORY', 'URL_MAIN', 'URL_OTHER']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                    harvest_source=HARVEST_SOURCE,
                                                    what='research outputs')
@@ -1642,7 +1642,7 @@ if True:
         parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     else:
         error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to harvest.\n'
-        print('Harvesting person from ' + HARVEST_SOURCE + '.')
+        print('Harvesting persons from ' + HARVEST_SOURCE + '.')
         harvest_file = rcg.construct_filename(base_filename=PURE_PERSONS_HARVEST_FILENAME,
                                               organization=organization)
         parse_persons = harvest_and_parse_pure_data(mode='persons',

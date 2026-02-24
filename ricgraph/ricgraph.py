@@ -152,7 +152,7 @@ def update_nodes_df(nodes: DataFrame) -> None:
     nodes_clean.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
     print('There are ' + str(len(nodes_clean)) + ' nodes ('
-          + timestamp() + '), updating node:', end='')
+          + timestamp() + '), updating node:')
     count = 0
     start_ts = timestamp_posix()
     columns = nodes_clean.columns
@@ -188,7 +188,7 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
     :return: None.
     """
     print('There are ' + str(len(left_and_right_nodepairs)) + ' rows ('
-          + timestamp() + '), creating nodes and edges for row:', end='')
+          + timestamp() + '), creating nodes and edges for row:')
     count = 0
     start_ts = timestamp_posix()
     columns = left_and_right_nodepairs.columns

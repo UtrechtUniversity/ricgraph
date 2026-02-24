@@ -277,8 +277,8 @@ def normalize_identifiers_write_read(parse_result: DataFrame, filename: str = ''
     return parse
 
 
-def lookup_resout_type(research_output_type: str,
-                       research_output_mapping: dict) -> str:
+def lookup_resout_category(research_output_category: str,
+                           research_output_mapping: dict) -> str:
     """Convert a research output type from a harvested system
     to a shorter and easier Ricgraph research output type, according to a certain mapping.
     The reason for doing this is to ensure a constant naming of research output
@@ -286,17 +286,17 @@ def lookup_resout_type(research_output_type: str,
     For more explanation, see the text at 'Research output types used in Ricgraph' at
     the start of this file.
 
-    :param research_output_type: A research output type from a source system.
+    :param research_output_category: A research output type from a source system.
     :param research_output_mapping: The mapping from the source system to Ricgraph
     research output types.
     :return: The result, in a few words.
     """
-    if research_output_type == '':
-        print('lookup_resout_type(): no research output type specified .')
+    if research_output_category == '':
+        print('lookup_resout_category(): no research output type specified .')
         return 'empty'
 
-    if research_output_type not in research_output_mapping:
-        print('lookup_resout_type(): unknown research output type: "' + research_output_type + '".')
+    if research_output_category not in research_output_mapping:
+        print('lookup_resout_category(): unknown research output type: "' + research_output_category + '".')
         return 'unknown'
 
-    return research_output_mapping[research_output_type]
+    return research_output_mapping[research_output_category]

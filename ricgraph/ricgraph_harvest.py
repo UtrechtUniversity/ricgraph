@@ -45,14 +45,28 @@
 
 from numpy import nan
 from pandas import DataFrame
-from requests import get, post
-from requests import codes
+from requests import get, post, codes, Response
 from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
                        update_nodes_df)
 from .ricgraph_file import write_read_json_file
-from .ricgraph_utils import (timestamp, datetimestamp,
-                             timestamp_posix, print_records_per_minute)
+from .ricgraph_utils import (timestamp, datetimestamp, timestamp_posix,
+                             print_records_per_minute, print_progress)
 from .ricgraph_constants import A_LARGE_NUMBER
+
+
+
+def harvest_json_error(response: Response) -> None:
+    """Prints an error message if an error during harvest occurs.
+
+    :param response: Response object.
+    :return: None.
+    """
+    print('harvest_json(): Error during harvest, possibly '
+          + 'a missing API-key or mixed up POST body?')
+    print('Status code: ' + str(response.status_code))
+    print('Url: ' + response.url)
+    print('Error: ' + response.text)
+    return
 
 
 # #####
@@ -88,7 +102,7 @@ def harvest_json(url: str,
         headers = {}
 
     print('Harvesting json data from ' + url + '.')
-    print('Getting data at ' + datetimestamp() + '...')
+    print('Getting data at ' + datetimestamp() + '.')
 
     all_records = A_LARGE_NUMBER
     if max_recs_to_harvest == 0:
@@ -96,12 +110,12 @@ def harvest_json(url: str,
     if chunksize == 0:
         chunksize = 1
     if len(body) == 0:
-        # GET http request
+        # GET http request.
         request_type = 'get'
         if len(headers) > 0:
             url += '&per_page=' + str(chunksize)
     else:
-        # POST http request
+        # POST http request.
         request_type = 'post'
         body['size'] = chunksize
 
@@ -112,15 +126,14 @@ def harvest_json(url: str,
         response = post(url=url, headers=headers, json=body)
 
     if response.status_code != codes.ok:
-        print('harvest_json(): error during harvest, possibly '
-              + 'a missing API-key or mixed up POST body?')
-        print('Status code: ' + str(response.status_code))
-        print('Url: ' + response.url)
-        print('Error: ' + response.text)
+        harvest_json_error(response=response)
         exit(1)
 
     chunk_json_data = response.json()
     if len(headers) == 0:
+        # If headers is None, we can get all data in one go, we do
+        # not need the 'while' loop below. This is the case for
+        # e.g. Research Software Directory.
         return write_read_json_file(json_data=chunk_json_data,
                                     filename=filename)
 
@@ -145,7 +158,7 @@ def harvest_json(url: str,
               + ' records, harvesting in chunks of ' + str(chunksize)
               + ', at most ' + str(max_recs_to_harvest) + ' items.')
 
-    print('Harvesting record: ', end='', flush=True)
+    print('Harvesting record:')
 
     json_data = []
     records_harvested = 0
@@ -164,11 +177,7 @@ def harvest_json(url: str,
             response = post(url=url, headers=headers, json=body)
 
         if response.status_code != codes.ok:
-            print('harvest_json(): error during harvest, possibly '
-                  + 'a missing API-key or mixed up POST body?')
-            print('Status code: ' + str(response.status_code))
-            print('Url: ' + response.url)
-            print('Error: ' + response.text)
+            harvest_json_error(response=response)
             exit(1)
 
         chunk_json_data = response.json()
@@ -188,14 +197,11 @@ def harvest_json(url: str,
             json_items = chunk_json_data['items']
 
         json_data += json_items
-        print(records_harvested, ' ', end='', flush=True)
-        if page_nr % 10 == 0:
-            if page_nr != 0:
-                print('(' + timestamp() + ')\n', end='', flush=True)
+        print_progress(count=records_harvested, interval=500)
         records_harvested += chunksize
         page_nr += 1
 
-    print(' Done at ' + timestamp() + '.')
+    print_progress(count=records_harvested, now=True)
     end_ts = timestamp_posix()
     print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
                              nr_records=records_harvested,
@@ -268,7 +274,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
           The name of this column must be RESOUT_VALUE.
           The 'value' property in the research output will get the value
           in this columns' row.
-        - The other column should be named 'TYPE'.
+        - The other column should be named 'CATEGORY'.
         - Optionally, there may be columns 'TITLE', 'YEAR', 'URL_MAIN'
           and 'URL_OTHER'.
     :param harvest_source: The source system we harvest from.
@@ -284,8 +290,8 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     if 'RESOUT_VALUE' not in entities.columns:
         print('create_parsed_entities_in_ricgraph_general(): Error, missing column "RESOUT_VALUE".')
         exit(1)
-    if 'TYPE' not in entities.columns:
-        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "TYPE".')
+    if 'CATEGORY' not in entities.columns:
+        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "CATEGORY".')
         exit(1)
 
     print('Inserting ' + what + ' from ' + harvest_source
@@ -304,7 +310,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     entities.dropna(subset=[personal_id_name, 'RESOUT_VALUE'], how='any', inplace=True)
     entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     entities.rename(columns={'RESOUT_ID': 'name1',
-                            'TYPE': 'category1',
+                            'CATEGORY': 'category1',
                             'RESOUT_VALUE': 'value1',
                              personal_id_name: 'value2'}, inplace=True)
     new_entities_columns = {'source_event1': harvest_source,
@@ -351,7 +357,7 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
           The 'name' property in the person node will get the name
           of this column.
           The 'value' property will be the value in this columns' row.
-        - The other columns should be named 'DOI', 'TITLE', 'YEAR', and 'TYPE'.
+        - The other columns should be named 'DOI', 'TITLE', 'YEAR', and 'CATEGORY'.
         - Optionally, there may be a column 'URL_MAIN', referring to
           the main URL.
         - Optionally, there may be a column 'URL_OTHER', referring to
@@ -397,9 +403,9 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
     entities.insert(loc=1, column='RESOUT_ID', value=entity_name)
 
     if entity_name in ['ORGANIZATION_NAME']:
-        entities['TYPE'] = 'organization'
+        entities['CATEGORY'] = 'organization'
     elif entity_name in ['EXPERTISE_AREA', 'RESEARCH_AREA', 'SKILL']:
-        entities['TYPE'] = 'competence'
+        entities['CATEGORY'] = 'competence'
         if len(entities.columns) != 5:
             # Note that we have entered this function with a DataFrame
             # containing 3 columns, but we have inserted a 4th column at
@@ -409,7 +415,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
         url_name = entities.columns[3]
         entities.rename(columns={url_name: 'URL_MAIN'}, inplace=True)
     elif entity_name in ['UUSTAFF_PAGE_ID', 'FULL_NAME']:
-        entities['TYPE'] = 'person'
+        entities['CATEGORY'] = 'person'
     else:
         print('create_parsed_entities_in_ricgraph(): Error, unknown column "'
               + entity_name + '".')

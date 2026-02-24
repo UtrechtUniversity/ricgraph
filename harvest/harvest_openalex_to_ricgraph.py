@@ -204,8 +204,8 @@ def parse_openalex(harvest: list,
                                              json_path='doi')) == '' \
                or (title := rcg.json_item_get_str(json_item=harvest_item,
                                                   json_path='title')) == '' \
-               or (resout_type := rcg.json_item_get_str(json_item=harvest_item,
-                                                        json_path='type')) == '':
+               or (category := rcg.json_item_get_str(json_item=harvest_item,
+                                                     json_path='type')) == '':
                 continue
 
             publication_year = rcg.json_item_get_str(json_item=harvest_item,
@@ -214,8 +214,8 @@ def parse_openalex(harvest: list,
                           'DOI': rcg.normalize_doi(identifier=doi),
                           'TITLE': title,
                           'YEAR': publication_year,
-                          'TYPE': rcg.lookup_resout_type(research_output_type=resout_type,
-                                                         research_output_mapping=ROTYPE_MAPPING_OPENALEX)}
+                          'CATEGORY': rcg.lookup_resout_category(research_output_category=category,
+                                                                 research_output_mapping=ROTYPE_MAPPING_OPENALEX)}
             parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
@@ -303,7 +303,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    resouts = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+    resouts = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'CATEGORY']].copy(deep=True)
     rcg.create_parsed_dois_in_ricgraph(resouts=resouts, harvest_source=HARVEST_SOURCE)
     return
 

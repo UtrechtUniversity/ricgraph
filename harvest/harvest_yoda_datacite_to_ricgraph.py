@@ -120,7 +120,7 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     # We assume these fields are present.
     df_mod.rename(columns={'contributorName': 'FULL_NAME',
                            'affiliation': 'ORGANIZATION_NAME',
-                           'resourceType': 'TYPE',
+                           'resourceType': 'CATEGORY',
                            }, inplace=True)
 
     # But for these, we do not know for sure.
@@ -155,7 +155,7 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     else:
         df_mod['YEAR'] = ''
 
-    df_mod = df_mod[['DOI', 'TYPE', 'FULL_NAME',
+    df_mod = df_mod[['DOI', 'CATEGORY', 'FULL_NAME',
                      'DIGITAL_AUTHOR_ID',
                      'ORCID', 'SCOPUS_AUTHOR_ID',
                      'ISNI', 'RESEARCHER_ID',
@@ -186,9 +186,9 @@ def process_parsed_data(df: pandas.DataFrame) -> pandas.DataFrame:
     # Finally, a reset_index(drop=True) is used to create a new unique index for all rows.
     df_mod = df_mod.explode('ORGANIZATION_NAME').reset_index(drop=True)
 
-    df_mod['TYPE'] = df_mod[['TYPE']].apply(
-        lambda row: rcg.lookup_resout_type(research_output_type=row['TYPE'],
-                                           research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
+    df_mod['CATEGORY'] = df_mod[['CATEGORY']].apply(
+        lambda row: rcg.lookup_resout_category(research_output_category=row['CATEGORY'],
+                                               research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
 
     return df_mod
 
@@ -518,7 +518,7 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                          'DIGITAL_AUTHOR_ID', 'ISNI', 'RESEARCHER_ID']
     existing_cols = [c for c in all_possible_cols if c in parsed_content.columns]
     for identifier in existing_cols:
-        datasets = parsed_content[[identifier, 'DOI', 'TITLE', 'YEAR', 'TYPE']].copy(deep=True)
+        datasets = parsed_content[[identifier, 'DOI', 'TITLE', 'YEAR', 'CATEGORY']].copy(deep=True)
         rcg.create_parsed_dois_in_ricgraph(resouts=datasets,
                                            harvest_source=HARVEST_SOURCE)
 

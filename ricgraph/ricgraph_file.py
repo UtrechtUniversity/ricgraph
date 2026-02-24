@@ -58,7 +58,7 @@ def write_json_to_file(filename:str, json_data: list) -> None:
     :param json_data: a list of records in json format.
     :return: None.
     """
-    print('Writing json data to file ' + filename + '...')
+    print('Writing json data to file ' + filename + '...', end=' ')
     if filename == '':
         print('write_json_to_file(): Error, filename is empty, exiting.')
         exit(1)
@@ -94,7 +94,7 @@ def read_json_from_file(filename: str) -> list:
     :param filename: filename of the file to use for writing.
     :return: list of records in json format, or empty list if nothing found.
     """
-    print('Reading json data from file ' + filename + '...')
+    print('Reading json data from file ' + filename + '...', end=' ')
     if not isfile(path=filename):
         print('read_json_from_file(): Error, file "' + filename + '" does not exist, exiting...')
         exit(1)
@@ -132,7 +132,7 @@ def write_text_to_file(filename: str, text: str) -> None:
     :param text: the text data to write to the file.
     :return: None.
     """
-    print('Writing text data to file ' + filename + '...')
+    print('Writing text data to file ' + filename + '...', end=' ')
     if filename == '':
         print('write_text_to_file(): Error, filename is empty, exiting.')
         exit(1)
@@ -174,7 +174,7 @@ def write_dataframe_to_csv(filename: str,
       as first column to the csv file (True) or not (False).
     :return: None.
     """
-    print('Writing DataFrame to csv file ' + filename + '...')
+    print('Writing DataFrame to csv file ' + filename + '...', end=' ')
     if df is None or df.empty:
         print('write_dataframe_to_csv(): Empty DataFrame, nothing to write, continuing.')
         return
@@ -229,7 +229,7 @@ def read_dataframe_from_csv(filename: str,
       from the csv file (True) or not (False) for index in the DataFrame.
     :return: dataframe read.
     """
-    print('Reading DataFrame from csv file ' + filename + '...')
+    print('Reading DataFrame from csv file ' + filename + '...', end=' ')
     if not isfile(path=filename):
         print('read_dataframe_from_csv(): Error, file "' + filename + '" does not exist, exiting...')
         exit(1)
@@ -268,4 +268,5 @@ def read_dataframe_from_csv(filename: str,
                             iterator=False,
                             quotechar='"',
                             encoding='latin-1')
+    print('Done.')
     return csv_data
