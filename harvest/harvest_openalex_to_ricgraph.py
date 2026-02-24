@@ -168,13 +168,13 @@ def parse_openalex(harvest: list,
             openalex_id = PurePath(openalex_path).name
             if (orcid_path := rcg.json_item_get_str(json_item=authors,
                                                     json_path='author.orcid')) != '':
-                parse_line = {'OPENALEX': openalex_id,
+                parse_line = {'OPENALEX_ID_PERS': openalex_id,
                               'ORCID': PurePath(orcid_path).name}
                 parse_chunk.append(parse_line)
 
             if (display_name := rcg.json_item_get_str(json_item=authors,
                                                       json_path='author.display_name')) != '':
-                parse_line = {'OPENALEX': openalex_id,
+                parse_line = {'OPENALEX_ID_PERS': openalex_id,
                               'FULL_NAME': display_name}
                 parse_chunk.append(parse_line)
 
@@ -193,7 +193,7 @@ def parse_openalex(harvest: list,
                                                       json_path='ror')) == '':
                     continue
 
-                parse_line = {'OPENALEX': openalex_id,
+                parse_line = {'OPENALEX_ID_PERS': openalex_id,
                               'ROR': PurePath(ror_path).name}
                 if (display_name := rcg.json_item_get_str(json_item=institution,
                                                           json_path='display_name')) != '':
@@ -210,7 +210,7 @@ def parse_openalex(harvest: list,
 
             publication_year = rcg.json_item_get_str(json_item=harvest_item,
                                                      json_path='publication_year')
-            parse_line = {'OPENALEX': openalex_id,
+            parse_line = {'OPENALEX_ID_PERS': openalex_id,
                           'DOI': rcg.normalize_doi(identifier=doi),
                           'TITLE': title,
                           'YEAR': publication_year,
@@ -278,12 +278,12 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     #    since new identifiers from this harvest will be  linked to an already existing
     #    person-root.
     # If you have 2 of type (b), use these as the first 2 columns.
-    person_identifiers = parsed_content[['OPENALEX', 'ORCID', 'FULL_NAME']].copy(deep=True)
+    person_identifiers = parsed_content[['OPENALEX_ID_PERS', 'ORCID', 'FULL_NAME']].copy(deep=True)
     rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
                                           harvest_source=HARVEST_SOURCE)
 
     # Connect organizations to persons.
-    organizations = parsed_content[['OPENALEX', 'ORGANIZATION_NAME']].copy(deep=True)
+    organizations = parsed_content[['OPENALEX_ID_PERS', 'ORGANIZATION_NAME']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph(entities=organizations,
                                            harvest_source=HARVEST_SOURCE,
                                            what='organizations')
@@ -303,7 +303,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    resouts = parsed_content[['OPENALEX', 'DOI', 'TITLE', 'YEAR', 'CATEGORY']].copy(deep=True)
+    resouts = parsed_content[['OPENALEX_ID_PERS', 'DOI', 'TITLE', 'YEAR', 'CATEGORY']].copy(deep=True)
     rcg.create_parsed_dois_in_ricgraph(resouts=resouts, harvest_source=HARVEST_SOURCE)
     return
 

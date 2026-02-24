@@ -164,19 +164,19 @@ def parse_uustaff_persons(harvest: list,
         if 'Employee_Url' in harvest_item:
             path = pathlib.PurePath(harvest_item['Employee_Url'])
             uustaff_page_id = str(path.name)
-            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
-                          'UUSTAFF_PAGE_URL': str(harvest_item['Employee_Url'])}
+            parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
+                          'UUSTAFF_PAGEID_URL': str(harvest_item['Employee_Url'])}
             # Sometimes EmployeeUrl has 'https:/www...' instead of 'https://www...', repair.
-            parse_line['UUSTAFF_PAGE_URL'] = re.sub(pattern=r'https:/www',
+            parse_line['UUSTAFF_PAGEID_URL'] = re.sub(pattern=r'https:/www',
                                                     repl='https://www',
-                                                    string=parse_line['UUSTAFF_PAGE_URL'])
+                                                    string=parse_line['UUSTAFF_PAGEID_URL'])
             parse_chunk.append(parse_line)
         else:
-            # There must be an Employee_Url (UUSTAFF_PAGE_ID), otherwise skip.
+            # There must be an Employee_Url (UUSTAFF_PAGEID), otherwise skip.
             continue
 
         if 'Id' in harvest_item:
-            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+            parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
                           'UUSTAFF_ID_PERS': str(harvest_item['Id'])}
             parse_chunk.append(parse_line)
         else:
@@ -184,11 +184,11 @@ def parse_uustaff_persons(harvest: list,
             continue
 
         if 'NameShort' in harvest_item:
-            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+            parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
                           'FULL_NAME': str(harvest_item['NameShort'])}
             parse_chunk.append(parse_line)
         if 'Email' in harvest_item:
-            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+            parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
                           'EMAIL': str(harvest_item['Email'])}
             parse_chunk.append(parse_line)
         if 'PhotoUrl' in harvest_item:
@@ -202,7 +202,7 @@ def parse_uustaff_persons(harvest: list,
             if employee_id == '':
                 continue
 
-            parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+            parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
                           'PHOTO_ID': str(employee_id)}
             parse_line['PHOTO_URL'] = UUSTAFF_URL + UUSTAFF_PHOTO_ENDPOINT + parse_line['PHOTO_ID']
             parse_chunk.append(parse_line)
@@ -211,7 +211,7 @@ def parse_uustaff_persons(harvest: list,
                 if 'Name' in links and 'Url' in links:
                     if links['Name'] is None or links['Url'] is None:
                         continue
-                    parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id}
+                    parse_line = {'UUSTAFF_PAGEID': uustaff_page_id}
                     name_identifier = str(links['Name'].lower())
                     value_identifier = str(links['Url'])
                     path = pathlib.PurePath(value_identifier)
@@ -250,13 +250,13 @@ def parse_uustaff_persons(harvest: list,
                         break
 
             if org_name != '':
-                parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
                               'FACULTY': ORGANIZATION + ' ' + org_name}
                 parse_chunk.append(parse_line)
         if 'Expertises' in harvest_item:
             for expertise in harvest_item['Expertises']:
                 if 'Name' in expertise and 'Url' in expertise:
-                    parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                    parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
                                   'EXPERTISE_AREA': str(expertise['Name']),
                                   'EXPERTISE_AREA_URL': UU_WEBSITE + str(expertise['Url'])}
                     parse_chunk.append(parse_line)
@@ -264,14 +264,14 @@ def parse_uustaff_persons(harvest: list,
             for focusarea in harvest_item['FocusAreas']:
                 if 'Name' in focusarea and 'Url' in focusarea:
                     # Focus areas are called 'Research areas' on the UU website.
-                    parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                    parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
                                   'RESEARCH_AREA': str(focusarea['Name']),
                                   'RESEARCH_AREA_URL': UU_WEBSITE + str(focusarea['Url'])}
                     parse_chunk.append(parse_line)
         if 'Skills' in harvest_item:
             for skill in harvest_item['Skills']:
                 if 'Name' in skill and 'Url' in skill:
-                    parse_line = {'UUSTAFF_PAGE_ID': uustaff_page_id,
+                    parse_line = {'UUSTAFF_PAGEID': uustaff_page_id,
                                   'SKILL': str(skill['Name']),
                                   'SKILL_URL': UU_WEBSITE + str(skill['Url'])}
                     parse_chunk.append(parse_line)
@@ -419,13 +419,13 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
     #    person-root.
     # If you have 2 of type (b), use these as the first 2 columns.
     #
-    # Below, we chose UUSTAFF_PAGE_ID as first identifier, because this is the identifier
+    # Below, we chose UUSTAFF_PAGEID as first identifier, because this is the identifier
     # we used to link SolisID to in the previous step
     # (in parsed_pure_uustaffpages_to_ricgraph()).
 
     # ####### Insert persons.
     # We use this approach to prevent errors of missing columns.
-    all_possible_cols = ['UUSTAFF_PAGE_ID', 'ORCID', 'UUSTAFF_ID_PERS', 'FULL_NAME',
+    all_possible_cols = ['UUSTAFF_PAGEID', 'ORCID', 'UUSTAFF_ID_PERS', 'FULL_NAME',
                          'EMAIL', 'PHOTO_ID', 'TWITTER', 'LINKEDIN', 'GITHUB',
                          'INSTAGRAM', 'BLUESKY', 'YOUTUBE', 'FACEBOOK']
     existing_cols = [c for c in all_possible_cols if c in parsed_content.columns]
@@ -434,8 +434,8 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                           harvest_source=HARVEST_SOURCE)
 
     # ####### Add weblinks to staff page nodes we have inserted above.
-    nodes_to_update = parsed_content[['UUSTAFF_PAGE_ID', 'UUSTAFF_PAGE_URL']].copy(deep=True)
-    nodes_to_update.rename(columns={'UUSTAFF_PAGE_URL': 'URL_MAIN'}, inplace=True)
+    nodes_to_update = parsed_content[['UUSTAFF_PAGEID', 'UUSTAFF_PAGEID_URL']].copy(deep=True)
+    nodes_to_update.rename(columns={'UUSTAFF_PAGEID_URL': 'URL_MAIN'}, inplace=True)
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                 harvest_source=HARVEST_SOURCE,
                                 what='URLs of UU staff page nodes')
@@ -448,7 +448,7 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
                                 what='URLs of UU staff photo nodes')
 
     # ####### Insert organizations (faculties only).
-    organizations = parsed_content[['UUSTAFF_PAGE_ID', 'FACULTY']].copy(deep=True)
+    organizations = parsed_content[['UUSTAFF_PAGEID', 'FACULTY']].copy(deep=True)
     organizations.rename(columns={'FACULTY': 'ORGANIZATION_NAME'}, inplace=True)
     rcg.create_parsed_entities_in_ricgraph(entities=organizations,
                                            harvest_source=HARVEST_SOURCE,
@@ -456,28 +456,28 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
 
     # ####### Insert organizations (connect all to 'UU Utrecht University',
     # all staff is part of UU).
-    organizations = parsed_content[['UUSTAFF_PAGE_ID']].copy(deep=True)
+    organizations = parsed_content[['UUSTAFF_PAGEID']].copy(deep=True)
     organizations['ORGANIZATION_NAME'] = 'UU Utrecht University'
     rcg.create_parsed_entities_in_ricgraph(entities=organizations,
                                            harvest_source=HARVEST_SOURCE,
                                            what='organizations (connect all to UU)')
 
     # ####### Insert expertises.
-    expertises = parsed_content[['UUSTAFF_PAGE_ID', 'EXPERTISE_AREA',
+    expertises = parsed_content[['UUSTAFF_PAGEID', 'EXPERTISE_AREA',
                                  'EXPERTISE_AREA_URL']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph(entities=expertises,
                                            harvest_source=HARVEST_SOURCE,
                                            what='expertise areas')
 
     # ####### Insert research areas.
-    research_areas = parsed_content[['UUSTAFF_PAGE_ID', 'RESEARCH_AREA',
+    research_areas = parsed_content[['UUSTAFF_PAGEID', 'RESEARCH_AREA',
                                      'RESEARCH_AREA_URL']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph(entities=research_areas,
                                            harvest_source=HARVEST_SOURCE,
                                            what='research areas')
 
     # ####### Insert skills.
-    skills = parsed_content[['UUSTAFF_PAGE_ID', 'SKILL',
+    skills = parsed_content[['UUSTAFF_PAGEID', 'SKILL',
                              'SKILL_URL']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph(entities=skills,
                                            harvest_source=HARVEST_SOURCE,
@@ -539,7 +539,7 @@ def connect_pure_with_uustaffpages(url: str,
 
         path = pathlib.PurePath(uustaff_page_url)
         parse_line = {'EMPLOYEE_ID': str(node['value']),
-                      'UUSTAFF_PAGE_ID': str(path.name)}
+                      'UUSTAFF_PAGEID': str(path.name)}
         parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
@@ -560,7 +560,7 @@ def parsed_pure_uustaffpages_to_ricgraph(parsed_content: pandas.DataFrame) -> No
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    solisids_staffids = parsed_content[['EMPLOYEE_ID', 'UUSTAFF_PAGE_ID']].copy(deep=True)
+    solisids_staffids = parsed_content[['EMPLOYEE_ID', 'UUSTAFF_PAGEID']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph(entities=solisids_staffids,
                                            harvest_source=HARVEST_SOURCE,
                                            what='Pure SolisIDs connect to UU staff pages ID')

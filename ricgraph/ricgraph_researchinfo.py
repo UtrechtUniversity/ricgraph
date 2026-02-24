@@ -66,7 +66,7 @@ def create_well_known_url(name: str, value: str) -> str:
         return 'https://isni.org/isni/' + value
     elif name == 'LINKEDIN':
         return 'https://www.linkedin.com/in/' + value
-    elif name == 'OPENALEX':
+    elif name == 'OPENALEX_ID_PERS':
         return 'https://openalex.org/authors/' + value
     elif name == 'ORCID':
         return 'https://orcid.org/' + value
@@ -150,7 +150,7 @@ def normalize_isni(identifier: str) -> str:
     return identifier
 
 
-def normalize_openalex(identifier: str) -> str:
+def normalize_openalex_id_pers(identifier: str) -> str:
     """Normalize OpenAlex identifier.
 
     :param identifier: identifier to normalize.
@@ -245,7 +245,7 @@ def normalize_identifiers(df: DataFrame) -> DataFrame:
 
     # The values in this list correspond to the normalize functions above,
     # such as normalize_doi(), normalize_ror(), etc.
-    for identifier in ['DOI', 'ROR', 'ORCID', 'ISNI', 'OPENALEX',
+    for identifier in ['DOI', 'ROR', 'ORCID', 'ISNI', 'OPENALEX_ID_PERS',
                        'SCOPUS_AUTHOR_ID', 'RESEARCHER_ID', 'DIGITAL_AUTHOR_ID',
                        'EMAIL']:
         function_name = f'normalize_{identifier.lower()}'

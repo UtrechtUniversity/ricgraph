@@ -339,20 +339,20 @@ ROTYPE_MAPPING_PURE = {
 def create_pure_url(name: str, value: str) -> str:
     """Create a URL to refer to the source of a node.
 
-    :param name: an identifier name, e.g. PURE_UUID_PERS, PURE_UUID_ORG, etc.
+    :param name: an identifier name, e.g. PURE_ID_PERS, PURE_ID_ORG, etc.
     :param value: the value.
     :return: a URL.
     """
     if name == '' or value == '':
         return ''
 
-    if name == 'PURE_UUID_PERS':
+    if name == 'PURE_ID_PERS':
         return PURE_URL + '/en/persons/' + value
-    elif name == 'PURE_UUID_ORG':
+    elif name == 'PURE_ID_ORG':
         return PURE_URL + '/en/organisations/' + value
-    elif name == 'PURE_UUID_RESOUT':
+    elif name == 'PURE_ID_RESOUT':
         return PURE_URL + '/en/publications/' + value
-    elif name == 'PURE_UUID_PROJECT':
+    elif name == 'PURE_ID_PROJECT':
         return PURE_URL + '/en/projects/' + value
     else:
         return ''
@@ -363,7 +363,7 @@ def create_urlmain(type_id: str, doi_value: str, uuid_value: str) -> str:
     if type_id == 'DOI':
         return rcg.create_well_known_url(name=type_id,
                                          value=doi_value)
-    elif type_id == 'PURE_UUID_RESOUT':
+    elif type_id == 'PURE_ID_RESOUT':
         return create_pure_url(name=type_id,
                                value=uuid_value)
     else:
@@ -375,7 +375,7 @@ def create_urlmain(type_id: str, doi_value: str, uuid_value: str) -> str:
 def create_urlother(type_id: str, uuid_value: str) -> str:
     """A helper function for parsed_resout_to_ricgraph()"""
     if type_id == 'DOI':
-        return create_pure_url(name='PURE_UUID_RESOUT',
+        return create_pure_url(name='PURE_ID_RESOUT',
                                value=uuid_value)
     else:
         return ''
@@ -498,7 +498,7 @@ def parse_pure_persons(harvest: list,
             continue
         if (lastname := rcg.json_item_get_str(json_item=harvest_item,
                                               json_path='name.lastName')) != '':
-            parse_line = {'PURE_UUID_PERS': pers_uuid,
+            parse_line = {'PURE_ID_PERS': pers_uuid,
                           'FULL_NAME': lastname}
             if (firstname := rcg.json_item_get_str(json_item=harvest_item,
                                                    json_path='name.firstName')) != '':
@@ -506,7 +506,7 @@ def parse_pure_persons(harvest: list,
             parse_chunk.append(parse_line)
         if (orcid := rcg.json_item_get_str(json_item=harvest_item,
                                            json_path='orcid')) != '':
-            parse_line = {'PURE_UUID_PERS': pers_uuid,
+            parse_line = {'PURE_ID_PERS': pers_uuid,
                           'ORCID': orcid}
             parse_chunk.append(parse_line)
 
@@ -517,7 +517,7 @@ def parse_pure_persons(harvest: list,
                                                           json_path='value.value')) != '' \
                and (name_identifier := rcg.json_item_get_str(json_item=identities,
                                                             json_path='type.term.text.0.value')) != '':
-                parse_line = {'PURE_UUID_PERS': pers_uuid,
+                parse_line = {'PURE_ID_PERS': pers_uuid,
                               name_identifier: value_identifier}
                 parse_chunk.append(parse_line)
         for identities in rcg.json_item_get_list(json_item=harvest_item,
@@ -527,7 +527,7 @@ def parse_pure_persons(harvest: list,
                                                           json_path='id')) != '' \
                and (name_identifier := rcg.json_item_get_str(json_item=identities,
                                                              json_path='type.term.en_GB')) != '':
-                parse_line = {'PURE_UUID_PERS': pers_uuid,
+                parse_line = {'PURE_ID_PERS': pers_uuid,
                               name_identifier: value_identifier}
                 parse_chunk.append(parse_line)
 
@@ -562,8 +562,8 @@ def parse_pure_persons(harvest: list,
             else:
                 continue
 
-            parse_line = {'PURE_UUID_PERS': pers_uuid,
-                          'PURE_UUID_ORG': org_uuid}
+            parse_line = {'PURE_ID_PERS': pers_uuid,
+                          'PURE_ID_ORG': org_uuid}
             parse_chunk.append(parse_line)
             # Put in the DataFrame with harvested persons to be returned.
             parse_chunk_final.extend(parse_chunk)
@@ -571,7 +571,7 @@ def parse_pure_persons(harvest: list,
     rcg.print_progress(count=count, now=True)
     parse_result = pandas.DataFrame(parse_chunk_final)
 
-    if 'PURE_UUID_ORG' not in parse_result.columns \
+    if 'PURE_ID_ORG' not in parse_result.columns \
        and PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('\nPure is harvested using the Pure CRUD API.')
         print('Persons found are not members of any organization.')
@@ -676,19 +676,19 @@ def parse_pure_organizations(harvest: list,
                 pass
             else:
                 continue
-            parse_line = {'PURE_UUID_ORG': org_uuid,
-                          'ORG_TYPE_NAME': org_type_name,
+            parse_line = {'PURE_ID_ORG': org_uuid,
+                          'ORG_NAME_TYPE': org_type_name,
                           'ORG_NAME': org_name,
-                          'FULL_ORG_NAME': organization + ' ' + org_type_name + ': ' + org_name,
-                          'PARENT_UUID': parentorg_uuid}
+                          'ORG_NAME_FULL': organization + ' ' + org_type_name + ': ' + org_name,
+                          'PURE_ID_PARENTORG': parentorg_uuid}
             parse_chunk.append(parse_line)
-            organization_names[org_uuid] = parse_line['FULL_ORG_NAME']
+            organization_names[org_uuid] = parse_line['ORG_NAME_FULL']
 
     rcg.print_progress(count=count, now=True)
     parse_result = pandas.DataFrame(parse_chunk)
-    parse_result['FULL_PARENT_NAME'] = (
-        parse_result[['PARENT_UUID']].apply(lambda row:
-                                            find_organization_name(uuid=row['PARENT_UUID'],
+    parse_result['PARENTORG_NAME_FULL'] = (
+        parse_result[['PURE_ID_PARENTORG']].apply(lambda row:
+                                            find_organization_name(uuid=row['PURE_ID_PARENTORG'],
                                                                    organization_names=organization_names),
                                             axis=1))
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
@@ -782,26 +782,26 @@ def parse_pure_resout(harvest: list,
         else:
             continue
         for persons in list_of_persons:
-            author_externalorg_name = ''
+            externalorg_name = ''
             if (author_uuid := rcg.json_item_get_str(json_item=persons,
                                                      json_path='person.uuid')) != '':
-                # Internal person, don't set 'author_name', it is not necessary.
-                author_name = ''
+                # Internal person, don't set 'external_author_name', it is not necessary.
+                external_author_name = ''
             elif (author_uuid := rcg.json_item_get_str(json_item=persons,
                                                        json_path='externalPerson.uuid')) != '':
                 # External person.
-                author_name = rcg.json_item_get_str(json_item=persons,
+                external_author_name = rcg.json_item_get_str(json_item=persons,
                                                     json_path='externalPerson.name.text.0.value')
                 # Get the external organization of this person.
                 # There may be many externalOrganizations, for now we only take the first.
-                author_externalorg_name = rcg.json_item_get_str(json_item=persons,
+                externalorg_name = rcg.json_item_get_str(json_item=persons,
                                                                 json_path='externalOrganisations.0.name.text.0.value')
             elif (author_uuid := rcg.json_item_get_str(json_item=persons,
                                                        json_path='authorCollaboration.uuid')) != '':
                 # Author collaboration.
-                author_name = rcg.json_item_get_str(json_item=persons,
+                external_author_name = rcg.json_item_get_str(json_item=persons,
                                                     json_path='authorCollaboration.name.text.0.value')
-                author_name += ' (' + organization + ' author collaboration)'
+                external_author_name += ' (' + organization + ' author collaboration)'
             else:
                 # If we get here you might want to add another "elif" above with
                 # the missing personAssociation. Sometimes there is none, then it is ok.
@@ -809,16 +809,16 @@ def parse_pure_resout(harvest: list,
                 # without any identifier.
                 continue
 
-            parse_line = {'RESOUT_UUID': resout_uuid,
+            parse_line = {'PURE_ID_RESOUT': resout_uuid,
                           'DOI': doi,
                           'TITLE': title,
                           'YEAR': publication_year,
                           'CATEGORY': rcg.lookup_resout_category(research_output_category=category,
                                                                  research_output_mapping=ROTYPE_MAPPING_PURE),
-                          'PURE_UUID_PERS': author_uuid,
-                          'FULL_NAME': author_name}
-            if author_externalorg_name != '':
-                parse_line['AUTHOR_EXTERNALORG_NAME'] = author_externalorg_name
+                          'PURE_ID_PERS': author_uuid,
+                          'EXTERNAL_AUTHOR_NAME': external_author_name}
+            if externalorg_name != '':
+                parse_line['EXTERNAL_ORG_NAME'] = externalorg_name
             parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
@@ -942,9 +942,9 @@ def parse_pure_projects(harvest: list,
                 else:
                     continue
 
-                parse_line = {'PURE_UUID_PROJECT': uuid,
-                              'PURE_UUID_PROJECT_URL': create_pure_url(name='PURE_UUID_PROJECT',
-                                                                       value=uuid),
+                parse_line = {'PURE_ID_PROJECT': uuid,
+                              'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
+                                                                     value=uuid),
                               'PURE_PROJECT_TITLE': title,
                               'PURE_PROJECT_PARTICIPANT_UUID': participant_uuid,
                               'PURE_PROJECT_PARTICIPANT_ORG': participant_org}
@@ -963,7 +963,7 @@ def parse_pure_projects(harvest: list,
                 else:
                     continue
 
-                resout_name = 'PURE_UUID_RESOUT'
+                resout_name = 'PURE_ID_RESOUT'
                 resout_value = resout_uuid
                 if resout_uuid_or_doi != {} \
                    and resout_uuid in resout_uuid_or_doi:
@@ -972,10 +972,10 @@ def parse_pure_projects(harvest: list,
                         if '/' in resout_value:
                             resout_name = 'DOI'
                         else:
-                            resout_name = 'PURE_UUID_RESOUT'
-                parse_line = {'PURE_UUID_PROJECT': uuid,
-                              'PURE_UUID_PROJECT_URL': create_pure_url(name='PURE_UUID_PROJECT',
-                                                                       value=uuid),
+                            resout_name = 'PURE_ID_RESOUT'
+                parse_line = {'PURE_ID_PROJECT': uuid,
+                              'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
+                                                                     value=uuid),
                               'PURE_PROJECT_TITLE': title,
                               'PURE_PROJECT_RESOUT_NAME': resout_name,
                               'PURE_PROJECT_RESOUT_CATEGORY': category,
@@ -990,9 +990,9 @@ def parse_pure_projects(harvest: list,
                 else:
                     continue
 
-                parse_line = {'PURE_UUID_PROJECT': uuid,
-                              'PURE_UUID_PROJECT_URL': create_pure_url(name='PURE_UUID_PROJECT',
-                                                                       value=uuid),
+                parse_line = {'PURE_ID_PROJECT': uuid,
+                              'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
+                                                                     value=uuid),
                               'PURE_PROJECT_TITLE': title,
                               'PURE_PROJECT_RELATEDPROJECT_UUID': related_project_uuid}
                 parse_chunk.append(parse_line)
@@ -1088,7 +1088,7 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    all_possible_cols = ['PURE_UUID_PERS', 'FULL_NAME', 'ORCID', 'ISNI',
+    all_possible_cols = ['PURE_ID_PERS', 'FULL_NAME', 'ORCID', 'ISNI',
                          'SCOPUS_AUTHOR_ID', 'DIGITAL_AUTHOR_ID',
                          'RESEARCHER_ID', 'EMPLOYEE_ID']
     existing_cols = [c for c in all_possible_cols if c in parsed_content.columns]
@@ -1097,13 +1097,13 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                           harvest_source=HARVEST_SOURCE)
     # Add the URL to this person in Pure. Some persons do not seem to have
     # this page.
-    nodes_to_update = parsed_content[['PURE_UUID_PERS']].copy(deep=True)
-    nodes_to_update['URL_MAIN'] = nodes_to_update[['PURE_UUID_PERS']].apply(
-                                  lambda row: create_pure_url(name='PURE_UUID_PERS',
-                                                              value=row['PURE_UUID_PERS']), axis=1)
+    nodes_to_update = parsed_content[['PURE_ID_PERS']].copy(deep=True)
+    nodes_to_update['URL_MAIN'] = nodes_to_update[['PURE_ID_PERS']].apply(
+                                  lambda row: create_pure_url(name='PURE_ID_PERS',
+                                                              value=row['PURE_ID_PERS']), axis=1)
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                harvest_source=HARVEST_SOURCE,
-                               what='URLs of PURE_UUID_PERS nodes')
+                               what='URLs of PURE_ID_PERS nodes')
     return
 
 
@@ -1118,9 +1118,9 @@ def determine_all_parent_organizations(parsed_content_organizations: pandas.Data
       followed by nothing if no parent for organization UUID exists.
     """
     print('Determining all parent organizations of an organization...')
-    parsed_content = parsed_content_organizations[['PURE_UUID_ORG',
-                                                   'FULL_ORG_NAME',
-                                                   'PARENT_UUID']].copy(deep=True)
+    parsed_content = parsed_content_organizations[['PURE_ID_ORG',
+                                                   'ORG_NAME_FULL',
+                                                   'PURE_ID_PARENTORG']].copy(deep=True)
     parsed_content.dropna(axis=0, how='any', inplace=True)
     parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     organization_and_all_parents = {}
@@ -1142,10 +1142,10 @@ def determine_all_parent_organizations(parsed_content_organizations: pandas.Data
         organization_and_all_parents[orgid].append(orgname)
         organization_and_all_parents[orgid].append(parentorgid)
 
-    # 2nd loop: Do the same for PARENT_UUID and FULL_PARENT_NAME. This is necessary because the
-    # top-level org will not be in PURE_UUID_ORG.
-    parsed_content = parsed_content_organizations[['PARENT_UUID',
-                                                   'FULL_PARENT_NAME']].copy(deep=True)
+    # 2nd loop: Do the same for PURE_ID_PARENTORG and PARENTORG_NAME_FULL. This is necessary because the
+    # top-level org will not be in PURE_ID_ORG.
+    parsed_content = parsed_content_organizations[['PURE_ID_PARENTORG',
+                                                   'PARENTORG_NAME_FULL']].copy(deep=True)
     parsed_content.dropna(axis=0, how='any', inplace=True)
     parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     for index in range(len(parsed_content)):
@@ -1209,8 +1209,8 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
           + HARVEST_SOURCE + ' in Ricgraph at ' + timestamp + '...')
 
     print('Determining all links between persons and all of their organizations... ', end='', flush=True)
-    parsed_content = parsed_content_persons[['PURE_UUID_PERS',
-                                             'PURE_UUID_ORG']].copy(deep=True)
+    parsed_content = parsed_content_persons[['PURE_ID_PERS',
+                                             'PURE_ID_ORG']].copy(deep=True)
     parsed_content.dropna(axis=0, how='any', inplace=True)
     parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     person_organization = {}
@@ -1235,9 +1235,9 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
             orgid_name = orgid_name_and_parentslist[0]
 
             # First connect this person and 'orgid'.
-            parse_line = {'PURE_UUID_PERS': str(personid),
-                          'PURE_UUID_ORG': orgid,
-                          'FULL_ORG_NAME': orgid_name}
+            parse_line = {'PURE_ID_PERS': str(personid),
+                          'PURE_ID_ORG': orgid,
+                          'ORG_NAME_FULL': orgid_name}
             parse_chunk.append(parse_line)
 
             # Now get all parents of orgid.
@@ -1246,11 +1246,11 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
                 if index == 0:
                     # Remember: first entry in list is the name of the org.
                     continue
-                parse_line = {'PURE_UUID_PERS': str(personid)}
+                parse_line = {'PURE_ID_PERS': str(personid)}
                 parent_orgid = str(orgid_name_and_parentslist[index])
                 parent_name = str(organization_and_all_parents[parent_orgid][0])
-                parse_line['PURE_UUID_ORG'] = parent_orgid
-                parse_line['FULL_ORG_NAME'] = parent_name
+                parse_line['PURE_ID_ORG'] = parent_orgid
+                parse_line['ORG_NAME_FULL'] = parent_name
                 parse_chunk.append(parse_line)
 
     print('Done.\n')
@@ -1262,11 +1262,11 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     persorgnodes = pandas.DataFrame(parse_chunk)
     # Add the URL to this organization in Pure. Some organizations do
     # not seem to have this page.
-    persorgnodes['URL_MAIN'] = persorgnodes[['PURE_UUID_ORG']].apply(
-                               lambda row: create_pure_url(name='PURE_UUID_ORG',
-                                                           value=row['PURE_UUID_ORG']), axis=1)
-    persorgnodes.drop(labels='PURE_UUID_ORG', axis='columns', inplace=True)
-    persorgnodes.rename(columns={'FULL_ORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
+    persorgnodes['URL_MAIN'] = persorgnodes[['PURE_ID_ORG']].apply(
+                               lambda row: create_pure_url(name='PURE_ID_ORG',
+                                                           value=row['PURE_ID_ORG']), axis=1)
+    persorgnodes.drop(labels='PURE_ID_ORG', axis='columns', inplace=True)
+    persorgnodes.rename(columns={'ORG_NAME_FULL': 'ORGANIZATION_NAME'}, inplace=True)
     rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
                                            harvest_source=HARVEST_SOURCE,
                                            what='organizations')
@@ -1282,60 +1282,60 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     global resout_uuid_or_doi
 
     # Do some shuffling to prepare insert of research outputs in Ricgraph.
-    resouts = parsed_content[['RESOUT_UUID', 'TITLE', 'YEAR', 'CATEGORY', 'DOI', 'PURE_UUID_PERS']].copy(deep=True)
+    resouts = parsed_content[['PURE_ID_RESOUT', 'TITLE', 'YEAR', 'CATEGORY', 'DOI', 'PURE_ID_PERS']].copy(deep=True)
     resouts.dropna(axis=0, how='all', inplace=True)
     resouts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     resouts['DOI'] = resouts['DOI'].fillna('')
 
-    # A number of research outputs in Pure have a DOI, but not all. We prefer the DOI above PURE_UUID_RESOUT.
-    # So if there is a DOI, use it, otherwise use PURE_UUID_RESOUT UUID. Some shuffling is required.
-    # First, fill the column 'name1' with 'DOI', unless the value is '', then fill with 'PURE_UUID_RESOUT'.
-    resouts['RESOUT_ID'] = resouts[['DOI']].apply(lambda x: 'PURE_UUID_RESOUT' if x.item() == '' else 'DOI', axis=1)
+    # A number of research outputs in Pure have a DOI, but not all. We prefer the DOI above PURE_ID_RESOUT.
+    # So if there is a DOI, use it, otherwise use PURE_ID_RESOUT UUID. Some shuffling is required.
+    # First, fill the column 'name1' with 'DOI', unless the value is '', then fill with 'PURE_ID_RESOUT'.
+    resouts['RESOUT_ID'] = resouts[['DOI']].apply(lambda x: 'PURE_ID_RESOUT' if x.item() == '' else 'DOI', axis=1)
     # Make sure we have the correct URL.
-    resouts['URL_MAIN'] = resouts[['RESOUT_ID', 'DOI', 'RESOUT_UUID']].apply(
+    resouts['URL_MAIN'] = resouts[['RESOUT_ID', 'DOI', 'PURE_ID_RESOUT']].apply(
                           lambda row: create_urlmain(type_id=row['RESOUT_ID'],
                                                      doi_value=row['DOI'],
-                                                     uuid_value=row['RESOUT_UUID']), axis=1)
-    resouts['URL_OTHER'] = resouts[['RESOUT_ID', 'DOI', 'RESOUT_UUID']].apply(
+                                                     uuid_value=row['PURE_ID_RESOUT']), axis=1)
+    resouts['URL_OTHER'] = resouts[['RESOUT_ID', 'DOI', 'PURE_ID_RESOUT']].apply(
                            lambda row: create_urlother(type_id=row['RESOUT_ID'],
-                                                       uuid_value=row['RESOUT_UUID']), axis=1)
+                                                       uuid_value=row['PURE_ID_RESOUT']), axis=1)
     # Now replace all empty strings in column DOI for NaNs
     # The next statement will result in a 'behavior will change in pandas 3.0' warning.
     resouts['DOI'] = resouts['DOI'].replace('', numpy.nan)
     # Then fill the column 'value1' with the value from column DOI, unless the value is NaN,
-    # then fill with the value from column RESOUT_UUID.
+    # then fill with the value from column PURE_ID_RESOUT.
     resouts['value1'] = resouts['DOI'].copy(deep=True)
     # The next statement will result in a 'behavior will change in pandas 3.0' warning.
-    resouts['RESOUT_UUID'] = resouts.value1.fillna(resouts['RESOUT_UUID'])
-    resouts.rename(columns={'RESOUT_UUID': 'RESOUT_VALUE'}, inplace=True)
+    resouts['PURE_ID_RESOUT'] = resouts.value1.fillna(resouts['PURE_ID_RESOUT'])
+    resouts.rename(columns={'PURE_ID_RESOUT': 'RESOUT_VALUE'}, inplace=True)
 
     if HARVEST_PROJECTS:
         # This is only necessary if we are going to harvest projects later on.
         if resout_uuid_or_doi == {}:
-            resout_uuid_or_doi = dict(zip(resouts.RESOUT_UUID, resouts.value1))
+            resout_uuid_or_doi = dict(zip(resouts.PURE_ID_RESOUT, resouts.value1))
         else:
-            resout_uuid_or_doi.update((zip(resouts.RESOUT_UUID, resouts.value1)))
+            resout_uuid_or_doi.update((zip(resouts.PURE_ID_RESOUT, resouts.value1)))
 
-    resouts = resouts[['PURE_UUID_PERS', 'RESOUT_ID', 'RESOUT_VALUE',
+    resouts = resouts[['PURE_ID_PERS', 'RESOUT_ID', 'RESOUT_VALUE',
                        'TITLE', 'YEAR', 'CATEGORY', 'URL_MAIN', 'URL_OTHER']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                    harvest_source=HARVEST_SOURCE,
                                                    what='research outputs')
 
-    if 'FULL_NAME' in parsed_content.columns:
+    if 'EXTERNAL_AUTHOR_NAME' in parsed_content.columns:
         # This is specifically for external persons and author collaborations. We only
         # find these while parsing research outputs, not while parsing persons.
-        external_persons = parsed_content[['PURE_UUID_PERS', 'FULL_NAME']].copy(deep=True)
+        external_persons = parsed_content[['PURE_ID_PERS', 'EXTERNAL_AUTHOR_NAME']].copy(deep=True)
         rcg.create_parsed_entities_in_ricgraph(entities=external_persons,
                                                harvest_source=HARVEST_SOURCE,
                                                what='external persons and author collaborations')
 
-    if 'AUTHOR_EXTERNALORG_NAME' in parsed_content.columns:
+    if 'EXTERNAL_ORG_NAME' in parsed_content.columns:
         # This is specifically for external persons and external organizations. We only
         # find these while parsing research outputs, not while parsing persons.
-        persorgnodes = parsed_content[['PURE_UUID_PERS',
-                                       'AUTHOR_EXTERNALORG_NAME']].copy(deep=True)
-        persorgnodes.rename(columns={'AUTHOR_EXTERNALORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
+        persorgnodes = parsed_content[['PURE_ID_PERS',
+                                       'EXTERNAL_ORG_NAME']].copy(deep=True)
+        persorgnodes.rename(columns={'EXTERNAL_ORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
         rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
                                                harvest_source=HARVEST_SOURCE,
                                                what='external organizations from external persons')
@@ -1362,8 +1362,8 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' projects at ' + timestamp + '.'
 
     # ##### Insert projects and related participants.
-    project_identifiers = parsed_content[['PURE_UUID_PROJECT',
-                                          'PURE_UUID_PROJECT_URL',
+    project_identifiers = parsed_content[['PURE_ID_PROJECT',
+                                          'PURE_ID_PROJECT_URL',
                                           'PURE_PROJECT_TITLE',
                                           'PURE_PROJECT_PARTICIPANT_UUID']].copy(deep=True)
 
@@ -1378,15 +1378,15 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
     print('The following projects connected to persons from '
           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(project_identifiers)
-    project_identifiers.rename(columns={'PURE_UUID_PROJECT': 'value1',
-                                        'PURE_UUID_PROJECT_URL': 'url_main1',
+    project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
+                                        'PURE_ID_PROJECT_URL': 'url_main1',
                                         'PURE_PROJECT_TITLE': 'comment1',
                                         'PURE_PROJECT_PARTICIPANT_UUID': 'value2'}, inplace=True)
-    new_project_columns = {'name1': 'PURE_UUID_PROJECT',
+    new_project_columns = {'name1': 'PURE_ID_PROJECT',
                            'category1': 'project',
                            'source_event1': HARVEST_SOURCE,
                            'history_event1': history_event,
-                           'name2': 'PURE_UUID_PERS',
+                           'name2': 'PURE_ID_PERS',
                            'category2': 'person',
                            'source_event2': HARVEST_SOURCE}
     project_identifiers = project_identifiers.assign(**new_project_columns)
@@ -1405,7 +1405,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
     if 'PURE_PROJECT_PARTICIPANT_ORG' in parsed_content.columns:
         print('Determining all links between projects and all of their organizations at '
               + rcg.timestamp() + '... ', end='', flush=True)
-        project_identifiers = parsed_content[['PURE_UUID_PROJECT',
+        project_identifiers = parsed_content[['PURE_ID_PROJECT',
                                               'PURE_PROJECT_PARTICIPANT_ORG']].copy(deep=True)
         project_identifiers.dropna(axis=0, how='any', inplace=True)
         project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -1431,9 +1431,9 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
                 orgid_name = orgid_name_and_parentslist[0]
 
                 # First connect this person and 'orgid'.
-                parse_line = {'PURE_UUID_PROJECT': str(projectid),
-                              'PURE_UUID_ORG': orgid,
-                              'FULL_ORG_NAME': orgid_name}
+                parse_line = {'PURE_ID_PROJECT': str(projectid),
+                              'PURE_ID_ORG': orgid,
+                              'ORG_NAME_FULL': orgid_name}
                 parse_chunk.append(parse_line)
 
                 # Now get all parents of orgid.
@@ -1442,11 +1442,11 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
                     if index == 0:
                         # Remember: first entry in list is the name of the org.
                         continue
-                    parse_line = {'PURE_UUID_PROJECT': str(projectid)}
+                    parse_line = {'PURE_ID_PROJECT': str(projectid)}
                     parent_orgid = str(orgid_name_and_parentslist[index])
                     parent_name = str(organization_and_all_parents[parent_orgid][0])
-                    parse_line['PURE_UUID_ORG'] = parent_orgid
-                    parse_line['FULL_ORG_NAME'] = parent_name
+                    parse_line['PURE_ID_ORG'] = parent_orgid
+                    parse_line['ORG_NAME_FULL'] = parent_name
                     parse_chunk.append(parse_line)
 
         print('Done at ' + rcg.timestamp() + '.\n')
@@ -1455,12 +1455,12 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
         parse_chunk_df = pandas.DataFrame(parse_chunk)
         projorgnodes = pandas.concat([projorgnodes, parse_chunk_df], ignore_index=True)
 
-        projorgnodes.drop(labels='PURE_UUID_ORG', axis='columns', inplace=True)
+        projorgnodes.drop(labels='PURE_ID_ORG', axis='columns', inplace=True)
         projorgnodes.dropna(axis=0, how='any', inplace=True)
         projorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-        projorgnodes.rename(columns={'PURE_UUID_PROJECT': 'value1',
-                                     'FULL_ORG_NAME': 'value2'}, inplace=True)
-        new_projorgnodes_columns = {'name1': 'PURE_UUID_PROJECT',
+        projorgnodes.rename(columns={'PURE_ID_PROJECT': 'value1',
+                                     'ORG_NAME_FULL': 'value2'}, inplace=True)
+        new_projorgnodes_columns = {'name1': 'PURE_ID_PROJECT',
                                     'category1': 'project',
                                     'name2': 'ORGANIZATION_NAME',
                                     'category2': 'organization'}
@@ -1475,7 +1475,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
         # ##### end of Insert projects and related organizations.
 
     # ##### Insert projects and related research outputs.
-    project_identifiers = parsed_content[['PURE_UUID_PROJECT',
+    project_identifiers = parsed_content[['PURE_ID_PROJECT',
                                           'PURE_PROJECT_RESOUT_NAME',
                                           'PURE_PROJECT_RESOUT_CATEGORY',
                                           'PURE_PROJECT_RESOUT_VALUE']].copy(deep=True)
@@ -1486,11 +1486,11 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
     print('The following projects connected to research outputs from '
           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(project_identifiers)
-    project_identifiers.rename(columns={'PURE_UUID_PROJECT': 'value1',
+    project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
                                         'PURE_PROJECT_RESOUT_NAME': 'name2',
                                         'PURE_PROJECT_RESOUT_CATEGORY': 'category2',
                                         'PURE_PROJECT_RESOUT_VALUE': 'value2'}, inplace=True)
-    new_project_columns = {'name1': 'PURE_UUID_PROJECT',
+    new_project_columns = {'name1': 'PURE_ID_PROJECT',
                            'category1': 'project',
                            'source_event2': HARVEST_SOURCE}
     project_identifiers = project_identifiers.assign(**new_project_columns)
@@ -1505,7 +1505,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
 
     if 'PURE_PROJECT_RELATEDPROJECT_UUID' in parsed_content.columns:
         # ##### Insert projects and related projects.
-        project_identifiers = parsed_content[['PURE_UUID_PROJECT',
+        project_identifiers = parsed_content[['PURE_ID_PROJECT',
                                               'PURE_PROJECT_RELATEDPROJECT_UUID']].copy(deep=True)
         project_identifiers.dropna(axis=0, how='any', inplace=True)
         project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -1513,11 +1513,11 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
         print('The following projects connected to related projects from '
               + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
         print(project_identifiers)
-        project_identifiers.rename(columns={'PURE_UUID_PROJECT': 'value1',
+        project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
                                             'PURE_PROJECT_RELATEDPROJECT_UUID': 'value2'}, inplace=True)
-        new_project_columns = {'name1': 'PURE_UUID_PROJECT',
+        new_project_columns = {'name1': 'PURE_ID_PROJECT',
                                'category1': 'project',
-                               'name2': 'PURE_UUID_PROJECT',
+                               'name2': 'PURE_ID_PROJECT',
                                'category2': 'project',
                                'source_event2': HARVEST_SOURCE}
         project_identifiers = project_identifiers.assign(**new_project_columns)

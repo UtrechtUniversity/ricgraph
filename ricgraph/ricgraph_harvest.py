@@ -261,7 +261,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     :param entities: The records to insert in Ricgraph, if not present yet.
         The order of the columns in this DataFrame is important.
         We expect:
-        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+        - In the 1st column: a person identifier (ORCID, OPENALEX_ID_PERS, etc.).
           The 'name' property in the person node will get the name
           of this column.
           The 'value' property will be the value in this columns' row.
@@ -310,8 +310,8 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     entities.dropna(subset=[personal_id_name, 'RESOUT_VALUE'], how='any', inplace=True)
     entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     entities.rename(columns={'RESOUT_ID': 'name1',
-                            'CATEGORY': 'category1',
-                            'RESOUT_VALUE': 'value1',
+                             'CATEGORY': 'category1',
+                             'RESOUT_VALUE': 'value1',
                              personal_id_name: 'value2'}, inplace=True)
     new_entities_columns = {'source_event1': harvest_source,
                             'history_event1': history_event,
@@ -353,7 +353,7 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
     :param resouts: The records to insert in Ricgraph, if not present yet.
         The order of the columns in this DataFrame is important.
         We expect:
-        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+        - In the 1st column: a person identifier (ORCID, OPENALEX_ID_PERS, etc.).
           The 'name' property in the person node will get the name
           of this column.
           The 'value' property will be the value in this columns' row.
@@ -386,7 +386,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
     :param entities: The records to insert in Ricgraph, if not present yet.
         The order of the columns in this DataFrame is important.
         We expect:
-        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+        - In the 1st column: a person identifier (ORCID, OPENALEX_ID_PERS, etc.).
           The 'name' property in the person node will get the name
           of this column.
           The 'value' property will be the value in this columns' row.
@@ -414,7 +414,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
             exit(1)
         url_name = entities.columns[3]
         entities.rename(columns={url_name: 'URL_MAIN'}, inplace=True)
-    elif entity_name in ['UUSTAFF_PAGE_ID', 'FULL_NAME']:
+    elif entity_name in ['UUSTAFF_PAGEID', 'FULL_NAME']:
         entities['CATEGORY'] = 'person'
     else:
         print('create_parsed_entities_in_ricgraph(): Error, unknown column "'
@@ -435,7 +435,7 @@ def update_urls_in_ricgraph(entities: DataFrame,
     :param entities: The records to insert in Ricgraph, if not present yet.
         The order of the columns in this DataFrame is important.
         We expect:
-        - In the 1st column: a person identifier (ORCID, OPENALEX, etc.).
+        - In the 1st column: a person identifier (ORCID, OPENALEX_ID_PERS, etc.).
           The 'name' property in the person node will get the name
           of this column.
           The 'value' property will be the value in this columns' row.
