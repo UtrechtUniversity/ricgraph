@@ -431,7 +431,7 @@ def harvest_xml_and_write_to_file(url: str, headers: dict, harvest_filename: str
     """
     # Sickle takes care of resumptionToken if present, our source does
     # not deliver all records in one XML.
-    print('Getting data from ' + HARVEST_SOURCE + ' from ' + url + '... ', end='')
+    print('Getting data from ' + HARVEST_SOURCE + ' from ' + url + '...', end=' ')
     connection = Sickle(url)
     data = connection.ListRecords(**headers)
     print('Done.')

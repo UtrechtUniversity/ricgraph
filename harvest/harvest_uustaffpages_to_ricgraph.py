@@ -156,7 +156,7 @@ def parse_uustaff_persons(harvest: list,
     if len(harvest) == 0:
         return None
     print('There are ' + str(len(harvest)) + ' person records ('
-          + rcg.timestamp() + '), parsing record:', end='')
+          + rcg.timestamp() + '), parsing record:')
     parse_chunk = []                # list of dictionaries
     count = 0
     for harvest_item in harvest:
@@ -508,7 +508,7 @@ def connect_pure_with_uustaffpages(url: str,
         print('At most ' + str(max_recs_to_harvest) + ' items.')
     nodes_with_solisid = rcg.read_all_nodes(name='EMPLOYEE_ID')
     print('There are ' + str(len(nodes_with_solisid))
-          + ' SolisID records, parsing record:', end='')
+          + ' SolisID records, parsing record:')
     parse_chunk = []                # list of dictionaries
     count = 0
     start_ts = rcg.timestamp_posix()

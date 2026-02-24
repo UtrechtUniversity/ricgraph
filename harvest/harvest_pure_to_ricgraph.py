@@ -467,7 +467,7 @@ def parse_pure_persons(harvest: list,
         lowest_resout_year = PURE_PERSONS_LOWEST_YEAR
 
     print('There are ' + str(len(harvest)) + ' person records ('
-          + rcg.timestamp() + '), parsing record:', end='')
+          + rcg.timestamp() + '), parsing record:')
     parse_chunk_final = []
     count = 0
     for harvest_item in harvest:
@@ -584,7 +584,7 @@ def parse_pure_organizations(harvest: list,
     if len(harvest) == 0:
         return None
     print('There are ' + str(len(harvest)) + ' organization records ('
-          + rcg.timestamp() + '), parsing record:', end='')
+          + rcg.timestamp() + '), parsing record:')
     parse_chunk = []                # list of dictionaries
     organization_names = {}
     count = 0
@@ -694,7 +694,7 @@ def parse_pure_resout(harvest: list,
     if len(harvest) == 0:
         return None
     print('There are ' + str(len(harvest)) + ' research output records ('
-          + rcg.timestamp() + '), parsing record:', end='')
+          + rcg.timestamp() + '), parsing record:')
     parse_chunk = []                # list of dictionaries
     count = 0
     for harvest_item in harvest:
@@ -840,7 +840,7 @@ def parse_pure_projects(harvest: list,
     if len(harvest) == 0:
         return None
     print('There are ' + str(len(harvest)) + ' project records ('
-          + rcg.timestamp() + '), parsing record:', end='')
+          + rcg.timestamp() + '), parsing record:')
     parse_chunk = []                # list of dictionaries
     count = 0
     for harvest_item in harvest:
@@ -1192,7 +1192,7 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     print('\nInserting organizations and persons from organizations from '
           + HARVEST_SOURCE + ' in Ricgraph at ' + timestamp + '...')
 
-    print('Determining all links between persons and all of their organizations... ', end='', flush=True)
+    print('Determining all links between persons and all of their organizations...', end=' ')
     parsed_content = parsed_content_persons[['PURE_ID_PERS',
                                              'PURE_ID_ORG']].copy(deep=True)
     parsed_content.dropna(axis=0, how='any', inplace=True)

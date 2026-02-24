@@ -197,8 +197,12 @@ def harvest_json(url: str,
             json_items = chunk_json_data['items']
 
         json_data += json_items
-        print_progress(count=records_harvested, interval=500)
         records_harvested += chunksize
+        # Note that we cannot use print_progress() because of
+        # the '+= chunksize'.
+        print(records_harvested, ' ', end='', flush=True)
+        if (records_harvested % (chunksize * 10)) == 0:
+            print('(' + timestamp() + ')\n', end='', flush=True)
         page_nr += 1
 
     print_progress(count=records_harvested, now=True)
