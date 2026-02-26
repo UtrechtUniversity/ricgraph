@@ -62,7 +62,7 @@
 from typing import Tuple, Union
 from pandas import DataFrame
 from neo4j.graph import Node
-from ricgraph import (ROTYPE_PUBLICATION,
+from ricgraph import (ROCATEGORY_PUBLICATION,
                       read_node,
                       get_personroot_node, get_all_neighbor_nodes,
                       ricgraph_database, ricgraph_databasename,
@@ -331,7 +331,7 @@ def find_collabs_cypher(start_organizations: str,
     if isinstance(research_result_category, str):
         print('  using research result category "' + research_result_category + '".')
     elif isinstance(research_result_category, list):
-        if sorted(research_result_category) == sorted(ROTYPE_PUBLICATION):
+        if sorted(research_result_category) == sorted(ROCATEGORY_PUBLICATION):
             print('  using research result category (meta category) "publication".')
         else:
             print('  using research result category "' + str(research_result_category) + '".')

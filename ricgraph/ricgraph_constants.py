@@ -95,113 +95,113 @@ MAX_ORG_ABBREVIATION_LENGTH = 4
 #
 # An example mapping may look like this:
 # mapping = {
-#    'book': ROTYPE_BOOK,
-#    'data set': ROTYPE_DATASET,
-#    'software': ROTYPE_SOFTWARE
+#    'book': ROCATEGORY_BOOK,
+#    'data set': ROCATEGORY_DATASET,
+#    'software': ROCATEGORY_SOFTWARE
 # }
 #
 # Call the function lookup_resout_category() to do this mapping.
-# If you add a type, also add it to ROTYPE_ALL.
-# If you add a type that is a publication, also add it to ROTYPE_PUBLICATION.
+# If you add a type, also add it to ROCATEGORY_ALL.
+# If you add a type that is a publication, also add it to ROCATEGORY_PUBLICATION.
 #
-# ROTYPE_* are used in the Ricgraph 'category' field.
+# ROCATEGORY_* are used in the Ricgraph 'category' field.
 #
 # This list is inspired by the Strategy Evaluation Protocol 2021-2027
 # https://www.universiteitenvannederland.nl/files/documenten/Domeinen/Onderzoek/SEP_2021-2027.pdf,
 # Appendix E2.
-ROTYPE_ABSTRACT = 'abstract'
-ROTYPE_ARTEFACT = 'artefact'
-ROTYPE_BOOK = 'book'
-ROTYPE_BOOKCHAPTER = 'book chapter'
-ROTYPE_CONFERENCE_ARTICLE = 'conference article'
-ROTYPE_DATASET = 'data set'
-ROTYPE_DESIGN = 'design'
-ROTYPE_DIGITAL_VISUAL_PRODUCT = 'digital or visual product'
-ROTYPE_EDITORIAL = 'editorial'
-ROTYPE_ENTRY = 'entry for encyclopedia or dictionary'
-ROTYPE_EXHIBITION_PERFORMANCE = 'exhibition or performance'
-ROTYPE_JOURNAL_ARTICLE = 'journal article'
-ROTYPE_LETTER = 'letter to the editor'
-ROTYPE_MEMORANDUM = 'memorandum'
-ROTYPE_METHOD_DESCRIPTION = 'method description'
-ROTYPE_MODEL = 'model'
-ROTYPE_OTHER_CONTRIBUTION = 'other contribution'
-ROTYPE_PATENT = 'patent'
-ROTYPE_PHDTHESIS = 'PhD thesis'
-ROTYPE_POSTER = 'poster'
-ROTYPE_PREPRINT = 'preprint'
-ROTYPE_PRESENTATION = 'presentation'
-ROTYPE_REGISTERED_REPORT = 'registered report'
-ROTYPE_REPORT = 'report'
-ROTYPE_RETRACTION = 'retraction'
-ROTYPE_REVIEW = 'review'
-ROTYPE_SOFTWARE = 'software'
-ROTYPE_THESIS = 'thesis'
-ROTYPE_WEBSITE = 'website or web publication'
+ROCATEGORY_ABSTRACT = 'abstract'
+ROCATEGORY_ARTEFACT = 'artefact'
+ROCATEGORY_BOOK = 'book'
+ROCATEGORY_BOOKCHAPTER = 'book chapter'
+ROCATEGORY_CONFERENCE_ARTICLE = 'conference article'
+ROCATEGORY_DATASET = 'data set'
+ROCATEGORY_DESIGN = 'design'
+ROCATEGORY_DIGITAL_VISUAL_PRODUCT = 'digital or visual product'
+ROCATEGORY_EDITORIAL = 'editorial'
+ROCATEGORY_ENTRY = 'entry for encyclopedia or dictionary'
+ROCATEGORY_EXHIBITION_PERFORMANCE = 'exhibition or performance'
+ROCATEGORY_JOURNAL_ARTICLE = 'journal article'
+ROCATEGORY_LETTER = 'letter to the editor'
+ROCATEGORY_MEMORANDUM = 'memorandum'
+ROCATEGORY_METHOD_DESCRIPTION = 'method description'
+ROCATEGORY_MODEL = 'model'
+ROCATEGORY_OTHER_CONTRIBUTION = 'other contribution'
+ROCATEGORY_PATENT = 'patent'
+ROCATEGORY_PHDTHESIS = 'PhD thesis'
+ROCATEGORY_POSTER = 'poster'
+ROCATEGORY_PREPRINT = 'preprint'
+ROCATEGORY_PRESENTATION = 'presentation'
+ROCATEGORY_REGISTERED_REPORT = 'registered report'
+ROCATEGORY_REPORT = 'report'
+ROCATEGORY_RETRACTION = 'retraction'
+ROCATEGORY_REVIEW = 'review'
+ROCATEGORY_SOFTWARE = 'software'
+ROCATEGORY_THESIS = 'thesis'
+ROCATEGORY_WEBSITE = 'website or web publication'
 
 # ########################################################################
 # This is a special research output type allowing to select all publication
 # types.
-ROTYPE_PUBLICATION_ALL = 'publication_all'
+ROCATEGORY_PUBLICATION_ALL = 'publication_all'
 
 
-ROTYPE_ALL = [ROTYPE_ABSTRACT,
-              ROTYPE_ARTEFACT,
-              ROTYPE_BOOK,
-              ROTYPE_BOOKCHAPTER,
-              ROTYPE_CONFERENCE_ARTICLE,
-              ROTYPE_DATASET,
-              ROTYPE_DESIGN,
-              ROTYPE_DIGITAL_VISUAL_PRODUCT,
-              ROTYPE_EDITORIAL,
-              ROTYPE_ENTRY,
-              ROTYPE_EXHIBITION_PERFORMANCE,
-              ROTYPE_JOURNAL_ARTICLE,
-              ROTYPE_LETTER,
-              ROTYPE_MEMORANDUM,
-              ROTYPE_METHOD_DESCRIPTION,
-              ROTYPE_MODEL,
-              ROTYPE_OTHER_CONTRIBUTION,
-              ROTYPE_PATENT,
-              ROTYPE_PHDTHESIS,
-              ROTYPE_POSTER,
-              ROTYPE_PREPRINT,
-              ROTYPE_PRESENTATION,
-              ROTYPE_REGISTERED_REPORT,
-              ROTYPE_REPORT,
-              ROTYPE_RETRACTION,
-              ROTYPE_REVIEW,
-              ROTYPE_SOFTWARE,
-              ROTYPE_THESIS,
-              ROTYPE_WEBSITE]
+ROCATEGORY_ALL = [ROCATEGORY_ABSTRACT,
+                  ROCATEGORY_ARTEFACT,
+                  ROCATEGORY_BOOK,
+                  ROCATEGORY_BOOKCHAPTER,
+                  ROCATEGORY_CONFERENCE_ARTICLE,
+                  ROCATEGORY_DATASET,
+                  ROCATEGORY_DESIGN,
+                  ROCATEGORY_DIGITAL_VISUAL_PRODUCT,
+                  ROCATEGORY_EDITORIAL,
+                  ROCATEGORY_ENTRY,
+                  ROCATEGORY_EXHIBITION_PERFORMANCE,
+                  ROCATEGORY_JOURNAL_ARTICLE,
+                  ROCATEGORY_LETTER,
+                  ROCATEGORY_MEMORANDUM,
+                  ROCATEGORY_METHOD_DESCRIPTION,
+                  ROCATEGORY_MODEL,
+                  ROCATEGORY_OTHER_CONTRIBUTION,
+                  ROCATEGORY_PATENT,
+                  ROCATEGORY_PHDTHESIS,
+                  ROCATEGORY_POSTER,
+                  ROCATEGORY_PREPRINT,
+                  ROCATEGORY_PRESENTATION,
+                  ROCATEGORY_REGISTERED_REPORT,
+                  ROCATEGORY_REPORT,
+                  ROCATEGORY_RETRACTION,
+                  ROCATEGORY_REVIEW,
+                  ROCATEGORY_SOFTWARE,
+                  ROCATEGORY_THESIS,
+                  ROCATEGORY_WEBSITE]
 
 # A resout_type_all is defined in initialize_ricgraph_explorer().
-# These are elements of ROTYPE_ALL that are present in your Ricgraph.
+# These are elements of ROCATEGORY_ALL that are present in your Ricgraph.
 # I.e., those have been harvested from the source systems that you chose to harvest.
 
-ROTYPE_PUBLICATION = [ROTYPE_ABSTRACT,
-                      ROTYPE_BOOK,
-                      ROTYPE_BOOKCHAPTER,
-                      ROTYPE_CONFERENCE_ARTICLE,
-                      ROTYPE_EDITORIAL,
-                      ROTYPE_ENTRY,
-                      ROTYPE_JOURNAL_ARTICLE,
-                      ROTYPE_LETTER,
-                      ROTYPE_MEMORANDUM,
-                      ROTYPE_METHOD_DESCRIPTION,
-                      ROTYPE_PATENT,
-                      ROTYPE_PHDTHESIS,
-                      ROTYPE_POSTER,
-                      ROTYPE_PREPRINT,
-                      ROTYPE_PRESENTATION,
-                      ROTYPE_REGISTERED_REPORT,
-                      ROTYPE_REPORT,
-                      ROTYPE_RETRACTION,
-                      ROTYPE_REVIEW,
-                      ROTYPE_THESIS]
+ROCATEGORY_PUBLICATION = [ROCATEGORY_ABSTRACT,
+                          ROCATEGORY_BOOK,
+                          ROCATEGORY_BOOKCHAPTER,
+                          ROCATEGORY_CONFERENCE_ARTICLE,
+                          ROCATEGORY_EDITORIAL,
+                          ROCATEGORY_ENTRY,
+                          ROCATEGORY_JOURNAL_ARTICLE,
+                          ROCATEGORY_LETTER,
+                          ROCATEGORY_MEMORANDUM,
+                          ROCATEGORY_METHOD_DESCRIPTION,
+                          ROCATEGORY_PATENT,
+                          ROCATEGORY_PHDTHESIS,
+                          ROCATEGORY_POSTER,
+                          ROCATEGORY_PREPRINT,
+                          ROCATEGORY_PRESENTATION,
+                          ROCATEGORY_REGISTERED_REPORT,
+                          ROCATEGORY_REPORT,
+                          ROCATEGORY_RETRACTION,
+                          ROCATEGORY_REVIEW,
+                          ROCATEGORY_THESIS]
 
 # A resout_type_pub is defined in initialize_ricgraph_explorer().
-# These are elements of ROTYPE_PUBLICATION that are present in your Ricgraph.
+# These are elements of ROCATEGORY_PUBLICATION that are present in your Ricgraph.
 # I.e., those have been harvested from the source systems that you chose to harvest.
 
 

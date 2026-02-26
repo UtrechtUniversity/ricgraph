@@ -111,7 +111,7 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
                            'package_year': 'YEAR',
                            'package_url': 'URL_OTHER'
                            }, inplace=True)
-    df_mod['CATEGORY'] = rcg.ROTYPE_SOFTWARE
+    df_mod['CATEGORY'] = rcg.ROCATEGORY_SOFTWARE
     return df_mod
 
 

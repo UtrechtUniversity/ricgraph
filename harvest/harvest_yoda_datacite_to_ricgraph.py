@@ -87,12 +87,12 @@ YODA_HEADERS = {'metadataPrefix': 'oai_datacite',
 # ######################################################
 # Mapping from Yoda Datacite research output types to Ricgraph research output types.
 # ######################################################
-ROTYPE_MAPPING_YODA = {
-    'Research Data': rcg.ROTYPE_DATASET,
-    'Method Description': rcg.ROTYPE_METHOD_DESCRIPTION,
-    'Model': rcg.ROTYPE_MODEL,
-    'Computer code': rcg.ROTYPE_SOFTWARE,
-    'Other Document': rcg.ROTYPE_OTHER_CONTRIBUTION
+ROCATEGORY_MAPPING_YODA = {
+    'Research Data': rcg.ROCATEGORY_DATASET,
+    'Method Description': rcg.ROCATEGORY_METHOD_DESCRIPTION,
+    'Model': rcg.ROCATEGORY_MODEL,
+    'Computer code': rcg.ROCATEGORY_SOFTWARE,
+    'Other Document': rcg.ROCATEGORY_OTHER_CONTRIBUTION
 }
 
 
@@ -192,7 +192,7 @@ def process_parsed_data(df: pandas.DataFrame) -> pandas.DataFrame:
 
     df_mod['CATEGORY'] = df_mod[['CATEGORY']].apply(
         lambda row: rcg.lookup_resout_category(research_output_category=row['CATEGORY'],
-                                               research_output_mapping=ROTYPE_MAPPING_YODA), axis=1)
+                                               research_output_mapping=ROCATEGORY_MAPPING_YODA), axis=1)
 
     return df_mod
 

@@ -379,56 +379,56 @@ PURE_PROJECTS_FIELDS = {'fields': ['uuid',
 # ######################################################
 # Mapping from Pure research output types to Ricgraph research output types.
 # ######################################################
-ROTYPE_PREFIX_PURE = '/dk/atira/pure/researchoutput/researchoutputtypes/'
-ROTYPE_MAPPING_PURE = {
-    ROTYPE_PREFIX_PURE + 'bookanthology/anthology': rcg.ROTYPE_BOOK,
-    ROTYPE_PREFIX_PURE + 'bookanthology/book': rcg.ROTYPE_BOOK,
-    ROTYPE_PREFIX_PURE + 'bookanthology/commissioned': rcg.ROTYPE_BOOK,
-    ROTYPE_PREFIX_PURE + 'bookanthology/inaugural': rcg.ROTYPE_BOOK,
-    ROTYPE_PREFIX_PURE + 'bookanthology/registered_report': rcg.ROTYPE_REGISTERED_REPORT,
-    ROTYPE_PREFIX_PURE + 'bookanthology/valedictory': rcg.ROTYPE_BOOK,
-    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/case_note': rcg.ROTYPE_MEMORANDUM,
-    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/chapter': rcg.ROTYPE_BOOKCHAPTER,
-    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/commissioned': rcg.ROTYPE_BOOKCHAPTER,
-    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/conference': rcg.ROTYPE_BOOKCHAPTER,
-    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/entry': rcg.ROTYPE_ENTRY,
-    ROTYPE_PREFIX_PURE + 'contributiontobookanthology/foreword': rcg.ROTYPE_ABSTRACT,
-    ROTYPE_PREFIX_PURE + 'contributiontoconference/abstract': rcg.ROTYPE_ABSTRACT,
-    ROTYPE_PREFIX_PURE + 'contributiontoconference/other': rcg.ROTYPE_CONFERENCE_ARTICLE,
-    ROTYPE_PREFIX_PURE + 'contributiontoconference/paper': rcg.ROTYPE_CONFERENCE_ARTICLE,
-    ROTYPE_PREFIX_PURE + 'contributiontoconference/poster': rcg.ROTYPE_POSTER,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/abstract': rcg.ROTYPE_ABSTRACT,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/article': rcg.ROTYPE_JOURNAL_ARTICLE,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/book': rcg.ROTYPE_BOOK,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/case_note': rcg.ROTYPE_MEMORANDUM,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/comment': rcg.ROTYPE_MEMORANDUM,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/conferencearticle': rcg.ROTYPE_CONFERENCE_ARTICLE,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/editorial': rcg.ROTYPE_EDITORIAL,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/erratum': rcg.ROTYPE_MEMORANDUM,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/letter': rcg.ROTYPE_LETTER,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/scientific': rcg.ROTYPE_JOURNAL_ARTICLE,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/shortsurvey': rcg.ROTYPE_JOURNAL_ARTICLE,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/special': rcg.ROTYPE_JOURNAL_ARTICLE,
-    ROTYPE_PREFIX_PURE + 'contributiontojournal/systematicreview': rcg.ROTYPE_REVIEW,
-    ROTYPE_PREFIX_PURE + 'memorandum/academicmemorandum': rcg.ROTYPE_MEMORANDUM,
-    ROTYPE_PREFIX_PURE + 'methoddescription': rcg.ROTYPE_METHOD_DESCRIPTION,
-    ROTYPE_PREFIX_PURE + 'nontextual/artefact': rcg.ROTYPE_ARTEFACT,
-    ROTYPE_PREFIX_PURE + 'nontextual/database': rcg.ROTYPE_DATASET,
-    ROTYPE_PREFIX_PURE + 'nontextual/design': rcg.ROTYPE_DESIGN,
-    ROTYPE_PREFIX_PURE + 'nontextual/digitalorvisualproducts': rcg.ROTYPE_DIGITAL_VISUAL_PRODUCT,
-    ROTYPE_PREFIX_PURE + 'nontextual/exhibition': rcg.ROTYPE_EXHIBITION_PERFORMANCE,
-    ROTYPE_PREFIX_PURE + 'nontextual/performance': rcg.ROTYPE_EXHIBITION_PERFORMANCE,
-    ROTYPE_PREFIX_PURE + 'nontextual/software': rcg.ROTYPE_SOFTWARE,
-    ROTYPE_PREFIX_PURE + 'nontextual/web': rcg.ROTYPE_WEBSITE,
-    ROTYPE_PREFIX_PURE + 'othercontribution/other': rcg.ROTYPE_OTHER_CONTRIBUTION,
-    ROTYPE_PREFIX_PURE + 'patent/patent': rcg.ROTYPE_PATENT,
-    ROTYPE_PREFIX_PURE + 'thesis/doc1': rcg.ROTYPE_PHDTHESIS,
-    ROTYPE_PREFIX_PURE + 'thesis/doc2': rcg.ROTYPE_PHDTHESIS,
-    ROTYPE_PREFIX_PURE + 'thesis/doc3': rcg.ROTYPE_PHDTHESIS,
-    ROTYPE_PREFIX_PURE + 'thesis/doc4': rcg.ROTYPE_PHDTHESIS,
-    ROTYPE_PREFIX_PURE + 'workingpaper/discussionpaper': rcg.ROTYPE_PREPRINT,
-    ROTYPE_PREFIX_PURE + 'workingpaper/preprint': rcg.ROTYPE_PREPRINT,
-    ROTYPE_PREFIX_PURE + 'workingpaper/workingpaper': rcg.ROTYPE_PREPRINT
+ROCATEGORY_PREFIX_PURE = '/dk/atira/pure/researchoutput/researchoutputtypes/'
+ROCATEGORY_MAPPING_PURE = {
+    ROCATEGORY_PREFIX_PURE + 'bookanthology/anthology': rcg.ROCATEGORY_BOOK,
+    ROCATEGORY_PREFIX_PURE + 'bookanthology/book': rcg.ROCATEGORY_BOOK,
+    ROCATEGORY_PREFIX_PURE + 'bookanthology/commissioned': rcg.ROCATEGORY_BOOK,
+    ROCATEGORY_PREFIX_PURE + 'bookanthology/inaugural': rcg.ROCATEGORY_BOOK,
+    ROCATEGORY_PREFIX_PURE + 'bookanthology/registered_report': rcg.ROCATEGORY_REGISTERED_REPORT,
+    ROCATEGORY_PREFIX_PURE + 'bookanthology/valedictory': rcg.ROCATEGORY_BOOK,
+    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/case_note': rcg.ROCATEGORY_MEMORANDUM,
+    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/chapter': rcg.ROCATEGORY_BOOKCHAPTER,
+    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/commissioned': rcg.ROCATEGORY_BOOKCHAPTER,
+    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/conference': rcg.ROCATEGORY_BOOKCHAPTER,
+    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/entry': rcg.ROCATEGORY_ENTRY,
+    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/foreword': rcg.ROCATEGORY_ABSTRACT,
+    ROCATEGORY_PREFIX_PURE + 'contributiontoconference/abstract': rcg.ROCATEGORY_ABSTRACT,
+    ROCATEGORY_PREFIX_PURE + 'contributiontoconference/other': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
+    ROCATEGORY_PREFIX_PURE + 'contributiontoconference/paper': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
+    ROCATEGORY_PREFIX_PURE + 'contributiontoconference/poster': rcg.ROCATEGORY_POSTER,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/abstract': rcg.ROCATEGORY_ABSTRACT,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/article': rcg.ROCATEGORY_JOURNAL_ARTICLE,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/book': rcg.ROCATEGORY_BOOK,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/case_note': rcg.ROCATEGORY_MEMORANDUM,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/comment': rcg.ROCATEGORY_MEMORANDUM,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/conferencearticle': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/editorial': rcg.ROCATEGORY_EDITORIAL,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/erratum': rcg.ROCATEGORY_MEMORANDUM,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/letter': rcg.ROCATEGORY_LETTER,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/scientific': rcg.ROCATEGORY_JOURNAL_ARTICLE,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/shortsurvey': rcg.ROCATEGORY_JOURNAL_ARTICLE,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/special': rcg.ROCATEGORY_JOURNAL_ARTICLE,
+    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/systematicreview': rcg.ROCATEGORY_REVIEW,
+    ROCATEGORY_PREFIX_PURE + 'memorandum/academicmemorandum': rcg.ROCATEGORY_MEMORANDUM,
+    ROCATEGORY_PREFIX_PURE + 'methoddescription': rcg.ROCATEGORY_METHOD_DESCRIPTION,
+    ROCATEGORY_PREFIX_PURE + 'nontextual/artefact': rcg.ROCATEGORY_ARTEFACT,
+    ROCATEGORY_PREFIX_PURE + 'nontextual/database': rcg.ROCATEGORY_DATASET,
+    ROCATEGORY_PREFIX_PURE + 'nontextual/design': rcg.ROCATEGORY_DESIGN,
+    ROCATEGORY_PREFIX_PURE + 'nontextual/digitalorvisualproducts': rcg.ROCATEGORY_DIGITAL_VISUAL_PRODUCT,
+    ROCATEGORY_PREFIX_PURE + 'nontextual/exhibition': rcg.ROCATEGORY_EXHIBITION_PERFORMANCE,
+    ROCATEGORY_PREFIX_PURE + 'nontextual/performance': rcg.ROCATEGORY_EXHIBITION_PERFORMANCE,
+    ROCATEGORY_PREFIX_PURE + 'nontextual/software': rcg.ROCATEGORY_SOFTWARE,
+    ROCATEGORY_PREFIX_PURE + 'nontextual/web': rcg.ROCATEGORY_WEBSITE,
+    ROCATEGORY_PREFIX_PURE + 'othercontribution/other': rcg.ROCATEGORY_OTHER_CONTRIBUTION,
+    ROCATEGORY_PREFIX_PURE + 'patent/patent': rcg.ROCATEGORY_PATENT,
+    ROCATEGORY_PREFIX_PURE + 'thesis/doc1': rcg.ROCATEGORY_PHDTHESIS,
+    ROCATEGORY_PREFIX_PURE + 'thesis/doc2': rcg.ROCATEGORY_PHDTHESIS,
+    ROCATEGORY_PREFIX_PURE + 'thesis/doc3': rcg.ROCATEGORY_PHDTHESIS,
+    ROCATEGORY_PREFIX_PURE + 'thesis/doc4': rcg.ROCATEGORY_PHDTHESIS,
+    ROCATEGORY_PREFIX_PURE + 'workingpaper/discussionpaper': rcg.ROCATEGORY_PREPRINT,
+    ROCATEGORY_PREFIX_PURE + 'workingpaper/preprint': rcg.ROCATEGORY_PREPRINT,
+    ROCATEGORY_PREFIX_PURE + 'workingpaper/workingpaper': rcg.ROCATEGORY_PREPRINT
 }
 
 
@@ -932,13 +932,13 @@ def parse_pure_entities(harvest: list,
         if mode == MODE_RESOUTS:
             id_name = id_name_tobeused = 'PURE_ID_RESOUT'
             category = rcg.lookup_resout_category(research_output_category=category,
-                                                  research_output_mapping=ROTYPE_MAPPING_PURE)
+                                                  research_output_mapping=ROCATEGORY_MAPPING_PURE)
         elif mode == MODE_DATASETS:
             # Treat data sets of Pure endpoint datasets as data sets from Pure
             # endpoint researchoutputs.
             id_name = 'PURE_ID_DATASET'
             id_name_tobeused = 'PURE_ID_RESOUT'
-            category = rcg.ROTYPE_DATASET
+            category = rcg.ROCATEGORY_DATASET
         elif mode == MODE_PRESS_MEDIA:
             id_name = id_name_tobeused = 'PURE_ID_PRESS_MEDIA'
             category = rcg.CATEGORY_PRESS_MEDIA
@@ -1159,7 +1159,7 @@ def parse_pure_projects(harvest: list,
                 if 'type' in resout \
                    and 'uri' in resout['type']:
                     category = rcg.lookup_resout_category(research_output_category=str(resout['type']['uri']),
-                                                          research_output_mapping=ROTYPE_MAPPING_PURE)
+                                                          research_output_mapping=ROCATEGORY_MAPPING_PURE)
                 else:
                     continue
 

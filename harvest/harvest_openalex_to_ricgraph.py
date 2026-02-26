@@ -104,31 +104,31 @@ OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships'
 # ######################################################
 # Mapping from OpenAlex research output types to Ricgraph research output types.
 # ######################################################
-ROTYPE_MAPPING_OPENALEX = {
-    'article': rcg.ROTYPE_JOURNAL_ARTICLE,
-    'book': rcg.ROTYPE_BOOK,
-    'book-chapter': rcg.ROTYPE_BOOKCHAPTER,
-    'dataset': rcg.ROTYPE_DATASET,
-    'dissertation': rcg.ROTYPE_PHDTHESIS,
-    'editorial': rcg.ROTYPE_EDITORIAL,
-    'erratum': rcg.ROTYPE_MEMORANDUM,
-    'letter': rcg.ROTYPE_LETTER,
-    'monograph': rcg.ROTYPE_BOOK,
-    'other': rcg.ROTYPE_OTHER_CONTRIBUTION,
-    'paratext': rcg.ROTYPE_OTHER_CONTRIBUTION,
+ROCATEGORY_MAPPING_OPENALEX = {
+    'article': rcg.ROCATEGORY_JOURNAL_ARTICLE,
+    'book': rcg.ROCATEGORY_BOOK,
+    'book-chapter': rcg.ROCATEGORY_BOOKCHAPTER,
+    'dataset': rcg.ROCATEGORY_DATASET,
+    'dissertation': rcg.ROCATEGORY_PHDTHESIS,
+    'editorial': rcg.ROCATEGORY_EDITORIAL,
+    'erratum': rcg.ROCATEGORY_MEMORANDUM,
+    'letter': rcg.ROCATEGORY_LETTER,
+    'monograph': rcg.ROCATEGORY_BOOK,
+    'other': rcg.ROCATEGORY_OTHER_CONTRIBUTION,
+    'paratext': rcg.ROCATEGORY_OTHER_CONTRIBUTION,
             # OpenAlex 'paratext': stuff that's in scholarly venue (like a journal)
             # but is about the venue rather than a scholarly work properly speaking.
             # https://docs.openalex.org/api-entities/works/work-object.
-    'peer-review': rcg.ROTYPE_REVIEW,
-    'posted-content': rcg.ROTYPE_PREPRINT,
-    'preprint': rcg.ROTYPE_PREPRINT,
-    'proceedings': rcg.ROTYPE_CONFERENCE_ARTICLE,
-    'proceedings-article': rcg.ROTYPE_CONFERENCE_ARTICLE,
-    'reference-entry': rcg.ROTYPE_ENTRY,
-    'report': rcg.ROTYPE_REPORT,
-    'retraction': rcg.ROTYPE_RETRACTION,
-    'review': rcg.ROTYPE_REVIEW,
-    'supplementary-materials': rcg.ROTYPE_OTHER_CONTRIBUTION
+    'peer-review': rcg.ROCATEGORY_REVIEW,
+    'posted-content': rcg.ROCATEGORY_PREPRINT,
+    'preprint': rcg.ROCATEGORY_PREPRINT,
+    'proceedings': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
+    'proceedings-article': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
+    'reference-entry': rcg.ROCATEGORY_ENTRY,
+    'report': rcg.ROCATEGORY_REPORT,
+    'retraction': rcg.ROCATEGORY_RETRACTION,
+    'review': rcg.ROCATEGORY_REVIEW,
+    'supplementary-materials': rcg.ROCATEGORY_OTHER_CONTRIBUTION
 }
 
 
@@ -215,7 +215,7 @@ def parse_openalex(harvest: list,
                           'TITLE': title,
                           'YEAR': publication_year,
                           'CATEGORY': rcg.lookup_resout_category(research_output_category=category,
-                                                                 research_output_mapping=ROTYPE_MAPPING_OPENALEX)}
+                                                                 research_output_mapping=ROCATEGORY_MAPPING_OPENALEX)}
             parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)

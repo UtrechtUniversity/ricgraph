@@ -93,7 +93,7 @@ if orgs_with_hierarchies is None or orgs_with_hierarchies.empty:
 # - UU Faculty and VUA Faculty, in a Sankey diagram.
 org_collaborations_diagram(start_organizations='UU Faculty',
                            collab_organizations='VUA Faculty',
-                           research_result_category=rcg.ROTYPE_PUBLICATION,
+                           research_result_category=rcg.ROCATEGORY_PUBLICATION,
                            filename=output_dir + 'uufac-vuafac')
 
 # Get organization collaborations between:
@@ -101,14 +101,14 @@ org_collaborations_diagram(start_organizations='UU Faculty',
 three_org_collaborations_chord(first_org='UU Faculty',
                                second_org='VUA Faculty',
                                third_org='DUT Faculty',
-                               research_result_category=rcg.ROTYPE_PUBLICATION,
+                               research_result_category=rcg.ROCATEGORY_PUBLICATION,
                                filename=output_dir + 'uufac-vuafac-dutfac')
 
 # Get organization collaborations between:
 # - UU Faculty and UU Faculty, in a Sankey diagram.
 org_collaborations_diagram(start_organizations='UU Faculty',
                            collab_organizations='UU Faculty',
-                           research_result_category=rcg.ROTYPE_PUBLICATION,
+                           research_result_category=rcg.ROCATEGORY_PUBLICATION,
                            filename=output_dir + 'uufac-uufac')
 
 rcg.close_ricgraph()
