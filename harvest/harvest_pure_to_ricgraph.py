@@ -94,13 +94,18 @@ from ricgraph import construct_extended_org_name
 # General parameters for harvesting from Pure.
 # ######################################################
 # These specify what you would like to harvest.
+# HARVEST_PERSONS = False
 HARVEST_PERSONS = True
+# HARVEST_ORGANIZATIONS = False
 HARVEST_ORGANIZATIONS = True
 # For HARVEST_ORGANIZATIONS you might also want to set
 # 'PURE_PERSONS_READ_HARVEST_FROM_FILE = True' (see comment in
 # main() in Code for harvesting organizations).
+# HARVEST_RESOUTS = False
 HARVEST_RESOUTS = True
+# HARVEST_DATASETS = False
 HARVEST_DATASETS = True
+# HARVEST_PRESS_MEDIA = False
 HARVEST_PRESS_MEDIA = True
 # HARVEST_PROJECTS is a command line option.
 
@@ -855,8 +860,8 @@ def parse_pure_entities(harvest: list,
                 # Only 'validated' or 'approved' resouts.
                 continue
         else:
-            # Skip if no workflow.
-            continue
+            # Also include if no workflow.
+            pass
         # #####
         publication_year = ''
         if mode == MODE_RESOUTS:
