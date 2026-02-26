@@ -1,7 +1,19 @@
 orgname_old,orgname_new
+Amsterdam UMC,AUMC Amsterdam UMC
+Amsterdam University Medical Centers,AUMC Amsterdam UMC
+"Amsterdam UMC, Amsterdam, Netherlands",AUMC Amsterdam UMC
+"AMsterdam University Medical Center",AUMC Amsterdam UMC
+"UMC Amsterdam, Amsterdam, Netherlands",AUMC Amsterdam UMC
+"Amsterdam University Medical Centre",AUMC Amsterdam UMC
+Amsterdam UMC location University of Amsterdam,AUMC Hierarchy: Affiliatie UvA
+Amsterdam UMC - University of Amsterdam,AUMC Hierarchy: Affiliatie UvA
+UMC location University of Amsterdam,AUMC Hierarchy: Affiliatie UvA
 AUMC University: Affiliatie UvA,AUMC Hierarchy: Affiliatie UvA
+Amsterdam UMC Location Vrije Universiteit Amsterdam,AUMC Hierarchy: Affiliatie VU
 AUMC University: Affiliatie VU,AUMC Hierarchy: Affiliatie VU
 AUMC Division: Affiliatie,AUMC Hierarchy: Affiliatie
 AUMC Division: Divisions,AUMC Hierarchy: Divisions
 AUMC Research Institute: Research Institutes,AUMC Hierarchy: Research Institutes
 Pathology Department AUMC,AUMC Department: Pathology
+"Department of Radiology and Nuclear Medicine, Amsterdam UMC",AUMC Department: Radiology and Nuclear Medicine
+"Department of Radiology, Amsterdam Umc, Location Vrije Universiteit",AUMC Department: Radiology and Nuclear Medicine
