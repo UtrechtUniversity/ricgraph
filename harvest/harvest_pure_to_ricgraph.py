@@ -30,7 +30,8 @@
 #
 # This file contains example code for Ricgraph.
 #
-# With this code, you can harvest persons, organizations and research outputs from Pure,
+# With this code, you can harvest persons, organizations, research outputs,
+# data sets, press media items, and projects from Pure.
 # using both the READ API as well as the CRUD API. You don't need to specify this,
 # the script will know.
 # I would recommend to use the READ API, since the CRUD API is in development and does not have
@@ -91,6 +92,24 @@ from ricgraph import construct_extended_org_name
 
 # ######################################################
 # General parameters for harvesting from Pure.
+# These specify the mode for harvesting.
+# ######################################################
+MODE_PERSONS = 'persons'
+MODE_ORGANIZATIONS = 'organizations'
+MODE_RESOUTS = 'research outputs'
+MODE_DATASETS = 'data sets'
+MODE_PRESS_MEDIA = 'press media'
+MODE_PROJECTS = 'projects'
+MODE_ALL = [MODE_PERSONS,
+            MODE_ORGANIZATIONS,
+            MODE_RESOUTS,
+            MODE_DATASETS,
+            MODE_PRESS_MEDIA,
+            MODE_PROJECTS]
+
+
+# ######################################################
+# General parameters for harvesting from Pure.
 # Documentation Pure API: PURE_URL/ws/api/524/api-docs/index.html
 # ######################################################
 # Pure can be harvested according to the READ or CRUD API.
@@ -144,7 +163,8 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
 # We harvest all persons from Pure, whether they are active or not. We do this,
 # because persons not active might have contributed to a research output.
 # But we only add these persons if their endDate is within
-# PURE_PERSONS_INCLUDE_YEARS_BEFORE years before the lowest value in PURE_RESOUT_YEARS.
+# PURE_PERSONS_INCLUDE_YEARS_BEFORE years before the
+# command line argument --year_first.
 # Otherwise, we may end up with far too many persons.
 #
 # Sept 2024: In 2023 I thought not to add the organization of such a person
@@ -192,29 +212,28 @@ PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
 # Parameters for harvesting research outputs from Pure
 # ######################################################
 # Pure can be harvested according to the READ or CRUD API.
-global PURE_RESOUT_ENDPOINT
-PURE_READ_RESOUT_ENDPOINT = 'research-outputs'
-PURE_CRUD_RESOUT_ENDPOINT = 'research-outputs/search'
+global PURE_RESOUTS_ENDPOINT
+PURE_READ_RESOUTS_ENDPOINT = 'research-outputs'
+PURE_CRUD_RESOUTS_ENDPOINT = 'research-outputs/search'
 
 # Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
-PURE_RESOUT_READ_HARVEST_FROM_FILE = False
-# PURE_RESOUT_READ_HARVEST_FROM_FILE = True
-PURE_RESOUT_HARVEST_FILENAME = 'pure_resout_harvest.json'
+PURE_RESOUTS_READ_HARVEST_FROM_FILE = False
+# PURE_RESOUTS_READ_HARVEST_FROM_FILE = True
+PURE_RESOUTS_HARVEST_FILENAME = 'pure_resout_harvest.json'
 
 # Set this to True to read data from the csv file. No harvest will be done, this would
 # not make sense. If False, a harvest will be done.
-# Make sure PURE_READ_RESOUT_YEARS or PURE_CRUD_RESOUT_YEARS has been set correctly.
-# If True, the value of PURE_RESOUT_READ_HARVEST_FROM_FILE does not matter.
-PURE_RESOUT_READ_DATA_FROM_FILE = False
-# PURE_RESOUT_READ_DATA_FROM_FILE = True
-PURE_RESOUT_DATA_FILENAME = 'pure_resout_data.csv'
+# If True, the value of PURE_RESOUTS_READ_HARVEST_FROM_FILE does not matter.
+PURE_RESOUTS_READ_DATA_FROM_FILE = False
+# PURE_RESOUTS_READ_DATA_FROM_FILE = True
+PURE_RESOUTS_DATA_FILENAME = 'pure_resout_data.csv'
 
 # For Pure READ API: this number is the max recs to harvest per year, not total
 # For Pure CRUD API: this number is the max recs to harvest total.
-PURE_RESOUT_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-global PURE_RESOUT_FIELDS
+PURE_RESOUTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+global PURE_RESOUTS_FIELDS
 # The current version of the Pure CRUD API does not have these filters yet.
-PURE_READ_RESOUT_FIELDS = {'fields': ['uuid',
+PURE_READ_RESOUTS_FIELDS = {'fields': ['uuid',
                                       'title.*',
                                       'confidential',
                                       'type.*',
@@ -222,11 +241,92 @@ PURE_READ_RESOUT_FIELDS = {'fields': ['uuid',
                                       'publicationStatuses.*',
                                       'personAssociations.*',
                                       'electronicVersions.*'
-                                      ]
-                           }
-PURE_CRUD_RESOUT_FIELDS = {'orderings': ['publicationYear'],
+                                       ],
+                            # These values will be overwritten.
+                            # They exist to prevent a PyCharm warning.
+                            'publishedBeforeDate': '',
+                            'publishedAfterDate': '',
+                            }
+PURE_CRUD_RESOUTS_FIELDS = {'orderings': ['publicationYear'],
                            'orderBy': 'descending'
-                           }
+                            }
+
+# ######################################################
+# Parameters for harvesting data sets from Pure
+# ######################################################
+# Pure can be harvested according to the READ or CRUD API.
+# However, for data sets we only harvest them using the READ API.
+global PURE_DATASETS_ENDPOINT
+PURE_READ_DATASETS_ENDPOINT = 'datasets'
+# PURE_CRUD_DATASETS_ENDPOINT = 'datasets/search'
+
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+PURE_DATASETS_READ_HARVEST_FROM_FILE = False
+# PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE = True
+PURE_DATASETS_HARVEST_FILENAME = 'pure_datasets_harvest.json'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# If True, the value of PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE does not matter.
+PURE_DATASETS_READ_DATA_FROM_FILE = False
+# PURE_PRESS_MEDIA_READ_DATA_FROM_FILE = True
+PURE_DATASETS_DATA_FILENAME = 'pure_datasets_data.csv'
+
+PURE_DATASETS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+# The current version of the Pure CRUD API does not have these filters yet.
+PURE_DATASETS_FIELDS = {'fields': ['uuid',
+                                   'doi',
+                                   'publicationDate.*',
+                                   'confidential',
+                                   'title.*',
+                                   'type.*',
+                                   'workflow.*',
+                                   'personAssociations.*',
+                                   'links.*',
+                                  ]
+                        }
+
+# ######################################################
+# Parameters for harvesting press media items from Pure
+# ######################################################
+# Pure can be harvested according to the READ or CRUD API.
+# However, for press media items we only harvest them using the READ API.
+global PURE_PRESS_MEDIA_ENDPOINT
+PURE_READ_PRESS_MEDIA_ENDPOINT = 'press-media'
+# PURE_CRUD_PRESS_MEDIA_ENDPOINT = 'press-media/search'
+
+# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE = False
+# PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE = True
+PURE_PRESS_MEDIA_HARVEST_FILENAME = 'pure_pressmedia_harvest.json'
+
+# Set this to True to read data from the csv file. No harvest will be done, this would
+# not make sense. If False, a harvest will be done.
+# If True, the value of PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE does not matter.
+PURE_PRESS_MEDIA_READ_DATA_FROM_FILE = False
+# PURE_PRESS_MEDIA_READ_DATA_FROM_FILE = True
+PURE_PRESS_MEDIA_DATA_FILENAME = 'pure_pressmedia_data.csv'
+
+PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+# The current version of the Pure CRUD API does not have these filters yet.
+PURE_PRESS_MEDIA_FIELDS = {'fields': ['uuid',
+                                      'title.*',
+                                      'type.*',
+                                      'confidential',
+                                      'workflow.*',
+                                      'references.*',
+                                      'personAssociations.*'
+                                      ],
+                           # These values will be overwritten.
+                           # They exist to prevent a PyCharm warning.
+                           'period': {'startDate': {'day': '1',
+                                                    'month': '1',
+                                                    'year': '0'},
+                                      'endDate': {'day': '31',
+                                                  'month': '12',
+                                                  'year': '9999'},
+                                     }
+                          }
 
 # ######################################################
 # Parameters for harvesting projects from Pure
@@ -352,6 +452,10 @@ def create_pure_url(name: str, value: str) -> str:
         return PURE_URL + '/en/organisations/' + value
     elif name == 'PURE_ID_RESOUT':
         return PURE_URL + '/en/publications/' + value
+    elif name == 'PURE_ID_DATASET':
+        return PURE_URL + '/en/datasets/' + value
+    elif name == 'PURE_ID_PRESS_MEDIA':
+        return PURE_URL + '/en/clippings/' + value
     elif name == 'PURE_ID_PROJECT':
         return PURE_URL + '/en/projects/' + value
     else:
@@ -359,7 +463,7 @@ def create_pure_url(name: str, value: str) -> str:
 
 
 def create_urlmain(type_id: str, doi_value: str, uuid_value: str) -> str:
-    """A helper function for parsed_resout_to_ricgraph()"""
+    """A helper function for parsed_entities_to_ricgraph()"""
     if type_id == 'DOI':
         return rcg.create_well_known_url(name=type_id,
                                          value=doi_value)
@@ -373,12 +477,51 @@ def create_urlmain(type_id: str, doi_value: str, uuid_value: str) -> str:
 
 
 def create_urlother(type_id: str, uuid_value: str) -> str:
-    """A helper function for parsed_resout_to_ricgraph()"""
+    """A helper function for parsed_entities_to_ricgraph()"""
     if type_id == 'DOI':
         return create_pure_url(name='PURE_ID_RESOUT',
                                value=uuid_value)
     else:
         return ''
+
+
+# def add_url_main_url_other(entities: pandas.DataFrame) -> pandas.DataFrame:
+#     """This function will add two columns URL_MAIN and URL_OTHER
+#     to the DataFrame. To do this, the DataFrame needs two other columns.
+#     The first column is a PURE_ID_... (e.g. PURE_ID_PRESS_MEDIA),
+#     the second column is URL_PREF (the preferred URL).
+#     Based on PURE_ID_..., a new column is created, URL_PURE.
+#     Next, URL_MAIN and URL_OTHER are created, based on the values
+#     of the rows in column URL_PREF and URL_PURE.
+#     - If the row with URL_PREF has a value: URL_MAIN = URL_PREF,
+#       URL_OTHER = URL_PURE.
+#     - If URL_PREF is missing but URL_PURE has a value:
+#       URL_MAIN = URL_PURE, URL_OTHER = ''.
+#     - If both missing: both empty.
+#
+#     :param entities: The DataFrame to process according to above.
+#     :return: The resulting DataFrame.
+#     """
+#     entities = entities.copy()
+#     personal_id_name = entities.columns[0]
+#     entities['URL_PURE'] = entities[[personal_id_name]].apply(
+#                         lambda row: create_pure_url(name=personal_id_name,
+#                                                     value=row[personal_id_name]), axis = 1)
+#     # Normalize missing values.
+#     # '.str.strip()' removes leading and trailing whitespace.
+#     url_pref = entities['URL_PREF'].fillna("").astype(str).str.strip()
+#     url_pure = entities['URL_PURE'].fillna("").astype(str).str.strip()
+#     entities.drop(columns=['URL_PURE'], inplace=True)
+#
+#     # Condition: where URL_PREF exists.
+#     has_url_pref = url_pref != ""
+#     has_url_pure = url_pure != ""
+#
+#     # Create the columns.
+#     entities['URL_MAIN'] = url_pref.where(has_url_pref,
+#                                           url_pure.where(has_url_pure, other=''))
+#     entities['URL_OTHER'] = url_pure.where(has_url_pref, other='')
+#     return entities
 
 
 def find_organization_name(uuid: str, organization_names: dict):
@@ -679,13 +822,15 @@ def parse_pure_organizations(harvest: list,
                                                 filename=filename)
 
 
-def parse_pure_resout(harvest: list,
-                      filename: str = '') -> Union[pandas.DataFrame, None]:
-    """Parse the harvested research outputs from Pure.
+def parse_pure_entities(harvest: list,
+                        filename: str = '',
+                        mode: str = '') -> Union[pandas.DataFrame, None]:
+    """Parse the harvested entities from Pure.
     In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
     :param filename: If filename != '', write it to a file and read it back.
+    :param mode: Mode to indicate what to harvest.
     :return: the harvested research outputs in a DataFrame,
         or None if nothing to parse.
     """
@@ -693,20 +838,29 @@ def parse_pure_resout(harvest: list,
 
     if len(harvest) == 0:
         return None
-    print('There are ' + str(len(harvest)) + ' research output records ('
+    if mode not in [MODE_RESOUTS, MODE_DATASETS, MODE_PRESS_MEDIA]:
+        print('parse_pure_entities: Error, invalid mode "' + mode + '". Exiting.')
+        exit(1)
+
+    print('There are ' + str(len(harvest)) + ' ' + mode + ' records ('
           + rcg.timestamp() + '), parsing record:')
     parse_chunk = []                # list of dictionaries
     count = 0
     for harvest_item in harvest:
         count = rcg.print_progress(count=count, interval=1000)
-        if (resout_uuid := rcg.json_item_get_str(json_item=harvest_item,
+        if (uuid := rcg.json_item_get_str(json_item=harvest_item,
                                                  json_path='uuid')) == '':
             # There must be an uuid, otherwise skip.
             continue
         if (title := rcg.json_item_get_str(json_item=harvest_item,
-                                           json_path='title.value')) == '':
-            # There must be a title, otherwise skip.
-            continue
+                                           json_path='title.value')) != '':
+            pass
+        elif (title := rcg.json_item_get_str(json_item=harvest_item,
+                                             json_path='title.text.0.value')) != '':
+            pass
+        elif (title := rcg.json_item_get_str(json_item=harvest_item,
+                                             json_path='references.0.title.text.0.value')) != '':
+            pass
         if rcg.json_item_get_bool(json_item=harvest_item,
                                   json_path='confidential'):
             # Skip the confidential ones. Assume non-confidential if not present.
@@ -715,6 +869,7 @@ def parse_pure_resout(harvest: list,
                                               json_path='type.uri')) == '':
             # There must be a type (category) of this resout, otherwise skip.
             continue
+        # #####
         if (workflow_step := rcg.json_item_get_str(json_item=harvest_item,
                                                    json_path='workflow.workflowStep')) != '':
             # Field in Pure READ API.
@@ -729,32 +884,65 @@ def parse_pure_resout(harvest: list,
         else:
             # Skip if no workflow.
             continue
-        if len(rcg.json_item_get_list(json_item=harvest_item,
-                                      json_path='publicationStatuses')) == 0:
-            # Skip if no publicationStatuses.
-            continue
-        published_found = False
+        # #####
         publication_year = ''
-        for pub_item in rcg.json_item_get_list(json_item=harvest_item,
-                                               json_path='publicationStatuses'):
-            if pub_item['current']:
-                publication_year = str(rcg.json_item_get_int(json_item=pub_item,
-                                                             json_path='publicationDate.year'))
-                publication_path = rcg.json_item_get_str(json_item=pub_item,
-                                                         json_path='publicationStatus.uri')
-                if PurePath(publication_path).name == 'published':
-                    published_found = True
-                    break
-        if not published_found:
-            # We need a 'published' status.
-            continue
+        if mode == MODE_RESOUTS:
+            if len(rcg.json_item_get_list(json_item=harvest_item,
+                                          json_path='publicationStatuses')) == 0:
+                # Skip if no publicationStatuses.
+                continue
+            published_found = False
+            for pub_item in rcg.json_item_get_list(json_item=harvest_item,
+                                                   json_path='publicationStatuses'):
+                if pub_item['current']:
+                    publication_year = str(rcg.json_item_get_int(json_item=pub_item,
+                                                                 json_path='publicationDate.year'))
+                    publication_path = rcg.json_item_get_str(json_item=pub_item,
+                                                             json_path='publicationStatus.uri')
+                    if PurePath(publication_path).name == 'published':
+                        published_found = True
+                        break
+            if not published_found:
+                # We need a 'published' status.
+                continue
+        elif mode == MODE_DATASETS:
+            publication_year = rcg.json_item_get_str(json_item=harvest_item,
+                                                     json_path='publicationDate.year')
+        elif mode == MODE_PRESS_MEDIA:
+            publication_year = rcg.json_item_get_str(json_item=harvest_item,
+                                                     json_path='references.0.date')
+            publication_year = publication_year[:4]
+        # #####
         doi = ''
-        for dois in rcg.json_item_get_list(json_item=harvest_item,
-                                           json_path='electronicVersions'):
-            # Take the last doi found for a resout.
-            if (newdoi := rcg.json_item_get_str(json_item=dois, json_path='doi')) != '':
-                doi = newdoi
-                doi = rcg.normalize_doi(identifier=doi)
+        if mode == MODE_RESOUTS:
+            for dois in rcg.json_item_get_list(json_item=harvest_item,
+                                            json_path='electronicVersions'):
+                # Take the last DOI found for a resout.
+                if (newdoi := rcg.json_item_get_str(json_item=dois, json_path='doi')) != '':
+                    doi = newdoi
+        elif mode == MODE_DATASETS:
+            doi = rcg.json_item_get_str(json_item=harvest_item,
+                                        json_path='doi')
+        elif mode == MODE_PRESS_MEDIA:
+            # Press media items do not have a DOI.
+            doi = ''
+        doi = rcg.normalize_doi(identifier=doi)
+        # #####
+        id_name = id_name_tobeused = ''
+        if mode == MODE_RESOUTS:
+            id_name = id_name_tobeused = 'PURE_ID_RESOUT'
+            category = rcg.lookup_resout_category(research_output_category=category,
+                                                  research_output_mapping=ROTYPE_MAPPING_PURE)
+        elif mode == MODE_DATASETS:
+            # Treat data sets of Pure endpoint datasets as data sets from Pure
+            # endpoint researchoutputs.
+            id_name = 'PURE_ID_DATASET'
+            id_name_tobeused = 'PURE_ID_RESOUT'
+            category = rcg.ROTYPE_DATASET
+        elif mode == MODE_PRESS_MEDIA:
+            id_name = id_name_tobeused = 'PURE_ID_PRESS_MEDIA'
+            category = rcg.CATEGORY_PRESS_MEDIA
+        # #####
         if len(list_of_persons := rcg.json_item_get_list(json_item=harvest_item,
                                                          json_path='personAssociations')) > 0:
             # Field in Pure READ API.
@@ -792,24 +980,52 @@ def parse_pure_resout(harvest: list,
                 # Do not print a warning message, most of the time it is an external person
                 # without any identifier.
                 continue
-
-            parse_line = {'PURE_ID_RESOUT': resout_uuid,
-                          'DOI': doi,
-                          'TITLE': title,
-                          'YEAR': publication_year,
-                          'CATEGORY': rcg.lookup_resout_category(research_output_category=category,
-                                                                 research_output_mapping=ROTYPE_MAPPING_PURE),
-                          'PURE_ID_PERS': author_uuid,
-                          'EXTERNAL_AUTHOR_NAME': external_author_name}
-            if externalorg_name != '':
-                parse_line['EXTERNAL_ORG_NAME'] = externalorg_name
+            # #####
+            parse_line = {}
+            if mode == MODE_PRESS_MEDIA:
+                if (press_media_url := rcg.json_item_get_str(json_item=harvest_item,
+                                                             json_path='references.0.url')) != '':
+                    parse_line = {'NAME': id_name_tobeused,
+                                  'CATEGORY': category,
+                                  'VALUE': uuid,
+                                  'URL_MAIN': press_media_url,
+                                  'URL_OTHER': create_pure_url(name=id_name,
+                                                               value=uuid)
+                                  }
+            elif doi != '':
+                parse_line = {'NAME': 'DOI',
+                              'CATEGORY': category,
+                              'VALUE': doi,
+                              'URL_MAIN': rcg.create_well_known_url(name='DOI',
+                                                                    value=doi),
+                              'URL_OTHER': create_pure_url(name=id_name,
+                                                           value=uuid)
+                              }
+            # #####
+            if len(parse_line) == 0:
+                # All other situations.
+                parse_line = {'NAME': id_name_tobeused,
+                              'CATEGORY': category,
+                              'VALUE': uuid,
+                              'URL_MAIN': create_pure_url(name=id_name,
+                                                          value=uuid),
+                              'URL_OTHER': ''
+                              }
+            if mode == MODE_RESOUTS:
+                parse_line['EXTERNAL_AUTHOR_NAME'] = external_author_name
+                if externalorg_name != '':
+                    parse_line['EXTERNAL_ORG_NAME'] = externalorg_name
+            # '|=': merges a dict in place with another dict.
+            parse_line |= {'TITLE': title,
+                           'YEAR': publication_year,
+                           'PURE_ID_PERS': author_uuid}
             parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
     if len(parse_chunk) == 0 \
        and PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('\nPure is harvested using the Pure CRUD API.')
-        print('No research outputs were found.')
+        print('No entities were found.')
         print('This is probably caused by one or more of the following fields not present in')
         print('the CRUD API export for "research outputs":')
         print('"workflow", "publicationStatuses" and/or "contributors".')
@@ -832,7 +1048,7 @@ def parse_pure_projects(harvest: list,
         or None if nothing to parse.
     """
     # RDTJ, February 22, 2026. This code should be cleaned up,
-    # just as the functions for persons,organizations, and research outputs above.
+    # just as the functions for persons, organizations, and entities above.
     # Also rewrite parsed_projects_to_ricgraph().
     global resout_uuid_or_doi
     global organization
@@ -996,43 +1212,49 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
                                 headers: dict, body: dict,
                                 harvest_filename: str,
                                 df_filename: str,
-                                year_start:str = '') -> Union[pandas.DataFrame, None]:
+                                year_start:str = '',
+                                year_end: str = '') -> Union[pandas.DataFrame, None]:
     """Harvest and parse data from Pure.
 
-    :param mode: 'persons', 'organizations' or 'research outputs', to indicate what to harvest.
+    :param mode: as in MODE_ALL, to indicate what to harvest.
     :param endpoint: endpoint Pure.
     :param headers: headers for Pure.
     :param body: the body of a POST request, or '' for a GET request.
     :param harvest_filename: filename to write harvest results to.
     :param df_filename: filename to write the DataFrame results to.
     :param year_start: the first year that we would like to harvest.
-        Only relevant when parsing persons.
+        Only relevant when parsing persons and data sets.
+    :param year_end: the first year that we would like to harvest.
+        Only relevant when data sets.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-    if mode != 'persons' \
-       and mode != 'organizations' \
-       and mode != 'research outputs' \
-       and mode != 'projects':
+    if mode not in MODE_ALL:
         print('harvest_and_parse_pure_data(): unknown mode ' + mode + '.')
         return None
 
-    if mode == 'persons':
+    if mode == MODE_PERSONS:
         max_recs_to_harvest = PURE_PERSONS_MAX_RECS_TO_HARVEST
-    elif mode == 'organizations':
+    elif mode == MODE_ORGANIZATIONS:
         max_recs_to_harvest = PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST
-    elif mode == 'research outputs':
-        max_recs_to_harvest = PURE_RESOUT_MAX_RECS_TO_HARVEST
-    elif mode == 'projects':
+    elif mode == MODE_RESOUTS:
+        max_recs_to_harvest = PURE_RESOUTS_MAX_RECS_TO_HARVEST
+    elif mode == MODE_DATASETS:
+        max_recs_to_harvest = PURE_DATASETS_MAX_RECS_TO_HARVEST
+    elif mode == MODE_PRESS_MEDIA:
+        max_recs_to_harvest = PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST
+    elif mode == MODE_PROJECTS:
         max_recs_to_harvest = PURE_PROJECTS_MAX_RECS_TO_HARVEST
     else:
         # Should not happen
         return None
 
     print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
-    if (mode == 'persons' and not PURE_PERSONS_READ_HARVEST_FROM_FILE) \
-       or (mode == 'organizations' and not PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE) \
-       or (mode == 'research outputs' and not PURE_RESOUT_READ_HARVEST_FROM_FILE) \
-       or (mode == 'projects' and not PURE_PROJECTS_READ_HARVEST_FROM_FILE):
+    if (mode == MODE_PERSONS and not PURE_PERSONS_READ_HARVEST_FROM_FILE) \
+       or (mode == MODE_ORGANIZATIONS and not PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE) \
+       or (mode == MODE_RESOUTS and not PURE_RESOUTS_READ_HARVEST_FROM_FILE) \
+       or (mode == MODE_DATASETS and not PURE_DATASETS_READ_HARVEST_FROM_FILE) \
+       or (mode == MODE_PRESS_MEDIA and not PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE) \
+       or (mode == MODE_PROJECTS and not PURE_PROJECTS_READ_HARVEST_FROM_FILE):
         url = PURE_URL + '/' + PURE_API_VERSION + '/' + endpoint
         harvest_data = rcg.harvest_json(url=url,
                                         headers=headers, body=body,
@@ -1045,14 +1267,30 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     # To prevent PyCharm warning
     # Local variable 'parse' might be referenced before assignment.
     parse = pandas.DataFrame()
-    if mode == 'persons':
+    if mode == MODE_PERSONS:
         parse = parse_pure_persons(harvest=harvest_data, filename=df_filename,
-                                   year_start=year_start)
-    elif mode == 'organizations':
+                                   year_start=year_first)
+    elif mode == MODE_ORGANIZATIONS:
         parse = parse_pure_organizations(harvest=harvest_data, filename=df_filename)
-    elif mode == 'research outputs':
-        parse = parse_pure_resout(harvest=harvest_data, filename=df_filename)
-    elif mode == 'projects':
+    elif mode == MODE_RESOUTS:
+        parse = parse_pure_entities(harvest=harvest_data, filename=df_filename,
+                                    mode=mode)
+    elif mode == MODE_DATASETS:
+        # For Pure end point 'datasets', there is no way to specify the year range.
+        # So traverse the items found and only keep the ones in the correct range.
+        print('Removing data sets that are not in the correct year range.')
+        harvest_data_new = []
+        for harvest_item in harvest_data:
+            publication_year = rcg.json_item_get_str(json_item=harvest_item,
+                                                     json_path='publicationDate.year')
+            if int(year_start) <= int(publication_year) <= int(year_end):
+                harvest_data_new.append(harvest_item)
+        parse = parse_pure_entities(harvest=harvest_data_new, filename=df_filename,
+                                    mode=mode)
+    elif mode == MODE_PRESS_MEDIA:
+        parse = parse_pure_entities(harvest=harvest_data, filename=df_filename,
+                                    mode=mode)
+    elif mode == MODE_PROJECTS:
         parse = parse_pure_projects(harvest=harvest_data, filename=df_filename)
 
     if parse is None:
@@ -1257,73 +1495,58 @@ def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
     return
 
 
-def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
-    """Insert the parsed research outputs in Ricgraph.
+def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
+                                what: str = 'entities') -> None:
+    """Insert the parsed entities in Ricgraph.
 
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
+    :param what: Text to show to the user and in '_source'
     :return: None.
     """
     global resout_uuid_or_doi
 
-    # Do some shuffling to prepare insert of research outputs in Ricgraph.
-    resouts = parsed_content[['PURE_ID_RESOUT', 'TITLE', 'YEAR', 'CATEGORY', 'DOI', 'PURE_ID_PERS']].copy(deep=True)
-    resouts.dropna(axis=0, how='all', inplace=True)
-    resouts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    resouts['DOI'] = resouts['DOI'].fillna('')
-
-    # A number of research outputs in Pure have a DOI, but not all. We prefer the DOI above PURE_ID_RESOUT.
-    # So if there is a DOI, use it, otherwise use PURE_ID_RESOUT UUID. Some shuffling is required.
-    # First, fill the column 'name1' with 'DOI', unless the value is '', then fill with 'PURE_ID_RESOUT'.
-    resouts['RESOUT_ID'] = resouts[['DOI']].apply(lambda x: 'PURE_ID_RESOUT' if x.item() == '' else 'DOI', axis=1)
-    # Make sure we have the correct URL.
-    resouts['URL_MAIN'] = resouts[['RESOUT_ID', 'DOI', 'PURE_ID_RESOUT']].apply(
-                          lambda row: create_urlmain(type_id=row['RESOUT_ID'],
-                                                     doi_value=row['DOI'],
-                                                     uuid_value=row['PURE_ID_RESOUT']), axis=1)
-    resouts['URL_OTHER'] = resouts[['RESOUT_ID', 'DOI', 'PURE_ID_RESOUT']].apply(
-                           lambda row: create_urlother(type_id=row['RESOUT_ID'],
-                                                       uuid_value=row['PURE_ID_RESOUT']), axis=1)
-    # Now replace all empty strings in column DOI for NaNs
-    # The next statement will result in a 'behavior will change in pandas 3.0' warning.
-    resouts['DOI'] = resouts['DOI'].replace('', numpy.nan)
-    # Then fill the column 'value1' with the value from column DOI, unless the value is NaN,
-    # then fill with the value from column PURE_ID_RESOUT.
-    resouts['value1'] = resouts['DOI'].copy(deep=True)
-    # The next statement will result in a 'behavior will change in pandas 3.0' warning.
-    resouts['PURE_ID_RESOUT'] = resouts.value1.fillna(resouts['PURE_ID_RESOUT'])
-    resouts.rename(columns={'PURE_ID_RESOUT': 'RESOUT_VALUE'}, inplace=True)
-
+    cols = ['PURE_ID_PERS', 'NAME', 'CATEGORY', 'VALUE', 'TITLE', 'YEAR']
+    if 'URL_MAIN' in parsed_content.columns:
+        cols.append('URL_MAIN')
+    if 'URL_OTHER' in parsed_content.columns:
+        cols.append('URL_OTHER')
+    resouts = parsed_content[cols].copy(deep=True)
     if HARVEST_PROJECTS:
         # This is only necessary if we are going to harvest projects later on.
+        # 26-2-2026: This code used to be (before a thorough rewrite of harvesting Pure):
+        # if resout_uuid_or_doi == {}:
+        #     resout_uuid_or_doi = dict(zip(resouts.PURE_ID_RESOUT, resouts.value1))
+        # else:
+        #     resout_uuid_or_doi.update((zip(resouts.PURE_ID_RESOUT, resouts.value1)))
+        # At the rewrite, I made it as follows, but this may not be correct.
+        # It needs to be tested (just as the code for projects needs to be rewritten).
         if resout_uuid_or_doi == {}:
-            resout_uuid_or_doi = dict(zip(resouts.PURE_ID_RESOUT, resouts.value1))
+            resout_uuid_or_doi = dict(zip(resouts.NAME, resouts.VALUE))
         else:
-            resout_uuid_or_doi.update((zip(resouts.PURE_ID_RESOUT, resouts.value1)))
+            resout_uuid_or_doi.update((zip(resouts.NAME, resouts.VALUE)))
 
-    resouts = resouts[['PURE_ID_PERS', 'RESOUT_ID', 'RESOUT_VALUE',
-                       'TITLE', 'YEAR', 'CATEGORY', 'URL_MAIN', 'URL_OTHER']].copy(deep=True)
     rcg.create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                    harvest_source=HARVEST_SOURCE,
-                                                   what='research outputs')
+                                                   what=what)
 
     if 'EXTERNAL_AUTHOR_NAME' in parsed_content.columns:
         # This is specifically for external persons and author collaborations. We only
-        # find these while parsing research outputs, not while parsing persons.
+        # find these while parsing entities, not while parsing persons.
         external_persons = parsed_content[['PURE_ID_PERS', 'EXTERNAL_AUTHOR_NAME']].copy(deep=True)
         external_persons.rename(columns={'EXTERNAL_AUTHOR_NAME': 'FULL_NAME'}, inplace=True)
         rcg.create_parsed_entities_in_ricgraph(entities=external_persons,
                                                harvest_source=HARVEST_SOURCE,
-                                               what='external persons and author collaborations')
+                                               what=what + ': external persons and author collaborations')
 
     if 'EXTERNAL_ORG_NAME' in parsed_content.columns:
         # This is specifically for external persons and external organizations. We only
-        # find these while parsing research outputs, not while parsing persons.
+        # find these while parsing entities, not while parsing persons.
         persorgnodes = parsed_content[['PURE_ID_PERS',
                                        'EXTERNAL_ORG_NAME']].copy(deep=True)
         persorgnodes.rename(columns={'EXTERNAL_ORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
         rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
                                                harvest_source=HARVEST_SOURCE,
-                                               what='external organizations from external persons')
+                                               what=what + ': external organizations from external persons')
     return
 
 
@@ -1564,16 +1787,18 @@ if read_response.status_code == requests.codes.ok:
     PURE_API_VERSION = PURE_READ_API_VERSION
     PURE_PERSONS_ENDPOINT = PURE_READ_PERSONS_ENDPOINT
     PURE_ORGANIZATIONS_ENDPOINT = PURE_READ_ORGANIZATIONS_ENDPOINT
-    PURE_RESOUT_ENDPOINT = PURE_READ_RESOUT_ENDPOINT
-    PURE_RESOUT_FIELDS = PURE_READ_RESOUT_FIELDS
+    PURE_RESOUTS_ENDPOINT = PURE_READ_RESOUTS_ENDPOINT
+    PURE_RESOUTS_FIELDS = PURE_READ_RESOUTS_FIELDS
+    PURE_PRESS_MEDIA_ENDPOINT = PURE_READ_PRESS_MEDIA_ENDPOINT
+    PURE_DATASETS_ENDPOINT = PURE_READ_DATASETS_ENDPOINT
     PURE_PROJECTS_ENDPOINT = PURE_READ_PROJECTS_ENDPOINT
 elif crud_response.status_code == requests.codes.ok:
     print('Pure will be harvested using the Pure CRUD API.')
     PURE_API_VERSION = PURE_CRUD_API_VERSION
     PURE_PERSONS_ENDPOINT = PURE_CRUD_PERSONS_ENDPOINT
     PURE_ORGANIZATIONS_ENDPOINT = PURE_CRUD_ORGANIZATIONS_ENDPOINT
-    PURE_RESOUT_ENDPOINT = PURE_CRUD_RESOUT_ENDPOINT
-    PURE_RESOUT_FIELDS = PURE_CRUD_RESOUT_FIELDS
+    PURE_RESOUTS_ENDPOINT = PURE_CRUD_RESOUTS_ENDPOINT
+    PURE_RESOUTS_FIELDS = PURE_CRUD_RESOUTS_FIELDS
     # No harvesting of projects with CRUD API.
 else:
     print('Could not determine whether Pure should be harvested using the READ or CRUD API.')
@@ -1604,7 +1829,8 @@ else:
 resout_uuid_or_doi = {}
 
 # ########################################################################
-# You can use 'True' or 'False' depending on your needs to harvest persons/organizations/research outputs.
+# You can use 'True' or 'False' depending on your needs to harvest
+# persons/organizations/research outputs/data sets/press media items.
 # This might be handy if you are testing your parsing.
 # You might also want to set parameters as 'PURE_[object name]_HARVEST_FROM_FILE' = True,
 # see the top of this file.
@@ -1694,13 +1920,13 @@ if True:
 if True:
     # Note that in 2023, the Pure CRUD API did not allow
     # harvesting separate years. This might cause memory problems.
-    # You might want to set PURE_RESOUT_MAX_RECS_TO_HARVEST.
+    # You might want to set PURE_RESOUTS_MAX_RECS_TO_HARVEST.
     # The Pure READ API does allow to specify years to harvest.
     for year_int in range(int(year_first), int(year_last) + 1):
         year = str(year_int)
-        data_file_year = rcg.construct_filename(base_filename=PURE_RESOUT_DATA_FILENAME,
+        data_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_DATA_FILENAME,
                                                 year=year, organization=organization)
-        if PURE_RESOUT_READ_DATA_FROM_FILE:
+        if PURE_RESOUTS_READ_DATA_FROM_FILE:
             error_message = 'There are no research outputs from ' + HARVEST_SOURCE
             error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
             print('Reading research outputs from ' + HARVEST_SOURCE + ' for year '
@@ -1712,26 +1938,121 @@ if True:
             error_message += ' for year ' + year + ' to harvest.\n'
             print('Harvesting research outputs from ' + HARVEST_SOURCE
                   + ' for year ' + year + '.')
-            harvest_file_year = rcg.construct_filename(base_filename=PURE_RESOUT_HARVEST_FILENAME,
+            harvest_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_HARVEST_FILENAME,
                                                        year=year, organization=organization)
-            # The following create a PyCharm warning
-            # Unexpected type(s):(str, str)Possible type(s):(str, list[str])(str, list[str]).
-            PURE_RESOUT_FIELDS['publishedBeforeDate'] = year + '-12-31'
-            PURE_RESOUT_FIELDS['publishedAfterDate'] = year + '-01-01'
-            parse_resout = harvest_and_parse_pure_data(mode='research outputs',
-                                                       endpoint=PURE_RESOUT_ENDPOINT,
+            PURE_RESOUTS_FIELDS['publishedBeforeDate'] = year + '-12-31'
+            PURE_RESOUTS_FIELDS['publishedAfterDate'] = year + '-01-01'
+            parse_resout = harvest_and_parse_pure_data(mode=MODE_RESOUTS,
+                                                       endpoint=PURE_RESOUTS_ENDPOINT,
                                                        headers=PURE_HEADERS,
-                                                       body=PURE_RESOUT_FIELDS,
+                                                       body=PURE_RESOUTS_FIELDS,
                                                        harvest_filename=harvest_file_year,
                                                        df_filename=data_file_year)
 
         if parse_resout is None or parse_resout.empty:
             print(error_message)
         else:
-            parsed_resout_to_ricgraph(parsed_content=parse_resout)
+            parsed_entities_to_ricgraph(parsed_content=parse_resout,
+                                        what='research outputs')
 
         rcg.graphdb_nr_accesses_print()
         print(rcg.nodes_cache_key_id_type_size() + '\n')
+
+
+# ########################################################################
+# Code for data sets from the Pure datasets endpoint.
+# if False:
+if True:
+    if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+        print('\nPure is harvested using the Pure CRUD API.')
+        print('Harvesting data sets from Pure using the CRUD API is not implemented yet.')
+        exit(1)
+
+    data_file = rcg.construct_filename(base_filename=PURE_DATASETS_DATA_FILENAME,
+                                       organization=organization)
+    if PURE_DATASETS_READ_DATA_FROM_FILE:
+        error_message = 'There are no data sets from ' + HARVEST_SOURCE
+        error_message += ' for year ' + year_first + ' to ' + year_last
+        error_message += ' to read from file ' + data_file + '.\n'
+        print('Reading data sets from ' + HARVEST_SOURCE + ' for year '
+              + year_first + ' to ' + year_last + ' from file ' + data_file + '.')
+        parse_datasets = rcg.read_dataframe_from_csv(filename=data_file,
+                                                        datatype=str)
+    else:
+        error_message = 'There are no data sets from ' + HARVEST_SOURCE
+        error_message += ' for year ' + year_first + ' to ' + year_last
+        error_message += ' to harvest.\n'
+        print('Harvesting data sets from ' + HARVEST_SOURCE
+              + ' for year ' + year_first + ' to ' + year_last + '.')
+        harvest_file = rcg.construct_filename(base_filename=PURE_DATASETS_HARVEST_FILENAME,
+                                              organization=organization)
+        parse_datasets = harvest_and_parse_pure_data(mode=MODE_DATASETS,
+                                                     endpoint=PURE_DATASETS_ENDPOINT,
+                                                     headers=PURE_HEADERS,
+                                                     body=PURE_DATASETS_FIELDS,
+                                                     harvest_filename=harvest_file,
+                                                     df_filename=data_file,
+                                                     year_start=year_first,
+                                                     year_end=year_last)
+
+    if parse_datasets is None or parse_datasets.empty:
+        print(error_message)
+    else:
+        parsed_entities_to_ricgraph(parsed_content=parse_datasets,
+                                    what='data sets (from Pure datasets endpoint)')
+
+    rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
+
+
+# ########################################################################
+# Code for harvesting press media items.
+# if False:
+if True:
+    if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+        print('\nPure is harvested using the Pure CRUD API.')
+        print('Harvesting press media items from Pure using the CRUD API is not implemented yet.')
+        exit(1)
+
+    data_file = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_DATA_FILENAME,
+                                       organization=organization)
+    if PURE_PRESS_MEDIA_READ_DATA_FROM_FILE:
+        error_message = 'There are no press media items from ' + HARVEST_SOURCE
+        error_message += ' for year ' + year_first + ' to ' + year_last
+        error_message += ' to read from file ' + data_file + '.\n'
+        print('Reading press media items from ' + HARVEST_SOURCE + ' for year '
+              + year_first + ' to ' + year_last + ' from file ' + data_file + '.')
+        parse_press_media = rcg.read_dataframe_from_csv(filename=data_file,
+                                                        datatype=str)
+    else:
+        error_message = 'There are no press media items from ' + HARVEST_SOURCE
+        error_message += ' for year ' + year_first + ' to ' + year_last
+        error_message += ' to harvest.\n'
+        print('Harvesting press media items from ' + HARVEST_SOURCE
+              + ' for year ' + year_first + ' to ' + year_last + '.')
+        harvest_file = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
+                                              organization=organization)
+        PURE_PRESS_MEDIA_FIELDS['period']['startDate'] = {'day': '1',
+                                                          'month': '1',
+                                                          'year': year_first}
+        PURE_PRESS_MEDIA_FIELDS['period']['endDate'] = {'day': '31',
+                                                        'month': '12',
+                                                        'year': year_last}
+        parse_press_media = harvest_and_parse_pure_data(mode=MODE_PRESS_MEDIA,
+                                                        endpoint=PURE_PRESS_MEDIA_ENDPOINT,
+                                                        headers=PURE_HEADERS,
+                                                        body=PURE_PRESS_MEDIA_FIELDS,
+                                                        harvest_filename=harvest_file,
+                                                        df_filename=data_file)
+
+    if parse_press_media is None or parse_press_media.empty:
+        print(error_message)
+    else:
+        parsed_entities_to_ricgraph(parsed_content=parse_press_media,
+                                    what='press media items')
+
+    rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 
 # ########################################################################

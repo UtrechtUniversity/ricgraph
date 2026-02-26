@@ -34,13 +34,13 @@ three parts:
 1. Code for harvesting. This is done with `harvest_json_and_write_to_file()` which also writes
    the harvested json data to a file. It gets data from a source.
 1. Code for parsing. This is done with `parse_pure_persons()`, `parse_pure_organizations()` and
-   `parse_pure_resout()` for persons, organizations and research outputs from Pure.
+   `parse_pure_entities()` for persons, organizations and research outputs from Pure.
    It does data processing to get harvested results
    in a "useful" shape for inserting nodes and
    edges in Ricgraph.
 1. Code for inserting the parsed results in Ricgraph. This is done with
    `parsed_persons_to_ricgraph()`, `parsed_organizations_to_ricgraph()` and
-   `parsed_resout_to_ricgraph()`.
+   `parsed_entities_to_ricgraph()`.
    It inserts the nodes and edges in Ricgraph.
 
 You can adapt each of these parts as suits the source you would like to harvest.

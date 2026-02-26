@@ -203,3 +203,8 @@ ROTYPE_PUBLICATION = [ROTYPE_ABSTRACT,
 # A resout_type_pub is defined in initialize_ricgraph_explorer().
 # These are elements of ROTYPE_PUBLICATION that are present in your Ricgraph.
 # I.e., those have been harvested from the source systems that you chose to harvest.
+
+
+# ########################################################################
+# Other types used in Ricgraph.
+CATEGORY_PRESS_MEDIA = 'press media'

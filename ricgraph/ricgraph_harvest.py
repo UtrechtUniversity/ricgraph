@@ -263,22 +263,20 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     """Insert the parsed entities in Ricgraph.
 
     :param entities: The records to insert in Ricgraph, if not present yet.
-        The order of the columns in this DataFrame is important.
-        We expect:
-        - In the 1st column: a person identifier (ORCID, OPENALEX_ID_PERS, etc.).
-          The 'name' property in the person node will get the name
-          of this column.
+        A person (in the 1st column) is connected to something else
+        (an entity) determined by all other columns.
+        The order of the columns and their names in this DataFrame
+        are important.
+        - The 1st column should be: a person identifier (ORCID,
+          OPENALEX_ID_PERS, etc.). The 'name' property in the
+          person node will get the name of this column.
           The 'value' property will be the value in this columns' row.
-        - In the 2nd column: a research output name identifier (DOI, etc.).
-          The name of this column must be RESOUT_ID.
-          The 'name' property in the research output will get the value
-          in this columns' row.
-        - In the 3rd column: the value of a research output identifier
-          (DOI value, etc.).
-          The name of this column must be RESOUT_VALUE.
-          The 'value' property in the research output will get the value
-          in this columns' row.
-        - The other column should be named 'CATEGORY'.
+        The other columns are expected to be:
+        - 'NAME': a research output name identifier (DOI, etc.).
+          This will become the 'name' property in the entity.
+        - 'CATEGORY': The category, will become 'category' property.
+        - 'VALUE': the value of a research output identifier
+          (DOI value, etc.). This will become the 'value' property.
         - Optionally, there may be columns 'TITLE', 'YEAR', 'URL_MAIN'
           and 'URL_OTHER'.
     :param harvest_source: The source system we harvest from.
@@ -288,14 +286,14 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     if entities is None or entities.empty:
         # Nothing to do.
         return
-    if 'RESOUT_ID' not in entities.columns:
-        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "RESOUT_ID".')
-        exit(1)
-    if 'RESOUT_VALUE' not in entities.columns:
-        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "RESOUT_VALUE".')
+    if 'NAME' not in entities.columns:
+        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "NAME".')
         exit(1)
     if 'CATEGORY' not in entities.columns:
         print('create_parsed_entities_in_ricgraph_general(): Error, missing column "CATEGORY".')
+        exit(1)
+    if 'VALUE' not in entities.columns:
+        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "VALUE".')
         exit(1)
 
     print('Inserting ' + what + ' from ' + harvest_source
@@ -307,15 +305,15 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
 
     # Ensure that all '' values in the important columns are NaN,
     # so that those rows can be easily removed with dropna().
-    entities[[personal_id_name, 'RESOUT_VALUE']] = entities[[personal_id_name,
-                                                           'RESOUT_VALUE']].replace(to_replace='', value=nan)
+    entities[[personal_id_name, 'VALUE']] = entities[[personal_id_name,
+                                                      'VALUE']].replace(to_replace='', value=nan)
 
     # Drop a row from selected columns if any of its value is NaN.
-    entities.dropna(subset=[personal_id_name, 'RESOUT_VALUE'], how='any', inplace=True)
+    entities.dropna(subset=[personal_id_name, 'VALUE'], how='any', inplace=True)
     entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    entities.rename(columns={'RESOUT_ID': 'name1',
+    entities.rename(columns={'NAME': 'name1',
                              'CATEGORY': 'category1',
-                             'RESOUT_VALUE': 'value1',
+                             'VALUE': 'value1',
                              personal_id_name: 'value2'}, inplace=True)
     new_entities_columns = {'source_event1': harvest_source,
                             'history_event1': history_event,
@@ -374,8 +372,8 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
     if 'DOI' not in resouts.columns:
         print('create_parsed_dois_in_ricgraph(): Error, missing column "DOI".')
         exit(1)
-    resouts.rename(columns={'DOI': 'RESOUT_VALUE'}, inplace=True)
-    resouts.insert(loc=1, column='RESOUT_ID', value='DOI')
+    resouts.rename(columns={'DOI': 'VALUE'}, inplace=True)
+    resouts.insert(loc=1, column='NAME', value='DOI')
     create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                harvest_source=harvest_source,
                                                what='research outputs')
@@ -403,8 +401,8 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
     :return: None.
     """
     entity_name = entities.columns[1]
-    entities.rename(columns={entity_name: 'RESOUT_VALUE'}, inplace=True)
-    entities.insert(loc=1, column='RESOUT_ID', value=entity_name)
+    entities.rename(columns={entity_name: 'VALUE'}, inplace=True)
+    entities.insert(loc=1, column='NAME', value=entity_name)
 
     if entity_name in ['ORGANIZATION_NAME']:
         entities['CATEGORY'] = 'organization'
