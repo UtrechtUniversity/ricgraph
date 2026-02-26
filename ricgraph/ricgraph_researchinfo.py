@@ -235,6 +235,9 @@ def normalize_identifiers(df: DataFrame) -> DataFrame:
     :param df: dataframe with identifiers.
     :return: Result of normalizing.
     """
+    if df is None or df.empty:
+        return df
+
     df_mod = df.copy(deep=True)
 
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
@@ -268,8 +271,11 @@ def normalize_identifiers_write_read(parse_result: DataFrame, filename: str = ''
     :param filename: If filename != '', write it to a file and read it back.
     :return: The normalized DataFrame.
     """
+    if parse_result is None or parse_result.empty:
+        return parse_result
+
     normalize_result = normalize_identifiers(df=parse_result)
-    if filename == '':
+    if filename == '' or normalize_result is None or normalize_result.empty:
         return normalize_result
 
     write_dataframe_to_csv(filename=filename, df=normalize_result)

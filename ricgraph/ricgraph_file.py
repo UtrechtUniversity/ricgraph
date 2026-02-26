@@ -118,6 +118,8 @@ def write_read_json_file(json_data: list,
     """
     if filename == '':
         return json_data
+    if len(json_data) == 0:
+        return json_data
 
     write_json_to_file(filename=filename, json_data=json_data)
     json_from_file = read_json_from_file(filename=filename)

@@ -92,8 +92,20 @@ from ricgraph import construct_extended_org_name
 
 # ######################################################
 # General parameters for harvesting from Pure.
-# These specify the mode for harvesting.
 # ######################################################
+# These specify what you would like to harvest.
+HARVEST_PERSONS = True
+HARVEST_ORGANIZATIONS = True
+# For HARVEST_ORGANIZATIONS you might also want to set
+# 'PURE_PERSONS_READ_HARVEST_FROM_FILE = True' (see comment in
+# main() in Code for harvesting organizations).
+HARVEST_RESOUTS = True
+HARVEST_DATASETS = True
+HARVEST_PRESS_MEDIA = True
+# HARVEST_PROJECTS is a command line option.
+
+
+# These specify the mode for harvesting.
 MODE_PERSONS = 'persons'
 MODE_ORGANIZATIONS = 'organizations'
 MODE_RESOUTS = 'research outputs'
@@ -483,45 +495,6 @@ def create_urlother(type_id: str, uuid_value: str) -> str:
                                value=uuid_value)
     else:
         return ''
-
-
-# def add_url_main_url_other(entities: pandas.DataFrame) -> pandas.DataFrame:
-#     """This function will add two columns URL_MAIN and URL_OTHER
-#     to the DataFrame. To do this, the DataFrame needs two other columns.
-#     The first column is a PURE_ID_... (e.g. PURE_ID_PRESS_MEDIA),
-#     the second column is URL_PREF (the preferred URL).
-#     Based on PURE_ID_..., a new column is created, URL_PURE.
-#     Next, URL_MAIN and URL_OTHER are created, based on the values
-#     of the rows in column URL_PREF and URL_PURE.
-#     - If the row with URL_PREF has a value: URL_MAIN = URL_PREF,
-#       URL_OTHER = URL_PURE.
-#     - If URL_PREF is missing but URL_PURE has a value:
-#       URL_MAIN = URL_PURE, URL_OTHER = ''.
-#     - If both missing: both empty.
-#
-#     :param entities: The DataFrame to process according to above.
-#     :return: The resulting DataFrame.
-#     """
-#     entities = entities.copy()
-#     personal_id_name = entities.columns[0]
-#     entities['URL_PURE'] = entities[[personal_id_name]].apply(
-#                         lambda row: create_pure_url(name=personal_id_name,
-#                                                     value=row[personal_id_name]), axis = 1)
-#     # Normalize missing values.
-#     # '.str.strip()' removes leading and trailing whitespace.
-#     url_pref = entities['URL_PREF'].fillna("").astype(str).str.strip()
-#     url_pure = entities['URL_PURE'].fillna("").astype(str).str.strip()
-#     entities.drop(columns=['URL_PURE'], inplace=True)
-#
-#     # Condition: where URL_PREF exists.
-#     has_url_pref = url_pref != ""
-#     has_url_pure = url_pure != ""
-#
-#     # Create the columns.
-#     entities['URL_MAIN'] = url_pref.where(has_url_pref,
-#                                           url_pure.where(has_url_pure, other=''))
-#     entities['URL_OTHER'] = url_pure.where(has_url_pref, other='')
-#     return entities
 
 
 def find_organization_name(uuid: str, organization_names: dict):
@@ -1293,7 +1266,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     elif mode == MODE_PROJECTS:
         parse = parse_pure_projects(harvest=harvest_data, filename=df_filename)
 
-    if parse is None:
+    if parse is None or parse.empty:
         return None
     print('The harvested ' + mode + ' are:')
     print(parse)
@@ -1845,8 +1818,7 @@ data_file = rcg.construct_filename(base_filename=PURE_PERSONS_DATA_FILENAME,
 rcg.graphdb_nr_accesses_print()
 print(rcg.nodes_cache_key_id_type_size() + '\n')
 
-# if False:
-if True:
+if HARVEST_PERSONS:
     if PURE_PERSONS_READ_DATA_FROM_FILE:
         error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print('Reading persons from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
@@ -1876,12 +1848,12 @@ org_and_all_parents = {}
 
 # ########################################################################
 # Code for harvesting organizations. This is dependent on harvested persons.
-# if False:
-if True:
+if HARVEST_ORGANIZATIONS:
     # Uncomment the next line for (some) debugging purposes.
     # You might also want to set 'PURE_PERSONS_READ_HARVEST_FROM_FILE = True'
     # at the top of this file.
-    # parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
+    if not HARVEST_PERSONS:
+        parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
 
     data_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_DATA_FILENAME,
                                        organization=organization)
@@ -1916,8 +1888,7 @@ if True:
 
 # ########################################################################
 # Code for harvesting research outputs.
-# if False:
-if True:
+if HARVEST_RESOUTS:
     # Note that in 2023, the Pure CRUD API did not allow
     # harvesting separate years. This might cause memory problems.
     # You might want to set PURE_RESOUTS_MAX_RECS_TO_HARVEST.
@@ -1961,8 +1932,7 @@ if True:
 
 # ########################################################################
 # Code for data sets from the Pure datasets endpoint.
-# if False:
-if True:
+if HARVEST_DATASETS:
     if PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('\nPure is harvested using the Pure CRUD API.')
         print('Harvesting data sets from Pure using the CRUD API is not implemented yet.')
@@ -2007,8 +1977,7 @@ if True:
 
 # ########################################################################
 # Code for harvesting press media items.
-# if False:
-if True:
+if HARVEST_PRESS_MEDIA:
     if PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('\nPure is harvested using the Pure CRUD API.')
         print('Harvesting press media items from Pure using the CRUD API is not implemented yet.')
