@@ -88,7 +88,6 @@ from typing import Union
 import requests
 from pathlib import PurePath
 import ricgraph as rcg
-from ricgraph import construct_extended_org_name
 
 # ######################################################
 # General parameters for harvesting from Pure.
@@ -112,13 +111,11 @@ HARVEST_PRESS_MEDIA = True
 
 # These specify the mode for harvesting.
 MODE_PERSONS = 'persons'
-MODE_ORGANIZATIONS = 'organizations'
 MODE_RESOUTS = 'research outputs'
 MODE_DATASETS = 'data sets'
 MODE_PRESS_MEDIA = 'press media'
 MODE_PROJECTS = 'projects'
 MODE_ALL = [MODE_PERSONS,
-            MODE_ORGANIZATIONS,
             MODE_RESOUTS,
             MODE_DATASETS,
             MODE_PRESS_MEDIA,
@@ -212,7 +209,7 @@ PURE_ORGANIZATIONS_HARVEST_FILENAME = 'pure_organizations_harvest.json'
 # If True, the value of PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE does not matter.
 PURE_ORGANIZATIONS_READ_DATA_FROM_FILE = False
 # PURE_ORGANIZATIONS_READ_DATA_FROM_FILE = True
-PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.csv'
+PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.json'
 
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
@@ -279,7 +276,7 @@ PURE_READ_DATASETS_ENDPOINT = 'datasets'
 
 # Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
 PURE_DATASETS_READ_HARVEST_FROM_FILE = False
-# PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE = True
+# PURE_DATASETS_READ_HARVEST_FROM_FILE = True
 PURE_DATASETS_HARVEST_FILENAME = 'pure_datasets_harvest.json'
 
 # Set this to True to read data from the csv file. No harvest will be done, this would
@@ -450,6 +447,17 @@ ROCATEGORY_MAPPING_PURE = {
 
 
 # ######################################################
+# Mapping from Pure data set output types (from the dataset endpoint)
+# to Ricgraph research output types.
+# ######################################################
+DSCATEGORY_PREFIX_PURE = '/dk/atira/pure/dataset/datasettypes/dataset/'
+DSCATEGORY_MAPPING_PURE = {
+    DSCATEGORY_PREFIX_PURE + 'dataset': rcg.ROCATEGORY_DATASET,
+    DSCATEGORY_PREFIX_PURE + 'software': rcg.ROCATEGORY_SOFTWARE,
+}
+
+
+# ######################################################
 # Utility functions related to harvesting of Pure
 # ######################################################
 
@@ -565,15 +573,20 @@ def restructure_parse_projects(df: pandas.DataFrame) -> pandas.DataFrame:
 
 
 def parse_pure_persons(harvest: list,
+                       org_uuids_to_org_names: dict,
                        filename: str = '',
                        year_start: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons from Pure.
     In case filename != '', write it to a file and read it back.
 
-    :param harvest: the harvest.
+    :param harvest: The harvest.
+    :param org_uuids_to_org_names: A dict where the key is the
+        uuid of an organization,
+        and its value a list with the name of the organization, and the names
+        of all of its parents. Return an empty dict if nothing happened.
     :param filename: If filename != '', write it to a file and read it back.
-    :param year_start: the first year that we would like to harvest.
-    :return: the harvested persons in a DataFrame, or None if nothing to parse.
+    :param year_start: The first year that we would like to harvest.
+    :return: The harvested persons in a DataFrame, or None if nothing to parse.
     """
     if len(harvest) == 0:
         return None
@@ -614,7 +627,6 @@ def parse_pure_persons(harvest: list,
             parse_line = {'PURE_ID_PERS': pers_uuid,
                           'ORCID': orcid}
             parse_chunk.append(parse_line)
-
         for identities in rcg.json_item_get_list(json_item=harvest_item,
                                                  json_path='ids'):
             # Field in Pure READ API.
@@ -667,14 +679,24 @@ def parse_pure_persons(harvest: list,
             else:
                 continue
 
-            parse_line = {'PURE_ID_PERS': pers_uuid,
-                          'PURE_ID_ORG': org_uuid}
-            parse_chunk.append(parse_line)
+            # Note that this may result in a lot of entries.
+            # Imagine that this person works for the same organization
+            # multiple times. Then the full hierarchy will be inserted
+            # in parse_chunk multiple times. This will be cleaned up later.
+            if org_uuid not in org_uuids_to_org_names:
+                continue
+            for org_name in org_uuids_to_org_names[org_uuid]:
+                parse_line = {'PURE_ID_PERS': pers_uuid,
+                              'PURE_NAME_ORG': org_name}
+                parse_chunk.append(parse_line)
+
             # Put in the DataFrame with harvested persons to be returned.
             parse_chunk_final.extend(parse_chunk)
 
     rcg.print_progress(count=count, now=True)
     parse_result = pandas.DataFrame(parse_chunk_final)
+    # Now remove the duplicate entries.
+    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
     if 'PURE_ID_ORG' not in parse_result.columns \
        and PURE_API_VERSION == PURE_CRUD_API_VERSION:
@@ -691,23 +713,24 @@ def parse_pure_persons(harvest: list,
 
 
 def parse_pure_organizations(harvest: list,
-                             filename: str = '') -> Union[pandas.DataFrame, None]:
+                             filename: str = '') -> dict:
     """Parse the harvested organizations from Pure.
     In case filename != '', write it to a file and read it back.
 
-    :param harvest: the harvest.
+    :param harvest: The harvest.
     :param filename: If filename != '', write it to a file and read it back.
-    :return: the harvested organizations in a DataFrame,
-        or None if nothing to parse.
+    :return: A dict where the key is the uuid of an organization,
+        and its value a list with the name of the organization, and the names
+        of all of its parents. Return an empty dict if nothing happened.
     """
     global organization
 
     if len(harvest) == 0:
-        return None
+        return {}
     print('There are ' + str(len(harvest)) + ' organization records ('
           + rcg.timestamp() + '), parsing record:')
-    parse_chunk = []                # list of dictionaries
-    organization_names = {}
+    org_uuid_to_name = {}
+    org_uuid_to_parentuuid = {}
     count = 0
     for harvest_item in harvest:
         count = rcg.print_progress(count=count, interval=1000)
@@ -715,7 +738,7 @@ def parse_pure_organizations(harvest: list,
                                               json_path='uuid')) == '':
             # There must be an uuid, otherwise skip.
             continue
-
+        # #####
         # Only consider current organizations, that is an organization
         # where endDate is not existing or empty. If not, then skip.
         if rcg.json_item_get_str(json_item=harvest_item,
@@ -734,15 +757,15 @@ def parse_pure_organizations(harvest: list,
         else:
             # If there is no organization type skip
             continue
+        # #####
         if (rcg.json_item_get_dict(json_item=harvest_item,
                                    json_path='name')) == {}:
             # If there is no name dict skip
             continue
-
+        # #####
         # Skip the organization ids. There are only a few, and it
         # seems to complicated to implement for now (we will need
         # something like 'organization-root' aka 'person-root').
-
         if PURE_API_VERSION == PURE_READ_API_VERSION:
             # We are in Pure READ API.
             org_type_name = rcg.json_item_get_str(json_item=harvest_item,
@@ -755,17 +778,21 @@ def parse_pure_organizations(harvest: list,
                                                   json_path='type.term.en_GB')
             org_name = rcg.json_item_get_str(json_item=harvest_item,
                                              json_path='name.en_GB')
+        # #####
         if len(parents := rcg.json_item_get_list(json_item=harvest_item,
                                                  json_path='parents')) == 0:
             # Assume it is the top level organization since it doesn't have a parent.
             # Only necessary to add the top level organization to the dict with organization names.
-            organization_names[org_uuid] = construct_extended_org_name(org_name=org_name,
-                                                                       org_abbr=organization)
+            org_uuid_to_parentuuid[org_uuid] = ''
+            org_uuid_to_name[org_uuid] = rcg.construct_extended_org_name(org_abbr=organization,
+                                                                         org_name=org_name)
             continue
-
+        org_uuid_to_name[org_uuid] = rcg.construct_extended_org_name(org_abbr=organization,
+                                                                     org_type=org_type_name,
+                                                                     org_name=org_name)
         for parentorg in parents:
             if (parentorg_uuid := rcg.json_item_get_str(json_item=parentorg,
-                                                         json_path='uuid')) == '':
+                                                        json_path='uuid')) == '':
                 # There must be an uuid, otherwise skip.
                 continue
             # Note: 'parents' does not have a 'period', so we don't need to do something.
@@ -781,23 +808,35 @@ def parse_pure_organizations(harvest: list,
                 pass
             else:
                 continue
-            parse_line = {'PURE_ID_ORG': org_uuid,
-                          'ORG_NAME_TYPE': org_type_name,
-                          'ORG_NAME': org_name,
-                          'ORG_NAME_FULL': organization + ' ' + org_type_name + ': ' + org_name,
-                          'PURE_ID_PARENTORG': parentorg_uuid}
-            parse_chunk.append(parse_line)
-            organization_names[org_uuid] = parse_line['ORG_NAME_FULL']
+            org_uuid_to_parentuuid[org_uuid] = parentorg_uuid
 
-    rcg.print_progress(count=count, now=True)
-    parse_result = pandas.DataFrame(parse_chunk)
-    parse_result['PARENTORG_NAME_FULL'] = (
-        parse_result[['PURE_ID_PARENTORG']].apply(lambda row:
-                                            find_organization_name(uuid=row['PURE_ID_PARENTORG'],
-                                                                   organization_names=organization_names),
-                                            axis=1))
-    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
-                                                filename=filename)
+    # This will contain the list of parent org uuids of an org uuid.
+    # Note that it is not used anymore.
+    org_uuid_to_list_of_parentsuuids = {}
+
+    # This will contain the names of all parents, including the
+    # name of the organization itself.
+    org_uuid_to_list_of_names = {}
+    for org_uuid in org_uuid_to_parentuuid:
+        parents = []
+        parent = org_uuid_to_parentuuid[org_uuid]
+        names = [org_uuid_to_name[org_uuid]]
+
+        while parent != '':
+            if parent in org_uuid_to_name:
+                parent_name = org_uuid_to_name[parent]
+                names.append(parent_name)
+            parents.append(parent)
+            if parent in org_uuid_to_parentuuid:
+                parent = org_uuid_to_parentuuid[parent]
+            else:
+                parent = ''
+
+        org_uuid_to_list_of_parentsuuids[org_uuid] = parents
+        org_uuid_to_list_of_names[org_uuid] = names
+
+    return rcg.write_read_dict_file(filename=filename,
+                                    json_data=org_uuid_to_list_of_names)
 
 
 def parse_pure_entities(harvest: list,
@@ -916,7 +955,8 @@ def parse_pure_entities(harvest: list,
             # endpoint researchoutputs.
             id_name = 'PURE_ID_DATASET'
             id_name_tobeused = 'PURE_ID_RESOUT'
-            category = rcg.ROCATEGORY_DATASET
+            category = rcg.lookup_resout_category(research_output_category=category,
+                                                  research_output_mapping=DSCATEGORY_MAPPING_PURE)
         elif mode == MODE_PRESS_MEDIA:
             id_name = id_name_tobeused = 'PURE_ID_PRESS_MEDIA'
             category = rcg.CATEGORY_PRESS_MEDIA
@@ -1185,6 +1225,58 @@ def parse_pure_projects(harvest: list,
 # ######################################################
 # Harvesting and parsing
 # ######################################################
+def get_pure_organization_info(url: str,
+                               headers: dict, body: dict) -> dict:
+    """Harvest and parse organization data from Pure.
+    This function is different compared to harvest_and_parse_pure_data()
+    because parse_pure_organizations() returns a dict that is required by
+    parse_pure_persons().
+
+    :param url: URL to harvest.
+    :param headers: headers for Pure.
+    :param body: the body of a POST request, or '' for a GET request.
+    :return: A dict where the key is the uuid of an organization,
+        and its value a list with the name of the organization, and the names
+        of all of its parents. Return an empty dict if nothing happened.
+    """
+    if HARVEST_ORGANIZATIONS:
+        org_data_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_DATA_FILENAME,
+                                               organization=organization)
+        if PURE_ORGANIZATIONS_READ_DATA_FROM_FILE:
+            err_message = 'There are no organizations from '
+            err_message += HARVEST_SOURCE + ' to read from file '
+            err_message += org_data_file + '.\n'
+            print('Reading organizations from ' + HARVEST_SOURCE
+                  + ' from file ' + org_data_file + '.')
+            org_uuids_to_org_names = rcg.read_dict_from_file(filename=org_data_file)
+        else:
+            err_message = 'There are no organizations from '
+            err_message += HARVEST_SOURCE + ' to harvest.\n'
+            print('Harvesting organizations from ' + HARVEST_SOURCE + '.')
+            harvest_data = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME,
+                                                  organization=organization)
+            if PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE:
+                harvest_data = rcg.read_json_from_file(filename=harvest_data)
+            else:
+                harvest_data = rcg.harvest_json(url=url,
+                                                headers=headers,
+                                                body=body,
+                                                max_recs_to_harvest=PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST,
+                                                chunksize=PURE_CHUNKSIZE,
+                                                filename=harvest_data)
+
+            org_uuids_to_org_names = parse_pure_organizations(harvest=harvest_data,
+                                                              filename=org_data_file)
+
+        if len(org_uuids_to_org_names) == 0:
+            print(err_message)
+
+        rcg.graphdb_nr_accesses_print()
+        print(rcg.nodes_cache_key_id_type_size() + '\n')
+        return org_uuids_to_org_names
+
+    return {}
+
 
 def harvest_and_parse_pure_data(mode: str, endpoint: str,
                                 headers: dict, body: dict,
@@ -1212,8 +1304,6 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
 
     if mode == MODE_PERSONS:
         max_recs_to_harvest = PURE_PERSONS_MAX_RECS_TO_HARVEST
-    elif mode == MODE_ORGANIZATIONS:
-        max_recs_to_harvest = PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST
     elif mode == MODE_RESOUTS:
         max_recs_to_harvest = PURE_RESOUTS_MAX_RECS_TO_HARVEST
     elif mode == MODE_DATASETS:
@@ -1227,13 +1317,12 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
         return None
 
     print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
+    url = PURE_URL + '/' + PURE_API_VERSION + '/' + endpoint
     if (mode == MODE_PERSONS and not PURE_PERSONS_READ_HARVEST_FROM_FILE) \
-       or (mode == MODE_ORGANIZATIONS and not PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_RESOUTS and not PURE_RESOUTS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_DATASETS and not PURE_DATASETS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_PRESS_MEDIA and not PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_PROJECTS and not PURE_PROJECTS_READ_HARVEST_FROM_FILE):
-        url = PURE_URL + '/' + PURE_API_VERSION + '/' + endpoint
         harvest_data = rcg.harvest_json(url=url,
                                         headers=headers, body=body,
                                         max_recs_to_harvest=max_recs_to_harvest,
@@ -1246,10 +1335,13 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     # Local variable 'parse' might be referenced before assignment.
     parse = pandas.DataFrame()
     if mode == MODE_PERSONS:
-        parse = parse_pure_persons(harvest=harvest_data, filename=df_filename,
+        org_uuids_to_org_names = get_pure_organization_info(url=url,
+                                                            headers=headers,
+                                                            body=body)
+        parse = parse_pure_persons(harvest=harvest_data,
+                                   org_uuids_to_org_names=org_uuids_to_org_names,
+                                   filename=df_filename,
                                    year_start=year_first)
-    elif mode == MODE_ORGANIZATIONS:
-        parse = parse_pure_organizations(harvest=harvest_data, filename=df_filename)
     elif mode == MODE_RESOUTS:
         parse = parse_pure_entities(harvest=harvest_data, filename=df_filename,
                                     mode=mode)
@@ -1304,169 +1396,14 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                harvest_source=HARVEST_SOURCE,
                                what='URLs of PURE_ID_PERS nodes')
-    return
-
-
-def determine_all_parent_organizations(parsed_content_organizations: pandas.DataFrame) -> dict:
-    """Determine all the parents from a given organization.
-    In Pure, organizations are hierarchical. That means, an organization has a parent org,
-    which has a parent org, up until a root org.
-
-    :param parsed_content_organizations: a DataFrame containing an organization and its parent.
-    :return: a dict of lists. The dict is on organization UUID, the list has as
-      first element the name of the organization UUID, followed by UUIDS of all of its parents, or
-      followed by nothing if no parent for organization UUID exists.
-    """
-    print('Determining all parent organizations of an organization...')
-    parsed_content = parsed_content_organizations[['PURE_ID_ORG',
-                                                   'ORG_NAME_FULL',
-                                                   'PURE_ID_PARENTORG']].copy(deep=True)
-    parsed_content.dropna(axis=0, how='any', inplace=True)
-    parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organization_and_all_parents = {}
-
-    # Transform dataframe to dict. The first entry in the list at a dict[<org>] is the
-    # name, following entries are the parents of <org>.
-    # In this loop, construct the dict and its direct parent, in the second loop
-    # the top-level orgs will be added, and in the third loop all of its
-    # parents will be appended to dict[<org>].
-    for index in range(len(parsed_content)):
-        orgid = str(parsed_content.iloc[index, 0])
-        orgname = str(parsed_content.iloc[index, 1])
-        parentorgid = str(parsed_content.iloc[index, 2])
-        if orgid in organization_and_all_parents:
-            # This orgid seems to have more than one parent.
-            organization_and_all_parents[orgid].append(parentorgid)
-            continue
-        organization_and_all_parents.setdefault(orgid, [])
-        organization_and_all_parents[orgid].append(orgname)
-        organization_and_all_parents[orgid].append(parentorgid)
-
-    # 2nd loop: Do the same for PURE_ID_PARENTORG and PARENTORG_NAME_FULL. This is necessary because the
-    # top-level org will not be in PURE_ID_ORG.
-    parsed_content = parsed_content_organizations[['PURE_ID_PARENTORG',
-                                                   'PARENTORG_NAME_FULL']].copy(deep=True)
-    parsed_content.dropna(axis=0, how='any', inplace=True)
-    parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    for index in range(len(parsed_content)):
-        orgid = str(parsed_content.iloc[index, 0])
-        orgname = str(parsed_content.iloc[index, 1])
-        if orgid not in organization_and_all_parents:
-            organization_and_all_parents.setdefault(orgid, [])
-            organization_and_all_parents[orgid].append(orgname)
-
-    # 3rd loop: For each organization, find all of its parents.
-    something_changed = True
-    nr_iterations = 0
-    while something_changed:
-        something_changed = False
-        nr_iterations += 1
-        for orgid in organization_and_all_parents:
-            orgid_name_and_parentslist = organization_and_all_parents[orgid]
-            # For each parent of orgid, find its parent, up to the top org.
-            # In this first loop, we loop over the parents of orgid we've already found.
-            for index in range(len(orgid_name_and_parentslist)):
-                if index == 0:
-                    # Remember: first entry in list is the name of orgid.
-                    continue
-                parentorgid = orgid_name_and_parentslist[index]
-                # Now, find the parents of parentorgid, first check if there is any.
-                if parentorgid not in organization_and_all_parents:
-                    continue
-                parentslist = organization_and_all_parents[parentorgid]
-                # Now loop over the lists of parents of 'parentorgid'.
-                for index_pl in range(len(parentslist)):
-                    if index_pl == 0:
-                        # Remember: first entry in list is the name of the parent org.
-                        continue
-                    parent_of_parentorgid = parentslist[index_pl]
-                    if parent_of_parentorgid not in organization_and_all_parents[orgid]:
-                        something_changed = True
-                        organization_and_all_parents[orgid].append(parent_of_parentorgid)
-
-    print(str(nr_iterations) + ' iterations were necessary to determine all parent organizations.')
-
-    return organization_and_all_parents
-
-
-def parsed_organizations_to_ricgraph(parsed_content_persons: pandas.DataFrame,
-                                     organization_and_all_parents: dict) -> None:
-    """Insert the parsed organizations in Ricgraph.
-
-    In Pure, organizations are hierarchical. That means, an organization has a parent org,
-    which has a parent org, up until a root org.
-    At the end of this function, a person (i.e. its person-root node) will be connected to
-    all of these hierarchical orgs.
-
-    :param parsed_content_persons: The person records to connect to organization records in Ricgraph.
-    :param organization_and_all_parents: a dict of lists. The dict is on organization UUID, the list has as
-      first element the name of the organization UUID, followed by UUIDS of all of its parents, or
-      followed by nothing if no parent for organization UUID exists.
-    :return: None.
-    """
-    timestamp = rcg.datetimestamp()
-    print('\nInserting organizations and persons from organizations from '
-          + HARVEST_SOURCE + ' in Ricgraph at ' + timestamp + '...')
-
-    print('Determining all links between persons and all of their organizations...', end=' ')
-    parsed_content = parsed_content_persons[['PURE_ID_PERS',
-                                             'PURE_ID_ORG']].copy(deep=True)
-    parsed_content.dropna(axis=0, how='any', inplace=True)
-    parsed_content.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    person_organization = {}
-    for index in range(len(parsed_content)):
-        personid = parsed_content.iloc[index, 0]
-        orgid = parsed_content.iloc[index, 1]
-        if personid in person_organization:
-            # This personid seems to be in more than one org.
-            person_organization[personid].append(orgid)
-            continue
-        person_organization.setdefault(personid, [])
-        person_organization[personid].append(orgid)
-
-    parse_chunk = []                # list of dictionaries
-    for personid in person_organization:
-        orgidlist = person_organization[personid]
-        # This person may be in several organizations in 'orgidlist'.
-        for orgid in orgidlist:
-            if orgid not in organization_and_all_parents:
-                continue
-            orgid_name_and_parentslist = organization_and_all_parents[orgid]
-            orgid_name = orgid_name_and_parentslist[0]
-
-            # First connect this person and 'orgid'.
-            parse_line = {'PURE_ID_PERS': str(personid),
-                          'PURE_ID_ORG': orgid,
-                          'ORG_NAME_FULL': orgid_name}
-            parse_chunk.append(parse_line)
-
-            # Now get all parents of orgid.
-            # Then connect this person with the parents of 'orgid'.
-            for index in range(len(orgid_name_and_parentslist)):
-                if index == 0:
-                    # Remember: first entry in list is the name of the org.
-                    continue
-                parse_line = {'PURE_ID_PERS': str(personid)}
-                parent_orgid = str(orgid_name_and_parentslist[index])
-                parent_name = str(organization_and_all_parents[parent_orgid][0])
-                parse_line['PURE_ID_ORG'] = parent_orgid
-                parse_line['ORG_NAME_FULL'] = parent_name
-                parse_chunk.append(parse_line)
-
-    print('Done.\n')
-
-    if len(parse_chunk) == 0:
-        print('No link found between persons and all of their organizations.')
-        return
-
-    persorgnodes = pandas.DataFrame(parse_chunk)
-    # Add the URL to this organization in Pure. Some organizations do
-    # not seem to have this page.
-    persorgnodes['URL_MAIN'] = persorgnodes[['PURE_ID_ORG']].apply(
-                               lambda row: create_pure_url(name='PURE_ID_ORG',
-                                                           value=row['PURE_ID_ORG']), axis=1)
-    persorgnodes.drop(labels='PURE_ID_ORG', axis='columns', inplace=True)
-    persorgnodes.rename(columns={'ORG_NAME_FULL': 'ORGANIZATION_NAME'}, inplace=True)
+    persorgnodes = parsed_content[['PURE_ID_PERS', 'PURE_NAME_ORG']].copy(deep=True)
+    persorgnodes.rename(columns={'PURE_NAME_ORG': 'ORGANIZATION_NAME'}, inplace=True)
+    # We cannot do this, since we only have an organization name, not an uuid.
+    #     # Add the URL to this organization in Pure. Some organizations do
+    #     # not seem to have this page.
+    #     persorgnodes['URL_MAIN'] = persorgnodes[['PURE_ID_ORG']].apply(
+    #                                lambda row: create_pure_url(name='PURE_ID_ORG',
+    #                                                            value=row['PURE_ID_ORG']), axis=1)
     rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
                                            harvest_source=HARVEST_SOURCE,
                                            what='organizations')
@@ -1814,16 +1751,17 @@ resout_uuid_or_doi = {}
 # see the top of this file.
 # ########################################################################
 
-
-# ########################################################################
-# Code for harvesting persons. Harvested persons are required for organizations.
-data_file = rcg.construct_filename(base_filename=PURE_PERSONS_DATA_FILENAME,
-                                   organization=organization)
-
 rcg.graphdb_nr_accesses_print()
 print(rcg.nodes_cache_key_id_type_size() + '\n')
 
+org_and_all_parents = {}
+
+
+# ########################################################################
+# Code for harvesting persons. Harvested organizations are required for persons.
 if HARVEST_PERSONS:
+    data_file = rcg.construct_filename(base_filename=PURE_PERSONS_DATA_FILENAME,
+                                       organization=organization)
     if PURE_PERSONS_READ_DATA_FROM_FILE:
         error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print('Reading persons from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
@@ -1845,47 +1783,6 @@ if HARVEST_PERSONS:
         print(error_message)
     else:
         parsed_persons_to_ricgraph(parsed_content=parse_persons)
-
-    rcg.graphdb_nr_accesses_print()
-    print(rcg.nodes_cache_key_id_type_size() + '\n')
-
-org_and_all_parents = {}
-
-# ########################################################################
-# Code for harvesting organizations. This is dependent on harvested persons.
-if HARVEST_ORGANIZATIONS:
-    # Uncomment the next line for (some) debugging purposes.
-    # You might also want to set 'PURE_PERSONS_READ_HARVEST_FROM_FILE = True'
-    # at the top of this file.
-    if not HARVEST_PERSONS:
-        parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
-
-    data_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_DATA_FILENAME,
-                                       organization=organization)
-    if PURE_ORGANIZATIONS_READ_DATA_FROM_FILE:
-        error_message = 'There are no organizations from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
-        print('Reading organizations from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
-        parse_organizations = rcg.read_dataframe_from_csv(filename=data_file,
-                                                          datatype=str)
-    else:
-        error_message = 'There are no organizations from ' + HARVEST_SOURCE + ' to harvest.\n'
-        print('Harvesting organizations from ' + HARVEST_SOURCE + '.')
-        harvest_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME,
-                                              organization=organization)
-        parse_organizations = harvest_and_parse_pure_data(mode='organizations',
-                                                          endpoint=PURE_ORGANIZATIONS_ENDPOINT,
-                                                          headers=PURE_HEADERS,
-                                                          body=PURE_ORGANIZATIONS_FIELDS,
-                                                          harvest_filename=harvest_file,
-                                                          df_filename=data_file)
-
-    if parse_organizations is None or parse_organizations.empty:
-        print(error_message)
-    else:
-        org_and_all_parents = determine_all_parent_organizations(parsed_content_organizations=parse_organizations)
-        # Next may generate a PyCharm warning "Name 'parse_persons' can be undefined".
-        parsed_organizations_to_ricgraph(parsed_content_persons=parse_persons,
-                                         organization_and_all_parents=org_and_all_parents)
 
     rcg.graphdb_nr_accesses_print()
     print(rcg.nodes_cache_key_id_type_size() + '\n')
@@ -1979,7 +1876,6 @@ if HARVEST_DATASETS:
     rcg.graphdb_nr_accesses_print()
     print(rcg.nodes_cache_key_id_type_size() + '\n')
 
-
 # ########################################################################
 # Code for harvesting press media items.
 if HARVEST_PRESS_MEDIA:
@@ -2059,6 +1955,9 @@ if HARVEST_PROJECTS:
     if parse_projects is None or parse_projects.empty:
         print(error_message)
     else:
+        # NOTE: org_and_all_parents is undefined now (27-2-2026),
+        # after a full rewrite of the organization harvest.
+        # This will have to be solved when rewriting the project harvest.
         parsed_projects_to_ricgraph(parsed_content=parse_projects,
                                     organization_and_all_parents=org_and_all_parents)
 

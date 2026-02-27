@@ -333,16 +333,23 @@ def extract_organization_abbreviation(org_name: str) -> str:
     return org_abbr.upper()
 
 
-def construct_extended_org_name(org_name: str, org_abbr: str) -> str:
+def construct_extended_org_name(org_abbr: str,
+                                org_type: str = '',
+                                org_name: str = '') -> str:
     """Construct the extended organization name.
-    This is done by appending the organization abbreviation and the
-    organization name.
+    This is done by appending the organization abbreviation,
+    the organization type, and the organization name.
 
-    :param org_name: the organization name.
-    :param org_abbr: the organization abbreviation.
+    :param org_abbr: The organization abbreviation.
+    :param org_type: The type of organization (faculty, department, etc.)
+    :param org_name: The organization name.
     :return: the combination of both.
     """
-    return org_abbr.upper() + ' ' + org_name
+    extended_org_name = org_abbr.upper() + ' '
+    if org_type != '':
+        extended_org_name += org_type + ': '
+    extended_org_name += org_name
+    return extended_org_name
 
 
 def create_ricgraph_key(name: str, value: str) -> str:

@@ -45,17 +45,20 @@
 from os import makedirs
 from os.path import isfile, dirname, exists
 from pandas import DataFrame, read_csv
+from typing import Union
 from csv import QUOTE_ALL
 from json import load, dump
 
 
-def write_json_to_file(filename:str, json_data: list) -> None:
-    """Write json data to a file.
+def write_json_to_file(filename:str,
+                       json_data: Union[list, dict]) -> None:
+    """Write json data to a file. This also works for dicts.
     If no records are harvested, nothing is written.
 
     :param filename: filename of the file to use for writing.
       It will also work if you specify a directory and filename.
     :param json_data: a list of records in json format.
+      Can also be a dict.
     :return: None.
     """
     print('Writing json data to file ' + filename + '...', end=' ')
@@ -107,7 +110,7 @@ def read_json_from_file(filename: str) -> list:
     return json_data
 
 
-def write_read_json_file(json_data: list,
+def write_read_json_file(json_data: Union[list, dict],
                          filename: str = '') -> list:
     """In case filename != '', write the JSON to a file and
     then read it back. In any case, return the JSON data received.
@@ -124,6 +127,39 @@ def write_read_json_file(json_data: list,
     write_json_to_file(filename=filename, json_data=json_data)
     json_from_file = read_json_from_file(filename=filename)
     return json_from_file
+
+
+def write_dict_to_file(filename:str, json_data: dict) -> None:
+    """Wrapper around write_json_to_file() for dicts.
+
+    :param filename: filename of the file to use for writing.
+      It will also work if you specify a directory and filename.
+    :param json_data: a list of records in json format.
+    :return: None.
+    """
+    write_json_to_file(filename=filename, json_data=json_data)
+    return
+
+
+def read_dict_from_file(filename: str) -> dict:
+    """Wrapper around read_json_from_file() for dicts.
+
+    :param filename: filename of the file to use for writing.
+    :return: dict of records in json format, or empty dict if nothing found.
+    """
+    return dict(read_json_from_file(filename=filename))
+
+
+def write_read_dict_file(json_data: dict,
+                         filename: str = '') -> dict:
+    """Wrapper around write_read_json_file() for dicts.
+
+    :param json_data: a list of records in json format.
+    :param filename: If filename != '', write it to a file and read it back.
+    :return: The JSON data received, as a dict.
+    """
+    return dict(write_read_json_file(json_data=json_data,
+                                     filename=filename))
 
 
 def write_text_to_file(filename: str, text: str) -> None:
