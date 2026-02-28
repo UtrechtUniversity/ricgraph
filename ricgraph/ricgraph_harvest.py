@@ -455,7 +455,7 @@ def update_urls_in_ricgraph(entities: DataFrame,
     entity_name = entities.columns[0]
     if entity_name in ['PURE_ID_PERS', 'UUSTAFF_PAGEID', 'PHOTO_ID']:
         entities['category'] = 'person'
-    elif entity_name in ['PURE_NAME_ORG']:
+    elif entity_name in ['ORGANIZATION_NAME']:
         entities['category'] = 'organization'
     else:
         print('update_urls_in_ricgraph(): Error, unknown column "'

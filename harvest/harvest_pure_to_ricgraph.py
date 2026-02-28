@@ -816,6 +816,10 @@ def parse_pure_organizations(harvest: list,
                 continue
             org_uuid_to_parentuuid[org_uuid] = parentorg_uuid
 
+    rcg.print_progress(count=count, now=True)
+    print('Collecting all parents of each organization at '
+          + rcg.timestamp() + '... ', end = '', flush = True)
+
     # This dict will contain the list of parent org uuids of an org uuid.
     # Note that it is not used at this moment.
     org_uuid_to_list_of_parentsuuids = {}
@@ -844,6 +848,7 @@ def parse_pure_organizations(harvest: list,
         org_uuid_to_list_of_parentsuuids[org_uuid] = parents
         org_uuid_to_list_of_names[org_uuid] = names
 
+    print('Done.\n')
     return rcg.write_read_dict_file(filename=filename,
                                     json_data=org_uuid_to_list_of_names)
 
@@ -1279,12 +1284,8 @@ def get_pure_organization_info(url: str,
 
         org_uuids_to_org_names = parse_pure_organizations(harvest=harvest_data,
                                                           filename=org_data_file)
-
     if len(org_uuids_to_org_names) == 0:
         print(err_message)
-
-    rcg.graphdb_nr_accesses_print()
-    print(rcg.nodes_cache_key_id_type_size() + '\n')
     return org_uuids_to_org_names
 
 
@@ -1423,7 +1424,8 @@ def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                            what='organizations')
     # Note that not every (sub)organization seems to have a webpage.
     nodes_to_update = parsed_content[['PURE_NAME_ORG', 'PURE_URL_ORG']].copy(deep=True)
-    nodes_to_update.rename(columns={'PURE_URL_ORG': 'URL_MAIN'}, inplace=True)
+    nodes_to_update.rename(columns={'PURE_NAME_ORG': 'ORGANIZATION_NAME',
+                                    'PURE_URL_ORG': 'URL_MAIN'}, inplace=True)
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                 harvest_source=HARVEST_SOURCE,
                                 what='URLs of organization nodes')
