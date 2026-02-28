@@ -434,11 +434,11 @@ def update_urls_in_ricgraph(entities: DataFrame,
                             what: str) -> None:
     """Update the URLs of the parsed entities in Ricgraph.
 
-    :param entities: The records to insert in Ricgraph, if not present yet.
+    :param entities: The records to update URLs in Ricgraph.
         The order of the columns in this DataFrame is important.
         We expect:
-        - In the 1st column: a person identifier (ORCID, OPENALEX_ID_PERS, etc.).
-          The 'name' property in the person node will get the name
+        - In the 1st column: an identifier (ORCID, OPENALEX_ID_PERS, etc.).
+          The 'name' property in the node will get the name
           of this column.
           The 'value' property will be the value in this columns' row.
         - The other column should be named 'URL_MAIN'.
@@ -452,17 +452,24 @@ def update_urls_in_ricgraph(entities: DataFrame,
     print('Updating ' + what + ' from ' + harvest_source
           + ' in Ricgraph at ' + timestamp() + '...')
 
-    personal_id_name = entities.columns[0]
+    entity_name = entities.columns[0]
+    if entity_name in ['PURE_ID_PERS', 'UUSTAFF_PAGEID', 'PHOTO_ID']:
+        entities['category'] = 'person'
+    elif entity_name in ['PURE_NAME_ORG']:
+        entities['category'] = 'organization'
+    else:
+        print('update_urls_in_ricgraph(): Error, unknown column "'
+              + entity_name + '".')
+        exit(1)
 
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
     entities.replace(to_replace='', value=nan, inplace=True)
     # Drop a row if any of its values is NaN.
     entities.dropna(axis=0, how='any', inplace=True)
     entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    entities.rename(columns={personal_id_name: 'value',
+    entities.rename(columns={entity_name: 'value',
                              'URL_MAIN': 'url_main'}, inplace=True)
-    new_entities_columns = {'name': personal_id_name,
-                            'category': 'person'}
+    new_entities_columns = {'name': entity_name}
     entities = entities.assign(**new_entities_columns)
     entities = entities[['name', 'category', 'value', 'url_main']]
 

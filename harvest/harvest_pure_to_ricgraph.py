@@ -97,9 +97,6 @@ import ricgraph as rcg
 HARVEST_PERSONS = True
 # HARVEST_ORGANIZATIONS = False
 HARVEST_ORGANIZATIONS = True
-# For HARVEST_ORGANIZATIONS you might also want to set
-# 'PURE_PERSONS_READ_HARVEST_FROM_FILE = True' (see comment in
-# main() in Code for harvesting organizations).
 # HARVEST_RESOUTS = False
 HARVEST_RESOUTS = True
 # HARVEST_DATASETS = False
@@ -593,6 +590,9 @@ def parse_pure_persons(harvest: list,
     if year_start == '':
         print('parse_pure_persons(): Invalid value for "year_start" passed, exiting.')
         exit(1)
+    if len(org_uuids_to_org_names) == 0:
+        print('parse_pure_persons(): Dict "org_uuids_to_org_names" is empty,so there')
+        print('    are no organizations to insert. Continuing parsing persons...')
 
     if PURE_API_VERSION == PURE_READ_API_VERSION:
         # We use the Pure READ API.
@@ -679,12 +679,18 @@ def parse_pure_persons(harvest: list,
             else:
                 continue
 
-            # Note that this may result in a lot of entries.
+            if org_uuid not in org_uuids_to_org_names:
+                continue
+            # Note that the first element in 'org_uuids_to_org_names[org_uuid]'
+            # is the name of the organization itself, see parse_pure_organizations().
+            parse_line = {'PURE_NAME_ORG': org_uuids_to_org_names[org_uuid][0],
+                          'PURE_URL_ORG': create_pure_url(name='PURE_ID_ORG',
+                                                          value=org_uuid)}
+            parse_chunk.append(parse_line)
+            # Note that this 'for' may result in a lot of entries.
             # Imagine that this person works for the same organization
             # multiple times. Then the full hierarchy will be inserted
             # in parse_chunk multiple times. This will be cleaned up later.
-            if org_uuid not in org_uuids_to_org_names:
-                continue
             for org_name in org_uuids_to_org_names[org_uuid]:
                 parse_line = {'PURE_ID_PERS': pers_uuid,
                               'PURE_NAME_ORG': org_name}
@@ -810,16 +816,19 @@ def parse_pure_organizations(harvest: list,
                 continue
             org_uuid_to_parentuuid[org_uuid] = parentorg_uuid
 
-    # This will contain the list of parent org uuids of an org uuid.
-    # Note that it is not used anymore.
+    # This dict will contain the list of parent org uuids of an org uuid.
+    # Note that it is not used at this moment.
     org_uuid_to_list_of_parentsuuids = {}
 
-    # This will contain the names of all parents, including the
-    # name of the organization itself.
+    # This dict will contain the names of all parents, including the
+    # name of the organization itself. The name of the organization
+    # itself is always the first element of the list.
     org_uuid_to_list_of_names = {}
     for org_uuid in org_uuid_to_parentuuid:
         parents = []
         parent = org_uuid_to_parentuuid[org_uuid]
+        # Important, 'org_uuid_to_name[org_uuid]' should be the first
+        # element, we use that in parse_pure_persons().
         names = [org_uuid_to_name[org_uuid]]
 
         while parent != '':
@@ -1239,43 +1248,44 @@ def get_pure_organization_info(url: str,
         and its value a list with the name of the organization, and the names
         of all of its parents. Return an empty dict if nothing happened.
     """
-    if HARVEST_ORGANIZATIONS:
-        org_data_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_DATA_FILENAME,
-                                               organization=organization)
-        if PURE_ORGANIZATIONS_READ_DATA_FROM_FILE:
-            err_message = 'There are no organizations from '
-            err_message += HARVEST_SOURCE + ' to read from file '
-            err_message += org_data_file + '.\n'
-            print('Reading organizations from ' + HARVEST_SOURCE
-                  + ' from file ' + org_data_file + '.')
-            org_uuids_to_org_names = rcg.read_dict_from_file(filename=org_data_file)
+    if not HARVEST_ORGANIZATIONS:
+        return {}
+
+    print('')
+    org_data_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_DATA_FILENAME,
+                                           organization=organization)
+    if PURE_ORGANIZATIONS_READ_DATA_FROM_FILE:
+        err_message = 'There are no organizations from '
+        err_message += HARVEST_SOURCE + ' to read from file '
+        err_message += org_data_file + '.\n'
+        print('Reading organizations from ' + HARVEST_SOURCE
+              + ' from file ' + org_data_file + '.')
+        org_uuids_to_org_names = rcg.read_dict_from_file(filename=org_data_file)
+    else:
+        err_message = 'There are no organizations from '
+        err_message += HARVEST_SOURCE + ' to harvest.\n'
+        print('Harvesting organizations from ' + HARVEST_SOURCE + '.')
+        harvest_data = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME,
+                                              organization=organization)
+        if PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE:
+            harvest_data = rcg.read_json_from_file(filename=harvest_data)
         else:
-            err_message = 'There are no organizations from '
-            err_message += HARVEST_SOURCE + ' to harvest.\n'
-            print('Harvesting organizations from ' + HARVEST_SOURCE + '.')
-            harvest_data = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME,
-                                                  organization=organization)
-            if PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE:
-                harvest_data = rcg.read_json_from_file(filename=harvest_data)
-            else:
-                harvest_data = rcg.harvest_json(url=url,
-                                                headers=headers,
-                                                body=body,
-                                                max_recs_to_harvest=PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST,
-                                                chunksize=PURE_CHUNKSIZE,
-                                                filename=harvest_data)
+            harvest_data = rcg.harvest_json(url=url,
+                                            headers=headers,
+                                            body=body,
+                                            max_recs_to_harvest=PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST,
+                                            chunksize=PURE_CHUNKSIZE,
+                                            filename=harvest_data)
 
-            org_uuids_to_org_names = parse_pure_organizations(harvest=harvest_data,
-                                                              filename=org_data_file)
+        org_uuids_to_org_names = parse_pure_organizations(harvest=harvest_data,
+                                                          filename=org_data_file)
 
-        if len(org_uuids_to_org_names) == 0:
-            print(err_message)
+    if len(org_uuids_to_org_names) == 0:
+        print(err_message)
 
-        rcg.graphdb_nr_accesses_print()
-        print(rcg.nodes_cache_key_id_type_size() + '\n')
-        return org_uuids_to_org_names
-
-    return {}
+    rcg.graphdb_nr_accesses_print()
+    print(rcg.nodes_cache_key_id_type_size() + '\n')
+    return org_uuids_to_org_names
 
 
 def harvest_and_parse_pure_data(mode: str, endpoint: str,
@@ -1317,7 +1327,8 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
         return None
 
     print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
-    url = PURE_URL + '/' + PURE_API_VERSION + '/' + endpoint
+    url_base = PURE_URL + '/' + PURE_API_VERSION + '/'
+    url = url_base + endpoint
     if (mode == MODE_PERSONS and not PURE_PERSONS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_RESOUTS and not PURE_RESOUTS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_DATASETS and not PURE_DATASETS_READ_HARVEST_FROM_FILE) \
@@ -1335,9 +1346,9 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     # Local variable 'parse' might be referenced before assignment.
     parse = pandas.DataFrame()
     if mode == MODE_PERSONS:
-        org_uuids_to_org_names = get_pure_organization_info(url=url,
-                                                            headers=headers,
-                                                            body=body)
+        org_uuids_to_org_names = get_pure_organization_info(url=url_base + PURE_ORGANIZATIONS_ENDPOINT,
+                                                            headers=PURE_HEADERS,
+                                                            body=PURE_ORGANIZATIONS_FIELDS)
         parse = parse_pure_persons(harvest=harvest_data,
                                    org_uuids_to_org_names=org_uuids_to_org_names,
                                    filename=df_filename,
@@ -1396,17 +1407,26 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                harvest_source=HARVEST_SOURCE,
                                what='URLs of PURE_ID_PERS nodes')
+    return
+
+
+def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
+    """Insert the parsed organizations in Ricgraph.
+
+    :param parsed_content: The records to insert in Ricgraph, if not present yet.
+    :return: None.
+    """
     persorgnodes = parsed_content[['PURE_ID_PERS', 'PURE_NAME_ORG']].copy(deep=True)
     persorgnodes.rename(columns={'PURE_NAME_ORG': 'ORGANIZATION_NAME'}, inplace=True)
-    # We cannot do this, since we only have an organization name, not an uuid.
-    #     # Add the URL to this organization in Pure. Some organizations do
-    #     # not seem to have this page.
-    #     persorgnodes['URL_MAIN'] = persorgnodes[['PURE_ID_ORG']].apply(
-    #                                lambda row: create_pure_url(name='PURE_ID_ORG',
-    #                                                            value=row['PURE_ID_ORG']), axis=1)
     rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
                                            harvest_source=HARVEST_SOURCE,
                                            what='organizations')
+    # Note that not every (sub)organization seems to have a webpage.
+    nodes_to_update = parsed_content[['PURE_NAME_ORG', 'PURE_URL_ORG']].copy(deep=True)
+    nodes_to_update.rename(columns={'PURE_URL_ORG': 'URL_MAIN'}, inplace=True)
+    rcg.update_urls_in_ricgraph(entities=nodes_to_update,
+                                harvest_source=HARVEST_SOURCE,
+                                what='URLs of organization nodes')
     return
 
 
@@ -1754,8 +1774,6 @@ resout_uuid_or_doi = {}
 rcg.graphdb_nr_accesses_print()
 print(rcg.nodes_cache_key_id_type_size() + '\n')
 
-org_and_all_parents = {}
-
 
 # ########################################################################
 # Code for harvesting persons. Harvested organizations are required for persons.
@@ -1765,24 +1783,25 @@ if HARVEST_PERSONS:
     if PURE_PERSONS_READ_DATA_FROM_FILE:
         error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print('Reading persons from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
-        parse_persons = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
+        parse_persorgs = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
     else:
         error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to harvest.\n'
         print('Harvesting persons from ' + HARVEST_SOURCE + '.')
         harvest_file = rcg.construct_filename(base_filename=PURE_PERSONS_HARVEST_FILENAME,
                                               organization=organization)
-        parse_persons = harvest_and_parse_pure_data(mode='persons',
-                                                    endpoint=PURE_PERSONS_ENDPOINT,
-                                                    headers=PURE_HEADERS,
-                                                    body=PURE_PERSONS_FIELDS,
-                                                    harvest_filename=harvest_file,
-                                                    df_filename=data_file,
-                                                    year_start=year_first)
+        parse_persorgs = harvest_and_parse_pure_data(mode='persons',
+                                                     endpoint=PURE_PERSONS_ENDPOINT,
+                                                     headers=PURE_HEADERS,
+                                                     body=PURE_PERSONS_FIELDS,
+                                                     harvest_filename=harvest_file,
+                                                     df_filename=data_file,
+                                                     year_start=year_first)
 
-    if parse_persons is None or parse_persons.empty:
+    if parse_persorgs is None or parse_persorgs.empty:
         print(error_message)
     else:
-        parsed_persons_to_ricgraph(parsed_content=parse_persons)
+        parsed_persons_to_ricgraph(parsed_content=parse_persorgs)
+        parsed_organizations_to_ricgraph(parsed_content=parse_persorgs)
 
     rcg.graphdb_nr_accesses_print()
     print(rcg.nodes_cache_key_id_type_size() + '\n')
@@ -1925,6 +1944,8 @@ if HARVEST_PRESS_MEDIA:
     print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 
+org_and_all_parents = {}
+
 # ########################################################################
 # Code for harvesting projects.
 if HARVEST_PROJECTS:
@@ -1932,6 +1953,8 @@ if HARVEST_PROJECTS:
         print('\nPure is harvested using the Pure CRUD API.')
         print('Harvesting projects from Pure using the CRUD API is not implemented yet.')
         exit(1)
+
+    print('WARNING: Harvesting of projects may not work as expected. Use at your own risk.')
 
     data_file = rcg.construct_filename(base_filename=PURE_PROJECTS_DATA_FILENAME,
                                        organization=organization)
@@ -1961,6 +1984,7 @@ if HARVEST_PROJECTS:
         parsed_projects_to_ricgraph(parsed_content=parse_projects,
                                     organization_and_all_parents=org_and_all_parents)
 
+    print('WARNING: Harvesting of projects may not work as expected. Use at your own risk.')
     rcg.graphdb_nr_accesses_print()
     print(rcg.nodes_cache_key_id_type_size() + '\n')
 
