@@ -616,7 +616,7 @@ def parse_pure_persons(harvest: list,
             continue
         parse_line = {'PURE_ID_PERS': pers_uuid,
                       'PURE_URL_PERS': create_pure_url(name='PURE_ID_PERS',
-                                                       value=org_uuid)}
+                                                       value=pers_uuid)}
         parse_chunk.append(parse_line)
         if (lastname := rcg.json_item_get_str(json_item=harvest_item,
                                               json_path='name.lastName')) != '':
