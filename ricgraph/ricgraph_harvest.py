@@ -318,7 +318,8 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     new_entities_columns = {'source_event1': harvest_source,
                             'history_event1': history_event,
                             'name2': personal_id_name,
-                            'category2': 'person'}
+                            'category2': 'person',
+                            'history_event2': history_event}
     entities = entities.assign(**new_entities_columns)
 
     cols = ['name1', 'category1', 'value1']
@@ -334,7 +335,8 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     if 'URL_OTHER' in entities.columns:
         entities.rename(columns={'URL_OTHER': 'url_other1'}, inplace=True)
         cols.append('url_other1')
-    cols.extend(['source_event1', 'history_event1', 'name2', 'category2', 'value2'])
+    cols.extend(['source_event1', 'history_event1',
+                 'name2', 'category2', 'value2', 'history_event2'])
     entities = entities[cols]
 
     if entities.empty:

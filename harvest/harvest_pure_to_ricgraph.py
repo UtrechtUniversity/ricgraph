@@ -614,6 +614,10 @@ def parse_pure_persons(harvest: list,
                                                json_path='uuid')) == '':
             # There must be an uuid, otherwise skip.
             continue
+        parse_line = {'PURE_ID_PERS': pers_uuid,
+                      'PURE_URL_PERS': create_pure_url(name='PURE_ID_PERS',
+                                                       value=org_uuid)}
+        parse_chunk.append(parse_line)
         if (lastname := rcg.json_item_get_str(json_item=harvest_item,
                                               json_path='name.lastName')) != '':
             parse_line = {'PURE_ID_PERS': pers_uuid,
@@ -681,12 +685,6 @@ def parse_pure_persons(harvest: list,
 
             if org_uuid not in org_uuids_to_org_names:
                 continue
-            # Note that the first element in 'org_uuids_to_org_names[org_uuid]'
-            # is the name of the organization itself, see parse_pure_organizations().
-            parse_line = {'PURE_NAME_ORG': org_uuids_to_org_names[org_uuid][0],
-                          'PURE_URL_ORG': create_pure_url(name='PURE_ID_ORG',
-                                                          value=org_uuid)}
-            parse_chunk.append(parse_line)
             # Note that this 'for' may result in a lot of entries.
             # Imagine that this person works for the same organization
             # multiple times. Then the full hierarchy will be inserted
@@ -698,6 +696,15 @@ def parse_pure_persons(harvest: list,
 
             # Put in the DataFrame with harvested persons to be returned.
             parse_chunk_final.extend(parse_chunk)
+
+    # Now get all organizations URLs in parse_chunk_final.
+    for org_uuid in org_uuids_to_org_names:
+        # Note that the first element in 'org_uuids_to_org_names[org_uuid]'
+        # is the name of the organization itself, see parse_pure_organizations().
+        parse_line = {'PURE_NAME_ORG': org_uuids_to_org_names[org_uuid][0],
+                      'PURE_URL_ORG': create_pure_url(name='PURE_ID_ORG',
+                                                      value=org_uuid)}
+        parse_chunk_final.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
     parse_result = pandas.DataFrame(parse_chunk_final)
@@ -1043,14 +1050,19 @@ def parse_pure_entities(harvest: list,
                                                           value=uuid),
                               'URL_OTHER': ''
                               }
-            if mode == MODE_RESOUTS:
-                parse_line['EXTERNAL_AUTHOR_NAME'] = external_author_name
-                if externalorg_name != '':
-                    parse_line['EXTERNAL_ORG_NAME'] = externalorg_name
+            parse_line['EXTERNAL_AUTHOR_NAME'] = external_author_name
+            if externalorg_name != '':
+                parse_line['EXTERNAL_ORG_NAME'] = externalorg_name
             # '|=': merges a dict in place with another dict.
+            # The PURE_URL_PERS is required to get a URL to the person.
+            # This has not yet happened for authors that _only_ have a
+            # data set or press media item (it has happened for authors
+            # that also have a research output).
             parse_line |= {'TITLE': title,
                            'YEAR': publication_year,
-                           'PURE_ID_PERS': author_uuid}
+                           'PURE_ID_PERS': author_uuid,
+                           'PURE_URL_PERS': create_pure_url(name='PURE_ID_PERS',
+                                                            value=author_uuid)}
             parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
@@ -1401,13 +1413,11 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                                           harvest_source=HARVEST_SOURCE)
     # Add the URL to this person in Pure. Some persons do not seem to have
     # this page.
-    nodes_to_update = parsed_content[['PURE_ID_PERS']].copy(deep=True)
-    nodes_to_update['URL_MAIN'] = nodes_to_update[['PURE_ID_PERS']].apply(
-                                  lambda row: create_pure_url(name='PURE_ID_PERS',
-                                                              value=row['PURE_ID_PERS']), axis=1)
+    nodes_to_update = parsed_content[['PURE_ID_PERS', 'PURE_URL_PERS']].copy(deep=True)
+    nodes_to_update.rename(columns={'PURE_URL_PERS': 'URL_MAIN'}, inplace=True)
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                harvest_source=HARVEST_SOURCE,
-                               what='URLs of PURE_ID_PERS nodes')
+                               what='URLs of PURE_ID_PERS nodes while parsing persons')
     return
 
 
@@ -1465,7 +1475,13 @@ def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
     rcg.create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                    harvest_source=HARVEST_SOURCE,
                                                    what=what)
-
+    # Add the URL to this person in Pure. Some persons do not seem to have
+    # this page.
+    nodes_to_update = parsed_content[['PURE_ID_PERS', 'PURE_URL_PERS']].copy(deep=True)
+    nodes_to_update.rename(columns={'PURE_URL_PERS': 'URL_MAIN'}, inplace=True)
+    rcg.update_urls_in_ricgraph(entities=nodes_to_update,
+                                harvest_source=HARVEST_SOURCE,
+                                what='URLs of PURE_ID_PERS nodes while parsing entities')
     if 'EXTERNAL_AUTHOR_NAME' in parsed_content.columns:
         # This is specifically for external persons and author collaborations. We only
         # find these while parsing entities, not while parsing persons.
