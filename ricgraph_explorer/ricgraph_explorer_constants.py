@@ -82,16 +82,12 @@ MAX_ROWS_TO_EXPORT = 250
 # is going to enrich in find_enrich_candidates().
 MAX_NR_NODES_TO_ENRICH = 20
 
-# The location of the privacy statement and privacy measures file, if present.
-# If one or both exist, they should be in the 'static' folder.
-# A link is generated to this file, so it should be comprehensible to a browser.
-PRIVACY_STATEMENT_FILE = 'privacy_statement.pdf'
-PRIVACY_MEASURES_FILE = 'privacy_measures.pdf'
-
 # The location of the home page intro text, if present.
 # If it exists, it should be in the 'static' folder.
 # It is included on the home page without further processing, expected to be in html format.
 HOMEPAGE_INTRO_FILE = 'homepage_intro.html'
+# The location of the home page intro text, if present.
+HOMEPAGE_OUTRO_FILE = 'homepage_outro.html'
 
 # These are all the 'view_mode's that are allowed.
 # The view mode indicates which page to create in create_results_page().
@@ -169,6 +165,7 @@ stylesheet += '{color:#000!important; background-color:#cecece!important;}'
 stylesheet += '.rj-border-black, .rj-hover-border-black:hover {border-color:#000!important;}'
 stylesheet += 'body {background-color:white;}'
 stylesheet += 'body, h1, h2, h3, h4, h5, h6 {font-family:"Open Sans",sans-serif;}'
+stylesheet += 'h1, h2, h3, h4, h5, h6 {font-weight:600;}'
 stylesheet += 'h1 {font-size:24px;}'
 stylesheet += 'h2 {font-size:20px;}'
 stylesheet += 'h3 {font-size:16px;}'

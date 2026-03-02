@@ -162,7 +162,9 @@ def homepage() -> str:
     html = html_body_start
     html += get_page_title(title='Ricgraph - Research in context graph')
     html += get_html_for_cardstart()
-    html += 'Ricgraph, also known as Research in context graph, enables the exploration of persons, '
+    html += 'Ricgraph, also known as '
+    html += '<a href="https://www.ricgraph.eu" target="_blank">'
+    html += 'Research in context graph</a>, enables the exploration of persons, '
     html += 'teams, their results, (sub-)organizations, '
     html += 'collaborations, skills, projects, and the relations between these items. '
     html += 'Ricgraph can store many types of items into a single graph (network). '
@@ -176,10 +178,9 @@ def homepage() -> str:
     html += 'one person identifier (such as ORCID, ISNI, or a source system identifier) '
     html += 'in the source systems harvested.'
 
-    html += '<p/>'
     html += str(get_ricgraph_explorer_global(name='homepage_intro_html'))
-    html += '<p/>'
 
+    html += '<h1>Start exploring</h1>'
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
     html += 'There are various methods to start exploring:'
     html += '<p/>'
@@ -228,7 +229,7 @@ def homepage() -> str:
     html += get_html_for_cardstart()
     nr_nodes = ricgraph_nr_nodes()
     nr_edges = ricgraph_nr_edges()
-    html += '<h2>About Ricgraph</h2>'
+    html += '<h1>About Ricgraph</h1>'
     html += 'More information:'
     html += '<ul>'
     html += '<li>'
@@ -237,6 +238,14 @@ def homepage() -> str:
     html += 'context from various systems. <em>SoftwareX</em>, 26(101736). '
     html += '<a href="https://doi.org/10.1016/j.softx.2024.101736"'
     html += 'target="_blank">doi.org/10.1016/j.softx.2024.101736</a>. '
+    html += '</li>'
+    html += '<li>'
+    html += 'To read more about visualizing collaborations between (sub-)organizations '
+    html += 'in Ricgraph, please read '
+    html += 'Rik D.T. Janssen (2025). Utilizing Ricgraph to gain insights into '
+    html += 'research collaborations across institutions, at every organizational '
+    html += 'level. [preprint]. <a href="https://doi.org/10.2139/ssrn.5524439">'
+    html += 'https://doi.org/10.2139/ssrn.5524439</a>.'
     html += '</li>'
     html += '<li>'
     html += 'Extensive documentation, publications, videos and source code can be found in the GitHub repository '
@@ -289,6 +298,9 @@ def homepage() -> str:
     html += nodes_cache_key_id_type_size()
     html += '</li>'
     html += '</ul>'
+
+    html += str(get_ricgraph_explorer_global(name='homepage_outro_html'))
+
     html += get_html_for_cardend()
     html += _page_footer + html_body_end
     return html

@@ -49,9 +49,8 @@ from ricgraph import (open_ricgraph, read_all_values_of_property,
                       get_ricgraph_ini_file,
                       get_configfile_key,
                       get_configfile_key_organizations_with_hierarchies)
-from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE,
-                                         DISCOVERER_MODE_ALL,
-                                         PRIVACY_STATEMENT_FILE, PRIVACY_MEASURES_FILE)
+from ricgraph_explorer_constants import (HOMEPAGE_INTRO_FILE, HOMEPAGE_OUTRO_FILE,
+                                         DISCOVERER_MODE_ALL)
 
 
 # This global contains the Ricgraph Explorer app context.
@@ -60,20 +59,12 @@ _ricgraph_explorer_app = None
 
 
 def construct_page_footer(footer: str = '') -> str:
-    """Construct the page footer. Include a privacy statement or
-    privacy measures document, if present in .../static.
+    """Construct the page footer. You may include additional footer info here.
 
     :param footer: the footer will consist of this.
     :return: the complete footer.
     """
     html = ''
-    privacy_statement_link_loc = get_ricgraph_explorer_global(name='privacy_statement_link')
-    privacy_measures_link_loc = get_ricgraph_explorer_global(name='privacy_measures_link')
-    if privacy_statement_link_loc != '' or privacy_measures_link_loc != '':
-        html += '<footer class="w3-container rj-gray" style="font-size:80%">'
-        html += privacy_statement_link_loc
-        html += privacy_measures_link_loc
-        html += '</footer>'
     return html + footer
 
 
@@ -276,24 +267,12 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         exit(1)
     set_ricgraph_explorer_global(name='discoverer_mode_default', value=discoverer_mode_default)
 
-    if flask_check_file_exists(ricgraph_explorer_app=ricgraph_explorer_app,
-                               filename=PRIVACY_STATEMENT_FILE):
-        privacy_statement_link = '<a href=/static/' + PRIVACY_STATEMENT_FILE + '>'
-        privacy_statement_link += 'Read the privacy statement</a>. '
-    else:
-        privacy_statement_link = ''
-    set_ricgraph_explorer_global(name='privacy_statement_link', value=privacy_statement_link)
-    if flask_check_file_exists(ricgraph_explorer_app=ricgraph_explorer_app,
-                               filename=PRIVACY_MEASURES_FILE):
-        privacy_measures_link = '<a href=/static/' + PRIVACY_MEASURES_FILE + '>'
-        privacy_measures_link += 'Read the privacy measures document</a>. '
-    else:
-        privacy_measures_link = ''
-    set_ricgraph_explorer_global(name='privacy_measures_link', value=privacy_measures_link)
-
     homepage_intro_html = flask_read_file(ricgraph_explorer_app=ricgraph_explorer_app,
                                           filename=HOMEPAGE_INTRO_FILE)
     set_ricgraph_explorer_global(name='homepage_intro_html', value=homepage_intro_html)
+    homepage_outro_html = flask_read_file(ricgraph_explorer_app=ricgraph_explorer_app,
+                                          filename=HOMEPAGE_OUTRO_FILE)
+    set_ricgraph_explorer_global(name='homepage_outro_html', value=homepage_outro_html)
     store_ricgraph_explorer_app(app=ricgraph_explorer_app)
     print('Done initializing Ricgraph Explorer.\n')
     return
