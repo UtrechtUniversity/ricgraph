@@ -168,6 +168,8 @@ exit_on_error $?
 # transfer to another computer.
 cd ../harvest_multiple_sources || exit 1
 mv ./*.log "$data_collect_dir"
+# The logfiles of the second RSD harvest for AUMC
+mv ./*.csv ./*.json "$harvest_result_dir"
 cd ../harvest || exit 1
 mv ./*.xml ./*.csv ./*.json "$harvest_result_dir"
 tar -czf "$data_collect_dir.tar.gz" "$data_collect_dir"
