@@ -18,12 +18,16 @@ The result is openly available to anyone, in accordance with the open science
 principles. 
 
 ## Contents of the pilot
-In this pilot project, we are starting with a few Dutch universities. 
+In this pilot project, we have started with research information from
+[Amsterdam University Medical Centers](https://www.amsterdamumc.org/en/research.htm)
+and [Delft University of Technology](https://www.tudelft.nl/en), and
+we will add more during the pilot period
+(see [Participate in the pilot project](#participate-in-the-pilot-project)).
 [Utrecht University](https://www.uu.nl/en)
-will facilitate these organizations to construct a graph containing
+facilitates these organizations to construct a graph containing
 their research information. It will include information on researchers, teams,
 their results, (sub-)organizations, collaborations, (optional) skills,
-(optional) projects, and the relations between these items. 
+and the relations between these items. 
 
 This graph is
 constructed based on the contents of 
@@ -34,7 +38,7 @@ sources such as the publication and data set aggregator
 the data repository [Yoda](https://www.uu.nl/en/research/yoda), and
 the [Research Software Directory](https://research-software-directory.org).
 
-The participating organizations will explore the potential and will investigate
+The participating organizations explore the potential and investigate
 what can be learned from research information in a single graph. 
 This project consists of three parts: 
 
@@ -56,9 +60,9 @@ Rik D.T. Janssen (2025),
 [https://doi.org/10.5281/zenodo.15637647](https://doi.org/10.5281/zenodo.15637647).
 
 ## Participate in the pilot project
-In September 2025, the Open Ricgraph demo server will start with 
-research information
-from the [Delft University of Technology](https://www.tudelft.nl/en).
+In September 2025, the Open Ricgraph demo server became operational.
+You can try it out for yourself by going to the webpage at the top
+of this page.
 
 If your organization would like to participate, there are three things 
 that require your attention:
