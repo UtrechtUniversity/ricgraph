@@ -76,6 +76,13 @@ Define APACHE_LOGDIR "/var/log/apache2"
     ServerAlias localhost
     DocumentRoot "${RICGRAPH_PATH}/ricgraph_explorer"
 
+	# This large time out is necessary since "exploring collaborations"
+	# in Ricgraph Explorer may take quite long. This is coupled
+	# to '--timeout 270' in ricgraph_explorer_gunicorn.service
+	# (270 should be slighly less than the 300 below).
+	Timeout 300
+	# Also note 'ProxyTimeout 300' below.
+
     # Security headers.
     Header always set X-Frame-Options "DENY"
     Header always set X-Content-Type-Options "nosniff"
@@ -121,6 +128,7 @@ Define APACHE_LOGDIR "/var/log/apache2"
     #ProxyPass / http://127.0.0.1:3030/
     #ProxyPassReverse / http://127.0.0.1:3030/
     # ########## End of please modify
+    ProxyTimeout 300
     ProxyPreserveHost On
 
     LogLevel warn

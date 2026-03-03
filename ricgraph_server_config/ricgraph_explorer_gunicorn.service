@@ -9,7 +9,7 @@ User=ricgraph
 Group=ricgraph
 WorkingDirectory=/opt/ricgraph_venv/ricgraph_explorer
 Environment="PYTHONPATH=/opt/ricgraph_venv"
-ExecStart=/opt/ricgraph_venv/bin/gunicorn --bind 127.0.0.1:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker --max-requests 1000 --max-requests-jitter 100 ricgraph_explorer:create_ricgraph_explorer_app
+ExecStart=/opt/ricgraph_venv/bin/gunicorn --bind 127.0.0.1:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker --timeout 270 --max-requests 1000 --max-requests-jitter 100 ricgraph_explorer:create_ricgraph_explorer_app
 StartLimitIntervalSec=500
 StartLimitBurst=20
 RestartSec=20
@@ -18,3 +18,4 @@ TimeoutSec=120
 
 [Install]
 WantedBy=multi-user.target
+

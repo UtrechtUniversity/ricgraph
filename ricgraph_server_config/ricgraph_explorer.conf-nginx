@@ -68,7 +68,7 @@
 
 server {
     listen 80;
-    server_name WEBSERVER_NAME;
+    # server_name WEBSERVER_NAME;
     return 301 https://$host$request_uri;
 }
 
@@ -120,6 +120,17 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+	
+	    # Time out settings.
+	    # These large time outs are necessary since "exploring collaborations"
+	    # in Ricgraph Explorer may take quite long. This is coupled
+	    # to '--timeout 270' in ricgraph_explorer_gunicorn.service
+	    # (270 should be slighly less than the 300 below).
+	    proxy_connect_timeout 300s;
+        proxy_send_timeout    300s;
+        proxy_read_timeout    300s;
+        send_timeout          300s;
+	    # End of Time out settings.
     }
 
     location = /robots.txt {
