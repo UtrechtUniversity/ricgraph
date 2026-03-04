@@ -114,7 +114,7 @@ total of 3448 collaborations.
 [Click to enlarge](https://docs.ricgraph.eu/docs/newsletters/260300-datasets-AUMC-and-other-orgs.jpg).
 Create this figure for yourself: go to
 [https://explorer.ricgraph.eu/collabspage/](https://explorer.ricgraph.eu/collabspage/), 
-type “AUMC University UMC” in the first textbox, leave the second textbox
+type “AUMC Amsterdam UMC” in the first textbox, leave the second textbox
 empty, and type “data sets” in the third textbox._
 
 
