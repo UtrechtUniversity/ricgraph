@@ -95,6 +95,7 @@ To subscribe to the newsletter email list, go to [Ricgraph Contact](../README.md
 | July 2024    | [Ricgraph newsletter July 2024](newsletters/240700-Ricgraph_newsletter_July_2024.md)                                                                                               |
 | June 2025    | [Ricgraph newsletter June 2025](newsletters/250600-Ricgraph_newsletter_June_2025.md)                                                                                               |
 | October 2025 | [Ricgraph newsletter October 2025](newsletters/251000-Ricgraph_newsletter_Oct_2025.md)                                                                                             |
+| March 2026   | [Ricgraph newsletter March 2026](newsletters/260300-Ricgraph_newsletter_March_2026.md)                                                                                             |
 
 ## Ricgraph projects with students
 
