@@ -177,13 +177,10 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
 # PURE_PERSONS_INCLUDE_YEARS_BEFORE years before the
 # command line argument --year_first.
 # Otherwise, we may end up with far too many persons.
-#
-# Sept 2024: In 2023 I thought not to add the organization of such a person
-# because it seemed very probably outdated.
-# But it appears that some organizations use an endDate in the future (instead
-# of no endDate) for persons employed.
-# So we do need to add the organization of these persons.
-PURE_PERSONS_INCLUDE_YEARS_BEFORE = 5
+# Allow a slack, since the time between manuscript and publication
+# may be a large number of years. And there may be a number of years
+# between "early online" and "published".
+PURE_PERSONS_INCLUDE_YEARS_BEFORE = 10
 # For the Pure CRUD API we use this value, because we cannot filter research
 # outputs on years.
 PURE_PERSONS_LOWEST_YEAR = 2010
@@ -594,12 +591,6 @@ def parse_pure_persons(harvest: list,
         print('parse_pure_persons(): Dict "org_uuids_to_org_names" is empty,so there')
         print('    are no organizations to insert. Continuing parsing persons...')
 
-    if PURE_API_VERSION == PURE_READ_API_VERSION:
-        # We use the Pure READ API.
-        lowest_resout_year = int(year_start) - PURE_PERSONS_INCLUDE_YEARS_BEFORE
-    else:
-        lowest_resout_year = PURE_PERSONS_LOWEST_YEAR
-
     print('There are ' + str(len(harvest)) + ' person records ('
           + rcg.timestamp() + '), parsing record:')
     parse_chunk_final = []
@@ -662,9 +653,18 @@ def parse_pure_persons(harvest: list,
                                                  json_path='period.endDate')) != '':
                 # Only consider persons of current organizations, that is an organization
                 # where endData is not existing or empty. If not, then skip.
+                # Allow a slack, since the time between manuscript and publication
+                # may be a large number of years. And there may be a number of years
+                # between "early online" and "published".
                 end_year = int(enddate[:4])
-                if end_year < lowest_resout_year:
-                    continue
+                if PURE_API_VERSION == PURE_READ_API_VERSION:
+                    # We use the Pure READ API.
+                    if end_year < int(year_start) - PURE_PERSONS_INCLUDE_YEARS_BEFORE:
+                        continue
+                else:
+                    # We use the Pure CRUD API.
+                    if end_year < PURE_PERSONS_LOWEST_YEAR:
+                        continue
                 # Add all other organizations, because some organizations
                 # use an endDate in the future (instead of no endDate)
                 # for persons employed.
