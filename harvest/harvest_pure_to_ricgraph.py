@@ -329,7 +329,7 @@ PURE_PRESS_MEDIA_FIELDS = {'fields': ['uuid',
                            # They exist to prevent a PyCharm warning.
                            'period': {'startDate': {'day': '1',
                                                     'month': '1',
-                                                    'year': '0'},
+                                                    'year': '1900'},
                                       'endDate': {'day': '31',
                                                   'month': '12',
                                                   'year': '9999'},
@@ -517,6 +517,52 @@ def find_organization_name(uuid: str, organization_names: dict):
         return 'Organization name not found for UUID ' + uuid + '.'
 
 
+def json_item_get_str_pure(json_item: dict,
+                           json_path_read: str,
+                           json_path_crud: str) -> str:
+    """Safely retrieve a nested value from a JSON-like structure
+    using a string path, either for the Pure READ API,
+    or for the Pure CRUD API. Similar to json_item_get_str().
+
+    :param json_item: The JSON item.
+    :param json_path_read: The path to be returned in the JSON item,
+        in the Pure READ API.
+    :param json_path_crud: The path to be returned in the JSON item,
+        in the Pure CRUD API.
+    :return: the value of that path, or '' if it does not exist.
+    """
+    # First test for Pure READ API.
+    if (value := rcg.json_item_get_str(json_item=json_item,
+                                       json_path=json_path_read)) != '':
+        return value
+    # Then for Pure CRUD API.
+    return rcg.json_item_get_str(json_item=json_item,
+                                 json_path=json_path_crud)
+
+
+def json_item_get_list_pure(json_item: dict,
+                           json_path_read: str,
+                           json_path_crud: str) -> list:
+    """Safely retrieve a nested value from a JSON-like structure
+    using a string path, either for the Pure READ API,
+    or for the Pure CRUD API. Similar to json_item_get_list().
+
+    :param json_item: The JSON item.
+    :param json_path_read: The path to be returned in the JSON item,
+        in the Pure READ API.
+    :param json_path_crud: The path to be returned in the JSON item,
+        in the Pure CRUD API.
+    :return: the value of that path, or [] if it does not exist.
+    """
+    # First test for Pure READ API.
+    if (value := rcg.json_item_get_list(json_item=json_item,
+                                        json_path=json_path_read)) != '':
+        return value
+    # Then for Pure CRUD API.
+    return rcg.json_item_get_list(json_item=json_item,
+                                  json_path=json_path_crud)
+
+
 # ######################################################
 # Parsing
 # ######################################################
@@ -622,27 +668,18 @@ def parse_pure_persons(harvest: list,
             parse_line = {'PURE_ID_PERS': pers_uuid,
                           'ORCID': orcid}
             parse_chunk.append(parse_line)
-        for identities in rcg.json_item_get_list(json_item=harvest_item,
-                                                 json_path='ids'):
-            # Field in Pure READ API.
-            if (value_identifier := rcg.json_item_get_str(json_item=identities,
-                                                          json_path='value.value')) != '' \
-               and (name_identifier := rcg.json_item_get_str(json_item=identities,
-                                                            json_path='type.term.text.0.value')) != '':
+        for identities in json_item_get_list_pure(json_item=harvest_item,
+                                                  json_path_read='ids',
+                                                  json_path_crud='identifiers'):
+            if (value_identifier := json_item_get_str_pure(json_item=identities,
+                                                           json_path_read='value.value',
+                                                           json_path_crud='id')) != '' \
+               and (name_identifier := json_item_get_str_pure(json_item=identities,
+                                                              json_path_read='type.term.text.0.value',
+                                                              json_path_crud='type.term.en_GB')) != '':
                 parse_line = {'PURE_ID_PERS': pers_uuid,
                               name_identifier: value_identifier}
                 parse_chunk.append(parse_line)
-        for identities in rcg.json_item_get_list(json_item=harvest_item,
-                                                 json_path='identifiers'):
-            # Field in Pure CRUD API.
-            if (value_identifier := rcg.json_item_get_str(json_item=identities,
-                                                          json_path='id')) != '' \
-               and (name_identifier := rcg.json_item_get_str(json_item=identities,
-                                                             json_path='type.term.en_GB')) != '':
-                parse_line = {'PURE_ID_PERS': pers_uuid,
-                              name_identifier: value_identifier}
-                parse_chunk.append(parse_line)
-
         for stafforg in rcg.json_item_get_list(json_item=harvest_item,
                                                json_path='staffOrganisationAssociations'):
             if (rcg.json_item_get_dict(json_item=stafforg,
@@ -696,6 +733,10 @@ def parse_pure_persons(harvest: list,
 
             # Put in the DataFrame with harvested persons to be returned.
             parse_chunk_final.extend(parse_chunk)
+
+    if len(parse_chunk_final) == 0:
+        print('parse_pure_persons(): Nothing found.')
+        return None
 
     # Now get all organizations URLs in parse_chunk_final.
     for org_uuid in org_uuids_to_org_names:
@@ -754,13 +795,9 @@ def parse_pure_organizations(harvest: list,
         # #####
         # Only consider current organizations, that is an organization
         # where endDate is not existing or empty. If not, then skip.
-        if rcg.json_item_get_str(json_item=harvest_item,
-                                 json_path='period.endDate') != '':
-            # Field in Pure READ API.
-            continue
-        elif rcg.json_item_get_str(json_item=harvest_item,
-                                   json_path='lifecycle.endDate') != '':
-            # Field in Pure CRUD API.
+        if json_item_get_str_pure(json_item=harvest_item,
+                                  json_path_read='period.endDate',
+                                  json_path_crud='lifecycle.endDate') != '':
             continue
         if (org_uri := rcg.json_item_get_str(json_item=harvest_item,
                                              json_path='type.uri')) != '':
@@ -779,18 +816,12 @@ def parse_pure_organizations(harvest: list,
         # Skip the organization ids. There are only a few, and it
         # seems to complicated to implement for now (we will need
         # something like 'organization-root' aka 'person-root').
-        if PURE_API_VERSION == PURE_READ_API_VERSION:
-            # We are in Pure READ API.
-            org_type_name = rcg.json_item_get_str(json_item=harvest_item,
-                                                  json_path='type.term.text.0.value')
-            org_name = rcg.json_item_get_str(json_item=harvest_item,
-                                             json_path='name.text.0.value')
-        else:
-            # We are in Pure CRUD API.
-            org_type_name = rcg.json_item_get_str(json_item=harvest_item,
-                                                  json_path='type.term.en_GB')
-            org_name = rcg.json_item_get_str(json_item=harvest_item,
-                                             json_path='name.en_GB')
+        org_type_name = json_item_get_str_pure(json_item=harvest_item,
+                                               json_path_read='type.term.text.0.value',
+                                               json_path_crud='type.term.en_GB')
+        org_name = json_item_get_str_pure(json_item=harvest_item,
+                                          json_path_read='name.text.0.value',
+                                          json_path_crud='name.en_GB')
         # #####
         if len(parents := rcg.json_item_get_list(json_item=harvest_item,
                                                  json_path='parents')) == 0:
@@ -822,6 +853,10 @@ def parse_pure_organizations(harvest: list,
             else:
                 continue
             org_uuid_to_parentuuid[org_uuid] = parentorg_uuid
+
+    if len(org_uuid_to_name) == 0 or len(org_uuid_to_parentuuid) == 0:
+        print('parse_pure_organizations(): Nothing found.')
+        return {}
 
     rcg.print_progress(count=count, now=True)
     print('Collecting all parents of each organization at '
@@ -908,14 +943,9 @@ def parse_pure_entities(harvest: list,
             # There must be a type (category) of this resout, otherwise skip.
             continue
         # #####
-        if (workflow_step := rcg.json_item_get_str(json_item=harvest_item,
-                                                   json_path='workflow.workflowStep')) != '':
-            # Field in Pure READ API.
-            if workflow_step != 'validated' and workflow_step != 'approved':
-                # Only 'validated' or 'approved' resouts.
-                continue
-        elif (workflow_step := rcg.json_item_get_str(json_item=harvest_item,
-                                                     json_path='workflow.step')) != '':
+        if (workflow_step := json_item_get_str_pure(json_item=harvest_item,
+                                                    json_path_read='workflow.workflowStep',
+                                                    json_path_crud='workflow.step')) != '':
             if workflow_step != 'validated' and workflow_step != 'approved':
                 # Only 'validated' or 'approved' resouts.
                 continue
@@ -982,13 +1012,9 @@ def parse_pure_entities(harvest: list,
             id_name = id_name_tobeused = 'PURE_ID_PRESS_MEDIA'
             category = rcg.CATEGORY_PRESS_MEDIA
         # #####
-        if len(list_of_persons := rcg.json_item_get_list(json_item=harvest_item,
-                                                         json_path='personAssociations')) > 0:
-            # Field in Pure READ API.
-            pass
-        elif len(list_of_persons := rcg.json_item_get_list(json_item=harvest_item,
-                                                           json_path='contributors')) > 0:
-            # Field in Pure CRUD API.
+        if len(list_of_persons := json_item_get_list_pure(json_item=harvest_item,
+                                                          json_path_read='personAssociations',
+                                                          json_path_crud='contributors')) > 0:
             pass
         else:
             continue
@@ -1064,6 +1090,10 @@ def parse_pure_entities(harvest: list,
                            'PURE_URL_PERS': create_pure_url(name='PURE_ID_PERS',
                                                             value=author_uuid)}
             parse_chunk.append(parse_line)
+
+    if len(parse_chunk) == 0:
+        print('parse_pure_entities(): Nothing found.')
+        return None
 
     rcg.print_progress(count=count, now=True)
     if len(parse_chunk) == 0 \
