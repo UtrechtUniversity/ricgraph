@@ -659,7 +659,7 @@ def parse_pure_persons(harvest: list,
                 end_year = int(enddate[:4])
                 if PURE_API_VERSION == PURE_READ_API_VERSION:
                     # We use the Pure READ API.
-                    if end_year < int(year_start) - PURE_PERSONS_INCLUDE_YEARS_BEFORE:
+                    if end_year < (int(year_start) - PURE_PERSONS_INCLUDE_YEARS_BEFORE):
                         continue
                 else:
                     # We use the Pure CRUD API.
