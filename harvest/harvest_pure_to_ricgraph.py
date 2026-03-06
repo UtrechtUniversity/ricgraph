@@ -555,8 +555,8 @@ def json_item_get_list_pure(json_item: dict,
     :return: the value of that path, or [] if it does not exist.
     """
     # First test for Pure READ API.
-    if (value := rcg.json_item_get_list(json_item=json_item,
-                                        json_path=json_path_read)) != '':
+    if len(value := rcg.json_item_get_list(json_item=json_item,
+                                           json_path=json_path_read)) > 0:
         return value
     # Then for Pure CRUD API.
     return rcg.json_item_get_list(json_item=json_item,
@@ -682,8 +682,8 @@ def parse_pure_persons(harvest: list,
                 parse_chunk.append(parse_line)
         for stafforg in rcg.json_item_get_list(json_item=harvest_item,
                                                json_path='staffOrganisationAssociations'):
-            if (rcg.json_item_get_dict(json_item=stafforg,
-                                       json_path='period')) == {}:
+            if len(rcg.json_item_get_dict(json_item=stafforg,
+                                          json_path='period')) == 0:
                 # There is no period, skip.
                 continue
             if (enddate := rcg.json_item_get_str(json_item=stafforg,
@@ -808,8 +808,8 @@ def parse_pure_organizations(harvest: list,
             # If there is no organization type skip
             continue
         # #####
-        if (rcg.json_item_get_dict(json_item=harvest_item,
-                                   json_path='name')) == {}:
+        if len(rcg.json_item_get_dict(json_item=harvest_item,
+                                      json_path='name')) == 0:
             # If there is no name dict skip
             continue
         # #####
