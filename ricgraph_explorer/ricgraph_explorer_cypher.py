@@ -319,6 +319,10 @@ def find_collabs_cypher(start_organizations: str,
         print('\nfind_collabs_cypher(): Error: graph has not been initialized or opened.\n\n')
         return []
 
+    if start_organizations == '':
+        print('\nfind_collabs_cypher(): Warning: empty "start_organizations" not possible.\n')
+        return []
+
     if cypher_return_clause == '':
         print('find_collabs_cypher(): Error, you have not specified a cypher RETURN clause, exiting.')
         exit(1)
