@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to June 2025.
+# Extended Rik D.T. Janssen, March 2026.
 #
 # ########################################################################
 
@@ -183,6 +184,13 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         print('Warning (possibly Error) in obtaining list with all property values for property "category".')
         print('Continuing with an empty list. This might give unexpected results.')
         category_all = []
+    year_all = read_all_values_of_property('year')
+    # Remove empty values.
+    year_all = [x for x in year_all if x != '']
+    if len(year_all) == 0:
+        print('Warning (possibly Error) in obtaining list with all property values for property "year".')
+        print('Continuing with an empty list. This might give unexpected results.')
+        year_all = []
     source_all = read_all_values_of_property('_source')
     if len(source_all) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "_source".')
@@ -191,10 +199,12 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     name_all = sorted(name_all, key=lambda x: x.lower())
     name_personal_all = sorted(name_personal_all, key=lambda x: x.lower())
     category_all = sorted(category_all, key=lambda x: x.lower())
+    year_all = sorted(year_all, key=lambda x: x.lower())
     source_all = sorted(source_all, key=lambda x: x.lower())
     set_ricgraph_explorer_global(name='name_all', value=name_all)
     set_ricgraph_explorer_global(name='name_personal_all', value=name_personal_all)
     set_ricgraph_explorer_global(name='category_all', value=category_all)
+    set_ricgraph_explorer_global(name='year_all', value=year_all)
     set_ricgraph_explorer_global(name='source_all', value=source_all)
 
     name_all_datalist = '<datalist id="name_all_datalist">'
@@ -244,6 +254,12 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     set_ricgraph_explorer_global(name='resout_types_pub_datalist', value=resout_types_all_datalist)
     set_ricgraph_explorer_global(name='remainder_types_all', value=remainder_types_all)
     set_ricgraph_explorer_global(name='category_all_datalist', value=category_all_datalist)
+
+    year_all_datalist = '<datalist id="year_all_datalist">'
+    for property_item in year_all:
+        year_all_datalist += '<option value="' + property_item + '">'
+    year_all_datalist += '</datalist>'
+    set_ricgraph_explorer_global(name='year_all_datalist', value=year_all_datalist)
 
     source_all_datalist = '<datalist id="source_all_datalist">'
     for property_item in source_all:

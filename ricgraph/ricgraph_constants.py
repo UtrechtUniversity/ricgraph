@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
 # Updated Rik D.T. Janssen, February to June, September to December  2024.
-# Updated Rik D.T. Janssen, January to June 2025.
+# Updated Rik D.T. Janssen, January to June 2025, March 2026.
 #
 # ########################################################################
 
@@ -208,3 +208,39 @@ ROCATEGORY_PUBLICATION = [ROCATEGORY_ABSTRACT,
 # ########################################################################
 # Other types used in Ricgraph.
 CATEGORY_PRESS_MEDIA = 'press media'
+
+
+# ########################################################################
+# Types related to open science monitoring.
+ROCATEGORY_RESEARCH_MATERIAL = [ROCATEGORY_DATASET,
+                                ROCATEGORY_SOFTWARE]
+
+ROCATEGORY_REPORTING_MATERIAL = [ROCATEGORY_ABSTRACT,
+                                 ROCATEGORY_ARTEFACT,
+                                 ROCATEGORY_BOOK,
+                                 ROCATEGORY_BOOKCHAPTER,
+                                 ROCATEGORY_CONFERENCE_ARTICLE,
+                                 ROCATEGORY_DESIGN,
+                                 ROCATEGORY_EDITORIAL,
+                                 ROCATEGORY_ENTRY,
+                                 ROCATEGORY_JOURNAL_ARTICLE,
+                                 ROCATEGORY_LETTER,
+                                 ROCATEGORY_MEMORANDUM,
+                                 ROCATEGORY_METHOD_DESCRIPTION,
+                                 ROCATEGORY_OTHER_CONTRIBUTION,
+                                 ROCATEGORY_PHDTHESIS,
+                                 ROCATEGORY_POSTER,
+                                 ROCATEGORY_PREPRINT,
+                                 ROCATEGORY_PRESENTATION,
+                                 ROCATEGORY_REGISTERED_REPORT,
+                                 ROCATEGORY_REPORT,
+                                 ROCATEGORY_RETRACTION,
+                                 ROCATEGORY_REVIEW,
+                                 ROCATEGORY_THESIS]
+
+ROCATEGORY_ENGAGEMENT_MATERIAL = [ROCATEGORY_DIGITAL_VISUAL_PRODUCT,
+                                  ROCATEGORY_EXHIBITION_PERFORMANCE,
+                                  ROCATEGORY_MODEL,
+                                  ROCATEGORY_PATENT,
+                                  CATEGORY_PRESS_MEDIA,
+                                  ROCATEGORY_WEBSITE]

@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to June 2025.
-# Extended Rik D.T. Janssen, October 2025.
+# Extended Rik D.T. Janssen, October 2025, March 2026.
 #
 # ########################################################################
 
@@ -87,7 +87,7 @@ def find_person_share_resouts_cypher(parent_node: Node,
     """
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
-        print('\nfind_person_share_resouts_cypher(): Error: graph has not been initialized or opened.\n\n')
+        print('find_person_share_resouts_cypher(): Error: graph has not been initialized or opened.')
         return []
 
     if category_want_list is None:
@@ -154,7 +154,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
     """
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
-        print('\nfind_person_organization_collaborations_cypher(): Error: graph has not been initialized or opened.\n\n')
+        print('find_person_organization_collaborations_cypher(): Error: graph has not been initialized or opened.')
         return [], []
 
     # By using the following statement we can start with both a node and its person-root node.
@@ -237,7 +237,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
     """
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
-        print('\nfind_organization_additional_info_cypher(): Error: graph has not been initialized or opened.\n\n')
+        print('find_organization_additional_info_cypher(): Error: graph has not been initialized or opened.')
         return []
 
     if name_list is None:
@@ -316,11 +316,11 @@ def find_collabs_cypher(start_organizations: str,
     orgs_with_hierarchies = get_ricgraph_explorer_global('orgs_with_hierarchies')
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
-        print('\nfind_collabs_cypher(): Error: graph has not been initialized or opened.\n\n')
+        print('find_collabs_cypher(): Error: graph has not been initialized or opened.')
         return []
 
     if start_organizations == '':
-        print('\nfind_collabs_cypher(): Warning: empty "start_organizations" not possible.\n')
+        print('find_collabs_cypher(): Warning: empty "start_organizations" not possible.')
         return []
 
     if cypher_return_clause == '':
@@ -557,3 +557,67 @@ def find_collab_orgs_persons_results(start_organizations: str,
         return []
     nodes_list = convert_cypher_recordslist_to_nodeslist(records_list=records_list)
     return nodes_list
+
+
+def create_neighbor_histogram_cypher(node: Node,
+                                     category: list,
+                                     year_first: str,
+                                     year_last: str) -> dict:
+    """Create a histogram of the neighbors of a node.
+
+    :param node: The node that is the base of the histogram.
+    :param category: The category to base the histogram on.
+    :param year_first: The first year of the results to be counted.
+    :param year_last: The last year of the results to be counted.
+    :return: a dict that represents the histogram.
+    """
+    # Note that this function is similar to find_organization_additional_info_cypher(),
+    # except that this function returns a dict and the other a list with nodes.
+    # It might be possible to integrate them, but it might also be clearer.
+    # to have two different versions.
+    graph = get_ricgraph_explorer_global(name='graph')
+    if graph is None:
+        print('create_neighbor_histogram_cypher(): Error: graph has not been initialized or opened.')
+        return {}
+    if (year_first != '' and not year_first.isnumeric()) \
+       or (year_last != '' and not year_last.isnumeric()):
+        print('create_neighbor_histogram_cypher(): Error: "year_first" or "year_last" are not numeric.')
+        return {}
+    if year_first != '' and year_last != '' and int(year_first) > int(year_last):
+        message = 'Error: you did not specify a valid year range ['
+        message += year_first + ', ' + year_last + '].'
+        print('create_neighbor_histogram_cypher(): ' + message)
+        return {}
+
+    cypher_query = 'MATCH (organization:RicgraphNode)'
+    cypher_query += '-[]->(persroot:RicgraphNode)'
+    cypher_query += '-[]->(research_result:RicgraphNode) '
+    if ricgraph_database() == 'neo4j':
+        cypher_query += 'WHERE elementId(organization)=$node_element_id '
+    else:
+        cypher_query += 'WHERE id(organization)=toInteger($node_element_id) '
+    cypher_query += 'AND persroot.name="person-root"  '
+    cypher_query += 'AND research_result.category IN $category '
+    if year_first != '':
+        cypher_query += 'AND toInteger(research_result.year) >= toInteger($year_first) '
+    if year_last != '':
+        cypher_query += 'AND toInteger(research_result.year) <= toInteger($year_last) '
+    cypher_query += 'WITH DISTINCT research_result '
+    cypher_query += 'WITH research_result.category AS category, COUNT(*) AS count '
+    cypher_query += 'RETURN category, count '
+    cypher_query += 'ORDER BY count DESC'
+    # print(cypher_query)
+
+    # This call returns a list of Records and not a list of Nodes, which
+    # is logical since it needs to be able to store any type of result.
+    cypher_result, _, _ = graph.execute_query(cypher_query,
+                                              node_element_id=node.element_id,
+                                              category=category,
+                                              year_first=year_first,
+                                              year_last=year_last,
+                                              database_=ricgraph_databasename())
+    cypher_dict = dict(cypher_result)
+    if len(cypher_dict) == 0:
+        return {}
+    else:
+        return cypher_dict

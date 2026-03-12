@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -46,14 +46,15 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to June 2025.
-# Extended Rik D.T. Janssen, November 2025.
+# Extended Rik D.T. Janssen, November 2025, March 2026.
 #
 # ##############################################################################
 
 
 from os import path
 from connexion import FlaskApp, options
-from flask import send_from_directory
+from typing import Union
+from flask import send_from_directory, redirect, url_for, Response
 from neo4j.graph import Node
 from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       nodes_cache_key_id_type_size,
@@ -67,7 +68,8 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          DISCOVERER_MODE_ALL,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
                                          RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
-                                         MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
+                                         MAX_ITEMS, SEARCH_STRING_MIN_LENGTH,
+                                         ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON)
 from ricgraph_explorer_init import (initialize_ricgraph_explorer, construct_page_footer,
                                     set_ricgraph_explorer_global,  get_ricgraph_explorer_global)
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
@@ -84,7 +86,7 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
-from ricgraph_explorer_osm import _osmpage_bp
+from ricgraph_explorer_osl import _oslpage_bp, _osprofileresultpage_bp
 from ricgraph_explorer_collabs import _collabspage_bp, _collabsresultpage_bp
 from ricgraph_explorer_topics import _topicspage_bp
 # In PyCharm, the import below generates an "Unused import statement", but it is
@@ -116,7 +118,8 @@ _ricgraph_explorer = FlaskApp(import_name=__name__,
                               swagger_ui_options=_swagger_ui_options)
 _ricgraph_explorer.add_api(specification='openapi.yaml',
                            swagger_ui_options=_swagger_ui_options)
-_ricgraph_explorer.app.register_blueprint(blueprint=_osmpage_bp)
+_ricgraph_explorer.app.register_blueprint(blueprint=_oslpage_bp)
+_ricgraph_explorer.app.register_blueprint(blueprint=_osprofileresultpage_bp)
 _ricgraph_explorer.app.register_blueprint(blueprint=_collabspage_bp)
 _ricgraph_explorer.app.register_blueprint(blueprint=_collabsresultpage_bp)
 _ricgraph_explorer.app.register_blueprint(blueprint=_topicspage_bp)
@@ -145,7 +148,7 @@ def favicon():
 # 3. resultspage, this page depends on what the user would like to see.
 # 4. restapidocpage, this page shows the documentation of the REST API.
 #
-# 5. osmpage, this page allows to explore open science monitoring.
+# 5. oslpage, this page allows to do open science landscaping.
 # 6. topicspage, this page allows to explore topics.
 # ##############################################################################
 @_ricgraph_explorer.route(rule='/')
@@ -155,7 +158,7 @@ def homepage() -> str:
     Possible url parameters are:
     - none.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     global _page_footer
 
@@ -187,7 +190,8 @@ def homepage() -> str:
     html += create_html_form(destination='searchpage',
                              button_text='search for a person',
                              hidden_fields={'search_mode': 'value_search',
-                                            'name': 'FULL_NAME'
+                                            'name': 'FULL_NAME',
+                                            'category': 'person'
                                             })
     html += '<p/>'
     html += create_html_form(destination='searchpage',
@@ -203,12 +207,11 @@ def homepage() -> str:
                                                 'category': 'competence'
                                                 })
         html += '<p/>'
-    # For future use.
-    # html += create_html_form(destination='osmpage',
-    #                          button_text='explore open science monitoring')
-    # html += '<p/>'
     html += create_html_form(destination='collabspage',
                              button_text='explore collaborations')
+    html += '<p/>'
+    html += create_html_form(destination='oslpage',
+                             button_text='explore the open science landscape')
     html += '<p/>'
     if 'topic' in get_ricgraph_explorer_global(name='category_all'):
         html += create_html_form(destination='topicspage',
@@ -314,18 +317,20 @@ def searchpage() -> str:
     Possible url parameters are:
     - name: name of the nodes to find.
     - category: category of the nodes to find.
+    - origin: optional, specifies where the request for this page originates from.
     - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
       search on field 'value').
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
     - max_nr_items: the maximum number of items to return, or 0 to return all items.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     global _page_footer
 
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
+    origin = get_url_parameter_value(parameter='origin')
     search_mode = get_url_parameter_value(parameter='search_mode',
                                           allowed_values=['exact_match', 'value_search'],
                                           default_value=DEFAULT_SEARCH_MODE)
@@ -358,15 +363,17 @@ def searchpage() -> str:
         form += str(get_ricgraph_explorer_global(name='category_all_datalist'))
         form += '<br/>'
     if search_mode == 'value_search' and name != '':
-        form += '<input id="name" type="hidden" name="name" value=' + name + '>'
+        form += '<input id="name" type="hidden" name="name" value="' + name + '">'
     if search_mode == 'value_search' and category != '':
-        form += '<input id="category" type="hidden" name="category" value=' + category + '>'
+        form += '<input id="category" type="hidden" name="category" value="' + category + '">'
     if search_mode == 'exact_match':
         form += '<label for="value">Search for a value in Ricgraph field <em>value</em>:</label>'
     else:
         form += '<label for="value">Type your search string:</label>'
     form += '<input id="value" class="w3-input w3-border" type=text name=value>'
-    form += '<input type="hidden" name="search_mode" value=' + search_mode + '>'
+    form += '<input type="hidden" name="search_mode" value="' + search_mode + '">'
+    if origin != '':
+        form += '<input type="hidden" name="origin" value="' + origin + '">'
 
     if search_mode == 'exact_match':
         form += 'These fields are case-sensitive and use exact match search. '
@@ -437,7 +444,10 @@ def searchpage() -> str:
     if search_mode == 'exact_match':
         html += get_page_title(title='Advanced search page')
     else:
-        html += get_page_title(title='Search page')
+        if category == '':
+            html += get_page_title(title='Search page')
+        else:
+            html += get_page_title(title='Search page for ' + category)
     html += get_html_for_cardstart()
     html += form
     html += get_html_for_cardend()
@@ -446,7 +456,7 @@ def searchpage() -> str:
 
 
 @_ricgraph_explorer.route(rule='/optionspage/', methods=['GET'])
-def optionspage() -> str:
+def optionspage() -> Union[str, Response]:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     Find nodes based on URL parameters passed.
 
@@ -456,6 +466,7 @@ def optionspage() -> str:
     - name: name of the nodes to find.
     - category: category of the nodes to find.
     - value: value of the nodes to find.
+    - origin: optional, specifies where the request for this page originates from.
     - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
       search on field 'value').
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
@@ -464,17 +475,20 @@ def optionspage() -> str:
     - max_nr_table_rows: the maximum number of rows in a table to return (the page
       size of the table), or 0 to return all rows.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     global _page_footer
 
+    extra_url_parameters = {}
+    origin = get_url_parameter_value(parameter='origin')
+    if origin != '':
+        extra_url_parameters['origin'] = origin
     search_mode = get_url_parameter_value(parameter='search_mode',
                                           allowed_values=['exact_match', 'value_search'],
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
                                               default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
-    extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
     if not max_nr_items.isnumeric():
@@ -488,8 +502,6 @@ def optionspage() -> str:
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
     html = html_body_start
-    #html += get_page_title(title='Results page')
-
     key = get_url_parameter_value(parameter='key', use_escape=False)
     if key == '':
         name = get_url_parameter_value(parameter='name')
@@ -535,7 +547,7 @@ def optionspage() -> str:
         html += _page_footer + html_body_end
         return html
     if len(result) > 1:
-        html += get_page_title(title='Results page')
+        html += get_page_title(title='Selection page')
         table_header = 'Your search resulted in more than one item. Please choose one item to continue:'
         html += get_regular_table(nodes_list=result,
                                   table_header=table_header,
@@ -545,6 +557,14 @@ def optionspage() -> str:
         return html
 
     node = result[0]
+    if origin == ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON:
+        # If we have reached this point, and we came here using the
+        # button 'get an open science profile for a (sub-)organization'
+        # on page oslpage(), then skip the options page and go directly
+        # to the osprofileresult() page.
+        return redirect(url_for(endpoint='osprofileresultpage.osprofileresultpage',
+                                key=node['_key']))
+
     html += create_options_page(node=node,
                                 discoverer_mode=discoverer_mode,
                                 extra_url_parameters=extra_url_parameters)
@@ -579,7 +599,7 @@ def resultspage() -> str:
     - max_nr_table_rows: the maximum number of rows in a table to return (the page
       size of the table), or 0 to return all rows.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     global _page_footer
 
@@ -605,7 +625,7 @@ def resultspage() -> str:
     category_list = get_url_parameter_list('category_list')
     # HTML forms with an empty field named e.g. 'aa' will result in a URL parameter '...&aa=&...'.
     # In this case, getlist() returns [''].
-    # This is undesirable behaviour, since I'd rather have an empty list. Correct for it.
+    # This is undesirable behavior, since I'd rather have an empty list. Correct for it.
     if len(name_list) == 1 and name_list[0] == '':
         name_list = []
     if len(category_list) == 1 and category_list[0] == '':
@@ -663,23 +683,15 @@ def create_options_page(node: Node,
     :param discoverer_mode: as usual.
     :param extra_url_parameters: a dict containing url parameters to be passed
       with each url. This dict can be extended as desired.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     # Note: This function gets a 'node', then it extracts '_key' from
     # node, and passes the key to create_result_page(), which then again
     # retrieves the node (from the cache). This is one time too many,
-    # but nodes cannot be passed using html forms, so we have to live with it.
+    # but nodes cannot be passed using HTML forms, so we have to live with it.
 
     if extra_url_parameters is None:
         extra_url_parameters = {}
-
-    name_all_datalist = get_ricgraph_explorer_global(name='name_all_datalist')
-    category_all = get_ricgraph_explorer_global(name='category_all')
-    category_all_datalist = get_ricgraph_explorer_global(name='category_all_datalist')
-    source_all_datalist = get_ricgraph_explorer_global(name='source_all_datalist')
-    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
-    resout_types_all_datalist = get_ricgraph_explorer_global(name='resout_types_all_datalist')
-    remainder_types_all = get_ricgraph_explorer_global(name='remainder_types_all')
 
     html = ''
     if node is None:
@@ -690,222 +702,282 @@ def create_options_page(node: Node,
                                           discoverer_mode=discoverer_mode,
                                           extra_url_parameters=extra_url_parameters)
 
-    html += get_page_title(title='Results page')
+    html += get_page_title(title='Options page')
     key = node['_key']
     html += get_found_message(node=node,
                               discoverer_mode=discoverer_mode,
                               extra_url_parameters=extra_url_parameters)
     if node['category'] == 'organization':
-        html += get_html_for_cardstart()
-        html += '<h2>What would you like to see from this organization?</h2>'
-        html += create_html_form(destination='resultspage',
-                                 button_text='show all information related to this organization',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_unspecified_table_organizations'
-                                                } | extra_url_parameters)
-        html += '<p/>'
-
-        html += create_html_form(destination='resultspage',
-                                 button_text='show persons related to this organization',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'name_list': 'person-root',
-                                                'view_mode': 'view_regular_table_persons_of_org'
-                                                } | extra_url_parameters)
-        html += get_html_for_cardend()
-
-        html += get_html_for_cardstart()
-        html += '<h2>Advanced information related to this organization</h2>'
-        html += get_html_for_cardstart()
-        html += '<h3>More information about persons or their results in this organization.</h3>'
-        html += create_html_form(destination='resultspage',
-                                 button_text='find any information from all persons in this organization',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_organization_addinfo'
-                                                } | extra_url_parameters)
-        html += '<p/>'
-
-        html += create_html_form(destination='resultspage',
-                                 button_text='find research results from all persons in this organization',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'category_list': resout_types_all,
-                                                'view_mode': 'view_regular_table_organization_addinfo'
-                                                } | extra_url_parameters)
-        html += '<p/>'
-
-        if 'competence' in category_all:
-            html += create_html_form(destination='resultspage',
-                                     button_text='find skills from all persons in this organization',
-                                     hidden_fields={'key': key,
-                                                    'discoverer_mode': discoverer_mode,
-                                                    'category_list': 'competence',
-                                                    'view_mode': 'view_regular_table_organization_addinfo'
-                                                    } | extra_url_parameters)
-            html += '<p/>'
-
-        html += '<br/>'
-
-        explanation = 'By using the fields below, you can choose '
-        explanation += 'what you would like to see from the persons or their results in this organization. '
-        explanation += 'You can use one or both fields.'
-        label_text_name = 'Search for persons or results using field <em>name</em>: '
-        input_spec_name = ('list', 'name_list', 'name_all_datalist', name_all_datalist)
-        label_text_category = '</br>Search for persons or results using field <em>category</em>: '
-        input_spec_category = ('list', 'category_list', 'category_all_datalist', category_all_datalist)
-        html += create_html_form(destination='resultspage',
-                                 button_text='find specific information',
-                                 explanation=explanation,
-                                 input_fields={label_text_name: input_spec_name,
-                                               label_text_category: input_spec_category,
-                                               },
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_organization_addinfo'
-                                                } | extra_url_parameters)
-        html += get_html_for_cardend()
-        html += get_html_for_cardend()
-
+        result_html = create_options_page_organization(key=key,
+                                                       discoverer_mode=discoverer_mode,
+                                                       extra_url_parameters=extra_url_parameters)
+        html += result_html
     elif node['category'] == 'person':
-        html += get_html_for_cardstart()
-        html += '<h2>What would you like to see from this person?</h2>'
+        result_html = create_options_page_person(key=key,
+                                                 discoverer_mode=discoverer_mode,
+                                                 extra_url_parameters=extra_url_parameters)
+        html += result_html
+    else:
+        html += create_results_page(view_mode='view_regular_table_category',
+                                    key=key,
+                                    discoverer_mode=discoverer_mode,
+                                    extra_url_parameters=extra_url_parameters)
+    return html
 
+
+def create_options_page_organization(key: str,
+                                     discoverer_mode: str = '',
+                                     extra_url_parameters: dict = None) -> str:
+    """This function creates the page with options to choose from,
+    for an organization, depending on the
+    choice the user has made on the index page.
+    The 'view_mode' that is used, is caught first in resultspage() and then
+    in create_results_page().
+
+    :param key: the _key of the node that is found and that determines where we start from.
+    :param discoverer_mode: as usual.
+    :param extra_url_parameters: a dict containing url parameters to be passed
+      with each url. This dict can be extended as desired.
+    :return: HTML to be rendered.
+    """
+    name_all_datalist = get_ricgraph_explorer_global(name='name_all_datalist')
+    category_all = get_ricgraph_explorer_global(name='category_all')
+    category_all_datalist = get_ricgraph_explorer_global(name='category_all_datalist')
+    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+
+    html = get_html_for_cardstart()
+    html += '<h2>What would you like to see from this organization?</h2>'
+    html += create_html_form(destination='resultspage',
+                             button_text='show all information related to this organization',
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'view_mode': 'view_unspecified_table_organizations'
+                                            } | extra_url_parameters)
+    html += '<p/>'
+
+    html += create_html_form(destination='resultspage',
+                             button_text='show persons related to this organization',
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'name_list': 'person-root',
+                                            'view_mode': 'view_regular_table_persons_of_org'
+                                            } | extra_url_parameters)
+    html += get_html_for_cardend()
+
+    html += get_html_for_cardstart()
+    html += '<h2>Advanced information related to this organization</h2>'
+    html += get_html_for_cardstart()
+    html += '<h3>More information about persons or their results in this organization.</h3>'
+    html += create_html_form(destination='resultspage',
+                             button_text='find any information from all persons in this organization',
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'view_mode': 'view_regular_table_organization_addinfo'
+                                            } | extra_url_parameters)
+    html += '<p/>'
+
+    html += create_html_form(destination='resultspage',
+                             button_text='find research results from all persons in this organization',
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'category_list': resout_types_all,
+                                            'view_mode': 'view_regular_table_organization_addinfo'
+                                            } | extra_url_parameters)
+    html += '<p/>'
+
+    if 'competence' in category_all:
         html += create_html_form(destination='resultspage',
-                                 button_text='show all information related to this person',
+                                 button_text='find skills from all persons in this organization',
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
-                                                'category_list': remainder_types_all,
-                                                'view_mode': 'view_unspecified_table_everything'
+                                                'category_list': 'competence',
+                                                'view_mode': 'view_regular_table_organization_addinfo'
                                                 } | extra_url_parameters)
         html += '<p/>'
 
-        html += create_html_form(destination='resultspage',
-                                 button_text='show personal information related to this person',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'category_list': 'person',
-                                                'view_mode': 'view_regular_table_personal'
-                                                } | extra_url_parameters)
-        html += '<p/>'
+    html += '<br/>'
 
-        html += create_html_form(destination='resultspage',
-                                 button_text='show organizations related to this person',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'category_list': 'organization',
-                                                'view_mode': 'view_regular_table_organizations'
-                                                } | extra_url_parameters)
-        html += '<p/>'
+    explanation = 'By using the fields below, you can choose '
+    explanation += 'what you would like to see from the persons or their results in this organization. '
+    explanation += 'You can use one or both fields.'
+    label_text_name = 'Search for persons or results using field <em>name</em>: '
+    input_spec_name = ('list', 'name_list', 'name_all_datalist', name_all_datalist)
+    label_text_category = '</br>Search for persons or results using field <em>category</em>: '
+    input_spec_category = ('list', 'category_list', 'category_all_datalist', category_all_datalist)
+    html += create_html_form(destination='resultspage',
+                             button_text='find specific information',
+                             explanation=explanation,
+                             input_fields={label_text_name: input_spec_name,
+                                           label_text_category: input_spec_category,
+                                           },
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'view_mode': 'view_regular_table_organization_addinfo'
+                                            } | extra_url_parameters)
+    html += get_html_for_cardend()
 
-        html += create_html_form(destination='resultspage',
-                                 button_text='show research results related to this person',
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'category_list': resout_types_all,
-                                                'view_mode': 'view_unspecified_table_resouts'
-                                                } | extra_url_parameters)
-        html += get_html_for_cardend()
+    html += get_html_for_cardstart()
+    html += '<h3>Get an open science profile for this organization.</h3>'
+    html += create_html_form(destination='osprofileresultpage',
+                             button_text='get an open science profile for this organization',
+                             hidden_fields={'key': key
+                                            })
+    html += get_html_for_cardend()
 
-        html += get_html_for_cardstart()
-        html += '<h2>Advanced information related to this person</h2>'
-        html += get_html_for_cardstart()
-        html += '<h3>With whom does this person share research results?</h3>'
-        html += create_html_form(destination='resultspage',
-                                 button_text='find persons that share any research result types with this person',
-                                 hidden_fields={'key': key,
-                                                'category_list': resout_types_all,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_person_share_resouts'
-                                                } | extra_url_parameters)
+    html += get_html_for_cardend()
+    html += get_html_for_cardend()
+    return html
 
-        html += '<br/>'
-        label_text = 'By entering a value in the field below, '
-        label_text += 'you will get a list of persons who share a specific research result type with this person '
-        label_text += '(you can also type <em>' + ROCATEGORY_PUBLICATION_ALL
-        label_text += '</em> to match any publication research result):'
-        input_spec = ('list', 'category_list', 'resout_types_all_datalist', resout_types_all_datalist)
-        html += create_html_form(destination='resultspage',
-                                 button_text='find persons that share a specific research result type with this person',
-                                 input_fields={label_text: input_spec},
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_person_share_resouts'
-                                                } | extra_url_parameters)
 
-        html += get_html_for_cardend()
+def create_options_page_person(key: str,
+                               discoverer_mode: str = '',
+                               extra_url_parameters: dict = None) -> str:
+    """This function creates the page with options to choose from,
+    for a person, depending on the
+    choice the user has made on the index page.
+    The 'view_mode' that is used, is caught first in resultspage() and then
+    in create_results_page().
 
-        html += get_html_for_cardstart()
-        explanation = '<h3>With which organizations does this person collaborate?</h3>'
-        explanation += 'By clicking the following button, you will get an overview '
-        explanation += 'of organizations that his person collaborates with. '
-        explanation += 'A person <em>X</em> from organization <em>A</em> '
-        explanation += 'collaborates with a person <em>Y</em> from '
-        explanation += 'organization <em>B</em> if <em>X</em> and <em>Y</em> have both contributed to '
-        explanation += 'the same research result.'
-        button_text = 'find organizations that this person collaborates with'
-        html += create_html_form(destination='resultspage',
-                                 button_text=button_text,
-                                 explanation=explanation,
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_person_organization_collaborations'
-                                                } | extra_url_parameters)
-
-        html += get_html_for_cardend()
-
-        html += get_html_for_cardstart()
-        explanation = '<h3>Improve or enhance information in one of your source systems</h3>'
-        explanation += 'The process of improving or enhancing information in a source system is called "enriching" '
-        explanation += 'that source system. This is only possible if you have harvested more than one source system. '
-        explanation += 'By using information found in one or more other harvested systems, '
-        explanation += 'information in this source system can be improved or enhanced. '
-        explanation += '</br>Use the field below to enter a name of one of your source systems. '
-        explanation += 'Ricgraph Explorer will show what information can be added to this source system, '
-        explanation += 'based on the information harvested from other source systems. '
-        label_text = 'The name of the source system you would like to enrich:'
-        # Note: we misuse the field 'category_list' to pass the name of the source system.
-        button_text = 'find information harvested from other source systems, '
-        button_text += 'not present in this source system'
-        input_spec = ('list', 'category_list', 'source_all_datalist', source_all_datalist)
-        html += create_html_form(destination='resultspage',
-                                 button_text=button_text,
-                                 explanation=explanation,
-                                 input_fields={label_text: input_spec},
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_person_enrich_source_system'
-                                                } | extra_url_parameters)
-        html += get_html_for_cardend()
-
-        html += get_html_for_cardstart()
-        explanation = '<h3>More information about overlap in source systems</h3>'
-        explanation += 'In case more than one source systems have been harvested, '
-        explanation += 'and the information in Ricgraph for the neighbors of this node have originated '
-        explanation += 'from more than one source system, you can find out from which ones.</br>'
-        button_text = 'find the overlap in source systems for '
-        button_text += 'the neighbor nodes of this node (this may take some time)'
-        html += create_html_form(destination='resultspage',
-                                 button_text=button_text,
-                                 explanation=explanation,
-                                 hidden_fields={'key': key,
-                                                'discoverer_mode': discoverer_mode,
-                                                'view_mode': 'view_regular_table_overlap'
-                                                } | extra_url_parameters)
-        html += get_html_for_cardend()
-
-        html += get_html_for_cardend()
+    :param key: the _key of the node that is found and that determines where we start from.
+    :param discoverer_mode: as usual.
+    :param extra_url_parameters: a dict containing url parameters to be passed
+      with each url. This dict can be extended as desired.
+    :return: HTML to be rendered.
+    """
+    source_all_datalist = get_ricgraph_explorer_global(name='source_all_datalist')
+    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+    resout_types_all_datalist = get_ricgraph_explorer_global(name='resout_types_all_datalist')
+    remainder_types_all = get_ricgraph_explorer_global(name='remainder_types_all')
 
     # ###
     # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
     # ###
-    else:
-        html = create_results_page(view_mode='view_regular_table_category',
-                                   key=key,
-                                   discoverer_mode=discoverer_mode,
-                                   extra_url_parameters=extra_url_parameters)
+    html = get_html_for_cardstart()
+    html += '<h2>What would you like to see from this person?</h2>'
 
+    html += create_html_form(destination='resultspage',
+                             button_text='show all information related to this person',
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'category_list': remainder_types_all,
+                                            'view_mode': 'view_unspecified_table_everything'
+                                            } | extra_url_parameters)
+    html += '<p/>'
+
+    html += create_html_form(destination='resultspage',
+                             button_text='show personal information related to this person',
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'category_list': 'person',
+                                            'view_mode': 'view_regular_table_personal'
+                                            } | extra_url_parameters)
+    html += '<p/>'
+
+    html += create_html_form(destination='resultspage',
+                             button_text='show organizations related to this person',
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'category_list': 'organization',
+                                            'view_mode': 'view_regular_table_organizations'
+                                            } | extra_url_parameters)
+    html += '<p/>'
+
+    html += create_html_form(destination='resultspage',
+                             button_text='show research results related to this person',
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'category_list': resout_types_all,
+                                            'view_mode': 'view_unspecified_table_resouts'
+                                            } | extra_url_parameters)
+    html += get_html_for_cardend()
+
+    html += get_html_for_cardstart()
+    html += '<h2>Advanced information related to this person</h2>'
+    html += get_html_for_cardstart()
+    html += '<h3>With whom does this person share research results?</h3>'
+    html += create_html_form(destination='resultspage',
+                             button_text='find persons that share any research result types with this person',
+                             hidden_fields={'key': key,
+                                            'category_list': resout_types_all,
+                                            'discoverer_mode': discoverer_mode,
+                                            'view_mode': 'view_regular_table_person_share_resouts'
+                                            } | extra_url_parameters)
+
+    html += '<br/>'
+    label_text = 'By entering a value in the field below, '
+    label_text += 'you will get a list of persons who share a specific research result type with this person '
+    label_text += '(you can also type <em>' + ROCATEGORY_PUBLICATION_ALL
+    label_text += '</em> to match any publication research result):'
+    input_spec = ('list', 'category_list', 'resout_types_all_datalist', resout_types_all_datalist)
+    html += create_html_form(destination='resultspage',
+                             button_text='find persons that share a specific research result type with this person',
+                             input_fields={label_text: input_spec},
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'view_mode': 'view_regular_table_person_share_resouts'
+                                            } | extra_url_parameters)
+
+    html += get_html_for_cardend()
+
+    html += get_html_for_cardstart()
+    explanation = '<h3>With which organizations does this person collaborate?</h3>'
+    explanation += 'By clicking the following button, you will get an overview '
+    explanation += 'of organizations that his person collaborates with. '
+    explanation += 'A person <em>X</em> from organization <em>A</em> '
+    explanation += 'collaborates with a person <em>Y</em> from '
+    explanation += 'organization <em>B</em> if <em>X</em> and <em>Y</em> have both contributed to '
+    explanation += 'the same research result.'
+    button_text = 'find organizations that this person collaborates with'
+    html += create_html_form(destination='resultspage',
+                             button_text=button_text,
+                             explanation=explanation,
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'view_mode': 'view_regular_table_person_organization_collaborations'
+                                            } | extra_url_parameters)
+
+    html += get_html_for_cardend()
+
+    html += get_html_for_cardstart()
+    explanation = '<h3>Improve or enhance information in one of your source systems</h3>'
+    explanation += 'The process of improving or enhancing information in a source system is called "enriching" '
+    explanation += 'that source system. This is only possible if you have harvested more than one source system. '
+    explanation += 'By using information found in one or more other harvested systems, '
+    explanation += 'information in this source system can be improved or enhanced. '
+    explanation += '</br>Use the field below to enter a name of one of your source systems. '
+    explanation += 'Ricgraph Explorer will show what information can be added to this source system, '
+    explanation += 'based on the information harvested from other source systems. '
+    label_text = 'The name of the source system you would like to enrich:'
+    # Note: we misuse the field 'category_list' to pass the name of the source system.
+    button_text = 'find information harvested from other source systems, '
+    button_text += 'not present in this source system'
+    input_spec = ('list', 'category_list', 'source_all_datalist', source_all_datalist)
+    html += create_html_form(destination='resultspage',
+                             button_text=button_text,
+                             explanation=explanation,
+                             input_fields={label_text: input_spec},
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'view_mode': 'view_regular_table_person_enrich_source_system'
+                                            } | extra_url_parameters)
+    html += get_html_for_cardend()
+
+    html += get_html_for_cardstart()
+    explanation = '<h3>More information about overlap in source systems</h3>'
+    explanation += 'In case more than one source systems have been harvested, '
+    explanation += 'and the information in Ricgraph for the neighbors of this node have originated '
+    explanation += 'from more than one source system, you can find out from which ones.</br>'
+    button_text = 'find the overlap in source systems for '
+    button_text += 'the neighbor nodes of this node (this may take some time)'
+    html += create_html_form(destination='resultspage',
+                             button_text=button_text,
+                             explanation=explanation,
+                             hidden_fields={'key': key,
+                                            'discoverer_mode': discoverer_mode,
+                                            'view_mode': 'view_regular_table_overlap'
+                                            } | extra_url_parameters)
+    html += get_html_for_cardend()
+    html += get_html_for_cardend()
     return html
 
 
@@ -930,7 +1002,7 @@ def create_results_page(view_mode: str,
     :param discoverer_mode: as usual.
     :param extra_url_parameters: a dict containing url parameters to be passed
       with each url. This dict can be extended as desired.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if name_list is None:
         name_list = []

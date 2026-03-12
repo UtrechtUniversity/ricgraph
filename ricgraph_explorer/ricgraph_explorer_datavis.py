@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -41,7 +41,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to May 2025.
-# Extended Rik D.T. Janssen, October, November 2025.
+# Extended Rik D.T. Janssen, October, November 2025, March 2026.
 #
 # ########################################################################
 
@@ -63,27 +63,27 @@ from ricgraph_explorer_constants import (ricgraph_reference, diagram_tooltip_sty
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_message, remove_hierarchical_orgs,
                                      create_full_htmlpage)
-from ricgraph_explorer_cypher import find_collab_orgs_matrix, find_collab_orgs_persons_results
+from ricgraph_explorer_cypher import (find_collab_orgs_matrix,
+                                      find_collab_orgs_persons_results)
 from ricgraph_explorer_javascript import (get_html_for_histogram_javascript,
                                           create_chord_diagram_javascript,
                                           create_sankey_diagram_javascript)
 
 
 def get_html_for_histogram(histogram_list: list,
-                           histogram_width: int = 200,
+                           histogram_width: int = 0,
                            histogram_title: str = ''):
     """This function creates a histogram using the Observable D3 and Observable Plot framework
     for data visualization. See https://d3js.org and https://observablehq.com/plot.
 
     :param histogram_list: A list of histogram data to be plotted in the histogram.
+      A list of JSON values: {'name': [something], 'value': [a value]}.
       Each element in the list has a 'name' and 'value'.
-      The histogram will be in the order as specified in the list. It is assumed that
-      the largest value of the histogram is in the first element of the list. This
-      value is used to compute whether a histogram label should be shown in the histogram
-      bar or next to it.
+      The histogram will be in the order as specified in the list.
     :param histogram_width: The width of the histogram, in pixels.
+      If 0, then use the innerWidth of the viewport.
     :param histogram_title: The title of the histogram.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     # The required js files for Observable are included in html_body_end above.
     # The code below is inspired by an example from
@@ -94,8 +94,6 @@ def get_html_for_histogram(histogram_list: list,
         message += 'The histogram list is empty.'
         return get_message(message=message)
 
-    # Note: 'histogram_list' is expected to be sorted with the largest value first.
-    bar_label_threshold = histogram_list[0]['value']
     histogram_json = dumps(histogram_list)
 
     # The plot name should be unique, otherwise we get strange side effects.
@@ -112,7 +110,6 @@ def get_html_for_histogram(histogram_list: list,
 
     javascript = get_html_for_histogram_javascript(histogram_json=histogram_json,
                                                    histogram_width=histogram_width,
-                                                   bar_label_threshold=bar_label_threshold,
                                                    plot_name=plot_name)
     return observable_plot + html + javascript
 
@@ -133,7 +130,7 @@ def create_chord_diagram(df: DataFrame,
     :param figure_caption: the caption of the resulting svg image, may be empty.
     :param figure_filename: the filename of the resulting svg image,
       in case you choose to use the 'Download this image' button.
-    :return: html to be rendered, or empty ''.
+    :return: HTML to be rendered, or empty ''.
     """
     if df is None or df.empty:
         print('create_chord_diagram(): Error, DataFrame is empty.')
@@ -207,7 +204,7 @@ def create_sankey_diagram(df: DataFrame,
     :param figure_caption: the caption of the resulting svg image, may be empty.
     :param figure_filename: the filename of the resulting svg image,
       in case you choose to use the 'Download this image' button.
-    :return: html to be rendered, or empty ''.
+    :return: HTML to be rendered, or empty ''.
     """
     if df is None or df.empty:
         print('create_sankey_diagram(): Error, DataFrame is empty.')

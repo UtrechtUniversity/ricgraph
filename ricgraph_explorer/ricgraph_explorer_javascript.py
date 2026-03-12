@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,7 @@
 # ########################################################################
 #
 # Original version Rik D.T. Janssen, 2023.
-# Extended Rik D.T. Janssen, July, November 2025.
+# Extended Rik D.T. Janssen, July, November 2025, March 2026.
 #
 # ########################################################################
 
@@ -54,7 +54,7 @@ from ricgraph_explorer_constants import (font_family, sankey_margin,
 def get_spinner_javascript() -> str:
     """JavaScript to create a spinner.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     javascript = f'''
                  <script>
@@ -71,13 +71,13 @@ def get_spinner_javascript() -> str:
 def get_regular_table_javascript(table_id: str,
                                  len_nodes_list: int,
                                  max_nr_table_rows: int) -> str:
-    """Create a paginated html table for all nodes in the list.
-    This javascript code is for the pagination of the table.
+    """Create a paginated HTML table for all nodes in the list.
+    This JavaScript code is for the pagination of the table.
 
     :param table_id: the table id to use.
     :param len_nodes_list: the length of the list of nodes to put in the table.
     :param max_nr_table_rows: the maximum number of rows in a page of the table.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     javascript = f"""
                  <script>
@@ -145,11 +145,11 @@ def get_regular_table_javascript(table_id: str,
 
 # This code is inspired by https://www.w3schools.com/w3css/w3css_tabulators.asp.
 def get_tabbed_table_javascript(table_id: str) -> str:
-    """JavaScript to create a html table with tabs for all nodes in the list.
+    """JavaScript to create an HTML table with tabs for all nodes in the list.
     This code creates the tabs.
 
     :param table_id: table_id of the table.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     javascript = f"""
                  <script>
@@ -176,12 +176,12 @@ def get_tabbed_table_javascript(table_id: str) -> str:
 
 
 def get_html_for_tableend_javascript(figure_filename: str) -> str:
-    """This javascript code is to export the table with the given tableId as a CSV file.
+    """This JavaScript code is to export the table with the given tableId as a CSV file.
     Only maxRows are exported (as a kind of safety not to be able to export everything).
     Note that the table is exported as it is shown on the webpage.
 
     :param figure_filename: the filename of the resulting csv download file.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     javascript = f'''
                  <script>
@@ -217,56 +217,89 @@ def get_html_for_tableend_javascript(figure_filename: str) -> str:
 
 
 def get_html_for_histogram_javascript(histogram_json: str,
-                                      histogram_width: int,
-                                      bar_label_threshold: int,
-                                      plot_name: str) -> str:
+                                      histogram_width: int = 0,
+                                      plot_name: str = '') -> str:
     """JavaScript for creating a histogram using the
     Observable D3 and Observable Plot framework
     for data visualization. See https://d3js.org and https://observablehq.com/plot.
 
     :param histogram_json: The histogram data.
     :param histogram_width: The width of the histogram, in pixels.
-    :param bar_label_threshold: The largest value in the histogram. This
-      value is used to compute whether a histogram label should be shown
-      in the histogram bar or next to it.
+      If 0, then use the innerWidth of the viewport, which basically
+      determines the width automatically, depending on the space available.
     :param plot_name: The name of the plot.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
 
     javascript = f'''
                  <script type="module">
-                 const brands = {histogram_json};
+                 const histogram = {histogram_json};
+                 const histogram_value_sum = histogram.reduce((acc, histogram) => acc + histogram.value, 0);
+                 // 'histogram_value_max' is used to compute whether a histogram 
+                 // label should be shown in the histogram bar or next to it.
+                 const histogram_value_max = histogram.reduce((max, histogram) => histogram.value > max ? histogram.value : max, 0);
+                 const plot_width = {histogram_width} === 0 ? window.innerWidth : {histogram_width};
+                 const x_domain_max = histogram_value_sum === 0 ? 1 : histogram_value_max;
+                 // Now do some computations for ticks to make sure (it appears
+                 // extremely tricky to get these right):
+                 // 1. only integer valued ticks (i.e. no decimals);
+                 // 2. ticks every multiple of 10, 100, 1000, etc., autoscaled
+                 //    on the length of the histogram bar;
+                 // 3. if histogram_value_sum == 0, no bar in the histogram;
+                 // 4. no ticks of the form  0 0 0 1 1 1 2 2 2.
+                 const x_max = histogram_value_sum === 0 ? 1 : Math.max(1, histogram_value_max);
+                 // There may be more ticks (then 5 or 10), due to rounding.
+                 const num_ticks = plot_width > 400 ? 10 : 5;
+                 let step = x_max  / num_ticks;
+                 step = Math.pow(10, Math.floor(Math.log10(step))) * Math.round(step / Math.pow(10, Math.floor(Math.log10(step))));
+                 if (step < 1) step = 1;
+                 const ticks = Array.from({{length: Math.floor(x_max / step) + 1}}, (_, i) => i * step);
+                 // End of Now do some computations for ticks to make sure.
                  const plot = Plot.plot({{
-                   width: {histogram_width},
+                   width: plot_width,
                    axis: null,
-                   // Make height dependent on the number of items in brands.
+                   // Make height dependent on the number of items in histogram.
                    // The "+ 40" is for the horizontal scale.
-                   height: brands.length * 20 + 40,
-                   x: {{ insetRight: 10 }},
+                   height: histogram.length * 20 + 40,
+                   x: {{ 
+                     insetRight: 10,
+                     domain: [0, x_domain_max],
+                   }},
                    marks: [
-                     Plot.axisX({{ anchor: "bottom" }}),
-                     Plot.barX(brands, {{
+                     Plot.axisX({{ 
+                       anchor: "bottom",
+                       ticks: ticks,
+                       tickFormat: (d) => d3.format(",.0f")(d)
+                     }}),
+                     Plot.barX(histogram, {{
+                       filter: () => histogram_value_sum !== 0,  // skip bars entirely if sum=0
                        x: "value",
                        y: "name",
                        fill: "#ffcd00",                 // uu-yellow.
                        sort: {{ y: "x", order: null }}  // no ordering.
                      }}),
-                     // labels for larger bars.
-                     Plot.text(brands, {{
-                       text: (d) => `${{d.name}} (${{d.value}})`,
+                     // labels for longer bars.
+                     Plot.text(histogram, {{
+                       text: (d) => histogram_value_sum === 0
+                         ? `${{d.name}} (${{d.value}} - 0%)`
+                         : `${{d.name}} (${{d.value}} - ${{Math.round(100 * d.value / histogram_value_sum)}}%)`
+                         ,
                        y: "name",
                        frameAnchor: "left",
                        dx: 3,
-                       filter: (d) => d.value >= {bar_label_threshold / 2},
+                       filter: (d) => d.value >= histogram_value_max / 2,
                      }}),
-                     // labels for smaller bars.
-                     Plot.text(brands, {{
-                       text: (d) => `${{d.name}} (${{d.value}})`,
+                     // labels for shorter bars.
+                     Plot.text(histogram, {{
+                       text: (d) => histogram_value_sum === 0
+                         ? `${{d.name}} (${{d.value}} - 0%)`
+                         : `${{d.name}} (${{d.value}} - ${{Math.round(100 * d.value / histogram_value_sum)}}%)`
+                         ,
                        y: "name",
                        x: "value",
                        textAnchor: "start",
                        dx: 3,
-                       filter: (d) => d.value < {bar_label_threshold / 2},
+                       filter: (d) => d.value < histogram_value_max / 2,
                      }})
                    ]           // End of marks.
                  }});         // End of Plot.plot().
@@ -287,14 +320,14 @@ def create_chord_diagram_javascript(matrix_json: str,
     """The JavaScript code to create a D3 chord diagram from a DataFrame.
     Chord diagram: https://d3-graph-gallery.com/chord.html.
 
-    :param matrix_json: json with matrix.
-    :param labels_json: json with labels.
+    :param matrix_json: JSON with matrix.
+    :param labels_json: JSON with labels.
     :param width: the width of the resulting svg image.
     :param height: the height of the resulting svg image.
     :param svg_id: svg id to be used.
     :param figure_filename: the filename of the resulting svg image,
         in case you choose to use the 'Download this image' button.
-    :return: html to be rendered, or empty ''.
+    :return: HTML to be rendered, or empty ''.
     """
     javascript = f'''
                  <script>
@@ -562,8 +595,8 @@ def create_sankey_diagram_javascript(nodes_json: str,
     """The JavaScript code to create a D3 Sankey diagram from a DataFrame.
     Sankey diagram: https://d3-graph-gallery.com/sankey.html.
 
-    :param nodes_json: json with nodes.
-    :param links_json: json with links.
+    :param nodes_json: JSON with nodes.
+    :param links_json: JSON with links.
     :param research_result_category: if specified, only return collaborations
       for this research result category. If not, return all collaborations,
       regardless of the research result category.
@@ -576,7 +609,7 @@ def create_sankey_diagram_javascript(nodes_json: str,
     :param svg_id: svg id to be used.
     :param figure_filename: the filename of the resulting svg image,
         in case you choose to use the 'Download this image' button.
-    :return: html to be rendered, or empty ''.
+    :return: HTML to be rendered, or empty ''.
     """
 
     # Note about the absence of an outline around lines in a Sankey diagram.

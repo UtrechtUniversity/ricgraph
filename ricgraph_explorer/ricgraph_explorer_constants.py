@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to May 2025.
-# Extended Rik D.T. Janssen, November 2025.
+# Extended Rik D.T. Janssen, November 2025, March 2026.
 #
 # ########################################################################
 
@@ -84,7 +84,8 @@ MAX_NR_NODES_TO_ENRICH = 20
 
 # The location of the home page intro text, if present.
 # If it exists, it should be in the 'static' folder.
-# It is included on the home page without further processing, expected to be in html format.
+# It is included on the home page without further processing, expected to be
+# in HTML format.
 HOMEPAGE_INTRO_FILE = 'homepage_intro.html'
 # The location of the home page intro text, if present.
 HOMEPAGE_OUTRO_FILE = 'homepage_outro.html'
@@ -113,6 +114,16 @@ COLLABORATION_MODES_ALL = ['return_research_results',
                            'return_collaborg_persons',
                            'return_collab_sankey'
                           ]
+
+# The URL parameter 'origin' is used to track where a request for
+# a page originated.
+# This may be useful for reusing existing components, such as the search
+# page, without returning to the "normal" page flow.
+# E.g. when you use the "open science profile for a (sub-)organization"
+# button, you will need the search page to search for an organization,
+# but then you want to continue to the results page of
+# this open science profile page, and not to the organizations options page.
+ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON = 'osprofile_button'
 
 
 # ########################################################################
@@ -170,13 +181,13 @@ stylesheet += 'h1 {font-size:24px;}'
 stylesheet += 'h2 {font-size:20px;}'
 stylesheet += 'h3 {font-size:16px;}'
 stylesheet += 'h4 {font-size:12px;}'
-stylesheet += 'ul {padding-left:2em; margin:0px}'
+stylesheet += 'ul, ol {padding-left:2em; margin:0px}'
 stylesheet += 'a:link, a:visited {color:blue;}'
 stylesheet += 'a:hover {color:darkblue;}'
 stylesheet += 'table {font-size:85%;}'
 stylesheet += 'table, th, td {border-collapse:collapse; border:1px solid black}'
 stylesheet += 'th {text-align:left;}'
-# Style for tabbed html table header.
+# Style for tabbed HTML table header.
 stylesheet += '.tablink {font-size:85%;}'
 # Style for faceted box.
 stylesheet += '.facetedform {font-size:90%;}'
@@ -188,13 +199,13 @@ stylesheet += ':not(.sorttable_nosort):after{content:"\u00a0\u25b4\u00a0\u25be"}
 # To give the user a clue that there is a dropdown list, we show additional text.
 # This is done as follows:
 # <div class="firefox-only">Click twice to get a dropdown list.</div>
-# We need the following css to make this happen:
+# We need the following CSS to make this happen:
 # To hide by default in any browser.
 stylesheet += '.firefox-only {display: none;}'
 # To show only in Firefox.
 stylesheet += '@-moz-document url-prefix() {.firefox-only'
 stylesheet += '{display:block; font-size:80%; font-style:italic;}}'
-# End of Firefox dropdown list css.
+# End of Firefox dropdown list CSS.
 
 stylesheet += '</style>'
 

@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
 # Updated Rik D.T. Janssen, February to June, September to December  2024.
-# Updated Rik D.T. Janssen, January to June 2025.
+# Updated Rik D.T. Janssen, January to June 2025, March 2026.
 #
 # ########################################################################
 
@@ -858,6 +858,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
     if node_property != 'name' \
        and node_property != 'name_personal' \
        and node_property != 'category' \
+       and node_property != 'year' \
        and node_property != '_source':
         print('\nread_all_values_of_property(): Error: function does not work for property "'
               + node_property + '".\n\n')
