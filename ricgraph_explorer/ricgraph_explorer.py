@@ -64,6 +64,7 @@ from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          page_footer_wsgi, page_footer_development,
                                          button_style, button_width,
+                                         form_button_on_one_line_style,
                                          VIEW_MODE_ALL, DEFAULT_SEARCH_MODE,
                                          DISCOVERER_MODE_ALL,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
@@ -187,46 +188,47 @@ def homepage() -> str:
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
     html += 'There are various methods to start exploring:'
     html += '<p/>'
+    html += '<div ' + form_button_on_one_line_style + '>'
     html += create_html_form(destination='searchpage',
                              button_text='search for a person',
                              hidden_fields={'search_mode': 'value_search',
                                             'name': 'FULL_NAME',
                                             'category': 'person'
                                             })
-    html += '<p/>'
     html += create_html_form(destination='searchpage',
                              button_text='search for a (sub-)organization',
                              hidden_fields={'search_mode': 'value_search',
                                             'category': 'organization'
                                             })
-    html += '<p/>'
     if 'competence' in get_ricgraph_explorer_global(name='category_all'):
         html += create_html_form(destination='searchpage',
                                  button_text='search for a skill, expertise area or research area',
                                  hidden_fields={'search_mode': 'value_search',
                                                 'category': 'competence'
                                                 })
-        html += '<p/>'
+    html += '</div>'
+    html += '<p/>'
+    html += '<div ' + form_button_on_one_line_style + '>'
     html += create_html_form(destination='collabspage',
                              button_text='explore collaborations')
-    html += '<p/>'
     html += create_html_form(destination='oslpage',
                              button_text='explore the open science landscape')
+    html += '</div>'
     html += '<p/>'
     if 'topic' in get_ricgraph_explorer_global(name='category_all'):
         html += create_html_form(destination='topicspage',
                                  button_text='explore topics')
         html += '<p/>'
+    html += '<div ' + form_button_on_one_line_style + '>'
     html += create_html_form(destination='searchpage',
                              button_text='search for anything (broad search)',
                              hidden_fields={'search_mode': 'value_search'
                                             })
-    html += '<p/>'
     html += create_html_form(destination='searchpage',
                              button_text='advanced search',
                              hidden_fields={'search_mode': 'exact_match'
                                             })
-    html += '<p/>'
+    html += '</div>'
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()

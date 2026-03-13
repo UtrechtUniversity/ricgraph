@@ -51,6 +51,7 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          MAX_ROWS_IN_TABLE,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
                                          button_style,
+                                         form_button_on_one_line_flexspace_style,
                                          HISTOGRAM_MODE_ALL,
                                          HISTOGRAM_MODE_COUNTS,
                                          HISTOGRAM_MODE_PERCENTAGES,
@@ -71,8 +72,6 @@ from ricgraph_explorer_cypher import create_neighbor_histogram_cypher
 _oslpage_bp = Blueprint(name='oslpage', import_name=__name__)
 _osprofileresultpage_bp = Blueprint(name='osprofileresultpage', import_name=__name__)
 
-_form_button_style = ' style="display:flex; justify-content:space-between; '
-_form_button_style += 'width:100%; align-items:end; gap:1em; flex-wrap:wrap;" '
 _form_button_width = ' style="width:16em !important;" '
 
 
@@ -225,7 +224,7 @@ def osprofileresultpage() -> str:
         else:
             histogram_title += 'to ' + year_last + ' '
     histogram_title += 'for "' + node['value'] + '"'
-    html_histogram = '<div ' + _form_button_style + '>'
+    html_histogram = '<div ' + form_button_on_one_line_flexspace_style + '>'
     html_histogram += get_html_for_histogram(histogram_list=histogram_list,
                                             histogram_title=histogram_title,
                                             histogram_mode=histogram_mode)
@@ -255,7 +254,7 @@ def osprofileresultpage() -> str:
     html_histogram += what_to_show + '</a>'
     html_histogram += '</div>'
 
-    form = '<form method="get" action="/osprofileresultpage/"' + _form_button_style + '>'
+    form = '<form method="get" action="/osprofileresultpage/"' + form_button_on_one_line_flexspace_style + '>'
     form += '<div' + _form_button_width + '>'
     form += '<label for="year_first">Specify the first year:</label>'
     form += '<input id="year_first" class="w3-input w3-border" list="year_all_datalist"'
@@ -352,7 +351,7 @@ def prepare_oslprofile(node: Node,
       HTML for the buttons to get more information about the items
       in the histogram.
     """
-    buttons = '</p><div ' + _form_button_style + '>'
+    buttons = '</p><div ' + form_button_on_one_line_flexspace_style + '>'
     histogram_list = []
     for material, name in zip(material_group, material_name):
         if isinstance(material, str):

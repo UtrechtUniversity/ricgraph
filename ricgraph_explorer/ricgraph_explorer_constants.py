@@ -141,7 +141,7 @@ HISTOGRAM_MODE_ALL = [HISTOGRAM_MODE_COUNTS, HISTOGRAM_MODE_PERCENTAGES]
 # ########################################################################
 # HTML button constants.
 # ########################################################################
-# The html 'width' of input fields or 'min-width' of buttons.
+# The HTML 'width' of input fields or 'min-width' of buttons.
 field_button_width = '30em'
 # The style for the buttons, note the space before and after the text.
 button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
@@ -149,6 +149,15 @@ button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 button_style_border = button_style + ' w3-border rj-border-black '
 # Restrict the width of a button. Use 'min-width' to make sure the text fits.
 button_width = ' style="min-width:' + field_button_width + ';" '
+
+# Responsive HTML that keeps buttons and forms on one line, with a 1em spacing.
+# I am not sure if all of this is necessary, but it works.
+form_button_on_one_line_style = ' style="display:flex; '
+form_button_on_one_line_style += 'width:100%; align-items:end; gap:1em; flex-wrap:wrap;" '
+# Same, but with whitespace in between the buttons/forms so they
+# fill the available horizontal viewport.
+form_button_on_one_line_flexspace_style = ' style="display:flex; justify-content:space-between; '
+form_button_on_one_line_flexspace_style += 'width:100%; align-items:end; gap:1em; flex-wrap:wrap;" '
 
 
 # ########################################################################
