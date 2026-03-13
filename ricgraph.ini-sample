@@ -119,7 +119,8 @@ organization_name_EUT = Eindhoven University of Technology
 organization_name_UG = University of Groningen
 organization_name_VUA = Vrije Universiteit Amsterdam
 organization_name_UA = University of Amsterdam
-organization_name_AUMC = Amsterdam University Medical Centers
+# Do not use AUMCs official ror.org name, use their own preference.
+organization_name_AUMC = Amsterdam UMC
 #
 # ROR is a global open persistent identifier for research organizations.
 # Find yours on https://ror.org. 
