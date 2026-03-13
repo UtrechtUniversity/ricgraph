@@ -48,7 +48,9 @@ from flask import url_for
 from ricgraph_explorer_constants import (font_family, sankey_margin,
                                          chord_fontsize, chord_space_for_labels,
                                          chord_label_linespacing,
-                                         diagram_tooltip_link_button_style)
+                                         diagram_tooltip_link_button_style,
+                                         HISTOGRAM_MODE_ALL,
+                                         HISTOGRAM_MODE_COUNTS)
 
 
 def get_spinner_javascript() -> str:
@@ -218,6 +220,7 @@ def get_html_for_tableend_javascript(figure_filename: str) -> str:
 
 def get_html_for_histogram_javascript(histogram_json: str,
                                       histogram_width: int = 0,
+                                      histogram_mode: str = HISTOGRAM_MODE_COUNTS,
                                       plot_name: str = '') -> str:
     """JavaScript for creating a histogram using the
     Observable D3 and Observable Plot framework
@@ -227,19 +230,29 @@ def get_html_for_histogram_javascript(histogram_json: str,
     :param histogram_width: The width of the histogram, in pixels.
       If 0, then use the innerWidth of the viewport, which basically
       determines the width automatically, depending on the space available.
+    :param histogram_mode: The mode of the histogram, either counts
+      (HISTOGRAM_MODE_COUNTS), or percentages (HISTOGRAM_MODE_PERCENTAGES).
     :param plot_name: The name of the plot.
     :return: HTML to be rendered.
     """
+    if histogram_mode not in HISTOGRAM_MODE_ALL:
+        print('get_html_for_histogram_java(): Error: unknown histogram mode "'
+              + histogram_mode + '". Exiting...')
+        return ''
 
     javascript = f'''
                  <script type="module">
                  const histogram = {histogram_json};
+                 const histogram_mode = "{histogram_mode}";
+                 const histogram_mode_counts = "{HISTOGRAM_MODE_COUNTS}";
                  const histogram_value_sum = histogram.reduce((acc, histogram) => acc + histogram.value, 0);
+                 const plot_width = {histogram_width} === 0 ? window.innerWidth : {histogram_width};
                  // 'histogram_value_max' is used to compute whether a histogram 
                  // label should be shown in the histogram bar or next to it.
-                 const histogram_value_max = histogram.reduce((max, histogram) => histogram.value > max ? histogram.value : max, 0);
-                 const plot_width = {histogram_width} === 0 ? window.innerWidth : {histogram_width};
-                 const x_domain_max = histogram_value_sum === 0 ? 1 : histogram_value_max;
+                 let histogram_value_max = histogram.reduce((max, histogram) => histogram.value > max ? histogram.value : max, 0);
+                 const histogram_value_max_tmp = histogram_value_sum === 0 ? 1 : histogram_value_max;
+                 histogram_value_max = histogram_mode === histogram_mode_counts ? histogram_value_max_tmp : 100;
+                 const tick_scale_max = histogram_mode === histogram_mode_counts ? Math.max(1, histogram_value_max) : 100;
                  // Now do some computations for ticks to make sure (it appears
                  // extremely tricky to get these right):
                  // 1. only integer valued ticks (i.e. no decimals);
@@ -247,14 +260,22 @@ def get_html_for_histogram_javascript(histogram_json: str,
                  //    on the length of the histogram bar;
                  // 3. if histogram_value_sum == 0, no bar in the histogram;
                  // 4. no ticks of the form  0 0 0 1 1 1 2 2 2.
-                 const x_max = histogram_value_sum === 0 ? 1 : Math.max(1, histogram_value_max);
                  // There may be more ticks (then 5 or 10), due to rounding.
                  const num_ticks = plot_width > 400 ? 10 : 5;
-                 let step = x_max  / num_ticks;
+                 let step = tick_scale_max  / num_ticks;
                  step = Math.pow(10, Math.floor(Math.log10(step))) * Math.round(step / Math.pow(10, Math.floor(Math.log10(step))));
                  if (step < 1) step = 1;
-                 const ticks = Array.from({{length: Math.floor(x_max / step) + 1}}, (_, i) => i * step);
+                 const ticks = Array.from({{length: Math.floor(tick_scale_max / step) + 1}}, (_, i) => i * step);
                  // End of Now do some computations for ticks to make sure.
+                 const getX = (d) => histogram_mode === histogram_mode_counts
+                   ? d.value
+                   : (histogram_value_sum === 0 ? 0 : Math.round(100 * d.value / histogram_value_sum));
+                 const getLabel = (d) => histogram_value_sum === 0
+                   ? `${{d.name}} (${{d.value}} - 0%)`
+                   : `${{d.name}} (${{d.value}} - ${{Math.round(100 * d.value / histogram_value_sum)}}%)`;
+                 const isLongBar = (d) => histogram_mode === histogram_mode_counts
+                   ? d.value >= histogram_value_max / 2
+                   : (histogram_value_sum === 0 ? false : Math.round(100 * d.value / histogram_value_sum) >= 50);
                  const plot = Plot.plot({{
                    width: plot_width,
                    axis: null,
@@ -263,7 +284,7 @@ def get_html_for_histogram_javascript(histogram_json: str,
                    height: histogram.length * 20 + 40,
                    x: {{ 
                      insetRight: 10,
-                     domain: [0, x_domain_max],
+                     domain: [0, histogram_value_max],
                    }},
                    marks: [
                      Plot.axisX({{ 
@@ -272,34 +293,28 @@ def get_html_for_histogram_javascript(histogram_json: str,
                        tickFormat: (d) => d3.format(",.0f")(d)
                      }}),
                      Plot.barX(histogram, {{
-                       filter: () => histogram_value_sum !== 0,  // skip bars entirely if sum=0
-                       x: "value",
+                       filter: () => histogram_value_sum !== 0,  // no bars if sum=0.
+                       x: getX,
                        y: "name",
                        fill: "#ffcd00",                 // uu-yellow.
                        sort: {{ y: "x", order: null }}  // no ordering.
                      }}),
                      // labels for longer bars.
                      Plot.text(histogram, {{
-                       text: (d) => histogram_value_sum === 0
-                         ? `${{d.name}} (${{d.value}} - 0%)`
-                         : `${{d.name}} (${{d.value}} - ${{Math.round(100 * d.value / histogram_value_sum)}}%)`
-                         ,
+                       text: getLabel,
                        y: "name",
                        frameAnchor: "left",
                        dx: 3,
-                       filter: (d) => d.value >= histogram_value_max / 2,
+                       filter: d => isLongBar(d)
                      }}),
                      // labels for shorter bars.
                      Plot.text(histogram, {{
-                       text: (d) => histogram_value_sum === 0
-                         ? `${{d.name}} (${{d.value}} - 0%)`
-                         : `${{d.name}} (${{d.value}} - ${{Math.round(100 * d.value / histogram_value_sum)}}%)`
-                         ,
+                       text: getLabel,
                        y: "name",
-                       x: "value",
+                       x: getX,
                        textAnchor: "start",
                        dx: 3,
-                       filter: (d) => d.value < histogram_value_max / 2,
+                       filter: d => !isLongBar(d)
                      }})
                    ]           // End of marks.
                  }});         // End of Plot.plot().

@@ -767,7 +767,7 @@ def create_options_page_organization(key: str,
     html += get_html_for_cardstart()
     html += '<h2>Advanced information related to this organization</h2>'
     html += get_html_for_cardstart()
-    html += '<h3>More information about persons or their results in this organization.</h3>'
+    html += '<h3>More information about persons or their results in this organization</h3>'
     html += create_html_form(destination='resultspage',
                              button_text='find any information from all persons in this organization',
                              hidden_fields={'key': key,
@@ -817,7 +817,7 @@ def create_options_page_organization(key: str,
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
-    html += '<h3>Get an open science profile for this organization.</h3>'
+    html += '<h3>Get an open science profile for this organization</h3>'
     html += create_html_form(destination='osprofileresultpage',
                              button_text='get an open science profile for this organization',
                              hidden_fields={'key': key

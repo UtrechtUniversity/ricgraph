@@ -41,6 +41,7 @@
 
 
 from flask import Blueprint, url_for
+from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
                       ROCATEGORY_RESEARCH_MATERIAL,
                       ROCATEGORY_REPORTING_MATERIAL,
@@ -49,7 +50,13 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          DISCOVERER_MODE_ALL,
                                          MAX_ROWS_IN_TABLE,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
-                                         button_style)
+                                         button_style,
+                                         HISTOGRAM_MODE_ALL,
+                                         HISTOGRAM_MODE_COUNTS,
+                                         HISTOGRAM_MODE_PERCENTAGES,
+                                         OSL_PROFILE_MODE_ALL,
+                                         OSL_PROFILE_MODE_GROUPS,
+                                         OSL_PROFILE_MODE_ITEMS)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form,
@@ -63,6 +70,10 @@ from ricgraph_explorer_cypher import create_neighbor_histogram_cypher
 
 _oslpage_bp = Blueprint(name='oslpage', import_name=__name__)
 _osprofileresultpage_bp = Blueprint(name='osprofileresultpage', import_name=__name__)
+
+_form_button_style = ' style="display:flex; justify-content:space-between; '
+_form_button_style += 'width:100%; align-items:end; gap:1em; flex-wrap:wrap;" '
+_form_button_width = ' style="width:16em !important;" '
 
 
 @_oslpage_bp.route(rule='/oslpage/', methods=['GET'])
@@ -79,8 +90,7 @@ def oslpage() -> str:
 
     html += get_page_title(title='Explore open science monitoring')
     html += get_html_for_cardstart()
-    # html += 'There are various methods to start exploring open science monitoring:'
-    html += 'For the moment, there is only one method to start exploring open science monitoring:'
+    html += 'There are various methods to start exploring open science landscaping:'
     html += '<p/>'
     html += create_html_form(destination='collabspage',
                              button_text='explore collaborations')
@@ -107,6 +117,10 @@ def osprofileresultpage() -> str:
     - key: key of the organization to find.
     - year_first: first year of the research results to count.
     - year_last: last year of the research results to count.
+    - histogram_mode: The mode of the histogram, either counts
+      (HISTOGRAM_MODE_COUNTS), or percentages (HISTOGRAM_MODE_PERCENTAGES).
+    - oslprofile_mode: report on the three groups
+      (OSL_PROFILE_MODE_GROUPS), or on all item types (OSL_PROFILE_MODE_ITEMS).
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
     - max_nr_items: this usually signifies the maximum number of items to return,
@@ -121,6 +135,8 @@ def osprofileresultpage() -> str:
     key = get_url_parameter_value(parameter='key', use_escape=False)
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
+    histogram_mode = get_url_parameter_value(parameter='histogram_mode')
+    oslprofile_mode = get_url_parameter_value(parameter='oslprofile_mode')
 
     extra_url_parameters = {}
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
@@ -133,20 +149,36 @@ def osprofileresultpage() -> str:
                                                 default_value=str(MAX_ROWS_IN_TABLE))
     if not max_nr_table_rows.isnumeric():
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
-    extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
-
     html = html_body_start
     if (year_first != '' and not year_first.isnumeric()) \
        or (year_last != '' and not year_last.isnumeric()):
         html += get_message(message='Error: "year_first" or "year_last" are not numeric.')
-        html += page_footer + html_body_end
-        return html
+        return html + page_footer + html_body_end
     if year_first != '' and year_last != '' and int(year_first) > int(year_last):
         message = 'Error: you did not specify a valid year range ['
         message += year_first + ', ' + year_last + '].'
         html += get_message(message=message)
-        html += page_footer + html_body_end
-        return html
+        return html + page_footer + html_body_end
+    if histogram_mode == '':
+        histogram_mode = HISTOGRAM_MODE_COUNTS
+    if histogram_mode not in HISTOGRAM_MODE_ALL:
+        html += get_message(message='Error: unknown histogram mode "'
+                                    + histogram_mode + '".')
+        return html + page_footer + html_body_end
+    if oslprofile_mode == '':
+        oslprofile_mode = OSL_PROFILE_MODE_GROUPS
+    if oslprofile_mode not in OSL_PROFILE_MODE_ALL:
+        html += get_message(message='Error: unknown open science profile mode "'
+                                    + oslprofile_mode + '".')
+        return html + page_footer + html_body_end
+
+    extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
+    extra_url_parameters['key'] = key
+    extra_url_parameters['year_first'] = year_first
+    extra_url_parameters['year_last'] = year_last
+    extra_url_parameters['discoverer_mode'] = discoverer_mode
+    extra_url_parameters['histogram_mode'] = histogram_mode
+    extra_url_parameters['oslprofile_mode'] = oslprofile_mode
 
     result = read_all_nodes(key=key)
     if len(result) == 0 or len(result) > 1:
@@ -156,33 +188,30 @@ def osprofileresultpage() -> str:
             message = 'Ricgraph Explorer found too many nodes. '
         message += 'This should not happen. '
         html += get_message(message=message)
-        html += page_footer + html_body_end
-        return html
+        return html + page_footer + html_body_end
     node = result[0]
 
-    hist_research_mat = create_neighbor_histogram_cypher(node=node,
-                                                         category=ROCATEGORY_RESEARCH_MATERIAL,
-                                                         year_first=year_first,
-                                                         year_last=year_last)
-    hist_reporting_mat = create_neighbor_histogram_cypher(node=node,
-                                                          category=ROCATEGORY_REPORTING_MATERIAL,
-                                                          year_first=year_first,
-                                                          year_last=year_last)
-    hist_engagement_mat = create_neighbor_histogram_cypher(node=node,
-                                                           category=ROCATEGORY_ENGAGEMENT_MATERIAL,
-                                                           year_first=year_first,
-                                                           year_last=year_last)
-    hist_research_mat_total = hist_reporting_mat_total = hist_engagement_mat_total = 0
-    for item in hist_research_mat:
-        hist_research_mat_total += hist_research_mat[item]
-    for item in hist_reporting_mat:
-        hist_reporting_mat_total += hist_reporting_mat[item]
-    for item in hist_engagement_mat:
-        hist_engagement_mat_total += hist_engagement_mat[item]
-
-    histogram_list = [{'name': 'research material', 'value': hist_research_mat_total},
-                      {'name': 'reporting material', 'value': hist_reporting_mat_total},
-                      {'name': 'engagement material', 'value': hist_engagement_mat_total}]
+    if oslprofile_mode == OSL_PROFILE_MODE_ITEMS:
+        # List of items.
+        material_group = ROCATEGORY_RESEARCH_MATERIAL + \
+                         ROCATEGORY_REPORTING_MATERIAL + \
+                         ROCATEGORY_ENGAGEMENT_MATERIAL
+        material_group = sorted(material_group, key=lambda x: x.lower())
+        material_name = material_group.copy()
+    else:
+        # List of lists.
+        material_group = [ROCATEGORY_RESEARCH_MATERIAL,
+                          ROCATEGORY_REPORTING_MATERIAL,
+                          ROCATEGORY_ENGAGEMENT_MATERIAL]
+        material_name = ['research material',
+                         'reporting material',
+                         'engagement material']
+    histogram_list, buttons = prepare_oslprofile(node=node,
+                                                 material_group=material_group,
+                                                 material_name=material_name,
+                                                 all_url_parameters=extra_url_parameters,
+                                                 year_first=year_first,
+                                                 year_last=year_last)
     histogram_title = 'Open science profile '
     if year_first == '' and year_last == '':
         histogram_title += 'for all years '
@@ -196,50 +225,58 @@ def osprofileresultpage() -> str:
         else:
             histogram_title += 'to ' + year_last + ' '
     histogram_title += 'for "' + node['value'] + '"'
-    html_histogram = get_html_for_histogram(histogram_list=histogram_list,
-                                            histogram_title=histogram_title)
+    html_histogram = '<div ' + _form_button_style + '>'
+    html_histogram += get_html_for_histogram(histogram_list=histogram_list,
+                                            histogram_title=histogram_title,
+                                            histogram_mode=histogram_mode)
 
-    html_style = ' style="display:flex; justify-content:space-between; '
-    html_style += 'width:100%; align-items:end; gap:1em; flex-wrap:wrap;" '
-    html_field_width = ' style="width:16em !important;" '
+    modified_url_parameters = extra_url_parameters.copy()
+    if histogram_mode == HISTOGRAM_MODE_COUNTS:
+        modified_url_parameters['histogram_mode'] = HISTOGRAM_MODE_PERCENTAGES
+        what_to_show = 'percentages'
+    else:
+        modified_url_parameters['histogram_mode'] = HISTOGRAM_MODE_COUNTS
+        what_to_show = 'counts'
+    url = url_for(endpoint='osprofileresultpage.osprofileresultpage',
+                  **modified_url_parameters)
+    html_histogram += '<a href="' + url + '">toggle this histogram to show '
+    html_histogram += what_to_show + '</a> '
 
-    material_group = [ROCATEGORY_RESEARCH_MATERIAL,
-                      ROCATEGORY_REPORTING_MATERIAL,
-                      ROCATEGORY_ENGAGEMENT_MATERIAL]
-    material_name = ['research', 'reporting', 'engagement']
-    buttons = '</p><div ' + html_style + '>'
-    for material, name in zip(material_group, material_name):
-        url = url_for(endpoint='resultspage',
-                      key=key,
-                      view_mode='view_regular_table_organization_addinfo',
-                      discoverer_mode=discoverer_mode,
-                      category_list=material,
-                      **extra_url_parameters)
-        buttons += '<a href="' + url + '" class="w3-bar-item'
-        buttons += button_style + '"' + html_field_width
-        buttons += '>show ' + name + ' material</a>'
-    buttons += '</div>'
+    modified_url_parameters = extra_url_parameters.copy()
+    if oslprofile_mode == OSL_PROFILE_MODE_GROUPS:
+        modified_url_parameters['oslprofile_mode'] = OSL_PROFILE_MODE_ITEMS
+        what_to_show = 'all research result item types'
+    else:
+        modified_url_parameters['oslprofile_mode'] = OSL_PROFILE_MODE_GROUPS
+        what_to_show = 'research, reporting, and engagement material'
+    url = url_for(endpoint='osprofileresultpage.osprofileresultpage',
+                  **modified_url_parameters)
+    html_histogram += '<a href="' + url + '">toggle this histogram to show '
+    html_histogram += what_to_show + '</a>'
+    html_histogram += '</div>'
 
-    form = '<form method="get" action="/osprofileresultpage/"' + html_style + '>'
-    form += '<div' + html_field_width + '>'
+    form = '<form method="get" action="/osprofileresultpage/"' + _form_button_style + '>'
+    form += '<div' + _form_button_width + '>'
     form += '<label for="year_first">Specify the first year:</label>'
     form += '<input id="year_first" class="w3-input w3-border" list="year_all_datalist"'
-    form += 'name=year_first autocomplete=off' + html_field_width + '>'
+    form += 'name=year_first autocomplete=off' + _form_button_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
     form += str(year_all_datalist)
     form += '</div>'
 
-    form += '<div' + html_field_width + '>'
+    form += '<div' + _form_button_width + '>'
     form += '<label for="year_last">Specify the last year:</label>'
     form += '<input id="year_last" class="w3-input w3-border" list="year_all_datalist"'
-    form += 'name=year_last autocomplete=off' + html_field_width + '>'
+    form += 'name=year_last autocomplete=off' + _form_button_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
     form += str(year_all_datalist)
     form += '</div>'
 
     form += '<input type="hidden" name="key" value="' + key + '">'
     form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
-    form += '<input class="' + button_style + '"' + html_field_width
+    form += '<input type="hidden" name="histogram_mode" value="' + histogram_mode + '">'
+    form += '<input type="hidden" name="oslprofile_mode" value="' + oslprofile_mode + '">'
+    form += '<input class="' + button_style + '"' + _form_button_width
     form += 'type=submit value="recreate">'
     form += '</form>'
 
@@ -263,32 +300,80 @@ def osprofileresultpage() -> str:
 
     html += get_html_for_cardstart()
     html += '<h2>What is an open science profile in Ricgraph?</h2>'
-    html += 'The <em>open science profile</em> for a (sub-)organization is defined '
-    html += 'in Ricgraph as the distribution of its research results '
-    html += 'across three groups:'
+    html += 'Ricgraph can show two types of <em>open science profiles</em>, one '
+    html += 'consisting of the three groups research, reporting, '
+    html += 'and engagement material, and one consisting of '
+    html += 'all research result item types in Ricgraph. '
+    html += 'Both relate to the distribution of research results '
+    html += 'for a certain (sub-)organization. '
+    html += 'It is said that the form of this distribution may be characteristic '
+    html += 'for such a (sub-)organization. '
+    html += 'You can use this page to check this for yourself. '
+    html += 'Also, you can choose whether you would like to see counts '
+    html += 'in the histogram, or rather prefer to see percentages. '
+    html += '<br/><br/>'
+    html += 'The three groups research, reporting, and engagement '
+    html += 'material are defined in Ricgraph as:'
     html += '<ol><li>'
-    html += '<em>Research material</em>: input/output and supporting materials of the analysis;'
+    html += '<em>Research material</em>: input/output and supporting materials of the analysis.'
+    html += '<br/>'
+    html += 'These are the result result categories ' + str(ROCATEGORY_RESEARCH_MATERIAL) + '.'
     html += '</li><li>'
-    html += '<em>Reporting material</em>: documents reporting on process and results of analysis;'
+    html += '<em>Reporting material</em>: documents reporting on process and results of analysis.'
+    html += '<br/>'
+    html += 'These are the result result categories ' + str(ROCATEGORY_REPORTING_MATERIAL) + '.'
     html += '</li><li>'
     html += '<em>Engagement material</em>: everything used to involve stakeholders and '
     html += 'wider audiences into influencing the research and '
     html += 'using or implementing its results.'
+    html += '<br/>'
+    html += 'These are the result result categories ' + str(ROCATEGORY_ENGAGEMENT_MATERIAL) + '.'
     html += '</li></ol>'
-    html += 'It is said that the form of this distribution may be characteristic '
-    html += 'for a certain (sub-)organization. '
-    html += 'You can use this page to check this for yourself. '
-    html += '<br/><br/>'
-    html += 'In creating these groups, '
-    html += 'the following research result categories have been used:'
-    html += '<ul><li>'
-    html += 'Research material: ' + str(ROCATEGORY_RESEARCH_MATERIAL) + '.'
-    html += '</li><li>'
-    html += 'Reporting material: ' + str(ROCATEGORY_REPORTING_MATERIAL) + '.'
-    html += '</li><li>'
-    html += 'Engagement material: ' + str(ROCATEGORY_ENGAGEMENT_MATERIAL) + '.'
-    html += '</li></ul>'
     html += get_html_for_cardend()
 
-    html += page_footer + html_body_end
-    return html
+    return html + page_footer + html_body_end
+
+
+def prepare_oslprofile(node: Node,
+                       material_group: list,
+                       material_name: list,
+                       all_url_parameters: dict,
+                       year_first: str,
+                       year_last: str) -> tuple[list, str]:
+    """Prepare information for the Ricgraph open science profile.
+
+    :param node: Organization node to consider.
+    :param material_group: List of research result items.
+    :param material_name: List of names how to name these research result items.
+    :param all_url_parameters: Parameters to be passed in the URL.
+    :param year_first: First year of the research results to count.
+    :param year_last: Last year of the research results to count.
+    :return: A list that contains the histogram (as JSON), and
+      HTML for the buttons to get more information about the items
+      in the histogram.
+    """
+    buttons = '</p><div ' + _form_button_style + '>'
+    histogram_list = []
+    for material, name in zip(material_group, material_name):
+        if isinstance(material, str):
+            material = [material]
+        hist_part = create_neighbor_histogram_cypher(node=node,
+                                                     category=material,
+                                                     year_first=year_first,
+                                                     year_last=year_last)
+        hist_part_total = 0
+        for item in hist_part:
+            hist_part_total += hist_part[item]
+        histogram_list.append({'name': name, 'value': hist_part_total})
+
+        if hist_part_total > 0:
+            # Only a button if there is material to show.
+            url = url_for(endpoint='resultspage',
+                          view_mode='view_regular_table_organization_addinfo',
+                          category_list=material,
+                          **all_url_parameters)
+            buttons += '<a href="' + url + '" class="w3-bar-item'
+            buttons += button_style + '"' + _form_button_width
+            buttons += '>show ' + name + '</a>'
+    buttons += '</div>'
+    return histogram_list, buttons

@@ -125,6 +125,18 @@ COLLABORATION_MODES_ALL = ['return_research_results',
 # this open science profile page, and not to the organizations options page.
 ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON = 'osprofile_button'
 
+# The open science profile page is available based on groups
+# (research, reporting, and engagement material) and on
+# all research result items.
+OSL_PROFILE_MODE_GROUPS = 'oslprofile_groups'
+OSL_PROFILE_MODE_ITEMS = 'oslprofile_items'
+OSL_PROFILE_MODE_ALL = [OSL_PROFILE_MODE_GROUPS, OSL_PROFILE_MODE_ITEMS]
+
+# The histogram can show either counts or percentages.
+HISTOGRAM_MODE_COUNTS = 'histogram_counts'
+HISTOGRAM_MODE_PERCENTAGES = 'histogram_percentages'
+HISTOGRAM_MODE_ALL = [HISTOGRAM_MODE_COUNTS, HISTOGRAM_MODE_PERCENTAGES]
+
 
 # ########################################################################
 # HTML button constants.

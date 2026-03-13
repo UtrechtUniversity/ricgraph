@@ -59,7 +59,8 @@ from ricgraph_explorer_constants import (ricgraph_reference, diagram_tooltip_sty
                                          observable_plot, observable_d3,
                                          chord_space_for_labels,
                                          sankey_pixels_per_link,
-                                         sankey_min_height, sankey_max_height)
+                                         sankey_min_height, sankey_max_height,
+                                         HISTOGRAM_MODE_COUNTS)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_message, remove_hierarchical_orgs,
                                      create_full_htmlpage)
@@ -72,6 +73,7 @@ from ricgraph_explorer_javascript import (get_html_for_histogram_javascript,
 
 def get_html_for_histogram(histogram_list: list,
                            histogram_width: int = 0,
+                           histogram_mode: str = HISTOGRAM_MODE_COUNTS,
                            histogram_title: str = ''):
     """This function creates a histogram using the Observable D3 and Observable Plot framework
     for data visualization. See https://d3js.org and https://observablehq.com/plot.
@@ -82,6 +84,8 @@ def get_html_for_histogram(histogram_list: list,
       The histogram will be in the order as specified in the list.
     :param histogram_width: The width of the histogram, in pixels.
       If 0, then use the innerWidth of the viewport.
+    :param histogram_mode: The mode of the histogram, either counts
+      (HISTOGRAM_MODE_COUNTS), or percentages (HISTOGRAM_MODE_PERCENTAGES).
     :param histogram_title: The title of the histogram.
     :return: HTML to be rendered.
     """
@@ -110,6 +114,7 @@ def get_html_for_histogram(histogram_list: list,
 
     javascript = get_html_for_histogram_javascript(histogram_json=histogram_json,
                                                    histogram_width=histogram_width,
+                                                   histogram_mode=histogram_mode,
                                                    plot_name=plot_name)
     return observable_plot + html + javascript
 
