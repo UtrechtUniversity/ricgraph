@@ -72,9 +72,14 @@ def collabspage() -> str:
     Probably, in the future, it should have.
     The Explore collaborations page.
 
+    Possible url parameters are:
+    - start_orgs: the organization(s) to start with. This may be
+      a substring, then a match on the start of the organization name is done.
+
     :return: html to be rendered.
     """
     page_footer = get_ricgraph_explorer_global('page_footer')
+    start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
 
     html = html_body_start
     html += get_page_title(title='Explore collaborations page')
@@ -120,7 +125,8 @@ def collabspage() -> str:
     form = '<form method="get" action="/collabsresultpage/">'
     form += '<label for="start_orgs">Type the name for <em>start organization</em> '
     form += '(or enter text that begins a (sub-)organization name):</label>'
-    form += '<input id="start_orgs" class="w3-input w3-border" type=text name=start_orgs>'
+    form += '<input id="start_orgs" class="w3-input w3-border" '
+    form += 'type=text name=start_orgs value="' + str(escape(start_orgs)) + '">'
 
     form += 'Note. For now, you have to type the exact spelling in this field, '
     form += 'including correct upper and lower case. '

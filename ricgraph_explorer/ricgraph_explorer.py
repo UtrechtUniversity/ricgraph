@@ -692,40 +692,37 @@ def create_options_page(node: Node,
 
     if extra_url_parameters is None:
         extra_url_parameters = {}
-
-    html = ''
     if node is None:
         return get_message(message='create_options_page(): Node is None. This should not happen.')
 
+    html_options_page = ''
     if discoverer_mode == 'details_view':
-        html += get_you_searched_for_card(key=node['_key'],
+        html_options_page += get_you_searched_for_card(key=node['_key'],
                                           discoverer_mode=discoverer_mode,
                                           extra_url_parameters=extra_url_parameters)
-
-    html += get_page_title(title='Options page')
-    key = node['_key']
-    html += get_found_message(node=node,
-                              discoverer_mode=discoverer_mode,
-                              extra_url_parameters=extra_url_parameters)
+    html_options_page += get_page_title(title='Options page')
+    html_options_page += get_found_message(node=node,
+                                           discoverer_mode=discoverer_mode,
+                                           extra_url_parameters=extra_url_parameters)
     if node['category'] == 'organization':
-        result_html = create_options_page_organization(key=key,
+        result_html = create_options_page_organization(node=node,
                                                        discoverer_mode=discoverer_mode,
                                                        extra_url_parameters=extra_url_parameters)
-        html += result_html
+        return html_options_page + result_html
     elif node['category'] == 'person':
-        result_html = create_options_page_person(key=key,
+        result_html = create_options_page_person(node=node,
                                                  discoverer_mode=discoverer_mode,
                                                  extra_url_parameters=extra_url_parameters)
-        html += result_html
+        return html_options_page + result_html
     else:
-        html += create_results_page(view_mode='view_regular_table_category',
-                                    key=key,
-                                    discoverer_mode=discoverer_mode,
-                                    extra_url_parameters=extra_url_parameters)
-    return html
+        result_html = create_results_page(view_mode='view_regular_table_category',
+                                          key=node['_key'],
+                                          discoverer_mode=discoverer_mode,
+                                          extra_url_parameters=extra_url_parameters)
+    return result_html
 
 
-def create_options_page_organization(key: str,
+def create_options_page_organization(node: Node,
                                      discoverer_mode: str = '',
                                      extra_url_parameters: dict = None) -> str:
     """This function creates the page with options to choose from,
@@ -734,7 +731,7 @@ def create_options_page_organization(key: str,
     The 'view_mode' that is used, is caught first in resultspage() and then
     in create_results_page().
 
-    :param key: the _key of the node that is found and that determines where we start from.
+    :param node: the node that is found and that determines the possible choices.
     :param discoverer_mode: as usual.
     :param extra_url_parameters: a dict containing url parameters to be passed
       with each url. This dict can be extended as desired.
@@ -744,6 +741,7 @@ def create_options_page_organization(key: str,
     category_all = get_ricgraph_explorer_global(name='category_all')
     category_all_datalist = get_ricgraph_explorer_global(name='category_all_datalist')
     resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+    key = node['_key']
 
     html = get_html_for_cardstart()
     html += '<h2>What would you like to see from this organization?</h2>'
@@ -754,7 +752,6 @@ def create_options_page_organization(key: str,
                                             'view_mode': 'view_unspecified_table_organizations'
                                             } | extra_url_parameters)
     html += '<p/>'
-
     html += create_html_form(destination='resultspage',
                              button_text='show persons related to this organization',
                              hidden_fields={'key': key,
@@ -762,6 +759,16 @@ def create_options_page_organization(key: str,
                                             'name_list': 'person-root',
                                             'view_mode': 'view_regular_table_persons_of_org'
                                             } | extra_url_parameters)
+    html += '<p/>'
+    html += create_html_form(destination='collabspage',
+                             button_text='explore collaborations for this organization',
+                             hidden_fields={'start_orgs': node['value']
+                                            })
+    html += '<p/>'
+    html += create_html_form(destination='osprofileresultpage',
+                             button_text='get an open science profile for this organization',
+                             hidden_fields={'key': key
+                                            })
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
@@ -815,21 +822,11 @@ def create_options_page_organization(key: str,
                                             'view_mode': 'view_regular_table_organization_addinfo'
                                             } | extra_url_parameters)
     html += get_html_for_cardend()
-
-    html += get_html_for_cardstart()
-    html += '<h3>Get an open science profile for this organization</h3>'
-    html += create_html_form(destination='osprofileresultpage',
-                             button_text='get an open science profile for this organization',
-                             hidden_fields={'key': key
-                                            })
-    html += get_html_for_cardend()
-
-    html += get_html_for_cardend()
     html += get_html_for_cardend()
     return html
 
 
-def create_options_page_person(key: str,
+def create_options_page_person(node: Node,
                                discoverer_mode: str = '',
                                extra_url_parameters: dict = None) -> str:
     """This function creates the page with options to choose from,
@@ -838,7 +835,7 @@ def create_options_page_person(key: str,
     The 'view_mode' that is used, is caught first in resultspage() and then
     in create_results_page().
 
-    :param key: the _key of the node that is found and that determines where we start from.
+    :param node: the node that is found and that determines the possible choices.
     :param discoverer_mode: as usual.
     :param extra_url_parameters: a dict containing url parameters to be passed
       with each url. This dict can be extended as desired.
@@ -848,6 +845,7 @@ def create_options_page_person(key: str,
     resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
     resout_types_all_datalist = get_ricgraph_explorer_global(name='resout_types_all_datalist')
     remainder_types_all = get_ricgraph_explorer_global(name='remainder_types_all')
+    key = node['_key']
 
     # ###
     # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
