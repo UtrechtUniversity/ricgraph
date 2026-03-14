@@ -599,9 +599,9 @@ def create_neighbor_histogram_cypher(node: Node,
     cypher_query += 'AND persroot.name="person-root"  '
     cypher_query += 'AND research_result.category IN $category '
     if year_first != '':
-        cypher_query += 'AND toInteger(research_result.year) >= toInteger($year_first) '
+        cypher_query += 'AND research_result.year >= $year_first '
     if year_last != '':
-        cypher_query += 'AND toInteger(research_result.year) <= toInteger($year_last) '
+        cypher_query += 'AND research_result.year <= $year_last '
     cypher_query += 'WITH DISTINCT research_result '
     cypher_query += 'WITH research_result.category AS category, COUNT(*) AS count '
     cypher_query += 'RETURN category, count '

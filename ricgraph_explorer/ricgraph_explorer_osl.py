@@ -256,7 +256,7 @@ def osprofileresultpage() -> str:
 
     form = '<form method="get" action="/osprofileresultpage/"' + form_button_on_one_line_flexspace_style + '>'
     form += '<div' + _form_button_width + '>'
-    form += '<label for="year_first">Specify the first year:</label>'
+    form += '<label for="year_first">specify the first year:</label>'
     form += '<input id="year_first" class="w3-input w3-border" list="year_all_datalist"'
     form += 'name=year_first autocomplete=off' + _form_button_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
@@ -264,7 +264,7 @@ def osprofileresultpage() -> str:
     form += '</div>'
 
     form += '<div' + _form_button_width + '>'
-    form += '<label for="year_last">Specify the last year:</label>'
+    form += '<label for="year_last">specify the last year:</label>'
     form += '<input id="year_last" class="w3-input w3-border" list="year_all_datalist"'
     form += 'name=year_last autocomplete=off' + _form_button_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
@@ -290,7 +290,7 @@ def osprofileresultpage() -> str:
         html += buttons
     html += '<br/>'
     html += 'You can choose a different time period for this open science profile, '
-    html += 'note that recreating it may take a while.'
+    html += 'note that recreating it may take a while:'
     html += '<br/>'
     html += form
     message = 'Recreating the open science profile, this may take a while. Please wait...'
