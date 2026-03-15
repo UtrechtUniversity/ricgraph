@@ -62,7 +62,7 @@
 from typing import Tuple, Union
 from pandas import DataFrame
 from neo4j.graph import Node
-from ricgraph import (ROCATEGORY_PUBLICATION,
+from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       read_node,
                       get_personroot_node, get_all_neighbor_nodes,
                       ricgraph_database, ricgraph_databasename,
@@ -285,13 +285,13 @@ def find_organization_additional_info_cypher(parent_node: Node,
 
 def find_collabs_cypher(start_organizations: str,
                         collab_organizations: str = '',
-                        research_result_category: Union[str, list] = '',
+                        researchresult_category: Union[str, list] = '',
                         cypher_return_clause: str = '',
                         max_nr_nodes: int = 0) -> list:
     """Find collaborations, starting from start_organizations,
     for a certain research result.
     Collaborations are defined as nodes connected as follows:
-    (start_organizations)-[]->(persroot1)-[]->(research_result)
+    (start_organizations)-[]->(persroot1)-[]->(researchresult)
        -[]->(persroot2)-[]->(collab_organizations).
     This function is used for several purposes, but for all of those purposes
     only the RETURN part is different. That is why the RETURN is passed
@@ -302,7 +302,7 @@ def find_collabs_cypher(start_organizations: str,
     :param collab_organizations: if specified, only return organization(s) that
       collaborate with start_organizations. If empty '', return any organization(s)
       that start_organizations collaborate with.
-    :param research_result_category: if specified, only return collaborations
+    :param researchresult_category: if specified, only return collaborations
       for this research result category. If not, return all collaborations,
       regardless of the research result category.
       The value can be both a string containing one category, or
@@ -332,20 +332,20 @@ def find_collabs_cypher(start_organizations: str,
         print('  from "' + start_organizations + '" to "all"')
     else:
         print('  from "' + start_organizations + '" to "' + collab_organizations + '"')
-    if isinstance(research_result_category, str):
-        print('  using research result category "' + research_result_category + '".')
-    elif isinstance(research_result_category, list):
-        if sorted(research_result_category) == sorted(ROCATEGORY_PUBLICATION):
+    if isinstance(researchresult_category, str):
+        print('  using research result category "' + researchresult_category + '".')
+    elif isinstance(researchresult_category, list):
+        if sorted(researchresult_category) == sorted(RESEARCHRESULT_CATEGORY_PUBLICATION):
             print('  using research result category (meta category) "publication".')
         else:
-            print('  using research result category "' + str(research_result_category) + '".')
+            print('  using research result category "' + str(researchresult_category) + '".')
     else:
         print('find_collab_orgs_cypher(): Error, unexpected type.')
         return []
 
     cypher_query = 'MATCH (start_orgs:RicgraphNode)'
     cypher_query += '-[]->(persroot1:RicgraphNode)'
-    cypher_query += '-[]->(research_result:RicgraphNode)'
+    cypher_query += '-[]->(researchresult:RicgraphNode)'
     cypher_query += '-[]->(persroot2:RicgraphNode)'
     cypher_query += '-[]->(collab_orgs:RicgraphNode) '
 
@@ -359,17 +359,17 @@ def find_collabs_cypher(start_organizations: str,
         # This query is much more efficient.
         cypher_query += 'AND start_orgs.value=$start_orgs '
 
-    if isinstance(research_result_category, str):
-        if research_result_category != '':
+    if isinstance(researchresult_category, str):
+        if researchresult_category != '':
             # Restrict the result to collaborations of a certain research result category.
-            cypher_query += 'AND research_result.category=$research_result_category '
-    elif isinstance(research_result_category, list):
-        if len(research_result_category) > 0:
+            cypher_query += 'AND researchresult.category=$researchresult_category '
+    elif isinstance(researchresult_category, list):
+        if len(researchresult_category) > 0:
             # Restrict the result to collaborations of a certain research result category.
-            cypher_query += 'AND research_result.category IN $research_result_category '
+            cypher_query += 'AND researchresult.category IN $researchresult_category '
     else:
-        print('find_collab_orgs_cypher(): unknown type for research_result_category "'
-              + str(research_result_category) + '".')
+        print('find_collab_orgs_cypher(): unknown type for researchresult_category "'
+              + str(researchresult_category) + '".')
         exit(1)
 
     cypher_query += 'AND persroot1.name="person-root" '
@@ -413,7 +413,7 @@ def find_collabs_cypher(start_organizations: str,
     cypher_result, _, _ = graph.execute_query(cypher_query,
                                               start_orgs=start_organizations,
                                               collab_orgs=collab_organizations,
-                                              research_result_category=research_result_category,
+                                              researchresult_category=researchresult_category,
                                               org_abbr=org_abbr,
                                               max_nr_nodes=max_nr_nodes,
                                               database_=ricgraph_databasename())
@@ -426,12 +426,12 @@ def find_collabs_cypher(start_organizations: str,
 
 def find_collab_orgs_matrix(start_organizations: str,
                             collab_organizations: str = '',
-                            research_result_category: Union[str, list] = '',
+                            researchresult_category: Union[str, list] = '',
                             max_nr_nodes: int = 0) -> Union[DataFrame, None]:
     """Find collaborating organizations, starting from start_organizations,
     for a certain research result.
     Collaborations are defined as nodes connected as follows:
-    (start_organizations)-[]->(persroot1)-[]->(research_result)
+    (start_organizations)-[]->(persroot1)-[]->(researchresult)
        -[]->(persroot2)-[]->(collab_organizations).
     This function returns the collaboration count.
 
@@ -440,7 +440,7 @@ def find_collab_orgs_matrix(start_organizations: str,
     :param collab_organizations: if specified, only return organization(s) that
       collaborate with start_organizations. If empty '', return any organization(s)
       that start_organizations collaborate with.
-    :param research_result_category: if specified, only return collaborations
+    :param researchresult_category: if specified, only return collaborations
       for this research result category. If not, return all collaborations,
       regardless of the research result category.
       The value can be both a string containing one category, or
@@ -453,19 +453,19 @@ def find_collab_orgs_matrix(start_organizations: str,
     """
     resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
 
-    if isinstance(research_result_category, str) and research_result_category == '':
-        research_result_category = resout_types_all.copy()
-    if isinstance(research_result_category, list) and len(research_result_category) == 0:
-        research_result_category = resout_types_all.copy()
+    if isinstance(researchresult_category, str) and researchresult_category == '':
+        researchresult_category = resout_types_all.copy()
+    if isinstance(researchresult_category, list) and len(researchresult_category) == 0:
+        researchresult_category = resout_types_all.copy()
 
     cypher_return_clause = 'RETURN '
     cypher_return_clause += '  start_orgs.value AS start_orgs, '
     cypher_return_clause += '  collab_orgs.value AS collab_orgs, '
-    cypher_return_clause += '  COUNT(DISTINCT research_result._key) as count_research_result_category '
+    cypher_return_clause += '  COUNT(DISTINCT researchresult._key) as count_researchresult_category '
 
     records_list = find_collabs_cypher(start_organizations=start_organizations,
                                        collab_organizations=collab_organizations,
-                                       research_result_category=research_result_category,
+                                       researchresult_category=researchresult_category,
                                        cypher_return_clause=cypher_return_clause,
                                        max_nr_nodes=max_nr_nodes)
     if len(records_list) == 0:
@@ -473,37 +473,37 @@ def find_collab_orgs_matrix(start_organizations: str,
 
     result = DataFrame(records_list,
                        columns=['start_orgs', 'collab_orgs',
-                                'count_research_result_category'])
+                                'count_researchresult_category'])
     if result is None or result.empty:
         # Should not happen, apparently something went wrong.
         return None
     result = result.pivot_table(index='start_orgs',
                                 columns='collab_orgs',
-                                values='count_research_result_category',
+                                values='count_researchresult_category',
                                 fill_value=0)
     result = result.convert_dtypes(convert_integer=True)
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     result = result.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
 
-    # Label the top left cell with the research_result_category used to get this result.
+    # Label the top left cell with the researchresult_category used to get this result.
     # Make sure it is a list.
-    if isinstance(research_result_category, str):
-        result.index.name = str([research_result_category])
+    if isinstance(researchresult_category, str):
+        result.index.name = str([researchresult_category])
     else:
-        research_result_category.sort(key=lambda s: s.lower())
-        result.index.name = str(research_result_category)
+        researchresult_category.sort(key=lambda s: s.lower())
+        result.index.name = str(researchresult_category)
     return result
 
 
 def find_collab_orgs_persons_results(start_organizations: str,
                                      collab_organizations: str = '',
-                                     research_result_category: Union[str, list] = '',
-                                     mode: str = 'return_research_results',
+                                     researchresult_category: Union[str, list] = '',
+                                     mode: str = 'return_researchresults',
                                      max_nr_nodes: int = 0) -> list:
     """Find collaborating organizations, starting from start_organizations,
     for a certain research result.
     Collaborations are defined as nodes connected as follows:
-    (start_organizations)-[]->(persroot1)-[]->(research_result)
+    (start_organizations)-[]->(persroot1)-[]->(researchresult)
        -[]->(persroot2)-[]->(collab_organizations).
     This function returns either start org persons, collab org persons,
     or research results, depending on 'mode'.
@@ -513,13 +513,13 @@ def find_collab_orgs_persons_results(start_organizations: str,
     :param collab_organizations: if specified, only return organization(s) that
       collaborate with start_organizations. If empty '', return any organization(s)
       that start_organizations collaborate with.
-    :param research_result_category: if specified, only return collaborations
+    :param researchresult_category: if specified, only return collaborations
       for this research result category. If not, return all collaborations,
       regardless of the research result category.
       The value can be both a string containing one category, or
       a list of categories.
     :param mode: one of the following:
-      - mode = 'return_research_results': return the research results.
+      - mode = 'return_researchresults': return the research results.
       - mode = 'return_startorg_persons': return the person-roots from start_organizations.
       - mode = 'return_collaborg_persons': return the person-roots from collab_organizations.
     :param max_nr_nodes: return at most this number of collaborating organizations,
@@ -528,20 +528,20 @@ def find_collab_orgs_persons_results(start_organizations: str,
     """
     resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
 
-    if isinstance(research_result_category, str) and research_result_category == '':
-        research_result_category = resout_types_all.copy()
-    if isinstance(research_result_category, list) and len(research_result_category) == 0:
-        research_result_category = resout_types_all.copy()
+    if isinstance(researchresult_category, str) and researchresult_category == '':
+        researchresult_category = resout_types_all.copy()
+    if isinstance(researchresult_category, list) and len(researchresult_category) == 0:
+        researchresult_category = resout_types_all.copy()
 
-    if mode != 'return_research_results' \
+    if mode != 'return_researchresults' \
        and mode != 'return_startorg_persons' \
        and mode != 'return_collaborg_persons':
         print('find_collab_orgs_persons_resuls(): unknown type for mode "' + mode + '", exiting...')
         exit(1)
 
     cypher_return_clause = 'RETURN DISTINCT '
-    if mode == 'return_research_results':
-        cypher_return_clause += 'research_result '
+    if mode == 'return_researchresults':
+        cypher_return_clause += 'researchresult '
     if mode == 'return_startorg_persons':
         cypher_return_clause += 'persroot1 '
     if mode == 'return_collaborg_persons':
@@ -550,7 +550,7 @@ def find_collab_orgs_persons_results(start_organizations: str,
 
     records_list = find_collabs_cypher(start_organizations=start_organizations,
                                        collab_organizations=collab_organizations,
-                                       research_result_category=research_result_category,
+                                       researchresult_category=researchresult_category,
                                        cypher_return_clause=cypher_return_clause,
                                        max_nr_nodes=max_nr_nodes)
     if len(records_list) == 0:
@@ -591,19 +591,19 @@ def create_neighbor_histogram_cypher(node: Node,
 
     cypher_query = 'MATCH (organization:RicgraphNode)'
     cypher_query += '-[]->(persroot:RicgraphNode)'
-    cypher_query += '-[]->(research_result:RicgraphNode) '
+    cypher_query += '-[]->(researchresult:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'WHERE elementId(organization)=$node_element_id '
     else:
         cypher_query += 'WHERE id(organization)=toInteger($node_element_id) '
     cypher_query += 'AND persroot.name="person-root"  '
-    cypher_query += 'AND research_result.category IN $category '
+    cypher_query += 'AND researchresult.category IN $category '
     if year_first != '':
-        cypher_query += 'AND research_result.year >= $year_first '
+        cypher_query += 'AND researchresult.year >= $year_first '
     if year_last != '':
-        cypher_query += 'AND research_result.year <= $year_last '
-    cypher_query += 'WITH DISTINCT research_result '
-    cypher_query += 'WITH research_result.category AS category, COUNT(*) AS count '
+        cypher_query += 'AND researchresult.year <= $year_last '
+    cypher_query += 'WITH DISTINCT researchresult '
+    cypher_query += 'WITH researchresult.category AS category, COUNT(*) AS count '
     cypher_query += 'RETURN category, count '
     cypher_query += 'ORDER BY count DESC'
     # print(cypher_query)

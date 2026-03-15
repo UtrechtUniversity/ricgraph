@@ -43,9 +43,9 @@
 from flask import Blueprint, url_for
 from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
-                      ROCATEGORY_RESEARCH_MATERIAL,
-                      ROCATEGORY_REPORTING_MATERIAL,
-                      ROCATEGORY_ENGAGEMENT_MATERIAL)
+                      RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
+                      RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
+                      RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          DISCOVERER_MODE_ALL,
                                          MAX_ROWS_IN_TABLE,
@@ -192,16 +192,16 @@ def osprofileresultpage() -> str:
 
     if oslprofile_mode == OSL_PROFILE_MODE_ITEMS:
         # List of items.
-        material_group = ROCATEGORY_RESEARCH_MATERIAL + \
-                         ROCATEGORY_REPORTING_MATERIAL + \
-                         ROCATEGORY_ENGAGEMENT_MATERIAL
+        material_group = RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL + \
+                         RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL + \
+                         RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL
         material_group = sorted(material_group, key=lambda x: x.lower())
         material_name = material_group.copy()
     else:
         # List of lists.
-        material_group = [ROCATEGORY_RESEARCH_MATERIAL,
-                          ROCATEGORY_REPORTING_MATERIAL,
-                          ROCATEGORY_ENGAGEMENT_MATERIAL]
+        material_group = [RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
+                          RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
+                          RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL]
         material_name = ['research material',
                          'reporting material',
                          'engagement material']
@@ -316,17 +316,17 @@ def osprofileresultpage() -> str:
     html += '<ol><li>'
     html += '<em>Research material</em>: input/output and supporting materials of the analysis.'
     html += '<br/>'
-    html += 'These are the result result categories ' + str(ROCATEGORY_RESEARCH_MATERIAL) + '.'
+    html += 'These are the result result categories ' + str(RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL) + '.'
     html += '</li><li>'
     html += '<em>Reporting material</em>: documents reporting on process and results of analysis.'
     html += '<br/>'
-    html += 'These are the result result categories ' + str(ROCATEGORY_REPORTING_MATERIAL) + '.'
+    html += 'These are the result result categories ' + str(RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL) + '.'
     html += '</li><li>'
     html += '<em>Engagement material</em>: everything used to involve stakeholders and '
     html += 'wider audiences into influencing the research and '
     html += 'using or implementing its results.'
     html += '<br/>'
-    html += 'These are the result result categories ' + str(ROCATEGORY_ENGAGEMENT_MATERIAL) + '.'
+    html += 'These are the result result categories ' + str(RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL) + '.'
     html += '</li></ol>'
     html += get_html_for_cardend()
 

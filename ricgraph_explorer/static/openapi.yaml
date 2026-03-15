@@ -259,9 +259,9 @@ paths:
           description: "Nothing found"
         "251":
           description: "Invalid search"
-  /person/share_research_results:
+  /person/share_researchresults:
     get:
-      operationId: "ricgraph_explorer.api_person_share_research_results"
+      operationId: "ricgraph_explorer.api_person_share_researchresults"
       tags:
         - Person
       summary: "Find persons that share any research result types with this person"

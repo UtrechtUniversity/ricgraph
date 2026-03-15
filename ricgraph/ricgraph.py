@@ -90,7 +90,7 @@ In the default configuration of Ricgraph, the following properties are included:
 
 - url_other: other URL for a node, pointing to e.g. the originating record in a source system.
 
-- year: year of a research output.
+- year: year of a research result.
 
 - source_event: an event to be added to the _source list.
 

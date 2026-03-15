@@ -44,7 +44,8 @@ from urllib.parse import urlencode
 from flask import Blueprint, url_for
 from markupsafe import escape
 
-from ricgraph import ROCATEGORY_PUBLICATION, ROCATEGORY_PUBLICATION_ALL
+from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
+                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          button_style, button_width,
                                          DISCOVERER_MODE_ALL,
@@ -151,7 +152,7 @@ def collabspage() -> str:
     form += '<label for="category_list">Restrict the collaborations to research results '
     form += 'of a specific <em>category</em> '
     form += '(or leave it empty to match research results of any category, or type '
-    form += '<em>' + ROCATEGORY_PUBLICATION_ALL + '</em> '
+    form += '<em>' + RESEARCHRESULT_CATEGORY_PUBLICATION_ALL + '</em> '
     form += 'to match any publication research result):</label>'
     form += '<input id="category_list" class="w3-input w3-border" list="resout_types_all_datalist"'
     form += 'name=category_list autocomplete=off>'
@@ -170,8 +171,8 @@ def collabspage() -> str:
     form += ' return the persons from <em>start organizations</em> '
     form += 'involved in the collaborations'
     form += '<br/>'
-    form += '<input id="return_research_results" class="w3-radio" type="radio" '
-    form += 'name="collab_mode" value="return_research_results">'
+    form += '<input id="return_researchresults" class="w3-radio" type="radio" '
+    form += 'name="collab_mode" value="return_researchresults">'
     form += ' return the research results that originate from the collaborations'
     form += '<br/>'
     form += '<input id="return_collaborg_persons" class="w3-radio" type="radio" '
@@ -228,7 +229,7 @@ def collabsresultpage() -> str:
     - collab_mode: one of the following:
       - mode = 'return_collab_sankey': return the collaborations in a Sankey diagram.
       - mode = 'return_startorg_persons': return the person-roots from start_organizations.
-      - mode = 'return_research_results': return the research results.
+      - mode = 'return_researchresults': return the research results.
       - mode = 'return_collaborg_persons': return the person-roots from collab_organizations.
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
@@ -242,9 +243,9 @@ def collabsresultpage() -> str:
     start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
     collab_orgs = get_url_parameter_value(parameter='collab_orgs', use_escape=False)
     category_list = get_url_parameter_list(parameter='category_list')
-    if len(category_list) == 1 and category_list[0] == ROCATEGORY_PUBLICATION_ALL:
+    if len(category_list) == 1 and category_list[0] == RESEARCHRESULT_CATEGORY_PUBLICATION_ALL:
         # Special case: return all publication type research results.
-        category_list = ROCATEGORY_PUBLICATION.copy()
+        category_list = RESEARCHRESULT_CATEGORY_PUBLICATION.copy()
     collab_mode = get_url_parameter_value(parameter='collab_mode')
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
@@ -281,14 +282,14 @@ def collabsresultpage() -> str:
         if collab_orgs == '':
             result_html = org_collaborations_diagram(start_organizations=start_orgs,
                                                      collab_organizations=collab_orgs,
-                                                     research_result_category=category_list,
+                                                     researchresult_category=category_list,
                                                      diagram_type='sankey',
                                                      caption='',
                                                      generate_full_html=False)
         else:
             result_html = org_collaborations_diagram(start_organizations=start_orgs,
                                                      collab_organizations=collab_orgs,
-                                                     research_result_category=category_list,
+                                                     researchresult_category=category_list,
                                                      diagram_type='sankey',
                                                      caption='',
                                                      generate_full_html=False)
@@ -307,7 +308,7 @@ def collabsresultpage() -> str:
             result_html = header + '<p/>' + result_html
     else:
         header = 'This table shows the '
-        if collab_mode == 'return_research_results':
+        if collab_mode == 'return_researchresults':
             header += 'research results that originate from the collaborations between '
             header += start_collab_html + '. '
             what = 'research results'
@@ -328,7 +329,7 @@ def collabsresultpage() -> str:
             header += str(category_list) + '.'
         nodes_list = org_collaborations_persons_results(start_organizations=start_orgs,
                                                         collab_organizations=collab_orgs,
-                                                        research_result_category=category_list,
+                                                        researchresult_category=category_list,
                                                         mode=collab_mode)
         if len(nodes_list) == 0:
             result_html = get_message(header + '<p/>Nothing found.')

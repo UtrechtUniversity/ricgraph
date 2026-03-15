@@ -60,7 +60,8 @@ from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       nodes_cache_key_id_type_size,
                       read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes,
-                      ROCATEGORY_PUBLICATION, ROCATEGORY_PUBLICATION_ALL)
+                      RESEARCHRESULT_CATEGORY_PUBLICATION,
+                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          page_footer_wsgi, page_footer_development,
                                          button_style, button_width,
@@ -94,7 +95,7 @@ from ricgraph_explorer_topics import _topicspage_bp
 # required. PyCharm doesn't seem to understand the line _ricgraph_explorer.add_api() below.
 from ricgraph_explorer_restapi import (_restapidocpage_bp,
                                        api_search_person, api_person_all_information,
-                                       api_person_share_research_results,
+                                       api_person_share_researchresults,
                                        api_person_collaborating_organizations,
                                        api_search_organization, api_organization_all_information,
                                        api_organization_information_persons_results,
@@ -906,7 +907,7 @@ def create_options_page_person(node: Node,
     html += '<br/>'
     label_text = 'By entering a value in the field below, '
     label_text += 'you will get a list of persons who share a specific research result type with this person '
-    label_text += '(you can also type <em>' + ROCATEGORY_PUBLICATION_ALL
+    label_text += '(you can also type <em>' + RESEARCHRESULT_CATEGORY_PUBLICATION_ALL
     label_text += '</em> to match any publication research result):'
     input_spec = ('list', 'category_list', 'resout_types_all_datalist', resout_types_all_datalist)
     html += create_html_form(destination='resultspage',
@@ -1008,9 +1009,9 @@ def create_results_page(view_mode: str,
         name_list = []
     if category_list is None:
         category_list = []
-    if len(category_list) == 1 and category_list[0] == ROCATEGORY_PUBLICATION_ALL:
+    if len(category_list) == 1 and category_list[0] == RESEARCHRESULT_CATEGORY_PUBLICATION_ALL:
         # Special case: return all publication type research results.
-        category_list = ROCATEGORY_PUBLICATION.copy()
+        category_list = RESEARCHRESULT_CATEGORY_PUBLICATION.copy()
     if extra_url_parameters is None:
         extra_url_parameters = {}
 

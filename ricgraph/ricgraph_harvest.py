@@ -272,10 +272,10 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
           person node will get the name of this column.
           The 'value' property will be the value in this columns' row.
         The other columns are expected to be:
-        - 'NAME': a research output name identifier (DOI, etc.).
+        - 'NAME': a research result name identifier (DOI, etc.).
           This will become the 'name' property in the entity.
         - 'CATEGORY': The category, will become 'category' property.
-        - 'VALUE': the value of a research output identifier
+        - 'VALUE': the value of a research result identifier
           (DOI value, etc.). This will become the 'value' property.
         - Optionally, there may be columns 'TITLE', 'YEAR', 'URL_MAIN'
           and 'URL_OTHER'.
@@ -352,7 +352,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
 
 def create_parsed_dois_in_ricgraph(resouts: DataFrame,
                                    harvest_source: str) -> None:
-    """Insert the parsed research outputs in Ricgraph.
+    """Insert the parsed research results in Ricgraph.
 
     :param resouts: The records to insert in Ricgraph, if not present yet.
         The order of the columns in this DataFrame is important.
@@ -378,14 +378,14 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
     resouts.insert(loc=1, column='NAME', value='DOI')
     create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                harvest_source=harvest_source,
-                                               what='research outputs')
+                                               what='research results')
     return
 
 
 def create_parsed_entities_in_ricgraph(entities: DataFrame,
                                        harvest_source: str,
                                        what: str = 'entities') -> None:
-    """Insert the parsed research outputs in Ricgraph.
+    """Insert the parsed research results in Ricgraph.
 
     :param entities: The records to insert in Ricgraph, if not present yet.
         The order of the columns in this DataFrame is important.
@@ -491,7 +491,7 @@ def update_urls_in_ricgraph(entities: DataFrame,
 
 def create_parsed_rors_in_ricgraph(organizations: DataFrame,
                                    harvest_source: str) -> None:
-    """Insert the parsed research outputs in Ricgraph.
+    """Insert the parsed research results in Ricgraph.
 
     :param organizations: The records to insert in Ricgraph, if not present yet.
         We expect two columns: ROR' and 'ORGANIZATION_NAME'.

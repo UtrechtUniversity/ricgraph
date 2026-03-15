@@ -109,7 +109,7 @@ VIEW_MODE_ALL = ['view_regular_table_personal',
                  ]
 
 # These are all the collaboration modes that are allowed.
-COLLABORATION_MODES_ALL = ['return_research_results',
+COLLABORATION_MODES_ALL = ['return_researchresults',
                            'return_startorg_persons',
                            'return_collaborg_persons',
                            'return_collab_sankey'

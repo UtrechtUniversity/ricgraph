@@ -650,7 +650,7 @@ if True:
         print(error_message)
     else:
         # Harvesting from UU staff pages could be improved by better
-        # parsing for UU sub organizations and UU research output.
+        # parsing for UU sub organizations and UU research results.
         # For inspiration see harvest_pure_to_ricgraph.py.
         parsed_uustaff_persons_to_ricgraph(parsed_content=parse_uustaff)
 

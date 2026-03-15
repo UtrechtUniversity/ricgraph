@@ -30,7 +30,7 @@
 #
 # This file contains example code for Ricgraph.
 #
-# With this code, you can harvest persons and research outputs from OpenAlex.
+# With this code, you can harvest persons and research results from OpenAlex.
 # You have to set some parameters in ricgraph.ini.
 # Also, you can set a number of parameters in the code following the "import" statements below.
 #
@@ -80,7 +80,7 @@ OPENALEX_HEADERS = {'Accept': 'application/json'
                     }
 
 # ######################################################
-# Parameters for harvesting persons and research outputs from OpenAlex
+# Parameters for harvesting persons and research results from OpenAlex
 # ######################################################
 OPENALEX_API_URL = 'https://api.openalex.org/'
 OPENALEX_ENDPOINT = 'works'
@@ -102,33 +102,33 @@ OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships'
 
 
 # ######################################################
-# Mapping from OpenAlex research output types to Ricgraph research output types.
+# Mapping from OpenAlex research result types to Ricgraph research result types.
 # ######################################################
-ROCATEGORY_MAPPING_OPENALEX = {
-    'article': rcg.ROCATEGORY_JOURNAL_ARTICLE,
-    'book': rcg.ROCATEGORY_BOOK,
-    'book-chapter': rcg.ROCATEGORY_BOOKCHAPTER,
-    'dataset': rcg.ROCATEGORY_DATASET,
-    'dissertation': rcg.ROCATEGORY_PHDTHESIS,
-    'editorial': rcg.ROCATEGORY_EDITORIAL,
-    'erratum': rcg.ROCATEGORY_MEMORANDUM,
-    'letter': rcg.ROCATEGORY_LETTER,
-    'monograph': rcg.ROCATEGORY_BOOK,
-    'other': rcg.ROCATEGORY_OTHER_CONTRIBUTION,
-    'paratext': rcg.ROCATEGORY_OTHER_CONTRIBUTION,
+RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX = {
+    'article': rcg.RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+    'book': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    'book-chapter': rcg.RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+    'dataset': rcg.RESEARCHRESULT_CATEGORY_DATASET,
+    'dissertation': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    'editorial': rcg.RESEARCHRESULT_CATEGORY_EDITORIAL,
+    'erratum': rcg.RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    'letter': rcg.RESEARCHRESULT_CATEGORY_LETTER,
+    'monograph': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    'other': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
+    'paratext': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
             # OpenAlex 'paratext': stuff that's in scholarly venue (like a journal)
             # but is about the venue rather than a scholarly work properly speaking.
             # https://docs.openalex.org/api-entities/works/work-object.
-    'peer-review': rcg.ROCATEGORY_REVIEW,
-    'posted-content': rcg.ROCATEGORY_PREPRINT,
-    'preprint': rcg.ROCATEGORY_PREPRINT,
-    'proceedings': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
-    'proceedings-article': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
-    'reference-entry': rcg.ROCATEGORY_ENTRY,
-    'report': rcg.ROCATEGORY_REPORT,
-    'retraction': rcg.ROCATEGORY_RETRACTION,
-    'review': rcg.ROCATEGORY_REVIEW,
-    'supplementary-materials': rcg.ROCATEGORY_OTHER_CONTRIBUTION
+    'peer-review': rcg.RESEARCHRESULT_CATEGORY_REVIEW,
+    'posted-content': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
+    'preprint': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
+    'proceedings': rcg.RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    'proceedings-article': rcg.RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    'reference-entry': rcg.RESEARCHRESULT_CATEGORY_ENTRY,
+    'report': rcg.RESEARCHRESULT_CATEGORY_REPORT,
+    'retraction': rcg.RESEARCHRESULT_CATEGORY_RETRACTION,
+    'review': rcg.RESEARCHRESULT_CATEGORY_REVIEW,
+    'supplementary-materials': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION
 }
 
 
@@ -143,7 +143,7 @@ ROCATEGORY_MAPPING_OPENALEX = {
 
 def parse_openalex(harvest: list,
                    filename: str = '') -> Union[pandas.DataFrame, None]:
-    """Parse the harvested persons and research outputs from OpenAlex.
+    """Parse the harvested persons and research results from OpenAlex.
     In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
@@ -152,7 +152,7 @@ def parse_openalex(harvest: list,
     """
     if len(harvest) == 0:
         return None
-    print('There are ' + str(len(harvest)) + ' person and research output records ('
+    print('There are ' + str(len(harvest)) + ' person and research result records ('
           + rcg.timestamp() + '), parsing record:')
     parse_chunk = []                # list of dictionaries
     count = 0
@@ -214,8 +214,8 @@ def parse_openalex(harvest: list,
                           'DOI': rcg.normalize_doi(identifier=doi),
                           'TITLE': title,
                           'YEAR': publication_year,
-                          'CATEGORY': rcg.lookup_resout_category(research_output_category=category,
-                                                                 research_output_mapping=ROCATEGORY_MAPPING_OPENALEX)}
+                          'CATEGORY': rcg.lookup_researchresult_category(researchresult_category=category,
+                                                                         researchresult_mapping=RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX)}
             parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
@@ -240,7 +240,7 @@ def harvest_and_parse_openalex(harvest_year: str,
     :param df_filename: filename to write the DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-    print('Harvesting persons and research outputs from ' + HARVEST_SOURCE + '...')
+    print('Harvesting persons and research results from ' + HARVEST_SOURCE + '...')
     if OPENALEX_READ_HARVEST_FROM_FILE:
         harvest_data = rcg.read_json_from_file(filename=harvest_filename)
     else:
@@ -255,7 +255,7 @@ def harvest_and_parse_openalex(harvest_year: str,
     if (parse := parse_openalex(harvest=harvest_data, filename=df_filename)) is None:
         return None
 
-    print('The harvested persons and research outputs from ' + HARVEST_SOURCE + ' are:')
+    print('The harvested persons and research results from ' + HARVEST_SOURCE + ' are:')
     print(parse)
     return parse
 
@@ -298,7 +298,7 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
 
 
 def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
-    """Insert the parsed research outputs in Ricgraph.
+    """Insert the parsed research results in Ricgraph.
 
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
@@ -366,16 +366,16 @@ for year_int in range(int(year_first), int(year_last) + 1):
     data_file_year = rcg.construct_filename(base_filename=OPENALEX_DATA_FILENAME,
                                             year=year, organization=organization)
     if OPENALEX_READ_DATA_FROM_FILE:
-        error_message = 'There are no persons or research outputs from ' + HARVEST_SOURCE
+        error_message = 'There are no persons or research results from ' + HARVEST_SOURCE
         error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
-        print('Reading persons and research outputs from ' + HARVEST_SOURCE
+        print('Reading persons and research results from ' + HARVEST_SOURCE
               + ' for year ' + year + ' from file ' + data_file_year + '.')
         parse_persons_resout = rcg.read_dataframe_from_csv(filename=data_file_year,
                                                            datatype=str)
     else:
-        error_message = 'There are no persons or research outputs from ' + HARVEST_SOURCE
+        error_message = 'There are no persons or research results from ' + HARVEST_SOURCE
         error_message += ' for year ' + year + ' to harvest.\n'
-        print('Harvesting persons and research outputs from ' + HARVEST_SOURCE
+        print('Harvesting persons and research results from ' + HARVEST_SOURCE
               + ' for year ' + year + '.')
         harvest_file_year = rcg.construct_filename(base_filename=OPENALEX_HARVEST_FILENAME,
                                                    year=year, organization=organization)

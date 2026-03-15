@@ -30,13 +30,13 @@
 #
 # This file contains example code for Ricgraph.
 #
-# With this code, you can harvest persons, organizations, research outputs,
+# With this code, you can harvest persons, organizations, research results,
 # data sets, press media items, and projects from Pure.
 # using both the READ API as well as the CRUD API. You don't need to specify this,
 # the script will know.
 # I would recommend to use the READ API, since the CRUD API is in development and does not have
-# filters on e.g. active persons yet. Neither does it allow harvesting of research outputs
-# for one year only, so you might hit memory bounds if you harvest every research output
+# filters on e.g. active persons yet. Neither does it allow harvesting of research results
+# for one year only, so you might hit memory bounds if you harvest every research result
 # for all years with the CRUD API.
 #
 # In Pure, organizations are hierarchical. That means, an organization has a parent org,
@@ -108,7 +108,7 @@ HARVEST_PRESS_MEDIA = True
 
 # These specify the mode for harvesting.
 MODE_PERSONS = 'persons'
-MODE_RESOUTS = 'research outputs'
+MODE_RESOUTS = 'research results'
 MODE_DATASETS = 'data sets'
 MODE_PRESS_MEDIA = 'press media'
 MODE_PROJECTS = 'projects'
@@ -172,7 +172,7 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
 
 # For the Pure READ API.
 # We harvest all persons from Pure, whether they are active or not. We do this,
-# because persons not active might have contributed to a research output.
+# because persons not active might have contributed to a research result.
 # But we only add these persons if their endDate is within
 # PURE_PERSONS_INCLUDE_YEARS_BEFORE years before the
 # command line argument --year_first.
@@ -182,7 +182,7 @@ PURE_PERSONS_FIELDS = {'fields': ['uuid',
 # between "early online" and "published".
 PURE_PERSONS_INCLUDE_YEARS_BEFORE = 10
 # For the Pure CRUD API we use this value, because we cannot filter research
-# outputs on years.
+# results on years.
 PURE_PERSONS_LOWEST_YEAR = 2010
 
 # ######################################################
@@ -217,7 +217,7 @@ PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
                              }
 
 # ######################################################
-# Parameters for harvesting research outputs from Pure
+# Parameters for harvesting research results from Pure
 # ######################################################
 # Pure can be harvested according to the READ or CRUD API.
 global PURE_RESOUTS_ENDPOINT
@@ -376,7 +376,7 @@ PURE_PROJECTS_FIELDS = {'fields': ['uuid',
                                    'relatedResearchOutputs.uuid.*',
                                    'relatedResearchOutputs.type.*',
                                    'relatedProjects.project.uuid.*',
-                                   # 'relatedDataSets.*',           # Datasets are supposed to be in research outputs.
+                                   # 'relatedDataSets.*',           # Datasets are supposed to be in research results.
                                    # 'relatedActivities.*',
                                    # 'relatedPrizes.*',
                                    # 'relatedPressMedia.*',
@@ -385,69 +385,70 @@ PURE_PROJECTS_FIELDS = {'fields': ['uuid',
 
 
 # ######################################################
-# Mapping from Pure research output types to Ricgraph research output types.
+# Mapping from Pure research result types to Ricgraph research result types.
+# These are from endpoint 'research-outputs'.
 # ######################################################
-ROCATEGORY_PREFIX_PURE = '/dk/atira/pure/researchoutput/researchoutputtypes/'
-ROCATEGORY_MAPPING_PURE = {
-    ROCATEGORY_PREFIX_PURE + 'bookanthology/anthology': rcg.ROCATEGORY_BOOK,
-    ROCATEGORY_PREFIX_PURE + 'bookanthology/book': rcg.ROCATEGORY_BOOK,
-    ROCATEGORY_PREFIX_PURE + 'bookanthology/commissioned': rcg.ROCATEGORY_BOOK,
-    ROCATEGORY_PREFIX_PURE + 'bookanthology/inaugural': rcg.ROCATEGORY_BOOK,
-    ROCATEGORY_PREFIX_PURE + 'bookanthology/registered_report': rcg.ROCATEGORY_REGISTERED_REPORT,
-    ROCATEGORY_PREFIX_PURE + 'bookanthology/valedictory': rcg.ROCATEGORY_BOOK,
-    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/case_note': rcg.ROCATEGORY_MEMORANDUM,
-    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/chapter': rcg.ROCATEGORY_BOOKCHAPTER,
-    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/commissioned': rcg.ROCATEGORY_BOOKCHAPTER,
-    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/conference': rcg.ROCATEGORY_BOOKCHAPTER,
-    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/entry': rcg.ROCATEGORY_ENTRY,
-    ROCATEGORY_PREFIX_PURE + 'contributiontobookanthology/foreword': rcg.ROCATEGORY_ABSTRACT,
-    ROCATEGORY_PREFIX_PURE + 'contributiontoconference/abstract': rcg.ROCATEGORY_ABSTRACT,
-    ROCATEGORY_PREFIX_PURE + 'contributiontoconference/other': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
-    ROCATEGORY_PREFIX_PURE + 'contributiontoconference/paper': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
-    ROCATEGORY_PREFIX_PURE + 'contributiontoconference/poster': rcg.ROCATEGORY_POSTER,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/abstract': rcg.ROCATEGORY_ABSTRACT,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/article': rcg.ROCATEGORY_JOURNAL_ARTICLE,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/book': rcg.ROCATEGORY_BOOK,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/case_note': rcg.ROCATEGORY_MEMORANDUM,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/comment': rcg.ROCATEGORY_MEMORANDUM,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/conferencearticle': rcg.ROCATEGORY_CONFERENCE_ARTICLE,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/editorial': rcg.ROCATEGORY_EDITORIAL,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/erratum': rcg.ROCATEGORY_MEMORANDUM,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/letter': rcg.ROCATEGORY_LETTER,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/scientific': rcg.ROCATEGORY_JOURNAL_ARTICLE,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/shortsurvey': rcg.ROCATEGORY_JOURNAL_ARTICLE,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/special': rcg.ROCATEGORY_JOURNAL_ARTICLE,
-    ROCATEGORY_PREFIX_PURE + 'contributiontojournal/systematicreview': rcg.ROCATEGORY_REVIEW,
-    ROCATEGORY_PREFIX_PURE + 'memorandum/academicmemorandum': rcg.ROCATEGORY_MEMORANDUM,
-    ROCATEGORY_PREFIX_PURE + 'methoddescription': rcg.ROCATEGORY_METHOD_DESCRIPTION,
-    ROCATEGORY_PREFIX_PURE + 'nontextual/artefact': rcg.ROCATEGORY_ARTEFACT,
-    ROCATEGORY_PREFIX_PURE + 'nontextual/database': rcg.ROCATEGORY_DATASET,
-    ROCATEGORY_PREFIX_PURE + 'nontextual/design': rcg.ROCATEGORY_DESIGN,
-    ROCATEGORY_PREFIX_PURE + 'nontextual/digitalorvisualproducts': rcg.ROCATEGORY_DIGITAL_VISUAL_PRODUCT,
-    ROCATEGORY_PREFIX_PURE + 'nontextual/exhibition': rcg.ROCATEGORY_EXHIBITION_PERFORMANCE,
-    ROCATEGORY_PREFIX_PURE + 'nontextual/performance': rcg.ROCATEGORY_EXHIBITION_PERFORMANCE,
-    ROCATEGORY_PREFIX_PURE + 'nontextual/software': rcg.ROCATEGORY_SOFTWARE,
-    ROCATEGORY_PREFIX_PURE + 'nontextual/web': rcg.ROCATEGORY_WEBSITE,
-    ROCATEGORY_PREFIX_PURE + 'othercontribution/other': rcg.ROCATEGORY_OTHER_CONTRIBUTION,
-    ROCATEGORY_PREFIX_PURE + 'patent/patent': rcg.ROCATEGORY_PATENT,
-    ROCATEGORY_PREFIX_PURE + 'thesis/doc1': rcg.ROCATEGORY_PHDTHESIS,
-    ROCATEGORY_PREFIX_PURE + 'thesis/doc2': rcg.ROCATEGORY_PHDTHESIS,
-    ROCATEGORY_PREFIX_PURE + 'thesis/doc3': rcg.ROCATEGORY_PHDTHESIS,
-    ROCATEGORY_PREFIX_PURE + 'thesis/doc4': rcg.ROCATEGORY_PHDTHESIS,
-    ROCATEGORY_PREFIX_PURE + 'workingpaper/discussionpaper': rcg.ROCATEGORY_PREPRINT,
-    ROCATEGORY_PREFIX_PURE + 'workingpaper/preprint': rcg.ROCATEGORY_PREPRINT,
-    ROCATEGORY_PREFIX_PURE + 'workingpaper/workingpaper': rcg.ROCATEGORY_PREPRINT
+RESEARCHRESULT_CATEGORY_PREFIX_PURE = '/dk/atira/pure/researchoutput/researchoutputtypes/'
+RESEARCHRESULT_CATEGORY_MAPPING_PURE = {
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'bookanthology/anthology': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'bookanthology/book': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'bookanthology/commissioned': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'bookanthology/inaugural': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'bookanthology/registered_report': rcg.RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'bookanthology/valedictory': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontobookanthology/case_note': rcg.RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontobookanthology/chapter': rcg.RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontobookanthology/commissioned': rcg.RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontobookanthology/conference': rcg.RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontobookanthology/entry': rcg.RESEARCHRESULT_CATEGORY_ENTRY,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontobookanthology/foreword': rcg.RESEARCHRESULT_CATEGORY_ABSTRACT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontoconference/abstract': rcg.RESEARCHRESULT_CATEGORY_ABSTRACT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontoconference/other': rcg.RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontoconference/paper': rcg.RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontoconference/poster': rcg.RESEARCHRESULT_CATEGORY_POSTER,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/abstract': rcg.RESEARCHRESULT_CATEGORY_ABSTRACT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/article': rcg.RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/book': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/case_note': rcg.RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/comment': rcg.RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/conferencearticle': rcg.RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/editorial': rcg.RESEARCHRESULT_CATEGORY_EDITORIAL,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/erratum': rcg.RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/letter': rcg.RESEARCHRESULT_CATEGORY_LETTER,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/scientific': rcg.RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/shortsurvey': rcg.RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/special': rcg.RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'contributiontojournal/systematicreview': rcg.RESEARCHRESULT_CATEGORY_REVIEW,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'memorandum/academicmemorandum': rcg.RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'methoddescription': rcg.RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'nontextual/artefact': rcg.RESEARCHRESULT_CATEGORY_ARTEFACT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'nontextual/database': rcg.RESEARCHRESULT_CATEGORY_DATASET,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'nontextual/design': rcg.RESEARCHRESULT_CATEGORY_DESIGN,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'nontextual/digitalorvisualproducts': rcg.RESEARCHRESULT_CATEGORY_DIGITAL_VISUAL_PRODUCT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'nontextual/exhibition': rcg.RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'nontextual/performance': rcg.RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'nontextual/software': rcg.RESEARCHRESULT_CATEGORY_SOFTWARE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'nontextual/web': rcg.RESEARCHRESULT_CATEGORY_WEBSITE,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'othercontribution/other': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'patent/patent': rcg.RESEARCHRESULT_CATEGORY_PATENT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'thesis/doc1': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'thesis/doc2': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'thesis/doc3': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'thesis/doc4': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'workingpaper/discussionpaper': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'workingpaper/preprint': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'workingpaper/workingpaper': rcg.RESEARCHRESULT_CATEGORY_PREPRINT
 }
 
 
 # ######################################################
-# Mapping from Pure data set output types (from the dataset endpoint)
-# to Ricgraph research output types.
+# Mapping from Pure data set result types to Ricgraph research result types.
+# These are from endpoint 'datasets'.
 # ######################################################
-DSCATEGORY_PREFIX_PURE = '/dk/atira/pure/dataset/datasettypes/dataset/'
-DSCATEGORY_MAPPING_PURE = {
-    DSCATEGORY_PREFIX_PURE + 'dataset': rcg.ROCATEGORY_DATASET,
-    DSCATEGORY_PREFIX_PURE + 'software': rcg.ROCATEGORY_SOFTWARE,
+DATASET_CATEGORY_PREFIX_PURE = '/dk/atira/pure/dataset/datasettypes/dataset/'
+DATASET_CATEGORY_MAPPING_PURE = {
+    DATASET_CATEGORY_PREFIX_PURE + 'dataset': rcg.RESEARCHRESULT_CATEGORY_DATASET,
+    DATASET_CATEGORY_PREFIX_PURE + 'software': rcg.RESEARCHRESULT_CATEGORY_SOFTWARE,
 }
 
 
@@ -904,7 +905,7 @@ def parse_pure_entities(harvest: list,
     :param harvest: the harvest.
     :param filename: If filename != '', write it to a file and read it back.
     :param mode: Mode to indicate what to harvest.
-    :return: the harvested research outputs in a DataFrame,
+    :return: the harvested research results in a DataFrame,
         or None if nothing to parse.
     """
     global organization
@@ -999,18 +1000,18 @@ def parse_pure_entities(harvest: list,
         id_name = id_name_tobeused = ''
         if mode == MODE_RESOUTS:
             id_name = id_name_tobeused = 'PURE_ID_RESOUT'
-            category = rcg.lookup_resout_category(research_output_category=category,
-                                                  research_output_mapping=ROCATEGORY_MAPPING_PURE)
+            category = rcg.lookup_researchresult_category(researchresult_category=category,
+                                                          researchresult_mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
         elif mode == MODE_DATASETS:
             # Treat data sets of Pure endpoint datasets as data sets from Pure
             # endpoint researchoutputs.
             id_name = 'PURE_ID_DATASET'
             id_name_tobeused = 'PURE_ID_RESOUT'
-            category = rcg.lookup_resout_category(research_output_category=category,
-                                                  research_output_mapping=DSCATEGORY_MAPPING_PURE)
+            category = rcg.lookup_researchresult_category(researchresult_category=category,
+                                                          researchresult_mapping=DATASET_CATEGORY_MAPPING_PURE)
         elif mode == MODE_PRESS_MEDIA:
             id_name = id_name_tobeused = 'PURE_ID_PRESS_MEDIA'
-            category = rcg.CATEGORY_PRESS_MEDIA
+            category = rcg.RESEARCHRESULT_CATEGORY_PRESS_MEDIA
         # #####
         if len(list_of_persons := json_item_get_list_pure(json_item=harvest_item,
                                                           json_path_read='personAssociations',
@@ -1083,7 +1084,7 @@ def parse_pure_entities(harvest: list,
             # The PURE_URL_PERS is required to get a URL to the person.
             # This has not yet happened for authors that _only_ have a
             # data set or press media item (it has happened for authors
-            # that also have a research output).
+            # that also have a research result).
             parse_line |= {'TITLE': title,
                            'YEAR': publication_year,
                            'PURE_ID_PERS': author_uuid,
@@ -1232,8 +1233,8 @@ def parse_pure_projects(harvest: list,
                     continue
                 if 'type' in resout \
                    and 'uri' in resout['type']:
-                    category = rcg.lookup_resout_category(research_output_category=str(resout['type']['uri']),
-                                                          research_output_mapping=ROCATEGORY_MAPPING_PURE)
+                    category = rcg.lookup_researchresult_category(researchresult_category=str(resout['type']['uri']),
+                                                                  researchresult_mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
                 else:
                     continue
 
@@ -1665,7 +1666,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
         rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=projorgnodes)
         # ##### end of Insert projects and related organizations.
 
-    # ##### Insert projects and related research outputs.
+    # ##### Insert projects and related research results.
     project_identifiers = parsed_content[['PURE_ID_PROJECT',
                                           'PURE_PROJECT_RESOUT_NAME',
                                           'PURE_PROJECT_RESOUT_CATEGORY',
@@ -1674,7 +1675,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
     project_identifiers.dropna(axis=0, how='any', inplace=True)
     project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 
-    print('The following projects connected to research outputs from '
+    print('The following projects connected to research results from '
           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(project_identifiers)
     project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
@@ -1689,7 +1690,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
                                                'name2', 'category2', 'value2',
                                                'source_event2']]
 
-    print('The following projects connected to research outputs from '
+    print('The following projects connected to research results from '
           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
     print(project_identifiers)
     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
@@ -1813,7 +1814,7 @@ resout_uuid_or_doi = {}
 
 # ########################################################################
 # You can use 'True' or 'False' depending on your needs to harvest
-# persons/organizations/research outputs/data sets/press media items.
+# persons/organizations/research results/data sets/press media items.
 # This might be handy if you are testing your parsing.
 # You might also want to set parameters as 'PURE_[object name]_HARVEST_FROM_FILE' = True,
 # see the top of this file.
@@ -1856,7 +1857,7 @@ if HARVEST_PERSONS:
 
 
 # ########################################################################
-# Code for harvesting research outputs.
+# Code for harvesting research results.
 if HARVEST_RESOUTS:
     # Note that in 2023, the Pure CRUD API did not allow
     # harvesting separate years. This might cause memory problems.
@@ -1867,16 +1868,16 @@ if HARVEST_RESOUTS:
         data_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_DATA_FILENAME,
                                                 year=year, organization=organization)
         if PURE_RESOUTS_READ_DATA_FROM_FILE:
-            error_message = 'There are no research outputs from ' + HARVEST_SOURCE
+            error_message = 'There are no research results from ' + HARVEST_SOURCE
             error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
-            print('Reading research outputs from ' + HARVEST_SOURCE + ' for year '
+            print('Reading research results from ' + HARVEST_SOURCE + ' for year '
                   + year + ' from file ' + data_file_year + '.')
             parse_resout = rcg.read_dataframe_from_csv(filename=data_file_year,
                                                        datatype=str)
         else:
-            error_message = 'There are no research outputs from ' + HARVEST_SOURCE
+            error_message = 'There are no research results from ' + HARVEST_SOURCE
             error_message += ' for year ' + year + ' to harvest.\n'
-            print('Harvesting research outputs from ' + HARVEST_SOURCE
+            print('Harvesting research results from ' + HARVEST_SOURCE
                   + ' for year ' + year + '.')
             harvest_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_HARVEST_FILENAME,
                                                        year=year, organization=organization)
@@ -1893,7 +1894,7 @@ if HARVEST_RESOUTS:
             print(error_message)
         else:
             parsed_entities_to_ricgraph(parsed_content=parse_resout,
-                                        what='research outputs')
+                                        what='research results')
 
         rcg.graphdb_nr_accesses_print()
         print(rcg.nodes_cache_key_id_type_size() + '\n')

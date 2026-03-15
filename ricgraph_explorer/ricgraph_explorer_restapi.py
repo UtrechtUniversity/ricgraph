@@ -148,7 +148,7 @@ def api_person_all_information(key: str = '',
     return response, status
 
 
-def api_person_share_research_results(key: str = '',
+def api_person_share_researchresults(key: str = '',
                                       max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find persons that share any share research result types with this person.
 

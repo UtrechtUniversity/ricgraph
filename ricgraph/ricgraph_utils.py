@@ -254,18 +254,18 @@ def combine_dataframes(df1: DataFrame, df2: DataFrame) -> Union[DataFrame, None]
         # DataFrame 2 is empty.
         return df1.copy(deep=True)
 
-    # Note that the top left cell contains the research_result_category/ies
+    # Note that the top left cell contains the researchresult_category/ies
     # that were used to get the result stored in the DataFrame.
     # The new DataFrame should have their combined values.
     index_name1 = str(df1.index.name) if df1.index.name is not None else ''
     index_name2 = str(df2.index.name) if df2.index.name is not None else ''
-    df1_research_result_category = literal_eval(node_or_string=index_name1)
-    df2_research_result_category = literal_eval(node_or_string=index_name2)
-    df_combined_research_result_category = list(set(df1_research_result_category).union(set(df2_research_result_category)))
-    df_combined_research_result_category.sort(key=lambda s: s.lower())
+    df1_researchresult_category = literal_eval(node_or_string=index_name1)
+    df2_researchresult_category = literal_eval(node_or_string=index_name2)
+    df_combined_researchresult_category = list(set(df1_researchresult_category).union(set(df2_researchresult_category)))
+    df_combined_researchresult_category.sort(key=lambda s: s.lower())
     df_combined = df1.copy(deep=True)
     df_combined = df_combined.add(df2, fill_value=0).fillna(0).astype(int)
-    df_combined.index.name = str(df_combined_research_result_category)
+    df_combined.index.name = str(df_combined_researchresult_category)
     return df_combined
 
 

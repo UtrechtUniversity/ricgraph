@@ -46,7 +46,9 @@ from typing import Union
 from connexion import FlaskApp
 from ricgraph import (open_ricgraph, read_all_values_of_property,
                       memcached_open_connection, nodes_cache_key_id_type_size,
-                      ROCATEGORY_ALL, ROCATEGORY_PUBLICATION, ROCATEGORY_PUBLICATION_ALL,
+                      RESEARCHRESULT_CATEGORY_ALL,
+                      RESEARCHRESULT_CATEGORY_PUBLICATION,
+                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
                       get_ricgraph_ini_file,
                       get_configfile_key,
                       get_configfile_key_organizations_with_hierarchies)
@@ -221,25 +223,25 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
 
     remainder_types_all = []
     category_all_datalist = '<datalist id="category_all_datalist">'
-    # 'resout_types_all' are elements of ROCATEGORY_ALL that are present in your Ricgraph.
+    # 'resout_types_all' are elements of RESEARCHRESULT_CATEGORY_ALL that are present in your Ricgraph.
     # I.e., those have been harvested from the source systems that you chose to harvest.
     resout_types_all = []
     resout_types_all_datalist = '<datalist id="resout_types_all_datalist">'
     # Add the meta type representing all publications, as first item.
     # This only happens in the list of items that you can choose from
     # in a text entry field. You will need to catch it further on in the code.
-    resout_types_all_datalist += '<option value="' + ROCATEGORY_PUBLICATION_ALL + '">'
-    # These are elements of ROCATEGORY_PUBLICATION that are present in your Ricgraph.
+    resout_types_all_datalist += '<option value="' + RESEARCHRESULT_CATEGORY_PUBLICATION_ALL + '">'
+    # These are elements of RESEARCHRESULT_CATEGORY_PUBLICATION that are present in your Ricgraph.
     # I.e., those have been harvested from the source systems that you chose to harvest.
     resout_types_pub = []
     resout_types_pub_datalist = '<datalist id="resout_types_pub_datalist">'
     # Since 'category_all' is sorted, all vars derived from it will be sorted too,
     # except for resout_types_all_datalist.
     for property_item in category_all:
-        if property_item in ROCATEGORY_ALL:
+        if property_item in RESEARCHRESULT_CATEGORY_ALL:
             resout_types_all.append(property_item)
             resout_types_all_datalist += '<option value="' + property_item + '">'
-        if property_item in ROCATEGORY_PUBLICATION:
+        if property_item in RESEARCHRESULT_CATEGORY_PUBLICATION:
             resout_types_pub.append(property_item)
             resout_types_pub_datalist += '<option value="' + property_item + '">'
         if property_item not in personal_types_all:

@@ -86,161 +86,213 @@ MAX_ORG_ABBREVIATION_LENGTH = 4
 
 
 # ########################################################################
-# Research output types used in Ricgraph.
-# Harvested sources most often have a type for a research output.
+# Research result related constants.
+# ########################################################################
+
+# ########################################################################
+# Research result types used in Ricgraph.
+# In Ricgraph, we use the general wording "research result" for anything
+# that may be in any way the result of some research activity, direct
+# or indirect.
+# That means, that e.g. press media items, on which a researcher may
+# not have any influence (e.g. an article in a newspaper) are also
+# considered to be research results.
+#
+# Harvested sources most often have a type for a research result.
 # In a harvest script for a certain source, you specify a mapping
 # from the names used in the source you harvest, to the values below.
 # This ensures that Ricgraph uses the same wording for types of
-# research outputs harvested from different sources.
+# research results harvested from different sources.
 #
 # An example mapping may look like this:
 # mapping = {
-#    'book': ROCATEGORY_BOOK,
-#    'data set': ROCATEGORY_DATASET,
-#    'software': ROCATEGORY_SOFTWARE
+#    'book': RESEARCHRESULT_CATEGORY_BOOK,
+#    'data set': RESEARCHRESULT_CATEGORY_DATASET,
+#    'software': RESEARCHRESULT_CATEGORY_SOFTWARE
 # }
 #
-# Call the function lookup_resout_category() to do this mapping.
-# If you add a type, also add it to ROCATEGORY_ALL.
-# If you add a type that is a publication, also add it to ROCATEGORY_PUBLICATION.
+# Call the function lookup_researchresult_category() to do this mapping.
+# If you add a type, also add it to RESEARCHRESULT_CATEGORY_ALL.
+# If you add a type that is a publication, also add it to RESEARCHRESULT_CATEGORY_PUBLICATION.
 #
-# ROCATEGORY_* are used in the Ricgraph 'category' field.
+# RESEARCHRESULT_CATEGORY_* are used in the Ricgraph 'category' field.
 #
 # This list is inspired by the Strategy Evaluation Protocol 2021-2027
 # https://www.universiteitenvannederland.nl/files/documenten/Domeinen/Onderzoek/SEP_2021-2027.pdf,
 # Appendix E2.
-ROCATEGORY_ABSTRACT = 'abstract'
-ROCATEGORY_ARTEFACT = 'artefact'
-ROCATEGORY_BOOK = 'book'
-ROCATEGORY_BOOKCHAPTER = 'book chapter'
-ROCATEGORY_CONFERENCE_ARTICLE = 'conference article'
-ROCATEGORY_DATASET = 'data set'
-ROCATEGORY_DESIGN = 'design'
-ROCATEGORY_DIGITAL_VISUAL_PRODUCT = 'digital or visual product'
-ROCATEGORY_EDITORIAL = 'editorial'
-ROCATEGORY_ENTRY = 'entry for encyclopedia or dictionary'
-ROCATEGORY_EXHIBITION_PERFORMANCE = 'exhibition or performance'
-ROCATEGORY_JOURNAL_ARTICLE = 'journal article'
-ROCATEGORY_LETTER = 'letter to the editor'
-ROCATEGORY_MEMORANDUM = 'memorandum'
-ROCATEGORY_METHOD_DESCRIPTION = 'method description'
-ROCATEGORY_MODEL = 'model'
-ROCATEGORY_OTHER_CONTRIBUTION = 'other contribution'
-ROCATEGORY_PATENT = 'patent'
-ROCATEGORY_PHDTHESIS = 'PhD thesis'
-ROCATEGORY_POSTER = 'poster'
-ROCATEGORY_PREPRINT = 'preprint'
-ROCATEGORY_PRESENTATION = 'presentation'
-ROCATEGORY_REGISTERED_REPORT = 'registered report'
-ROCATEGORY_REPORT = 'report'
-ROCATEGORY_RETRACTION = 'retraction'
-ROCATEGORY_REVIEW = 'review'
-ROCATEGORY_SOFTWARE = 'software'
-ROCATEGORY_THESIS = 'thesis'
-ROCATEGORY_WEBSITE = 'website or web publication'
+RESEARCHRESULT_CATEGORY_ABSTRACT = 'abstract'
+RESEARCHRESULT_CATEGORY_ARTEFACT = 'artefact'
+RESEARCHRESULT_CATEGORY_BOOK = 'book'
+RESEARCHRESULT_CATEGORY_BOOKCHAPTER = 'book chapter'
+RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE = 'conference article'
+RESEARCHRESULT_CATEGORY_DATASET = 'data set'
+RESEARCHRESULT_CATEGORY_DESIGN = 'design'
+RESEARCHRESULT_CATEGORY_DIGITAL_VISUAL_PRODUCT = 'digital or visual product'
+RESEARCHRESULT_CATEGORY_EDITORIAL = 'editorial'
+RESEARCHRESULT_CATEGORY_ENTRY = 'entry for encyclopedia or dictionary'
+RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE = 'exhibition or performance'
+RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE = 'journal article'
+RESEARCHRESULT_CATEGORY_LETTER = 'letter to the editor'
+RESEARCHRESULT_CATEGORY_MEMORANDUM = 'memorandum'
+RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION = 'method description'
+RESEARCHRESULT_CATEGORY_MODEL = 'model'
+RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION = 'other contribution'
+RESEARCHRESULT_CATEGORY_PATENT = 'patent'
+RESEARCHRESULT_CATEGORY_PHDTHESIS = 'PhD thesis'
+RESEARCHRESULT_CATEGORY_POSTER = 'poster'
+RESEARCHRESULT_CATEGORY_PREPRINT = 'preprint'
+RESEARCHRESULT_CATEGORY_PRESENTATION = 'presentation'
+RESEARCHRESULT_CATEGORY_PRESS_MEDIA = 'press media'
+RESEARCHRESULT_CATEGORY_REGISTERED_REPORT = 'registered report'
+RESEARCHRESULT_CATEGORY_REPORT = 'report'
+RESEARCHRESULT_CATEGORY_RETRACTION = 'retraction'
+RESEARCHRESULT_CATEGORY_REVIEW = 'review'
+RESEARCHRESULT_CATEGORY_SOFTWARE = 'software'
+RESEARCHRESULT_CATEGORY_THESIS = 'thesis'
+RESEARCHRESULT_CATEGORY_WEBSITE = 'website or web publication'
+
 
 # ########################################################################
-# This is a special research output type allowing to select all publication
+# This is a special research result type allowing to select all publication
 # types.
-ROCATEGORY_PUBLICATION_ALL = 'publication_all'
+RESEARCHRESULT_CATEGORY_PUBLICATION_ALL = 'publication_all'
 
 
-ROCATEGORY_ALL = [ROCATEGORY_ABSTRACT,
-                  ROCATEGORY_ARTEFACT,
-                  ROCATEGORY_BOOK,
-                  ROCATEGORY_BOOKCHAPTER,
-                  ROCATEGORY_CONFERENCE_ARTICLE,
-                  ROCATEGORY_DATASET,
-                  ROCATEGORY_DESIGN,
-                  ROCATEGORY_DIGITAL_VISUAL_PRODUCT,
-                  ROCATEGORY_EDITORIAL,
-                  ROCATEGORY_ENTRY,
-                  ROCATEGORY_EXHIBITION_PERFORMANCE,
-                  ROCATEGORY_JOURNAL_ARTICLE,
-                  ROCATEGORY_LETTER,
-                  ROCATEGORY_MEMORANDUM,
-                  ROCATEGORY_METHOD_DESCRIPTION,
-                  ROCATEGORY_MODEL,
-                  ROCATEGORY_OTHER_CONTRIBUTION,
-                  ROCATEGORY_PATENT,
-                  ROCATEGORY_PHDTHESIS,
-                  ROCATEGORY_POSTER,
-                  ROCATEGORY_PREPRINT,
-                  ROCATEGORY_PRESENTATION,
-                  ROCATEGORY_REGISTERED_REPORT,
-                  ROCATEGORY_REPORT,
-                  ROCATEGORY_RETRACTION,
-                  ROCATEGORY_REVIEW,
-                  ROCATEGORY_SOFTWARE,
-                  ROCATEGORY_THESIS,
-                  ROCATEGORY_WEBSITE]
+# If you add something here, you may also want to add it to
+# one or more of
+# RESEARCHRESULT_CATEGORY_PUBLICATION,
+# RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
+# RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
+# RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL.
+RESEARCHRESULT_CATEGORY_ALL = \
+    [RESEARCHRESULT_CATEGORY_ABSTRACT,
+     RESEARCHRESULT_CATEGORY_ARTEFACT,
+     RESEARCHRESULT_CATEGORY_BOOK,
+     RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+     RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+     RESEARCHRESULT_CATEGORY_DATASET,
+     RESEARCHRESULT_CATEGORY_DESIGN,
+     RESEARCHRESULT_CATEGORY_DIGITAL_VISUAL_PRODUCT,
+     RESEARCHRESULT_CATEGORY_EDITORIAL,
+     RESEARCHRESULT_CATEGORY_ENTRY,
+     RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE,
+     RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+     RESEARCHRESULT_CATEGORY_LETTER,
+     RESEARCHRESULT_CATEGORY_MEMORANDUM,
+     RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
+     RESEARCHRESULT_CATEGORY_MODEL,
+     RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
+     RESEARCHRESULT_CATEGORY_PATENT,
+     RESEARCHRESULT_CATEGORY_PHDTHESIS,
+     RESEARCHRESULT_CATEGORY_POSTER,
+     RESEARCHRESULT_CATEGORY_PREPRINT,
+     RESEARCHRESULT_CATEGORY_PRESENTATION,
+     RESEARCHRESULT_CATEGORY_PRESS_MEDIA,
+     RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
+     RESEARCHRESULT_CATEGORY_REPORT,
+     RESEARCHRESULT_CATEGORY_RETRACTION,
+     RESEARCHRESULT_CATEGORY_REVIEW,
+     RESEARCHRESULT_CATEGORY_SOFTWARE,
+     RESEARCHRESULT_CATEGORY_THESIS,
+     RESEARCHRESULT_CATEGORY_WEBSITE]
 
 # A resout_type_all is defined in initialize_ricgraph_explorer().
-# These are elements of ROCATEGORY_ALL that are present in your Ricgraph.
+# These are elements of RESEARCHRESULT_CATEGORY_ALL that are present in your Ricgraph.
 # I.e., those have been harvested from the source systems that you chose to harvest.
 
-ROCATEGORY_PUBLICATION = [ROCATEGORY_ABSTRACT,
-                          ROCATEGORY_BOOK,
-                          ROCATEGORY_BOOKCHAPTER,
-                          ROCATEGORY_CONFERENCE_ARTICLE,
-                          ROCATEGORY_EDITORIAL,
-                          ROCATEGORY_ENTRY,
-                          ROCATEGORY_JOURNAL_ARTICLE,
-                          ROCATEGORY_LETTER,
-                          ROCATEGORY_MEMORANDUM,
-                          ROCATEGORY_METHOD_DESCRIPTION,
-                          ROCATEGORY_PATENT,
-                          ROCATEGORY_PHDTHESIS,
-                          ROCATEGORY_POSTER,
-                          ROCATEGORY_PREPRINT,
-                          ROCATEGORY_PRESENTATION,
-                          ROCATEGORY_REGISTERED_REPORT,
-                          ROCATEGORY_REPORT,
-                          ROCATEGORY_RETRACTION,
-                          ROCATEGORY_REVIEW,
-                          ROCATEGORY_THESIS]
+RESEARCHRESULT_CATEGORY_PUBLICATION = \
+    [RESEARCHRESULT_CATEGORY_ABSTRACT,
+     RESEARCHRESULT_CATEGORY_BOOK,
+     RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+     RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+     RESEARCHRESULT_CATEGORY_EDITORIAL,
+     RESEARCHRESULT_CATEGORY_ENTRY,
+     RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+     RESEARCHRESULT_CATEGORY_LETTER,
+     RESEARCHRESULT_CATEGORY_MEMORANDUM,
+     RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
+     RESEARCHRESULT_CATEGORY_PATENT,
+     RESEARCHRESULT_CATEGORY_PHDTHESIS,
+     RESEARCHRESULT_CATEGORY_POSTER,
+     RESEARCHRESULT_CATEGORY_PREPRINT,
+     RESEARCHRESULT_CATEGORY_PRESENTATION,
+     RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
+     RESEARCHRESULT_CATEGORY_REPORT,
+     RESEARCHRESULT_CATEGORY_RETRACTION,
+     RESEARCHRESULT_CATEGORY_REVIEW,
+     RESEARCHRESULT_CATEGORY_THESIS]
 
 # A resout_type_pub is defined in initialize_ricgraph_explorer().
-# These are elements of ROCATEGORY_PUBLICATION that are present in your Ricgraph.
+# These are elements of RESEARCHRESULT_CATEGORY_PUBLICATION that are present in your Ricgraph.
 # I.e., those have been harvested from the source systems that you chose to harvest.
 
 
 # ########################################################################
-# Other types used in Ricgraph.
-CATEGORY_PRESS_MEDIA = 'press media'
+# Research result types related to open science monitoring.
+RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL = \
+    [RESEARCHRESULT_CATEGORY_DATASET,
+     RESEARCHRESULT_CATEGORY_SOFTWARE]
+
+RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL = \
+    [RESEARCHRESULT_CATEGORY_ABSTRACT,
+     RESEARCHRESULT_CATEGORY_ARTEFACT,
+     RESEARCHRESULT_CATEGORY_BOOK,
+     RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+     RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+     RESEARCHRESULT_CATEGORY_DESIGN,
+     RESEARCHRESULT_CATEGORY_EDITORIAL,
+     RESEARCHRESULT_CATEGORY_ENTRY,
+     RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+     RESEARCHRESULT_CATEGORY_LETTER,
+     RESEARCHRESULT_CATEGORY_MEMORANDUM,
+     RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
+     RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
+     RESEARCHRESULT_CATEGORY_PHDTHESIS,
+     RESEARCHRESULT_CATEGORY_POSTER,
+     RESEARCHRESULT_CATEGORY_PREPRINT,
+     RESEARCHRESULT_CATEGORY_PRESENTATION,
+     RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
+     RESEARCHRESULT_CATEGORY_REPORT,
+     RESEARCHRESULT_CATEGORY_RETRACTION,
+     RESEARCHRESULT_CATEGORY_REVIEW,
+     RESEARCHRESULT_CATEGORY_THESIS]
+
+RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL = \
+    [RESEARCHRESULT_CATEGORY_DIGITAL_VISUAL_PRODUCT,
+     RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE,
+     RESEARCHRESULT_CATEGORY_MODEL,
+     RESEARCHRESULT_CATEGORY_PATENT,
+     RESEARCHRESULT_CATEGORY_PRESS_MEDIA,
+     RESEARCHRESULT_CATEGORY_WEBSITE]
 
 
 # ########################################################################
-# Types related to open science monitoring.
-ROCATEGORY_RESEARCH_MATERIAL = [ROCATEGORY_DATASET,
-                                ROCATEGORY_SOFTWARE]
+# Organization related constants.
+# ########################################################################
+ORGANIZATION_CATEGORY_ORGANISATION = 'organization'
+ORGANIZATION_CATEGORY_ALL = \
+    [ORGANIZATION_CATEGORY_ORGANISATION]
 
-ROCATEGORY_REPORTING_MATERIAL = [ROCATEGORY_ABSTRACT,
-                                 ROCATEGORY_ARTEFACT,
-                                 ROCATEGORY_BOOK,
-                                 ROCATEGORY_BOOKCHAPTER,
-                                 ROCATEGORY_CONFERENCE_ARTICLE,
-                                 ROCATEGORY_DESIGN,
-                                 ROCATEGORY_EDITORIAL,
-                                 ROCATEGORY_ENTRY,
-                                 ROCATEGORY_JOURNAL_ARTICLE,
-                                 ROCATEGORY_LETTER,
-                                 ROCATEGORY_MEMORANDUM,
-                                 ROCATEGORY_METHOD_DESCRIPTION,
-                                 ROCATEGORY_OTHER_CONTRIBUTION,
-                                 ROCATEGORY_PHDTHESIS,
-                                 ROCATEGORY_POSTER,
-                                 ROCATEGORY_PREPRINT,
-                                 ROCATEGORY_PRESENTATION,
-                                 ROCATEGORY_REGISTERED_REPORT,
-                                 ROCATEGORY_REPORT,
-                                 ROCATEGORY_RETRACTION,
-                                 ROCATEGORY_REVIEW,
-                                 ROCATEGORY_THESIS]
 
-ROCATEGORY_ENGAGEMENT_MATERIAL = [ROCATEGORY_DIGITAL_VISUAL_PRODUCT,
-                                  ROCATEGORY_EXHIBITION_PERFORMANCE,
-                                  ROCATEGORY_MODEL,
-                                  ROCATEGORY_PATENT,
-                                  CATEGORY_PRESS_MEDIA,
-                                  ROCATEGORY_WEBSITE]
+# ########################################################################
+# Person related constants.
+# ########################################################################
+PERSON_CATEGORY_PERSON = 'person'
+PERSON_CATEGORY_ALL = \
+    [PERSON_CATEGORY_PERSON]
+
+
+# ########################################################################
+# Competence related constants.
+# ########################################################################
+COMPETENCE_CATEGORY_COMPETENCE= 'competence'
+COMPETENCE_CATEGORY_ALL = \
+    [COMPETENCE_CATEGORY_COMPETENCE]
+
+
+# ########################################################################
+# Project related constants.
+# ########################################################################
+PROJECT_CATEGORY_PROJECT = 'project'
+PROJECT_CATEGORY_ALL = \
+    [PROJECT_CATEGORY_PROJECT]

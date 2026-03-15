@@ -762,7 +762,7 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
     In case a node is to contain a personal ID (e.g. ORCID, ISNI, etc.) (then it has
     category = 'person'), a 'person-root' node will be created if it does not exist.
     This 'person-root' node is to be seen as the 'representative' for a person.
-    All research outputs will be linked to the 'person-root' node, not to the personal ID node.
+    All research results will be linked to the 'person-root' node, not to the personal ID node.
 
     :param left_node: the left node.
     :param right_node: the right node.
@@ -914,7 +914,7 @@ def get_all_personroot_nodes(node: Node) -> list:
     """Get the 'person-root' node(s) for any type of node.
     If 'node' is already a 'person-root' node, return 'node'.
     If there is more than one person-root node (which can happen if
-    node is e.g. a research output, and which should not happen
+    node is e.g. a research result, and which should not happen
     if the category is 'person'), all will be returned in a list.
 
     :param node: the node.

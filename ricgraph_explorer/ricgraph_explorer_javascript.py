@@ -601,7 +601,7 @@ def create_chord_diagram_javascript(matrix_json: str,
 # The following code was inspired heavily by perplexity.ai.
 def create_sankey_diagram_javascript(nodes_json: str,
                                      links_json: str,
-                                     research_result_category: list,
+                                     researchresult_category: list,
                                      tooltip_show_links: bool,
                                      width: int,
                                      height: int,
@@ -612,7 +612,7 @@ def create_sankey_diagram_javascript(nodes_json: str,
 
     :param nodes_json: JSON with nodes.
     :param links_json: JSON with links.
-    :param research_result_category: if specified, only return collaborations
+    :param researchresult_category: if specified, only return collaborations
       for this research result category. If not, return all collaborations,
       regardless of the research result category.
       The value can be both a string containing one category, or
@@ -647,12 +647,12 @@ def create_sankey_diagram_javascript(nodes_json: str,
     #
     # An alternative would be to use gradient lines, but since we often have
     # many small lines, this wouldn't make much of a difference.
-    if len(research_result_category) == 0:
+    if len(researchresult_category) == 0:
         print('create_sankey_diagram_javascript(): Error: Research result category is empty. Exiting...')
         return ''
     if tooltip_show_links:
         base_url = url_for(endpoint='collabsresultpage.collabsresultpage') + '?'
-        base_url += urlencode(query={'category_list': research_result_category}, doseq=True)
+        base_url += urlencode(query={'category_list': researchresult_category}, doseq=True)
     else:
         base_url = ''
 
@@ -688,12 +688,12 @@ def create_sankey_diagram_javascript(nodes_json: str,
                                       "&start_orgs=" + encodeURIComponent(d.source.name) +
                                       "&collab_orgs=" + encodeURIComponent(d.target.name);
                      const startorg_persons_url = `${{orgs_url}}&collab_mode=return_startorg_persons`;
-                     const research_results_url = `${{orgs_url}}&collab_mode=return_research_results`;
+                     const researchresults_url = `${{orgs_url}}&collab_mode=return_researchresults`;
                      const collaborg_persons_url = `${{orgs_url}}&collab_mode=return_collaborg_persons`;
                      
                      popup += `<a href="${{startorg_persons_url}}"  {diagram_tooltip_link_button_style} `
                      popup += `  target="_blank">persons from <em>start organizations</em></a> `
-                     popup += `<a href="${{research_results_url}}" {diagram_tooltip_link_button_style} `
+                     popup += `<a href="${{researchresults_url}}" {diagram_tooltip_link_button_style} `
                      popup += `  target="_blank">research results</a> `
                      popup += `<a href="${{collaborg_persons_url}}" {diagram_tooltip_link_button_style} `
                      popup += `  target="_blank">persons from <em>collaborating organizations</em></a> `

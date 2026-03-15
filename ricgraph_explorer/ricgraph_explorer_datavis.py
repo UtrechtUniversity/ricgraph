@@ -221,15 +221,15 @@ def create_sankey_diagram(df: DataFrame,
     sources = sorted(df.index.tolist())
     targets = sorted(df.columns.tolist())
 
-    research_result_category_str = str(df.index.name)
-    if research_result_category_str == '':
-        research_result_category = []
+    researchresult_category_str = str(df.index.name)
+    if researchresult_category_str == '':
+        researchresult_category = []
     else:
-        research_result_category = literal_eval(research_result_category_str)
-        if len(research_result_category) == 0 and research_result_category[0] == '':
-            # If research_result_category_str is [''], literal_eval() returns [''],
+        researchresult_category = literal_eval(researchresult_category_str)
+        if len(researchresult_category) == 0 and researchresult_category[0] == '':
+            # If researchresult_category_str is [''], literal_eval() returns [''],
             # a list of length 1. I want a list of length 0.
-            research_result_category = []
+            researchresult_category = []
 
     for org in sources:
         node_id = f"{org}_from"
@@ -307,7 +307,7 @@ def create_sankey_diagram(df: DataFrame,
 
     javascript = create_sankey_diagram_javascript(nodes_json=nodes_json,
                                                   links_json=links_json,
-                                                  research_result_category=research_result_category,
+                                                  researchresult_category=researchresult_category,
                                                   tooltip_show_links=tooltip_show_links,
                                                   width=width,
                                                   height=height,
@@ -352,8 +352,8 @@ def error_check(func):
 @error_check
 def org_collaborations_persons_results(start_organizations: str,
                                        collab_organizations: str,
-                                       research_result_category: Union[str, list],
-                                       mode: str = 'return_research_results') -> list:
+                                       researchresult_category: Union[str, list],
+                                       mode: str = 'return_researchresults') -> list:
     """Find all collaborations of an organizations starting with a string,
     with other organizations with the same starting string
     (e.g. UU Faculty and UU Faculty).
@@ -365,9 +365,9 @@ def org_collaborations_persons_results(start_organizations: str,
 
     :param start_organizations: see find_collab_orgs_persons_results().
     :param collab_organizations: see find_collab_orgs_persons_results().
-    :param research_result_category: see find_collab_orgs_persons_results().
+    :param researchresult_category: see find_collab_orgs_persons_results().
     :param mode: one of the following:
-      - mode = 'return_research_results': return the research results.
+      - mode = 'return_researchresults': return the research results.
       - mode = 'return_startorg_persons': return the person-roots from start_organizations.
       - mode = 'return_collaborg_persons': return the person-roots from collab_organizations.
     :return: a list of nodes, or [] if nothing found.
@@ -375,7 +375,7 @@ def org_collaborations_persons_results(start_organizations: str,
     print('-- org_collaborations_start_org_persons(): start at ' + datetimestamp() + '.')
     nodes_list = find_collab_orgs_persons_results(start_organizations=start_organizations,
                                                   collab_organizations=collab_organizations,
-                                                  research_result_category=research_result_category,
+                                                  researchresult_category=researchresult_category,
                                                   mode=mode)
     # No need to check for nothing found, if so, nodes_list will be [].
     print('-- org_collaborations_start_org_persons(): finished at ' + datetimestamp() + '.\n')
@@ -384,8 +384,8 @@ def org_collaborations_persons_results(start_organizations: str,
 
 def org_collaborations_persons_results_df(start_organizations: str,
                                           collab_organizations: str,
-                                          research_result_category: Union[str, list],
-                                          mode: str = 'return_research_results',
+                                          researchresult_category: Union[str, list],
+                                          mode: str = 'return_researchresults',
                                           filename: str = '') -> Union[None, DataFrame]:
     """Find all collaborations of an organizations starting with a string,
     with other organizations with the same starting string
@@ -398,9 +398,9 @@ def org_collaborations_persons_results_df(start_organizations: str,
 
     :param start_organizations: see find_collab_orgs_persons_results().
     :param collab_organizations: see find_collab_orgs_persons_results().
-    :param research_result_category: see find_collab_orgs_persons_results().
+    :param researchresult_category: see find_collab_orgs_persons_results().
     :param mode: one of the following:
-      - mode = 'return_research_results': return the research results.
+      - mode = 'return_researchresults': return the research results.
       - mode = 'return_startorg_persons': return the person-roots from start_organizations.
       - mode = 'return_collaborg_persons': return the person-roots from collab_organizations.
     :param filename: this will the base of the filename, you can use it
@@ -411,7 +411,7 @@ def org_collaborations_persons_results_df(start_organizations: str,
     """
     nodes_list = org_collaborations_persons_results(start_organizations=start_organizations,
                                                     collab_organizations=collab_organizations,
-                                                    research_result_category=research_result_category,
+                                                    researchresult_category=researchresult_category,
                                                     mode=mode)
     if len(nodes_list) == 0:
         return None
@@ -426,7 +426,7 @@ def org_collaborations_persons_results_df(start_organizations: str,
 
 def org_collaborations_diagram(start_organizations: str,
                                collab_organizations: str,
-                               research_result_category: Union[str, list],
+                               researchresult_category: Union[str, list],
                                diagram_type: str = 'sankey',
                                filename: str = '',
                                caption: str = 'default_caption',
@@ -456,7 +456,7 @@ def org_collaborations_diagram(start_organizations: str,
 
     :param start_organizations: see find_collab_orgs_matrix().
     :param collab_organizations: see find_collab_orgs_matrix().
-    :param research_result_category: see find_collab_orgs_matrix().
+    :param researchresult_category: see find_collab_orgs_matrix().
     :param diagram_type: the type of diagram to create, 'sankey' or 'chord'.
     :param filename: this will the base of the filename, you can use it
       to reflect the type of query.
@@ -478,7 +478,7 @@ def org_collaborations_diagram(start_organizations: str,
 
     collabs_orgs_raw = find_collab_orgs_matrix(start_organizations=start_organizations,
                                                collab_organizations=collab_organizations,
-                                               research_result_category=research_result_category)
+                                               researchresult_category=researchresult_category)
     if collabs_orgs_raw is None:
         return ''
 
@@ -537,7 +537,7 @@ def org_collaborations_diagram(start_organizations: str,
 def three_org_collaborations_chord(first_org: str,
                                    second_org: str,
                                    third_org: str,
-                                   research_result_category: Union[str, list],
+                                   researchresult_category: Union[str, list],
                                    filename: str = '',
                                    generate_full_html: bool = True) -> str:
     """Find all collaborations for three (sub-)organizations.
@@ -554,7 +554,7 @@ def three_org_collaborations_chord(first_org: str,
     :param first_org: the first (sub-)organization or substring of it.
     :param second_org: the second (sub-)organization or substring of it.
     :param third_org: the third (sub-)organization or substring of it.
-    :param research_result_category: do it for this category,
+    :param researchresult_category: do it for this category,
       either a str or list of categories.
     :param filename: this will the base of the filename, you can use it
       to reflect the type of query.
@@ -567,17 +567,17 @@ def three_org_collaborations_chord(first_org: str,
     print('-- collabs_three_orgs(): start at ' + datetimestamp() + '.')
     collabs_1st_2nd = find_collab_orgs_matrix(start_organizations=first_org,
                                               collab_organizations=second_org,
-                                              research_result_category=research_result_category)
+                                              researchresult_category=researchresult_category)
     if collabs_1st_2nd is None:
         return ''
     collabs_1st_3rd = find_collab_orgs_matrix(start_organizations=first_org,
                                               collab_organizations=third_org,
-                                              research_result_category=research_result_category)
+                                              researchresult_category=researchresult_category)
     if collabs_1st_3rd is None:
         return ''
     collabs_2nd_3rd = find_collab_orgs_matrix(start_organizations=second_org,
                                               collab_organizations=third_org,
-                                              research_result_category=research_result_category)
+                                              researchresult_category=researchresult_category)
     if collabs_2nd_3rd is None:
         return ''
 
@@ -587,7 +587,7 @@ def three_org_collaborations_chord(first_org: str,
     combine_df = make_dataframe_square_symmetric(df=combine_df)
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     combine_df = combine_df.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
-    caption = 'Overview of ' + str(research_result_category)
+    caption = 'Overview of ' + str(researchresult_category)
     caption += ' of a number of years for the (sub-)organizations '
     caption += first_org + ', ' + second_org + ', and ' + third_org + '.'
     body_html = create_chord_diagram(df=combine_df,

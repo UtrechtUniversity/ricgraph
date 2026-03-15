@@ -85,14 +85,14 @@ YODA_HEADERS = {'metadataPrefix': 'oai_datacite',
 
 
 # ######################################################
-# Mapping from Yoda Datacite research output types to Ricgraph research output types.
+# Mapping from Yoda Datacite research result types to Ricgraph research result types.
 # ######################################################
-ROCATEGORY_MAPPING_YODA = {
-    'Research Data': rcg.ROCATEGORY_DATASET,
-    'Method Description': rcg.ROCATEGORY_METHOD_DESCRIPTION,
-    'Model': rcg.ROCATEGORY_MODEL,
-    'Computer code': rcg.ROCATEGORY_SOFTWARE,
-    'Other Document': rcg.ROCATEGORY_OTHER_CONTRIBUTION
+RESEARCHRESULT_CATEGORY_MAPPING_YODA = {
+    'Research Data': rcg.RESEARCHRESULT_CATEGORY_DATASET,
+    'Method Description': rcg.RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
+    'Model': rcg.RESEARCHRESULT_CATEGORY_MODEL,
+    'Computer code': rcg.RESEARCHRESULT_CATEGORY_SOFTWARE,
+    'Other Document': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION
 }
 
 
@@ -191,8 +191,8 @@ def process_parsed_data(df: pandas.DataFrame) -> pandas.DataFrame:
     df_mod = df_mod.explode('ORGANIZATION_NAME').reset_index(drop=True)
 
     df_mod['CATEGORY'] = df_mod[['CATEGORY']].apply(
-        lambda row: rcg.lookup_resout_category(research_output_category=row['CATEGORY'],
-                                               research_output_mapping=ROCATEGORY_MAPPING_YODA), axis=1)
+        lambda row: rcg.lookup_researchresult_category(researchresult_category=row['CATEGORY'],
+                                                       researchresult_mapping=RESEARCHRESULT_CATEGORY_MAPPING_YODA), axis=1)
 
     return df_mod
 
@@ -362,12 +362,12 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
 
 def parse_yoda_datacite(harvest: dict,
                         filename: str = '') -> Union[pandas.DataFrame, None]:
-    """Parse the harvested data sets (and other research outputs) from Yoda datacite.
+    """Parse the harvested data sets (and other research results) from Yoda datacite.
     In case filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
     :param filename: If filename != '', write it to a file and read it back.
-    :return: the harvested research outputs in a DataFrame.
+    :return: the harvested research results in a DataFrame.
     """
     if len(harvest) == 0:
         return None
