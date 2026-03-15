@@ -57,6 +57,7 @@ from typing import Union
 from flask import send_from_directory, redirect, url_for, Response
 from neo4j.graph import Node
 from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
+                      ricgraph_get_harvest_date,
                       nodes_cache_key_id_type_size,
                       read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes,
@@ -235,6 +236,7 @@ def homepage() -> str:
     html += get_html_for_cardstart()
     nr_nodes = ricgraph_nr_nodes()
     nr_edges = ricgraph_nr_edges()
+    harvest_date = ricgraph_get_harvest_date()
     html += '<h1>About Ricgraph</h1>'
     html += 'More information:'
     html += '<ul>'
@@ -298,7 +300,11 @@ def homepage() -> str:
     html += '.'
     html += '</li>'
     html += '<li>'
-    html += str(nr_nodes) + ' nodes and ' + str(nr_edges) + ' edges.'
+    html += str(nr_nodes) + ' nodes and ' + str(nr_edges) + ' edges, '
+    if harvest_date == '':
+        html += 'nothing has been harvested yet.'
+    else:
+        html += 'harvested on ' + harvest_date + '.'
     html += '</li>'
     html += '<li>'
     html += nodes_cache_key_id_type_size()

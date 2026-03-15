@@ -42,6 +42,7 @@
 # ########################################################################
 
 
+from datetime import date
 from pandas import DataFrame
 from typing import Union, Optional
 from neo4j import GraphDatabase, Driver, Result
@@ -370,6 +371,52 @@ def ricgraph_nr_edges_of_node(node_element_id: str) -> int:
 # ##############################################################################
 # Ricgraph graph database CRUD related functions.
 # ##############################################################################
+def ricgraph_get_harvest_date() -> str:
+    """Get the approximate harvest date of Ricgraph.
+    It is approximate, because a harvest may run for a long time, and
+    may pass the day boundary.
+    In this function, we take the first valid date we find in the _history
+    property of a node, which may happen to be from the first or second
+    or any day of the harvest. Also, we limit the Cypher query to the
+    first 10 nodes. Note that this function may not be deterministic.
+
+    :return: the harvest date, or '' if it cannot be determined.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nricgraph_get_harvest_date(): Error: graph has not been initialized or opened.\n\n')
+        return ''
+
+    cypher_query = 'MATCH (node:RicgraphNode) '
+    cypher_query += 'WHERE node._history <> "" '
+    cypher_query += 'RETURN node._history as history '
+    cypher_query += 'LIMIT 10'
+    result = _graph.execute_query(cypher_query,
+                                  result_transformer_=Result.data,
+                                  database_=ricgraph_databasename())
+    harvest_date = ''
+    for item in result:
+        if 'history' not in item:
+            continue
+        if len(item['history']) == 0:
+            continue
+        history_item = item['history'][0]
+        # The first 10 chars of a history item consists of the date in YYYY-MM-DD.
+        possible_date = history_item[:10]
+        try:
+            # Check if it is a valid date.
+            date.fromisoformat(possible_date)
+            harvest_date = possible_date
+            break
+        except ValueError:
+            continue
+
+    if harvest_date == '':
+        return ''
+    return harvest_date
+
+
 def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     """
     Create a node in the graph database.

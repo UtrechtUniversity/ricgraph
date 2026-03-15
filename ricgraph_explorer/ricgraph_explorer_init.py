@@ -46,6 +46,7 @@ from typing import Union
 from connexion import FlaskApp
 from ricgraph import (open_ricgraph, read_all_values_of_property,
                       memcached_open_connection, nodes_cache_key_id_type_size,
+                      ricgraph_get_harvest_date,
                       RESEARCHRESULT_CATEGORY_ALL,
                       RESEARCHRESULT_CATEGORY_PUBLICATION,
                       RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
@@ -170,6 +171,13 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     # These are all constant in Ricgraph Explorer.
     # #############################################################################
     set_ricgraph_explorer_global(name='graph', value=graph)
+    harvest_date = ricgraph_get_harvest_date()
+    set_ricgraph_explorer_global(name='ricgraph_harvest_date',
+                                 value=harvest_date)
+    if harvest_date == '':
+        print('The harvest date of Ricgraph is empty.')
+    else:
+        print('The harvest date of Ricgraph is ' + harvest_date + '.')
 
     name_all = read_all_values_of_property('name')
     if len(name_all) == 0:
