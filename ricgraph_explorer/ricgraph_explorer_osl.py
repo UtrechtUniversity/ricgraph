@@ -159,7 +159,7 @@ def osprofileresultpage() -> str:
         html += get_message(message=message)
         return html + page_footer + html_body_end
     if histogram_mode == '':
-        histogram_mode = HISTOGRAM_MODE_COUNTS
+        histogram_mode = HISTOGRAM_MODE_PERCENTAGES
     if histogram_mode not in HISTOGRAM_MODE_ALL:
         html += get_message(message='Error: unknown histogram mode "'
                                     + histogram_mode + '".')
@@ -212,6 +212,10 @@ def osprofileresultpage() -> str:
                                                  year_first=year_first,
                                                  year_last=year_last)
     histogram_title = 'Open science profile '
+    if histogram_mode == HISTOGRAM_MODE_COUNTS:
+        histogram_title += '(counts) '
+    else:
+        histogram_title += '(percentages) '
     if year_first == '' and year_last == '':
         histogram_title += 'for all years '
     else:
@@ -308,8 +312,8 @@ def osprofileresultpage() -> str:
     html += 'It is said that the form of this distribution may be characteristic '
     html += 'for such a (sub-)organization. '
     html += 'You can use this page to check this for yourself. '
-    html += 'Also, you can choose whether you would like to see counts '
-    html += 'in the histogram, or rather prefer to see percentages. '
+    html += 'Also, you can choose whether you would like to see percentages '
+    html += 'in the histogram, or rather prefer to see counts. '
     html += '<br/><br/>'
     html += 'The three groups research, reporting, and engagement '
     html += 'material are defined in Ricgraph as:'
