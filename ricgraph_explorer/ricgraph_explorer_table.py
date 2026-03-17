@@ -62,7 +62,10 @@ from ricgraph import (nodes_cache_key_id_create,
                       create_ricgraph_key,
                       create_unique_string,
                       A_LARGE_NUMBER,
-                      get_valuepart_from_ricgraph_value, get_additionalpart_from_ricgraph_value)
+                      get_valuepart_from_ricgraph_value, get_additionalpart_from_ricgraph_value,
+                      PERSON_CATEGORY_PERSON,
+                      COMPETENCE_CATEGORY_COMPETENCE,
+                      PERSON_NAME_PERSON_ROOT)
 from ricgraph_explorer_constants import (DETAIL_COLUMNS, RESEARCH_OUTPUT_COLUMNS,
                                          MAX_ROWS_TO_EXPORT, ID_COLUMNS,
                                          button_style)
@@ -136,7 +139,7 @@ def view_personal_information(nodes_list: list,
 
     # Get the nodes of interest. Using get_all_neighbor_nodes() is not efficient.
     for node in nodes_list:
-        if node['category'] != 'competence':
+        if node['category'] != COMPETENCE_CATEGORY_COMPETENCE:
             continue
         key = create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('optionspage') + '?'
@@ -164,11 +167,11 @@ def view_personal_information(nodes_list: list,
 
     id_nodes = []
     for node in nodes_list:
-        if node['category'] != 'person':
+        if node['category'] != PERSON_CATEGORY_PERSON:
             continue
         if node['name'] != 'FULL_NAME' \
            and node['name'] != 'FULL_NAME_ASCII' \
-           and node['name'] != 'person-root' \
+           and node['name'] !=  PERSON_NAME_PERSON_ROOT \
            and node['name'] != 'PHOTO_ID':
             id_nodes.append(node)
     html += get_tabbed_table(nodes_list=id_nodes,
@@ -774,7 +777,8 @@ def get_html_for_tablerow(node: Node,
             else:
                 html += '<td width=30%>' + node['comment'] + '</td>'
         else:
-            if node['name'] == 'person-root' and isinstance(node['comment'], list):
+            if node['name'] == PERSON_NAME_PERSON_ROOT \
+               and isinstance(node['comment'], list):
                 # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
                 # for easier browsing.
                 html += '<td><ul>'

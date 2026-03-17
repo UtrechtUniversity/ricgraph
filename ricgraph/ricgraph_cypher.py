@@ -47,7 +47,8 @@ from pandas import DataFrame
 from typing import Union, Optional
 from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
-from .ricgraph_constants import A_LARGE_NUMBER
+from .ricgraph_constants import (A_LARGE_NUMBER,
+                                 PERSON_CATEGORY_PERSON)
 from .ricgraph_utils import (get_ricgraph_ini_file,
                              get_configfile_key_graphdb_parameters,
                              create_ricgraph_key, datetimestamp)
@@ -919,7 +920,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
     if node_property == 'name_personal':
         # Note that the comment property of 'person-root' contains FULL_NAMEs,
         # so it is also a name property that is a personal identifier.
-        cypher_query += 'WHERE node.category = "person" '
+        cypher_query += 'WHERE node.category = "' + PERSON_CATEGORY_PERSON + '" '
         cypher_query += 'RETURN DISTINCT node.name AS entry '
     else:
         # This UNWIND is only necessary for node_property = _source. It 'flattens' the list.

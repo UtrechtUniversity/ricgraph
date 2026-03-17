@@ -1564,11 +1564,11 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
                                         'PURE_PROJECT_TITLE': 'comment1',
                                         'PURE_PROJECT_PARTICIPANT_UUID': 'value2'}, inplace=True)
     new_project_columns = {'name1': 'PURE_ID_PROJECT',
-                           'category1': 'project',
+                           'category1': rcg.PROJECT_CATEGORY_PROJECT,
                            'source_event1': HARVEST_SOURCE,
                            'history_event1': history_event,
                            'name2': 'PURE_ID_PERS',
-                           'category2': 'person',
+                           'category2': rcg.PERSON_CATEGORY_PERSON,
                            'source_event2': HARVEST_SOURCE}
     project_identifiers = project_identifiers.assign(**new_project_columns)
     project_identifiers = project_identifiers[['name1', 'category1', 'value1',
@@ -1642,9 +1642,9 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
         projorgnodes.rename(columns={'PURE_ID_PROJECT': 'value1',
                                      'ORG_NAME_FULL': 'value2'}, inplace=True)
         new_projorgnodes_columns = {'name1': 'PURE_ID_PROJECT',
-                                    'category1': 'project',
+                                    'category1': rcg.PROJECT_CATEGORY_PROJECT,
                                     'name2': 'ORGANIZATION_NAME',
-                                    'category2': 'organization'}
+                                    'category2': rcg.ORGANIZATION_CATEGORY_ORGANISATION}
         projorgnodes = projorgnodes.assign(**new_projorgnodes_columns)
         projorgnodes = projorgnodes[['name1', 'category1', 'value1',
                                      'name2', 'category2', 'value2']]
@@ -1672,7 +1672,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
                                         'PURE_PROJECT_RESOUT_CATEGORY': 'category2',
                                         'PURE_PROJECT_RESOUT_VALUE': 'value2'}, inplace=True)
     new_project_columns = {'name1': 'PURE_ID_PROJECT',
-                           'category1': 'project',
+                           'category1': rcg.PROJECT_CATEGORY_PROJECT,
                            'source_event2': HARVEST_SOURCE}
     project_identifiers = project_identifiers.assign(**new_project_columns)
     project_identifiers = project_identifiers[['name1', 'category1', 'value1',
@@ -1697,9 +1697,9 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
         project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
                                             'PURE_PROJECT_RELATEDPROJECT_UUID': 'value2'}, inplace=True)
         new_project_columns = {'name1': 'PURE_ID_PROJECT',
-                               'category1': 'project',
+                               'category1': rcg.PROJECT_CATEGORY_PROJECT,
                                'name2': 'PURE_ID_PROJECT',
-                               'category2': 'project',
+                               'category2': rcg.PROJECT_CATEGORY_PROJECT,
                                'source_event2': HARVEST_SOURCE}
         project_identifiers = project_identifiers.assign(**new_project_columns)
         project_identifiers = project_identifiers[['name1', 'category1', 'value1',

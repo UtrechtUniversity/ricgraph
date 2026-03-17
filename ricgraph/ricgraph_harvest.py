@@ -46,13 +46,15 @@
 from numpy import nan
 from pandas import DataFrame
 from requests import get, post, codes, Response
-from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
-                       update_nodes_df)
+from .ricgraph_constants import (A_LARGE_NUMBER,
+                                 PERSON_CATEGORY_PERSON,
+                                 COMPETENCE_CATEGORY_COMPETENCE,
+                                 ORGANIZATION_CATEGORY_ORGANISATION)
 from .ricgraph_file import write_read_json_file
 from .ricgraph_utils import (timestamp, datetimestamp, timestamp_posix,
                              print_records_per_minute, print_progress)
-from .ricgraph_constants import A_LARGE_NUMBER
-
+from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
+                       update_nodes_df)
 
 
 def harvest_json_error(response: Response) -> None:
@@ -318,7 +320,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     new_entities_columns = {'source_event1': harvest_source,
                             'history_event1': history_event,
                             'name2': personal_id_name,
-                            'category2': 'person',
+                            'category2': PERSON_CATEGORY_PERSON,
                             'history_event2': history_event}
     entities = entities.assign(**new_entities_columns)
 
@@ -351,7 +353,8 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
 
 
 def create_parsed_dois_in_ricgraph(resouts: DataFrame,
-                                   harvest_source: str) -> None:
+                                   harvest_source: str,
+                                   what: str = 'research results') -> None:
     """Insert the parsed research results in Ricgraph.
 
     :param resouts: The records to insert in Ricgraph, if not present yet.
@@ -369,6 +372,7 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
           If URL_MAIN is not present, note that the URL to the
           DOI will be added automatically.
     :param harvest_source: The source system we harvest from.
+    :param what: Text to show to the user and in '_source'
     :return: None.
     """
     if 'DOI' not in resouts.columns:
@@ -378,7 +382,7 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
     resouts.insert(loc=1, column='NAME', value='DOI')
     create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                harvest_source=harvest_source,
-                                               what='research results')
+                                               what=what)
     return
 
 
@@ -407,9 +411,9 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
     entities.insert(loc=1, column='NAME', value=entity_name)
 
     if entity_name in ['ORGANIZATION_NAME']:
-        entities['CATEGORY'] = 'organization'
+        entities['CATEGORY'] = ORGANIZATION_CATEGORY_ORGANISATION
     elif entity_name in ['EXPERTISE_AREA', 'RESEARCH_AREA', 'SKILL']:
-        entities['CATEGORY'] = 'competence'
+        entities['CATEGORY'] = COMPETENCE_CATEGORY_COMPETENCE
         if len(entities.columns) != 5:
             # Note that we have entered this function with a DataFrame
             # containing 3 columns, but we have inserted a 4th column at
@@ -419,7 +423,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
         url_name = entities.columns[3]
         entities.rename(columns={url_name: 'URL_MAIN'}, inplace=True)
     elif entity_name in ['UUSTAFF_PAGEID', 'FULL_NAME']:
-        entities['CATEGORY'] = 'person'
+        entities['CATEGORY'] = PERSON_CATEGORY_PERSON
     else:
         print('create_parsed_entities_in_ricgraph(): Error, unknown column "'
               + entity_name + '".')
@@ -456,9 +460,9 @@ def update_urls_in_ricgraph(entities: DataFrame,
 
     entity_name = entities.columns[0]
     if entity_name in ['PURE_ID_PERS', 'UUSTAFF_PAGEID', 'PHOTO_ID']:
-        entities['category'] = 'person'
+        entities['category'] = PERSON_CATEGORY_PERSON
     elif entity_name in ['ORGANIZATION_NAME']:
-        entities['category'] = 'organization'
+        entities['category'] = ORGANIZATION_CATEGORY_ORGANISATION
     else:
         print('update_urls_in_ricgraph(): Error, unknown column "'
               + entity_name + '".')
@@ -517,9 +521,9 @@ def create_parsed_rors_in_ricgraph(organizations: DataFrame,
     organizations.rename(columns={'ORGANIZATION_NAME': 'value1',
                                   'ROR': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'ORGANIZATION_NAME',
-                                'category1': 'organization',
+                                'category1': ORGANIZATION_CATEGORY_ORGANISATION,
                                 'name2': 'ROR',
-                                'category2': 'organization',
+                                'category2': ORGANIZATION_CATEGORY_ORGANISATION,
                                 'source_event2': harvest_source,
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)

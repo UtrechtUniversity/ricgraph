@@ -49,7 +49,10 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       HTTP_RESPONSE_NOTHING_FOUND, HTTP_RESPONSE_INVALID_SEARCH,
                       read_all_nodes, get_all_neighbor_nodes,
                       get_personroot_node, get_all_personroot_nodes,
-                      convert_nodes_to_list_of_dict)
+                      convert_nodes_to_list_of_dict,
+                      PERSON_CATEGORY_PERSON,
+                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      COMPETENCE_CATEGORY_COMPETENCE)
 from ricgraph_explorer_constants import (html_preamble,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
@@ -173,7 +176,9 @@ def api_person_share_researchresults(key: str = '',
 
     connected_persons = \
         find_person_share_resouts_cypher(parent_node=nodes[0],
-                                         category_dontwant_list=['person', 'competence', 'organization'],
+                                         category_dontwant_list=[PERSON_CATEGORY_PERSON,
+                                                                 ORGANIZATION_CATEGORY_ORGANISATION,
+                                                                 COMPETENCE_CATEGORY_COMPETENCE],
                                          max_nr_items=max_nr_items)
     if len(connected_persons) == 0:
         message = 'Could not find persons that share any share research result types '
@@ -359,7 +364,7 @@ def api_search_organization(value: str = '',
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
-                                          category_restriction='organization',
+                                          category_restriction=ORGANIZATION_CATEGORY_ORGANISATION,
                                           max_nr_items=max_nr_items)
     return response, status
 
@@ -498,7 +503,7 @@ def api_search_competence(value: str = '',
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
-                                          category_restriction='competence',
+                                          category_restriction=COMPETENCE_CATEGORY_COMPETENCE,
                                           max_nr_items=max_nr_items)
     return response, status
 

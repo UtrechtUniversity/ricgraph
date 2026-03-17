@@ -45,7 +45,8 @@ from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
                       RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
                       RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
-                      RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL)
+                      RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
+                      ORGANIZATION_CATEGORY_ORGANISATION)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          DISCOVERER_MODE_ALL,
                                          MAX_ROWS_IN_TABLE,
@@ -97,7 +98,7 @@ def oslpage() -> str:
     html += create_html_form(destination='searchpage',
                              button_text='get an open science profile for a (sub-)organization',
                              hidden_fields={'search_mode': 'value_search',
-                                            'category': 'organization',
+                                            'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             'origin': ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON
                                             })
     html += get_html_for_cardend()

@@ -102,6 +102,7 @@ from numpy import nan
 from pandas import DataFrame, concat, set_option
 from typing import Union
 
+from .ricgraph_constants import PERSON_CATEGORY_PERSON
 from .ricgraph_utils import (timestamp, timestamp_posix,
                              print_records_per_minute,
                              print_progress)
@@ -343,9 +344,9 @@ def unify_personal_identifiers(personal_identifiers: DataFrame,
             identifiers.rename(columns={column1: 'value1',
                                         column2: 'value2'}, inplace=True)
             new_identifiers_columns = {'name1': column1,
-                                       'category1': 'person',
+                                       'category1': PERSON_CATEGORY_PERSON,
                                        'name2': column2,
-                                       'category2': 'person',
+                                       'category2': PERSON_CATEGORY_PERSON,
                                        'source_event1': source_event,
                                        'history_event1': history_event,
                                        'source_event2': source_event,

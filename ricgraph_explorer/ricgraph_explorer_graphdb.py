@@ -64,7 +64,11 @@ from flask import url_for
 from urllib.parse import urlencode
 from ricgraph import (get_personroot_node,
                       get_all_neighbor_nodes, read_all_nodes,
-                      create_multidimensional_dict)
+                      create_multidimensional_dict,
+                      PERSON_CATEGORY_PERSON,
+                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      COMPETENCE_CATEGORY_COMPETENCE,
+                      PERSON_NAME_PERSON_ROOT)
 from ricgraph_explorer_constants import (MAX_NR_NODES_TO_ENRICH,
                                          RESEARCH_OUTPUT_COLUMNS, DETAIL_COLUMNS)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
@@ -101,7 +105,7 @@ def find_person_share_resouts(parent_node: Node,
         category_dontwant_list = []
 
     html = ''
-    if parent_node['category'] != 'person':
+    if parent_node['category'] != PERSON_CATEGORY_PERSON:
         message = 'Unexpected result in find_person_share_resouts(): '
         message += 'You have not passed an "person" node, but a "' + parent_node['category']
         message += '" node.'
@@ -176,7 +180,7 @@ def find_enrich_candidates_one_person(personroot: Node,
 
     person_nodes = []
     for node_source in nodes_in_source_system:
-        if node_source['category'] == 'person':
+        if node_source['category'] == PERSON_CATEGORY_PERSON:
             person_nodes.append(node_source)
 
     return person_nodes, nodes_not_in_source_system
@@ -213,7 +217,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
 
     html = ''
     if parent_node is None:
-        personroot_list = read_all_nodes(name='person-root',
+        personroot_list = read_all_nodes(name=PERSON_NAME_PERSON_ROOT,
                                          max_nr_nodes=int(extra_url_parameters['max_nr_items']))
         personroot_node = None
         message = 'You have chosen to enrich <em>all</em> nodes in Ricgraph for source system "'
@@ -340,7 +344,7 @@ def find_person_organization_collaborations(parent_node: Node,
         extra_url_parameters = {}
 
     html = ''
-    if parent_node['category'] != 'person':
+    if parent_node['category'] != PERSON_CATEGORY_PERSON:
         message = 'Unexpected result in find_person_organization_collaborations(): '
         message += 'You have not passed an "person" node, but a "' + parent_node['category']
         message += '" node.'
@@ -408,7 +412,7 @@ def find_organization_additional_info(parent_node: Node,
         message += 'This organization cannot be found in Ricgraph.'
         return get_message(message=message)
 
-    if parent_node['category'] != 'organization':
+    if parent_node['category'] != ORGANIZATION_CATEGORY_ORGANISATION:
         message = 'Unexpected result in find_organization_additional_info(): '
         message += 'You have not passed an "organization" node, but a "' + parent_node['category']
         message += '" node. '
@@ -449,7 +453,7 @@ def find_organization_additional_info(parent_node: Node,
     expertise_area_list = []
     research_area_list = []
     skill_list = []
-    if 'competence' in category_list:
+    if COMPETENCE_CATEGORY_COMPETENCE in category_list:
         we_have_competence = True
     else:
         we_have_competence = False
@@ -581,7 +585,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             return get_message(message=message)
 
         parent_node = nodes[0]
-        if parent_node['category'] == 'person':
+        if parent_node['category'] == PERSON_CATEGORY_PERSON:
             personroot = get_personroot_node(node=parent_node)
             if personroot is None:
                 message = 'Ricgraph Explorer found no "person-root" '
@@ -867,7 +871,7 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
             return get_message(message=message)
 
         node = result[0]
-        if node['category'] == 'person':
+        if node['category'] == PERSON_CATEGORY_PERSON:
             personroot = get_personroot_node(node)
             if personroot is None:
                 message = 'Unexpected result in find_overlap_in_source_systems_records(): '

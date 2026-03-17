@@ -90,7 +90,20 @@ MAX_ORG_ABBREVIATION_LENGTH = 4
 # ########################################################################
 
 # ########################################################################
-# Research result types used in Ricgraph.
+# The naming scheme is:
+# general group name_property name in Ricgraph nodes_name of entity.
+# 'General group name': e.g. RESEARCHRESULT, PERSON, ORGANIZATION.
+# 'Property name in Ricgraph nodes': now either CATEGORY or VALUE,
+# corresponding to the 'name' and 'category' fields in a node.
+# 'Name of entity': e.g. JOURNAL_ARTICLE, PERSON, ORGANIZATION.
+# This may lead to what seem to be silly names (PERSON_CATEGORY_PERSON),
+# but this scheme has been chosen because it is extendable and compares
+# favorably with items in the RESEARCHRESULTs group
+# (RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE).
+# ########################################################################
+
+# ########################################################################
+# Research result types used in Ricgraph (category property).
 # In Ricgraph, we use the general wording "research result" for anything
 # that may be in any way the result of some research activity, direct
 # or indirect.
@@ -154,7 +167,7 @@ RESEARCHRESULT_CATEGORY_WEBSITE = 'website or web publication'
 
 # ########################################################################
 # This is a special research result type allowing to select all publication
-# types.
+# types (category property).
 RESEARCHRESULT_CATEGORY_PUBLICATION_ALL = 'publication_all'
 
 
@@ -228,7 +241,8 @@ RESEARCHRESULT_CATEGORY_PUBLICATION = \
 
 
 # ########################################################################
-# Research result types related to open science monitoring.
+# Research result types related to open science monitoring (category property).
+# ########################################################################
 RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL = \
     [RESEARCHRESULT_CATEGORY_DATASET,
      RESEARCHRESULT_CATEGORY_SOFTWARE]
@@ -267,7 +281,7 @@ RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL = \
 
 
 # ########################################################################
-# Organization related constants.
+# Organization related constants (category property).
 # ########################################################################
 ORGANIZATION_CATEGORY_ORGANISATION = 'organization'
 ORGANIZATION_CATEGORY_ALL = \
@@ -275,7 +289,7 @@ ORGANIZATION_CATEGORY_ALL = \
 
 
 # ########################################################################
-# Person related constants.
+# Person related constants (category property).
 # ########################################################################
 PERSON_CATEGORY_PERSON = 'person'
 PERSON_CATEGORY_ALL = \
@@ -283,7 +297,7 @@ PERSON_CATEGORY_ALL = \
 
 
 # ########################################################################
-# Competence related constants.
+# Competence related constants (category property).
 # ########################################################################
 COMPETENCE_CATEGORY_COMPETENCE= 'competence'
 COMPETENCE_CATEGORY_ALL = \
@@ -291,8 +305,15 @@ COMPETENCE_CATEGORY_ALL = \
 
 
 # ########################################################################
-# Project related constants.
+# Project related constants (category property).
 # ########################################################################
 PROJECT_CATEGORY_PROJECT = 'project'
 PROJECT_CATEGORY_ALL = \
     [PROJECT_CATEGORY_PROJECT]
+
+
+# ########################################################################
+# Person related constants (name property).
+# ########################################################################
+PERSON_NAME_PERSON_ROOT = 'person-root'
+

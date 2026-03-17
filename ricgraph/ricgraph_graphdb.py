@@ -44,7 +44,10 @@
 
 from typing import Union
 from neo4j.graph import Node
-from .ricgraph_constants import MAX_NR_HISTORYITEMS_TO_ADD, A_LARGE_NUMBER
+from .ricgraph_constants import (MAX_NR_HISTORYITEMS_TO_ADD,
+                                 A_LARGE_NUMBER,
+                                 PERSON_CATEGORY_PERSON,
+                                 PERSON_NAME_PERSON_ROOT)
 from .ricgraph_cypher import (cypher_create_node, cypher_read_node,
                               cypher_find_nodes, cypher_delete_node,
                               cypher_update_node_properties, cypher_create_edge_if_not_exists,
@@ -470,18 +473,20 @@ def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
         print('get_or_create_personroot_node(): Error: node is None.')
         return None
 
-    if person_node['category'] != 'person':
+    if person_node['category'] != PERSON_CATEGORY_PERSON:
         print('get_or_create_personroot_node(): node category is not person.')
         return None
 
-    if person_node['name'] == 'person-root':
+    if person_node['name'] == PERSON_NAME_PERSON_ROOT:
         return person_node
 
     personroot_nodes = get_all_personroot_nodes(node=person_node)
     if len(personroot_nodes) == 0:
         # Create the 'person-root' node with a unique value.
         value = create_unique_string()
-        personroot = create_update_node(name='person-root', category='person', value=value)
+        personroot = create_update_node(name=PERSON_NAME_PERSON_ROOT,
+                                        category=PERSON_CATEGORY_PERSON,
+                                        value=value)
         cypher_create_edge_if_not_exists(left_node_element_id=person_node.element_id,
                                          right_node_element_id=personroot.element_id)
         return personroot
@@ -510,11 +515,12 @@ def connect_person_and_non_person_node(person_node: Node,
         print('connect_persons_and_non_person_node(): Error: (one of the) nodes is None.')
         return
 
-    if person_node['category'] != 'person' or non_person_node['category'] == 'person':
+    if person_node['category'] != PERSON_CATEGORY_PERSON \
+       or non_person_node['category'] == PERSON_CATEGORY_PERSON:
         print('connect_person_and_non_person_node(): (one of the) nodes have wrong category.')
         return
 
-    if person_node['name'] == 'person-root':
+    if person_node['name'] == PERSON_NAME_PERSON_ROOT:
         personroot = person_node
     else:
         personroot = get_or_create_personroot_node(person_node=person_node)
@@ -636,7 +642,7 @@ def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, N
                                      node_merge_to_properties=node_merge_to_properties)
     if merged_node is None:
         return None
-    if merged_node['name'] == 'person-root':
+    if merged_node['name'] == PERSON_NAME_PERSON_ROOT:
         # Property 'comment' is also updated.
         recreate_name_cache_in_personroot(personroot=merged_node)
 
@@ -675,11 +681,13 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         print('connect_person_and_person_node(): (one of the) nodes is None.')
         return
 
-    if left_node['category'] != 'person' or right_node['category'] != 'person':
+    if left_node['category'] != PERSON_CATEGORY_PERSON \
+       or right_node['category'] != PERSON_CATEGORY_PERSON:
         print('connect_person_and_person_node(): (one of the) nodes have wrong category.')
         return
 
-    if left_node['name'] == 'person-root' or right_node['name'] == 'person-root':
+    if left_node['name'] == PERSON_NAME_PERSON_ROOT \
+       or right_node['name'] == PERSON_NAME_PERSON_ROOT:
         cypher_create_edge_if_not_exists(left_node_element_id=left_node.element_id,
                                          right_node_element_id=right_node.element_id)
         return
@@ -771,19 +779,23 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
     if left_node is None or right_node is None:
         return
 
-    if left_node['category'] != 'person' and right_node['category'] != 'person':
+    if left_node['category'] != PERSON_CATEGORY_PERSON \
+       and right_node['category'] != PERSON_CATEGORY_PERSON:
         # This is not a person to person link, link directly
         cypher_create_edge_if_not_exists(left_node_element_id=left_node.element_id,
                                          right_node_element_id=right_node.element_id)
         return
 
-    # At least one of the nodes is a 'person' link. These should be linked via their 'person-root' node.
-    if left_node['category'] == 'person' and right_node['category'] != 'person':
+    # At least one of the nodes is a 'person' link.
+    # These should be linked via their 'person-root' node.
+    if left_node['category'] == PERSON_CATEGORY_PERSON \
+       and right_node['category'] != PERSON_CATEGORY_PERSON:
         connect_person_and_non_person_node(person_node=left_node,
                                            non_person_node=right_node)
         return
 
-    if left_node['category'] != 'person' and right_node['category'] == 'person':
+    if left_node['category'] != PERSON_CATEGORY_PERSON \
+       and right_node['category'] == PERSON_CATEGORY_PERSON:
         connect_person_and_non_person_node(person_node=right_node,
                                            non_person_node=left_node)
         return
@@ -923,11 +935,11 @@ def get_all_personroot_nodes(node: Node) -> list:
     if node is None:
         return []
 
-    if node['name'] == 'person-root':
+    if node['name'] == PERSON_NAME_PERSON_ROOT:
         return [node]
 
     personroot_nodes = get_all_neighbor_nodes(node=node,
-                                              name_want='person-root')
+                                              name_want=PERSON_NAME_PERSON_ROOT)
     return personroot_nodes
 
 

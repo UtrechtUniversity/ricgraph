@@ -67,7 +67,8 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       get_personroot_node, get_all_neighbor_nodes,
                       ricgraph_database, ricgraph_databasename,
                       convert_cypher_recordslist_to_nodeslist,
-                      extract_organization_abbreviation)
+                      extract_organization_abbreviation,
+                      ORGANIZATION_CATEGORY_ORGANISATION)
 from ricgraph_explorer_constants import MAX_ITEMS
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 
@@ -197,7 +198,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
     # Get the organizations from 'parent_node'.
     personroot_node = get_personroot_node(node=parent_node)
     personroot_node_organizations = get_all_neighbor_nodes(node=personroot_node,
-                                                           category_want='organization')
+                                                           category_want=ORGANIZATION_CATEGORY_ORGANISATION)
     # Now get the organizations that 'parent_node' collaborates with, excluding
     # this person's own organizations. Note that the types of 'cypher_result'
     # and 'personroot_node_organizations' are not the same.

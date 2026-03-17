@@ -129,15 +129,15 @@ df_edges.dropna(axis=0, how='all', inplace=True)
 df_edges.drop_duplicates(keep='first', inplace=True, ignore_index=True)
 df_edges.fillna(value='', inplace=True)
 
-if df_nodes['name'].str.contains('person-root').any():
+if df_nodes['name'].str.contains(rcg.PERSON_NAME_PERSON_ROOT).any():
     # The first part creates a boolean Series indicating whether each cell
     # contains 'person-root'. '.any()' checks if any of those boolean values are True.
     print('Error: one or more of the nodes to import in file "' + filename_nodes
           + '" has name "person-root" which is not allowed, exiting.')
     exit(1)
 
-if df_edges['name_from'].str.contains('person-root').any() \
-        or df_edges['name_from'].str.contains('person-root').any():
+if df_edges['name_from'].str.contains(rcg.PERSON_NAME_PERSON_ROOT).any() \
+        or df_edges['name_from'].str.contains(rcg.PERSON_NAME_PERSON_ROOT).any():
     print('Error: one or more of the edges to import in file "' + filename_edges
           + '" has name "person-root" which is not allowed, exiting.')
     exit(1)

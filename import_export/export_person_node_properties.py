@@ -53,7 +53,7 @@ EXPORT_PROPERTIES = rcg.get_ricgraph_properties_standard() + ('_source',)
 print('\nPreparing graph...')
 graph = rcg.open_ricgraph()
 
-all_personroot_nodes = rcg.read_all_nodes(name='person-root')
+all_personroot_nodes = rcg.read_all_nodes(name=rcg.PERSON_NAME_PERSON_ROOT)
 if len(all_personroot_nodes) == 0:
     print('No person-root nodes found, exiting.')
     exit(0)
@@ -82,7 +82,8 @@ for personroot_node in all_personroot_nodes:
     if count % 2000 == 0:
         print('\n', end='', flush=True)
 
-    neighbors = rcg.get_all_neighbor_nodes(personroot_node, category_want='person')
+    neighbors = rcg.get_all_neighbor_nodes(personroot_node,
+                                           category_want=rcg.PERSON_CATEGORY_PERSON)
     if len(neighbors) == 0:
         continue
 
@@ -92,7 +93,7 @@ for personroot_node in all_personroot_nodes:
 
         line = {}
         for prop_node in export_properties:
-            line['person-root'] = str(personroot_node['value'])
+            line[rcg.PERSON_NAME_PERSON_ROOT] = str(personroot_node['value'])
             if prop_node == '_source':
                 line[prop_node] = ','.join([str(source) for source in node[prop_node]])
             else:

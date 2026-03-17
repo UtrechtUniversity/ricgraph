@@ -45,7 +45,8 @@ from flask import Blueprint, url_for
 from markupsafe import escape
 
 from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
-                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL)
+                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
+                      ORGANIZATION_CATEGORY_ORGANISATION)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          button_style, button_width,
                                          DISCOVERER_MODE_ALL,
@@ -122,7 +123,7 @@ def collabspage() -> str:
     html += get_html_for_cardstart()
     base_url = url_for(endpoint='searchpage') + '?'
     base_url += urlencode(query={'search_mode': 'value_search',
-                                 'category': 'organization'})
+                                 'category': ORGANIZATION_CATEGORY_ORGANISATION})
     form = '<form method="get" action="/collabsresultpage/">'
     form += '<label for="start_orgs">Type the name for <em>start organization</em> '
     form += '(or enter text that begins a (sub-)organization name):</label>'

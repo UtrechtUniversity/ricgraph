@@ -62,7 +62,11 @@ from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes,
                       RESEARCHRESULT_CATEGORY_PUBLICATION,
-                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL)
+                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
+                      PERSON_CATEGORY_PERSON,
+                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      COMPETENCE_CATEGORY_COMPETENCE,
+                      PERSON_NAME_PERSON_ROOT)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          page_footer_wsgi, page_footer_development,
                                          button_style, button_width,
@@ -195,18 +199,18 @@ def homepage() -> str:
                              button_text='search for a person',
                              hidden_fields={'search_mode': 'value_search',
                                             'name': 'FULL_NAME',
-                                            'category': 'person'
+                                            'category': PERSON_CATEGORY_PERSON
                                             })
     html += create_html_form(destination='searchpage',
                              button_text='search for a (sub-)organization',
                              hidden_fields={'search_mode': 'value_search',
-                                            'category': 'organization'
+                                            'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             })
-    if 'competence' in get_ricgraph_explorer_global(name='category_all'):
+    if COMPETENCE_CATEGORY_COMPETENCE in get_ricgraph_explorer_global(name='category_all'):
         html += create_html_form(destination='searchpage',
                                  button_text='search for a skill, expertise area or research area',
                                  hidden_fields={'search_mode': 'value_search',
-                                                'category': 'competence'
+                                                'category': COMPETENCE_CATEGORY_COMPETENCE,
                                                 })
     html += '</div>'
     html += '<p/>'
@@ -394,7 +398,7 @@ def searchpage() -> str:
     radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
     radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
     radio_person_tooltip += 'Also, tables have fewer columns to reduce information overload. '
-    if 'competence' in get_ricgraph_explorer_global(name='category_all'):
+    if COMPETENCE_CATEGORY_COMPETENCE in get_ricgraph_explorer_global(name='category_all'):
         radio_person_tooltip += 'This view has been tailored to the Utrecht University staff pages, since some '
         radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
         radio_person_tooltip += 'These will be presented in a different way using lists. '
@@ -713,12 +717,12 @@ def create_options_page(node: Node,
     html_options_page += get_found_message(node=node,
                                            discoverer_mode=discoverer_mode,
                                            extra_url_parameters=extra_url_parameters)
-    if node['category'] == 'organization':
+    if node['category'] == ORGANIZATION_CATEGORY_ORGANISATION:
         result_html = create_options_page_organization(node=node,
                                                        discoverer_mode=discoverer_mode,
                                                        extra_url_parameters=extra_url_parameters)
         return html_options_page + result_html
-    elif node['category'] == 'person':
+    elif node['category'] == PERSON_CATEGORY_PERSON:
         result_html = create_options_page_person(node=node,
                                                  discoverer_mode=discoverer_mode,
                                                  extra_url_parameters=extra_url_parameters)
@@ -765,7 +769,7 @@ def create_options_page_organization(node: Node,
                              button_text='show persons related to this organization',
                              hidden_fields={'key': key,
                                             'discoverer_mode': discoverer_mode,
-                                            'name_list': 'person-root',
+                                            'name_list': PERSON_NAME_PERSON_ROOT,
                                             'view_mode': 'view_regular_table_persons_of_org'
                                             } | extra_url_parameters)
     html += '<p/>'
@@ -801,12 +805,12 @@ def create_options_page_organization(node: Node,
                                             } | extra_url_parameters)
     html += '<p/>'
 
-    if 'competence' in category_all:
+    if COMPETENCE_CATEGORY_COMPETENCE in category_all:
         html += create_html_form(destination='resultspage',
                                  button_text='find skills from all persons in this organization',
                                  hidden_fields={'key': key,
                                                 'discoverer_mode': discoverer_mode,
-                                                'category_list': 'competence',
+                                                'category_list': COMPETENCE_CATEGORY_COMPETENCE,
                                                 'view_mode': 'view_regular_table_organization_addinfo'
                                                 } | extra_url_parameters)
         html += '<p/>'
@@ -875,7 +879,7 @@ def create_options_page_person(node: Node,
                              button_text='show personal information related to this person',
                              hidden_fields={'key': key,
                                             'discoverer_mode': discoverer_mode,
-                                            'category_list': 'person',
+                                            'category_list': PERSON_CATEGORY_PERSON,
                                             'view_mode': 'view_regular_table_personal'
                                             } | extra_url_parameters)
     html += '<p/>'
@@ -884,7 +888,7 @@ def create_options_page_person(node: Node,
                              button_text='show organizations related to this person',
                              hidden_fields={'key': key,
                                             'discoverer_mode': discoverer_mode,
-                                            'category_list': 'organization',
+                                            'category_list': ORGANIZATION_CATEGORY_ORGANISATION,
                                             'view_mode': 'view_regular_table_organizations'
                                             } | extra_url_parameters)
     html += '<p/>'
@@ -1216,7 +1220,9 @@ def create_results_page(view_mode: str,
         html += get_page_title(title='Persons that share research results with this person')
         html += find_person_share_resouts(parent_node=node,
                                           category_want_list=category_list,
-                                          category_dontwant_list=['person', 'competence', 'organization'],
+                                          category_dontwant_list=[PERSON_CATEGORY_PERSON,
+                                                                  ORGANIZATION_CATEGORY_ORGANISATION,
+                                                                  COMPETENCE_CATEGORY_COMPETENCE],
                                           discoverer_mode=discoverer_mode,
                                           extra_url_parameters=extra_url_parameters)
 

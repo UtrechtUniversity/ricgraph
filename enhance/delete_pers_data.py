@@ -107,7 +107,7 @@ for prop in rcg.get_ricgraph_properties_standard():
         print('Exiting.\n')
         exit(1)
 
-if personal_ids['name'].str.contains('person-root').any():
+if personal_ids['name'].str.contains(rcg.PERSON_NAME_PERSON_ROOT).any():
     # The first part creates a boolean Series indicating whether each cell
     # contains 'person-root'. '.any()' checks if any of those boolean values are True.
     print('Error: At least one of the personal ids to be deleted is identified by')
@@ -135,7 +135,8 @@ for personal_id in personal_ids.itertuples():
 
     print('  Found. Its "person-root" node is [' + personroot['name'] + ', ' + personroot['value'] + '].')
     print('  Deleting neighbors of this "person-root" node containing personal data:')
-    neighbors = rcg.get_all_neighbor_nodes(node=personroot, category_want='person')
+    neighbors = rcg.get_all_neighbor_nodes(node=personroot,
+                                           category_want=rcg.PERSON_CATEGORY_PERSON)
 
     for neighbor in neighbors:
         rcg.delete_node(node=neighbor)

@@ -50,6 +50,8 @@ from ricgraph import (open_ricgraph, read_all_values_of_property,
                       RESEARCHRESULT_CATEGORY_ALL,
                       RESEARCHRESULT_CATEGORY_PUBLICATION,
                       RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
+                      PERSON_CATEGORY_PERSON,
+                      COMPETENCE_CATEGORY_COMPETENCE,
                       get_ricgraph_ini_file,
                       get_configfile_key,
                       get_configfile_key_organizations_with_hierarchies)
@@ -223,10 +225,10 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     name_all_datalist += '</datalist>'
     set_ricgraph_explorer_global(name='name_all_datalist', value=name_all_datalist)
 
-    if 'competence' in category_all:
-        personal_types_all = ['competence', 'person']
+    if COMPETENCE_CATEGORY_COMPETENCE in category_all:
+        personal_types_all = [PERSON_CATEGORY_PERSON, COMPETENCE_CATEGORY_COMPETENCE]
     else:
-        personal_types_all = ['person']
+        personal_types_all = [PERSON_CATEGORY_PERSON]
     set_ricgraph_explorer_global(name='personal_types_all', value=personal_types_all)
 
     remainder_types_all = []
