@@ -161,6 +161,7 @@ PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_PERSONS_FIELDS = {'fields': ['uuid',
+                                  'visibility.*',
                                   'name.*',
                                   'ids.*',
                                   'staffOrganisationAssociations.period.*',
@@ -209,6 +210,7 @@ PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.json'
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
+                                        'visibility.*',
                                         'period.*',
                                         'name.*',
                                         'type.*',
@@ -660,6 +662,10 @@ def parse_pure_persons(harvest: list,
                       'PURE_URL_PERS': create_pure_url(name='PURE_ID_PERS',
                                                        value=pers_uuid)}
         parse_chunk.append(parse_line)
+        if rcg.json_item_get_str(json_item=harvest_item,
+                                 json_path='visibility.key') != 'FREE':
+            # Skip the non-visible ones (i.e. the ones restricted to backend or campus).
+            continue
         if (lastname := rcg.json_item_get_str(json_item=harvest_item,
                                               json_path='name.lastName')) != '':
             parse_line = {'PURE_ID_PERS': pers_uuid,
@@ -786,6 +792,11 @@ def parse_pure_organizations(harvest: list,
         if (org_uuid := rcg.json_item_get_str(json_item=harvest_item,
                                               json_path='uuid')) == '':
             # There must be an uuid, otherwise skip.
+            continue
+        # #####
+        if rcg.json_item_get_str(json_item=harvest_item,
+                                 json_path='visibility.key') != 'FREE':
+            # Skip the non-visible ones (i.e. the ones restricted to backend or campus).
             continue
         # #####
         # Only consider current organizations, that is an organization
