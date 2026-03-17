@@ -529,12 +529,13 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     for identifier in existing_cols:
         datasets = parsed_content[[identifier, 'DOI', 'TITLE', 'YEAR', 'CATEGORY']].copy(deep=True)
         rcg.create_parsed_dois_in_ricgraph(resouts=datasets,
-                                           harvest_source=HARVEST_SOURCE)
+                                           harvest_source=HARVEST_SOURCE,
+                                           what='DOIs and ' + identifier + 's')
 
         organizations = parsed_content[[identifier, 'ORGANIZATION_NAME']].copy(deep=True)
         rcg.create_parsed_entities_in_ricgraph(entities=organizations,
                                                harvest_source=HARVEST_SOURCE,
-                                               what='organizations')
+                                               what='organizations and ' + identifier + 's')
     return
 
 
