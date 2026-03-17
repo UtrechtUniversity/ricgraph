@@ -553,9 +553,11 @@ def cypher_find_nodes(name: str, category: str, value: str,
     cypher_query = 'MATCH (node:RicgraphNode) WHERE '
     if name != '':
         if name_is_exact_match:
+            # Exact match search.
             cypher_query += '(node.name=$node_name) AND '
         else:
-            cypher_query += '(toLower(node.name) CONTAINS toLower($node_name)) AND '
+            # Case-insensitive search, the toLower() is inefficient.
+            cypher_query += '(toLower(node.name) CONTAINS $node_name_lowercase) AND '
     if category != '':
         cypher_query += '(node.category=$node_category) AND '
     if value != '':
@@ -564,8 +566,8 @@ def cypher_find_nodes(name: str, category: str, value: str,
             # Exact match search.
             cypher_query += '(node.value=$node_value) AND '
         else:
-            # Case-insensitive search.
-            cypher_query += '(toLower(node.value) CONTAINS toLower($node_value)) AND '
+            # Case-insensitive search, the toLower() is inefficient.
+            cypher_query += '(toLower(node.value) CONTAINS $node_value_lowercase) AND '
 
     # Remove last 'AND ', is of length -4.
     cypher_query = cypher_query[:-4]
@@ -577,8 +579,10 @@ def cypher_find_nodes(name: str, category: str, value: str,
 
     nodes = _graph.execute_query(cypher_query,
                                  node_name=name,
+                                 node_name_lowercase=name.lower(),
                                  node_category=category,
                                  node_value=value,
+                                 node_value_lowercase=value.lower(),
                                  max_nr_nodes=max_nr_nodes,
                                  result_transformer_=Result.value,
                                  database_=ricgraph_databasename())
