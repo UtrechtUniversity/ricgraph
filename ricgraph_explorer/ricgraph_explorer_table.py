@@ -815,6 +815,7 @@ def get_html_for_tablerow(node: Node,
             html += '<td>' + node['_history'] + '</td>'
         else:
             html += '<td><details><summary>Click for history</summary><ul>'
+            html += '<li>Node labels: ' + str(list(node.labels)) + '</li>'
             for history in node['_history']:
                 html += '<li>' + history + '</li>'
             html += '</ul></details></td>'

@@ -48,7 +48,8 @@ from typing import Union, Optional
 from neo4j import GraphDatabase, Driver, Result
 from neo4j.graph import Node
 from .ricgraph_constants import (A_LARGE_NUMBER,
-                                 PERSON_CATEGORY_PERSON)
+                                 PERSON_CATEGORY_PERSON,
+                                 NODELABELS_NAME, NODELABELS_CATEGORY)
 from .ricgraph_utils import (get_ricgraph_ini_file,
                              get_configfile_key_graphdb_parameters,
                              create_ricgraph_key, datetimestamp)
@@ -437,11 +438,23 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
         print('\ncypher_create_node(): Error: graph has not been initialized or opened.\n\n')
         return None
 
+    # Always assign this node label.
+    node_labels = 'RicgraphNode'
+    # And, depending on the 'name' or 'category' property, also other labels.
+    if 'name' in node_properties:
+        for item in NODELABELS_NAME:
+            if node_properties['name'] in item['namelist']:
+                node_labels += ':' + item['nodelabel_for_namelist']
+    if 'category' in node_properties:
+        for item in NODELABELS_CATEGORY:
+            if node_properties['category'] in item['categorylist']:
+                node_labels += ':' + item['nodelabel_for_categorylist']
+
     # There are several methods for creating a node in the graph database.
     # This would be an alternative, but it seems to use more memory than the
     # one used now, according to 'PROFILE <cypher query>'.
     # cypher_query = 'CREATE (node:RicgraphNode) SET node=$node_properties ' [etc.]
-    cypher_query = 'CREATE (node:RicgraphNode $node_properties) RETURN node'
+    cypher_query = 'CREATE (node:' + node_labels + ' $node_properties) RETURN node'
 
     # print('cypher_create_node(): cypher_query: ' + cypher_query)
     # print('                      node_properties: ' + str(node_properties))

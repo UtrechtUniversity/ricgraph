@@ -281,19 +281,19 @@ RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL = \
 
 
 # ########################################################################
+# Person related constants (category property).
+# ########################################################################
+PERSON_CATEGORY_PERSON = 'person'
+PERSON_CATEGORY_ALL = \
+ [PERSON_CATEGORY_PERSON]
+
+
+# ########################################################################
 # Organization related constants (category property).
 # ########################################################################
 ORGANIZATION_CATEGORY_ORGANISATION = 'organization'
 ORGANIZATION_CATEGORY_ALL = \
     [ORGANIZATION_CATEGORY_ORGANISATION]
-
-
-# ########################################################################
-# Person related constants (category property).
-# ########################################################################
-PERSON_CATEGORY_PERSON = 'person'
-PERSON_CATEGORY_ALL = \
-    [PERSON_CATEGORY_PERSON]
 
 
 # ########################################################################
@@ -316,4 +316,32 @@ PROJECT_CATEGORY_ALL = \
 # Person related constants (name property).
 # ########################################################################
 PERSON_NAME_PERSON_ROOT = 'person-root'
+PERSON_NAME_PERSON_ROOT_LIST = \
+    [PERSON_NAME_PERSON_ROOT]
+
+
+# ########################################################################
+# These lists are used to assign labels to nodes.
+# Using labels, Cypher queries can run faster.
+# Suppose node1-[]->node2. If node2 has a label, and the Cypher
+# query uses that label, only the links to the node2's of that label
+# are traversed, and not the links to node2's that have a different label.
+# In some cases, you might want to define an index on a node label.
+# The first list is related to node property 'name', the second
+# to node property 'category'.
+# ########################################################################
+NODELABELS_NAME = [{'namelist': PERSON_NAME_PERSON_ROOT_LIST,
+                    'nodelabel_for_namelist': 'RicgraphPersonRoot'}
+                   ]
+
+NODELABELS_CATEGORY = [{'categorylist': PERSON_CATEGORY_ALL,
+                        'nodelabel_for_categorylist': 'RicgraphPerson'},
+                       {'categorylist': ORGANIZATION_CATEGORY_ALL,
+                        'nodelabel_for_categorylist': 'RicgraphOrganization'},
+                       {'categorylist': RESEARCHRESULT_CATEGORY_ALL,
+                        'nodelabel_for_categorylist': 'RicgraphResearchResult'},
+                       {'categorylist': COMPETENCE_CATEGORY_ALL,
+                        'nodelabel_for_categorylist': 'RicgraphCompetence'}
+                       ]
+
 
