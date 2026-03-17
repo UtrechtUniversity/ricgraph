@@ -239,7 +239,7 @@ graphdb_port = 7687
 # You only need key and value for the organization(s) you are planning
 # to harvest.
 # Your URL to Pure portal (without quotes):
-pure_url_UU = 
+pure_url_UU =
 pure_url_UMCU =
 pure_url_DUT =
 pure_url_EUR =
@@ -253,7 +253,7 @@ pure_url_AUMC =
 # Add your own 'organization abbreviation' if it is not present. You only 
 # need key and value for the organization(s) you are planning to harvest.
 # Your Pure API key (without quotes):
-pure_api_key_UU = 
+pure_api_key_UU =
 pure_api_key_UMCU =
 pure_api_key_DUT =
 pure_api_key_EUR =
@@ -262,6 +262,22 @@ pure_api_key_UG =
 pure_api_key_VUA =
 pure_api_key_UA =
 pure_api_key_AUMC =
+#
+# This key indicates whether or not to use the Pure workflow
+# for research results. If it is 'True', empty, or absent,
+# only items with workflow status 'approved' or 'validated'
+# will be harvested. If it is 'False', items with any
+# workflow status except 'entryInProgress' will be
+# harvested.
+pure_use_workflow_rr_UU =
+pure_use_workflow_rr_UMCU =
+pure_use_workflow_rr_DUT =
+pure_use_workflow_rr_EUR =
+pure_use_workflow_rr_EUT =
+pure_use_workflow_rr_UG =
+pure_use_workflow_rr_VUA =
+pure_use_workflow_rr_UA =
+pure_use_workflow_rr_AUMC =
 # ###############################################################
 
 
@@ -315,7 +331,7 @@ rsd_organization_AUMC = amsterdam-university-medical-centers
 # With the following settings you will harvest Utrecht University 
 # staff pages.
 # The URL to the API of the UU staff pages (without quotes):
-uustaff_url = 
+uustaff_url =
 # ###############################################################
 
 
@@ -330,7 +346,7 @@ openalex_url = https://api.openalex.org
 # which offers faster and consistent response times, see
 # https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication#the-polite-pool
 # Your email address (without quotes):
-openalex_polite_pool_email = 
+openalex_polite_pool_email =
 #
 # For OpenAlex, you also need to set parameters in the
 # [Organization] section of this file.
@@ -343,13 +359,13 @@ openalex_polite_pool_email =
 # "Request an API key", https://dev.elsevier.com.
 # This key will only give you "on campus" access to the Elsevier API.
 # Your Scopus API key (without quotes):
-scopus_api_key = 
+scopus_api_key =
 #
 # If you need off campus access (e.g. from home), you'll need a
 # "Scopus Institutional Token". You can request this from Elsevier using the
 # email contact button on 
 # https://service.elsevier.com/app/home/supporthub/dataasaservice.
 # Your Scopus Institutional Token (without quotes):
-scopus_institutional_token = 
+scopus_institutional_token =
 # ###############################################################
 

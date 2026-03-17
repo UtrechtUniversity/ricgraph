@@ -133,6 +133,7 @@ PURE_HEADERS = {'Accept': 'application/json'
                 # 'api-key': PURE_API_KEY
                 }
 global PURE_URL
+global PURE_USE_WORKFLOW_RESEARCH_RESULTS
 global HARVEST_SOURCE
 global HARVEST_PROJECTS
 global resout_uuid_or_doi
@@ -244,6 +245,7 @@ global PURE_RESOUTS_FIELDS
 PURE_READ_RESOUTS_FIELDS = {'fields': ['uuid',
                                       'title.*',
                                       'confidential',
+                                      'visibility.*',
                                       'type.*',
                                       'workflow.*',
                                       'publicationStatuses.*',
@@ -275,9 +277,9 @@ PURE_DATASETS_HARVEST_FILENAME = 'pure_datasets_harvest.json'
 
 # Set this to True to read data from the csv file. No harvest will be done, this would
 # not make sense. If False, a harvest will be done.
-# If True, the value of PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE does not matter.
+# If True, the value of PURE_DATASETS_READ_HARVEST_FROM_FILE does not matter.
 PURE_DATASETS_READ_DATA_FROM_FILE = False
-# PURE_PRESS_MEDIA_READ_DATA_FROM_FILE = True
+# PURE_DATASETS_READ_DATA_FROM_FILE = True
 PURE_DATASETS_DATA_FILENAME = 'pure_datasets_data.csv'
 
 PURE_DATASETS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
@@ -286,6 +288,7 @@ PURE_DATASETS_FIELDS = {'fields': ['uuid',
                                    'doi',
                                    'publicationDate.*',
                                    'confidential',
+                                   'visibility.*',
                                    'title.*',
                                    'type.*',
                                    'workflow.*',
@@ -321,6 +324,7 @@ PURE_PRESS_MEDIA_FIELDS = {'fields': ['uuid',
                                       'title.*',
                                       'type.*',
                                       'confidential',
+                                      'visibility.*',
                                       'workflow.*',
                                       'references.*',
                                       'personAssociations.*'
@@ -703,27 +707,17 @@ def parse_pure_persons(harvest: list,
                     # We use the Pure CRUD API.
                     if end_year < PURE_PERSONS_LOWEST_YEAR:
                         continue
-                # Add all other organizations, because some organizations
-                # use an endDate in the future (instead of no endDate)
-                # for persons employed.
-            if (org_uuid := rcg.json_item_get_str(json_item=stafforg,
-                                                  json_path='organisationalUnit.uuid')) != '':
-                # Field in Pure READ API.
-                if (org_uri := rcg.json_item_get_str(json_item=stafforg,
-                                                     json_path='organisationalUnit.type.uri')) != '':
-                    if org_uri[-3] == 'r':
-                        # Skip research organizations (with an 'r' in the uri, like ..../r05)
-                        continue
-            elif (org_uuid := rcg.json_item_get_str(json_item=stafforg,
-                                                    json_path='organisation.uuid')) != '':
-                # Field in Pure CRUD API, where we don't have 'type'.
-                pass
-            else:
+                # Add all persons from other organizations, because some
+                # organizations use an endDate in the future (instead of
+                # no endDate) for persons employed.
+            if (org_uuid := json_item_get_str_pure(json_item=stafforg,
+                                                   json_path_read='organisationalUnit.uuid',
+                                                   json_path_crud='organisation.uuid')) == '':
+                # There is no organization, skip.
                 continue
-
             if org_uuid not in org_uuids_to_org_names:
                 continue
-            # Note that this 'for' may result in a lot of entries.
+            # Note that the following 'for' may result in a lot of entries.
             # Imagine that this person works for the same organization
             # multiple times. Then the full hierarchy will be inserted
             # in parse_chunk multiple times. This will be cleaned up later.
@@ -800,22 +794,18 @@ def parse_pure_organizations(harvest: list,
                                   json_path_read='period.endDate',
                                   json_path_crud='lifecycle.endDate') != '':
             continue
-        if (org_uri := rcg.json_item_get_str(json_item=harvest_item,
-                                             json_path='type.uri')) != '':
-            if org_uri[-3] == 'r':
-                # Skip research organizations (with an 'r' in the uri, like ..../r05)
-                continue
-        else:
-            # If there is no organization type skip
+        if rcg.json_item_get_str(json_item=harvest_item,
+                                 json_path='type.uri') == '':
+            # If there is no organization type skip.
             continue
         # #####
         if len(rcg.json_item_get_dict(json_item=harvest_item,
                                       json_path='name')) == 0:
-            # If there is no name dict skip
+            # If there is no name dict skip.
             continue
         # #####
-        # Skip the organization ids. There are only a few, and it
-        # seems to complicated to implement for now (we will need
+        # Skip the organization ids. It seems
+        # complicated to implement for now (we will need
         # something like 'organization-root' aka 'person-root').
         org_type_name = json_item_get_str_pure(json_item=harvest_item,
                                                json_path_read='type.term.text.0.value',
@@ -840,18 +830,11 @@ def parse_pure_organizations(harvest: list,
                                                         json_path='uuid')) == '':
                 # There must be an uuid, otherwise skip.
                 continue
-            # Note: 'parents' does not have a 'period', so we don't need to do something.
-            if (parentorg_uri := rcg.json_item_get_str(json_item=parentorg,
-                                                        json_path='type.uri')) != '':
-                # Field in Pure READ API.
-                if parentorg_uri[-3] == 'r':
-                    # Skip research organizations (with an 'r' in the uri, like ..../r05)
-                    continue
-            elif (rcg.json_item_get_str(json_item=parentorg,
-                                        json_path='systemName')) != '':
-                # Field in Pure CRUD API.
-                pass
-            else:
+            # Note: 'parents' does not have a 'period', so we cannot test for it.
+            if json_item_get_str_pure(json_item=parentorg,
+                                      json_path_read='type.uri',
+                                      json_path_crud='systemName') == '':
+                # There must be an organization type.
                 continue
             org_uuid_to_parentuuid[org_uuid] = parentorg_uuid
 
@@ -926,6 +909,7 @@ def parse_pure_entities(harvest: list,
                                                  json_path='uuid')) == '':
             # There must be an uuid, otherwise skip.
             continue
+        # The title is in different fields, depending on 'mode'.
         if (title := rcg.json_item_get_str(json_item=harvest_item,
                                            json_path='title.value')) != '':
             pass
@@ -939,6 +923,10 @@ def parse_pure_entities(harvest: list,
                                   json_path='confidential'):
             # Skip the confidential ones. Assume non-confidential if not present.
             continue
+        if rcg.json_item_get_str(json_item=harvest_item,
+                                 json_path='visibility.key') != 'FREE':
+            # Skip the non-visible ones (i.e. the ones restricted to backend or campus).
+            continue
         if (category := rcg.json_item_get_str(json_item=harvest_item,
                                               json_path='type.uri')) == '':
             # There must be a type (category) of this resout, otherwise skip.
@@ -946,13 +934,14 @@ def parse_pure_entities(harvest: list,
         # #####
         if (workflow_step := json_item_get_str_pure(json_item=harvest_item,
                                                     json_path_read='workflow.workflowStep',
-                                                    json_path_crud='workflow.step')) != '':
+                                                    json_path_crud='workflow.step')) == 'entryInProgress':
+            # Never include workflow status 'entryInProgress'.
+            continue
+        if PURE_USE_WORKFLOW_RESEARCH_RESULTS == 'True':
             if workflow_step != 'validated' and workflow_step != 'approved':
-                # Only 'validated' or 'approved' resouts.
+                # Only 'validated' or 'approved' research results.
                 continue
-        else:
-            # Also include if no workflow.
-            pass
+        # Note that if workflow == '' (i.e. no workflow), we include this item in the harvest.
         # #####
         publication_year = ''
         if mode == MODE_RESOUTS:
@@ -1750,12 +1739,19 @@ else:
 
 pure_url = 'pure_url_' + organization
 pure_api_key = 'pure_api_key_' + organization
+pure_use_workflow_research_results = 'pure_use_workflow_rr_' + organization
 PURE_URL = rcg.get_configfile_key(section='Pure_harvesting', key=pure_url)
 PURE_API_KEY = rcg.get_configfile_key(section='Pure_harvesting', key=pure_api_key)
+PURE_USE_WORKFLOW_RESEARCH_RESULTS = rcg.get_configfile_key(section='Pure_harvesting',
+                                                            key=pure_use_workflow_research_results)
 if PURE_URL == '' or PURE_API_KEY == '':
     print('Ricgraph initialization: error, "' + pure_url + '" or "' + pure_api_key + '"')
     print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
+# Only if this key is 'False', we ignore the workflow status for
+# research results (status 'entryInProgress' will never be harvested).
+if PURE_USE_WORKFLOW_RESEARCH_RESULTS != 'False':
+    PURE_USE_WORKFLOW_RESEARCH_RESULTS = 'True'
 
 PURE_HEADERS['api-key'] = PURE_API_KEY
 
@@ -1997,6 +1993,7 @@ org_and_all_parents = {}
 
 # ########################################################################
 # Code for harvesting projects.
+# Should be rewritten. Probably using parse_pure_entities() will work better.
 if HARVEST_PROJECTS:
     if PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('\nPure is harvested using the Pure CRUD API.')
