@@ -191,44 +191,20 @@ def ricgraph_databasename() -> str:
     return _GRAPHDB_DATABASENAME
 
 
-def empty_ricgraph(answer: str = '') -> None:
-    """Empty Ricgraph and create new indexes. Side effect: indexes are deleted and created.
+def ricgraph_create_indexes() -> None:
+    """Create indexes for Ricgraph. Indexes are deleted and created.
 
-    :param answer: prefilled answer whether the user wants to empty Ricgraph.
-      'yes': Ricgraph will be emptied, no questions asked;
-      'no': Ricgraph will not be emptied, no questions asked;
-      any other answer: the user will be asked whether to empty Ricgraph.
     :return: None.
     """
     global _graph
 
     if _graph is None:
-        print('\nempty_ricgraph(): Error: graph has not been initialized or opened, cannot empty it.')
+        print('\nricgraph_create_indexes(): Error: graph has not been initialized or opened, cannot empty it.')
         print('Exiting.')
         exit(1)
 
-    if answer != 'yes' and answer != 'no':
-        print('empty_ricgraph(): invalid answer "' + answer + '" on the question')
-        print('to empty Ricgraph, exiting.')
-        exit(1)
-
-    if answer == 'no':
-        print('empty_ricgraph(): Ricgraph will not be emptied.\n')
-        return
-
-    print('empty_ricgraph(): Ricgraph will be emptied at ' + datetimestamp() + '.\n')
     graphdb_name = ricgraph_database()
     graphdb_databasename = ricgraph_databasename()
-
-    # Delete the database and start over again.
-    # Sometimes the following statement fails with Neo4j Desktop graph database backend
-    # if there are many nodes, see e.g.
-    # https://stackoverflow.com/questions/23310114/how-to-reset-clear-delete-neo4j-database.
-    # Apparently, the community edition of Neo4j does not have a
-    # "CREATE OR REPLACE DATABASE customers" command.
-    print('Deleting all nodes and edges in Ricgraph...\n')
-    _graph.execute_query('MATCH (node) DETACH DELETE node', database_=graphdb_databasename)
-
     if graphdb_name == 'neo4j':
         # Do not use TEXT indexes, use RANGE indexes, these are much faster during harvesting
         # (but they do not support a CONTAINS substring search which is being used for a broad search
@@ -236,24 +212,28 @@ def empty_ricgraph(answer: str = '') -> None:
         # https://neo4j.com/docs/cypher-manual/current/indexes/search-performance-indexes/managing-indexes
         # [Jan. 2023] The graph database backend Neo4j can have at most 3 indexes.
         # [June 5, 2024] This is not true anymore. I use 4 indexes.
-        _graph.execute_query('DROP INDEX KeyIndex IF EXISTS', database_=graphdb_databasename)
-        _graph.execute_query('DROP INDEX NameIndex IF EXISTS', database_=graphdb_databasename)
-        _graph.execute_query('DROP INDEX CategoryIndex IF EXISTS', database_=graphdb_databasename)
-        _graph.execute_query('DROP INDEX ValueIndex IF EXISTS', database_=graphdb_databasename)
+        _graph.execute_query(query_='DROP INDEX KeyIndex IF EXISTS',
+                             database_=graphdb_databasename)
+        _graph.execute_query(query_='DROP INDEX NameIndex IF EXISTS',
+                             database_=graphdb_databasename)
+        _graph.execute_query(query_='DROP INDEX CategoryIndex IF EXISTS',
+                             database_=graphdb_databasename)
+        _graph.execute_query(query_='DROP INDEX ValueIndex IF EXISTS',
+                             database_=graphdb_databasename)
 
         print('Creating indexes...')
-        _graph.execute_query('CREATE INDEX KeyIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node._key)',
+        _graph.execute_query(query_='CREATE INDEX KeyIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node._key)',
                              database_=graphdb_databasename)
-        _graph.execute_query('CREATE INDEX NameIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.name)',
+        _graph.execute_query(query_='CREATE INDEX NameIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.name)',
                              database_=graphdb_databasename)
-        _graph.execute_query('CREATE INDEX CategoryIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.category)',
+        _graph.execute_query(query_='CREATE INDEX CategoryIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.category)',
                              database_=graphdb_databasename)
-        _graph.execute_query('CREATE INDEX ValueIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.value)',
+        _graph.execute_query(query_='CREATE INDEX ValueIndex IF NOT EXISTS FOR (node:RicgraphNode) ON (node.value)',
                              database_=graphdb_databasename)
 
         print('These indexes have been created:')
-        records, summary, keys = _graph.execute_query('SHOW INDEXES',
-                                                      database_=graphdb_databasename)
+        records, _, keys = _graph.execute_query(query_='SHOW INDEXES',
+                                                database_=graphdb_databasename)
         index_table = DataFrame(data=records, columns=keys)
         print(index_table.to_string(index=False))
         print('')
@@ -281,12 +261,52 @@ def empty_ricgraph(answer: str = '') -> None:
             for index_line in session.run('SHOW INDEX INFO;'):
                 print(index_line)
             print('')
-
         # session.close() is done automatically because of 'with'.
     else:
-        print('empty_ricgraph(): Unknown graph database backend "' + graphdb_name + '".')
+        print('ricgraph_create_indexes(): Unknown graph database backend "'
+              + graphdb_name + '".')
         print('Exiting.')
         exit(1)
+    return
+
+
+def empty_ricgraph(answer: str = '') -> None:
+    """Empty Ricgraph and create new indexes.
+
+    :param answer: prefilled answer whether the user wants to empty Ricgraph.
+      'yes': Ricgraph will be emptied, no questions asked;
+      'no': Ricgraph will not be emptied, no questions asked;
+      any other answer: the user will be asked whether to empty Ricgraph.
+    :return: None.
+    """
+    global _graph
+
+    if _graph is None:
+        print('\nempty_ricgraph(): Error: graph has not been initialized or opened, cannot empty it.')
+        print('Exiting.')
+        exit(1)
+
+    if answer != 'yes' and answer != 'no':
+        print('empty_ricgraph(): invalid answer "' + answer + '" on the question')
+        print('to empty Ricgraph, exiting.')
+        exit(1)
+
+    if answer == 'no':
+        print('empty_ricgraph(): Ricgraph will not be emptied.\n')
+        return
+
+    print('empty_ricgraph(): Ricgraph will be emptied at ' + datetimestamp() + '.\n')
+
+    # Delete the database and start over again.
+    # Sometimes the following statement fails with Neo4j Desktop graph database backend
+    # if there are many nodes, see e.g.
+    # https://stackoverflow.com/questions/23310114/how-to-reset-clear-delete-neo4j-database.
+    # Apparently, the community edition of Neo4j does not have a
+    # "CREATE OR REPLACE DATABASE customers" command.
+    print('Deleting all nodes and edges in Ricgraph...\n')
+    _graph.execute_query(query_='MATCH (node) DETACH DELETE node',
+                         database_=ricgraph_databasename())
+    ricgraph_create_indexes()
     return
 
 
@@ -302,7 +322,7 @@ def ricgraph_nr_nodes() -> int:
         return -1
 
     cypher_query = 'MATCH () RETURN count(*) AS count'
-    result = _graph.execute_query(cypher_query,
+    result = _graph.execute_query(query_=cypher_query,
                                   result_transformer_=Result.data,
                                   database_=ricgraph_databasename())
     if len(result) == 0:
@@ -326,7 +346,7 @@ def ricgraph_nr_edges() -> int:
         return -1
 
     cypher_query = 'MATCH ()-[r]->() RETURN count(r) AS count'
-    result = _graph.execute_query(cypher_query,
+    result = _graph.execute_query(query_=cypher_query,
                                   result_transformer_=Result.data,
                                   database_=ricgraph_databasename())
     if len(result) == 0:
@@ -357,7 +377,7 @@ def ricgraph_nr_edges_of_node(node_element_id: str) -> int:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += 'RETURN count(r) AS count'
 
-    result = _graph.execute_query(cypher_query,
+    result = _graph.execute_query(query_=cypher_query,
                                   node_element_id=node_element_id,
                                   result_transformer_=Result.data,
                                   database_=ricgraph_databasename())
@@ -394,7 +414,7 @@ def ricgraph_get_harvest_date() -> str:
     cypher_query += 'WHERE node._history <> "" '
     cypher_query += 'RETURN node._history as history '
     cypher_query += 'LIMIT 10'
-    result = _graph.execute_query(cypher_query,
+    result = _graph.execute_query(query_=cypher_query,
                                   result_transformer_=Result.data,
                                   database_=ricgraph_databasename())
     harvest_date = ''
@@ -459,7 +479,7 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     # print('cypher_create_node(): cypher_query: ' + cypher_query)
     # print('                      node_properties: ' + str(node_properties))
 
-    nodes = _graph.execute_query(cypher_query,
+    nodes = _graph.execute_query(query_=cypher_query,
                                  node_properties=node_properties,
                                  result_transformer_=Result.value,
                                  database_=ricgraph_databasename())
@@ -491,7 +511,7 @@ def cypher_read_node_elementid(node_element_id: str) -> Union[Node, None]:
     else:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += 'RETURN node'
-    nodes = _graph.execute_query(cypher_query,
+    nodes = _graph.execute_query(query_=cypher_query,
                                  node_element_id=node_element_id,
                                  result_transformer_=Result.value,
                                  database_=ricgraph_databasename())
@@ -526,10 +546,10 @@ def cypher_read_node(name: str, value: str) -> Union[Node, None]:
     cypher_query = 'MATCH (node:RicgraphNode) '
     cypher_query += 'WHERE (node._key=$node_key) '
     cypher_query += 'RETURN node'
-    nodes = _graph.execute_query(cypher_query,
-                                     node_key=key,
-                                     result_transformer_=Result.value,
-                                     database_=ricgraph_databasename())
+    nodes = _graph.execute_query(query_=cypher_query,
+                                 node_key=key,
+                                 result_transformer_=Result.value,
+                                 database_=ricgraph_databasename())
     _graphdb_nr_reads += 1
     if len(nodes) == 0:
         return None
@@ -591,7 +611,7 @@ def cypher_find_nodes(name: str, category: str, value: str,
         cypher_query += 'LIMIT $max_nr_nodes '
     # print(cypher_query)
 
-    nodes = _graph.execute_query(cypher_query,
+    nodes = _graph.execute_query(query_=cypher_query,
                                  node_name=name,
                                  node_name_lowercase=name.lower(),
                                  node_category=category,
@@ -634,7 +654,7 @@ def cypher_delete_node(node_element_id: str) -> None:
     else:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += 'DETACH DELETE node'
-    _graph.execute_query(cypher_query,
+    _graph.execute_query(query_=cypher_query,
                          node_element_id=node_element_id,
                          result_transformer_=Result.value,
                          database_=ricgraph_databasename())
@@ -681,7 +701,7 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
     #       ', cypher_query: ' + cypher_query)
     # print('                     node_properties: ' + str(node_properties))
 
-    nodes = _graph.execute_query(cypher_query,
+    nodes = _graph.execute_query(query_=cypher_query,
                                  node_element_id=node_element_id,
                                  node_properties=node_properties,
                                  result_transformer_=Result.value,
@@ -770,7 +790,7 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     # print('                      node_merge_to_properties: ' + str(node_merge_to_properties))
     # print('                      cypher_query: ' + cypher_query)
 
-    nodes = _graph.execute_query(cypher_query,
+    nodes = _graph.execute_query(query_=cypher_query,
                                  node_merge_from_element_id=node_merge_from_element_id,
                                  node_merge_to_element_id=node_merge_to_element_id,
                                  node_merge_to_properties=node_merge_to_properties,
@@ -841,7 +861,7 @@ def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_eleme
     # print('cypher_create_edge_if_not_exists(): left_node_id: ' + str(left_node_id) + ', right_node_id: '
     #       + str(right_node_id) + ', cypher_query: ' + cypher_query)
 
-    _graph.execute_query(cypher_query,
+    _graph.execute_query(query_=cypher_query,
                          left_node_element_id=left_node_element_id,
                          right_node_element_id=right_node_element_id,
                          database_=ricgraph_databasename())
@@ -943,7 +963,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
 
     # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
     # have gotten a list of dicts instead of a list.
-    result, _, _ = _graph.execute_query(cypher_query,
+    result, _, _ = _graph.execute_query(query_=cypher_query,
                                         node_property=node_property,
                                         database_=ricgraph_databasename())
     if len(result) == 0:
@@ -1046,7 +1066,7 @@ def get_all_neighbor_nodes(node: Node,
         cypher_query += 'LIMIT $max_nr_neighbor_nodes '
     # print(cypher_query)
 
-    neighbor_nodes = _graph.execute_query(cypher_query,
+    neighbor_nodes = _graph.execute_query(query_=cypher_query,
                                           node_element_id=node.element_id,
                                           name_want=name_want,
                                           name_dontwant=name_dontwant,

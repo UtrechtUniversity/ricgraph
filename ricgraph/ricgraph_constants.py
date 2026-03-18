@@ -321,14 +321,23 @@ PERSON_NAME_PERSON_ROOT_LIST = \
 
 
 # ########################################################################
-# These lists are used to assign labels to nodes.
+# Node labels in Cypher.
+# ########################################################################
+# The following lists are used to assign labels to nodes.
 # Using labels, Cypher queries can run faster.
 # Suppose node1-[]->node2. If node2 has a label, and the Cypher
 # query uses that label, only the links to the node2's of that label
 # are traversed, and not the links to node2's that have a different label.
 # In some cases, you might want to define an index on a node label.
+# Indexes are created in ricgraph_create_indexes().
 # The first list is related to node property 'name', the second
 # to node property 'category'.
+#
+# All nodes have label RicgraphNode.
+# The labels are set in cypher_create_node().
+# For a merge of two nodes, they are not checked, because it is assumed
+# that only nodes of the same type (i.e. with the same node labels)
+# are merged.
 # ########################################################################
 NODELABELS_NAME = [{'namelist': PERSON_NAME_PERSON_ROOT_LIST,
                     'nodelabel_for_namelist': 'RicgraphPersonRoot'}
@@ -343,5 +352,3 @@ NODELABELS_CATEGORY = [{'categorylist': PERSON_CATEGORY_ALL,
                        {'categorylist': COMPETENCE_CATEGORY_ALL,
                         'nodelabel_for_categorylist': 'RicgraphCompetence'}
                        ]
-
-
