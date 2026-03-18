@@ -41,6 +41,8 @@
 #
 # ########################################################################
 
+from re import escape, compile, IGNORECASE
+
 
 RICGRAPH_INI_FILENAME = 'ricgraph.ini'
 
@@ -83,6 +85,28 @@ MAX_NR_HISTORYITEMS_TO_ADD = 50
 
 # The maximum length of the organization abbreviation.
 MAX_ORG_ABBREVIATION_LENGTH = 4
+
+
+# ########################################################################
+# For pretty formatting of Cypher queries.
+CYPHER_KEYWORDS = {"MATCH", "OPTIONAL MATCH", "WHERE", "RETURN", "WITH",
+                   "CREATE", "MERGE", "DELETE", "DETACH DELETE", "SET",
+                   "REMOVE", "ORDER BY", "SKIP", "LIMIT", "UNWIND",
+                   "CALL", "YIELD", "UNION", "FOREACH", "LOAD CSV",
+                   "ON CREATE SET", "ON MATCH SET"}
+CYPHER_KEYWORDS_OPERATORS = {"STARTS WITH", "ENDS WITH", "CONTAINS"}
+CYPHER_KEYWORDS_ALL = sorted(CYPHER_KEYWORDS | CYPHER_KEYWORDS_OPERATORS,
+                             key=len,
+                             reverse=True)
+PATTERN_QUOTED_STRING = r'["\'].*?["\']'
+PATTERN_KEYWORDS = '|'.join(
+    r'(?<![A-Za-z])' + escape(t) + r'(?![A-Za-z])'
+    for t in CYPHER_KEYWORDS_ALL
+)
+CYPHER_QUERY_SPLITTER = compile(
+    r'(' + PATTERN_QUOTED_STRING + '|' + PATTERN_KEYWORDS + ')',
+    IGNORECASE
+)
 
 
 # ########################################################################

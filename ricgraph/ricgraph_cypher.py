@@ -45,11 +45,16 @@
 from datetime import date
 from pandas import DataFrame
 from typing import Union, Optional
-from neo4j import GraphDatabase, Driver, Result
+from re import split, fullmatch, sub, IGNORECASE
+from json import dumps
+from neo4j import GraphDatabase, Driver, Result, ResultSummary
 from neo4j.graph import Node
 from .ricgraph_constants import (A_LARGE_NUMBER,
                                  PERSON_CATEGORY_PERSON,
-                                 NODELABELS_NAME, NODELABELS_CATEGORY)
+                                 NODELABELS_NAME, NODELABELS_CATEGORY,
+                                 CYPHER_QUERY_SPLITTER,
+                                 CYPHER_KEYWORDS,
+                                 CYPHER_KEYWORDS_OPERATORS)
 from .ricgraph_utils import (get_ricgraph_ini_file,
                              get_configfile_key_graphdb_parameters,
                              create_ricgraph_key, datetimestamp)
@@ -1155,3 +1160,101 @@ def get_all_neighbor_nodes_loop(node: Node,
     # Unsure what to count here, this seems reasonable. '+ 1' for 'node'.
     _graphdb_nr_reads += len(neighbor_nodes) + 1
     return neighbor_nodes
+
+
+# ##############################################################################
+# Cypher query pretty formatting.
+# ##############################################################################
+def format_cypher_break_match(query_part: str) -> str:
+    """Given a clause (a Cypher MATCH), format everything
+    that follows it by splitting on '-[]->'.
+
+    :param query_part: A MATCH followed by a MATCH clause.
+    :return: The MATCH clause split on -[]->.
+    """
+    parts = split(pattern=r'(-\[.*?\]->)', string=query_part)
+    lines, count = [""], 0
+    for part in parts:
+        lines[-1] += part
+        if fullmatch(pattern=r'-\[.*?\]->', string=part):
+            count += 1
+            if count % 2 == 0:
+                lines.append("  ")
+    return '\n'.join(lines)
+
+
+def format_cypher(query: str) -> str:
+    """Fomat (as in pretty print) a Cypher query.
+
+    :param query: The query to format.
+    :return: The result, nicely formatted.
+    """
+    result, current = [], ""
+    for token in CYPHER_QUERY_SPLITTER.split(query):
+        up = token.strip().upper()
+        if up in CYPHER_KEYWORDS:
+            if current.strip(): result.append(current.strip())
+            current = up
+        elif up in CYPHER_KEYWORDS_OPERATORS or token.startswith(('"', "'")):
+            current += token
+        else:
+            token = sub(pattern=r'\s+AND\s+',
+                        repl='\n  AND ',
+                        string=token,
+                        flags=IGNORECASE)
+            token = sub(pattern=r',\s*',
+                        repl=',\n  ',
+                        string=token)
+            if current.rstrip().endswith('MATCH'):
+                token = format_cypher_break_match(query_part=token)
+            current += token
+
+    if current.strip():
+        result.append(current.strip())
+    return '\n'.join(result)
+
+
+# ##############################################################################
+# Cypher process ResultSummary
+# ##############################################################################
+def cypher_print_resultsummary(summary: ResultSummary,
+                               print_cypher_query: bool = False) -> None:
+    """Print details about the result of the Cypher query. These
+    are taken for the ResultSummary.
+
+    :param summary: The ResultSummary neo4j object.
+    :param print_cypher_query: Whether to also pretty print the
+      Cypher query (True), or only other details (False).
+    :return: Nothing.
+    """
+    print('\nDetails about the processing of the Cypher query.')
+    if print_cypher_query:
+        # Original Cypher query with $placeholders.
+        query = summary.query
+        # Dict of passed parameters {'key': value}.
+        params = summary.parameters
+        # Get the query, including its parameters.
+        for key, value in params.items():
+            placeholder = f"${key}"
+            # Safely serialize value to Cypher literal.
+            subst = dumps(value)
+            # Substitute first occurrence only (the remainder
+            # will follow in the next iteration of the loop).
+            query = query.replace(placeholder, subst, count=1)
+
+        print('Cypher query:')
+        print(format_cypher(query))
+
+    if summary.plan is not None:
+        print('Plan:')
+        print(str(summary.plan))
+    if summary.profile is not None:
+        print('Profile:')
+        print(str(summary.profile))
+    print('Time spent by the server executing the query (in ms): '
+          + str(summary.result_available_after) + '.')
+    print('Time until all records are in memory (in ms): '
+          + str(summary.result_consumed_after) + '.')
+    print('\n')
+    return
+

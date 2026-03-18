@@ -68,7 +68,8 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       ricgraph_database, ricgraph_databasename,
                       convert_cypher_recordslist_to_nodeslist,
                       extract_organization_abbreviation,
-                      ORGANIZATION_CATEGORY_ORGANISATION)
+                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      cypher_print_resultsummary)
 from ricgraph_explorer_constants import MAX_ITEMS
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 
@@ -267,7 +268,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
         if len(name_list) > 0 or len(category_list) > 0:
             cypher_query += 'AND '
         cypher_query += 'NOT "' + source_system + '" IN second_neighbor._source '
-    cypher_query += 'RETURN DISTINCT second_neighbor, count(second_neighbor) as count_second_neighbor '
+    cypher_query += 'RETURN DISTINCT second_neighbor, count(second_neighbor) AS count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
     if int(max_nr_items) > 0:
         cypher_query += 'LIMIT $max_nr_items '
@@ -411,13 +412,14 @@ def find_collabs_cypher(start_organizations: str,
 
     # This call returns a list of Records and not a list of Nodes, which
     # is logical since it needs to be able to store any type of result.
-    cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              start_orgs=start_organizations,
-                                              collab_orgs=collab_organizations,
-                                              researchresult_category=researchresult_category,
-                                              org_abbr=org_abbr,
-                                              max_nr_nodes=max_nr_nodes,
-                                              database_=ricgraph_databasename())
+    cypher_result, summary, _ = graph.execute_query(cypher_query,
+                                                    start_orgs=start_organizations,
+                                                    collab_orgs=collab_organizations,
+                                                    researchresult_category=researchresult_category,
+                                                    org_abbr=org_abbr,
+                                                    max_nr_nodes=max_nr_nodes,
+                                                    database_=ricgraph_databasename())
+    # cypher_print_resultsummary(summary=summary, print_cypher_query=True)
 
     if len(cypher_result) == 0:
         return []
@@ -462,7 +464,7 @@ def find_collab_orgs_matrix(start_organizations: str,
     cypher_return_clause = 'RETURN '
     cypher_return_clause += '  start_orgs.value AS start_orgs, '
     cypher_return_clause += '  collab_orgs.value AS collab_orgs, '
-    cypher_return_clause += '  COUNT(DISTINCT researchresult._key) as count_researchresult_category '
+    cypher_return_clause += '  COUNT(DISTINCT researchresult._key) AS count_researchresult_category '
 
     records_list = find_collabs_cypher(start_organizations=start_organizations,
                                        collab_organizations=collab_organizations,
