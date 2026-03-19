@@ -1227,7 +1227,7 @@ def cypher_print_resultsummary(summary: ResultSummary,
       Cypher query (True), or only other details (False).
     :return: Nothing.
     """
-    print('\nDetails about the processing of the Cypher query.')
+    print('\nDetails on Cypher query processing.')
     if print_cypher_query:
         # Original Cypher query with $placeholders.
         query = summary.query
@@ -1251,10 +1251,13 @@ def cypher_print_resultsummary(summary: ResultSummary,
     if summary.profile is not None:
         print('Profile:')
         print(str(summary.profile))
-    print('Time spent by the server executing the query (in ms): '
-          + str(summary.result_available_after) + '.')
-    print('Time until all records are in memory (in ms): '
-          + str(summary.result_consumed_after) + '.')
+    print('Execution time of this query:')
+    result_available = f'{summary.result_available_after/1000:,.3f}'
+    result_consumed = f'{summary.result_consumed_after/1000:,.3f}'
+    print('  Time for server to prepare result [result_available_after]: '
+          + result_available + ' s.')
+    print('  Time until all records are read into memory [result_consumed_after]: '
+          + result_consumed + ' s.')
     print('\n')
     return
 

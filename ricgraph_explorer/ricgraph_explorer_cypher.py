@@ -419,8 +419,7 @@ def find_collabs_cypher(start_organizations: str,
                                                     org_abbr=org_abbr,
                                                     max_nr_nodes=max_nr_nodes,
                                                     database_=ricgraph_databasename())
-    # cypher_print_resultsummary(summary=summary, print_cypher_query=True)
-
+    cypher_print_resultsummary(summary=summary, print_cypher_query=False)
     if len(cypher_result) == 0:
         return []
     else:
