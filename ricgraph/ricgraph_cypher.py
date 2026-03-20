@@ -1218,13 +1218,17 @@ def format_cypher(query: str) -> str:
 # Cypher process ResultSummary
 # ##############################################################################
 def cypher_print_resultsummary(summary: ResultSummary,
-                               print_cypher_query: bool = False) -> None:
+                               print_cypher_query: bool = False,
+                               nr_results: int = -1) -> None:
     """Print details about the result of the Cypher query. These
     are taken for the ResultSummary.
 
     :param summary: The ResultSummary neo4j object.
     :param print_cypher_query: Whether to also pretty print the
       Cypher query (True), or only other details (False).
+    :param nr_results: The number of results from the Cypher query
+      (to be passed, because it is not in ResultSummary).
+      -1 if nothing passed.
     :return: Nothing.
     """
     print('\nDetails on Cypher query processing.')
@@ -1251,6 +1255,8 @@ def cypher_print_resultsummary(summary: ResultSummary,
     if summary.profile is not None:
         print('Profile:')
         print(str(summary.profile))
+    if nr_results != -1:
+        print('Number of results of this query: ' + str(nr_results) + '.')
     print('Execution time of this query:')
     result_available = f'{summary.result_available_after/1000:,.3f}'
     result_consumed = f'{summary.result_consumed_after/1000:,.3f}'
