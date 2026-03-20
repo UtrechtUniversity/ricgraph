@@ -43,6 +43,7 @@
 from flask import Blueprint, url_for
 from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
+                      check_valid_year,
                       RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
                       RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
                       RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
@@ -150,13 +151,7 @@ def osprofileresultpage() -> str:
     if not max_nr_table_rows.isnumeric():
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     html = html_body_start
-    if (year_first != '' and not year_first.isnumeric()) \
-       or (year_last != '' and not year_last.isnumeric()):
-        html += get_message(message='Error: "year_first" or "year_last" are not numeric.')
-        return html + page_footer + html_body_end
-    if year_first != '' and year_last != '' and int(year_first) > int(year_last):
-        message = 'Error: you did not specify a valid year range ['
-        message += year_first + ', ' + year_last + '].'
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         html += get_message(message=message)
         return html + page_footer + html_body_end
     if histogram_mode == '':

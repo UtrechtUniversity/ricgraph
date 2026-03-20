@@ -56,6 +56,7 @@ from uuid import uuid4
 from collections import defaultdict
 from configparser import ConfigParser
 from unidecode import unidecode
+from markupsafe import escape as markupsafe_escape
 from .ricgraph_constants import (RICGRAPH_INI_FILENAME,
                                  RICGRAPH_KEY_SEPARATOR, RICGRAPH_KEY_SEPARATOR_REPLACEMENT,
                                  RICGRAPH_VALUE_SEPARATOR, RICGRAPH_VALUE_SEPARATOR_REPLACEMENT,
@@ -624,42 +625,42 @@ def get_commandline_argument_filename(argument_list: list) -> str:
     return answer
 
 
-def get_commandline_argument_year_first(argument_list: list) -> str:
-    """Get the value of a command line argument '--year_first'.
-    Prompt if no argument is given.
+def check_valid_year(year_first: str = '-1', year_last:str = '-1') -> str:
+    """This function tests if either year_first or year_last or both
+    have a valid value. If you specify both, also a comparison whether
+    year_first < year_last is done.
+    Since this function can be called to produce HTML, we escape the
+    values that are printed.
 
-    :param argument_list: the argument list.
-    :return: the year as a str, or '' if no answer is given.
+    :param year_first: The first year. Do not specify if you don't need to
+      check for it.
+    :param year_last: The last year. Do not specify if you don't need to
+      check for it.
+    :return: If everything is oke, returns '', otherwise an error message.
     """
-    answer = get_commandline_argument(argument='--year_first',
-                                      argument_list=argument_list)
-    if answer == '':
-        answer = input('Please enter the first year from which you would like to harvest: ')
-        if answer == '':
+    if year_first == '-1' and year_last == '-1':
+        return 'check_valid_year(): Error, invalid call to function.'
+    if year_first != '-1':
+        if year_first == '':
             return ''
-
-    if not answer.isdigit():
-        return ''
-    return answer
-
-
-def get_commandline_argument_year_last(argument_list: list) -> str:
-    """Get the value of a command line argument '--year_last'.
-    Prompt if no argument is given.
-
-    :param argument_list: the argument list.
-    :return: the year as a str, or '' if no answer is given.
-    """
-    answer = get_commandline_argument(argument='--year_last',
-                                      argument_list=argument_list)
-    if answer == '':
-        answer = input('Please enter the last year from which you would like to harvest: ')
-        if answer == '':
+        if not year_first.isdigit():
+            message = 'Error: you did not specify a valid first year "'
+            message += str(markupsafe_escape(year_first)) + '".'
+            return message
+    if year_last != '-1':
+        if year_last == '':
             return ''
-
-    if not answer.isdigit():
-        return ''
-    return answer
+        if not year_last.isdigit():
+            message = 'Error: you did not specify a valid last year "'
+            message += str(markupsafe_escape(year_last)) + '".'
+            return message
+    if year_first != '-1' and year_last != '-1':
+        if int(year_first) > int(year_last):
+            message = 'Error: you did not specify a valid year range ["'
+            message += str(markupsafe_escape(year_first)) + '", "'
+            message += str(markupsafe_escape(year_last)) + '"].'
+            return message
+    return ''
 
 
 def get_commandline_argument_year_first_last(argument_list: list) -> Tuple[str, str]:
@@ -669,20 +670,26 @@ def get_commandline_argument_year_first_last(argument_list: list) -> Tuple[str, 
     :param argument_list: the argument list.
     :return: the year as a str, or '' if no answer is given.
     """
-    year_first = get_commandline_argument_year_first(argument_list=argument_list)
+    year_first = get_commandline_argument(argument='--year_first',
+                                          argument_list=argument_list)
     if year_first == '':
-        print('Error: you did not specify a valid first year.\n')
+        year_first = input('Please enter the first year from which you would like to harvest: ')
+    if (message := check_valid_year(year_first=year_first)) != '':
+        print(message)
         return '', ''
 
-    year_last = get_commandline_argument_year_last(argument_list=argument_list)
+    year_last = get_commandline_argument(argument='--year_last',
+                                         argument_list=argument_list)
     if year_last == '':
-        print('Error: you did not specify a valid last year.\n')
+        year_last = input('Please enter the last year from which you would like to harvest: ')
+    if (message := check_valid_year(year_last=year_last)) != '':
+        print(message)
         return '', ''
 
-    if int(year_first) > int(year_last):
-        print('Error: you did not specify a valid year range [' + year_first + ', ' + year_last + '].\n')
+    if (message := check_valid_year(year_first=year_first,
+                                    year_last=year_last)) != '':
+        print(message)
         return '', ''
-
     return year_first, year_last
 
 
