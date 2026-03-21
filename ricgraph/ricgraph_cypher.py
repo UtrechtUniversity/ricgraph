@@ -57,7 +57,8 @@ from .ricgraph_constants import (A_LARGE_NUMBER,
                                  CYPHER_KEYWORDS_OPERATORS)
 from .ricgraph_utils import (get_ricgraph_ini_file,
                              get_configfile_key_graphdb_parameters,
-                             create_ricgraph_key, datetimestamp)
+                             create_ricgraph_key, datetimestamp,
+                             check_valid_year)
 from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
                              nodes_cache_key_id_delete_key)
 
@@ -65,6 +66,7 @@ from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
 # The graph.
 # Global for connection to Memcached.
 # Type hint necessary to avoid PyCharm warning.
+# March 21, 2026: but still PyCharm warns.
 _graph: Optional[Driver] = None
 
 _GRAPHDB = ''
@@ -327,16 +329,13 @@ def ricgraph_nr_nodes() -> int:
         return -1
 
     cypher_query = 'MATCH () RETURN count(*) AS count'
-    result = _graph.execute_query(query_=cypher_query,
-                                  result_transformer_=Result.data,
-                                  database_=ricgraph_databasename())
-    if len(result) == 0:
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                        database_=ricgraph_databasename())
+    try:
+        nr_nodes = records[0]['count']
+    except (IndexError, KeyError, TypeError):
         return -1
-    result = result[0]
-    if 'count' not in result:
-        return -1
-    result = int(result['count'])
-    return result
+    return int(nr_nodes)
 
 
 def ricgraph_nr_edges() -> int:
@@ -351,16 +350,13 @@ def ricgraph_nr_edges() -> int:
         return -1
 
     cypher_query = 'MATCH ()-[r]->() RETURN count(r) AS count'
-    result = _graph.execute_query(query_=cypher_query,
-                                  result_transformer_=Result.data,
+    records, _, _ = _graph.execute_query(query_=cypher_query,
                                   database_=ricgraph_databasename())
-    if len(result) == 0:
+    try:
+        nr_edges = records[0]['count']
+    except (IndexError, KeyError, TypeError):
         return -1
-    result = result[0]
-    if 'count' not in result:
-        return -1
-    result = int(result['count'])
-    return result
+    return int(nr_edges)
 
 
 def ricgraph_nr_edges_of_node(node_element_id: str) -> int:
@@ -382,17 +378,14 @@ def ricgraph_nr_edges_of_node(node_element_id: str) -> int:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += 'RETURN count(r) AS count'
 
-    result = _graph.execute_query(query_=cypher_query,
-                                  node_element_id=node_element_id,
-                                  result_transformer_=Result.data,
-                                  database_=ricgraph_databasename())
-    if len(result) == 0:
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                        node_element_id=node_element_id,
+                                        database_=ricgraph_databasename())
+    try:
+        nr_edges = records[0]['count']
+    except (IndexError, KeyError, TypeError):
         return -1
-    result = result[0]
-    if 'count' not in result:
-        return -1
-    result = int(result['count'])
-    return result
+    return int(nr_edges)
 
 
 # ##############################################################################
@@ -419,16 +412,14 @@ def ricgraph_get_harvest_date() -> str:
     cypher_query += 'WHERE node._history <> "" '
     cypher_query += 'RETURN node._history as history '
     cypher_query += 'LIMIT 10'
-    result = _graph.execute_query(query_=cypher_query,
-                                  result_transformer_=Result.data,
-                                  database_=ricgraph_databasename())
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         database_=ricgraph_databasename())
+    result = [record['history'] for record in records]
     harvest_date = ''
     for item in result:
-        if 'history' not in item:
+        if len(item) == 0:
             continue
-        if len(item['history']) == 0:
-            continue
-        history_item = item['history'][0]
+        history_item = item[0]
         # The first 10 chars of a history item consists of the date in YYYY-MM-DD.
         possible_date = history_item[:10]
         try:
@@ -484,10 +475,10 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
     # print('cypher_create_node(): cypher_query: ' + cypher_query)
     # print('                      node_properties: ' + str(node_properties))
 
-    nodes = _graph.execute_query(query_=cypher_query,
-                                 node_properties=node_properties,
-                                 result_transformer_=Result.value,
-                                 database_=ricgraph_databasename())
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         node_properties=node_properties,
+                                         database_=ricgraph_databasename())
+    nodes = [record['node'] for record in records]
     _graphdb_nr_creates += 1
     if len(nodes) == 0:
         return None
@@ -516,10 +507,10 @@ def cypher_read_node_elementid(node_element_id: str) -> Union[Node, None]:
     else:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += 'RETURN node'
-    nodes = _graph.execute_query(query_=cypher_query,
-                                 node_element_id=node_element_id,
-                                 result_transformer_=Result.value,
-                                 database_=ricgraph_databasename())
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         node_element_id=node_element_id,
+                                         database_=ricgraph_databasename())
+    nodes = [record['node'] for record in records]
     _graphdb_nr_reads += 1
     if len(nodes) == 0:
         return None
@@ -551,10 +542,10 @@ def cypher_read_node(name: str, value: str) -> Union[Node, None]:
     cypher_query = 'MATCH (node:RicgraphNode) '
     cypher_query += 'WHERE (node._key=$node_key) '
     cypher_query += 'RETURN node'
-    nodes = _graph.execute_query(query_=cypher_query,
-                                 node_key=key,
-                                 result_transformer_=Result.value,
-                                 database_=ricgraph_databasename())
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         node_key=key,
+                                         database_=ricgraph_databasename())
+    nodes = [record['node'] for record in records]
     _graphdb_nr_reads += 1
     if len(nodes) == 0:
         return None
@@ -616,15 +607,15 @@ def cypher_find_nodes(name: str, category: str, value: str,
         cypher_query += 'LIMIT $max_nr_nodes '
     # print(cypher_query)
 
-    nodes = _graph.execute_query(query_=cypher_query,
-                                 node_name=name,
-                                 node_name_lowercase=name.lower(),
-                                 node_category=category,
-                                 node_value=value,
-                                 node_value_lowercase=value.lower(),
-                                 max_nr_nodes=max_nr_nodes,
-                                 result_transformer_=Result.value,
-                                 database_=ricgraph_databasename())
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         node_name=name,
+                                         node_name_lowercase=name.lower(),
+                                         node_category=category,
+                                         node_value=value,
+                                         node_value_lowercase=value.lower(),
+                                         max_nr_nodes=max_nr_nodes,
+                                         database_=ricgraph_databasename())
+    nodes = [record['node'] for record in records]
     nr_nodes = len(nodes)
     # Unsure what to count here, this seems reasonable. '+ 1' for first node.
     _graphdb_nr_reads += nr_nodes + 1
@@ -661,7 +652,6 @@ def cypher_delete_node(node_element_id: str) -> None:
     cypher_query += 'DETACH DELETE node'
     _graph.execute_query(query_=cypher_query,
                          node_element_id=node_element_id,
-                         result_transformer_=Result.value,
                          database_=ricgraph_databasename())
 
     nr_edges = ricgraph_nr_edges_of_node(node_element_id=node_element_id)
@@ -706,11 +696,11 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
     #       ', cypher_query: ' + cypher_query)
     # print('                     node_properties: ' + str(node_properties))
 
-    nodes = _graph.execute_query(query_=cypher_query,
-                                 node_element_id=node_element_id,
-                                 node_properties=node_properties,
-                                 result_transformer_=Result.value,
-                                 database_=ricgraph_databasename())
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         node_element_id=node_element_id,
+                                         node_properties=node_properties,
+                                         database_=ricgraph_databasename())
+    nodes = [record['node'] for record in records]
     _graphdb_nr_reads += 1
     _graphdb_nr_updates += 1
     if len(nodes) == 0:
@@ -795,13 +785,12 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     # print('                      node_merge_to_properties: ' + str(node_merge_to_properties))
     # print('                      cypher_query: ' + cypher_query)
 
-    nodes = _graph.execute_query(query_=cypher_query,
-                                 node_merge_from_element_id=node_merge_from_element_id,
-                                 node_merge_to_element_id=node_merge_to_element_id,
-                                 node_merge_to_properties=node_merge_to_properties,
-                                 result_transformer_=Result.value,
-                                 database_=ricgraph_databasename())
-
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         node_merge_from_element_id=node_merge_from_element_id,
+                                         node_merge_to_element_id=node_merge_to_element_id,
+                                         node_merge_to_properties=node_merge_to_properties,
+                                         database_=ricgraph_databasename())
+    nodes = [record['node_to'] for record in records]
     if len(nodes) == 0:
         # If merge_node_from does not have neighbors, len(nodes) will be 0.
         # Also, it will not have been deleted. The merge has been done.
@@ -985,6 +974,8 @@ def get_all_neighbor_nodes(node: Node,
                            name_dontwant: Union[str, list] = '',
                            category_want: Union[str, list] = '',
                            category_dontwant: Union[str, list] = '',
+                           year_first: str = '',
+                           year_last: str = '',
                            max_nr_neighbor_nodes: int = 0) -> list:
     """Get all the neighbors of 'node' in a list.
     You can restrict the nodes returned by specifying one or more of the
@@ -1003,6 +994,8 @@ def get_all_neighbor_nodes(node: Node,
       If empty (empty string), all nodes are 'wanted'.
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param category_dontwant: similar, but for property 'category' and nodes we don't want.
+    :param year_first: The first year of the results to be counted.
+    :param year_last: The last year of the results to be counted.
     :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :return: the list of neighboring nodes satisfying all these criteria, or
       empty list if nothing found.
@@ -1034,6 +1027,9 @@ def get_all_neighbor_nodes(node: Node,
         category_want = [] if category_want == '' else [category_want]
     if isinstance(category_dontwant, str):
         category_dontwant = [] if category_dontwant == '' else [category_dontwant]
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        print(message)
+        return []
 
     cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
@@ -1066,20 +1062,28 @@ def get_all_neighbor_nodes(node: Node,
                                                      max_nr_neighbor_nodes=max_nr_neighbor_nodes)
         return neighbor_nodes
 
+    if year_first != '':
+        cypher_query += 'AND neighbor.year >= $year_first '
+    if year_last != '':
+        cypher_query += 'AND neighbor.year <= $year_last '
+
     cypher_query += 'RETURN DISTINCT neighbor '
     if max_nr_neighbor_nodes > 0:
         cypher_query += 'LIMIT $max_nr_neighbor_nodes '
     # print(cypher_query)
 
-    neighbor_nodes = _graph.execute_query(query_=cypher_query,
-                                          node_element_id=node.element_id,
-                                          name_want=name_want,
-                                          name_dontwant=name_dontwant,
-                                          category_want=category_want,
-                                          category_dontwant=category_dontwant,
-                                          max_nr_neighbor_nodes=max_nr_neighbor_nodes,
-                                          result_transformer_=Result.value,
-                                          database_=ricgraph_databasename())
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         node_element_id=node.element_id,
+                                         name_want=name_want,
+                                         name_dontwant=name_dontwant,
+                                         category_want=category_want,
+                                         category_dontwant=category_dontwant,
+                                         year_first=year_first,
+                                         year_last=year_last,
+                                         max_nr_neighbor_nodes=max_nr_neighbor_nodes,
+                                         database_=ricgraph_databasename())
+    # Convert result to a list of nodes.
+    neighbor_nodes = [record['neighbor'] for record in records]
     nr_neighbors = len(neighbor_nodes)
     # Unsure what to count here, this seems reasonable. '+ 1' for 'node'.
     _graphdb_nr_reads += nr_neighbors + 1
@@ -1094,6 +1098,8 @@ def get_all_neighbor_nodes_loop(node: Node,
                                 name_dontwant: list,
                                 category_want: list,
                                 category_dontwant: list,
+                                year_first: str = '',
+                                year_last: str = '',
                                 max_nr_neighbor_nodes: int = 0) -> list:
     """Get all the neighbors of 'node' in a list.
     You can restrict the nodes returned by specifying one or more of the
@@ -1113,6 +1119,8 @@ def get_all_neighbor_nodes_loop(node: Node,
     :param name_dontwant: as in get_all_neighbor_nodes().
     :param category_want: as in get_all_neighbor_nodes().
     :param category_dontwant: as in get_all_neighbor_nodes().
+    :param year_first: The first year of the results to be counted.
+    :param year_last: The last year of the results to be counted.
     :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :return: the list of neighboring nodes satisfying all these criteria.
     """
@@ -1155,6 +1163,20 @@ def get_all_neighbor_nodes_loop(node: Node,
             neighbor_nodes.append(neighbor)
             count += 1
             continue
+        if year_first != '' and year_last != '':
+            if neighbor['year'] >= year_first and neighbor['year'] <= year_last:
+                neighbor_nodes.append(neighbor)
+                count += 1
+                continue
+        if year_first != '':
+            if neighbor['year'] >= year_first:
+                count += 1
+                continue
+        if year_last != '':
+            if neighbor['year'] <= year_last:
+                neighbor_nodes.append(neighbor)
+                count += 1
+                continue
         # Any other next_node we do not want.
 
     # Unsure what to count here, this seems reasonable. '+ 1' for 'node'.

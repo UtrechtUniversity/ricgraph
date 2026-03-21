@@ -61,10 +61,13 @@ from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       nodes_cache_key_id_type_size,
                       read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes,
+                      check_valid_year,
+                      get_year_range_text,
                       RESEARCHRESULT_CATEGORY_PUBLICATION,
                       RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
+                      ORGANIZATION_CATEGORY_ALL,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
@@ -89,7 +92,8 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
                                      create_html_form,
                                      get_url_parameter_value, get_url_parameter_list,
                                      get_message, get_found_message,
-                                     get_you_searched_for_card, get_page_title)
+                                     get_you_searched_for_card, get_page_title,
+                                     get_html_for_yearcard)
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
@@ -341,6 +345,7 @@ def searchpage() -> str:
     """
     global _page_footer
 
+    year_all_datalist = get_ricgraph_explorer_global('year_all_datalist')
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
     origin = get_url_parameter_value(parameter='origin')
@@ -391,6 +396,30 @@ def searchpage() -> str:
     if search_mode == 'exact_match':
         form += 'These fields are case-sensitive and use exact match search. '
         form += 'If you enter values in more than one field, these fields are combined using AND.</br>'
+
+    # 14.5em is half of 'field_button_width' (a constant from
+    # ricgraph_explorer_constants.py, the width of the text & input fields
+    # on this page) minus 1em for the spacing between the input fields for year.
+    form_button_width = ' style="width:14.5em !important;" '
+
+    form += '<br/>'
+    form += 'If your search involves research results, you can specify their first and last year:'
+    form += '<div ' + form_button_on_one_line_style + '>'
+    form += '<div' + form_button_width + '>'
+    form += '<label for="year_first">first year of research result:</label>'
+    form += '<input id="year_first" class="w3-input w3-border" list="year_all_datalist"'
+    form += 'name=year_first autocomplete=off' + form_button_width + '>'
+    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
+    form += str(year_all_datalist)
+    form += '</div>'
+    form += '<div' + form_button_width + '>'
+    form += '<label for="year_last">last year of research result:</label>'
+    form += '<input id="year_last" class="w3-input w3-border" list="year_all_datalist"'
+    form += 'name=year_last autocomplete=off' + form_button_width + '>'
+    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
+    form += str(year_all_datalist)
+    form += '</div>'
+    form += '</div>'
 
     radio_person_text = ' <em>person_view</em>: only show relevant columns, '
     radio_person_text += 'results are presented in a <em>tabbed</em> format '
@@ -479,6 +508,8 @@ def optionspage() -> Union[str, Response]:
     - name: name of the nodes to find.
     - category: category of the nodes to find.
     - value: value of the nodes to find.
+    - year_first: first year of the research results to count.
+    - year_last: last year of the research results to count.
     - origin: optional, specifies where the request for this page originates from.
     - search_mode: the search_mode to use, 'exact_match' or 'value_search' (broad
       search on field 'value').
@@ -493,6 +524,8 @@ def optionspage() -> Union[str, Response]:
     global _page_footer
 
     extra_url_parameters = {}
+    year_first = get_url_parameter_value(parameter='year_first')
+    year_last = get_url_parameter_value(parameter='year_last')
     origin = get_url_parameter_value(parameter='origin')
     if origin != '':
         extra_url_parameters['origin'] = origin
@@ -514,7 +547,12 @@ def optionspage() -> Union[str, Response]:
     if not max_nr_table_rows.isnumeric():
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
     extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
+    extra_url_parameters['year_first'] = year_first
+    extra_url_parameters['year_last'] = year_last
     html = html_body_start
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        html += get_message(message=message)
+        return html + _page_footer + html_body_end
     key = get_url_parameter_value(parameter='key', use_escape=False)
     if key == '':
         name = get_url_parameter_value(parameter='name')
@@ -576,7 +614,8 @@ def optionspage() -> Union[str, Response]:
         # on page oslpage(), then skip the options page and go directly
         # to the osprofileresult() page.
         return redirect(url_for(endpoint='osprofileresultpage.osprofileresultpage',
-                                key=node['_key']))
+                                key=node['_key'],
+                                **extra_url_parameters))
 
     html += create_options_page(node=node,
                                 discoverer_mode=discoverer_mode,
@@ -598,6 +637,8 @@ def resultspage() -> str:
       This view_mode is first set in create_options_page(), and then
       caught first in resultspage() and then in create_results_page().
     - key: key of the nodes to find.
+    - year_first: first year of the research results to count.
+    - year_last: last year of the research results to count.
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
     - name_list: either a string which indicates that we only want neighbor
@@ -618,6 +659,8 @@ def resultspage() -> str:
 
     view_mode = get_url_parameter_value(parameter='view_mode')
     key = get_url_parameter_value(parameter='key', use_escape=False)
+    year_first = get_url_parameter_value(parameter='year_first')
+    year_last = get_url_parameter_value(parameter='year_last')
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
                                               default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
@@ -644,7 +687,12 @@ def resultspage() -> str:
     if len(category_list) == 1 and category_list[0] == '':
         category_list = []
 
+    extra_url_parameters['year_first'] = year_first
+    extra_url_parameters['year_last'] = year_last
     html = html_body_start
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        html += get_message(message=message)
+        return html + _page_footer + html_body_end
 
     if view_mode not in VIEW_MODE_ALL:
         html += get_message(message='Unknown view_mode: "' + view_mode + '".')
@@ -1039,6 +1087,10 @@ def create_results_page(view_mode: str,
         return get_message(message=message)
     node = result[0]
 
+    year_first = extra_url_parameters.get('year_first', '')
+    year_last = extra_url_parameters.get('year_last', '')
+    year_range_text = get_year_range_text(year_first=year_first,
+                                          year_last=year_last)
     if discoverer_mode == 'details_view':
         table_columns_ids = DETAIL_COLUMNS
         table_columns_org = DETAIL_COLUMNS
@@ -1153,13 +1205,17 @@ def create_results_page(view_mode: str,
         personroot_node = get_personroot_node(node=node)
         neighbor_nodes = get_all_neighbor_nodes(node=personroot_node,
                                                 name_want=name_list,
-                                                category_want=category_list)
+                                                category_want=category_list,
+                                                year_first = year_first,
+                                                year_last = year_last)
         if view_mode == 'view_unspecified_table_resouts':
-            table_header = 'These are the research results related to this person:'
+            table_header = 'These are the research results related to this person '
+            table_header += year_range_text + ':'
         else:
             table_header = 'These are all the neighbors related to this person (without its identities):'
         html += get_page_title(title='Research results related to this person')
         html += node_found
+        html += get_html_for_yearcard()
         if discoverer_mode == 'details_view':
             html += get_faceted_table(parent_node=node,
                                       neighbor_nodes=neighbor_nodes,
@@ -1182,14 +1238,22 @@ def create_results_page(view_mode: str,
         html += node_found
         neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
                                                          category_want=personal_types_all)
+        neighbor_nodes_organization = get_all_neighbor_nodes(node=personroot_node,
+                                                             category_want=ORGANIZATION_CATEGORY_ALL)
         if len(category_list) == 0:
             # We have only personal identifier records for this person,
             # so there are no other categories of nodes to show.
-            neighbor_nodes_remainder = []
+            neighbor_nodes_researchresult = []
         else:
-            neighbor_nodes_remainder = get_all_neighbor_nodes(node=personroot_node,
-                                                              name_want=name_list,
-                                                              category_want=category_list)
+            researchresult_list = [node for node in category_list
+                                   if node not in ORGANIZATION_CATEGORY_ALL]
+            neighbor_nodes_researchresult = get_all_neighbor_nodes(node=personroot_node,
+                                                                   name_want=name_list,
+                                                                   category_want=researchresult_list,
+                                                                   year_first=year_first,
+                                                                   year_last=year_last)
+        other_table_header = 'These are the research results related to this person '
+        other_table_header += year_range_text + ':'
         if discoverer_mode == 'details_view':
             html += get_tabbed_table(nodes_list=neighbor_nodes_personal,
                                      table_header='This is personal information related to this person:',
@@ -1197,9 +1261,10 @@ def create_results_page(view_mode: str,
                                      tabs_on='name',
                                      discoverer_mode=discoverer_mode,
                                      extra_url_parameters=extra_url_parameters)
+            html += get_html_for_yearcard()
             html += get_faceted_table(parent_node=node,
-                                      neighbor_nodes=neighbor_nodes_remainder,
-                                      table_header='This is other information related to this person:',
+                                      neighbor_nodes=neighbor_nodes_researchresult,
+                                      table_header=other_table_header,
                                       table_columns=table_columns_resout,
                                       view_mode=view_mode,
                                       discoverer_mode=discoverer_mode,
@@ -1208,12 +1273,18 @@ def create_results_page(view_mode: str,
             html += view_personal_information(nodes_list=neighbor_nodes_personal,
                                               discoverer_mode=discoverer_mode,
                                               extra_url_parameters=extra_url_parameters)
-            html += get_tabbed_table(nodes_list=neighbor_nodes_remainder,
-                                     table_header='This is other information related to this person:',
+            html += get_html_for_yearcard()
+            html += get_tabbed_table(nodes_list=neighbor_nodes_researchresult,
+                                     table_header=other_table_header,
                                      table_columns=table_columns_resout,
                                      tabs_on='category',
                                      discoverer_mode=discoverer_mode,
                                      extra_url_parameters=extra_url_parameters)
+        html += get_regular_table(nodes_list=neighbor_nodes_organization,
+                                  table_header='These are organizations related to this person:',
+                                  table_columns=table_columns_org,
+                                  discoverer_mode=discoverer_mode,
+                                  extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_person_share_resouts':
         # Note the hard limit.
@@ -1246,7 +1317,6 @@ def create_results_page(view_mode: str,
                                                         extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_organization_addinfo':
-        # Note the hard limit.
         html += get_page_title(title='Information about this organization')
         html += find_organization_additional_info(parent_node=node,
                                                   name_list=name_list,

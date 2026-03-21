@@ -44,6 +44,7 @@ from flask import Blueprint, url_for
 from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
                       check_valid_year,
+                      get_year_range_text,
                       RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
                       RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
                       RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
@@ -54,6 +55,7 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
                                          button_style,
                                          form_button_on_one_line_flexspace_style,
+                                         form_button_on_one_line_width,
                                          HISTOGRAM_MODE_ALL,
                                          HISTOGRAM_MODE_COUNTS,
                                          HISTOGRAM_MODE_PERCENTAGES,
@@ -66,15 +68,14 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
                                      get_page_title,
                                      get_url_parameter_value,
                                      get_message,
-                                     get_spinner)
+                                     get_spinner,
+                                     get_html_for_yearcard)
 from ricgraph_explorer_datavis import get_html_for_histogram
 from ricgraph_explorer_cypher import create_neighbor_histogram_cypher
 
 
 _oslpage_bp = Blueprint(name='oslpage', import_name=__name__)
 _osprofileresultpage_bp = Blueprint(name='osprofileresultpage', import_name=__name__)
-
-_form_button_width = ' style="width:16em !important;" '
 
 
 @_oslpage_bp.route(rule='/oslpage/', methods=['GET'])
@@ -132,7 +133,6 @@ def osprofileresultpage() -> str:
     :return: HTML to be rendered.
     """
     page_footer = get_ricgraph_explorer_global('page_footer')
-    year_all_datalist = get_ricgraph_explorer_global('year_all_datalist')
     key = get_url_parameter_value(parameter='key', use_escape=False)
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
@@ -212,18 +212,9 @@ def osprofileresultpage() -> str:
         histogram_title += '(counts) '
     else:
         histogram_title += '(percentages) '
-    if year_first == '' and year_last == '':
-        histogram_title += 'for all years '
-    else:
-        if year_first == '':
-            histogram_title += 'up '
-        else:
-            histogram_title += 'from ' + year_first + ' '
-        if year_last == '':
-            histogram_title += 'onwards '
-        else:
-            histogram_title += 'to ' + year_last + ' '
-    histogram_title += 'for "' + node['value'] + '"'
+    histogram_title += get_year_range_text(year_first=year_first,
+                                           year_last=year_last)
+    histogram_title += ' for "' + node['value'] + '"'
     html_histogram = '<div ' + form_button_on_one_line_flexspace_style + '>'
     html_histogram += get_html_for_histogram(histogram_list=histogram_list,
                                             histogram_title=histogram_title,
@@ -254,43 +245,16 @@ def osprofileresultpage() -> str:
     html_histogram += what_to_show + '</a>'
     html_histogram += '</div>'
 
-    form = '<form method="get" action="/osprofileresultpage/"' + form_button_on_one_line_flexspace_style + '>'
-    form += '<div' + _form_button_width + '>'
-    form += '<label for="year_first">specify the first year:</label>'
-    form += '<input id="year_first" class="w3-input w3-border" list="year_all_datalist"'
-    form += 'name=year_first autocomplete=off' + _form_button_width + '>'
-    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += str(year_all_datalist)
-    form += '</div>'
-
-    form += '<div' + _form_button_width + '>'
-    form += '<label for="year_last">specify the last year:</label>'
-    form += '<input id="year_last" class="w3-input w3-border" list="year_all_datalist"'
-    form += 'name=year_last autocomplete=off' + _form_button_width + '>'
-    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += str(year_all_datalist)
-    form += '</div>'
-
-    form += '<input type="hidden" name="key" value="' + key + '">'
-    form += '<input type="hidden" name="discoverer_mode" value="' + discoverer_mode + '">'
-    form += '<input type="hidden" name="histogram_mode" value="' + histogram_mode + '">'
-    form += '<input type="hidden" name="oslprofile_mode" value="' + oslprofile_mode + '">'
-    form += '<input class="' + button_style + '"' + _form_button_width
-    form += 'type=submit value="recreate">'
-    form += '</form>'
+    message = 'You can choose a different time period for this open science profile, '
+    message += 'note that recreating it may take a while:'
+    form = get_html_for_yearcard(show_as_card=False,
+                                 message=message,
+                                 button_text='recreate')
 
     html += get_page_title(title='Open science profile for "' + node['value'] + '"')
-
     html += get_html_for_cardstart()
     html += html_histogram
-    if year_first == '' and year_last == '':
-        # Only show buttons if we have the full year range. We cannot
-        # show the research results from a partial year range,
-        # since the page we go to does not provide that yet.
-        html += buttons
-    html += '<br/>'
-    html += 'You can choose a different time period for this open science profile, '
-    html += 'note that recreating it may take a while:'
+    html += buttons
     html += '<br/>'
     html += form
     message = 'Recreating the open science profile, this may take a while. Please wait...'
@@ -372,7 +336,7 @@ def prepare_oslprofile(node: Node,
                           category_list=material,
                           **all_url_parameters)
             buttons += '<a href="' + url + '" class="w3-bar-item'
-            buttons += button_style + '"' + _form_button_width
+            buttons += button_style + '"' + form_button_on_one_line_width
             buttons += '>show ' + name + '</a>'
     buttons += '</div>'
     return histogram_list, buttons

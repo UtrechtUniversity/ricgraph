@@ -69,10 +69,10 @@ ORGANIZATION_COLUMNS = ['name', 'value', 'comment', 'url_main', '_source']
 ID_COLUMNS = ['name', 'value', 'comment', 'url_main', '_source']
 
 # When we do a query, we return at most this number of nodes.
-MAX_ITEMS = 250
+MAX_ITEMS = 1000
 
 # If we render a table, we return at most this number of rows in that table.
-MAX_ROWS_IN_TABLE = 250
+MAX_ROWS_IN_TABLE = 50
 
 # If we export a table, we export at most this number of rows in that table.
 MAX_ROWS_TO_EXPORT = 250
@@ -158,6 +158,9 @@ form_button_on_one_line_style += 'width:100%; align-items:end; gap:1em; flex-wra
 # fill the available horizontal viewport.
 form_button_on_one_line_flexspace_style = ' style="display:flex; justify-content:space-between; '
 form_button_on_one_line_flexspace_style += 'width:100%; align-items:end; gap:1em; flex-wrap:wrap;" '
+# Width of the form button and the input fields when
+# form_button_on_one_line_flexspace_style is used.
+form_button_on_one_line_width = ' style="width:16em !important;" '
 
 
 # ########################################################################

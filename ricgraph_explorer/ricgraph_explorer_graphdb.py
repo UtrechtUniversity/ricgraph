@@ -65,6 +65,7 @@ from urllib.parse import urlencode
 from ricgraph import (get_personroot_node,
                       get_all_neighbor_nodes, read_all_nodes,
                       create_multidimensional_dict,
+                      get_year_range_text,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       COMPETENCE_CATEGORY_COMPETENCE,
@@ -74,7 +75,8 @@ from ricgraph_explorer_constants import (MAX_NR_NODES_TO_ENRICH,
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
-                                     get_you_searched_for_card)
+                                     get_you_searched_for_card,
+                                     get_html_for_yearcard)
 from ricgraph_explorer_cypher import (find_organization_additional_info_cypher,
                                       find_person_organization_collaborations_cypher,
                                       find_person_share_resouts_cypher)
@@ -95,7 +97,7 @@ def find_person_share_resouts(parent_node: Node,
     :param category_dontwant_list: the category list used for selection (i.e. not these).
     :param discoverer_mode: as usual.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -148,7 +150,8 @@ def find_person_share_resouts(parent_node: Node,
 def find_enrich_candidates_one_person(personroot: Node,
                                       name_want: list = None,
                                       category_want: list = None,
-                                      source_system: str = '') -> Tuple[list, list]:
+                                      source_system: str = '',
+                                      extra_url_parameters: dict = None) -> Tuple[list, list]:
     """This function tries to find nodes to enrich source system 'source_system'.
 
     :param personroot: the starting node for finding enrichments for.
@@ -160,13 +163,19 @@ def find_enrich_candidates_one_person(personroot: Node,
       If empty (empty string), return all nodes.
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param source_system: the source system to find enrichments for.
+    :param extra_url_parameters: a dict containing url parameters to be passed
+      with each url. This dict can be extended as desired.
     :return: 2 lists, nodes to identify and nodes to enrich.
     """
     nodes_in_source_system = []
     nodes_not_in_source_system = []
+    year_first = extra_url_parameters.get('year_first', '')
+    year_last = extra_url_parameters.get('year_last', '')
     neighbors = get_all_neighbor_nodes(node=personroot,
                                        name_want=name_want,
-                                       category_want=category_want)
+                                       category_want=category_want,
+                                       year_first=year_first,
+                                       year_last=year_last)
     for neighbor in neighbors:
         if source_system in neighbor['_source']:
             nodes_in_source_system.append(neighbor)
@@ -205,7 +214,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     :param source_system: the source system to find enrichments for.
     :param discoverer_mode: as usual.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -215,6 +224,10 @@ def find_enrich_candidates(parent_node: Union[Node, None],
                                    + source_system + '".')
         return html
 
+    year_first = extra_url_parameters.get('year_first', '')
+    year_last = extra_url_parameters.get('year_last', '')
+    year_range_text = get_year_range_text(year_first=year_first,
+                                          year_last=year_last)
     html = ''
     if parent_node is None:
         personroot_list = read_all_nodes(name=PERSON_NAME_PERSON_ROOT,
@@ -244,7 +257,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
             break
         person_nodes, nodes_not_in_source_system = \
             find_enrich_candidates_one_person(personroot=personroot,
-                                              source_system=source_system)
+                                              source_system=source_system,
+                                              extra_url_parameters=extra_url_parameters)
         if len(nodes_not_in_source_system) == 0:
             # All neighbors are only from 'source_system', nothing to report.
             continue
@@ -274,8 +288,10 @@ def find_enrich_candidates(parent_node: Union[Node, None],
                                       table_columns=table_columns,
                                       extra_url_parameters=extra_url_parameters)
 
+        html += get_html_for_yearcard()
         table_header = 'You could enrich source system "' + source_system + '" '
-        table_header += 'by using this information harvested from other source systems. '
+        table_header += 'by using this information harvested from other source systems '
+        table_header += year_range_text + '.'
         table_header += 'This information is not in source system "' + source_system + '".'
         html += get_tabbed_table(nodes_list=nodes_not_in_source_system,
                                  table_header=table_header,
@@ -338,7 +354,7 @@ def find_person_organization_collaborations(parent_node: Node,
     :param parent_node: the starting node for finding collaborating organizations.
     :param discoverer_mode: as usual.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -402,7 +418,7 @@ def find_organization_additional_info(parent_node: Node,
     :param category_list: the category list used for selection.
     :param discoverer_mode: as usual.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -429,10 +445,17 @@ def find_organization_additional_info(parent_node: Node,
     if len(category_list) == 1:
         category_str = category_list[0]
 
+    year_first = extra_url_parameters.get('year_first', '')
+    year_last = extra_url_parameters.get('year_last', '')
+    year_range_text = get_year_range_text(year_first=year_first,
+                                          year_last=year_last)
+    # Note the hard limit.
     cypher_result = \
         find_organization_additional_info_cypher(parent_node=parent_node,
                                                  name_list=name_list,
                                                  category_list=category_list,
+                                                 year_first=year_first,
+                                                 year_last=year_last,
                                                  max_nr_items=extra_url_parameters['max_nr_items'])
     if len(cypher_result) == 0:
         message = 'Could not find any persons or results for this organization'
@@ -494,7 +517,11 @@ def find_organization_additional_info(parent_node: Node,
         table_header += '"' + category_str + '" '
     else:
         table_header += 'shared '
-    table_header += 'items of this organization:'
+    if category_str != COMPETENCE_CATEGORY_COMPETENCE:
+        html += get_html_for_yearcard()
+        table_header += 'items of this organization ' + year_range_text + ':'
+    else:
+        table_header += 'items of this organization:'
     table_html = get_tabbed_table(nodes_list=relevant_result,
                                   table_header=table_header,
                                   table_columns=table_columns,
@@ -562,7 +589,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     :param overlap_mode: which overlap to compute: from this node ('thisnode')
       or from the neighbors of this node ('neighbornodes').
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -690,12 +717,12 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
             html += urlencode({'name': name, 'category': category, 'value': value,
-                                            'system1': system,
-                                            'system2': 'singlesource',
-                                            'view_mode': 'view_regular_table_overlap_records',
-                                            'discoverer_mode': discoverer_mode,
-                                            'overlap_mode': overlap_mode}
-                                           | extra_url_parameters)
+                               'system1': system,
+                               'system2': 'singlesource',
+                               'view_mode': 'view_regular_table_overlap_records',
+                               'discoverer_mode': discoverer_mode,
+                               'overlap_mode': overlap_mode}
+                               | extra_url_parameters)
             html += '">'
             html += str(recs_from_one_source[system])
             html += '</a>'
@@ -708,12 +735,12 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
             html += urlencode({'name': name, 'category': category, 'value': value,
-                                            'system1': system,
-                                            'system2': 'multiplesource',
-                                            'view_mode': 'view_regular_table_overlap_records',
-                                            'discoverer_mode': discoverer_mode,
-                                            'overlap_mode': overlap_mode}
-                                           | extra_url_parameters)
+                               'system1': system,
+                               'system2': 'multiplesource',
+                               'view_mode': 'view_regular_table_overlap_records',
+                               'discoverer_mode': discoverer_mode,
+                               'overlap_mode': overlap_mode}
+                               | extra_url_parameters)
             html += '">'
             html += str(recs_from_multiple_sources[system])
             html += '</a>'
@@ -769,12 +796,12 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
             html += urlencode({'name': name, 'category': category, 'value': value,
-                                            'system1': system1,
-                                            'system2': 'multiplesource',
-                                            'view_mode': 'view_regular_table_overlap_records',
-                                            'discoverer_mode': discoverer_mode,
-                                            'overlap_mode': overlap_mode}
-                                           | extra_url_parameters)
+                               'system1': system1,
+                               'system2': 'multiplesource',
+                               'view_mode': 'view_regular_table_overlap_records',
+                               'discoverer_mode': discoverer_mode,
+                               'overlap_mode': overlap_mode}
+                               | extra_url_parameters)
             html += '">'
             html += str(recs_from_multiple_sources[system1])
             html += '</a>'
@@ -789,12 +816,12 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
                 html += '<td>'
                 html += '<a href="' + url_for('resultspage') + '?'
                 html += urlencode({'name': name, 'category': category, 'value': value,
-                                                'system1': system1,
-                                                'system2': system2,
-                                                'view_mode': 'view_regular_table_overlap_records',
-                                                'discoverer_mode': discoverer_mode,
-                                                'overlap_mode': overlap_mode}
-                                               | extra_url_parameters)
+                                   'system1': system1,
+                                   'system2': system2,
+                                   'view_mode': 'view_regular_table_overlap_records',
+                                   'discoverer_mode': discoverer_mode,
+                                   'overlap_mode': overlap_mode}
+                                   | extra_url_parameters)
                 html += '">'
                 html += str(recs_from_multiple_sources_histogram[system1][system2])
                 percent = recs_from_multiple_sources_histogram[system1][system2]/recs_from_multiple_sources[system1]
@@ -819,7 +846,7 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
                                            discoverer_mode: str = '',
                                            overlap_mode: str = '',
                                            extra_url_parameters: dict = None) -> str:
-    """Show the overlap items in a html table.
+    """Show the overlap items in an HTML table.
     This function is tightly connected to find_overlap_in_source_systems().
     We do need a 'name', 'category' and/or 'value', otherwise we won't be able
     to find overlap in source systems for a list of items.
@@ -833,7 +860,7 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
     :param overlap_mode: which overlap to compute: from this node ('thisnode')
       or from the neighbors of this node ('neighbornodes').
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}

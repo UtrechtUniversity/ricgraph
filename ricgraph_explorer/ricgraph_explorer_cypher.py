@@ -69,7 +69,8 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       convert_cypher_recordslist_to_nodeslist,
                       extract_organization_abbreviation,
                       ORGANIZATION_CATEGORY_ORGANISATION,
-                      cypher_print_resultsummary)
+                      cypher_print_resultsummary,
+                      check_valid_year)
 from ricgraph_explorer_constants import MAX_ITEMS
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 
@@ -125,18 +126,18 @@ def find_person_share_resouts_cypher(parent_node: Node,
 
     # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
     # as the common research results (in 'neighbor'). We don't use them at the moment.
-    cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              startnode_personroot_element_id=personroot_node.element_id,
-                                              category_want_list=category_want_list,
-                                              category_dontwant_list=category_dontwant_list,
-                                              max_nr_items=int(max_nr_items),
-                                              database_=ricgraph_databasename())
+    records, _, _ = graph.execute_query(query_=cypher_query,
+                                        startnode_personroot_element_id=personroot_node.element_id,
+                                        category_want_list=category_want_list,
+                                        category_dontwant_list=category_dontwant_list,
+                                        max_nr_items=int(max_nr_items),
+                                        database_=ricgraph_databasename())
 
-    # Convert 'cypher_result' to a list of Node's.
+    # Convert 'records' to a list of Node's.
     # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
     # have gotten a list of dicts, which messes up 'nodes_cache_nodelink'.
     connected_persons = []
-    for neighbor_node in cypher_result:
+    for neighbor_node in records:
         if len(neighbor_node) == 0:
             continue
         person = neighbor_node['neighbor_personroot']
@@ -187,31 +188,31 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
     # as the collaborating researchers (in 'neighbor_personroot') and the common research
     # results (in 'neighbor'). We don't use them at the moment.
 
-    # Note that 'cypher_result' will contain _all_ organizations that 'parent_node'
+    # Note that 'records' will contain _all_ organizations that 'parent_node'
     # collaborates with, very probably also the organizations this person works for.
     resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
-    cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              startnode_personroot_element_id=personroot_node.element_id,
-                                              resout_types_all=resout_types_all,
-                                              max_nr_items=int(max_nr_items),
-                                              database_=ricgraph_databasename())
+    records, _, _ = graph.execute_query(query_=cypher_query,
+                                        startnode_personroot_element_id=personroot_node.element_id,
+                                        resout_types_all=resout_types_all,
+                                        max_nr_items=int(max_nr_items),
+                                        database_=ricgraph_databasename())
 
     # Get the organizations from 'parent_node'.
     personroot_node = get_personroot_node(node=parent_node)
     personroot_node_organizations = get_all_neighbor_nodes(node=personroot_node,
                                                            category_want=ORGANIZATION_CATEGORY_ORGANISATION)
     # Now get the organizations that 'parent_node' collaborates with, excluding
-    # this person's own organizations. Note that the types of 'cypher_result'
+    # this person's own organizations. Note that the types of 'records'
     # and 'personroot_node_organizations' are not the same.
     personroot_node_organizations_key = []
     for organization in personroot_node_organizations:
         personroot_node_organizations_key.append(organization['_key'])
 
-    # Convert 'cypher_result' to a list of Node's.
+    # Convert 'records' to a list of Node's.
     # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
     # have gotten a list of dicts, which messes up 'nodes_cache_nodelink'.
     collaborating_organizations = []
-    for organization_node in cypher_result:
+    for organization_node in records:
         if len(organization_node) == 0:
             continue
         organization = organization_node['neighbor_organization']
@@ -226,6 +227,8 @@ def find_organization_additional_info_cypher(parent_node: Node,
                                              name_list: list = None,
                                              category_list: list = None,
                                              source_system: str = '',
+                                             year_first: str = '',
+                                             year_last: str = '',
                                              max_nr_items: str = str(MAX_ITEMS)) -> list:
     """For documentation, see find_organization_additional_info().
     This is the cypher functionality for that function.
@@ -234,12 +237,17 @@ def find_organization_additional_info_cypher(parent_node: Node,
     :param name_list:
     :param category_list:
     :param source_system:
+    :param year_first:
+    :param year_last:
     :param max_nr_items:
     :return:
     """
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
         print('find_organization_additional_info_cypher(): Error: graph has not been initialized or opened.')
+        return []
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        print(message)
         return []
 
     if name_list is None:
@@ -256,7 +264,8 @@ def find_organization_additional_info_cypher(parent_node: Node,
     cypher_query += ' AND neighbor.name = "person-root" '
 
     cypher_query += 'MATCH (neighbor:RicgraphNode)-[]->(second_neighbor:RicgraphNode) '
-    if len(name_list) > 0 or len(category_list) > 0 or source_system != '':
+    if len(name_list) > 0 or len(category_list) > 0 or source_system != '' \
+       or year_first != '' or year_last != '':
         cypher_query += 'WHERE '
     if len(name_list) > 0:
         cypher_query += 'second_neighbor.name IN $name_list '
@@ -268,21 +277,32 @@ def find_organization_additional_info_cypher(parent_node: Node,
         if len(name_list) > 0 or len(category_list) > 0:
             cypher_query += 'AND '
         cypher_query += 'NOT "' + source_system + '" IN second_neighbor._source '
+    if year_first != '':
+        if len(name_list) > 0 or len(category_list) > 0 or source_system != '':
+            cypher_query += 'AND '
+        cypher_query += ' second_neighbor.year >= $year_first '
+    if year_last != '':
+        if len(name_list) > 0 or len(category_list) > 0 or source_system != '' \
+           or year_first != '':
+            cypher_query += 'AND '
+        cypher_query += ' second_neighbor.year <= $year_last '
     cypher_query += 'RETURN DISTINCT second_neighbor, count(second_neighbor) AS count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
     if int(max_nr_items) > 0:
         cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
-    cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              node_element_id=parent_node.element_id,
-                                              name_list=name_list,
-                                              category_list=category_list,
-                                              max_nr_items=int(max_nr_items),
-                                              database_=ricgraph_databasename())
-    if len(cypher_result) == 0:
+    records, _, _ = graph.execute_query(query_=cypher_query,
+                                        node_element_id=parent_node.element_id,
+                                        name_list=name_list,
+                                        category_list=category_list,
+                                        year_first=year_first,
+                                        year_last=year_last,
+                                        max_nr_items=int(max_nr_items),
+                                        database_=ricgraph_databasename())
+    if len(records) == 0:
         return []
     else:
-        return cypher_result
+        return records
 
 
 def find_collabs_cypher(start_organizations: str,
@@ -412,20 +432,20 @@ def find_collabs_cypher(start_organizations: str,
 
     # This call returns a list of Records and not a list of Nodes, which
     # is logical since it needs to be able to store any type of result.
-    cypher_result, summary, _ = graph.execute_query(cypher_query,
-                                                    start_orgs=start_organizations,
-                                                    collab_orgs=collab_organizations,
-                                                    researchresult_category=researchresult_category,
-                                                    org_abbr=org_abbr,
-                                                    max_nr_nodes=max_nr_nodes,
-                                                    database_=ricgraph_databasename())
+    records, summary, _ = graph.execute_query(cypher_query,
+                                              start_orgs=start_organizations,
+                                              collab_orgs=collab_organizations,
+                                              researchresult_category=researchresult_category,
+                                              org_abbr=org_abbr,
+                                              max_nr_nodes=max_nr_nodes,
+                                              database_=ricgraph_databasename())
     cypher_print_resultsummary(summary=summary,
                                print_cypher_query=False,
-                               nr_results=len(cypher_result))
-    if len(cypher_result) == 0:
+                               nr_results=len(records))
+    if len(records) == 0:
         return []
     else:
-        return cypher_result
+        return records
 
 
 def find_collab_orgs_matrix(start_organizations: str,
@@ -565,8 +585,8 @@ def find_collab_orgs_persons_results(start_organizations: str,
 
 def create_neighbor_histogram_cypher(node: Node,
                                      category: list,
-                                     year_first: str,
-                                     year_last: str) -> dict:
+                                     year_first: str = '',
+                                     year_last: str = '') -> dict:
     """Create a histogram of the neighbors of a node.
 
     :param node: The node that is the base of the histogram.
@@ -583,14 +603,8 @@ def create_neighbor_histogram_cypher(node: Node,
     if graph is None:
         print('create_neighbor_histogram_cypher(): Error: graph has not been initialized or opened.')
         return {}
-    if (year_first != '' and not year_first.isnumeric()) \
-       or (year_last != '' and not year_last.isnumeric()):
-        print('create_neighbor_histogram_cypher(): Error: "year_first" or "year_last" are not numeric.')
-        return {}
-    if year_first != '' and year_last != '' and int(year_first) > int(year_last):
-        message = 'Error: you did not specify a valid year range ['
-        message += year_first + ', ' + year_last + '].'
-        print('create_neighbor_histogram_cypher(): ' + message)
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        print(message)
         return {}
 
     cypher_query = 'MATCH (organization:RicgraphNode)'
@@ -614,13 +628,13 @@ def create_neighbor_histogram_cypher(node: Node,
 
     # This call returns a list of Records and not a list of Nodes, which
     # is logical since it needs to be able to store any type of result.
-    cypher_result, _, _ = graph.execute_query(cypher_query,
-                                              node_element_id=node.element_id,
-                                              category=category,
-                                              year_first=year_first,
-                                              year_last=year_last,
-                                              database_=ricgraph_databasename())
-    cypher_dict = dict(cypher_result)
+    records, _, _ = graph.execute_query(query_=cypher_query,
+                                        node_element_id=node.element_id,
+                                        category=category,
+                                        year_first=year_first,
+                                        year_last=year_last,
+                                        database_=ricgraph_databasename())
+    cypher_dict = dict(records)
     if len(cypher_dict) == 0:
         return {}
     else:

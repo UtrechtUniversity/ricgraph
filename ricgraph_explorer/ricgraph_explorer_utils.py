@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to May 2025.
-# Extended Rik D.T. Janssen, October, November 2025.
+# Extended Rik D.T. Janssen, October, November 2025, March 2026.
 #
 # ########################################################################
 
@@ -49,7 +49,10 @@ from neo4j.graph import Node
 from ricgraph import create_unique_string, extract_organization_abbreviation
 from ricgraph_explorer_constants import (spinner_style,
                                          button_style, button_width,
-                                         font_family)
+                                         font_family,
+                                         form_button_on_one_line_flexspace_style,
+                                         form_button_on_one_line_width)
+from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_javascript import get_spinner_javascript
 
 
@@ -123,11 +126,11 @@ def get_url_parameter_list(parameter: str,
 
 
 def get_message(message: str, please_try_again: bool = True) -> str:
-    """This function creates a html message containing 'message'.
+    """This function creates an HTML message containing 'message'.
 
     :param message: the message.
     :param please_try_again: if True, a link to try again will be added.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     html = get_html_for_cardstart()
     html += message
@@ -141,13 +144,13 @@ def get_found_message(node: Node,
                       table_header: str = '',
                       discoverer_mode: str = '',
                       extra_url_parameters: dict = None) -> str:
-    """This function creates a html table containing 'node'.
+    """This function creates an HTML table containing 'node'.
 
     :param node: the node to put in the table.
     :param table_header: header for the table.
     :param discoverer_mode: as usual.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     # To solve circular dependency on get_regular_table() which depends
     # on this file.
@@ -169,10 +172,10 @@ def get_found_message(node: Node,
 
 
 def get_page_title(title: str) -> str:
-    """This function creates a html card with the page title.
+    """This function creates an HTML card with the page title.
 
     :param title: the message.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     html = get_html_for_cardstart()
     html += '<h1 style="margin-top:0px; margin-bottom:0px">' + title + '</h1>'
@@ -191,7 +194,7 @@ def create_html_form(destination: str,
     'input_fields' is a dict according to this specification:
     input_fields={label_text: input_spec}. It may have more than one entry.
     'label_text' is the text for the label of the input field,
-    and 'input_spec' is a list that specifies how the html for the
+    and 'input_spec' is a list that specifies how the HTML for the
     input field is constructed:
     1. input_spec = ('list', <name of field>, <name of datalist>, <datalist>)
     2. input_spec = ('text', <name of field>)
@@ -206,7 +209,7 @@ def create_html_form(destination: str,
     :param explanation: explanation of the form (optional).
     :param input_fields: see above.
     :param hidden_fields: see above.
-    :return: html for the form.
+    :return: HTML for the form.
     """
     if input_fields is None:
         input_fields = {}
@@ -270,7 +273,7 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
                               name_filter: str = 'None',
                               category_filter: str = 'None',
                               extra_url_parameters: dict = None) -> str:
-    """Get the html for the "You searched for" card.
+    """Get the HTML for the "You searched for" card.
     If you do not pass a str parameter, such as 'key', the default value will
     be 'None', which indicates that that value has not been passed.
     Its value will not be shown.
@@ -293,7 +296,7 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
     :param name_filter: name_filter.
     :param category_filter: category_filter.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if name_list is None:
         name_list = []
@@ -349,7 +352,7 @@ def get_spinner(message: str = '') -> str:
     """Get a spinner, indicating that an operation may take a long time.
 
     :param message: message to show below the spinner.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     html = f'''
            <div id="ricgraph_spinner" class="ricgraph_spinner_overlay w3-center">
@@ -367,10 +370,10 @@ def get_spinner(message: str = '') -> str:
 # The HTML for the W3CSS cards is generated here.
 # ##############################################################################
 def get_html_for_cardstart() -> str:
-    """Get the html required for the start of a W3.CSS 'card'.
+    """Get the HTML required for the start of a W3.CSS 'card'.
     W3.CSS is a modern, responsive, mobile first CSS framework.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     html = '<section class="w3-container">'
     html += '<div class="w3-card-4">'
@@ -379,10 +382,10 @@ def get_html_for_cardstart() -> str:
 
 
 def get_html_for_cardend() -> str:
-    """Get the html required for the end of a W3.CSS 'card'.
+    """Get the HTML required for the end of a W3.CSS 'card'.
     W3.CSS is a modern, responsive, mobile first CSS framework.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     html = '</div>'
     html += '</div>'
@@ -391,10 +394,10 @@ def get_html_for_cardend() -> str:
 
 
 def get_html_for_cardline() -> str:
-    """Get the html required for a yellow line. It is a W3.CSS 'card'
+    """Get the HTML required for a yellow line. It is a W3.CSS 'card'
     filled with the color 'yellow'.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     html = '<section class="w3-container">'
     html += '<div class="w3-card-4">'
@@ -404,6 +407,70 @@ def get_html_for_cardline() -> str:
     html += '</div>'
     html += '</section>'
     return html
+
+
+def get_html_for_yearcard(show_as_card: bool = True,
+                          message: str = '',
+                          button_text: str = 'refresh') -> str:
+    """Get the HTML required for a card that can be used to filter on
+    year.
+
+    :param show_as_card: If True, show as card, otherwise show inline.
+    :param message: The message to show before the input fields.
+    :param button_text: The text to show on the 'submit' button.
+    :return: HTML to be rendered.
+    """
+    year_all_datalist = get_ricgraph_explorer_global('year_all_datalist')
+    hidden_fields = ''
+    if message == '':
+        message = 'You can choose a different time period for the research results:'
+
+    # Get all current URL parameters using Flask's request. Note that
+    # Flask’s request.args.to_dict(flat=False) always returns values as lists.
+    endpoint = request.endpoint
+    current_params = request.args.to_dict(flat=False)
+
+    # Put all query parameters into hidden fields, except year_first/year_last,
+    # because they will be the result of the form below.
+    for key, values in current_params.items():
+        if key == 'year_first' or key == 'year_last':
+            continue
+        # If it appears multiple times, emit each value.
+        for val in values:
+            hidden_fields += '<input type="hidden" name="'
+            hidden_fields += key + '" value="' + val + '">'
+
+    form = ''
+    if show_as_card:
+        form += get_html_for_cardstart()
+    form += message
+    form += '<br/>'
+    form += '<form method="get" action="' + url_for(endpoint=endpoint) + '"' + form_button_on_one_line_flexspace_style + '>'
+
+    form += hidden_fields
+
+    form += '<div' + form_button_on_one_line_width + '>'
+    form += '<label for="year_first">specify the first year:</label>'
+    form += '<input id="year_first" class="w3-input w3-border" list="year_all_datalist"'
+    form += 'name=year_first autocomplete=off' + form_button_on_one_line_width + '>'
+    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
+    form += str(year_all_datalist)
+    form += '</div>'
+
+    form += '<div' + form_button_on_one_line_width + '>'
+    form += '<label for="year_last">specify the last year:</label>'
+    form += '<input id="year_last" class="w3-input w3-border" list="year_all_datalist"'
+    form += 'name=year_last autocomplete=off' + form_button_on_one_line_width + '>'
+    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
+    form += str(year_all_datalist)
+    form += '</div>'
+
+    form += '<input class="' + button_style + '"' + form_button_on_one_line_width
+    form += 'type=submit value="' + button_text + '">'
+    form += '</form>'
+    if show_as_card:
+        form += get_html_for_cardend()
+    return form
 
 
 # ##############################################################################
@@ -505,7 +572,7 @@ def create_full_htmlpage(body_html: str) -> str:
     :param body_html: the HTML to convert to a full HTML page.
     :return: the full HTML page.
     """
-    # A non-zero margin looks better when we create a full html page.
+    # A non-zero margin looks better when we create a full HTML page.
     # Therefore, for 'figure' 'margin': this needs to be
     # (re)set, because it is set at 0px in create_sankey_diagram() and
     # create_chord_diagram().

@@ -625,6 +625,29 @@ def get_commandline_argument_filename(argument_list: list) -> str:
     return answer
 
 
+def get_year_range_text(year_first: str = '', year_last:str = '') -> str:
+    """Get a text describing the year range, like "from 2025 onwards",
+    "up to 2025", "from 2023 to 2025", or "for all years".
+
+    :param year_first: The first year, or '' if not specified.
+    :param year_last: The last year, or '' if not specified.
+    :return: The text describing the year range.
+    """
+    year_range_text = ''
+    if year_first == '' and year_last == '':
+        year_range_text += 'for all years '
+    else:
+        if year_first == '':
+            year_range_text += 'up '
+        else:
+            year_range_text += 'from ' + year_first + ' '
+        if year_last == '':
+            year_range_text += 'onwards '
+        else:
+            year_range_text += 'to ' + year_last + ' '
+    return year_range_text.strip()
+
+
 def check_valid_year(year_first: str = '-1', year_last:str = '-1') -> str:
     """This function tests if either year_first or year_last or both
     have a valid value. If you specify both, also a comparison whether
