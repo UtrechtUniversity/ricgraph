@@ -115,6 +115,22 @@ components:
       required: False
       schema:
         type: "string"
+    year_first:
+      name: "year_first"
+      description: "Search for a research result from year >= *year_first*. 
+                    If you include this field, only research results will be returned."
+      in: query
+      required: False
+      schema:
+        type: "string"
+    year_last:
+      name: "year_last"
+      description: "Search for a research result from year <= *year_last*.
+                    If you include this field, only research results will be returned."
+      in: query
+      required: False
+      schema:
+        type: "string"
     key:
       name: "key"
       description: "Search for a value in Ricgraph field *_key*"
@@ -251,6 +267,8 @@ paths:
       summary: "Show all information related to this person"
       parameters:
         - $ref: "#/components/parameters/key"
+        - $ref: "#/components/parameters/year_first"
+        - $ref: "#/components/parameters/year_last"
         - $ref: "#/components/parameters/max_nr_items"
       responses:
         "200":
@@ -320,6 +338,8 @@ paths:
         - $ref: "#/components/parameters/name_want"
         - $ref: "#/components/parameters/category_want"
         - $ref: "#/components/parameters/source_system"
+        - $ref: "#/components/parameters/year_first"
+        - $ref: "#/components/parameters/year_last"
         - $ref: "#/components/parameters/max_nr_items"
       responses:
         "200":
@@ -370,6 +390,8 @@ paths:
         - $ref: "#/components/parameters/key"
         - $ref: "#/components/parameters/name_want"
         - $ref: "#/components/parameters/category_want"
+        - $ref: "#/components/parameters/year_first"
+        - $ref: "#/components/parameters/year_last"
         - $ref: "#/components/parameters/max_nr_items"
       responses:
         "200":
@@ -404,6 +426,8 @@ paths:
         - $ref: "#/components/parameters/name_want"
         - $ref: "#/components/parameters/category_want"
         - $ref: "#/components/parameters/source_system"
+        - $ref: "#/components/parameters/year_first"
+        - $ref: "#/components/parameters/year_last"
         - $ref: "#/components/parameters/max_nr_items"
       responses:
         "200":

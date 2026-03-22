@@ -169,6 +169,8 @@ def find_enrich_candidates_one_person(personroot: Node,
     """
     nodes_in_source_system = []
     nodes_not_in_source_system = []
+    if extra_url_parameters is None:
+        extra_url_parameters = {}
     year_first = extra_url_parameters.get('year_first', '')
     year_last = extra_url_parameters.get('year_last', '')
     neighbors = get_all_neighbor_nodes(node=personroot,

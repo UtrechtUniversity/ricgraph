@@ -132,17 +132,7 @@ def find_person_share_resouts_cypher(parent_node: Node,
                                         category_dontwant_list=category_dontwant_list,
                                         max_nr_items=int(max_nr_items),
                                         database_=ricgraph_databasename())
-
-    # Convert 'records' to a list of Node's.
-    # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
-    # have gotten a list of dicts, which messes up 'nodes_cache_nodelink'.
-    connected_persons = []
-    for neighbor_node in records:
-        if len(neighbor_node) == 0:
-            continue
-        person = neighbor_node['neighbor_personroot']
-        connected_persons.append(person)
-
+    connected_persons = [record['neighbor_personroot'] for record in records]
     return connected_persons
 
 
@@ -208,9 +198,6 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
     for organization in personroot_node_organizations:
         personroot_node_organizations_key.append(organization['_key'])
 
-    # Convert 'records' to a list of Node's.
-    # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
-    # have gotten a list of dicts, which messes up 'nodes_cache_nodelink'.
     collaborating_organizations = []
     for organization_node in records:
         if len(organization_node) == 0:
@@ -256,37 +243,29 @@ def find_organization_additional_info_cypher(parent_node: Node,
         category_list = []
 
     # Prepare and execute Cypher query.
+    clauses = []
     cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'WHERE elementId(node)=$node_element_id '
     else:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += ' AND neighbor.name = "person-root" '
-
     cypher_query += 'MATCH (neighbor:RicgraphNode)-[]->(second_neighbor:RicgraphNode) '
-    if len(name_list) > 0 or len(category_list) > 0 or source_system != '' \
-       or year_first != '' or year_last != '':
-        cypher_query += 'WHERE '
     if len(name_list) > 0:
-        cypher_query += 'second_neighbor.name IN $name_list '
-    if len(name_list) > 0 and len(category_list) > 0:
-        cypher_query += 'AND '
+        clauses.append('second_neighbor.name IN $name_list')
     if len(category_list) > 0:
-        cypher_query += 'second_neighbor.category IN $category_list '
+        clauses.append('second_neighbor.category IN $category_list')
     if source_system != '':
-        if len(name_list) > 0 or len(category_list) > 0:
-            cypher_query += 'AND '
-        cypher_query += 'NOT "' + source_system + '" IN second_neighbor._source '
+        clauses.append('NOT $source_system IN second_neighbor._source')
     if year_first != '':
-        if len(name_list) > 0 or len(category_list) > 0 or source_system != '':
-            cypher_query += 'AND '
-        cypher_query += ' second_neighbor.year >= $year_first '
+        clauses.append('second_neighbor.year >= $year_first')
     if year_last != '':
-        if len(name_list) > 0 or len(category_list) > 0 or source_system != '' \
-           or year_first != '':
-            cypher_query += 'AND '
-        cypher_query += ' second_neighbor.year <= $year_last '
-    cypher_query += 'RETURN DISTINCT second_neighbor, count(second_neighbor) AS count_second_neighbor '
+        clauses.append('second_neighbor.year <= $year_last')
+
+    if len(clauses) >= 1:
+        cypher_query += 'WHERE ' + ' AND '.join(clauses) + ' '
+
+    cypher_query += 'RETURN DISTINCT second_neighbor, COUNT(second_neighbor) AS count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
     if int(max_nr_items) > 0:
         cypher_query += 'LIMIT $max_nr_items '
@@ -295,6 +274,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
                                         node_element_id=parent_node.element_id,
                                         name_list=name_list,
                                         category_list=category_list,
+                                        source_system=source_system,
                                         year_first=year_first,
                                         year_last=year_last,
                                         max_nr_items=int(max_nr_items),

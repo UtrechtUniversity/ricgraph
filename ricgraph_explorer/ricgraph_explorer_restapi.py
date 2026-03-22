@@ -50,6 +50,7 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       read_all_nodes, get_all_neighbor_nodes,
                       get_personroot_node, get_all_personroot_nodes,
                       convert_nodes_to_list_of_dict,
+                      check_valid_year,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       COMPETENCE_CATEGORY_COMPETENCE)
@@ -122,10 +123,14 @@ def api_search_person(value: str = '',
 
 
 def api_person_all_information(key: str = '',
+                               year_first: str = '',
+                               year_last: str = '',
                                max_nr_items: str = str(MAX_ITEMS)):
     """REST API Show all information related to this person.
 
     :param key: key of the node(s) to find.
+    :param year_first: The first year of the results.
+    :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
@@ -147,6 +152,8 @@ def api_person_all_information(key: str = '',
         return response, status
     # Now we have the person-root, and we can reuse api_all_information_general().
     response, status = api_all_information_general(key=personroot_node['_key'],
+                                                   year_first=year_first,
+                                                   year_last=year_last,
                                                    max_nr_items=max_nr_items)
     return response, status
 
@@ -252,6 +259,8 @@ def api_person_enrich(key: str = '',
                       name_want: list = None,
                       category_want: list = None,
                       source_system: str = '',
+                      year_first: str = '',
+                      year_last: str = '',
                       max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find persons that share any share research result types with this person.
 
@@ -264,6 +273,8 @@ def api_person_enrich(key: str = '',
       If empty (empty string), return all nodes.
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param source_system: the source system to find enrichments for.
+    :param year_first: The first year of the results.
+    :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
@@ -298,6 +309,10 @@ def api_person_enrich(key: str = '',
                                                         + source_system + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        response, status = create_http_response(message=message,
+                                                http_status=HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(key=key)
@@ -311,11 +326,14 @@ def api_person_enrich(key: str = '',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
 
+    extra_url_parameters = {'year_first': year_first,
+                            'year_last': year_last}
     person_nodes, nodes_not_in_source_system = \
         find_enrich_candidates_one_person(personroot=personroot_node,
                                           name_want=name_want,
                                           category_want=category_want,
-                                          source_system=source_system)
+                                          source_system=source_system,
+                                          extra_url_parameters=extra_url_parameters)
     if len(nodes_not_in_source_system) == 0:
         message = 'Ricgraph could not find any information in other source systems '
         message += 'to enrich source system "' + source_system + '"'
@@ -387,6 +405,8 @@ def api_organization_all_information(key: str = '',
 def api_organization_information_persons_results(key: str = '',
                                                  name_want: list = None,
                                                  category_want: list = None,
+                                                 year_first: str = '',
+                                                 year_last: str = '',
                                                  max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find any information from persons or their results in this organization.
 
@@ -398,6 +418,8 @@ def api_organization_information_persons_results(key: str = '',
       (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
       If empty (empty string), return all nodes.
     :param category_want: similar to 'name_want', but now for the property 'category'.
+    :param year_first: The first year of the results.
+    :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
@@ -407,6 +429,8 @@ def api_organization_information_persons_results(key: str = '',
     response, status = api_organization_enrich(key=key,
                                                name_want=name_want,
                                                category_want=category_want,
+                                               year_first=year_first,
+                                               year_last=year_last,
                                                max_nr_items=max_nr_items)
     return response, status
 
@@ -415,6 +439,8 @@ def api_organization_enrich(key: str = '',
                             name_want: list = None,
                             category_want: list = None,
                             source_system: str = '',
+                            year_first: str = '',
+                            year_last: str = '',
                             max_nr_items: str = str(MAX_ITEMS)):
     """REST API Find persons that share any share research result types with this organization.
 
@@ -427,6 +453,8 @@ def api_organization_enrich(key: str = '',
       If empty (empty string), return all nodes.
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param source_system: the source system to find enrichments for.
+    :param year_first: The first year of the results.
+    :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
@@ -452,15 +480,19 @@ def api_organization_enrich(key: str = '',
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if source_system == '':
-        response, status = create_http_response(message='You have not specified a source system',
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if source_system not in get_ricgraph_explorer_global(name='source_all'):
-        response, status = create_http_response(message='You have not specified a valid source system "'
-                                                        + source_system + '".',
-                                                http_status=HTTP_RESPONSE_INVALID_SEARCH)
-        return response, status
+    # if source_system == '':
+    #     response, status = create_http_response(message='You have not specified a source system',
+    #                                             http_status=HTTP_RESPONSE_INVALID_SEARCH)
+    #     return response, status
+    # if source_system not in get_ricgraph_explorer_global(name='source_all'):
+    #     response, status = create_http_response(message='You have not specified a valid source system "'
+    #                                                     + source_system + '".',
+    #                                             http_status=HTTP_RESPONSE_INVALID_SEARCH)
+    #     return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(key=key)
@@ -473,6 +505,8 @@ def api_organization_enrich(key: str = '',
                                                              name_list=name_want,
                                                              category_list=category_want,
                                                              source_system=source_system,
+                                                             year_first=year_first,
+                                                             year_last=year_last,
                                                              max_nr_items=max_nr_items)
     if len(cypher_result) == 0:
         message = 'Could not find any information from persons or '
@@ -622,16 +656,24 @@ def api_search_general(value: str = '',
 
 
 def api_all_information_general(key: str = '',
+                                year_first: str = '',
+                                year_last: str = '',
                                 max_nr_items: str = str(MAX_ITEMS)):
     """REST API General all information about a node function.
 
     :param key: key of the node(s) to find.
+    :param year_first: The first year of the results.
+    :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
     :return: An HTTP response (as dict, to be translated to json)
       and an HTTP response code.
     """
     if key == '':
         response, status = create_http_response(message='You have not specified a search key',
+                                                http_status=HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     if not max_nr_items.isnumeric():
@@ -642,6 +684,8 @@ def api_all_information_general(key: str = '',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
     neighbor_nodes = get_all_neighbor_nodes(node=nodes[0],
+                                            year_first=year_first,
+                                            year_last=year_last,
                                             max_nr_neighbor_nodes=int(max_nr_items))
     if len(neighbor_nodes) == 0:
         response, status = create_http_response(message='Nothing found',

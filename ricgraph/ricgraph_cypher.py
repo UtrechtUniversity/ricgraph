@@ -47,7 +47,7 @@ from pandas import DataFrame
 from typing import Union, Optional
 from re import split, fullmatch, sub, IGNORECASE
 from json import dumps
-from neo4j import GraphDatabase, Driver, Result, ResultSummary
+from neo4j import GraphDatabase, Driver, ResultSummary
 from neo4j.graph import Node
 from .ricgraph_constants import (A_LARGE_NUMBER,
                                  PERSON_CATEGORY_PERSON,
@@ -328,14 +328,14 @@ def ricgraph_nr_nodes() -> int:
         print('\nricgraph_nr_nodes(): Error: graph has not been initialized or opened.\n\n')
         return -1
 
-    cypher_query = 'MATCH () RETURN count(*) AS count'
+    cypher_query = 'MATCH () RETURN COUNT(*) AS count'
     records, _, _ = _graph.execute_query(query_=cypher_query,
-                                        database_=ricgraph_databasename())
+                                         database_=ricgraph_databasename())
     try:
         nr_nodes = records[0]['count']
     except (IndexError, KeyError, TypeError):
         return -1
-    return int(nr_nodes)
+    return nr_nodes
 
 
 def ricgraph_nr_edges() -> int:
@@ -349,14 +349,14 @@ def ricgraph_nr_edges() -> int:
         print('\nricgraph_nr_edges(): Error: graph has not been initialized or opened.\n\n')
         return -1
 
-    cypher_query = 'MATCH ()-[r]->() RETURN count(r) AS count'
+    cypher_query = 'MATCH ()-[r]->() RETURN COUNT(r) AS count'
     records, _, _ = _graph.execute_query(query_=cypher_query,
-                                  database_=ricgraph_databasename())
+                                         database_=ricgraph_databasename())
     try:
         nr_edges = records[0]['count']
     except (IndexError, KeyError, TypeError):
         return -1
-    return int(nr_edges)
+    return nr_edges
 
 
 def ricgraph_nr_edges_of_node(node_element_id: str) -> int:
@@ -376,16 +376,16 @@ def ricgraph_nr_edges_of_node(node_element_id: str) -> int:
         cypher_query += 'WHERE elementId(node)=$node_element_id '
     else:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
-    cypher_query += 'RETURN count(r) AS count'
+    cypher_query += 'RETURN COUNT(r) AS count'
 
     records, _, _ = _graph.execute_query(query_=cypher_query,
-                                        node_element_id=node_element_id,
-                                        database_=ricgraph_databasename())
+                                         node_element_id=node_element_id,
+                                         database_=ricgraph_databasename())
     try:
         nr_edges = records[0]['count']
     except (IndexError, KeyError, TypeError):
         return -1
-    return int(nr_edges)
+    return nr_edges
 
 
 # ##############################################################################
@@ -580,29 +580,28 @@ def cypher_find_nodes(name: str, category: str, value: str,
         print('\ncypher_find_nodes(): Error: graph has not been initialized or opened.\n\n')
         return []
 
-    cypher_query = 'MATCH (node:RicgraphNode) WHERE '
+    clauses = []
+    cypher_query = 'MATCH (node:RicgraphNode) '
     if name != '':
         if name_is_exact_match:
             # Exact match search.
-            cypher_query += '(node.name=$node_name) AND '
+            clauses.append('node.name=$node_name')
         else:
             # Case-insensitive search, the toLower() is inefficient.
-            cypher_query += '(toLower(node.name) CONTAINS $node_name_lowercase) AND '
+            clauses.append('toLower(node.name) CONTAINS $node_name_lowercase')
     if category != '':
-        cypher_query += '(node.category=$node_category) AND '
+        clauses.append('node.category=$node_category')
     if value != '':
         # Value may contain special characters.
         if value_is_exact_match:
             # Exact match search.
-            cypher_query += '(node.value=$node_value) AND '
+            clauses.append('node.value=$node_value')
         else:
             # Case-insensitive search, the toLower() is inefficient.
-            cypher_query += '(toLower(node.value) CONTAINS $node_value_lowercase) AND '
-
-    # Remove last 'AND ', is of length -4.
-    cypher_query = cypher_query[:-4]
+            clauses.append('toLower(node.value) CONTAINS $node_value_lowercase')
+    if len(clauses) >= 1:
+        cypher_query += 'WHERE ' + ' AND '.join(clauses) + ' '
     cypher_query += 'RETURN node '
-
     if max_nr_nodes > 0:
         cypher_query += 'LIMIT $max_nr_nodes '
     # print(cypher_query)
@@ -692,10 +691,6 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
     cypher_query += 'SET node+=$node_properties RETURN node'
 
-    # print('cypher_update_node_properties(): node_element_id: ' + str(node_element_id) +
-    #       ', cypher_query: ' + cypher_query)
-    # print('                     node_properties: ' + str(node_properties))
-
     records, _, _ = _graph.execute_query(query_=cypher_query,
                                          node_element_id=node_element_id,
                                          node_properties=node_properties,
@@ -780,11 +775,6 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     cypher_query += 'DETACH DELETE node_from '
     cypher_query += 'RETURN node_to'
 
-    # print('cypher_merge_nodes(): node_merge_from_element_id: ' + str(node_merge_from_element_id))
-    # print('                      node_merge_to_element_id: ' + str(node_merge_to_element_id))
-    # print('                      node_merge_to_properties: ' + str(node_merge_to_properties))
-    # print('                      cypher_query: ' + cypher_query)
-
     records, _, _ = _graph.execute_query(query_=cypher_query,
                                          node_merge_from_element_id=node_merge_from_element_id,
                                          node_merge_to_element_id=node_merge_to_element_id,
@@ -851,9 +841,6 @@ def cypher_create_edge_if_not_exists(left_node_element_id: str, right_node_eleme
     # A MERGE is more expensive since it first checks for presence of the edge.
     cypher_query += 'MERGE (left_node)-[:LINKS_TO]->(right_node) '
     cypher_query += 'MERGE (left_node)<-[:LINKS_TO]-(right_node) '
-
-    # print('cypher_create_edge_if_not_exists(): left_node_id: ' + str(left_node_id) + ', right_node_id: '
-    #       + str(right_node_id) + ', cypher_query: ' + cypher_query)
 
     _graph.execute_query(query_=cypher_query,
                          left_node_element_id=left_node_element_id,
@@ -955,8 +942,6 @@ def read_all_values_of_property(node_property: str = '') -> list:
         cypher_query += 'UNWIND node[$node_property] AS value '
         cypher_query += 'RETURN DISTINCT value AS entry '
 
-    # If we happened to use 'result_transformer_=Result.data' in execute_query(), we would
-    # have gotten a list of dicts instead of a list.
     result, _, _ = _graph.execute_query(query_=cypher_query,
                                         node_property=node_property,
                                         database_=ricgraph_databasename())
@@ -1082,7 +1067,6 @@ def get_all_neighbor_nodes(node: Node,
                                          year_last=year_last,
                                          max_nr_neighbor_nodes=max_nr_neighbor_nodes,
                                          database_=ricgraph_databasename())
-    # Convert result to a list of nodes.
     neighbor_nodes = [record['neighbor'] for record in records]
     nr_neighbors = len(neighbor_nodes)
     # Unsure what to count here, this seems reasonable. '+ 1' for 'node'.
@@ -1164,7 +1148,7 @@ def get_all_neighbor_nodes_loop(node: Node,
             count += 1
             continue
         if year_first != '' and year_last != '':
-            if neighbor['year'] >= year_first and neighbor['year'] <= year_last:
+            if year_first <= neighbor['year'] <= year_last:
                 neighbor_nodes.append(neighbor)
                 count += 1
                 continue
