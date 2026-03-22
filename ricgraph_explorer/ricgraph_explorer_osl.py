@@ -94,7 +94,7 @@ def oslpage() -> str:
     html += get_html_for_cardstart()
     html += 'There are various methods to start exploring open science landscaping:'
     html += '<p/>'
-    html += create_html_form(destination='collabspage',
+    html += create_html_form(destination='collabspage.collabspage',
                              button_text='explore collaborations')
     html += '<p/>'
     html += create_html_form(destination='searchpage',

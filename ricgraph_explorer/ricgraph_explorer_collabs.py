@@ -124,7 +124,7 @@ def collabspage() -> str:
     base_url = url_for(endpoint='searchpage') + '?'
     base_url += urlencode(query={'search_mode': 'value_search',
                                  'category': ORGANIZATION_CATEGORY_ORGANISATION})
-    form = '<form method="get" action="/collabsresultpage/">'
+    form = '<form method="get" action="' + url_for(endpoint='collabsresultpage.collabsresultpage') + '">'
     form += '<label for="start_orgs">Type the name for <em>start organization</em> '
     form += '(or enter text that begins a (sub-)organization name):</label>'
     form += '<input id="start_orgs" class="w3-input w3-border" '

@@ -219,14 +219,14 @@ def homepage() -> str:
     html += '</div>'
     html += '<p/>'
     html += '<div ' + form_button_on_one_line_style + '>'
-    html += create_html_form(destination='collabspage',
+    html += create_html_form(destination='collabspage.collabspage',
                              button_text='explore collaborations')
-    html += create_html_form(destination='oslpage',
+    html += create_html_form(destination='oslpage.oslpage',
                              button_text='explore the open science landscape')
     html += '</div>'
     html += '<p/>'
     if 'topic' in get_ricgraph_explorer_global(name='category_all'):
-        html += create_html_form(destination='topicspage',
+        html += create_html_form(destination='topicspage.topicspage',
                                  button_text='explore topics')
         html += '<p/>'
     html += '<div ' + form_button_on_one_line_style + '>'
@@ -365,7 +365,7 @@ def searchpage() -> str:
                                                 default_value=str(MAX_ROWS_IN_TABLE))
     if not max_nr_table_rows.isnumeric():
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
-    form = '<form method="get" action="/optionspage/">'
+    form = '<form method="get" action="' + url_for(endpoint='optionspage') + '">'
     if search_mode == 'exact_match':
         form += '<label for="name">Search for a value in Ricgraph field <em>name</em>:</label>'
         form += '<input id="name" class="w3-input w3-border" list="name_all_datalist"'
@@ -821,12 +821,12 @@ def create_options_page_organization(node: Node,
                                             'view_mode': 'view_regular_table_persons_of_org'
                                             } | extra_url_parameters)
     html += '<p/>'
-    html += create_html_form(destination='collabspage',
+    html += create_html_form(destination='collabspage.collabspage',
                              button_text='explore collaborations for this organization',
                              hidden_fields={'start_orgs': node['value']
                                             })
     html += '<p/>'
-    html += create_html_form(destination='osprofileresultpage',
+    html += create_html_form(destination='osprofileresultpage.osprofileresultpage',
                              button_text='get an open science profile for this organization',
                              hidden_fields={'key': key
                                             })

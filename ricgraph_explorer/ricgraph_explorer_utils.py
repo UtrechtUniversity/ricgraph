@@ -216,7 +216,7 @@ def create_html_form(destination: str,
     if hidden_fields is None:
         hidden_fields = {}
     form = explanation
-    form += '<form method="get" action="/' + destination + '/">'
+    form += '<form method="get" action="' + url_for(endpoint=destination) + '">'
     for item in input_fields:
         label_id = create_unique_string(length=12)
         if input_fields[item][0] == 'list':
