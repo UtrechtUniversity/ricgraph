@@ -290,12 +290,12 @@ def api_person_enrich(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(name_want) - set(get_ricgraph_explorer_global(name='name_all'))):
+    if len(result := list(set(name_want) - set(get_ricgraph_explorer_global(name='name_all')))) > 0:
         response, status = create_http_response(message='You have not specified a valid name_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(category_want) - set(get_ricgraph_explorer_global(name='category_all'))):
+    if len(result := list(set(category_want) - set(get_ricgraph_explorer_global(name='category_all')))) > 0:
         response, status = create_http_response(message='You have not specified a valid category_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -470,12 +470,12 @@ def api_organization_enrich(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(name_want) - set(get_ricgraph_explorer_global(name='name_all'))):
+    if len(result := list(set(name_want) - set(get_ricgraph_explorer_global(name='name_all')))) > 0:
         response, status = create_http_response(message='You have not specified a valid name_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(category_want) - set(get_ricgraph_explorer_global(name='category_all'))):
+    if len(result := list(set(category_want) - set(get_ricgraph_explorer_global(name='category_all')))) > 0:
         response, status = create_http_response(message='You have not specified a valid category_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -484,15 +484,11 @@ def api_organization_enrich(key: str = '',
         response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    # if source_system == '':
-    #     response, status = create_http_response(message='You have not specified a source system',
-    #                                             http_status=HTTP_RESPONSE_INVALID_SEARCH)
-    #     return response, status
-    # if source_system not in get_ricgraph_explorer_global(name='source_all'):
-    #     response, status = create_http_response(message='You have not specified a valid source system "'
-    #                                                     + source_system + '".',
-    #                                             http_status=HTTP_RESPONSE_INVALID_SEARCH)
-    #     return response, status
+    if source_system != '' and source_system not in get_ricgraph_explorer_global(name='source_all'):
+        response, status = create_http_response(message='You have not specified a valid source system "'
+                                                        + source_system + '".',
+                                                http_status=HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if not max_nr_items.isnumeric():
         max_nr_items = str(MAX_ITEMS)
     nodes = read_all_nodes(key=key)
@@ -768,22 +764,22 @@ def api_get_all_neighbor_nodes(key: str = '',
 
     name_all = get_ricgraph_explorer_global(name='name_all')
     category_all = get_ricgraph_explorer_global(name='category_all')
-    if result := list(set(name_want) - set(name_all)):
+    if len(result := list(set(name_want) - set(name_all))) > 0:
         response, status = create_http_response(message='You have not specified a valid name_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(name_dontwant) - set(name_all)):
+    if len(result := list(set(name_dontwant) - set(name_all))) > 0:
         response, status = create_http_response(message='You have not specified a valid name_dontwant: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(category_want) - set(category_all)):
+    if len(result := list(set(category_want) - set(category_all))) > 0:
         response, status = create_http_response(message='You have not specified a valid category_want: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if result := list(set(category_dontwant) - set(category_all)):
+    if len(result := list(set(category_dontwant) - set(category_all))) > 0:
         response, status = create_http_response(message='You have not specified a valid category_dontwant: '
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
