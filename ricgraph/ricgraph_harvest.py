@@ -288,15 +288,11 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     if entities is None or entities.empty:
         # Nothing to do.
         return
-    if 'NAME' not in entities.columns:
-        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "NAME".')
-        exit(1)
-    if 'CATEGORY' not in entities.columns:
-        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "CATEGORY".')
-        exit(1)
-    if 'VALUE' not in entities.columns:
-        print('create_parsed_entities_in_ricgraph_general(): Error, missing column "VALUE".')
-        exit(1)
+    for column in ['NAME', 'CATEGORY', 'VALUE']:
+        if column not in entities.columns:
+            print('create_parsed_entities_in_ricgraph_general(): Error, missing column "'
+                  + column + '".')
+            exit(1)
 
     print('Inserting ' + what + ' from ' + harvest_source
           + ' in Ricgraph at ' + timestamp() + '...')
@@ -325,18 +321,15 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     entities = entities.assign(**new_entities_columns)
 
     cols = ['name1', 'category1', 'value1']
-    if 'TITLE' in entities.columns:
-        entities.rename(columns={'TITLE': 'comment1'}, inplace=True)
-        cols.append('comment1')
-    if 'YEAR' in entities.columns:
-        entities.rename(columns={'YEAR': 'year1'}, inplace=True)
-        cols.append('year1')
-    if 'URL_MAIN' in entities.columns:
-        entities.rename(columns={'URL_MAIN': 'url_main1'}, inplace=True)
-        cols.append('url_main1')
-    if 'URL_OTHER' in entities.columns:
-        entities.rename(columns={'URL_OTHER': 'url_other1'}, inplace=True)
-        cols.append('url_other1')
+    for column in ['TITLE', 'YEAR', 'LICENSE', 'ACCESS', 'URL_MAIN', 'URL_OTHER']:
+        if column in entities.columns:
+            if column == 'TITLE':
+                entities.rename(columns={'TITLE': 'comment1'}, inplace=True)
+                cols.append('comment1')
+            else:
+                ricgraph_column = column.lower() + '1'
+                entities.rename(columns={column: ricgraph_column}, inplace=True)
+                cols.append(ricgraph_column)
     cols.extend(['source_event1', 'history_event1',
                  'name2', 'category2', 'value2', 'history_event2'])
     entities = entities[cols]

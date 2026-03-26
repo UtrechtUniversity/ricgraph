@@ -77,15 +77,53 @@ RSD_READ_DATA_FROM_FILE = False
 # RSD_READ_DATA_FROM_FILE = True
 RSD_DATA_FILENAME = 'rsd_data.csv'
 
+# How to find the RSD_FIELDS?
+# Go to https://research-software-directory.org/api/v1 (note the inclusion of
+# RSD_ENDPOINT). Find the 'paths' element in the JSON, in it, find a suitable
+# "endpoint" in paths (e.g. software, release, etc.). Try it out using
+# e.g. https://research-software-directory.org/api/v1/organisation?slug=eq.utrecht-university&select=software(*,release(*)).
 RSD_ENDPOINT = 'api/v1/organisation'
-RSD_FIELDS = 'software(brand_name,slug,concept_doi,' \
+RSD_FIELDS = 'software(brand_name,slug,concept_doi,closed_source,' \
              + 'release(mention(doi,doi_registration_date,publication_year)),' \
-             + 'contributor(family_names,given_names,orcid,affiliation))' \
-             + '&software.release.mention.order=doi_registration_date.desc'
+             + 'contributor(family_names,given_names,orcid,affiliation),' \
+             + 'license_for_software(license)' \
+             + ')&software.release.mention.order=doi_registration_date.desc'
 # 19-2-2026: Does not seem to be necessary anymore.
 # RSD_HEADERS = {
 #     'User-Agent': 'Harvesting from RSD'
 # }
+
+
+# ######################################################
+# Mapping from RSD license types to Ricgraph license types.
+# ######################################################
+LICENSE_MAPPING_RSD = {
+    'AGPL-3.0': rcg.LICENSE_AGPL_30,
+    'Apache-2.0': rcg.LICENSE_APACHE_20,
+    'BSD-2-Clause': rcg.LICENSE_BSD_2,
+    'BSD-3-Clause': rcg.LICENSE_BSD_3,
+    'CC-BY-4.0': rcg.LICENSE_CC_BY_40,
+    'GPL-2.0': rcg.LICENSE_GPL_20,
+    'GPL-2.0-or-later': rcg.LICENSE_GPL_20,
+    'GPL-3.0': rcg.LICENSE_GPL_30,
+    'GPL-3.0-only': rcg.LICENSE_GPL_30,
+    'LGPL-2.1': rcg.LICENSE_LGPL_21,
+    'LGPL-3.0': rcg.LICENSE_LGPL_30,
+    'LGPL-3.0+': rcg.LICENSE_LGPL_30,
+    'MIT': rcg.LICENSE_MIT,
+    'Multiple': rcg.LICENSE_MULTIPLE,
+    'Open Access': rcg.LICENSE_OPEN_ACCESS
+}
+
+
+# ######################################################
+# Mapping from RSD access types to Ricgraph access types.
+# Note it is a "reversed field" in RSD.
+# ######################################################
+ACCESS_MAPPING_RSD = {
+    'True': rcg.ACCESS_CLOSED,
+    'False': rcg.ACCESS_OPEN
+}
 
 
 # ######################################################
@@ -109,6 +147,8 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
                            'affiliation': 'ORGANIZATION_NAME',
                            'package_name': 'TITLE',
                            'package_year': 'YEAR',
+                           'license': 'LICENSE',
+                           'access': 'ACCESS',
                            'package_url': 'URL_OTHER'
                            }, inplace=True)
     df_mod['CATEGORY'] = rcg.RESEARCHRESULT_CATEGORY_SOFTWARE
@@ -155,6 +195,15 @@ def parse_rsd_software(harvest: list,
         # Get year of most recent DOI, we assume that is the publication year of the software package.
         publication_year_most_recent_doi = rcg.json_item_get_str(json_item=software_package,
                                                                  json_path='release.mention.0.publication_year')
+        # Get the first license (in RSD it returns a list).
+        if (licentie := rcg.json_item_get_str(json_item=software_package,
+                                             json_path='license_for_software.0.license')) != '':
+            licentie = rcg.lookup_item_in_mapping(item=licentie,
+                                                 mapping=LICENSE_MAPPING_RSD)
+        if (access := rcg.json_item_get_bool(json_item=software_package,
+                                             json_path='closed_source')) != '':
+            access = rcg.lookup_item_in_mapping(item=str(access),
+                                                mapping=ACCESS_MAPPING_RSD)
 
         # The following results in names and ORCID's of contributors.
         # In case there are no names, the software will be added anyway to Ricgraph.
@@ -163,6 +212,8 @@ def parse_rsd_software(harvest: list,
         contributor = pandas.json_normalize(software_package, record_path='contributor')
         contributor.fillna(value=numpy.nan, inplace=True)
         contributor['FULL_NAME'] = contributor['family_names'] + ', ' + contributor['given_names']
+        contributor.insert(loc=0, column='access', value=access)
+        contributor.insert(loc=0, column='license', value=licentie)
         contributor.insert(loc=0, column='package_year', value=publication_year_most_recent_doi)
         contributor.insert(loc=0, column='package_name', value=package_name)
         contributor.insert(loc=0, column='package_url', value=package_url)
@@ -217,7 +268,8 @@ def parsed_software_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     rcg.create_parsed_persons_in_ricgraph(person_identifiers=person_identifiers,
                                           harvest_source=HARVEST_SOURCE)
 
-    software = parsed_content[['ORCID', 'DOI', 'TITLE', 'YEAR', 'CATEGORY', 'URL_OTHER']].copy(deep=True)
+    software = parsed_content[['ORCID', 'DOI', 'TITLE', 'YEAR', 'CATEGORY',
+                               'LICENSE', 'ACCESS', 'URL_OTHER']].copy(deep=True)
     rcg.create_parsed_dois_in_ricgraph(resouts=software, harvest_source=HARVEST_SOURCE)
 
     # ####
@@ -257,7 +309,8 @@ if RSD_URL == '' or RSD_ORGANIZATION == '':
     print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
 
-FULL_RSD_URL = RSD_URL + '/' + RSD_ENDPOINT + '?slug=eq.' + RSD_ORGANIZATION + '&select=' + RSD_FIELDS
+FULL_RSD_URL = RSD_URL + '/' + RSD_ENDPOINT
+FULL_RSD_URL += '?slug=eq.' + RSD_ORGANIZATION + '&select=' + RSD_FIELDS
 HARVEST_SOURCE = 'Research Software Directory-' + organization
 
 print('\nHarvesting ' + HARVEST_SOURCE + '.')

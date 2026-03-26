@@ -88,7 +88,7 @@ def view_personal_information(nodes_list: list,
     :param nodes_list: the nodes to create a table from.
     :param discoverer_mode: the discoverer_mode to use.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -191,7 +191,7 @@ def create_table_pagination(total_pages, table_id) -> str:
 
     :param total_pages: the total pages in the table.
     :param table_id: the id of the table.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if total_pages <= 1:
         return ''
@@ -226,14 +226,14 @@ def get_regular_table(nodes_list: list,
                       table_columns: list = None,
                       discoverer_mode: str = '',
                       extra_url_parameters: dict = None) -> str:
-    """Create a paginated html table for all nodes in the list.
+    """Create a paginated HTML table for all nodes in the list.
 
     :param nodes_list: the nodes to create a table from.
-    :param table_header: the html to show above the table.
+    :param table_header: the HTML to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param discoverer_mode: the discoverer_mode to use.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -266,16 +266,16 @@ def get_regular_table_worker(nodes_list: list,
                              table_columns: list = None,
                              discoverer_mode: str = '',
                              extra_url_parameters: dict = None) -> str:
-    """Create a html table for all nodes in the list.
+    """Create an HTML table for all nodes in the list.
     Here the real work is done.
 
     :param nodes_list: the nodes to create a table from.
     :param table_id: the id of the table, required for pagination.
-    :param table_header: the html to show above the table.
+    :param table_header: the HTML to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param discoverer_mode: the discoverer_mode to use.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -350,16 +350,16 @@ def get_faceted_table(parent_node: Node,
                       view_mode: str = '',
                       discoverer_mode: str = '',
                       extra_url_parameters: dict = None) -> str:
-    """Create a faceted html table for all neighbor_nodes in the list.
+    """Create a faceted HTML table for all neighbor_nodes in the list.
 
     :param parent_node: the parent of the nodes to construct the facets from.
     :param neighbor_nodes: the neighbor_nodes to create a table from.
-    :param table_header: the html to show above the table.
+    :param table_header: the HTML to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param view_mode: which view to use.
     :param discoverer_mode: the discoverer_mode to use.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if extra_url_parameters is None:
         extra_url_parameters = {}
@@ -412,15 +412,15 @@ def get_tabbed_table(nodes_list: Union[list, None],
                      tabs_on: str = '',
                      discoverer_mode: str = '',
                      extra_url_parameters: dict = None) -> str:
-    """Create a html table with tabs for all nodes in the list.
+    """Create an HTML table with tabs for all nodes in the list.
 
     :param nodes_list: the nodes to create a table from.
-    :param table_header: the html to show above the table.
+    :param table_header: the HTML to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param tabs_on: the name of the field in Ricgraph you'd like to have tabs on.
     :param discoverer_mode: the discoverer_mode to use.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
 
     table_id = create_unique_string(length=12)
@@ -569,7 +569,7 @@ def get_facets_from_nodes(parent_node: Node,
     :param view_mode: which view to use.
     :param discoverer_mode: the discoverer_mode to use.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered, or empty string ('') if faceted navigation is
+    :return: HTML to be rendered, or empty string ('') if faceted navigation is
       not useful because there is only one facet.
     """
     if extra_url_parameters is None:
@@ -683,41 +683,30 @@ def get_facets_from_nodes(parent_node: Node,
 # The general HTML for the tables is generated here.
 # ##############################################################################
 def get_html_for_tablestart() -> str:
-    """Get the html required for the start of a html table.
+    """Get the HTML required for the start of an HTML table.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     html = '<table class="sortable w3-table">'
     return html
 
 
 def get_html_for_tableheader(table_columns: list = None) -> str:
-    """Get the html required for the header of a html table.
+    """Get the HTML required for the header of an HTML table.
 
     :param table_columns: a list of columns to show in the table.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if table_columns is None:
         table_columns = []
     html = '<tr class="uu-yellow">'
-    if 'name' in table_columns:
-        html += '<th>name</th>'
-    if 'category' in table_columns:
-        html += '<th>category</th>'
-    if 'value' in table_columns:
-        html += '<th class=sorttable_alpha">value</th>'
-    if 'comment' in table_columns:
-        html += '<th>comment</th>'
-    if 'year' in table_columns:
-        html += '<th>year</th>'
-    if 'url_main' in table_columns:
-        html += '<th class="sorttable_nosort">url_main</th>'
-    if 'url_other' in table_columns:
-        html += '<th class="sorttable_nosort">url_other</th>'
-    if '_source' in table_columns:
-        html += '<th class="sorttable_nosort">_source</th>'
-    if '_history' in table_columns:
-        html += '<th class="sorttable_nosort">_history</th>'
+    for column in table_columns:
+        if column == 'value':
+            html += '<th class=sorttable_alpha">' + column + '</th>'
+        elif column in ['url_main', 'url_other', '_source', '_history']:
+            html += '<th class="sorttable_nosort">' + column + '</th>'
+        else:
+            html += '<th>' + column + '</th>'
     html += '</tr>'
     return html
 
@@ -728,7 +717,7 @@ def get_html_for_tablerow(node: Node,
                           table_page_num: int = 1,
                           discoverer_mode: str = '',
                           extra_url_parameters: dict = None) -> str:
-    """Get the html required for a row of a html table.
+    """Get the HTML required for a row of an HTML table.
 
     :param node: the node to show in the table.
     :param table_id: the id of the table, required for pagination.
@@ -736,7 +725,7 @@ def get_html_for_tablerow(node: Node,
     :param table_page_num: the page number of the table.
     :param discoverer_mode: the discoverer_mode to use.
     :param extra_url_parameters: extra parameters to be added to the url.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     if table_columns is None:
         table_columns = []
@@ -748,88 +737,74 @@ def get_html_for_tablerow(node: Node,
     html = '<tr class="table-' + table_id + '-page-' + str(table_page_num) + ' '
     html += 'item" style="' + display_style + '">'
 
-    if 'name' in table_columns:
-        # Name can never be empty, it is part of _key.
-        html += '<td>' + node['name'] + '</td>'
-    if 'category' in table_columns:
-        if node['category'] == '':
-            html += '<td></td>'
-        else:
-            html += '<td>' + node['category'] + '</td>'
-    if 'value' in table_columns:
-        # Value can never be empty, it is part of _key.
-        key = create_ricgraph_key(name=node['name'], value=node['value'])
-        if node['name'] == 'FULL_NAME' or node['name'] == 'FULL_NAME_ASCII':
-            value = get_valuepart_from_ricgraph_value(node['value']) + ' ['
-            value += get_additionalpart_from_ricgraph_value(node['value']) + ']'
-        else:
-            value = node['value']
+    for column in table_columns:
+        if column == 'value':
+            key = create_ricgraph_key(name=node['name'], value=node['value'])
+            if node['name'] == 'FULL_NAME' or node['name'] == 'FULL_NAME_ASCII':
+                value = get_valuepart_from_ricgraph_value(node['value']) + ' ['
+                value += get_additionalpart_from_ricgraph_value(node['value']) + ']'
+            else:
+                value = node['value']
 
-        html += '<td><a href=' + url_for('optionspage') + '?'
-        html += urlencode({'key': key,
-                           'discoverer_mode': discoverer_mode}
-                          | extra_url_parameters) + '>'
-        html += value + '</a></td>'
-    if 'comment' in table_columns:
-        if isinstance(node['comment'], str):
-            if node['comment'] == '':
-                html += '<td><ul>'
+            html += '<td><a href=' + url_for('optionspage') + '?'
+            html += urlencode({'key': key,
+                               'discoverer_mode': discoverer_mode}
+                              | extra_url_parameters) + '>'
+            html += value + '</a></td>'
+        elif column in ['url_main', 'url_other']:
+            if node[column] == '':
+                html += '<td></td>'
             else:
-                html += '<td width=30%>' + node['comment'] + '</td>'
-        else:
-            if node['name'] == PERSON_NAME_PERSON_ROOT \
-               and isinstance(node['comment'], list):
-                # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
-                # for easier browsing.
-                html += '<td><ul>'
-                for cached_name in node['comment']:
-                    html += '<li>' + cached_name + '</li>'
-                html += '</ul></td>'
+                html += '<td><a href=' + node[column] + ' target="_blank">'
+                html += column + ' link</a></td>'
+        elif column in ['_history', '_source']:
+            if isinstance(node[column], str):
+                html += '<td>' + node[column] + '</td>'
             else:
-                html += '<td width=30%>' + str(node['comment']) + '</td>'
-    if 'year' in table_columns:
-        if node['year'] == '':
-            html += '<td></td>'
+                if column == '_history':
+                    html += '<td><details><summary>Click for history</summary><ul>'
+                    html += '<li>Node labels: ' + str(list(node.labels)) + '</li>'
+                else:
+                    html += '<td><ul>'
+                for item in node[column]:
+                    html += '<li>' + item + '</li>'
+                if column == '_history':
+                    html += '</ul></details></td>'
+                else:
+                    html += '</ul></td>'
+        elif column == 'comment':
+            if isinstance(node[column], str):
+                if node[column] == '':
+                    html += '<td><ul>'
+                else:
+                    html += '<td width=30%>' + node[column] + '</td>'
+            else:
+                if node['name'] == PERSON_NAME_PERSON_ROOT \
+                        and isinstance(node[column], list):
+                    # If this is a person-root node, we put the FULL_NAME(s) in the comment column,
+                    # for easier browsing.
+                    html += '<td><ul>'
+                    for cached_name in node[column]:
+                        html += '<li>' + cached_name + '</li>'
+                    html += '</ul></td>'
+                else:
+                    html += '<td width=30%>' + str(node[column]) + '</td>'
         else:
-            html += '<td>' + node['year'] + '</td>'
-    if 'url_main' in table_columns:
-        if node['url_main'] == '':
-            html += '<td></td>'
-        else:
-            html += '<td><a href=' + node['url_main'] + ' target="_blank"> url_main link </a></td>'
-    if 'url_other' in table_columns:
-        if node['url_other'] == '':
-            html += '<td></td>'
-        else:
-            html += '<td><a href=' + node['url_other'] + ' target="_blank"> url_other link </a></td>'
-    if '_source' in table_columns:
-        if isinstance(node['_source'], str):
-            html += '<td>' + node['_source'] + '</td>'
-        else:
-            html += '<td><ul>'
-            for source in node['_source']:
-                html += '<li>' + source + '</li>'
-            html += '</ul></td>'
-    if '_history' in table_columns:
-        if isinstance(node['_history'], str):
-            html += '<td>' + node['_history'] + '</td>'
-        else:
-            html += '<td><details><summary>Click for history</summary><ul>'
-            html += '<li>Node labels: ' + str(list(node.labels)) + '</li>'
-            for history in node['_history']:
-                html += '<li>' + history + '</li>'
-            html += '</ul></details></td>'
+            if node[column] == '':
+                html += '<td></td>'
+            else:
+                html += '<td>' + node[column] + '</td>'
     html += '</tr>'
     return html
 
 
 def get_html_for_tableend(table_id: str = '') -> str:
-    """Get the html required for the end of a html table.
+    """Get the HTML required for the end of an HTML table.
     Offer a possibility to export the table.
 
     :param table_id: the id of the table, required for exporting the
       table to csv, but not if you don't want it to be exported.
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     html = '</table>'
     if table_id == '':

@@ -61,12 +61,17 @@ DISCOVERER_MODE_ALL = ['details_view',
 # Ricgraph Explorer shows tables. You can specify which columns you need.
 # You do this by making a list of one or more fields in a Ricgraph node.
 # There are some predefined lists.
+# You need to put them in the order you want them in the table.
 DETAIL_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
+                  'license', 'access',
                   'url_main', 'url_other', '_source', '_history']
-RESEARCH_OUTPUT_COLUMNS = ['name', 'category', 'value', 'comment',
-                           'year', 'url_main', 'url_other', '_source']
-ORGANIZATION_COLUMNS = ['name', 'value', 'comment', 'url_main', '_source']
-ID_COLUMNS = ['name', 'value', 'comment', 'url_main', '_source']
+RESEARCH_OUTPUT_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
+                           'license', 'access',
+                           'url_main', 'url_other', '_source']
+ORGANIZATION_COLUMNS = ['name', 'value', 'comment',
+                        'url_main', '_source']
+ID_COLUMNS = ['name', 'value', 'comment',
+              'url_main', '_source']
 
 # When we do a query, we return at most this number of nodes.
 MAX_ITEMS = 1000

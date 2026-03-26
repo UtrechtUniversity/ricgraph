@@ -148,7 +148,7 @@ CYPHER_QUERY_SPLITTER = compile(
 #    'software': RESEARCHRESULT_CATEGORY_SOFTWARE
 # }
 #
-# Call the function lookup_researchresult_category() to do this mapping.
+# Call the function lookup_item_in_mapping() to do this mapping.
 # If you add a type, also add it to RESEARCHRESULT_CATEGORY_ALL.
 # If you add a type that is a publication, also add it to RESEARCHRESULT_CATEGORY_PUBLICATION.
 #
@@ -376,3 +376,73 @@ NODELABELS_CATEGORY = [{'categorylist': PERSON_CATEGORY_ALL,
                        {'categorylist': COMPETENCE_CATEGORY_ALL,
                         'nodelabel_for_categorylist': 'RicgraphCompetence'}
                        ]
+
+
+# ########################################################################
+# License related constants.
+# ########################################################################
+# For software the names and spellings from https://opensource.org/licenses
+# are used, column 'SPDX ID'.
+LICENSE_AGPL_30 = 'AGPL-3.0'
+LICENSE_APACHE_20 = 'Apache-2.0'
+LICENSE_BSD_2 = 'BSD-2-Clause'
+LICENSE_BSD_3 = 'BSD-3-Clause'
+LICENSE_CC0 = 'CC0'
+LICENSE_CC_BY = 'CC BY'
+LICENSE_CC_BY_40 = 'CC BY-4.0'
+LICENSE_CC_BY_NC = 'CC BY-NC'
+LICENSE_CC_BY_NC_ND = 'CC BY-NC-ND'
+LICENSE_CC_BY_NC_SA = 'CC BY-NC-SA'
+LICENSE_CC_BY_ND = 'CC BY-ND'
+LICENSE_CC_BY_SA = 'CC BY-SA'
+LICENSE_GOLD = 'Gold'
+LICENSE_GPL_20 = 'GPL-2.0'
+LICENSE_GPL_30 = 'GPL-3.0'
+LICENSE_GREEN = 'Green'
+LICENSE_LGPL_21 = 'LGPL-2.1'
+LICENSE_LGPL_30 = 'LGPL-3.0'
+LICENSE_MIT = 'MIT'
+LICENSE_MULTIPLE = 'Multiple'
+LICENSE_ODC_BY_10 = 'ODC-By-1.0'
+LICENSE_OPEN_ACCESS = 'Open access'
+LICENSE_TAVERNE = 'Taverne (not for re-use)'
+
+LICENSE_ALL = \
+    [LICENSE_AGPL_30,
+     LICENSE_APACHE_20,
+     LICENSE_BSD_2,
+     LICENSE_BSD_3,
+     LICENSE_CC0,
+     LICENSE_CC_BY,
+     LICENSE_CC_BY_40,
+     LICENSE_CC_BY_NC,
+     LICENSE_CC_BY_NC_ND,
+     LICENSE_CC_BY_NC_SA,
+     LICENSE_CC_BY_ND,
+     LICENSE_CC_BY_SA,
+     LICENSE_GOLD,
+     LICENSE_GPL_20,
+     LICENSE_GPL_30,
+     LICENSE_GREEN,
+     LICENSE_LGPL_21,
+     LICENSE_LGPL_30,
+     LICENSE_MIT,
+     LICENSE_MULTIPLE,
+     LICENSE_ODC_BY_10,
+     LICENSE_OPEN_ACCESS,
+     LICENSE_TAVERNE]
+
+# ########################################################################
+# Access related constants.
+# ########################################################################
+ACCESS_CLOSED = 'closed'
+ACCESS_EMBARGOED = 'embargoed'
+ACCESS_OPEN = 'open'
+ACCESS_RESTRICTED = 'restricted'
+
+ACCESS_ALL = \
+    [ACCESS_CLOSED,
+     ACCESS_EMBARGOED,
+     ACCESS_OPEN,
+     ACCESS_RESTRICTED]
+

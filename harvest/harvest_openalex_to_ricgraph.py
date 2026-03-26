@@ -98,7 +98,11 @@ OPENALEX_DATA_FILENAME = 'openalex_data.csv'
 
 # This number is the max recs to harvest per year, not total.
 OPENALEX_MAX_RECS_TO_HARVEST = 0                        # 0 = all records
-OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships'
+# OpenAlex can select on "main" JSON field (like 'authorships'), but not
+# on subfields of it.
+# For OpenAlex, the OA can be retrieved from both 'primary_location' as 'open_access'.
+# I choose 'primary_location'.
+OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships,primary_location'
 
 
 # ######################################################
@@ -133,6 +137,30 @@ RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX = {
 
 
 # ######################################################
+# Mapping from OpenAlex license types to Ricgraph license types.
+# ######################################################
+LICENSE_MAPPING_OPENALEX = {
+    'cc-by': rcg.LICENSE_CC_BY,
+    'cc-by-nc': rcg.LICENSE_CC_BY_NC,
+    'cc-by-nc-nd': rcg.LICENSE_CC_BY_NC_ND,
+    'cc-by-nc-sa': rcg.LICENSE_CC_BY_NC_SA,
+    'cc-by-nd': rcg.LICENSE_CC_BY_ND,
+    'cc-by-sa': rcg.LICENSE_CC_BY_SA,
+    'other-oa': rcg.LICENSE_OPEN_ACCESS,
+    'public-domain': rcg.LICENSE_OPEN_ACCESS
+}
+
+
+# ######################################################
+# Mapping from OpenAlex access types to Ricgraph access types.
+# ######################################################
+ACCESS_MAPPING_OPENALEX = {
+    'False': rcg.ACCESS_CLOSED,
+    'True': rcg.ACCESS_OPEN
+}
+
+
+# ######################################################
 # Utility functions related to harvesting of OpenAlex
 # ######################################################
 
@@ -158,6 +186,25 @@ def parse_openalex(harvest: list,
     count = 0
     for harvest_item in harvest:
         count = rcg.print_progress(count=count, interval=1000)
+        if (doi := rcg.json_item_get_str(json_item=harvest_item,
+                                         json_path='doi')) == '' \
+           or (title := rcg.json_item_get_str(json_item=harvest_item,
+                                              json_path='title')) == '' \
+           or (category := rcg.json_item_get_str(json_item=harvest_item,
+                                                 json_path='type')) == '':
+            continue
+        category = rcg.lookup_item_in_mapping(item=category,
+                                              mapping=RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX)
+        publication_year = rcg.json_item_get_str(json_item=harvest_item,
+                                                 json_path='publication_year')
+        if (licentie := rcg.json_item_get_str(json_item=harvest_item,
+                                              json_path='primary_location.license')) != '':
+            licentie = rcg.lookup_item_in_mapping(item=licentie,
+                                                  mapping=LICENSE_MAPPING_OPENALEX)
+        if (access := rcg.json_item_get_bool(json_item=harvest_item,
+                                             json_path='primary_location.is_oa')) != '':
+            access = rcg.lookup_item_in_mapping(item=str(access),
+                                                mapping=ACCESS_MAPPING_OPENALEX)
         for authors in rcg.json_item_get_list(json_item=harvest_item,
                                               json_path='authorships'):
             if (openalex_path := rcg.json_item_get_str(json_item=authors,
@@ -178,7 +225,8 @@ def parse_openalex(harvest: list,
                               'FULL_NAME': display_name}
                 parse_chunk.append(parse_line)
 
-            for institution in rcg.json_item_get_list(json_item=authors, json_path='institutions'):
+            for institution in rcg.json_item_get_list(json_item=authors,
+                                                      json_path='institutions'):
                 # An author can work at multiple institutions.
                 # With the code in this for, we collect in the parse
                 # any institution connected to this author.
@@ -192,7 +240,6 @@ def parse_openalex(harvest: list,
                 if (ror_path := rcg.json_item_get_str(json_item=institution,
                                                       json_path='ror')) == '':
                     continue
-
                 parse_line = {'OPENALEX_ID_PERS': openalex_id,
                               'ROR': PurePath(ror_path).name}
                 if (display_name := rcg.json_item_get_str(json_item=institution,
@@ -200,22 +247,13 @@ def parse_openalex(harvest: list,
                     parse_line['ORGANIZATION_NAME'] = display_name
                 parse_chunk.append(parse_line)
 
-            if (doi := rcg.json_item_get_str(json_item=harvest_item,
-                                             json_path='doi')) == '' \
-               or (title := rcg.json_item_get_str(json_item=harvest_item,
-                                                  json_path='title')) == '' \
-               or (category := rcg.json_item_get_str(json_item=harvest_item,
-                                                     json_path='type')) == '':
-                continue
-
-            publication_year = rcg.json_item_get_str(json_item=harvest_item,
-                                                     json_path='publication_year')
             parse_line = {'OPENALEX_ID_PERS': openalex_id,
                           'DOI': rcg.normalize_doi(identifier=doi),
                           'TITLE': title,
                           'YEAR': publication_year,
-                          'CATEGORY': rcg.lookup_researchresult_category(researchresult_category=category,
-                                                                         researchresult_mapping=RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX)}
+                          'LICENSE': licentie,
+                          'ACCESS': access,
+                          'CATEGORY': category}
             parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
@@ -244,7 +282,8 @@ def harvest_and_parse_openalex(harvest_year: str,
     if OPENALEX_READ_HARVEST_FROM_FILE:
         harvest_data = rcg.read_json_from_file(filename=harvest_filename)
     else:
-        url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT + '?filter=institutions.ror:' + ORGANIZATION_ROR
+        url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT
+        url += '?filter=institutions.ror:' + ORGANIZATION_ROR
         url += ',publication_year:' + harvest_year + '&select=' + OPENALEX_FIELDS
         harvest_data = rcg.harvest_json(url=url,
                                         headers=headers,
@@ -303,7 +342,8 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :param parsed_content: The records to insert in Ricgraph, if not present yet.
     :return: None.
     """
-    resouts = parsed_content[['OPENALEX_ID_PERS', 'DOI', 'TITLE', 'YEAR', 'CATEGORY']].copy(deep=True)
+    resouts = parsed_content[['OPENALEX_ID_PERS', 'DOI', 'TITLE', 'YEAR',
+                              'LICENSE', 'ACCESS', 'CATEGORY']].copy(deep=True)
     rcg.create_parsed_dois_in_ricgraph(resouts=resouts, harvest_source=HARVEST_SOURCE)
     return
 

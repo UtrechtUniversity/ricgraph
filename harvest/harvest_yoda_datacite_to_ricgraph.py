@@ -97,6 +97,33 @@ RESEARCHRESULT_CATEGORY_MAPPING_YODA = {
 
 
 # ######################################################
+# Mapping from Yoda Datacite license types to Ricgraph license types.
+# ######################################################
+LICENSE_MAPPING_YODA_PREFIX = 'https://creativecommons.org/licenses/'
+LICENSE_MAPPING_YODA_POSTFIX = '/4.0/legalcode'
+LICENSE_MAPPING_YODA = {
+    LICENSE_MAPPING_YODA_PREFIX +'by' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY,
+    LICENSE_MAPPING_YODA_PREFIX +'by-nc' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY_NC,
+    LICENSE_MAPPING_YODA_PREFIX +'by-nc-nd' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY_NC_ND,
+    LICENSE_MAPPING_YODA_PREFIX +'by-nc-sa' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY_NC_SA,
+    LICENSE_MAPPING_YODA_PREFIX +'by-nd' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY_ND,
+    LICENSE_MAPPING_YODA_PREFIX +'by-sa' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY_SA,
+    'https://opendatacommons.org/licenses/by/1.0/': rcg.LICENSE_ODC_BY_10
+}
+
+
+# ######################################################
+# Mapping from Yoda Datacite access types to Ricgraph access types.
+# ######################################################
+ACCESS_MAPPING_YODA_PREFIX = 'info:eu-repo/semantics/'
+ACCESS_MAPPING_YODA = {
+    ACCESS_MAPPING_YODA_PREFIX + 'closedAccess': rcg.ACCESS_CLOSED,
+    ACCESS_MAPPING_YODA_PREFIX + 'restrictedAccess': rcg.ACCESS_RESTRICTED,
+    ACCESS_MAPPING_YODA_PREFIX + 'openAccess': rcg.ACCESS_OPEN
+}
+
+
+# ######################################################
 # Utility functions related to harvesting of Yoda
 # ######################################################
 
@@ -157,6 +184,16 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     else:
         df_mod['YEAR'] = ''
 
+    if 'license' in df_mod.columns:
+        df_mod.rename(columns={'license': 'LICENSE'}, inplace=True)
+    else:
+        df_mod['LICENSE'] = ''
+
+    if 'access' in df_mod.columns:
+        df_mod.rename(columns={'access': 'ACCESS'}, inplace=True)
+    else:
+        df_mod['ACCESS'] = ''
+
     # We really need to clean up the DataFrame, because it contains a lot of
     # columns that were useful while parsing, but are not useful anymore.
     df_mod = df_mod[['DOI', 'CATEGORY', 'FULL_NAME',
@@ -164,6 +201,7 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
                      'ORCID', 'SCOPUS_AUTHOR_ID',
                      'ISNI', 'RESEARCHER_ID',
                      'TITLE', 'YEAR',
+                     'LICENSE', 'ACCESS',
                      'ORGANIZATION_NAME'
                      ]].copy(deep=True)
     return df_mod
@@ -191,9 +229,8 @@ def process_parsed_data(df: pandas.DataFrame) -> pandas.DataFrame:
     df_mod = df_mod.explode('ORGANIZATION_NAME').reset_index(drop=True)
 
     df_mod['CATEGORY'] = df_mod[['CATEGORY']].apply(
-        lambda row: rcg.lookup_researchresult_category(researchresult_category=row['CATEGORY'],
-                                                       researchresult_mapping=RESEARCHRESULT_CATEGORY_MAPPING_YODA), axis=1)
-
+        lambda row: rcg.lookup_item_in_mapping(item=row['CATEGORY'],
+                                               mapping=RESEARCHRESULT_CATEGORY_MAPPING_YODA), axis=1)
     return df_mod
 
 
@@ -224,6 +261,26 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
         if item_in_full_record == 'descriptions':
             description = value['description']
             value = description['#text']
+        if item_in_full_record == 'rightsList':
+            rights_list = value['rights']
+            if isinstance(rights_list, list):
+                # The first in the list is always access, the
+                # other, if present, the license.
+                new_record['access'] = rights_list[0]['@rightsURI']
+                new_record['license'] = ''
+                if len(rights_list) > 1:
+                    new_record['license'] = rights_list[1]['@rightsURI']
+            else:
+                # If there is no list, it is always a dict for access.
+                # In this case, license is not specified.
+                new_record['access'] = rights_list['@rightsURI']
+                new_record['license'] = ''
+            if new_record['license'] != '':
+                new_record['license'] = rcg.lookup_item_in_mapping(item=new_record['license'],
+                                                                   mapping=LICENSE_MAPPING_YODA)
+            if new_record['access'] != '':
+                new_record['access'] = rcg.lookup_item_in_mapping(item=new_record['access'],
+                                                                  mapping=ACCESS_MAPPING_YODA)
         # This code was originally written to parse all elements. For Ricgraph, this is not necessary.
         #
         # if item_in_full_record == 'fundingReferences':
@@ -281,7 +338,7 @@ def flatten_row(full_record: dict, dict_with_one_name: dict) -> dict:
            or item_in_full_record == 'contributors':
             # This is done below
             continue
-        if item_in_full_record != 'fundingReferences':
+        if item_in_full_record != 'fundingReferences' and item_in_full_record != 'rightsList':
             # Prevent setting it twice for fundingReferences
             new_record[key] = value
         
@@ -527,7 +584,8 @@ def parsed_yoda_datacite_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
                          'DIGITAL_AUTHOR_ID', 'ISNI', 'RESEARCHER_ID']
     existing_cols = [c for c in all_possible_cols if c in parsed_content.columns]
     for identifier in existing_cols:
-        datasets = parsed_content[[identifier, 'DOI', 'TITLE', 'YEAR', 'CATEGORY']].copy(deep=True)
+        datasets = parsed_content[[identifier, 'DOI', 'TITLE', 'YEAR', 'CATEGORY',
+                                   'LICENSE', 'ACCESS']].copy(deep=True)
         rcg.create_parsed_dois_in_ricgraph(resouts=datasets,
                                            harvest_source=HARVEST_SOURCE,
                                            what='DOIs and ' + identifier + 's')

@@ -161,7 +161,7 @@ PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_PERSONS_FIELDS = {'fields': ['uuid',
-                                  'visibility.*',
+                                  'visibility.key',
                                   'name.*',
                                   'ids.*',
                                   'staffOrganisationAssociations.period.*',
@@ -210,11 +210,11 @@ PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.json'
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
-                                        'visibility.*',
+                                        'visibility.key',
                                         'period.*',
                                         'name.*',
                                         'type.*',
-                                        'ids.*',
+                                        # 'ids.*',
                                         'parents.*'
                                         ]
                              }
@@ -245,14 +245,15 @@ PURE_RESOUTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 global PURE_RESOUTS_FIELDS
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_READ_RESOUTS_FIELDS = {'fields': ['uuid',
-                                      'title.*',
-                                      'confidential',
-                                      'visibility.*',
-                                      'type.*',
-                                      'workflow.*',
-                                      'publicationStatuses.*',
-                                      'personAssociations.*',
-                                      'electronicVersions.*'
+                                       'title.*',
+                                       'confidential',
+                                       'visibility.key',
+                                       'type.*',
+                                       'workflow.workflowStep.*',
+                                       'publicationStatuses.*',
+                                       'personAssociations.*',
+                                       'electronicVersions.*',
+                                       'openAccessPermission.*'
                                        ],
                             # These values will be overwritten.
                             # They exist to prevent a PyCharm warning.
@@ -290,13 +291,14 @@ PURE_DATASETS_FIELDS = {'fields': ['uuid',
                                    'doi',
                                    'publicationDate.*',
                                    'confidential',
-                                   'visibility.*',
+                                   'visibility.key',
                                    'title.*',
                                    'type.*',
-                                   'workflow.*',
+                                   'workflow.workflowStep.*',
                                    'personAssociations.*',
                                    'links.*',
-                                  ]
+                                   'openAccessPermission.*'
+                                   ]
                         }
 
 # ######################################################
@@ -326,8 +328,8 @@ PURE_PRESS_MEDIA_FIELDS = {'fields': ['uuid',
                                       'title.*',
                                       'type.*',
                                       'confidential',
-                                      'visibility.*',
-                                      'workflow.*',
+                                      'visibility.key',
+                                      'workflow.workflowStep.*',
                                       'references.*',
                                       'personAssociations.*'
                                       ],
@@ -370,8 +372,8 @@ PURE_PROJECTS_FIELDS = {'fields': ['uuid',
                                    'confidential',
                                    'title.*',
                                    'status.*',
-                                   'visibility.*',
-                                   'workflow.*',
+                                   'visibility.key',
+                                   'workflow.workflowStep.*',
                                    'descriptions.*',
                                    'ids.*',
                                    'participants.person.uuid.*',
@@ -455,6 +457,37 @@ DATASET_CATEGORY_PREFIX_PURE = '/dk/atira/pure/dataset/datasettypes/dataset/'
 DATASET_CATEGORY_MAPPING_PURE = {
     DATASET_CATEGORY_PREFIX_PURE + 'dataset': rcg.RESEARCHRESULT_CATEGORY_DATASET,
     DATASET_CATEGORY_PREFIX_PURE + 'software': rcg.RESEARCHRESULT_CATEGORY_SOFTWARE,
+}
+
+
+# ######################################################
+# Mapping from Pure license types to Ricgraph license types.
+# ######################################################
+LICENSE_MAPPING_PURE = {
+    'CC0': rcg.LICENSE_CC0,
+    'CC BY': rcg.LICENSE_CC_BY,
+    'CC BY-NC': rcg.LICENSE_CC_BY_NC,
+    'CC BY-NC-ND': rcg.LICENSE_CC_BY_NC_ND,
+    'CC BY-NC-SA': rcg.LICENSE_CC_BY_NC_SA,
+    'CC BY-ND': rcg.LICENSE_CC_BY_ND,
+    'CC BY-SA': rcg.LICENSE_CC_BY_SA,
+    'Taverne': rcg.LICENSE_TAVERNE,
+    'Other': '',
+    'Unspecified': ''
+}
+
+
+# ######################################################
+# Mapping from Pure access types to Ricgraph access types.
+# ######################################################
+ACCESS_MAPPING_PURE = {
+    'Closed': rcg.ACCESS_CLOSED,
+    'Embargoed': rcg.ACCESS_EMBARGOED,
+    'Restricted': rcg.ACCESS_RESTRICTED,
+    'Open': rcg.ACCESS_OPEN,
+    'Indeterminate': '',
+    'None': '',
+    'Unknown': ''
 }
 
 
@@ -982,13 +1015,33 @@ def parse_pure_entities(harvest: list,
                                                      json_path='references.0.date')
             publication_year = publication_year[:4]
         # #####
+        # Get 'access' and 'license' info.
+        # For research results:
+        # Pure has 'access' both in openAccessPermission and in electronicVersions.
+        # We take the DOI from electronicVersions, so we prefer 'access' and 'license'
+        # from it too. Otherwise, we use 'access' from openAccessPermission.
+        # There does not seem to be a separate 'license' if there
+        # is no electronicVersions.
+        # For data sets:
+        # Pure has 'access' in openAccessPermission. No license info.
+        # For press-media:
+        # They do not seem to have license or access information.
+        licentie = ''
+        access = rcg.json_item_get_str(json_item=harvest_item,
+                                       json_path='openAccessPermission.term.text.0.value')
+        # #####
         doi = ''
         if mode == MODE_RESOUTS:
             for dois in rcg.json_item_get_list(json_item=harvest_item,
                                             json_path='electronicVersions'):
                 # Take the last DOI found for a resout.
-                if (newdoi := rcg.json_item_get_str(json_item=dois, json_path='doi')) != '':
+                if (newdoi := rcg.json_item_get_str(json_item=dois,
+                                                    json_path='doi')) != '':
                     doi = newdoi
+                    licentie = rcg.json_item_get_str(json_item=dois,
+                                                     json_path='licenseType.term.text.0.value')
+                    access = rcg.json_item_get_str(json_item=dois,
+                                                   json_path='accessType.term.text.0.value')
         elif mode == MODE_DATASETS:
             doi = rcg.json_item_get_str(json_item=harvest_item,
                                         json_path='doi')
@@ -997,27 +1050,32 @@ def parse_pure_entities(harvest: list,
             doi = ''
         doi = rcg.normalize_doi(identifier=doi)
         # #####
+        if licentie != '':
+            licentie = rcg.lookup_item_in_mapping(item=licentie,
+                                                  mapping=LICENSE_MAPPING_PURE)
+        if access != '':
+            access = rcg.lookup_item_in_mapping(item=access,
+                                                mapping=ACCESS_MAPPING_PURE)
+        # #####
         id_name = id_name_tobeused = ''
         if mode == MODE_RESOUTS:
             id_name = id_name_tobeused = 'PURE_ID_RESOUT'
-            category = rcg.lookup_researchresult_category(researchresult_category=category,
-                                                          researchresult_mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
+            category = rcg.lookup_item_in_mapping(item=category,
+                                                  mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
         elif mode == MODE_DATASETS:
             # Treat data sets of Pure endpoint datasets as data sets from Pure
             # endpoint researchoutputs.
             id_name = 'PURE_ID_DATASET'
             id_name_tobeused = 'PURE_ID_RESOUT'
-            category = rcg.lookup_researchresult_category(researchresult_category=category,
-                                                          researchresult_mapping=DATASET_CATEGORY_MAPPING_PURE)
+            category = rcg.lookup_item_in_mapping(item=category,
+                                                  mapping=DATASET_CATEGORY_MAPPING_PURE)
         elif mode == MODE_PRESS_MEDIA:
             id_name = id_name_tobeused = 'PURE_ID_PRESS_MEDIA'
             category = rcg.RESEARCHRESULT_CATEGORY_PRESS_MEDIA
         # #####
         if len(list_of_persons := json_item_get_list_pure(json_item=harvest_item,
                                                           json_path_read='personAssociations',
-                                                          json_path_crud='contributors')) > 0:
-            pass
-        else:
+                                                          json_path_crud='contributors')) == 0:
             continue
         for persons in list_of_persons:
             externalorg_name = ''
@@ -1090,6 +1148,10 @@ def parse_pure_entities(harvest: list,
                            'PURE_ID_PERS': author_uuid,
                            'PURE_URL_PERS': create_pure_url(name='PURE_ID_PERS',
                                                             value=author_uuid)}
+            if licentie != '':
+                parse_line['LICENSE'] = licentie
+            if access != '':
+                parse_line['ACCESS'] = access
             parse_chunk.append(parse_line)
 
     if len(parse_chunk) == 0:
@@ -1233,8 +1295,8 @@ def parse_pure_projects(harvest: list,
                     continue
                 if 'type' in resout \
                    and 'uri' in resout['type']:
-                    category = rcg.lookup_researchresult_category(researchresult_category=str(resout['type']['uri']),
-                                                                  researchresult_mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
+                    category = rcg.lookup_item_in_mapping(item=str(resout['type']['uri']),
+                                                          mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
                 else:
                     continue
 
@@ -1484,10 +1546,9 @@ def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
     global resout_uuid_or_doi
 
     cols = ['PURE_ID_PERS', 'NAME', 'CATEGORY', 'VALUE', 'TITLE', 'YEAR']
-    if 'URL_MAIN' in parsed_content.columns:
-        cols.append('URL_MAIN')
-    if 'URL_OTHER' in parsed_content.columns:
-        cols.append('URL_OTHER')
+    for column in ['LICENSE', 'ACCESS', 'URL_MAIN', 'URL_OTHER']:
+        if column in parsed_content.columns:
+            cols.append(column)
     resouts = parsed_content[cols].copy(deep=True)
     if HARVEST_PROJECTS:
         # This is only necessary if we are going to harvest projects later on.

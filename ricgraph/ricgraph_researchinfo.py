@@ -283,26 +283,24 @@ def normalize_identifiers_write_read(parse_result: DataFrame, filename: str = ''
     return parse
 
 
-def lookup_researchresult_category(researchresult_category: str,
-                                   researchresult_mapping: dict) -> str:
-    """Convert a research result type from a harvested system
+def lookup_item_in_mapping(item: str,
+                           mapping: dict) -> str:
+    """Lookup an item in a mapping (a dict).
+    This can be used e.g. to convert a research result type from a harvested system
     to a shorter and easier Ricgraph research result type, according to a certain mapping.
     The reason for doing this is to ensure a constant naming of research result
     types for objects harvested from different sources.
-    For more explanation, see the text at 'Research result types used in Ricgraph' at
-    the start of this file.
+    For examples, see the Ricgraph harvest scripts.
 
-    :param researchresult_category: A research result type from a source system.
-    :param researchresult_mapping: The mapping from the source system to Ricgraph
-    research result types.
-    :return: The result, in a few words.
+    :param item: An item to look up.
+    :param mapping: The mapping to be used.
+    :return: The result, in a few words, or 'empty' on no item, or 'unknown'
+      on an unknown (absent) item in mapping.
     """
-    if researchresult_category == '':
-        print('lookup_researchresult_category(): no research result type specified .')
+    if item == '':
+        print('lookup_item_in_mapping(): no item type specified.')
         return 'empty'
-
-    if researchresult_category not in researchresult_mapping:
-        print('lookup_researchresult_category(): unknown research result type: "' + researchresult_category + '".')
+    if item not in mapping:
+        print('lookup_item_in_mapping(): unknown item type: "' + item + '".')
         return 'unknown'
-
-    return researchresult_mapping[researchresult_category]
+    return mapping[item]
