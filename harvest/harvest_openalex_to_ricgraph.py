@@ -100,8 +100,10 @@ OPENALEX_DATA_FILENAME = 'openalex_data.csv'
 OPENALEX_MAX_RECS_TO_HARVEST = 0                        # 0 = all records
 # OpenAlex can select on "main" JSON field (like 'authorships'), but not
 # on subfields of it.
-# For OpenAlex, the OA can be retrieved from both 'primary_location' as 'open_access'.
-# I choose 'primary_location'.
+# The openness of a research result can be retrieved from both
+# 'primary_location' as from 'open_access'. I choose 'primary_location'.
+# In OpenAlex, you can only get whether a research result is open or
+# not, not if it is e.g. embargoed or restricted.
 OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships,primary_location'
 
 

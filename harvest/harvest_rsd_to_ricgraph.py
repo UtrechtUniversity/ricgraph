@@ -82,6 +82,9 @@ RSD_DATA_FILENAME = 'rsd_data.csv'
 # RSD_ENDPOINT). Find the 'paths' element in the JSON, in it, find a suitable
 # "endpoint" in paths (e.g. software, release, etc.). Try it out using
 # e.g. https://research-software-directory.org/api/v1/organisation?slug=eq.utrecht-university&select=software(*,release(*)).
+# In RSD, you can only get whether a research result is open or
+# not (in fact, if it is closed_source or not), not if it is
+# e.g. embargoed or restricted.
 RSD_ENDPOINT = 'api/v1/organisation'
 RSD_FIELDS = 'software(brand_name,slug,concept_doi,closed_source,' \
              + 'release(mention(doi,doi_registration_date,publication_year)),' \
