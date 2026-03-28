@@ -161,12 +161,13 @@ PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_PERSONS_FIELDS = {'fields': ['uuid',
-                                  'visibility.key',
                                   'name.*',
-                                  'ids.*',
+                                  'orcid',
+                                  'visibility.key',
+                                  'ids.value.*',
+                                  'ids.type.*',
                                   'staffOrganisationAssociations.period.*',
-                                  'staffOrganisationAssociations.organisationalUnit.*',
-                                  'orcid'
+                                  'staffOrganisationAssociations.organisationalUnit.uuid',
                                   ]
                        # See remark below.
                        # 'employmentStatus': 'ACTIVE'
@@ -210,12 +211,13 @@ PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.json'
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
-                                        'visibility.key',
                                         'period.*',
-                                        'name.*',
+                                        'name.text.*',
                                         'type.*',
-                                        # 'ids.*',
-                                        'parents.*'
+                                        'visibility.key',
+                                        #'ids.*',
+                                        'parents.uuid',
+                                        'parents.type.uri',
                                         ]
                              }
 
@@ -245,15 +247,22 @@ PURE_RESOUTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 global PURE_RESOUTS_FIELDS
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_READ_RESOUTS_FIELDS = {'fields': ['uuid',
-                                       'title.*',
+                                       'title.value',
                                        'confidential',
+                                       'type.uri',
+                                       'openAccessPermission.*',
                                        'visibility.key',
-                                       'type.*',
-                                       'workflow.workflowStep.*',
-                                       'publicationStatuses.*',
-                                       'personAssociations.*',
-                                       'electronicVersions.*',
-                                       'openAccessPermission.*'
+                                       'workflow.workflowStep',
+                                       'publicationStatuses.current',
+                                       'publicationStatuses.publicationDate.*',
+                                       'publicationStatuses.publicationStatus.uri',
+                                       'personAssociations.person.*',
+                                       'personAssociations.externalPerson.*',
+                                       'personAssociations.externalOrganisations.*',
+                                       'personAssociations.authorCollaboration.*',
+                                       'electronicVersions.doi',
+                                       'electronicVersions.accessType.*',
+                                       'electronicVersions.licenseType.*',
                                        ],
                             # These values will be overwritten.
                             # They exist to prevent a PyCharm warning.
@@ -291,13 +300,16 @@ PURE_DATASETS_FIELDS = {'fields': ['uuid',
                                    'doi',
                                    'publicationDate.*',
                                    'confidential',
+                                   'title.text.*',
+                                   'type.uri',
+                                   'openAccessPermission.*',
+                                   'workflow.workflowStep',
                                    'visibility.key',
-                                   'title.*',
-                                   'type.*',
-                                   'workflow.workflowStep.*',
-                                   'personAssociations.*',
-                                   'links.*',
-                                   'openAccessPermission.*'
+                                   'personAssociations.person.*',
+                                   'personAssociations.externalPerson.*',
+                                   'personAssociations.externalOrganisations.*',
+                                   'personAssociations.authorCollaboration.*',
+                                   #'links.*',
                                    ]
                         }
 
@@ -325,13 +337,18 @@ PURE_PRESS_MEDIA_DATA_FILENAME = 'pure_pressmedia_data.csv'
 PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # The current version of the Pure CRUD API does not have these filters yet.
 PURE_PRESS_MEDIA_FIELDS = {'fields': ['uuid',
-                                      'title.*',
-                                      'type.*',
+                                      #'title.*',
+                                      'type.uri',
                                       'confidential',
                                       'visibility.key',
-                                      'workflow.workflowStep.*',
-                                      'references.*',
-                                      'personAssociations.*'
+                                      'workflow.workflowStep',
+                                      'references.date',
+                                      'references.url',
+                                      'references.title.*',
+                                      'personAssociations.person.*',
+                                      'personAssociations.externalPerson.*',
+                                      'personAssociations.externalOrganisations.*',
+                                      'personAssociations.authorCollaboration.*',
                                       ],
                            # These values will be overwritten.
                            # They exist to prevent a PyCharm warning.
