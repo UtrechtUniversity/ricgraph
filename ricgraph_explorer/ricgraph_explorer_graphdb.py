@@ -71,7 +71,8 @@ from ricgraph import (get_personroot_node,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT)
 from ricgraph_explorer_constants import (MAX_NR_NODES_TO_ENRICH,
-                                         RESEARCH_OUTPUT_COLUMNS, DETAIL_COLUMNS)
+                                         RESEARCH_OUTPUT_COLUMNS, DETAIL_COLUMNS,
+                                         ACCESS_MODE_ANY)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
@@ -451,6 +452,7 @@ def find_organization_additional_info(parent_node: Node,
     year_last = extra_url_parameters.get('year_last', '')
     year_range_text = get_year_range_text(year_first=year_first,
                                           year_last=year_last)
+    access_mode = extra_url_parameters.get('access_mode', ACCESS_MODE_ANY)
     # Note the hard limit.
     cypher_result = \
         find_organization_additional_info_cypher(parent_node=parent_node,
@@ -458,6 +460,7 @@ def find_organization_additional_info(parent_node: Node,
                                                  category_list=category_list,
                                                  year_first=year_first,
                                                  year_last=year_last,
+                                                 access_mode=access_mode,
                                                  max_nr_items=extra_url_parameters['max_nr_items'])
     if len(cypher_result) == 0:
         message = 'Could not find any persons or results for this organization'

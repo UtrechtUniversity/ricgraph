@@ -61,7 +61,10 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          HISTOGRAM_MODE_PERCENTAGES,
                                          OSL_PROFILE_MODE_ALL,
                                          OSL_PROFILE_MODE_GROUPS,
-                                         OSL_PROFILE_MODE_ITEMS)
+                                         OSL_PROFILE_MODE_ITEMS,
+                                         ACCESS_MODE_OPEN,
+                                         ACCESS_MODE_ANY,
+                                         ACCESS_MODE_ALL)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form,
@@ -136,8 +139,15 @@ def osprofileresultpage() -> str:
     key = get_url_parameter_value(parameter='key', use_escape=False)
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
-    histogram_mode = get_url_parameter_value(parameter='histogram_mode')
-    oslprofile_mode = get_url_parameter_value(parameter='oslprofile_mode')
+    histogram_mode = get_url_parameter_value(parameter='histogram_mode',
+                                             allowed_values=HISTOGRAM_MODE_ALL,
+                                             default_value=HISTOGRAM_MODE_PERCENTAGES)
+    oslprofile_mode = get_url_parameter_value(parameter='oslprofile_mode',
+                                              allowed_values=OSL_PROFILE_MODE_ALL,
+                                              default_value=OSL_PROFILE_MODE_GROUPS)
+    access_mode = get_url_parameter_value(parameter='access_mode',
+                                          allowed_values=ACCESS_MODE_ALL,
+                                          default_value=ACCESS_MODE_ANY)
 
     extra_url_parameters = {}
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
@@ -154,18 +164,6 @@ def osprofileresultpage() -> str:
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         html += get_message(message=message)
         return html + page_footer + html_body_end
-    if histogram_mode == '':
-        histogram_mode = HISTOGRAM_MODE_PERCENTAGES
-    if histogram_mode not in HISTOGRAM_MODE_ALL:
-        html += get_message(message='Error: unknown histogram mode "'
-                                    + histogram_mode + '".')
-        return html + page_footer + html_body_end
-    if oslprofile_mode == '':
-        oslprofile_mode = OSL_PROFILE_MODE_GROUPS
-    if oslprofile_mode not in OSL_PROFILE_MODE_ALL:
-        html += get_message(message='Error: unknown open science profile mode "'
-                                    + oslprofile_mode + '".')
-        return html + page_footer + html_body_end
 
     extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
     extra_url_parameters['key'] = key
@@ -174,6 +172,7 @@ def osprofileresultpage() -> str:
     extra_url_parameters['discoverer_mode'] = discoverer_mode
     extra_url_parameters['histogram_mode'] = histogram_mode
     extra_url_parameters['oslprofile_mode'] = oslprofile_mode
+    extra_url_parameters['access_mode'] = access_mode
 
     result = read_all_nodes(key=key)
     if len(result) == 0 or len(result) > 1:
@@ -204,14 +203,16 @@ def osprofileresultpage() -> str:
     histogram_list, buttons = prepare_oslprofile(node=node,
                                                  material_group=material_group,
                                                  material_name=material_name,
-                                                 all_url_parameters=extra_url_parameters,
-                                                 year_first=year_first,
-                                                 year_last=year_last)
+                                                 all_url_parameters=extra_url_parameters)
     histogram_title = 'Open science profile '
-    if histogram_mode == HISTOGRAM_MODE_COUNTS:
-        histogram_title += '(counts) '
+    if histogram_mode == HISTOGRAM_MODE_PERCENTAGES:
+        histogram_title += '(percentages, '
     else:
-        histogram_title += '(percentages) '
+        histogram_title += '(counts, '
+    if access_mode == ACCESS_MODE_ANY:
+        histogram_title += '"any" access) '
+    else:
+        histogram_title += ' only "open" access) '
     histogram_title += get_year_range_text(year_first=year_first,
                                            year_last=year_last)
     histogram_title += ' for "' + node['value'] + '"'
@@ -221,16 +222,28 @@ def osprofileresultpage() -> str:
                                             histogram_mode=histogram_mode)
 
     modified_url_parameters = extra_url_parameters.copy()
-    if histogram_mode == HISTOGRAM_MODE_COUNTS:
-        modified_url_parameters['histogram_mode'] = HISTOGRAM_MODE_PERCENTAGES
-        what_to_show = 'percentages'
-    else:
+    if histogram_mode == HISTOGRAM_MODE_PERCENTAGES:
         modified_url_parameters['histogram_mode'] = HISTOGRAM_MODE_COUNTS
         what_to_show = 'counts'
+    else:
+        modified_url_parameters['histogram_mode'] = HISTOGRAM_MODE_PERCENTAGES
+        what_to_show = 'percentages'
     url = url_for(endpoint='osprofileresultpage.osprofileresultpage',
                   **modified_url_parameters)
     html_histogram += '<a href="' + url + '">toggle this histogram to show '
     html_histogram += what_to_show + '</a> '
+
+    modified_url_parameters = extra_url_parameters.copy()
+    if access_mode == ACCESS_MODE_ANY:
+        modified_url_parameters['access_mode'] = ACCESS_MODE_OPEN
+        what_to_show = 'only "open" access research results'
+    else:
+        modified_url_parameters['access_mode'] = ACCESS_MODE_ANY
+        what_to_show = '"any" access research results'
+    url = url_for(endpoint='osprofileresultpage.osprofileresultpage',
+                  **modified_url_parameters)
+    html_histogram += '<a href="' + url + '">toggle this histogram to show '
+    html_histogram += what_to_show + '</a>'
 
     modified_url_parameters = extra_url_parameters.copy()
     if oslprofile_mode == OSL_PROFILE_MODE_GROUPS:
@@ -300,21 +313,20 @@ def osprofileresultpage() -> str:
 def prepare_oslprofile(node: Node,
                        material_group: list,
                        material_name: list,
-                       all_url_parameters: dict,
-                       year_first: str,
-                       year_last: str) -> tuple[list, str]:
+                       all_url_parameters: dict) -> tuple[list, str]:
     """Prepare information for the Ricgraph open science profile.
 
     :param node: Organization node to consider.
     :param material_group: List of research result items.
     :param material_name: List of names how to name these research result items.
     :param all_url_parameters: Parameters to be passed in the URL.
-    :param year_first: First year of the research results to count.
-    :param year_last: Last year of the research results to count.
     :return: A list that contains the histogram (as JSON), and
       HTML for the buttons to get more information about the items
       in the histogram.
     """
+    year_first = all_url_parameters['year_first']
+    year_last = all_url_parameters['year_last']
+    access_mode = all_url_parameters['access_mode']
     buttons = '</p><div ' + form_button_on_one_line_flexspace_style + '>'
     histogram_list = []
     for material, name in zip(material_group, material_name):
@@ -323,7 +335,8 @@ def prepare_oslprofile(node: Node,
         hist_part = create_neighbor_histogram_cypher(node=node,
                                                      category=material,
                                                      year_first=year_first,
-                                                     year_last=year_last)
+                                                     year_last=year_last,
+                                                     access_mode=access_mode)
         hist_part_total = 0
         for item in hist_part:
             hist_part_total += hist_part[item]

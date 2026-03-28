@@ -79,7 +79,8 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
                                          RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH,
-                                         ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON)
+                                         ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
+                                         ACCESS_MODE_ALL, ACCESS_MODE_ANY)
 from ricgraph_explorer_init import (initialize_ricgraph_explorer, construct_page_footer,
                                     set_ricgraph_explorer_global,  get_ricgraph_explorer_global)
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
@@ -661,6 +662,9 @@ def resultspage() -> str:
     key = get_url_parameter_value(parameter='key', use_escape=False)
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
+    access_mode = get_url_parameter_value(parameter='access_mode',
+                                          allowed_values=ACCESS_MODE_ALL,
+                                          default_value=ACCESS_MODE_ANY)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
                                               default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
@@ -689,6 +693,7 @@ def resultspage() -> str:
 
     extra_url_parameters['year_first'] = year_first
     extra_url_parameters['year_last'] = year_last
+    extra_url_parameters['access_mode'] = access_mode
     html = html_body_start
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         html += get_message(message=message)

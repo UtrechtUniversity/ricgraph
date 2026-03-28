@@ -71,7 +71,8 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       cypher_print_resultsummary,
                       check_valid_year)
-from ricgraph_explorer_constants import MAX_ITEMS
+from ricgraph_explorer_constants import (MAX_ITEMS,
+                                         ACCESS_MODE_ALL, ACCESS_MODE_OPEN)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 
 
@@ -216,6 +217,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
                                              source_system: str = '',
                                              year_first: str = '',
                                              year_last: str = '',
+                                             access_mode: str = '',
                                              max_nr_items: str = str(MAX_ITEMS)) -> list:
     """For documentation, see find_organization_additional_info().
     This is the cypher functionality for that function.
@@ -226,6 +228,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
     :param source_system:
     :param year_first:
     :param year_last:
+    :param access_mode:
     :param max_nr_items:
     :return:
     """
@@ -235,6 +238,10 @@ def find_organization_additional_info_cypher(parent_node: Node,
         return []
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         print(message)
+        return []
+    if access_mode not in ACCESS_MODE_ALL:
+        print('find_organization_additional_info_cypher(): Error: invalid access mode "'
+              + access_mode + '".')
         return []
 
     if name_list is None:
@@ -249,7 +256,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
         cypher_query += 'WHERE elementId(node)=$node_element_id '
     else:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
-    cypher_query += ' AND neighbor.name = "person-root" '
+    cypher_query += ' AND neighbor.name="person-root" '
     cypher_query += 'MATCH (neighbor:RicgraphNode)-[]->(second_neighbor:RicgraphNode) '
     if len(name_list) > 0:
         clauses.append('second_neighbor.name IN $name_list')
@@ -261,6 +268,8 @@ def find_organization_additional_info_cypher(parent_node: Node,
         clauses.append('second_neighbor.year >= $year_first')
     if year_last != '':
         clauses.append('second_neighbor.year <= $year_last')
+    if access_mode == ACCESS_MODE_OPEN:
+        clauses.append('second_neighbor.access=$access_mode')
 
     if len(clauses) >= 1:
         cypher_query += 'WHERE ' + ' AND '.join(clauses) + ' '
@@ -277,6 +286,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
                                         source_system=source_system,
                                         year_first=year_first,
                                         year_last=year_last,
+                                        access_mode=access_mode,
                                         max_nr_items=int(max_nr_items),
                                         database_=ricgraph_databasename())
     if len(records) == 0:
@@ -566,13 +576,15 @@ def find_collab_orgs_persons_results(start_organizations: str,
 def create_neighbor_histogram_cypher(node: Node,
                                      category: list,
                                      year_first: str = '',
-                                     year_last: str = '') -> dict:
+                                     year_last: str = '',
+                                     access_mode: str = '') -> dict:
     """Create a histogram of the neighbors of a node.
 
     :param node: The node that is the base of the histogram.
     :param category: The category to base the histogram on.
     :param year_first: The first year of the results to be counted.
     :param year_last: The last year of the results to be counted.
+    :param access_mode: The access mode (open/any) of the results to be counted.
     :return: a dict that represents the histogram.
     """
     # Note that this function is similar to find_organization_additional_info_cypher(),
@@ -585,6 +597,10 @@ def create_neighbor_histogram_cypher(node: Node,
         return {}
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         print(message)
+        return {}
+    if access_mode not in ACCESS_MODE_ALL:
+        print('create_neighbor_histogram_cypher(): Error: unknown access mode "'
+              + access_mode + '".')
         return {}
 
     cypher_query = 'MATCH (organization:RicgraphNode)'
@@ -600,6 +616,8 @@ def create_neighbor_histogram_cypher(node: Node,
         cypher_query += 'AND researchresult.year >= $year_first '
     if year_last != '':
         cypher_query += 'AND researchresult.year <= $year_last '
+    if access_mode == ACCESS_MODE_OPEN:
+        cypher_query += 'AND researchresult.access=$access_mode '
     cypher_query += 'WITH DISTINCT researchresult '
     cypher_query += 'WITH researchresult.category AS category, COUNT(*) AS count '
     cypher_query += 'RETURN category, count '
@@ -613,6 +631,7 @@ def create_neighbor_histogram_cypher(node: Node,
                                         category=category,
                                         year_first=year_first,
                                         year_last=year_last,
+                                        access_mode=access_mode,
                                         database_=ricgraph_databasename())
     cypher_dict = dict(records)
     if len(cypher_dict) == 0:
