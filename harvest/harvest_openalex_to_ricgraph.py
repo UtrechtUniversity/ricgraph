@@ -287,7 +287,8 @@ def harvest_and_parse_openalex(harvest_year: str,
         url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT
         url += '?filter=institutions.ror:' + ORGANIZATION_ROR
         url += ',publication_year:' + harvest_year + '&select=' + OPENALEX_FIELDS
-        harvest_data = rcg.harvest_json(url=url,
+        harvest_data = rcg.harvest_json(source=rcg.SOURCE_OPENALEX,
+                                        url=url,
                                         headers=headers,
                                         max_recs_to_harvest=OPENALEX_MAX_RECS_TO_HARVEST,
                                         chunksize=OPENALEX_CHUNKSIZE,

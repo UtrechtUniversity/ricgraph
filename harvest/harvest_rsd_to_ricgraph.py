@@ -246,7 +246,9 @@ def harvest_and_parse_software(url: str,
     if RSD_READ_HARVEST_FROM_FILE:
         harvest_data = rcg.read_json_from_file(filename=harvest_filename)
     else:
-        harvest_data = rcg.harvest_json(url=url, filename=harvest_filename)
+        harvest_data = rcg.harvest_json(source=rcg.SOURCE_RSD,
+                                        url=url,
+                                        filename=harvest_filename)
 
     if (parse := parse_rsd_software(harvest=harvest_data,
                                     filename=df_filename)) is None:

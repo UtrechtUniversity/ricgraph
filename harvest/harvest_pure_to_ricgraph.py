@@ -87,6 +87,7 @@ import numpy
 from typing import Union
 import requests
 from pathlib import PurePath
+from urllib.parse import urlencode
 import ricgraph as rcg
 
 # ######################################################
@@ -1362,7 +1363,7 @@ def parse_pure_projects(harvest: list,
 # Harvesting and parsing
 # ######################################################
 def get_pure_organization_info(url: str,
-                               headers: dict, body: dict) -> dict:
+                               headers: dict) -> dict:
     """Harvest and parse organization data from Pure.
     This function is different compared to harvest_and_parse_pure_data()
     because parse_pure_organizations() returns a dict that is required by
@@ -1370,7 +1371,6 @@ def get_pure_organization_info(url: str,
 
     :param url: URL to harvest.
     :param headers: headers for Pure.
-    :param body: the body of a POST request, or '' for a GET request.
     :return: A dict where the key is the uuid of an organization,
         and its value a list with the name of the organization, and the names
         of all of its parents. Return an empty dict if nothing happened.
@@ -1397,9 +1397,9 @@ def get_pure_organization_info(url: str,
         if PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE:
             harvest_data = rcg.read_json_from_file(filename=harvest_data)
         else:
-            harvest_data = rcg.harvest_json(url=url,
+            harvest_data = rcg.harvest_json(source=rcg.SOURCE_PURE,
+                                            url=url,
                                             headers=headers,
-                                            body=body,
                                             max_recs_to_harvest=PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST,
                                             chunksize=PURE_CHUNKSIZE,
                                             filename=harvest_data)
@@ -1412,7 +1412,7 @@ def get_pure_organization_info(url: str,
 
 
 def harvest_and_parse_pure_data(mode: str, endpoint: str,
-                                headers: dict, body: dict,
+                                headers: dict, fields: dict,
                                 harvest_filename: str,
                                 df_filename: str,
                                 year_start:str = '',
@@ -1422,7 +1422,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     :param mode: as in MODE_ALL, to indicate what to harvest.
     :param endpoint: endpoint Pure.
     :param headers: headers for Pure.
-    :param body: the body of a POST request, or '' for a GET request.
+    :param fields: the fields to harvest.
     :param harvest_filename: filename to write harvest results to.
     :param df_filename: filename to write the DataFrame results to.
     :param year_start: the first year that we would like to harvest.
@@ -1451,14 +1451,16 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
 
     print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
     url_base = PURE_URL + '/' + PURE_API_VERSION + '/'
-    url = url_base + endpoint
+    url_fields = urlencode(fields, doseq=True)
+    url = url_base + endpoint + '?' + url_fields
     if (mode == MODE_PERSONS and not PURE_PERSONS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_RESOUTS and not PURE_RESOUTS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_DATASETS and not PURE_DATASETS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_PRESS_MEDIA and not PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_PROJECTS and not PURE_PROJECTS_READ_HARVEST_FROM_FILE):
-        harvest_data = rcg.harvest_json(url=url,
-                                        headers=headers, body=body,
+        harvest_data = rcg.harvest_json(source=rcg.SOURCE_PURE,
+                                        url=url,
+                                        headers=headers,
                                         max_recs_to_harvest=max_recs_to_harvest,
                                         chunksize=PURE_CHUNKSIZE,
                                         filename=harvest_filename)
@@ -1469,9 +1471,10 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     # Local variable 'parse' might be referenced before assignment.
     parse = pandas.DataFrame()
     if mode == MODE_PERSONS:
-        org_uuids_to_org_names = get_pure_organization_info(url=url_base + PURE_ORGANIZATIONS_ENDPOINT,
-                                                            headers=PURE_HEADERS,
-                                                            body=PURE_ORGANIZATIONS_FIELDS)
+        url_fields = urlencode(PURE_ORGANIZATIONS_FIELDS, doseq=True)
+        url_org = url_base + PURE_ORGANIZATIONS_ENDPOINT + '?' + url_fields
+        org_uuids_to_org_names = get_pure_organization_info(url=url_org,
+                                                            headers=PURE_HEADERS)
         parse = parse_pure_persons(harvest=harvest_data,
                                    org_uuids_to_org_names=org_uuids_to_org_names,
                                    filename=df_filename,
@@ -1926,7 +1929,7 @@ if HARVEST_PERSONS:
         parse_persorgs = harvest_and_parse_pure_data(mode='persons',
                                                      endpoint=PURE_PERSONS_ENDPOINT,
                                                      headers=PURE_HEADERS,
-                                                     body=PURE_PERSONS_FIELDS,
+                                                     fields=PURE_PERSONS_FIELDS,
                                                      harvest_filename=harvest_file,
                                                      df_filename=data_file,
                                                      year_start=year_first)
@@ -1971,7 +1974,7 @@ if HARVEST_RESOUTS:
             parse_resout = harvest_and_parse_pure_data(mode=MODE_RESOUTS,
                                                        endpoint=PURE_RESOUTS_ENDPOINT,
                                                        headers=PURE_HEADERS,
-                                                       body=PURE_RESOUTS_FIELDS,
+                                                       fields=PURE_RESOUTS_FIELDS,
                                                        harvest_filename=harvest_file_year,
                                                        df_filename=data_file_year)
 
@@ -2014,7 +2017,7 @@ if HARVEST_DATASETS:
         parse_datasets = harvest_and_parse_pure_data(mode=MODE_DATASETS,
                                                      endpoint=PURE_DATASETS_ENDPOINT,
                                                      headers=PURE_HEADERS,
-                                                     body=PURE_DATASETS_FIELDS,
+                                                     fields=PURE_DATASETS_FIELDS,
                                                      harvest_filename=harvest_file,
                                                      df_filename=data_file,
                                                      year_start=year_first,
@@ -2064,7 +2067,7 @@ if HARVEST_PRESS_MEDIA:
         parse_press_media = harvest_and_parse_pure_data(mode=MODE_PRESS_MEDIA,
                                                         endpoint=PURE_PRESS_MEDIA_ENDPOINT,
                                                         headers=PURE_HEADERS,
-                                                        body=PURE_PRESS_MEDIA_FIELDS,
+                                                        fields=PURE_PRESS_MEDIA_FIELDS,
                                                         harvest_filename=harvest_file,
                                                         df_filename=data_file)
 
@@ -2106,7 +2109,7 @@ if HARVEST_PROJECTS:
         parse_projects = harvest_and_parse_pure_data(mode='projects',
                                                      endpoint=PURE_PROJECTS_ENDPOINT,
                                                      headers=PURE_HEADERS,
-                                                     body=PURE_PROJECTS_FIELDS,
+                                                     fields=PURE_PROJECTS_FIELDS,
                                                      harvest_filename=harvest_file,
                                                      df_filename=data_file)
 

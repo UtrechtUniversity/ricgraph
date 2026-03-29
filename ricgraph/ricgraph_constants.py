@@ -86,6 +86,12 @@ MAX_NR_HISTORYITEMS_TO_ADD = 50
 # The maximum length of the organization abbreviation.
 MAX_ORG_ABBREVIATION_LENGTH = 4
 
+# For harvesting JSON, to be able to harvest based on source.
+# Not every source uses the same harvest URL-keywords.
+SOURCE_OPENALEX = 'OpenAlex'
+SOURCE_PURE = 'Pure'
+SOURCE_RSD = 'Research Software Directory'
+SOURCE_ALL = [SOURCE_OPENALEX, SOURCE_PURE, SOURCE_RSD]
 
 # ########################################################################
 # For pretty formatting of Cypher queries.
