@@ -110,6 +110,7 @@ LICENSE_MAPPING_RSD = {
     'GPL-2.0-or-later': rcg.LICENSE_GPL_20,
     'GPL-3.0': rcg.LICENSE_GPL_30,
     'GPL-3.0-only': rcg.LICENSE_GPL_30,
+    'GPL-3.0-or-later': rcg.LICENSE_GPL_30,
     'LGPL-2.1': rcg.LICENSE_LGPL_21,
     'LGPL-3.0': rcg.LICENSE_LGPL_30,
     'LGPL-3.0+': rcg.LICENSE_LGPL_30,

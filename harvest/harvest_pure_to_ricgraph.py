@@ -461,6 +461,7 @@ RESEARCHRESULT_CATEGORY_MAPPING_PURE = {
     RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'thesis/doc2': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
     RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'thesis/doc3': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
     RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'thesis/doc4': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'thesis/eng_thesis': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
     RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'workingpaper/discussionpaper': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
     RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'workingpaper/preprint': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
     RESEARCHRESULT_CATEGORY_PREFIX_PURE + 'workingpaper/workingpaper': rcg.RESEARCHRESULT_CATEGORY_PREPRINT
@@ -489,7 +490,10 @@ LICENSE_MAPPING_PURE = {
     'CC BY-NC-SA': rcg.LICENSE_CC_BY_NC_SA,
     'CC BY-ND': rcg.LICENSE_CC_BY_ND,
     'CC BY-SA': rcg.LICENSE_CC_BY_SA,
+    'GNU GPL': rcg.LICENSE_GPL_20,
     'Taverne': rcg.LICENSE_TAVERNE,
+    'Article 25fa Dutch Copyright Act': rcg.LICENSE_TAVERNE,
+    'Dutch Copyright Act (Article 25fa)': rcg.LICENSE_TAVERNE,
     'Other': '',
     'Unspecified': ''
 }
@@ -500,9 +504,12 @@ LICENSE_MAPPING_PURE = {
 # ######################################################
 ACCESS_MAPPING_PURE = {
     'Closed': rcg.ACCESS_CLOSED,
+    'Closed Access': rcg.ACCESS_CLOSED,
     'Embargoed': rcg.ACCESS_EMBARGOED,
     'Restricted': rcg.ACCESS_RESTRICTED,
+    'Campus Access (for uploaded file)': rcg.ACCESS_RESTRICTED,
     'Open': rcg.ACCESS_OPEN,
+    'Open Access': rcg.ACCESS_OPEN,
     'Indeterminate': '',
     'None': '',
     'Unknown': ''
