@@ -87,7 +87,6 @@ import numpy
 from typing import Union
 import requests
 from pathlib import PurePath
-from urllib.parse import urlencode
 import ricgraph as rcg
 
 # ######################################################
@@ -491,6 +490,7 @@ LICENSE_MAPPING_PURE = {
     'CC BY-ND': rcg.LICENSE_CC_BY_ND,
     'CC BY-SA': rcg.LICENSE_CC_BY_SA,
     'GNU GPL': rcg.LICENSE_GPL_20,
+    'GNU LGPL': rcg.LICENSE_LGPL_21,
     'Taverne': rcg.LICENSE_TAVERNE,
     'Article 25fa Dutch Copyright Act': rcg.LICENSE_TAVERNE,
     'Dutch Copyright Act (Article 25fa)': rcg.LICENSE_TAVERNE,
@@ -1407,6 +1407,7 @@ def get_pure_organization_info(url: str,
             harvest_data = rcg.harvest_json(source=rcg.SOURCE_PURE,
                                             url=url,
                                             headers=headers,
+                                            body=PURE_ORGANIZATIONS_FIELDS,
                                             max_recs_to_harvest=PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST,
                                             chunksize=PURE_CHUNKSIZE,
                                             filename=harvest_data)
@@ -1419,7 +1420,7 @@ def get_pure_organization_info(url: str,
 
 
 def harvest_and_parse_pure_data(mode: str, endpoint: str,
-                                headers: dict, fields: dict,
+                                headers: dict, body: dict,
                                 harvest_filename: str,
                                 df_filename: str,
                                 year_start:str = '',
@@ -1429,7 +1430,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     :param mode: as in MODE_ALL, to indicate what to harvest.
     :param endpoint: endpoint Pure.
     :param headers: headers for Pure.
-    :param fields: the fields to harvest.
+    :param body: contains the fields to harvest, and the harvest time period.
     :param harvest_filename: filename to write harvest results to.
     :param df_filename: filename to write the DataFrame results to.
     :param year_start: the first year that we would like to harvest.
@@ -1458,8 +1459,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
 
     print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
     url_base = PURE_URL + '/' + PURE_API_VERSION + '/'
-    url_fields = urlencode(fields, doseq=True)
-    url = url_base + endpoint + '?' + url_fields
+    url = url_base + endpoint
     if (mode == MODE_PERSONS and not PURE_PERSONS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_RESOUTS and not PURE_RESOUTS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_DATASETS and not PURE_DATASETS_READ_HARVEST_FROM_FILE) \
@@ -1468,6 +1468,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
         harvest_data = rcg.harvest_json(source=rcg.SOURCE_PURE,
                                         url=url,
                                         headers=headers,
+                                        body=body,
                                         max_recs_to_harvest=max_recs_to_harvest,
                                         chunksize=PURE_CHUNKSIZE,
                                         filename=harvest_filename)
@@ -1478,8 +1479,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     # Local variable 'parse' might be referenced before assignment.
     parse = pandas.DataFrame()
     if mode == MODE_PERSONS:
-        url_fields = urlencode(PURE_ORGANIZATIONS_FIELDS, doseq=True)
-        url_org = url_base + PURE_ORGANIZATIONS_ENDPOINT + '?' + url_fields
+        url_org = url_base + PURE_ORGANIZATIONS_ENDPOINT
         org_uuids_to_org_names = get_pure_organization_info(url=url_org,
                                                             headers=PURE_HEADERS)
         parse = parse_pure_persons(harvest=harvest_data,
@@ -1936,7 +1936,7 @@ if HARVEST_PERSONS:
         parse_persorgs = harvest_and_parse_pure_data(mode='persons',
                                                      endpoint=PURE_PERSONS_ENDPOINT,
                                                      headers=PURE_HEADERS,
-                                                     fields=PURE_PERSONS_FIELDS,
+                                                     body=PURE_PERSONS_FIELDS,
                                                      harvest_filename=harvest_file,
                                                      df_filename=data_file,
                                                      year_start=year_first)
@@ -1981,7 +1981,7 @@ if HARVEST_RESOUTS:
             parse_resout = harvest_and_parse_pure_data(mode=MODE_RESOUTS,
                                                        endpoint=PURE_RESOUTS_ENDPOINT,
                                                        headers=PURE_HEADERS,
-                                                       fields=PURE_RESOUTS_FIELDS,
+                                                       body=PURE_RESOUTS_FIELDS,
                                                        harvest_filename=harvest_file_year,
                                                        df_filename=data_file_year)
 
@@ -2024,7 +2024,7 @@ if HARVEST_DATASETS:
         parse_datasets = harvest_and_parse_pure_data(mode=MODE_DATASETS,
                                                      endpoint=PURE_DATASETS_ENDPOINT,
                                                      headers=PURE_HEADERS,
-                                                     fields=PURE_DATASETS_FIELDS,
+                                                     body=PURE_DATASETS_FIELDS,
                                                      harvest_filename=harvest_file,
                                                      df_filename=data_file,
                                                      year_start=year_first,
@@ -2074,7 +2074,7 @@ if HARVEST_PRESS_MEDIA:
         parse_press_media = harvest_and_parse_pure_data(mode=MODE_PRESS_MEDIA,
                                                         endpoint=PURE_PRESS_MEDIA_ENDPOINT,
                                                         headers=PURE_HEADERS,
-                                                        fields=PURE_PRESS_MEDIA_FIELDS,
+                                                        body=PURE_PRESS_MEDIA_FIELDS,
                                                         harvest_filename=harvest_file,
                                                         df_filename=data_file)
 
@@ -2116,7 +2116,7 @@ if HARVEST_PROJECTS:
         parse_projects = harvest_and_parse_pure_data(mode='projects',
                                                      endpoint=PURE_PROJECTS_ENDPOINT,
                                                      headers=PURE_HEADERS,
-                                                     fields=PURE_PROJECTS_FIELDS,
+                                                     body=PURE_PROJECTS_FIELDS,
                                                      harvest_filename=harvest_file,
                                                      df_filename=data_file)
 

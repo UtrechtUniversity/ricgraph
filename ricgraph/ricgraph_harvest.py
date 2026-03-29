@@ -43,9 +43,10 @@
 # ########################################################################
 
 
+from time import sleep
 from numpy import nan
 from pandas import DataFrame
-from requests import get, codes, Response, Session
+from requests import get, post, codes, Response
 from .ricgraph_constants import (A_LARGE_NUMBER,
                                  PERSON_CATEGORY_PERSON,
                                  COMPETENCE_CATEGORY_COMPETENCE,
@@ -57,6 +58,16 @@ from .ricgraph_utils import (timestamp, datetimestamp, timestamp_posix,
                              print_records_per_minute, print_progress)
 from .ricgraph import (unify_personal_identifiers, create_nodepairs_and_edges_df,
                        update_nodes_df)
+
+
+# The timeout for getting JSON from a source, in seconds.
+HARVEST_JSON_TIMEOUT = 60
+# If the JSON harvest fails (for any reason), try again
+# this number of times.
+HARVEST_JSON_MAX_RETRIES = 3
+# If the JSON harvest fails (for any reason), wait
+# this number of seconds before trying again.
+HARVEST_JSON_WAIT_AFTER_FAILED_ATTEMPT = 120
 
 
 def harvest_json_error(response: Response) -> None:
@@ -76,18 +87,22 @@ def harvest_json_error(response: Response) -> None:
 def harvest_json(source: str,
                  url: str,
                  headers: dict = None,
+                 body: dict = None,
                  max_recs_to_harvest: int = 0, chunksize: int = 0,
                  filename: str = '') -> list:
     """Harvest JSON data from a file.
-    OpenAlex uses cursor based navigation.
-    Pure uses offset (page) based navigation.
-    RSD can be harvested in one go (no paging or cursor necessary).
+    OpenAlex uses cursor based navigation, and GET.
+    Pure uses offset (page) based navigation, and POST, since only
+    POST allows to specify a time period.
+    RSD uses GET, and can be harvested in one go (no paging or
+    cursor necessary).
     In case filename != '', write it to a file and read it back.
 
     :param source: The source to harvest from. We need this,
         because not every source uses the same harvest URL-keywords.
     :param url: URL to harvest.
     :param headers: headers required.
+    :param body: body required.
     :param max_recs_to_harvest: maximum records to harvest.
     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
     :param filename: If filename != '', write it to a file and read it back.
@@ -110,7 +125,14 @@ def harvest_json(source: str,
 
     # Do a first harvest to determine the number of records to harvest,
     # or (for RSD) get all of its data.
-    response = get(url=url, headers=headers)
+    if source == SOURCE_OPENALEX:
+        response = get(url=url, headers=headers)
+    elif source == SOURCE_PURE:
+        response = post(url=url, headers=headers, json=body)
+    else:
+        # Not possible, we have tested for it above.
+        exit(1)
+
     if response.status_code != codes.ok:
         harvest_json_error(response=response)
         exit(1)
@@ -122,7 +144,6 @@ def harvest_json(source: str,
         # the 'while' loop below.
         return write_read_json_file(json_data=chunk_json_data,
                                     filename=filename)
-
     total_records = 0
     params = {}
     if source == SOURCE_OPENALEX:
@@ -135,9 +156,6 @@ def harvest_json(source: str,
         if 'count' in chunk_json_data:
             total_records = chunk_json_data['count']
         params['size'] = chunksize
-    else:
-        # Not possible, we have tested for it above.
-        exit(1)
 
     if total_records == 0:
         print('harvest_json(): Warning: malformed json, "count" is missing.')
@@ -150,27 +168,46 @@ def harvest_json(source: str,
               + ' records, harvesting in chunks of ' + str(chunksize)
               + ', at most ' + str(max_recs_to_harvest) + ' items.')
 
-    print('Harvesting record:')
-
     # Using a Session (from requests) makes it faster.
-    session = Session()
+    # However, Session() does not always work, sometimes
+    # Pure times out and then breaks the connection.
+    # session = Session()
     json_data = []
     records_harvested = 0
     start_ts = timestamp_posix()
     # And now start the real harvesting.
+    print('Harvesting record:')
     while records_harvested <= max_recs_to_harvest:
-        try:
-            response = session.get(url=url,
+        for attempt in range(1, HARVEST_JSON_MAX_RETRIES + 1):
+            try:
+                if source == SOURCE_OPENALEX:
+                    response = get(url=url,
                                    params=params,
-                                   headers=headers)
-            response.raise_for_status()
-        except Exception as exc:
-            harvest_json_error(response=response)
-            print('harvest_json(): This may add more information:')
-            print('    Exception return value: ' + str(exc) + '.')
-            print('    Params: ' + str(params) + '.')
-            print('    Headers: ' + str(headers) + '.')
-            exit(1)
+                                   headers=headers,
+                                   timeout=HARVEST_JSON_TIMEOUT)
+                elif source == SOURCE_PURE:
+                    response = post(url=url,
+                                    params=params,
+                                    headers=headers,
+                                    json=body,
+                                    timeout=HARVEST_JSON_TIMEOUT)
+                response.raise_for_status()
+                break
+            except Exception as exc:
+                print('harvest_json(): Failed JSON harvest attempt number '
+                      + str(attempt) + '.')
+                harvest_json_error(response=response)
+                print('harvest_json(): This may add more information:')
+                print('    Exception return value: ' + str(exc) + '.')
+                print('    Params: ' + str(params) + '.')
+                print('    Headers: ' + str(headers) + '.')
+                if attempt < HARVEST_JSON_MAX_RETRIES:
+                    print('harvest_json(): Trying JSON harvest again after '
+                          + str(HARVEST_JSON_WAIT_AFTER_FAILED_ATTEMPT) + ' seconds.')
+                    sleep(HARVEST_JSON_WAIT_AFTER_FAILED_ATTEMPT)
+                    continue
+                print('harvest_json(): Failed all JSON harvest attempts, exiting.')
+                exit(1)
 
         chunk_json_data = response.json()
         if source == SOURCE_OPENALEX:
@@ -192,7 +229,7 @@ def harvest_json(source: str,
             exit(1)
 
         json_data += json_items
-        records_harvested += chunksize
+        records_harvested += len(json_items)
 
         # For the next round, if any.
         if source == SOURCE_OPENALEX:
