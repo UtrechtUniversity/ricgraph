@@ -43,6 +43,7 @@
 # ########################################################################
 
 
+from sys import stdout
 from time import sleep
 from numpy import nan
 from pandas import DataFrame
@@ -203,7 +204,7 @@ def harvest_json(source: str,
                 response.raise_for_status()
                 break
             except Exception as exc:
-                print('harvest_json(): Failed JSON harvest attempt number '
+                print('\nharvest_json(): Failed JSON harvest attempt number '
                       + str(attempt) + '.')
                 _harvest_json_error(response=response)
                 print('harvest_json(): This may add more information:')
@@ -213,6 +214,7 @@ def harvest_json(source: str,
                 if attempt <= HARVEST_JSON_MAX_RETRIES:
                     print('harvest_json(): Trying JSON harvest again after '
                           + str(HARVEST_JSON_WAIT_AFTER_FAILED_ATTEMPT) + ' seconds.')
+                    stdout.flush()
                     sleep(HARVEST_JSON_WAIT_AFTER_FAILED_ATTEMPT)
                     continue
                 print('harvest_json(): Failed all JSON harvest attempts, exiting.')
@@ -231,6 +233,7 @@ def harvest_json(source: str,
                                                max_recs_to_harvest=max_recs_to_harvest,
                                                chunksize=chunksize)
             print('Harvesting record:')
+            stdout.flush()
 
         if source == SOURCE_OPENALEX:
             if 'results' not in chunk_json_data:
