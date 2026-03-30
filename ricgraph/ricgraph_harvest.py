@@ -46,13 +46,12 @@
 from time import sleep
 from numpy import nan
 from pandas import DataFrame
-from requests import get, post, codes, Response
+from requests import get, post, Response
 from .ricgraph_constants import (A_LARGE_NUMBER,
                                  PERSON_CATEGORY_PERSON,
                                  COMPETENCE_CATEGORY_COMPETENCE,
                                  ORGANIZATION_CATEGORY_ORGANISATION,
-                                 SOURCE_ALL, SOURCE_OPENALEX,
-                                 SOURCE_PURE, SOURCE_RSD)
+                                 SOURCE_OPENALEX, SOURCE_PURE, SOURCE_RSD)
 from .ricgraph_file import write_read_json_file
 from .ricgraph_utils import (timestamp, datetimestamp, timestamp_posix,
                              print_records_per_minute, print_progress)
@@ -70,7 +69,45 @@ HARVEST_JSON_MAX_RETRIES = 3
 HARVEST_JSON_WAIT_AFTER_FAILED_ATTEMPT = 120
 
 
-def harvest_json_error(response: Response) -> None:
+def _harvest_json_get_print_nr_records(source: str,
+                                       chunk_json_data: dict,
+                                       max_recs_to_harvest: int,
+                                       chunksize: int) -> None:
+    """Helper function for harvest_json(), to get and print the
+    total number of records to harvest.
+
+    :param source: The source to harvest from.
+    :param chunk_json_data: A chunk with harvested JSON data.
+    :param max_recs_to_harvest: maximum records to harvest.
+    :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
+    :return: None.
+    """
+    total_records = 0
+    if source == SOURCE_OPENALEX:
+        if 'meta' in chunk_json_data:
+            if 'count' in chunk_json_data['meta']:
+                total_records = chunk_json_data['meta']['count']
+    elif source == SOURCE_PURE:
+        if 'count' in chunk_json_data:
+            total_records = chunk_json_data['count']
+    else:
+        print('harvest_json_get_print_nr_records(): Should not happen.')
+        exit(1)
+
+    if total_records == 0:
+        print('harvest_json_get_print_nr_records(): Warning: malformed json, "count" is missing.')
+    if max_recs_to_harvest == A_LARGE_NUMBER:
+        print('There are ' + str(total_records)
+              + ' records, harvesting in chunks of ' + str(chunksize)
+              + ' items.')
+    else:
+        print('There are ' + str(total_records)
+              + ' records, harvesting in chunks of ' + str(chunksize)
+              + ', at most ' + str(max_recs_to_harvest) + ' items.')
+    return
+
+
+def _harvest_json_error(response: Response) -> None:
     """Prints an error message if an error during harvest occurs.
 
     :param response: Response object.
@@ -91,11 +128,12 @@ def harvest_json(source: str,
                  max_recs_to_harvest: int = 0, chunksize: int = 0,
                  filename: str = '') -> list:
     """Harvest JSON data from a file.
-    OpenAlex uses cursor based navigation, and GET.
-    Pure uses offset (page) based navigation, and POST, since only
-    POST allows to specify a time period.
-    RSD uses GET, and can be harvested in one go (no paging or
-    cursor necessary).
+    OpenAlex (GET) uses cursor based navigation, because OpenAlex
+    breaks the connection after a maximum nr of records harvested
+    while using page based navigation.
+    Pure (POST) uses offset (page) based navigation. It uses POST,
+    since that is the only way to specify a time period for the harvest.
+    RSD (GET) can be harvested in one go (no paging or cursor necessary).
     In case filename != '', write it to a file and read it back.
 
     :param source: The source to harvest from. We need this,
@@ -108,14 +146,27 @@ def harvest_json(source: str,
     :param filename: If filename != '', write it to a file and read it back.
     :return: list of records in JSON format, or empty list if nothing found.
     """
-    if source not in SOURCE_ALL:
+    if headers is None:
+        headers = {}
+    if body is None:
+        body = {}
+
+    params = {}
+    if source == SOURCE_OPENALEX:
+        params['cursor'] = '*'
+        params['per_page'] = str(chunksize)
+    elif source == SOURCE_PURE:
+        params['size'] = chunksize
+    elif source == SOURCE_RSD:
+        # RSD does not use this.
+        pass
+    else:
         print('harvest_json(): Error: source "'
               + source + '" not implemented yet.')
         exit(1)
-    if headers is None:
-        headers = {}
 
-    print('Harvesting json data from ' + url + '.')
+    print('Harvesting json data from source '
+          + source + ' using url ' + url + '.')
     print('Getting data at ' + datetimestamp() + '.')
     all_records = A_LARGE_NUMBER
     if max_recs_to_harvest == 0:
@@ -123,85 +174,43 @@ def harvest_json(source: str,
     if chunksize == 0:
         chunksize = 1
 
-    # Do a first harvest to determine the number of records to harvest,
-    # or (for RSD) get all of its data.
-    if source == SOURCE_OPENALEX:
-        response = get(url=url, headers=headers)
-    elif source == SOURCE_PURE:
-        response = post(url=url, headers=headers, json=body)
-    else:
-        # Not possible, we have tested for it above.
-        exit(1)
-
-    if response.status_code != codes.ok:
-        harvest_json_error(response=response)
-        exit(1)
-
-    chunk_json_data = response.json()
-    if source == SOURCE_RSD:
-        # For RSD, we have already gotten all data,
-        # (it can be get in one go), no need for
-        # the 'while' loop below.
-        return write_read_json_file(json_data=chunk_json_data,
-                                    filename=filename)
-    total_records = 0
-    params = {}
-    if source == SOURCE_OPENALEX:
-        if 'meta' in chunk_json_data:
-            if 'count' in chunk_json_data['meta']:
-                total_records = chunk_json_data['meta']['count']
-        params['cursor'] = '*'
-        params['per_page'] = str(chunksize)
-    elif source == SOURCE_PURE:
-        if 'count' in chunk_json_data:
-            total_records = chunk_json_data['count']
-        params['size'] = chunksize
-
-    if total_records == 0:
-        print('harvest_json(): Warning: malformed json, "count" is missing.')
-    if max_recs_to_harvest == all_records:
-        print('There are ' + str(total_records)
-              + ' records, harvesting in chunks of ' + str(chunksize)
-              + ' items.')
-    else:
-        print('There are ' + str(total_records)
-              + ' records, harvesting in chunks of ' + str(chunksize)
-              + ', at most ' + str(max_recs_to_harvest) + ' items.')
-
     # Using a Session (from requests) makes it faster.
     # However, Session() does not always work, sometimes
     # Pure times out and then breaks the connection.
     # session = Session()
+
     json_data = []
     records_harvested = 0
+    first_time = True
     start_ts = timestamp_posix()
-    # And now start the real harvesting.
-    print('Harvesting record:')
     while records_harvested <= max_recs_to_harvest:
-        for attempt in range(1, HARVEST_JSON_MAX_RETRIES + 1):
+        attempt = 0
+        while True:
+            attempt += 1
+            response = None
             try:
-                if source == SOURCE_OPENALEX:
-                    response = get(url=url,
-                                   params=params,
-                                   headers=headers,
-                                   timeout=HARVEST_JSON_TIMEOUT)
-                elif source == SOURCE_PURE:
+                if source == SOURCE_PURE:
                     response = post(url=url,
                                     params=params,
                                     headers=headers,
                                     json=body,
                                     timeout=HARVEST_JSON_TIMEOUT)
+                else:
+                    response = get(url=url,
+                                   params=params,
+                                   headers=headers,
+                                   timeout=HARVEST_JSON_TIMEOUT)
                 response.raise_for_status()
                 break
             except Exception as exc:
                 print('harvest_json(): Failed JSON harvest attempt number '
                       + str(attempt) + '.')
-                harvest_json_error(response=response)
+                _harvest_json_error(response=response)
                 print('harvest_json(): This may add more information:')
                 print('    Exception return value: ' + str(exc) + '.')
                 print('    Params: ' + str(params) + '.')
                 print('    Headers: ' + str(headers) + '.')
-                if attempt < HARVEST_JSON_MAX_RETRIES:
+                if attempt <= HARVEST_JSON_MAX_RETRIES:
                     print('harvest_json(): Trying JSON harvest again after '
                           + str(HARVEST_JSON_WAIT_AFTER_FAILED_ATTEMPT) + ' seconds.')
                     sleep(HARVEST_JSON_WAIT_AFTER_FAILED_ATTEMPT)
@@ -210,6 +219,19 @@ def harvest_json(source: str,
                 exit(1)
 
         chunk_json_data = response.json()
+        if first_time:
+            first_time = False
+            if source == SOURCE_RSD:
+                # For RSD, we have already gotten all data,
+                # (it can be gotten in one go), save & continue.
+                return write_read_json_file(json_data=chunk_json_data,
+                                            filename=filename)
+            _harvest_json_get_print_nr_records(source=source,
+                                               chunk_json_data=chunk_json_data,
+                                               max_recs_to_harvest=max_recs_to_harvest,
+                                               chunksize=chunksize)
+            print('Harvesting record:')
+
         if source == SOURCE_OPENALEX:
             if 'results' not in chunk_json_data:
                 print('harvest_json(): Error: malformed json, "results" is missing.')
@@ -228,8 +250,8 @@ def harvest_json(source: str,
             # Not possible, we have tested for it above.
             exit(1)
 
-        json_data += json_items
         records_harvested += len(json_items)
+        json_data += json_items
 
         # For the next round, if any.
         if source == SOURCE_OPENALEX:
@@ -258,158 +280,6 @@ def harvest_json(source: str,
     print('')
     return write_read_json_file(json_data=json_data,
                                 filename=filename)
-
-
-# # #####
-# March 29, 2026. I rewrote the following function because it
-# is messy. Also, I needed cursor based harvesting instead of
-# page based. I leave it here for now, for it might be useful
-# at some time to take scraps from it.
-# # #####
-# # #####
-# # Note:
-# # This function was written using the JSON harvested by the following python files:
-# # - GET: harvest_openalex_to_ricgraph.py.
-# # - POST: harvest_pure_to_ricgraph.py.
-# #
-# # Possibly for other harvests some changes should be made. Please also test the result
-# # with the above-mentioned files, and add the filename of the new harvest script.
-# # #####
-# def harvest_json(url: str,
-#                  headers: dict = None, body: dict = None,
-#                  max_recs_to_harvest: int = 0, chunksize: int = 0,
-#                  filename: str = '') -> list:
-#     """Harvest JSON data from a file.
-#     In case filename != '', write it to a file and read it back.
-#
-#     :param url: URL to harvest.
-#     :param headers: headers required.
-#         If headers is None, we can get all data in one go, we do not need
-#         the 'while' loop below. This is the case for
-#         e.g. Research Software Directory.
-#     :param body: the body of a POST request, or None/{} for a GET request.
-#     :param max_recs_to_harvest: maximum records to harvest.
-#     :param chunksize: chunk size to use (i.e. the number of records harvested in one call to 'url').
-#     :param filename: If filename != '', write it to a file and read it back.
-#     :return: list of records in JSON format, or empty list if nothing found.
-#     """
-#     if body is None:
-#         body = {}
-#     if headers is None:
-#         headers = {}
-#
-#     print('Harvesting json data from ' + url + '.')
-#     print('Getting data at ' + datetimestamp() + '.')
-#
-#     all_records = A_LARGE_NUMBER
-#     if max_recs_to_harvest == 0:
-#         max_recs_to_harvest = all_records
-#     if chunksize == 0:
-#         chunksize = 1
-#     if len(body) == 0:
-#         # GET http request.
-#         request_type = 'get'
-#         if len(headers) > 0:
-#             url += '&per_page=' + str(chunksize)
-#     else:
-#         # POST http request.
-#         request_type = 'post'
-#         body['size'] = chunksize
-#
-#     # Do a first harvest to determine the number of records to harvest.
-#     if request_type == 'get':
-#         response = get(url=url, headers=headers)
-#     else:
-#         response = post(url=url, headers=headers, json=body)
-#
-#     if response.status_code != codes.ok:
-#         harvest_json_error(response=response)
-#         exit(1)
-#
-#     chunk_json_data = response.json()
-#     if len(headers) == 0:
-#         # If headers is None, we can get all data in one go, we do
-#         # not need the 'while' loop below. This is the case for
-#         # e.g. Research Software Directory.
-#         return write_read_json_file(json_data=chunk_json_data,
-#                                     filename=filename)
-#
-#     total_records = 0
-#     if request_type == 'get':
-#         if 'meta' in chunk_json_data:
-#             if 'count' in chunk_json_data['meta']:
-#                 total_records = chunk_json_data['meta']['count']
-#     else:
-#         if 'count' in chunk_json_data:
-#             total_records = chunk_json_data['count']
-#
-#     if total_records == 0:
-#         print('harvest_json(): Warning: malformed json, "count" is missing.')
-#
-#     if max_recs_to_harvest == all_records:
-#         print('There are ' + str(total_records)
-#               + ' records, harvesting in chunks of ' + str(chunksize)
-#               + ' items.')
-#     else:
-#         print('There are ' + str(total_records)
-#               + ' records, harvesting in chunks of ' + str(chunksize)
-#               + ', at most ' + str(max_recs_to_harvest) + ' items.')
-#
-#     print('Harvesting record:')
-#
-#     json_data = []
-#     records_harvested = 0
-#     start_ts = timestamp_posix()
-#     page_nr = 1
-#     # And now start the real harvesting.
-#     while records_harvested <= max_recs_to_harvest:
-#         if request_type == 'get':
-#             url_page = url + '&page=' + str(page_nr)
-#             response = get(url=url_page, headers=headers)
-#         else:
-#             if max_recs_to_harvest - records_harvested <= chunksize:
-#                 # We have to harvest the last few (< chunksize).
-#                 body['size'] = max_recs_to_harvest - records_harvested
-#             body['offset'] = records_harvested
-#             response = post(url=url, headers=headers, json=body)
-#
-#         if response.status_code != codes.ok:
-#             harvest_json_error(response=response)
-#             exit(1)
-#
-#         chunk_json_data = response.json()
-#         if request_type == 'get':
-#             if 'results' not in chunk_json_data:
-#                 print('harvest_json(): Error: malformed json, "results" is missing.')
-#                 return []
-#             if len(chunk_json_data['results']) == 0:
-#                 break
-#             json_items = chunk_json_data['results']
-#         else:
-#             if 'items' not in chunk_json_data:
-#                 print('harvest_json(): Error: malformed json, "items" is missing.')
-#                 return []
-#             if len(chunk_json_data['items']) == 0:
-#                 break
-#             json_items = chunk_json_data['items']
-#
-#         json_data += json_items
-#         records_harvested += chunksize
-#         # Note that we cannot use print_progress() because of
-#         # the '+= chunksize'.
-#         print(records_harvested, ' ', end='', flush=True)
-#         if (records_harvested % (chunksize * 10)) == 0:
-#             print('(' + timestamp() + ')\n', end='', flush=True)
-#         page_nr += 1
-#
-#     print_progress(count=records_harvested, now=True)
-#     end_ts = timestamp_posix()
-#     print_records_per_minute(start_ts=start_ts, end_ts=end_ts,
-#                              nr_records=records_harvested,
-#                              what='Harvested')
-#     print('')
-#     return write_read_json_file(json_data=json_data,
-#                                 filename=filename)
 
 
 # ######################################################
