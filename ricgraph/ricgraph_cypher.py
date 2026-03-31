@@ -1256,11 +1256,15 @@ def cypher_print_resultsummary(summary: ResultSummary,
         print(format_cypher(query))
 
     if summary.plan is not None:
-        print('Plan:')
-        print(str(summary.plan))
+        # print('Plan - full dict:')
+        # print(str(summary.plan))
+        print('Plan of this query:')
+        print(summary.plan['args']['string-representation'])
     if summary.profile is not None:
-        print('Profile:')
-        print(str(summary.profile))
+        # print('Profile - full dict:')
+        # print(str(summary.profile))
+        print('Profile of this query:')
+        print(summary.profile['args']['string-representation'])
     if nr_results != -1:
         print('Number of results of this query: ' + str(nr_results) + '.')
     print('Execution time of this query:')

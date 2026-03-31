@@ -356,10 +356,10 @@ def find_collabs_cypher(start_organizations: str,
         return []
 
     cypher_query = 'MATCH (start_orgs:RicgraphNode)'
-    cypher_query += '-[]->(persroot1:RicgraphNode)'
-    cypher_query += '-[]->(researchresult:RicgraphNode)'
-    cypher_query += '-[]->(persroot2:RicgraphNode)'
-    cypher_query += '-[]->(collab_orgs:RicgraphNode) '
+    cypher_query += '-[]->(persroot1:RicgraphPersonRoot)'
+    cypher_query += '-[]->(researchresult:RicgraphResearchResult)'
+    cypher_query += '-[]->(persroot2:RicgraphPersonRoot)'
+    cypher_query += '-[]->(collab_orgs:RicgraphOrganization) '
 
     cypher_query += 'WHERE start_orgs.name="ORGANIZATION_NAME" '
     if read_node(name='ORGANIZATION_NAME', value=start_organizations) is None:
@@ -384,11 +384,8 @@ def find_collabs_cypher(start_organizations: str,
               + str(researchresult_category) + '".')
         exit(1)
 
-    cypher_query += 'AND persroot1.name="person-root" '
-    cypher_query += 'AND persroot2.name="person-root" '
-    cypher_query += 'AND persroot1._key<>persroot2._key '
-    cypher_query += 'AND start_orgs._key<>collab_orgs._key '
-    cypher_query += 'AND collab_orgs.name="ORGANIZATION_NAME" '
+    cypher_query += 'AND persroot1<>persroot2 '
+    cypher_query += 'AND start_orgs<>collab_orgs '
 
     org_abbr = ''
     if collab_organizations == '':
@@ -604,13 +601,12 @@ def create_neighbor_histogram_cypher(node: Node,
         return {}
 
     cypher_query = 'MATCH (organization:RicgraphNode)'
-    cypher_query += '-[]->(persroot:RicgraphNode)'
-    cypher_query += '-[]->(researchresult:RicgraphNode) '
+    cypher_query += '-[]->(persroot:RicgraphPersonRoot)'
+    cypher_query += '-[]->(researchresult:RicgraphResearchResult) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'WHERE elementId(organization)=$node_element_id '
     else:
         cypher_query += 'WHERE id(organization)=toInteger($node_element_id) '
-    cypher_query += 'AND persroot.name="person-root"  '
     cypher_query += 'AND researchresult.category IN $category '
     if year_first != '':
         cypher_query += 'AND researchresult.year >= $year_first '
