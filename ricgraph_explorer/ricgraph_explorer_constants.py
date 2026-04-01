@@ -41,9 +41,6 @@
 # ########################################################################
 
 
-from ricgraph import get_ricgraph_version
-
-
 # You can search in two different ways in Ricgraph Explorer. This parameter
 # gives the default mode. Possibilities are:
 # exact_match: do a search on exact match, we call it 'advanced search'.
@@ -324,19 +321,6 @@ page_footer_general += 'target="_blank">docs.ricgraph.eu</a>, '
 page_footer_general += 'or go to the GitHub repository '
 page_footer_general += '<a href="https://github.com/UtrechtUniversity/ricgraph"'
 page_footer_general += 'target="_blank">github.com/UtrechtUniversity/ricgraph</a>. '
-page_footer_general += 'This site uses Ricgraph version ' + get_ricgraph_version() + '.'
-
-page_footer_development = '<footer class="w3-container rj-gray" style="font-size:80%">'
-page_footer_development += 'You are using Ricgraph Explorer in development mode. '
-page_footer_development += 'Do only use this for research use, not for production use. '
-page_footer_development += page_footer_general
-page_footer_development += '</footer>'
-
-page_footer_wsgi = '<footer class="w3-container rj-gray" style="font-size:80%">'
-page_footer_wsgi += 'You are using Ricgraph Explorer with a '
-page_footer_wsgi += 'WSGI Gunicorn server using Uvicorn for ASGI applications. '
-page_footer_wsgi += page_footer_general
-page_footer_wsgi += '</footer>'
 
 
 # ########################################################################

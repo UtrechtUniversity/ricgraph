@@ -908,7 +908,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
        'name': all different name properties.
        'category': all different category properties.
        '_source': all different _source properties.
-       'name_personal': all different name properties that are personal identifiers.
+       'person_name': all different name properties that are personal identifiers.
     :return: a sorted list with all the values, or empty list on error.
     """
     global _graph
@@ -922,7 +922,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
         return []
 
     if node_property != 'name' \
-       and node_property != 'name_personal' \
+       and node_property != 'person_name' \
        and node_property != 'category' \
        and node_property != 'year' \
        and node_property != '_source':
@@ -931,7 +931,7 @@ def read_all_values_of_property(node_property: str = '') -> list:
         return []
 
     cypher_query = 'MATCH (node:RicgraphNode) '
-    if node_property == 'name_personal':
+    if node_property == 'person_name':
         # Note that the comment property of 'person-root' contains FULL_NAMEs,
         # so it is also a name property that is a personal identifier.
         cypher_query += 'WHERE node.category = "' + PERSON_CATEGORY_PERSON + '" '
@@ -1078,10 +1078,10 @@ def get_all_neighbor_nodes(node: Node,
 
 
 def get_all_neighbor_nodes_loop(node: Node,
-                                name_want: list,
-                                name_dontwant: list,
-                                category_want: list,
-                                category_dontwant: list,
+                                name_want: Union[str, list],
+                                name_dontwant: Union[str, list],
+                                category_want: Union[str, list],
+                                category_dontwant: Union[str, list],
                                 year_first: str = '',
                                 year_last: str = '',
                                 max_nr_neighbor_nodes: int = 0) -> list:
@@ -1253,7 +1253,7 @@ def cypher_print_resultsummary(summary: ResultSummary,
             query = query.replace(placeholder, subst, count=1)
 
         print('Cypher query:')
-        print(format_cypher(query))
+        print(format_cypher(str(query)))
 
     if summary.plan is not None:
         # print('Plan - full dict:')

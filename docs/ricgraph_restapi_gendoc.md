@@ -38,7 +38,7 @@ Read more about [REST (representational state transfer)](https://en.wikipedia.or
 |--------|----------|-------------|
 | GET | [GET /person/search](#get-personsearch) | Search for a person |
 | GET | [GET /person/all_information](#get-personall_information) | Show all information related to this person |
-| GET | [GET /person/share_research_results](#get-personshare_research_results) | Find persons that share any research result types with this person |
+| GET | [GET /person/share_researchresults](#get-personshare_researchresults) | Find persons that share any research result types with this person |
 | GET | [GET /person/collaborating_organizations](#get-personcollaborating_organizations) | Find organizations that this person collaborates with |
 | GET | [GET /person/enrich](#get-personenrich) | Find information harvested from other source systems, not present in this source system |
 | GET | [GET /organization/search](#get-organizationsearch) | Search for a (sub-)organization |
@@ -51,7 +51,7 @@ Read more about [REST (representational state transfer)](https://en.wikipedia.or
 | GET | [GET /advanced_search](#get-advanced_search) | Advanced search |
 | GET | [GET /get_all_personroot_nodes](#get-get_all_personroot_nodes) | Find all person-root nodes of this node |
 | GET | [GET /get_all_neighbor_nodes](#get-get_all_neighbor_nodes) | Find all neighbor nodes of this node |
-| GET | [GET /get_ricgraph_list](#get-get_ricgraph_list) | Get the values of an internal global Ricgraph list |
+| GET | [GET /get_ricgraph_info](#get-get_ricgraph_info) | Get information about Ricgraph |
 
 
 
@@ -104,6 +104,8 @@ __Parameters__
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | key | string | True | Search for a value in Ricgraph field *_key* |
+| year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
+| year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
 | max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
 
 
@@ -126,7 +128,7 @@ __Responses__
 
 
 
-## GET /person/share_research_results
+## GET /person/share_researchresults
 
 Find persons that share any research result types with this person
 
@@ -213,6 +215,8 @@ __Parameters__
 | name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
 | category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
 | source_system | string | True | The name of the source system you would like to enrich |
+| year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
+| year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
 | max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
 
 
@@ -317,6 +321,8 @@ __Parameters__
 | key | string | True | Search for a value in Ricgraph field *_key* |
 | name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
 | category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
+| year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
+| year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
 | max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
 
 
@@ -356,6 +362,8 @@ __Parameters__
 | name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
 | category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
 | source_system | string | True | The name of the source system you would like to enrich |
+| year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
+| year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
 | max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
 
 
@@ -590,9 +598,9 @@ __Responses__
 
 
 
-## GET /get_ricgraph_list
+## GET /get_ricgraph_info
 
-Get the values of an internal global Ricgraph list
+Get information about Ricgraph
 
 
 
@@ -601,17 +609,17 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| ricgraph_list_name | string | True | Return the values in the specified internal Ricgraph list. These are dependent on the data in your Ricgraph instance and on the systems you have harvested. Allowed Ricgraph lists are:
-* name_all: all possible values of the *name* field in a Ricgraph node.
-* name_personal_all: all possible values of the *name* field that contain personal data in a Ricgraph node.
-* category_all: all possible values of the *category* field in a Ricgraph node.
-* personal_types_all: all category values in list *category_all* that are applicable to a person.
-* publication_types_all: all category values in list *category_all* that are applicable to a publication.
-* remainder_types_all: all other category values in list *category_all*, that is
-  all values in list *category_all* minus those in *personal_types_all*.
+| ricgraph_info | string | True | Get information about Ricgraph. Some of this information is dependent on the data in your Ricgraph  instance and on the systems you have harvested, and some of it is not. There are four types of information that you can retrieve, as indicated in the list below. Each information type has its own fields. You can query an item  to find out what fields it contains.
+* ricgraph_cacheinfo: information about the cache Ricgraph uses, and the size 
+  of that cache.
 
-* source_all: the names of all the harvested source systems.
-* resout_types_all: all research result types defined in file *ricgraph.py*.
+* ricgraph_harvestinfo: information about the sources that Ricgraph has
+  harvested, and the number of nodes and edges.
+
+* ricgraph_nodeinfo: information about nodes in Ricgraph, and their fields and
+  field values.
+
+* ricgraph_systeminfo: information about Ricgraph and Ricgraph Explorer.
  |
 
 

@@ -164,7 +164,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
         cypher_query += 'id(startnode_personroot)=toInteger($startnode_personroot_element_id) AND '
     # The following statement is really necessary for speed reasons.
     cypher_query += 'startnode_personroot.name="person-root" AND '
-    cypher_query += 'neighbor.category IN $resout_types_all AND '
+    cypher_query += 'neighbor.category IN $researchresult_category_active AND '
     cypher_query += 'neighbor_personroot.name="person-root" AND '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'elementId(neighbor_personroot)<>elementId(startnode_personroot) AND '
@@ -181,10 +181,10 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
 
     # Note that 'records' will contain _all_ organizations that 'parent_node'
     # collaborates with, very probably also the organizations this person works for.
-    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+    researchresult_category_active = get_ricgraph_explorer_global(name='researchresult_category_active')
     records, _, _ = graph.execute_query(query_=cypher_query,
                                         startnode_personroot_element_id=personroot_node.element_id,
-                                        resout_types_all=resout_types_all,
+                                        researchresult_category_active=researchresult_category_active,
                                         max_nr_items=int(max_nr_items),
                                         database_=ricgraph_databasename())
 
@@ -462,12 +462,12 @@ def find_collab_orgs_matrix(start_organizations: str,
       the columns to collab_organizations, and the cell value to the number
       of collaborations between start_organizations and collab_organizations.
     """
-    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+    researchresult_category_active = get_ricgraph_explorer_global(name='researchresult_category_active')
 
     if isinstance(researchresult_category, str) and researchresult_category == '':
-        researchresult_category = resout_types_all.copy()
+        researchresult_category = researchresult_category_active.copy()
     if isinstance(researchresult_category, list) and len(researchresult_category) == 0:
-        researchresult_category = resout_types_all.copy()
+        researchresult_category = researchresult_category_active.copy()
 
     cypher_return_clause = 'RETURN '
     cypher_return_clause += '  start_orgs.value AS start_orgs, '
@@ -537,12 +537,12 @@ def find_collab_orgs_persons_results(start_organizations: str,
       0 = return all collaborating organizations,
     :return: for all modes: a list of nodes, or [] if nothing found.
     """
-    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+    researchresult_category_active = get_ricgraph_explorer_global(name='researchresult_category_active')
 
     if isinstance(researchresult_category, str) and researchresult_category == '':
-        researchresult_category = resout_types_all.copy()
+        researchresult_category = researchresult_category_active.copy()
     if isinstance(researchresult_category, list) and len(researchresult_category) == 0:
-        researchresult_category = resout_types_all.copy()
+        researchresult_category = researchresult_category_active.copy()
 
     if mode != 'return_researchresults' \
        and mode != 'return_startorg_persons' \

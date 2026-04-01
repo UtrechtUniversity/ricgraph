@@ -86,8 +86,8 @@ if sort_organization == '':
         print('Exiting.\n')
         exit(1)
 
-category_all = rcg.read_all_values_of_property('category')
-if len(category_all) == 0 :
+category_active = rcg.read_all_values_of_property('category')
+if len(category_active) == 0 :
     print('Error in obtaining list with all property values for property "category".')
     exit(2)
 
@@ -98,13 +98,13 @@ if category_wanted == '':
     print('of a specified category, and writes a histogram and a collaboration table of')
     print('these organizations to a csv file. You may want to visualize the results using e.g. Excel.\n')
     print('Choose one of these categories:')
-    print(str(category_all))
+    print(str(category_active))
     category_wanted = input('Please specify a category: ')
     if category_wanted == '':
         print('Error, you have not specified a category, exiting.\n')
         exit(1)
 
-if category_wanted not in category_all:
+if category_wanted not in category_active:
     print('Error, category "' + category_wanted + '" is not a valid category.')
     print('Exiting.\n')
     exit(1)

@@ -45,9 +45,6 @@ from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
                       check_valid_year,
                       get_year_range_text,
-                      RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
-                      RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
-                      RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
                       ORGANIZATION_CATEGORY_ORGANISATION)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          DISCOVERER_MODE_ALL,
@@ -65,14 +62,15 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          ACCESS_MODE_OPEN,
                                          ACCESS_MODE_ANY,
                                          ACCESS_MODE_ALL)
-from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form,
                                      get_page_title,
                                      get_url_parameter_value,
                                      get_message,
                                      get_spinner,
-                                     get_html_for_yearcard)
+                                     get_html_for_yearcard,
+                                     get_global_list, get_global_str,
+                                     get_page_footer)
 from ricgraph_explorer_datavis import get_html_for_histogram
 from ricgraph_explorer_cypher import create_neighbor_histogram_cypher
 
@@ -89,8 +87,6 @@ def oslpage() -> str:
 
     :return: HTML to be rendered.
     """
-    page_footer = get_ricgraph_explorer_global('page_footer')
-
     html = html_body_start
 
     html += get_page_title(title='Explore open science monitoring')
@@ -108,7 +104,7 @@ def oslpage() -> str:
                                             })
     html += get_html_for_cardend()
 
-    html += page_footer + html_body_end
+    html += get_page_footer() + html_body_end
     return html
 
 
@@ -135,7 +131,12 @@ def osprofileresultpage() -> str:
 
     :return: HTML to be rendered.
     """
-    page_footer = get_ricgraph_explorer_global('page_footer')
+    researchresult_category_research_material = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                                item='researchresult_category_research_material')
+    researchresult_category_reporting_material = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                                 item='researchresult_category_reporting_material')
+    researchresult_category_engagement_material = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                                  item='researchresult_category_engagement_material')
     key = get_url_parameter_value(parameter='key', use_escape=False)
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
@@ -152,7 +153,8 @@ def osprofileresultpage() -> str:
     extra_url_parameters = {}
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
+                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                                                           item='discoverer_mode_default'))
     # For this page, we ignore the value of 'max_nr_items' if it is passed.
     max_nr_items = '0'
     extra_url_parameters['max_nr_items'] = max_nr_items
@@ -163,7 +165,7 @@ def osprofileresultpage() -> str:
     html = html_body_start
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         html += get_message(message=message)
-        return html + page_footer + html_body_end
+        return html + get_page_footer() + html_body_end
 
     extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
     extra_url_parameters['key'] = key
@@ -182,21 +184,21 @@ def osprofileresultpage() -> str:
             message = 'Ricgraph Explorer found too many nodes. '
         message += 'This should not happen. '
         html += get_message(message=message)
-        return html + page_footer + html_body_end
+        return html + get_page_footer() + html_body_end
     node = result[0]
 
     if oslprofile_mode == OSL_PROFILE_MODE_ITEMS:
         # List of items.
-        material_group = RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL + \
-                         RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL + \
-                         RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL
+        material_group = researchresult_category_research_material + \
+                         researchresult_category_reporting_material + \
+                         researchresult_category_engagement_material
         material_group = sorted(material_group, key=lambda x: x.lower())
         material_name = material_group.copy()
     else:
         # List of lists.
-        material_group = [RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
-                          RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
-                          RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL]
+        material_group = [researchresult_category_research_material,
+                          researchresult_category_reporting_material,
+                          researchresult_category_engagement_material]
         material_name = ['research material',
                          'reporting material',
                          'engagement material']
@@ -293,21 +295,21 @@ def osprofileresultpage() -> str:
     html += '<ol><li>'
     html += '<em>Research material</em>: input/output and supporting materials of the analysis.'
     html += '<br/>'
-    html += 'These are the result result categories ' + str(RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL) + '.'
+    html += 'These are the result result categories ' + str(researchresult_category_research_material) + '.'
     html += '</li><li>'
     html += '<em>Reporting material</em>: documents reporting on process and results of analysis.'
     html += '<br/>'
-    html += 'These are the result result categories ' + str(RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL) + '.'
+    html += 'These are the result result categories ' + str(researchresult_category_reporting_material) + '.'
     html += '</li><li>'
     html += '<em>Engagement material</em>: everything used to involve stakeholders and '
     html += 'wider audiences into influencing the research and '
     html += 'using or implementing its results.'
     html += '<br/>'
-    html += 'These are the result result categories ' + str(RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL) + '.'
+    html += 'These are the result result categories ' + str(researchresult_category_engagement_material) + '.'
     html += '</li></ol>'
     html += get_html_for_cardend()
 
-    return html + page_footer + html_body_end
+    return html + get_page_footer() + html_body_end
 
 
 def prepare_oslprofile(node: Node,

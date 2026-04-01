@@ -222,7 +222,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
-    if source_system not in get_ricgraph_explorer_global(name='source_all'):
+    if source_system not in get_ricgraph_explorer_global(name='source_active'):
         html = get_message(message='You have not specified a valid source system "'
                                    + source_system + '".')
         return html
@@ -349,7 +349,7 @@ def find_person_organization_collaborations(parent_node: Node,
 
     A person X from organization A collaborates with a person Y from
     organization B if X and Y have both contributed to the same research result.
-    All research result types are in 'resout_types_all'.
+    All research result types are in 'researchresult_category_active'.
     This function does not give an overview of the persons that person X collaborates
     with (although those are determined in this function) because there is
     another function to do that.

@@ -43,9 +43,8 @@
 from flask import Blueprint
 
 from ricgraph_explorer_constants import html_body_start, html_body_end
-from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     get_page_title)
+                                     get_page_title, get_page_footer)
 
 _topicspage_bp = Blueprint(name='topicspage', import_name=__name__)
 
@@ -55,10 +54,8 @@ def topicspage() -> str:
     """Ricgraph Explorer entry, this 'page' does not have any parameters.
     The Topics page.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
-    page_footer = get_ricgraph_explorer_global('page_footer')
-
     html = html_body_start
 
     html += get_page_title(title='Topics')
@@ -71,5 +68,5 @@ def topicspage() -> str:
     html += 'And then some more text.'
     html += get_html_for_cardend()
 
-    html += page_footer + html_body_end
+    html += get_page_footer() + html_body_end
     return html

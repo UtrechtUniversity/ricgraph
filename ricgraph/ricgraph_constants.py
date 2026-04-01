@@ -86,7 +86,8 @@ MAX_NR_HISTORYITEMS_TO_ADD = 50
 # The maximum length of the organization abbreviation.
 MAX_ORG_ABBREVIATION_LENGTH = 4
 
-# For harvesting JSON, to be able to harvest based on source.
+# For harvesting JSON, to be able to harvest based on source,
+# used in harvest_json() and the scripts that call it.
 # Not every source uses the same harvest URL-keywords.
 SOURCE_OPENALEX = 'OpenAlex'
 SOURCE_PURE = 'Pure'
@@ -239,7 +240,7 @@ RESEARCHRESULT_CATEGORY_ALL = \
      RESEARCHRESULT_CATEGORY_THESIS,
      RESEARCHRESULT_CATEGORY_WEBSITE]
 
-# A resout_type_all is defined in initialize_ricgraph_explorer().
+# A researchresult_category_active is defined in collect_ricgraph_nodeinfo().
 # These are elements of RESEARCHRESULT_CATEGORY_ALL that are present in your Ricgraph.
 # I.e., those have been harvested from the source systems that you chose to harvest.
 
@@ -265,7 +266,7 @@ RESEARCHRESULT_CATEGORY_PUBLICATION = \
      RESEARCHRESULT_CATEGORY_REVIEW,
      RESEARCHRESULT_CATEGORY_THESIS]
 
-# A resout_type_pub is defined in initialize_ricgraph_explorer().
+# A researchresult_category_active is defined in collect_ricgraph_nodeinfo().
 # These are elements of RESEARCHRESULT_CATEGORY_PUBLICATION that are present in your Ricgraph.
 # I.e., those have been harvested from the source systems that you chose to harvest.
 

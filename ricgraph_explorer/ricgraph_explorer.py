@@ -56,10 +56,7 @@ from connexion import FlaskApp, options
 from typing import Union
 from flask import send_from_directory, redirect, url_for, Response
 from neo4j.graph import Node
-from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
-                      ricgraph_get_harvest_date,
-                      nodes_cache_key_id_type_size,
-                      read_all_nodes,
+from ricgraph import (read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes,
                       check_valid_year,
                       get_year_range_text,
@@ -71,7 +68,6 @@ from ricgraph import (ricgraph_nr_nodes, ricgraph_nr_edges,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT)
 from ricgraph_explorer_constants import (html_body_start, html_body_end,
-                                         page_footer_wsgi, page_footer_development,
                                          button_style, button_width,
                                          form_button_on_one_line_style,
                                          VIEW_MODE_ALL, DEFAULT_SEARCH_MODE,
@@ -81,8 +77,9 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
                                          ACCESS_MODE_ALL, ACCESS_MODE_ANY)
-from ricgraph_explorer_init import (initialize_ricgraph_explorer, construct_page_footer,
-                                    set_ricgraph_explorer_global,  get_ricgraph_explorer_global)
+from ricgraph_explorer_init import (initialize_ricgraph_explorer,
+                                    store_ricgraph_explorer_app,
+                                    set_ricgraph_explorer_global)
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_overlap_in_source_systems_records,
                                        find_person_share_resouts,
@@ -94,7 +91,9 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
                                      get_url_parameter_value, get_url_parameter_list,
                                      get_message, get_found_message,
                                      get_you_searched_for_card, get_page_title,
-                                     get_html_for_yearcard)
+                                     get_html_for_yearcard,
+                                     get_global_list, get_global_str,
+                                     get_page_footer)
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
@@ -113,10 +112,7 @@ from ricgraph_explorer_restapi import (_restapidocpage_bp,
                                        api_search_competence, api_competence_all_information,
                                        api_broad_search, api_advanced_search,
                                        api_get_all_personroot_nodes, api_get_all_neighbor_nodes,
-                                       api_get_ricgraph_list)
-
-
-_page_footer = ''
+                                       api_get_ricgraph_info)
 
 
 # We don't show the Swagger REST API page, we use RapiDoc for that (see restapidocpage()
@@ -143,7 +139,7 @@ _ricgraph_explorer.app.register_blueprint(blueprint=_restapidocpage_bp)
 # ##############################################################################
 @_ricgraph_explorer.route('/favicon.ico')
 def favicon():
-    return send_from_directory(path.join(_ricgraph_explorer.app.root_path, 'static'),
+    return send_from_directory(path.join(str(_ricgraph_explorer.app.root_path), 'static'),
                                path='favicon.ico',
                                mimetype='image/png')
 
@@ -172,8 +168,6 @@ def homepage() -> str:
 
     :return: HTML to be rendered.
     """
-    global _page_footer
-
     html = html_body_start
     html += get_page_title(title='Ricgraph - Research in context graph')
     html += get_html_for_cardstart()
@@ -193,7 +187,8 @@ def homepage() -> str:
     html += 'one person identifier (such as ORCID, ISNI, or a source system identifier) '
     html += 'in the source systems harvested.'
 
-    html += str(get_ricgraph_explorer_global(name='homepage_intro_html'))
+    html += get_global_str(ricgraph_info='ricgraph_systeminfo',
+                           item='homepage_intro_html')
 
     html += '<h1>Start exploring</h1>'
     html += 'You can use Ricgraph Explorer to explore Ricgraph. '
@@ -211,7 +206,8 @@ def homepage() -> str:
                              hidden_fields={'search_mode': 'value_search',
                                             'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             })
-    if COMPETENCE_CATEGORY_COMPETENCE in get_ricgraph_explorer_global(name='category_all'):
+    if COMPETENCE_CATEGORY_COMPETENCE in get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                         item='category_active'):
         html += create_html_form(destination='searchpage',
                                  button_text='search for a skill, expertise area or research area',
                                  hidden_fields={'search_mode': 'value_search',
@@ -226,7 +222,8 @@ def homepage() -> str:
                              button_text='explore the open science landscape')
     html += '</div>'
     html += '<p/>'
-    if 'topic' in get_ricgraph_explorer_global(name='category_all'):
+    if 'topic' in get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                  item='category_active'):
         html += create_html_form(destination='topicspage.topicspage',
                                  button_text='explore topics')
         html += '<p/>'
@@ -243,9 +240,6 @@ def homepage() -> str:
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
-    nr_nodes = ricgraph_nr_nodes()
-    nr_edges = ricgraph_nr_edges()
-    harvest_date = ricgraph_get_harvest_date()
     html += '<h1>About Ricgraph</h1>'
     html += 'More information:'
     html += '<ul>'
@@ -283,47 +277,67 @@ def homepage() -> str:
     html += '<ul>'
     html += '<li>'
     html += 'Items from the following source systems: '
-    source_all = get_ricgraph_explorer_global(name='source_all')
-    if len(source_all) == 0:
+    source_active = get_global_list(ricgraph_info='ricgraph_harvestinfo',
+                                    item='source_active')
+    if len(source_active) == 0:
         html += '[no source systems harvested yet]'
     else:
-        html += ', '.join([str(source) for source in source_all])
+        html += ', '.join([str(source) for source in source_active])
     html += '.'
     html += '</li>'
     html += '<li>'
     html += 'Types of items: '
-    name_all = get_ricgraph_explorer_global(name='name_all')
-    if len(name_all) == 0:
+    name_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                  item='name_active')
+    if len(name_active) == 0:
         html += '[no items yet]'
     else:
-        html += ', '.join([str(name) for name in name_all])
+        html += ', '.join([str(name) for name in name_active])
     html += '.'
     html += '</li>'
     html += '<li>'
     html += 'Types of items that contain personal data: '
-    name_personal_all = get_ricgraph_explorer_global(name='name_personal_all')
-    if len(name_personal_all) == 0:
+    person_name_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                         item='person_name_active')
+    if len(person_name_active) == 0:
         html += '[no items that contain personal data yet]'
     else:
-        html += ', '.join([str(name_personal) for name_personal in name_personal_all])
+        html += ', '.join([str(person_name) for person_name in person_name_active])
     html += '.'
     html += '</li>'
     html += '<li>'
-    html += str(nr_nodes) + ' nodes and ' + str(nr_edges) + ' edges, '
+    html += get_global_str(ricgraph_info='ricgraph_harvestinfo',
+                           item='nr_nodes')
+    html += ' nodes and '
+    html += get_global_str(ricgraph_info='ricgraph_harvestinfo',
+                           item='nr_edges')
+    html += ' edges, '
+    harvest_date = get_global_str(ricgraph_info='ricgraph_harvestinfo',
+                                  item='harvest_date')
     if harvest_date == '':
         html += 'nothing has been harvested yet.'
     else:
         html += 'harvested on ' + harvest_date + '.'
     html += '</li>'
     html += '<li>'
-    html += nodes_cache_key_id_type_size()
+    html += 'Ricgraph uses a '
+    html += get_global_str(ricgraph_info='ricgraph_cacheinfo',
+                           item='cache_name')
+    html += '. This cache has '
+    html += get_global_str(ricgraph_info='ricgraph_cacheinfo',
+                           item='nr_items')
+    html += ' elements, and its size is '
+    html += get_global_str(ricgraph_info='ricgraph_cacheinfo',
+                           item='size_kb')
+    html += 'kB.'
     html += '</li>'
     html += '</ul>'
 
-    html += str(get_ricgraph_explorer_global(name='homepage_outro_html'))
+    html += get_global_str(ricgraph_info='ricgraph_systeminfo',
+                           item='homepage_outro_html')
 
     html += get_html_for_cardend()
-    html += _page_footer + html_body_end
+    html += get_page_footer() + html_body_end
     return html
 
 
@@ -344,9 +358,8 @@ def searchpage() -> str:
 
     :return: HTML to be rendered.
     """
-    global _page_footer
-
-    year_all_datalist = get_ricgraph_explorer_global('year_all_datalist')
+    year_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+                                          item='year_active_datalist')
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
     origin = get_url_parameter_value(parameter='origin')
@@ -355,7 +368,8 @@ def searchpage() -> str:
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
+                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                                                           item='discoverer_mode_default'))
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
     if not max_nr_items.isnumeric():
@@ -369,17 +383,19 @@ def searchpage() -> str:
     form = '<form method="get" action="' + url_for(endpoint='optionspage') + '">'
     if search_mode == 'exact_match':
         form += '<label for="name">Search for a value in Ricgraph field <em>name</em>:</label>'
-        form += '<input id="name" class="w3-input w3-border" list="name_all_datalist"'
+        form += '<input id="name" class="w3-input w3-border" list="name_active_datalist"'
         form += 'name=name autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-        form += str(get_ricgraph_explorer_global(name='name_all_datalist'))
+        form += get_global_str(ricgraph_info='ricgraph_nodeinfo',
+                               item='name_active_datalist')
         form += '<br/>'
 
         form += '<label for="category">Search for a value in Ricgraph field <em>category</em>:</label>'
-        form += '<input id="category" class="w3-input w3-border" list="category_all_datalist"'
+        form += '<input id="category" class="w3-input w3-border" list="category_active_datalist"'
         form += 'name=category autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-        form += str(get_ricgraph_explorer_global(name='category_all_datalist'))
+        form += get_global_str(ricgraph_info='ricgraph_nodeinfo',
+                               item='category_active_datalist')
         form += '<br/>'
     if search_mode == 'value_search' and name != '':
         form += '<input id="name" type="hidden" name="name" value="' + name + '">'
@@ -408,17 +424,17 @@ def searchpage() -> str:
     form += '<div ' + form_button_on_one_line_style + '>'
     form += '<div' + form_button_width + '>'
     form += '<label for="year_first">first year of research result:</label>'
-    form += '<input id="year_first" class="w3-input w3-border" list="year_all_datalist"'
+    form += '<input id="year_first" class="w3-input w3-border" list="year_active_datalist"'
     form += 'name=year_first autocomplete=off' + form_button_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += str(year_all_datalist)
+    form += year_active_datalist
     form += '</div>'
     form += '<div' + form_button_width + '>'
     form += '<label for="year_last">last year of research result:</label>'
-    form += '<input id="year_last" class="w3-input w3-border" list="year_all_datalist"'
+    form += '<input id="year_last" class="w3-input w3-border" list="year_active_datalist"'
     form += 'name=year_last autocomplete=off' + form_button_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += str(year_all_datalist)
+    form += year_active_datalist
     form += '</div>'
     form += '</div>'
 
@@ -428,7 +444,8 @@ def searchpage() -> str:
     radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
     radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
     radio_person_tooltip += 'Also, tables have fewer columns to reduce information overload. '
-    if COMPETENCE_CATEGORY_COMPETENCE in get_ricgraph_explorer_global(name='category_all'):
+    if COMPETENCE_CATEGORY_COMPETENCE in get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                         item='category_active'):
         radio_person_tooltip += 'This view has been tailored to the Utrecht University staff pages, since some '
         radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
         radio_person_tooltip += 'These will be presented in a different way using lists. '
@@ -494,7 +511,7 @@ def searchpage() -> str:
     html += get_html_for_cardstart()
     html += form
     html += get_html_for_cardend()
-    html += _page_footer + html_body_end
+    html += get_page_footer() + html_body_end
     return html
 
 
@@ -522,8 +539,6 @@ def optionspage() -> Union[str, Response]:
 
     :return: HTML to be rendered.
     """
-    global _page_footer
-
     extra_url_parameters = {}
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
@@ -535,7 +550,8 @@ def optionspage() -> Union[str, Response]:
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
+                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                                                           item='discoverer_mode_default'))
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
     if not max_nr_items.isnumeric():
@@ -553,7 +569,7 @@ def optionspage() -> Union[str, Response]:
     html = html_body_start
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         html += get_message(message=message)
-        return html + _page_footer + html_body_end
+        return html + get_page_footer() + html_body_end
     key = get_url_parameter_value(parameter='key', use_escape=False)
     if key == '':
         name = get_url_parameter_value(parameter='name')
@@ -566,7 +582,7 @@ def optionspage() -> Union[str, Response]:
 
     if name == '' and category == '' and value == '' and key == '':
         html += get_message(message='Ricgraph Explorer could not find anything.')
-        html += _page_footer + html_body_end
+        html += get_page_footer() + html_body_end
         return html
 
     # Not necessary to check if the node ('key') is in the cache, that is done in
@@ -581,7 +597,7 @@ def optionspage() -> Union[str, Response]:
         if len(value) < SEARCH_STRING_MIN_LENGTH:
             html += get_message(message='The search string should be at least '
                                         + str(SEARCH_STRING_MIN_LENGTH) + ' characters.')
-            html += _page_footer + html_body_end
+            html += get_page_footer() + html_body_end
             return html
         if name == 'FULL_NAME':
             # We also need to search on FULL_NAME_ASCII, therefore the 'name_is_exact_match = False'.
@@ -596,7 +612,7 @@ def optionspage() -> Union[str, Response]:
     if len(result) == 0:
         # We didn't find anything.
         html += get_message(message='Ricgraph Explorer could not find anything.')
-        html += _page_footer + html_body_end
+        html += get_page_footer() + html_body_end
         return html
     if len(result) > 1:
         html += get_page_title(title='Selection page')
@@ -605,7 +621,7 @@ def optionspage() -> Union[str, Response]:
                                   table_header=table_header,
                                   discoverer_mode=discoverer_mode,
                                   extra_url_parameters=extra_url_parameters)
-        html += _page_footer + html_body_end
+        html += get_page_footer() + html_body_end
         return html
 
     node = result[0]
@@ -621,7 +637,7 @@ def optionspage() -> Union[str, Response]:
     html += create_options_page(node=node,
                                 discoverer_mode=discoverer_mode,
                                 extra_url_parameters=extra_url_parameters)
-    html += _page_footer + html_body_end
+    html += get_page_footer() + html_body_end
     return html
 
 
@@ -656,8 +672,6 @@ def resultspage() -> str:
 
     :return: HTML to be rendered.
     """
-    global _page_footer
-
     view_mode = get_url_parameter_value(parameter='view_mode')
     key = get_url_parameter_value(parameter='key', use_escape=False)
     year_first = get_url_parameter_value(parameter='year_first')
@@ -667,7 +681,8 @@ def resultspage() -> str:
                                           default_value=ACCESS_MODE_ANY)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
+                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                                                           item='discoverer_mode_default'))
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
@@ -697,11 +712,11 @@ def resultspage() -> str:
     html = html_body_start
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         html += get_message(message=message)
-        return html + _page_footer + html_body_end
+        return html + get_page_footer() + html_body_end
 
     if view_mode not in VIEW_MODE_ALL:
         html += get_message(message='Unknown view_mode: "' + view_mode + '".')
-        html += _page_footer + html_body_end
+        html += get_page_footer() + html_body_end
         return html
 
     if view_mode == 'view_regular_table_overlap_records':
@@ -720,7 +735,7 @@ def resultspage() -> str:
                                                        discoverer_mode=discoverer_mode,
                                                        overlap_mode=overlap_mode,
                                                        extra_url_parameters=extra_url_parameters)
-        html += _page_footer + html_body_end
+        html += get_page_footer() + html_body_end
         return html
 
     html += create_results_page(view_mode=view_mode,
@@ -730,7 +745,7 @@ def resultspage() -> str:
                                 discoverer_mode=discoverer_mode,
                                 extra_url_parameters=extra_url_parameters)
 
-    html += _page_footer + html_body_end
+    html += get_page_footer() + html_body_end
     return html
 
 
@@ -803,10 +818,14 @@ def create_options_page_organization(node: Node,
       with each url. This dict can be extended as desired.
     :return: HTML to be rendered.
     """
-    name_all_datalist = get_ricgraph_explorer_global(name='name_all_datalist')
-    category_all = get_ricgraph_explorer_global(name='category_all')
-    category_all_datalist = get_ricgraph_explorer_global(name='category_all_datalist')
-    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
+    name_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+                                          item='name_active_datalist')
+    category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                      item='category_active')
+    category_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+                                              item='category_active_datalist')
+    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                     item='researchresult_category_active')
     key = node['_key']
 
     html = get_html_for_cardstart()
@@ -853,12 +872,12 @@ def create_options_page_organization(node: Node,
                              button_text='find research results from all persons in this organization',
                              hidden_fields={'key': key,
                                             'discoverer_mode': discoverer_mode,
-                                            'category_list': resout_types_all,
+                                            'category_list': researchresult_category_active,
                                             'view_mode': 'view_regular_table_organization_addinfo'
                                             } | extra_url_parameters)
     html += '<p/>'
 
-    if COMPETENCE_CATEGORY_COMPETENCE in category_all:
+    if COMPETENCE_CATEGORY_COMPETENCE in category_active:
         html += create_html_form(destination='resultspage',
                                  button_text='find skills from all persons in this organization',
                                  hidden_fields={'key': key,
@@ -874,9 +893,9 @@ def create_options_page_organization(node: Node,
     explanation += 'what you would like to see from the persons or their results in this organization. '
     explanation += 'You can use one or both fields.'
     label_text_name = 'Search for persons or results using field <em>name</em>: '
-    input_spec_name = ('list', 'name_list', 'name_all_datalist', name_all_datalist)
+    input_spec_name = ('list', 'name_list', 'name_active_datalist', name_active_datalist)
     label_text_category = '</br>Search for persons or results using field <em>category</em>: '
-    input_spec_category = ('list', 'category_list', 'category_all_datalist', category_all_datalist)
+    input_spec_category = ('list', 'category_list', 'category_active_datalist', category_active_datalist)
     html += create_html_form(destination='resultspage',
                              button_text='find specific information',
                              explanation=explanation,
@@ -907,10 +926,14 @@ def create_options_page_person(node: Node,
       with each url. This dict can be extended as desired.
     :return: HTML to be rendered.
     """
-    source_all_datalist = get_ricgraph_explorer_global(name='source_all_datalist')
-    resout_types_all = get_ricgraph_explorer_global(name='resout_types_all')
-    resout_types_all_datalist = get_ricgraph_explorer_global(name='resout_types_all_datalist')
-    remainder_types_all = get_ricgraph_explorer_global(name='remainder_types_all')
+    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                     item='researchresult_category_active')
+    researchresult_category_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+                                                             item='researchresult_category_active_datalist')
+    source_active_datalist = get_global_str(ricgraph_info='ricgraph_harvestinfo',
+                                            item='source_active_datalist')
+    remainder_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                item='remainder_category_active')
     key = node['_key']
 
     # ###
@@ -923,7 +946,7 @@ def create_options_page_person(node: Node,
                              button_text='show all information related to this person',
                              hidden_fields={'key': key,
                                             'discoverer_mode': discoverer_mode,
-                                            'category_list': remainder_types_all,
+                                            'category_list': remainder_category_active,
                                             'view_mode': 'view_unspecified_table_everything'
                                             } | extra_url_parameters)
     html += '<p/>'
@@ -950,7 +973,7 @@ def create_options_page_person(node: Node,
                              button_text='show research results related to this person',
                              hidden_fields={'key': key,
                                             'discoverer_mode': discoverer_mode,
-                                            'category_list': resout_types_all,
+                                            'category_list': researchresult_category_active,
                                             'view_mode': 'view_unspecified_table_resouts'
                                             } | extra_url_parameters)
     html += get_html_for_cardend()
@@ -962,7 +985,7 @@ def create_options_page_person(node: Node,
     html += create_html_form(destination='resultspage',
                              button_text='find persons that share any research result types with this person',
                              hidden_fields={'key': key,
-                                            'category_list': resout_types_all,
+                                            'category_list': researchresult_category_active,
                                             'discoverer_mode': discoverer_mode,
                                             'view_mode': 'view_regular_table_person_share_resouts'
                                             } | extra_url_parameters)
@@ -972,7 +995,7 @@ def create_options_page_person(node: Node,
     label_text += 'you will get a list of persons who share a specific research result type with this person '
     label_text += '(you can also type <em>' + RESEARCHRESULT_CATEGORY_PUBLICATION_ALL
     label_text += '</em> to match any publication research result):'
-    input_spec = ('list', 'category_list', 'resout_types_all_datalist', resout_types_all_datalist)
+    input_spec = ('list', 'category_list', 'researchresult_category_active_datalist', researchresult_category_active_datalist)
     html += create_html_form(destination='resultspage',
                              button_text='find persons that share a specific research result type with this person',
                              input_fields={label_text: input_spec},
@@ -1015,7 +1038,7 @@ def create_options_page_person(node: Node,
     # Note: we misuse the field 'category_list' to pass the name of the source system.
     button_text = 'find information harvested from other source systems, '
     button_text += 'not present in this source system'
-    input_spec = ('list', 'category_list', 'source_all_datalist', source_all_datalist)
+    input_spec = ('list', 'category_list', 'source_active_datalist', source_active_datalist)
     html += create_html_form(destination='resultspage',
                              button_text=button_text,
                              explanation=explanation,
@@ -1079,7 +1102,8 @@ def create_results_page(view_mode: str,
         extra_url_parameters = {}
 
     max_nr_items = int(extra_url_parameters['max_nr_items'])
-    personal_types_all = get_ricgraph_explorer_global(name='personal_types_all')
+    person_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                             item='person_category_active')
     html = ''
 
     result = read_all_nodes(key=key)
@@ -1120,7 +1144,7 @@ def create_results_page(view_mode: str,
     if view_mode == 'view_regular_table_personal':
         personroot_node = get_personroot_node(node=node)
         neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
-                                                         category_want=personal_types_all)
+                                                         category_want=person_category_active)
         html += get_page_title(title='Personal information related to this person')
         html += node_found
         if discoverer_mode == 'details_view':
@@ -1242,7 +1266,7 @@ def create_results_page(view_mode: str,
         html += get_page_title(title='All information related to this person')
         html += node_found
         neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
-                                                         category_want=personal_types_all)
+                                                         category_want=person_category_active)
         neighbor_nodes_organization = get_all_neighbor_nodes(node=personroot_node,
                                                              category_want=ORGANIZATION_CATEGORY_ALL)
         if len(category_list) == 0:
@@ -1349,12 +1373,15 @@ def create_results_page(view_mode: str,
 # #### using Uvicorn for ASGI applications    ####
 # ################################################
 def create_ricgraph_explorer_app():
-    global _page_footer, _ricgraph_explorer
+    global _ricgraph_explorer
 
+    ricgraph_explorer_runmode_app = 'You are using Ricgraph Explorer with a '
+    ricgraph_explorer_runmode_app += 'WSGI Gunicorn server using Uvicorn '
+    ricgraph_explorer_runmode_app += 'for ASGI applications.'
+    store_ricgraph_explorer_app(app=_ricgraph_explorer)
+    set_ricgraph_explorer_global(name='ricgraph_explorer_runmode',
+                                 value=ricgraph_explorer_runmode_app)
     initialize_ricgraph_explorer(ricgraph_explorer_app=_ricgraph_explorer)
-    _page_footer = construct_page_footer(footer=page_footer_wsgi)
-    set_ricgraph_explorer_global(name='page_footer', value=_page_footer)
-
     return _ricgraph_explorer
 
 
@@ -1362,8 +1389,13 @@ def create_ricgraph_explorer_app():
 # ################### main ###################
 # ############################################
 if __name__ == "__main__":
+    ricgraph_explorer_runmode = 'You are using Ricgraph Explorer in '
+    ricgraph_explorer_runmode += 'development mode. Do only use this '
+    ricgraph_explorer_runmode += 'for research use, not for production use.'
+
+    store_ricgraph_explorer_app(app=_ricgraph_explorer)
+    set_ricgraph_explorer_global(name='ricgraph_explorer_runmode',
+                                 value=ricgraph_explorer_runmode)
     initialize_ricgraph_explorer(ricgraph_explorer_app=_ricgraph_explorer)
-    _page_footer = construct_page_footer(footer=page_footer_development)
-    set_ricgraph_explorer_global(name='page_footer', value=_page_footer)
 
     _ricgraph_explorer.run(port=3030)

@@ -53,11 +53,11 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          COLLABORATION_MODES_ALL,
                                          MAX_ROWS_IN_TABLE,
                                          MAX_ITEMS)
-from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_url_parameter_value, get_url_parameter_list,
                                      get_message,
-                                     get_spinner, get_page_title)
+                                     get_spinner, get_page_title,
+                                     get_global_str, get_page_footer)
 from ricgraph_explorer_table import get_regular_table
 from ricgraph_explorer_datavis import (org_collaborations_diagram,
                                        org_collaborations_persons_results)
@@ -80,7 +80,6 @@ def collabspage() -> str:
 
     :return: html to be rendered.
     """
-    page_footer = get_ricgraph_explorer_global('page_footer')
     start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
 
     html = html_body_start
@@ -155,10 +154,11 @@ def collabspage() -> str:
     form += '(or leave it empty to match research results of any category, or type '
     form += '<em>' + RESEARCHRESULT_CATEGORY_PUBLICATION_ALL + '</em> '
     form += 'to match any publication research result):</label>'
-    form += '<input id="category_list" class="w3-input w3-border" list="resout_types_all_datalist"'
+    form += '<input id="category_list" class="w3-input w3-border" list="researchresult_category_active_datalist"'
     form += 'name=category_list autocomplete=off>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += str(get_ricgraph_explorer_global(name='resout_types_all_datalist'))
+    form += get_global_str(ricgraph_info='ricgraph_nodeinfo',
+                           item='researchresult_category_active_datalist')
 
     form += '<br/>'
     form += '<fieldset>'
@@ -185,7 +185,7 @@ def collabspage() -> str:
     form += '<p/>'
 
     form += 'Finding collaborations may take (very) long depending on the '
-    form += 'number of items involved. It may take anything between 5 seconds and 10 minutes. '
+    form += 'number of items involved. It may take anything between 5 seconds and 5 minutes. '
     form += 'If you have chosen to view the Sankey diagram, and '
     form += 'there appear to be a huge amount of collaborations (as in > 20000), your '
     form += 'browser may become unresponsive due to the hugh number of lines that have to be drawn. '
@@ -206,7 +206,7 @@ def collabspage() -> str:
     html += 'level</em>. [preprint]. <a href="https://doi.org/10.2139/ssrn.5524439">'
     html += 'https://doi.org/10.2139/ssrn.5524439</a>.</p>'
     html += get_html_for_cardend()
-    html += page_footer + html_body_end
+    html += get_page_footer() + html_body_end
     return html
 
 
@@ -240,7 +240,6 @@ def collabsresultpage() -> str:
 
     :return: html to be rendered.
     """
-    page_footer = get_ricgraph_explorer_global('page_footer')
     start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
     collab_orgs = get_url_parameter_value(parameter='collab_orgs', use_escape=False)
     category_list = get_url_parameter_list(parameter='category_list')
@@ -250,7 +249,8 @@ def collabsresultpage() -> str:
     collab_mode = get_url_parameter_value(parameter='collab_mode')
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_ricgraph_explorer_global(name='discoverer_mode_default'))
+                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                                                           item='discoverer_mode_default'))
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
                                            default_value=str(MAX_ITEMS))
@@ -268,7 +268,7 @@ def collabsresultpage() -> str:
     html = html_body_start
     if collab_mode not in COLLABORATION_MODES_ALL:
         html += get_message(message='Unknown collab_mode: "' + collab_mode + '".')
-        html += page_footer + html_body_end
+        html += get_page_footer() + html_body_end
         return html
 
     html += get_page_title(title='Collaborations related to these organizations')
@@ -342,5 +342,5 @@ def collabsresultpage() -> str:
     html += result_html
     html += get_html_for_cardend()
 
-    html += page_footer + html_body_end
+    html += get_page_footer() + html_body_end
     return html

@@ -52,7 +52,8 @@ from ricgraph_explorer_constants import (spinner_style,
                                          font_family,
                                          form_button_on_one_line_flexspace_style,
                                          form_button_on_one_line_width)
-from ricgraph_explorer_init import get_ricgraph_explorer_global
+from ricgraph_explorer_init import (get_ricgraph_explorer_global,
+                                    update_ricgraph_cacheinfo)
 from ricgraph_explorer_javascript import get_spinner_javascript
 
 
@@ -420,14 +421,15 @@ def get_html_for_yearcard(show_as_card: bool = True,
     :param button_text: The text to show on the 'submit' button.
     :return: HTML to be rendered.
     """
-    year_all_datalist = get_ricgraph_explorer_global('year_all_datalist')
+    year_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+                                          item='year_active_datalist')
     hidden_fields = ''
     if message == '':
         message = 'You can choose a different time period for the research results:'
 
     # Get all current URL parameters using Flask's request. Note that
     # Flask’s request.args.to_dict(flat=False) always returns values as lists.
-    endpoint = request.endpoint
+    endpoint = str(request.endpoint)
     current_params = request.args.to_dict(flat=False)
 
     # Put all query parameters into hidden fields, except year_first/year_last,
@@ -445,24 +447,25 @@ def get_html_for_yearcard(show_as_card: bool = True,
         form += get_html_for_cardstart()
     form += message
     form += '<br/>'
-    form += '<form method="get" action="' + url_for(endpoint=endpoint) + '"' + form_button_on_one_line_flexspace_style + '>'
+    form += '<form method="get" action="' + url_for(endpoint=endpoint)
+    form += '"' + form_button_on_one_line_flexspace_style + '>'
 
     form += hidden_fields
 
     form += '<div' + form_button_on_one_line_width + '>'
     form += '<label for="year_first">specify the first year:</label>'
-    form += '<input id="year_first" class="w3-input w3-border" list="year_all_datalist"'
+    form += '<input id="year_first" class="w3-input w3-border" list="year_active_datalist"'
     form += 'name=year_first autocomplete=off' + form_button_on_one_line_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += str(year_all_datalist)
+    form += str(year_active_datalist)
     form += '</div>'
 
     form += '<div' + form_button_on_one_line_width + '>'
     form += '<label for="year_last">specify the last year:</label>'
-    form += '<input id="year_last" class="w3-input w3-border" list="year_all_datalist"'
+    form += '<input id="year_last" class="w3-input w3-border" list="year_active_datalist"'
     form += 'name=year_last autocomplete=off' + form_button_on_one_line_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += str(year_all_datalist)
+    form += str(year_active_datalist)
     form += '</div>'
 
     form += '<input class="' + button_style + '"' + form_button_on_one_line_width
@@ -586,3 +589,49 @@ def create_full_htmlpage(body_html: str) -> str:
     end_html = '</body>'
     full_html = start_html + body_html + end_html
     return full_html
+
+
+def get_global_list(ricgraph_info: str, item: str) -> list:
+    """Safely retrieve an entry from a Ricgraph info structure.
+    A list return value is expected.
+
+    :param ricgraph_info: The Ricgraph info structure.
+    :param item: The element in that structure.
+    :return: the value of the list, or [] if it does not exist.
+    """
+    if ricgraph_info == 'ricgraph_cacheinfo':
+        # First update the information about the cache.
+        update_ricgraph_cacheinfo()
+    info = get_ricgraph_explorer_global(name=ricgraph_info)
+    if info is None:
+        return []
+    value = info.get(item, [])
+    return value
+
+
+def get_global_str(ricgraph_info: str, item: str) -> str:
+    """Safely retrieve an entry from a Ricgraph info structure.
+    A str return value is expected.
+
+    :param ricgraph_info: The Ricgraph info structure.
+    :param item: The element in that structure.
+    :return: the value of the str, or '' if it does not exist.
+    """
+    if ricgraph_info == 'ricgraph_cacheinfo':
+        # First update the information about the cache.
+        update_ricgraph_cacheinfo()
+    info = get_ricgraph_explorer_global(name=ricgraph_info)
+    if info is None:
+        return ''
+    value = info.get(item, '')
+    return value
+
+
+def get_page_footer() -> str:
+    """Get the page footer.
+
+    :return: HTML for the page footer.
+    """
+    page_footer = get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                 item='page_footer')
+    return page_footer
