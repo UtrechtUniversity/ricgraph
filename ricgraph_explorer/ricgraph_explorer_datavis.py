@@ -244,6 +244,7 @@ def create_sankey_diagram(df: DataFrame,
     total_connections = 0
     for src in sources:
         for tgt in targets:
+            # PyCharm warns for an "Expected type".
             # Note: the df.at returns an int64 instead of int.
             value = int(df.at[src, tgt])
             if value > 0 and src != tgt:

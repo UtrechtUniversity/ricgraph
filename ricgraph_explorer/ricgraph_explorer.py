@@ -1141,7 +1141,9 @@ def create_results_page(view_mode: str,
     node_found = get_found_message(node=node,
                                    discoverer_mode=discoverer_mode,
                                    extra_url_parameters=extra_url_parameters)
-
+    if node is None:
+        # To silence a PyCharm warning.
+        return ''
     if view_mode == 'view_regular_table_personal':
         personroot_node = get_personroot_node(node=node)
         neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,

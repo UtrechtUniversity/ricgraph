@@ -100,6 +100,8 @@ def find_person_share_resouts(parent_node: Node | None,
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
+    if parent_node is None:
+        return ''
     if extra_url_parameters is None:
         extra_url_parameters = {}
     if category_want_list is None:
@@ -360,6 +362,8 @@ def find_person_organization_collaborations(parent_node: Node | None,
     :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
+    if parent_node is None:
+        return ''
     if extra_url_parameters is None:
         extra_url_parameters = {}
 

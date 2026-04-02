@@ -462,7 +462,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
                                  extra_url_parameters=extra_url_parameters)
         return html
 
-    histogram_sort = sorted(histogram, key=histogram.get, reverse=True)
+    histogram_sort = sorted(histogram, key=lambda x: histogram[x], reverse=True)
 
     histogram_list = []
     first_iteration = True
@@ -571,6 +571,8 @@ def get_facets_from_nodes(parent_node: Node | None,
     :return: HTML to be rendered, or empty string ('') if faceted navigation is
       not useful because there is only one facet.
     """
+    if parent_node is None:
+        return ''
     if extra_url_parameters is None:
         extra_url_parameters = {}
     if len(neighbor_nodes) == 0:
@@ -619,7 +621,7 @@ def get_facets_from_nodes(parent_node: Node | None,
 
         # Sort a dict on value:
         # https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
-        for bucket in sorted(name_histogram, key=name_histogram.get, reverse=True):
+        for bucket in sorted(name_histogram, key=lambda x: name_histogram[x], reverse=True):
             label_id = create_unique_string(length=12)
             name_label = bucket + '&nbsp;<i>(' + str(name_histogram[bucket]) + ')</i>'
             faceted_form += '<input id="' + label_id + '" class="w3-check" type="checkbox" name="name_list" value="'
@@ -644,7 +646,7 @@ def get_facets_from_nodes(parent_node: Node | None,
         # For screen readers.
         faceted_form += '<legend style="display:none">Filter on "category"</legend>'
 
-        for bucket in sorted(category_histogram, key=category_histogram.get, reverse=True):
+        for bucket in sorted(category_histogram, key=lambda x: category_histogram[x], reverse=True):
             label_id = create_unique_string(length=12)
             category_label = bucket + '&nbsp;<i>(' + str(category_histogram[bucket]) + ')</i>'
             faceted_form += '<input id="' + label_id + '" class="w3-check" type="checkbox" name="category_list" value="'

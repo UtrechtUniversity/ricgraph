@@ -164,7 +164,8 @@ def update_nodes_df(nodes: DataFrame) -> None:
                 if prop_name == other_name:
                     node_properties[prop_name] = getattr(row, other_name)
 
-        create_update_node(name=row.name, category=row.category, value=row.value,
+        create_update_node(name=str(row.name), category=str(row.category),
+                           value=str(row.value),
                            other_properties=node_properties)
 
     print_progress(count=count, now=True)
@@ -205,8 +206,10 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame | None) ->
                 if prop_name + '2' == other_name:
                     node_properties[prop_name + '2'] = getattr(row, other_name)
 
-        create_two_nodes_and_edge(name1=row.name1, category1=row.category1, value1=row.value1,
-                                  name2=row.name2, category2=row.category2, value2=row.value2,
+        create_two_nodes_and_edge(name1=str(row.name1), category1=str(row.category1),
+                                  value1=str(row.value1),
+                                  name2=str(row.name2), category2=str(row.category2),
+                                  value2=str(row.value2),
                                   **node_properties)
     print_progress(count=count, now=True)
     end_ts = timestamp_posix()

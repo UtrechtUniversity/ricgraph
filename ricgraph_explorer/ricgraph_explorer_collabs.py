@@ -78,7 +78,7 @@ def collabspage() -> str:
     - start_orgs: the organization(s) to start with. This may be
       a substring, then a match on the start of the organization name is done.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
 
@@ -238,7 +238,7 @@ def collabsresultpage() -> str:
     - max_nr_table_rows: the maximum number of rows in a table to return (the page
       size of the table), or 0 to return all rows.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
     collab_orgs = get_url_parameter_value(parameter='collab_orgs', use_escape=False)

@@ -141,6 +141,8 @@ def open_ricgraph() -> Driver | None:
     try:
         _graph = GraphDatabase.driver(graphdb_url,
                                       auth=(graphdb_user, graphdb_password))
+        if _graph is None:
+            raise Exception('Error: could not get GraphDatabase.')
         _graph.verify_connectivity()
     except Exception as e:
         print('open_ricgraph(): An exception occurred. Name: ' + type(e).__name__ + ',')
@@ -639,6 +641,8 @@ def cypher_delete_node(node_element_id: str) -> None:
 
     # Delete node from the cache.
     node = cypher_read_node_elementid(node_element_id=node_element_id)
+    if node is None:
+        return
     node_key = node['_key']
     nodes_cache_key_id_delete_key(key=node_key)
 
@@ -681,6 +685,8 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
         # 'name' or 'value' will change and thus '_key' will change.
         # Delete old node from the cache.
         old_node = cypher_read_node_elementid(node_element_id=node_element_id)
+        if old_node is None:
+            return None
         old_node_key = old_node['_key']
         nodes_cache_key_id_delete_key(key=old_node_key)
 
@@ -744,12 +750,16 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
 
     # Delete node_merge_from_element_id from the cache, it will be deleted.
     old_node = cypher_read_node_elementid(node_element_id=node_merge_from_element_id)
+    if old_node is None:
+        return None
     old_node_key = old_node['_key']
     nodes_cache_key_id_delete_key(key=old_node_key)
 
     # Even 'name' or 'value' from node_merge_to_element_id may be changed,
     # delete it too, just to be sure the cache is correct.
     old_node = cypher_read_node_elementid(node_element_id=node_merge_to_element_id)
+    if old_node is None:
+        return None
     old_node_key = old_node['_key']
     nodes_cache_key_id_delete_key(key=old_node_key)
 
@@ -1127,9 +1137,9 @@ def get_all_neighbor_nodes_loop(node: Node | None,
             break
         if node == neighbor:
             continue
-        if neighbor['name'] in name_dontwant:
+        if name_dontwant is not None and neighbor['name'] in name_dontwant:
             continue
-        if neighbor['category'] in category_dontwant:
+        if category_dontwant is not None and neighbor['category'] in category_dontwant:
             continue
         if name_want is None or category_want is None:
             continue
@@ -1246,13 +1256,15 @@ def cypher_print_resultsummary(summary: ResultSummary,
         # Dict of passed parameters {'key': value}.
         params = summary.parameters
         # Get the query, including its parameters.
-        for key, value in params.items():
-            placeholder = f"${key}"
-            # Safely serialize value to Cypher literal.
-            subst = dumps(value)
-            # Substitute first occurrence only (the remainder
-            # will follow in the next iteration of the loop).
-            query = query.replace(placeholder, subst, count=1)
+        if params is not None:
+            for key, value in params.items():
+                placeholder = f"${key}"
+                # Safely serialize value to Cypher literal.
+                subst = dumps(value)
+                # Substitute first occurrence only (the remainder
+                # will follow in the next iteration of the loop).
+                if subst is not None and query is not None:
+                    query = query.replace(placeholder, subst, count=1)
 
         print('Cypher query:')
         print(format_cypher(str(query)))
@@ -1270,6 +1282,9 @@ def cypher_print_resultsummary(summary: ResultSummary,
     if nr_results != -1:
         print('Number of results of this query: ' + str(nr_results) + '.')
     print('Execution time of this query:')
+    if summary.result_available_after is None \
+       or summary.result_consumed_after is None:
+        return
     result_available = f'{summary.result_available_after/1000:,.3f}'
     result_consumed = f'{summary.result_consumed_after/1000:,.3f}'
     print('  Time for server to prepare result [result_available_after]: '

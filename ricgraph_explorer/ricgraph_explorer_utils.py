@@ -509,8 +509,8 @@ def remove_hierarchical_orgs(df: DataFrame | None,
         return df
 
     for row in orgs_with_hierarchies.itertuples(index=False):
-        org_abbr = row.org_abbreviation
-        orgs_name = row.org_fullname
+        org_abbr = str(row.org_abbreviation)
+        orgs_name = str(row.org_fullname)
         if org_abbr == org_keep_abbr:
             # Already done.
             continue

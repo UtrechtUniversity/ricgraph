@@ -109,6 +109,10 @@ def read_json_from_file(filename: str) -> list:
     return json_data
 
 
+# Note: sometimes this function is called with a list, sometimes with
+# a dict. That also means that the return should be a list or dict,
+# but then PyCharm complains in file ricgraph_harvest.py.
+# I leave it like this. [April 2, 2026]
 def write_read_json_file(json_data: list | dict,
                          filename: str = '') -> list:
     """In case filename != '', write the JSON to a file and
@@ -200,7 +204,7 @@ def write_text_to_file(filename: str, text: str) -> None:
 
 
 def write_dataframe_to_csv(filename: str,
-                           df: DataFrame,
+                           df: DataFrame | None,
                            write_index: bool = False) -> None:
     """Write a DataFrame to file.
 
@@ -279,6 +283,8 @@ def read_dataframe_from_csv(filename: str,
 
     try:
         # Some input files have problems reading in utf-8.
+        # PyCharm generates a warning
+        # "Unexpected type(s):(str, str, int | bool, dict [etc]...".
         csv_data = read_csv(filename,
                             sep=',',
                             index_col=index_col,
@@ -293,6 +299,8 @@ def read_dataframe_from_csv(filename: str,
                             encoding='utf-8')
     except BaseException:
         print('read_dataframe_from_csv(): error reading in utf-8 format, reading in latin-1 format.')
+        # PyCharm generates a warning
+        # "Unexpected type(s):(str, str, int | bool, dict [etc]...".
         csv_data = read_csv(filename,
                             sep=',',
                             index_col=index_col,
@@ -306,4 +314,6 @@ def read_dataframe_from_csv(filename: str,
                             quotechar='"',
                             encoding='latin-1')
     print('Done.')
+    # PyCharm generates a warning
+    # "Expected type 'DataFrame', got 'TextFileReader | DataFrame' instead".
     return csv_data

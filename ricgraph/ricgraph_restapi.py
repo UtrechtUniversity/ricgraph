@@ -57,7 +57,7 @@ def create_http_response(result_list: list = None,
       the response.
     :param http_status: The HTTP status code to be put in the 'meta' section of
       the response.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     if result_list is None:

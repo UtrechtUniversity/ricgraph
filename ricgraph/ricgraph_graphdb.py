@@ -414,8 +414,9 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Node | None:
 
     node_properties = {'value': lnewvalue,
                        '_history': []}
-    # The following generates a Cannot find reference '[' in 'None'
-    # warning in PyCharm, but the 'None' case has been caught above.
+    if node is None:
+        # To silence a PyCharm warning.
+        return None
     oldkey = node['_key']
     newkey = create_ricgraph_key(name=lname, value=lnewvalue)
     node_properties['_key'] = newkey
@@ -425,11 +426,13 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Node | None:
     # warning in PyCharm, but the 'None' case has been caught above.
     node_properties['_history'] = node['_history'].copy()
     node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
-    # The following generates a Cannot find reference 'element_id' in 'None'
-    # warning in PyCharm, but the 'None' case has been caught above.
+    if node_properties is None:
+        # To silence a PyCharm warning.
+        return None
     updated_node = cypher_update_node_properties(node_element_id=node.element_id,
                                                  node_properties=node_properties)
-
+    if updated_node is None:
+        return None
     if updated_node['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=updated_node)
         recreate_name_cache_in_personroot(personroot=personroot)
@@ -486,6 +489,8 @@ def get_or_create_personroot_node(person_node: Node | None) -> Node | None:
         personroot = create_update_node(name=PERSON_NAME_PERSON_ROOT,
                                         category=PERSON_CATEGORY_PERSON,
                                         value=value)
+        if personroot is None:
+            return None
         cypher_create_edge_if_not_exists(left_node_element_id=person_node.element_id,
                                          right_node_element_id=personroot.element_id)
         return personroot
@@ -555,6 +560,9 @@ def merge_two_nodes(node_merge_from: Node | None,
         print('merge_two_nodes(): Error: both of the nodes do not exist.')
         return None
 
+    if node_merge_from is None or node_merge_to is None:
+        # To silence a PyCharm warning.
+        return None
     if node_merge_from['name'] != node_merge_to['name'] \
        or node_merge_from['category'] != node_merge_to['category']:
         print('merge_two_nodes(): nodes "' + node_merge_from['_key']
@@ -566,6 +574,9 @@ def merge_two_nodes(node_merge_from: Node | None,
         # They are the same, done.
         return node_merge_to
 
+    if node_merge_from is None or node_merge_to is None:
+        # To silence a PyCharm warning.
+        return None
     node_merge_to_properties = {'_history': node_merge_to['_history'].copy()}
     node_merge_to_properties['_source'] = list(set(node_merge_from['_source'] + node_merge_to['_source']))
     node_merge_to_properties['_source'].sort()
@@ -737,6 +748,10 @@ def connect_person_and_person_node(left_node: Node, right_node: Node) -> None:
         return
 
     # Connect crosswise.
+    if left_node is None or right_node is None \
+       or left_personroot_node is None or right_personroot_node is None:
+        # To silence a PyCharm warning.
+        return
     cypher_create_edge_if_not_exists(left_node_element_id=left_node.element_id,
                                      right_node_element_id=right_personroot_node.element_id)
     cypher_create_edge_if_not_exists(left_node_element_id=right_node.element_id,
@@ -842,6 +857,8 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
     connect_two_nodes(left_node=node1, right_node=node2)
     if node1['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=node1)
+        if personroot is None:
+            return
         new_value = create_ricgraph_value(value=node1['value'], additional=personroot['value'])
         if (asc := convert_string_to_ascii(node1['value'])) != node1['value']:
             history_event = 'From node "FULL_NAME" with value "' + new_value + '".'
@@ -859,6 +876,8 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
         create_name_cache_in_personroot(node=node_upd, personroot=personroot)
     if node2['name'] == 'FULL_NAME':
         personroot = get_or_create_personroot_node(person_node=node2)
+        if personroot is None:
+            return
         new_value = create_ricgraph_value(value=node2['value'], additional=personroot['value'])
         if (asc := convert_string_to_ascii(node2['value'])) != node2['value']:
             history_event = 'From node "FULL_NAME" with value "' + new_value + '".'
@@ -906,7 +925,7 @@ def print_node_values(node: Node) -> None:
 # The difference is that "get_" functions work in constant time (starting from
 # a node) while the "read_" functions read (aka search, find) the whole graph.
 # ##############################################################################
-def get_personroot_node(node: Node | None) -> Node| None:
+def get_personroot_node(node: Node | None) -> Node | None:
     """Get the 'person-root' node for any type of node.
     If 'node' is already a 'person-root' node, return 'node'.
     If there is more than one person-root node (which should not happen
