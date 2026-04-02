@@ -176,7 +176,7 @@ def update_nodes_df(nodes: DataFrame) -> None:
     return
 
 
-def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
+def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame | None) -> None:
     """Create two nodes (called 'node pairs') and two directed edges between those nodes.
     This is done for all the nodes passed. The nodes are specified in a DataFrame.
     One row in the DataFrame contains two nodes which are to be connected.
@@ -188,6 +188,8 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
     :param left_and_right_nodepairs: the node pairs in a DataFrame.
     :return: None.
     """
+    if left_and_right_nodepairs is None or left_and_right_nodepairs.empty:
+        return
     print('There are ' + str(len(left_and_right_nodepairs)) + ' rows ('
           + timestamp() + '), creating nodes and edges for row:')
     count = 0
@@ -215,9 +217,9 @@ def create_nodepairs_and_edges_df(left_and_right_nodepairs: DataFrame) -> None:
     return
 
 
-def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[dict, str], value1: Union[dict, str],
-                                      name2: Union[dict, str], category2: Union[dict, str], value2: Union[dict, str],
-                                      **other_properties: Union[dict, str]) -> None:
+def create_nodepairs_and_edges_params(name1: dict | str, category1: dict | str, value1: dict | str,
+                                      name2: dict | str, category2: dict | str, value2: dict | str,
+                                      **other_properties: dict | str) -> None:
     """Create two nodes (called 'node pairs') and two directed edges between those nodes.
     This is done for all the nodes passed. The nodes are specified by values passed to this function.
     Each value can be either a string or a dict containing strings.
@@ -286,7 +288,7 @@ def create_nodepairs_and_edges_params(name1: Union[dict, str], category1: Union[
 
 
 def unify_personal_identifiers(personal_identifiers: DataFrame,
-                               source_event: Union[dict, str], history_event: Union[dict, str]) -> None:
+                               source_event: dict | str, history_event: dict | str) -> None:
     """Unify a collection of personal identifiers (e.g. ORCID, ISNI, etc.).
     That means that every column is unified to every other column.
     The identifiers are specified as columns in a DataFrame.

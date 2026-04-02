@@ -228,7 +228,7 @@ def normalize_email(identifier: str) -> str:
     return identifier
 
 
-def normalize_identifiers(df: DataFrame) -> DataFrame:
+def normalize_identifiers(df: DataFrame | None) -> DataFrame | None:
     """Normalize selected identifiers in the dataframe.
     Delete empty rows and duplicates.
 
@@ -263,7 +263,7 @@ def normalize_identifiers(df: DataFrame) -> DataFrame:
     return df_mod
 
 
-def normalize_identifiers_write_read(parse_result: DataFrame, filename: str = '') -> DataFrame:
+def normalize_identifiers_write_read(parse_result: DataFrame | None, filename: str = '') -> DataFrame | None:
     """Normalize identifiers.
     In case filename != '', write it to a file and read it back.
 

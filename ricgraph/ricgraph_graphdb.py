@@ -68,7 +68,7 @@ def create_history_line(property_name: str, old_value: str, new_value: str) -> s
     return 'Updated property "' + property_name + '" from "' + old_value + '" to "' + new_value + '". '
 
 
-def create_name_cache_in_personroot(node: Node, personroot: Node) -> None:
+def create_name_cache_in_personroot(node: Node | None, personroot: Node | None) -> None:
     """This function caches the value of a node with 'name' 'FULL_NAME'
     in the 'comment' property of its person-root node 'personroot'.
     If the cache is not present, it is created.
@@ -115,7 +115,7 @@ def create_name_cache_in_personroot(node: Node, personroot: Node) -> None:
     return
 
 
-def recreate_name_cache_in_personroot(personroot: Node) -> None:
+def recreate_name_cache_in_personroot(personroot: Node | None) -> None:
     """This function recreates the cache of all the nodes with 'name' 'FULL_NAME'
     in the 'comment' property of its person-root node 'personroot'.
     If the cache is not present, it is created.
@@ -462,7 +462,7 @@ def delete_node(node: Node) -> None:
     return
 
 
-def get_or_create_personroot_node(person_node: Node) -> Union[Node, None]:
+def get_or_create_personroot_node(person_node: Node | None) -> Node | None:
     """Get a 'person-root' node for a given 'person' node, if that node has
     a 'person-root'. If not, create the 'person-root' node.
 
@@ -532,7 +532,8 @@ def connect_person_and_non_person_node(person_node: Node,
     return
 
 
-def merge_two_nodes(node_merge_from: Node, node_merge_to: Node) -> Union[Node, None]:
+def merge_two_nodes(node_merge_from: Node | None,
+                    node_merge_to: Node | None) -> Node | None:
     """Merge two nodes.
     The neighbors of 'node_merge_from' will be merged to node 'node_merge_to'
     and 'node_merge_from' will be deleted.
@@ -906,7 +907,7 @@ def print_node_values(node: Node) -> None:
 # The difference is that "get_" functions work in constant time (starting from
 # a node) while the "read_" functions read (aka search, find) the whole graph.
 # ##############################################################################
-def get_personroot_node(node: Node) -> Union[Node, None]:
+def get_personroot_node(node: Node | None) -> Node| None:
     """Get the 'person-root' node for any type of node.
     If 'node' is already a 'person-root' node, return 'node'.
     If there is more than one person-root node (which should not happen
@@ -915,14 +916,14 @@ def get_personroot_node(node: Node) -> Union[Node, None]:
     :param node: the node.
     :return: the person-root node.
     """
-    personroot_nodes = get_all_personroot_nodes(node)
+    personroot_nodes = get_all_personroot_nodes(node=node)
     if len(personroot_nodes) == 0:
         return None
     else:
         return personroot_nodes[0]
 
 
-def get_all_personroot_nodes(node: Node) -> list:
+def get_all_personroot_nodes(node: Node | None) -> list:
     """Get the 'person-root' node(s) for any type of node.
     If 'node' is already a 'person-root' node, return 'node'.
     If there is more than one person-root node (which can happen if

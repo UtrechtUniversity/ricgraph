@@ -77,7 +77,7 @@ from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import get_global_list, get_global_dataframe
 
 
-def find_person_share_resouts_cypher(parent_node: Node,
+def find_person_share_resouts_cypher(parent_node: Node | None,
                                      category_want_list: list = None,
                                      category_dontwant_list: list = None,
                                      max_nr_items: str = str(MAX_ITEMS)) -> list:
@@ -102,6 +102,8 @@ def find_person_share_resouts_cypher(parent_node: Node,
 
     # By using the following statement we can start with both a node and its person-root node.
     personroot_node = get_personroot_node(node=parent_node)
+    if personroot_node is None:
+        return []
     cypher_query = 'MATCH (startnode_personroot:RicgraphNode)'
     cypher_query += '-[]->(neighbor:RicgraphNode)'
     cypher_query += '-[]->(neighbor_personroot:RicgraphNode)'
@@ -138,7 +140,7 @@ def find_person_share_resouts_cypher(parent_node: Node,
     return connected_persons
 
 
-def find_person_organization_collaborations_cypher(parent_node: Node,
+def find_person_organization_collaborations_cypher(parent_node: Node | None,
                                                    max_nr_items: str = str(MAX_ITEMS)) -> Tuple[list, list]:
     """ For documentation, see find_person_organization_collaborations().
     This is the cypher functionality for that function.
@@ -154,6 +156,8 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
 
     # By using the following statement we can start with both a node and its person-root node.
     personroot_node = get_personroot_node(node=parent_node)
+    if personroot_node is None:
+        return [], []
     cypher_query = 'MATCH (startnode_personroot:RicgraphNode)'
     cypher_query += '-[]->(neighbor:RicgraphNode)'
     cypher_query += '-[]->(neighbor_personroot:RicgraphNode)'

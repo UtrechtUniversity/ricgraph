@@ -343,7 +343,7 @@ def get_regular_table_worker(nodes_list: list,
     return html
 
 
-def get_faceted_table(parent_node: Node,
+def get_faceted_table(parent_node: Node | None,
                       neighbor_nodes: Union[list, None],
                       table_header: str = '',
                       table_columns: list = None,
@@ -368,7 +368,7 @@ def get_faceted_table(parent_node: Node,
             table_columns = DETAIL_COLUMNS
         else:
             table_columns = RESEARCH_OUTPUT_COLUMNS
-    if len(neighbor_nodes) == 0:
+    if neighbor_nodes is None or len(neighbor_nodes) == 0:
         return get_message(table_header + '</br>Nothing found.')
 
     max_nr_items = int(extra_url_parameters['max_nr_items'])
@@ -434,8 +434,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
     if tabs_on != 'name' and tabs_on != 'category':
         return get_message(message='get_tabbed_table(): Invalid value for "tabs_on": ' + tabs_on + '.')
 
-    len_nodes_list = len(nodes_list)
-    if len_nodes_list == 0:
+    if nodes_list is None or (len_nodes_list := len(nodes_list) == 0):
         return get_message(table_header + '</br>Nothing found.')
 
     max_nr_items = int(extra_url_parameters['max_nr_items'])
@@ -554,7 +553,7 @@ def get_tabbed_table(nodes_list: Union[list, None],
     return html
 
 
-def get_facets_from_nodes(parent_node: Node,
+def get_facets_from_nodes(parent_node: Node | None,
                           neighbor_nodes: list,
                           view_mode: str = '',
                           discoverer_mode: str = '',

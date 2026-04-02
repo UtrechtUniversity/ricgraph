@@ -122,7 +122,7 @@ Node.__eq__ = node_eq
 # [May 6, 2024] Note however, that memgraph on does not have elementId() but only id():
 # https://memgraph.com/docs/querying/differences-in-cypher-implementations.
 # ##############################################################################
-def open_ricgraph() -> Driver:
+def open_ricgraph() -> Driver | None:
     """Open Ricgraph.
 
     :return: graph that has been opened.
@@ -954,11 +954,11 @@ def read_all_values_of_property(node_property: str = '') -> list:
     return result_list_sorted
 
 
-def get_all_neighbor_nodes(node: Node,
-                           name_want: Union[str, list] = '',
-                           name_dontwant: Union[str, list] = '',
-                           category_want: Union[str, list] = '',
-                           category_dontwant: Union[str, list] = '',
+def get_all_neighbor_nodes(node: Node | None,
+                           name_want: str | list | None = '',
+                           name_dontwant: str | list | None = '',
+                           category_want: str | list | None = '',
+                           category_dontwant: str | list | None = '',
                            year_first: str = '',
                            year_last: str = '',
                            max_nr_neighbor_nodes: int = 0) -> list:
@@ -1023,17 +1023,17 @@ def get_all_neighbor_nodes(node: Node,
         cypher_query += 'WHERE (id(node)=toInteger($node_element_id)) '
 
     nr_of_not_clauses = 0
-    if len(name_want) > 0:
+    if name_want is not None and len(name_want) > 0:
         cypher_query += 'AND (neighbor.name IN $name_want) '
 
-    if len(name_dontwant) > 0:
+    if name_dontwant is not None and len(name_dontwant) > 0:
         cypher_query += 'AND (neighbor.name NOT IN $name_dontwant) '
         nr_of_not_clauses += 1
 
-    if len(category_want) > 0:
+    if category_want is not None and len(category_want) > 0:
         cypher_query += 'AND (neighbor.category IN $category_want) '
 
-    if len(category_dontwant) > 0:
+    if category_dontwant is not None and len(category_dontwant) > 0:
         cypher_query += 'AND (neighbor.category NOT IN $category_dontwant) '
         nr_of_not_clauses += 1
 
@@ -1077,11 +1077,11 @@ def get_all_neighbor_nodes(node: Node,
         return neighbor_nodes
 
 
-def get_all_neighbor_nodes_loop(node: Node,
-                                name_want: Union[str, list],
-                                name_dontwant: Union[str, list],
-                                category_want: Union[str, list],
-                                category_dontwant: Union[str, list],
+def get_all_neighbor_nodes_loop(node: Node | None,
+                                name_want: str | list | None,
+                                name_dontwant: str | list | None,
+                                category_want: str | list | None,
+                                category_dontwant: str | list | None,
                                 year_first: str = '',
                                 year_last: str = '',
                                 max_nr_neighbor_nodes: int = 0) -> list:
@@ -1130,6 +1130,8 @@ def get_all_neighbor_nodes_loop(node: Node,
         if neighbor['name'] in name_dontwant:
             continue
         if neighbor['category'] in category_dontwant:
+            continue
+        if name_want is None or category_want is None:
             continue
         if len(name_want) == 0 and len(category_want) == 0:
             neighbor_nodes.append(neighbor)

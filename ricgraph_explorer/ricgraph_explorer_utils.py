@@ -141,7 +141,7 @@ def get_message(message: str, please_try_again: bool = True) -> str:
     return html
 
 
-def get_found_message(node: Node,
+def get_found_message(node: Node | None,
                       table_header: str = '',
                       discoverer_mode: str = '',
                       extra_url_parameters: dict = None) -> str:
@@ -479,7 +479,7 @@ def get_html_for_yearcard(show_as_card: bool = True,
 # ##############################################################################
 # DataFrame related functions for diagrams.
 # ##############################################################################
-def remove_hierarchical_orgs(df: DataFrame,
+def remove_hierarchical_orgs(df: DataFrame | None,
                              orgs_with_hierarchies: DataFrame,
                              org_to_keep: str) -> Union[DataFrame, None]:
     """
@@ -522,9 +522,9 @@ def remove_hierarchical_orgs(df: DataFrame,
     return df
 
 
-def remove_one_hierarchical_org(df: DataFrame,
-                                orgs_to_keep: Union[str, list],
-                                orgs_to_drop_pattern: str) -> Union[DataFrame, None]:
+def remove_one_hierarchical_org(df: DataFrame | None,
+                                orgs_to_keep: str | list,
+                                orgs_to_drop_pattern: str) -> DataFrame | None:
     """
     Remove rows and columns from DataFrame whose
     index or column starts with orgs_to_drop_pattern,

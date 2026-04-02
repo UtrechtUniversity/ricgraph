@@ -492,7 +492,9 @@ def org_collaborations_diagram(start_organizations: str,
                                                 org_to_keep=start_organizations)
     if start_organizations == collab_organizations:
         collabs_orgs = make_dataframe_square_symmetric(df=collabs_orgs)
-
+    if collabs_orgs is None:
+        # To silence a PyCharm warning.
+        return ''
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     collabs_orgs = collabs_orgs.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
     if caption == 'default_caption':
@@ -585,6 +587,9 @@ def three_org_collaborations_chord(first_org: str,
     combine_df = combine_dataframes(df1=collabs_1st_2nd, df2=collabs_1st_3rd)
     combine_df = combine_dataframes(df1=combine_df, df2=collabs_2nd_3rd)
     combine_df = make_dataframe_square_symmetric(df=combine_df)
+    if combine_df is None:
+        # To silence a PyCharm warning.
+        return ''
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     combine_df = combine_df.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
     caption = 'Overview of ' + str(researchresult_category)

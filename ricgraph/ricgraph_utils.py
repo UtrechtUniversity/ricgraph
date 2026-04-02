@@ -216,7 +216,7 @@ def deserialize_value(serialized: bytes) -> str:
     return serialized.decode(encoding='utf-8')
 
 
-def make_dataframe_square_symmetric(df: DataFrame) -> Union[DataFrame, None]:
+def make_dataframe_square_symmetric(df: DataFrame | None) -> DataFrame | None:
     """Ensure the DataFrame is square by adding missing rows/columns
     filled with zeros. After that, make it symmetric.
 
@@ -229,6 +229,8 @@ def make_dataframe_square_symmetric(df: DataFrame) -> Union[DataFrame, None]:
 
     all_orgs = list(set(df.index).union(df.columns))
     df = df.reindex(index=all_orgs, columns=all_orgs, fill_value=0)
+    if df is None or df.empty:
+        return None
 
     # Make it a symmetric matrix. Since collaborations are symmetric,
     # we use the element wise maximum, using np.maximum().
@@ -237,7 +239,7 @@ def make_dataframe_square_symmetric(df: DataFrame) -> Union[DataFrame, None]:
     return df_symmetric
 
 
-def combine_dataframes(df1: DataFrame, df2: DataFrame) -> Union[DataFrame, None]:
+def combine_dataframes(df1: DataFrame | None, df2: DataFrame | None) -> DataFrame | None:
     """Combines two DataFrames with additive overlapping values
     and union of indices/columns.
 
@@ -245,8 +247,9 @@ def combine_dataframes(df1: DataFrame, df2: DataFrame) -> Union[DataFrame, None]
     :param df2: second DataFrame.
     :return: combined DataFrame.
     """
-    if (df1 is None or df1.empty) and (df2 is None or df2.empty):
-        # Both DataFrames are emtpy.
+    if df1 is None or df1.empty:
+        return None
+    if df2 is None or df2.empty:
         return None
     if df1 is None or df1.empty:
         # DataFrame 1 is empty.
@@ -815,7 +818,7 @@ def get_configfile_key_memcached_parameters() -> tuple[bool, str, int]:
 
 
 def _json_item_get(json_item: dict, json_path: str,
-                   verbose: bool = False) -> Union[str, list, None]:
+                   verbose: bool = False) -> str | list | dict | None:
     """Safely retrieve a nested value from a JSON-like structure
     using a string path. Either a str or list return value is expected.
 

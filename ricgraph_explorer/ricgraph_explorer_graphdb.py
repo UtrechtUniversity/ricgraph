@@ -86,7 +86,7 @@ from ricgraph_explorer_table import  (get_regular_table, get_tabbed_table,
                                       get_html_for_tablestart, get_html_for_tableend)
 
 
-def find_person_share_resouts(parent_node: Node,
+def find_person_share_resouts(parent_node: Node | None,
                               category_want_list: list = None,
                               category_dontwant_list: list = None,
                               discoverer_mode: str = '',
@@ -148,7 +148,7 @@ def find_person_share_resouts(parent_node: Node,
     return html
 
 
-def find_enrich_candidates_one_person(personroot: Node,
+def find_enrich_candidates_one_person(personroot: Node | None,
                                       name_want: list = None,
                                       category_want: list = None,
                                       source_system: str = '',
@@ -343,7 +343,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     return html
 
 
-def find_person_organization_collaborations(parent_node: Node,
+def find_person_organization_collaborations(parent_node: Node | None,
                                             discoverer_mode: str = '',
                                             extra_url_parameters: dict = None) -> str:
     """Function that finds with which organization a person collaborates.
@@ -410,7 +410,7 @@ def find_person_organization_collaborations(parent_node: Node,
     return html
 
 
-def find_organization_additional_info(parent_node: Node,
+def find_organization_additional_info(parent_node: Node | None,
                                       name_list: list = None,
                                       category_list: list = None,
                                       discoverer_mode: str = '',

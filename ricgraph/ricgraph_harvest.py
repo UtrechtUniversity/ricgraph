@@ -108,12 +108,14 @@ def _harvest_json_get_print_nr_records(source: str,
     return
 
 
-def _harvest_json_error(response: Response) -> None:
+def _harvest_json_error(response: Response | None) -> None:
     """Prints an error message if an error during harvest occurs.
 
     :param response: Response object.
     :return: None.
     """
+    if response is None:
+        return
     print('harvest_json(): Error during harvest, possibly '
           + 'a missing API-key or mixed up params or headers?')
     print('Status code: ' + str(response.status_code))
@@ -220,6 +222,9 @@ def harvest_json(source: str,
                 print('harvest_json(): Failed all JSON harvest attempts, exiting.')
                 exit(1)
 
+        if response is None:
+            # To silence a PyCharm warning.
+            continue
         chunk_json_data = response.json()
         if first_time:
             first_time = False

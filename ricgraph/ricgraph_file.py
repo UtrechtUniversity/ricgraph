@@ -110,7 +110,7 @@ def read_json_from_file(filename: str) -> list:
     return json_data
 
 
-def write_read_json_file(json_data: Union[list, dict],
+def write_read_json_file(json_data: list | dict,
                          filename: str = '') -> list:
     """In case filename != '', write the JSON to a file and
     then read it back. In any case, return the JSON data received.
