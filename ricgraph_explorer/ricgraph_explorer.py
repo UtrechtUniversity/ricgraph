@@ -67,7 +67,10 @@ from ricgraph import (read_all_nodes,
                       ORGANIZATION_CATEGORY_ALL,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT)
-from ricgraph_explorer_constants import (html_body_start, html_body_end,
+from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
+                                         RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
+                                         RICGRAPH_EXPLORER_RUNMODE_DEBUG,
+                                         html_body_start, html_body_end,
                                          button_style, button_width,
                                          form_button_on_one_line_style,
                                          VIEW_MODE_ALL, DEFAULT_SEARCH_MODE,
@@ -77,9 +80,7 @@ from ricgraph_explorer_constants import (html_body_start, html_body_end,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
                                          ACCESS_MODE_ALL, ACCESS_MODE_ANY)
-from ricgraph_explorer_init import (initialize_ricgraph_explorer,
-                                    store_ricgraph_explorer_app,
-                                    set_ricgraph_explorer_global)
+from ricgraph_explorer_init import initialize_ricgraph_explorer
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_overlap_in_source_systems_records,
                                        find_person_share_resouts,
@@ -329,7 +330,7 @@ def homepage() -> str:
     html += ' elements, and its size is '
     html += get_global_str(ricgraph_info='ricgraph_cacheinfo',
                            item='size_kb')
-    html += 'kB.'
+    html += ' kB.'
     html += '</li>'
     html += '</ul>'
 
@@ -1374,14 +1375,8 @@ def create_results_page(view_mode: str,
 # ################################################
 def create_ricgraph_explorer_app():
     global _ricgraph_explorer
-
-    ricgraph_explorer_runmode_app = 'You are using Ricgraph Explorer with a '
-    ricgraph_explorer_runmode_app += 'WSGI Gunicorn server using Uvicorn '
-    ricgraph_explorer_runmode_app += 'for ASGI applications.'
-    store_ricgraph_explorer_app(app=_ricgraph_explorer)
-    set_ricgraph_explorer_global(name='ricgraph_explorer_runmode',
-                                 value=ricgraph_explorer_runmode_app)
-    initialize_ricgraph_explorer(ricgraph_explorer_app=_ricgraph_explorer)
+    initialize_ricgraph_explorer(ricgraph_explorer_app=_ricgraph_explorer,
+                                 runmode=RICGRAPH_EXPLORER_RUNMODE_GUNICORN)
     return _ricgraph_explorer
 
 
@@ -1389,13 +1384,6 @@ def create_ricgraph_explorer_app():
 # ################### main ###################
 # ############################################
 if __name__ == "__main__":
-    ricgraph_explorer_runmode = 'You are using Ricgraph Explorer in '
-    ricgraph_explorer_runmode += 'development mode. Do only use this '
-    ricgraph_explorer_runmode += 'for research use, not for production use.'
-
-    store_ricgraph_explorer_app(app=_ricgraph_explorer)
-    set_ricgraph_explorer_global(name='ricgraph_explorer_runmode',
-                                 value=ricgraph_explorer_runmode)
-    initialize_ricgraph_explorer(ricgraph_explorer_app=_ricgraph_explorer)
-
-    _ricgraph_explorer.run(port=3030)
+    initialize_ricgraph_explorer(ricgraph_explorer_app=_ricgraph_explorer,
+                                 runmode=RICGRAPH_EXPLORER_RUNMODE_DEBUG)
+    _ricgraph_explorer.run(port=RICGRAPH_EXPLORER_DEBUG_PORT)

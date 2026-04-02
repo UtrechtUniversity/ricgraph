@@ -74,6 +74,7 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
 from ricgraph_explorer_constants import (MAX_ITEMS,
                                          ACCESS_MODE_ALL, ACCESS_MODE_OPEN)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
+from ricgraph_explorer_utils import get_global_list, get_global_dataframe
 
 
 def find_person_share_resouts_cypher(parent_node: Node,
@@ -181,7 +182,8 @@ def find_person_organization_collaborations_cypher(parent_node: Node,
 
     # Note that 'records' will contain _all_ organizations that 'parent_node'
     # collaborates with, very probably also the organizations this person works for.
-    researchresult_category_active = get_ricgraph_explorer_global(name='researchresult_category_active')
+    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                     item='researchresult_category_active')
     records, _, _ = graph.execute_query(query_=cypher_query,
                                         startnode_personroot_element_id=personroot_node.element_id,
                                         researchresult_category_active=researchresult_category_active,
@@ -325,7 +327,8 @@ def find_collabs_cypher(start_organizations: str,
       0 = return all collaborating organizations,
     :return: a list of nodes conforming to the cypher query, or [] if nothing found.
     """
-    orgs_with_hierarchies = get_ricgraph_explorer_global('orgs_with_hierarchies')
+    orgs_with_hierarchies = get_global_dataframe(ricgraph_info='ricgraph_systeminfo',
+                                                 item='orgs_with_hierarchies')
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
         print('find_collabs_cypher(): Error: graph has not been initialized or opened.')
@@ -462,8 +465,8 @@ def find_collab_orgs_matrix(start_organizations: str,
       the columns to collab_organizations, and the cell value to the number
       of collaborations between start_organizations and collab_organizations.
     """
-    researchresult_category_active = get_ricgraph_explorer_global(name='researchresult_category_active')
-
+    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                     item='researchresult_category_active')
     if isinstance(researchresult_category, str) and researchresult_category == '':
         researchresult_category = researchresult_category_active.copy()
     if isinstance(researchresult_category, list) and len(researchresult_category) == 0:
@@ -537,8 +540,8 @@ def find_collab_orgs_persons_results(start_organizations: str,
       0 = return all collaborating organizations,
     :return: for all modes: a list of nodes, or [] if nothing found.
     """
-    researchresult_category_active = get_ricgraph_explorer_global(name='researchresult_category_active')
-
+    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+                                                     item='researchresult_category_active')
     if isinstance(researchresult_category, str) and researchresult_category == '':
         researchresult_category = researchresult_category_active.copy()
     if isinstance(researchresult_category, list) and len(researchresult_category) == 0:

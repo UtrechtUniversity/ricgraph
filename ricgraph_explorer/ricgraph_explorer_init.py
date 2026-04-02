@@ -43,6 +43,7 @@
 
 from os import path
 from typing import Union
+from json import loads
 from connexion import FlaskApp
 from pandas import DataFrame
 
@@ -71,7 +72,9 @@ from ricgraph import (open_ricgraph, read_all_values_of_property,
                       ricgraph_nr_nodes, ricgraph_nr_edges,
                       datetimestamp)
 
-from ricgraph_explorer_constants import (page_footer_general,
+from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
+                                         RICGRAPH_EXPLORER_RUNMODE_DEBUG,
+                                         page_footer_general,
                                          HOMEPAGE_INTRO_FILE, HOMEPAGE_OUTRO_FILE,
                                          DISCOVERER_MODE_ALL)
 
@@ -153,24 +156,10 @@ def flask_read_file(ricgraph_explorer_app: FlaskApp, filename: str) -> str:
 # ################################################
 # Ricgraph Explorer initialization.
 # ################################################
-def update_ricgraph_cacheinfo() -> None:
-    """Update information related to the cache.
-    :return: None.
-    """
-    ricgraph_explorer_app = retrieve_ricgraph_explorer_app()
-    if ricgraph_explorer_app is None:
-        return
-    collect_ricgraph_cacheinfo(ricgraph_explorer_app=ricgraph_explorer_app)
-    return
-
-
-def collect_ricgraph_cacheinfo(ricgraph_explorer_app: FlaskApp) -> None:
+def collect_ricgraph_cacheinfo() -> None:
     """Collect information related to the cache.
     Put it in a 'ricgraph_cacheinfo' dict in 'ricgraph_explorer_app'.
 
-    Note that although 'ricgraph_explorer_app' is not 'returned', it is modified.
-
-    :param ricgraph_explorer_app: The FlaskApp ricgraph_explorer.
     :return: None.
     """
     # The cache is not constant, it changes while running Ricgraph Explorer.
@@ -186,27 +175,20 @@ def collect_ricgraph_cacheinfo(ricgraph_explorer_app: FlaskApp) -> None:
         'size_kb': str(size_kb),
         'last_update': datetimestamp(seconds=True)
     }
-
     set_ricgraph_explorer_global(name='ricgraph_cacheinfo',
                                  value=ricgraph_cacheinfo)
-    store_ricgraph_explorer_app(app=ricgraph_explorer_app)
     return
 
 
-def collect_ricgraph_harvestinfo(ricgraph_explorer_app: FlaskApp) -> None:
+def collect_ricgraph_harvestinfo() -> None:
     """Collect information related to the harvest.
     Put it in a 'ricgraph_harvestinfo' dict in 'ricgraph_explorer_app'.
 
-    Note that although 'ricgraph_explorer_app' is not 'returned', it is modified.
-
-    :param ricgraph_explorer_app: The FlaskApp ricgraph_explorer.
     :return: None.
     """
     # Read things from the graph database and store it in the app context.
     # These are all constant in Ricgraph Explorer.
     harvest_date = ricgraph_get_harvest_date()
-    set_ricgraph_explorer_global(name='ricgraph_harvest_date',
-                                 value=harvest_date)
     if harvest_date == '':
         print('The harvest date of Ricgraph is empty.')
     else:
@@ -218,12 +200,10 @@ def collect_ricgraph_harvestinfo(ricgraph_explorer_app: FlaskApp) -> None:
         print('Continuing with an empty list. This might give unexpected results.')
         source_active = []
     source_active = sorted(source_active, key=lambda x: x.lower())
-    set_ricgraph_explorer_global(name='source_active', value=source_active)
     source_active_datalist = '<datalist id="source_active_datalist">'
     for property_item in source_active:
         source_active_datalist += '<option value="' + property_item + '">'
     source_active_datalist += '</datalist>'
-    set_ricgraph_explorer_global(name='source_active_datalist', value=source_active_datalist)
 
     ricgraph_harvestinfo = {
         'harvest_date': ricgraph_get_harvest_date(),
@@ -235,63 +215,48 @@ def collect_ricgraph_harvestinfo(ricgraph_explorer_app: FlaskApp) -> None:
     }
     set_ricgraph_explorer_global(name='ricgraph_harvestinfo',
                                  value=ricgraph_harvestinfo)
-    store_ricgraph_explorer_app(app=ricgraph_explorer_app)
     return
 
 
-def collect_ricgraph_nodeinfo(ricgraph_explorer_app: FlaskApp) -> None:
+def collect_ricgraph_nodeinfo() -> None:
     """Collect information related to nodes.
     Put it in a 'ricgraph_nodeinfo' dict in 'ricgraph_explorer_app'.
 
-    Note that although 'ricgraph_explorer_app' is not 'returned', it is modified.
-
-    :param ricgraph_explorer_app: The FlaskApp ricgraph_explorer.
     :return: None.
     """
     # Read a lot of things from the graph database and store it in the app context.
     # These are all constant in Ricgraph Explorer.
+
+    # Fields related to property 'name' in a node.
     name_active = read_all_values_of_property('name')
     if len(name_active) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "name".')
         print('Continuing with an empty list. This might give unexpected results.')
         name_active = []
+    name_active = sorted(name_active, key=lambda x: x.lower())
+    name_active_datalist = '<datalist id="name_active_datalist">'
+    for property_item in name_active:
+        name_active_datalist += '<option value="' + property_item + '">'
+    name_active_datalist += '</datalist>'
     person_name_active = read_all_values_of_property('person_name')
     if len(person_name_active) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "person_name".')
         print('Continuing with an empty list. This might give unexpected results.')
         person_name_active = []
+    person_name_active = sorted(person_name_active, key=lambda x: x.lower())
+
+    # Fields related to property 'category' in a node.
     category_active = read_all_values_of_property('category')
     if len(category_active) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "category".')
         print('Continuing with an empty list. This might give unexpected results.')
         category_active = []
-    year_active = read_all_values_of_property('year')
-    # Remove empty values.
-    year_active = [x for x in year_active if x != '']
-    if len(year_active) == 0:
-        print('Warning (possibly Error) in obtaining list with all property values for property "year".')
-        print('Continuing with an empty list. This might give unexpected results.')
-        year_active = []
-    name_active = sorted(name_active, key=lambda x: x.lower())
-    person_name_active = sorted(person_name_active, key=lambda x: x.lower())
     category_active = sorted(category_active, key=lambda x: x.lower())
-    year_active = sorted(year_active, key=lambda x: x.lower())
-    set_ricgraph_explorer_global(name='name_active', value=name_active)
-    set_ricgraph_explorer_global(name='person_name_active', value=person_name_active)
-    set_ricgraph_explorer_global(name='category_active', value=category_active)
-    set_ricgraph_explorer_global(name='year_active', value=year_active)
-
-    name_active_datalist = '<datalist id="name_active_datalist">'
-    for property_item in name_active:
-        name_active_datalist += '<option value="' + property_item + '">'
-    name_active_datalist += '</datalist>'
-    set_ricgraph_explorer_global(name='name_active_datalist', value=name_active_datalist)
 
     if COMPETENCE_CATEGORY_COMPETENCE in category_active:
         person_category_active = [PERSON_CATEGORY_PERSON, COMPETENCE_CATEGORY_COMPETENCE]
     else:
         person_category_active = [PERSON_CATEGORY_PERSON]
-    set_ricgraph_explorer_global(name='person_category_active', value=person_category_active)
 
     remainder_category_active = []
     category_active_datalist = '<datalist id="category_active_datalist">'
@@ -322,18 +287,19 @@ def collect_ricgraph_nodeinfo(ricgraph_explorer_app: FlaskApp) -> None:
     researchresult_category_active_datalist += '</datalist>'
     researchresult_category_publication_active_datalist += '</datalist>'
     category_active_datalist += '</datalist>'
-    set_ricgraph_explorer_global(name='researchresult_category_active', value=researchresult_category_active)
-    set_ricgraph_explorer_global(name='researchresult_category_active_datalist', value=researchresult_category_active_datalist)
-    set_ricgraph_explorer_global(name='researchresult_category_publication_active', value=researchresult_category_active)
-    set_ricgraph_explorer_global(name='researchresult_category_publication_active_datalist', value=researchresult_category_active_datalist)
-    set_ricgraph_explorer_global(name='remainder_category_active', value=remainder_category_active)
-    set_ricgraph_explorer_global(name='category_active_datalist', value=category_active_datalist)
 
+    # Fields related to property 'year' in a node.
+    year_active = read_all_values_of_property('year')
+    year_active = [x for x in year_active if x != '']       # Remove empty values.
+    if len(year_active) == 0:
+        print('Warning (possibly Error) in obtaining list with all property values for property "year".')
+        print('Continuing with an empty list. This might give unexpected results.')
+        year_active = []
+    year_active = sorted(year_active, key=lambda x: x.lower())
     year_active_datalist = '<datalist id="year_active_datalist">'
     for property_item in year_active:
         year_active_datalist += '<option value="' + property_item + '">'
     year_active_datalist += '</datalist>'
-    set_ricgraph_explorer_global(name='year_active_datalist', value=year_active_datalist)
 
     # Check on the completeness of some lists.
     # The following three should be equal to RESEARCHRESULT_CATEGORY_ALL.
@@ -379,17 +345,20 @@ def collect_ricgraph_nodeinfo(ricgraph_explorer_app: FlaskApp) -> None:
     }
     set_ricgraph_explorer_global(name='ricgraph_nodeinfo',
                                  value=ricgraph_nodeinfo)
-    store_ricgraph_explorer_app(app=ricgraph_explorer_app)
     return
 
 
-def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp) -> None:
+def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
+                                runmode: str) -> None:
     """Collect information related to Ricgraph or Ricgraph Explorer.
     Put it in a 'ricgraph_systeminfo' dict in 'ricgraph_explorer_app'.
-
-    Note that although 'ricgraph_explorer_app' is not 'returned', it is modified.
+    Note that 'ricgraph_explorer_app' is modified in this function (it is
+    accessed by reference).
 
     :param ricgraph_explorer_app: The FlaskApp ricgraph_explorer.
+
+    :param runmode: Indicates whether Ricgraph Explorer is run via
+      gunicorn or as debug.
     :return: None.
     """
     # Read a lot of things from the Ricgraph ini file.
@@ -397,29 +366,39 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp) -> None:
     orgs_with_hierarchies = get_configfile_key_organizations_with_hierarchies()
     if orgs_with_hierarchies is None:
         orgs_with_hierarchies = DataFrame()
-    set_ricgraph_explorer_global(name='orgs_with_hierarchies', value=orgs_with_hierarchies)
+    # Convert the DataFrame to a list of dicts, for ricgraph_systeminfo.
+    orgs_with_hierarchies_str = orgs_with_hierarchies.to_json(orient="records")
+    orgs_with_hierarchies_records = loads(orgs_with_hierarchies_str)
 
     discoverer_mode_default = get_configfile_key(section='Ricgraph_explorer',
                                                  key='ricgraph_explorer_display_results_mode')
     if discoverer_mode_default not in DISCOVERER_MODE_ALL:
-        print('collect_ricgraph_systeminfo(): initialization: error, ')
+        print('collect_ricgraph_systeminfo(): Error, ')
         print('  not existing or unknown value "' + discoverer_mode_default + '"')
         print('  for "ricgraph_explorer_display_results_mode" in Ricgraph ini')
         print('  file "' + get_ricgraph_ini_file() + '", exiting.')
         exit(1)
-    set_ricgraph_explorer_global(name='discoverer_mode_default', value=discoverer_mode_default)
 
     homepage_intro_html = flask_read_file(ricgraph_explorer_app=ricgraph_explorer_app,
                                           filename=HOMEPAGE_INTRO_FILE)
-    set_ricgraph_explorer_global(name='homepage_intro_html', value=homepage_intro_html)
     homepage_outro_html = flask_read_file(ricgraph_explorer_app=ricgraph_explorer_app,
                                           filename=HOMEPAGE_OUTRO_FILE)
-    set_ricgraph_explorer_global(name='homepage_outro_html', value=homepage_outro_html)
 
-    ricgraph_explorer_runmode = str(get_ricgraph_explorer_global('ricgraph_explorer_runmode'))
+    if runmode == RICGRAPH_EXPLORER_RUNMODE_GUNICORN:
+        runmode_message = 'You are using Ricgraph Explorer in '
+        runmode_message += 'development mode. Do only use this '
+        runmode_message += 'for research use, not for production use.'
+    elif runmode == RICGRAPH_EXPLORER_RUNMODE_DEBUG:
+        runmode_message = 'You are using Ricgraph Explorer with a '
+        runmode_message += 'WSGI Gunicorn server using Uvicorn '
+        runmode_message += 'for ASGI applications.'
+    else:
+        print('collect_ricgraph_systeminfo(): Error, unknown runmode "'
+              + runmode + '".')
+        exit(1)
     ricgraph_version = get_ricgraph_version()
     page_footer = '<footer class="w3-container rj-gray" style="font-size:80%">'
-    page_footer += ricgraph_explorer_runmode + ' ' + page_footer_general
+    page_footer += runmode_message + ' ' + page_footer_general
     page_footer += 'This site uses Ricgraph version ' + ricgraph_version + '.'
     page_footer += '</footer>'
 
@@ -427,24 +406,26 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp) -> None:
         'discoverer_mode_default': discoverer_mode_default,
         'homepage_intro_html': homepage_intro_html,
         'homepage_outro_html': homepage_outro_html,
-        'orgs_with_hierarchies': orgs_with_hierarchies.to_json(orient='records'),
+        'orgs_with_hierarchies': orgs_with_hierarchies_records,
         'page_footer': page_footer,
-        'ricgraph_explorer_runmode': ricgraph_explorer_runmode,
+        'ricgraph_explorer_runmode': runmode,
         'ricgraph_version': ricgraph_version,
         'last_update': datetimestamp(seconds=True)
     }
     set_ricgraph_explorer_global(name='ricgraph_systeminfo',
                                  value=ricgraph_systeminfo)
-    store_ricgraph_explorer_app(app=ricgraph_explorer_app)
     return
 
 
-def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
+def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp,
+                                 runmode: str) -> None:
     """Initialize Ricgraph Explorer.
-
-    Note that although 'ricgraph_explorer_app' is not 'returned', it is modified.
+    Note that 'ricgraph_explorer_app' is modified in this function (it is
+    accessed by reference).
 
     :param ricgraph_explorer_app: The FlaskApp ricgraph_explorer.
+    :param runmode: Indicates whether Ricgraph Explorer is run via
+      gunicorn or as debug.
     :return: None.
     """
     print('Initializing Ricgraph Explorer...')
@@ -454,6 +435,10 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
         print('initialize_ricgraph_explorer(): Error, Ricgraph could not be opened.')
         exit(1)
 
+    # This is the only global one that is to be retrieved using
+    # set_ricgraph_explorer_global(), besides
+    # ricgraph_cacheinfo, ricgraph_harvestinfo,
+    # ricgraph_nodeinfo, and ricgraph_systeminfo.
     set_ricgraph_explorer_global(name='graph', value=graph)
 
     # Open the global cache (for nodes).
@@ -461,12 +446,11 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp) -> None:
     memcached_open_connection()
     print(nodes_cache_key_id_type_size())
 
-    collect_ricgraph_cacheinfo(ricgraph_explorer_app=ricgraph_explorer_app)
-    collect_ricgraph_harvestinfo(ricgraph_explorer_app=ricgraph_explorer_app)
-    collect_ricgraph_nodeinfo(ricgraph_explorer_app=ricgraph_explorer_app)
-    collect_ricgraph_systeminfo(ricgraph_explorer_app=ricgraph_explorer_app)
-
-    store_ricgraph_explorer_app(app=ricgraph_explorer_app)
+    collect_ricgraph_cacheinfo()
+    collect_ricgraph_harvestinfo()
+    collect_ricgraph_nodeinfo()
+    collect_ricgraph_systeminfo(ricgraph_explorer_app=ricgraph_explorer_app,
+                                runmode=runmode)
     print('Done initializing Ricgraph Explorer.\n')
     return
 

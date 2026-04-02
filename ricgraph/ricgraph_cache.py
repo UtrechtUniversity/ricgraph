@@ -128,10 +128,12 @@ def nodes_cache_key_id_create(key: str, elementid: str) -> None:
     """
     global _nodes_cache_key_id, _memcached_available, _memcached_client
 
-    if key == '' or elementid == '' or _memcached_client is None:
+    if key == '' or elementid == '':
         return
 
     if memcached_check_available():
+        if _memcached_client is None:
+            return
         # The docs are unclear whether I need to serialize the key if I
         # use flag allow_unicode_keys=True in Client() above.
         # So I do serialize to be sure. Since keys cannot have spaces,
@@ -169,10 +171,12 @@ def nodes_cache_key_id_read(key: str) -> str:
     """
     global _nodes_cache_key_id, _memcached_available, _memcached_client
 
-    if key == '' or _memcached_client is None:
+    if key == '':
         return ''
 
     if memcached_check_available():
+        if _memcached_client is None:
+            return ''
         key_serialized = serialize_value(value=key.replace(' ', '_'))
         try:
             elementid_serialized = _memcached_client.get(key=key_serialized)
@@ -203,10 +207,12 @@ def nodes_cache_key_id_delete_key(key: str) -> None:
     """
     global _nodes_cache_key_id, _memcached_available, _memcached_client
 
-    if key == '' or _memcached_client is None:
+    if key == '':
         return
 
     if memcached_check_available():
+        if _memcached_client is None:
+            return
         key_serialized = serialize_value(value=key.replace(' ', '_'))
         try:
             # Works regardless whether the key is present or not.
@@ -232,10 +238,9 @@ def nodes_cache_key_id_empty() -> None:
     """
     global _nodes_cache_key_id, _memcached_available, _memcached_client
 
-    if _memcached_client is None:
-        return
-
     if memcached_check_available():
+        if _memcached_client is None:
+            return
         try:
             _memcached_client.flush_all()
         except:
@@ -258,10 +263,9 @@ def nodes_cache_key_id_size() -> Tuple[int, float]:
     """
     global _nodes_cache_key_id, _memcached_client
 
-    if _memcached_client is None:
-        return 0, 0.0
-
     if memcached_check_available():
+        if _memcached_client is None:
+            return 0, 0.0
         try:
             stats = _memcached_client.stats()
             nr_items = int(stats.get(b'curr_items', 0))

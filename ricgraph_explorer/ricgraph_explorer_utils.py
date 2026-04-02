@@ -53,7 +53,7 @@ from ricgraph_explorer_constants import (spinner_style,
                                          form_button_on_one_line_flexspace_style,
                                          form_button_on_one_line_width)
 from ricgraph_explorer_init import (get_ricgraph_explorer_global,
-                                    update_ricgraph_cacheinfo)
+                                    collect_ricgraph_cacheinfo)
 from ricgraph_explorer_javascript import get_spinner_javascript
 
 
@@ -601,7 +601,7 @@ def get_global_list(ricgraph_info: str, item: str) -> list:
     """
     if ricgraph_info == 'ricgraph_cacheinfo':
         # First update the information about the cache.
-        update_ricgraph_cacheinfo()
+        collect_ricgraph_cacheinfo()
     info = get_ricgraph_explorer_global(name=ricgraph_info)
     if info is None:
         return []
@@ -619,12 +619,30 @@ def get_global_str(ricgraph_info: str, item: str) -> str:
     """
     if ricgraph_info == 'ricgraph_cacheinfo':
         # First update the information about the cache.
-        update_ricgraph_cacheinfo()
+        collect_ricgraph_cacheinfo()
     info = get_ricgraph_explorer_global(name=ricgraph_info)
     if info is None:
         return ''
     value = info.get(item, '')
     return value
+
+
+def get_global_dataframe(ricgraph_info: str, item: str) -> Union[DataFrame, None]:
+    """Safely retrieve an entry from a Ricgraph info structure.
+    A DataFrame return value is expected.
+
+    :param ricgraph_info: The Ricgraph info structure.
+    :param item: The element in that structure.
+    :return: the value of the DataFrame, or None if it does not exist.
+    """
+    if ricgraph_info == 'ricgraph_cacheinfo':
+        # First update the information about the cache.
+        collect_ricgraph_cacheinfo()
+    info = get_ricgraph_explorer_global(name=ricgraph_info)
+    if info is None:
+        return None
+    value = info.get(item, '')
+    return DataFrame(value)
 
 
 def get_page_footer() -> str:

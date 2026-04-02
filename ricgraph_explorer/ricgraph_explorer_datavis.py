@@ -61,9 +61,9 @@ from ricgraph_explorer_constants import (ricgraph_reference, diagram_tooltip_sty
                                          sankey_pixels_per_link,
                                          sankey_min_height, sankey_max_height,
                                          HISTOGRAM_MODE_COUNTS)
-from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_message, remove_hierarchical_orgs,
-                                     create_full_htmlpage)
+                                     create_full_htmlpage,
+                                     get_global_dataframe)
 from ricgraph_explorer_cypher import (find_collab_orgs_matrix,
                                       find_collab_orgs_persons_results)
 from ricgraph_explorer_javascript import (get_html_for_histogram_javascript,
@@ -469,8 +469,8 @@ def org_collaborations_diagram(start_organizations: str,
     :return: the HTML produced (either full or body, see 'generate_full_html'),
       or '' if no HTML produced.
     """
-    orgs_with_hierarchies = get_ricgraph_explorer_global('orgs_with_hierarchies')
-
+    orgs_with_hierarchies = get_global_dataframe(ricgraph_info='ricgraph_systeminfo',
+                                                 item='orgs_with_hierarchies')
     print('-- org_collaborations_diagram(): start at ' + datetimestamp() + '.')
     if diagram_type != 'sankey' and diagram_type != 'chord':
         print('org_collaborations_diagram(): Error, unknown diagram type "' + diagram_type + '", exiting.')

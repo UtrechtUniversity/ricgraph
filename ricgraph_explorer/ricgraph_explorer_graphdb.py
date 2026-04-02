@@ -73,11 +73,11 @@ from ricgraph import (get_personroot_node,
 from ricgraph_explorer_constants import (MAX_NR_NODES_TO_ENRICH,
                                          RESEARCH_OUTPUT_COLUMNS, DETAIL_COLUMNS,
                                          ACCESS_MODE_ANY)
-from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
                                      get_you_searched_for_card,
-                                     get_html_for_yearcard)
+                                     get_html_for_yearcard,
+                                     get_global_list)
 from ricgraph_explorer_cypher import (find_organization_additional_info_cypher,
                                       find_person_organization_collaborations_cypher,
                                       find_person_share_resouts_cypher)
@@ -222,7 +222,8 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
-    if source_system not in get_ricgraph_explorer_global(name='source_active'):
+    if source_system not in get_global_list(ricgraph_info='ricgraph_harvestinfo',
+                                            item='source_active'):
         html = get_message(message='You have not specified a valid source system "'
                                    + source_system + '".')
         return html

@@ -57,7 +57,7 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
 from ricgraph_explorer_constants import (html_preamble,
                                          MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
 from ricgraph_explorer_init import (get_ricgraph_explorer_global,
-                                    update_ricgraph_cacheinfo)
+                                    collect_ricgraph_cacheinfo)
 from ricgraph_explorer_utils import get_global_list
 from ricgraph_explorer_graphdb import (find_person_share_resouts_cypher,
                                        find_person_organization_collaborations_cypher,
@@ -837,7 +837,7 @@ def api_get_ricgraph_info(ricgraph_info: str = '') -> Tuple[dict, int]:
 
     if ricgraph_info == 'ricgraph_cacheinfo':
         # First update the information about the cache.
-        update_ricgraph_cacheinfo()
+        collect_ricgraph_cacheinfo()
 
     result_list = get_ricgraph_explorer_global(name=ricgraph_info)
     if len(result_list) == 0:

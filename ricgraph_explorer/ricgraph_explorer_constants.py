@@ -41,6 +41,17 @@
 # ########################################################################
 
 
+# The port that Ricgraph Explorer runs on, in debug mode.
+RICGRAPH_EXPLORER_DEBUG_PORT = 3030
+
+# The 'run mode' of Ricgraph Explorer, can be either in a production
+# environment (then it should use 'gunicorn'), or in a testing environment
+# (then it may be both).
+RICGRAPH_EXPLORER_RUNMODE_GUNICORN = 'gunicorn'
+RICGRAPH_EXPLORER_RUNMODE_DEBUG = 'debug'
+RICGRAPH_EXPLORER_RUNMODE_ALL = [RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
+                                 RICGRAPH_EXPLORER_RUNMODE_DEBUG]
+
 # You can search in two different ways in Ricgraph Explorer. This parameter
 # gives the default mode. Possibilities are:
 # exact_match: do a search on exact match, we call it 'advanced search'.
