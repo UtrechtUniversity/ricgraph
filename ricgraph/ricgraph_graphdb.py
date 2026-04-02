@@ -42,7 +42,6 @@
 # ########################################################################
 
 
-from typing import Union
 from neo4j.graph import Node
 from .ricgraph_constants import (MAX_NR_HISTORYITEMS_TO_ADD,
                                  A_LARGE_NUMBER,
@@ -154,7 +153,7 @@ def recreate_name_cache_in_personroot(personroot: Node | None) -> None:
 
 
 def create_update_node(name: str, category: str, value: str,
-                       other_properties: dict = None) -> Union[Node, None]:
+                       other_properties: dict = None) -> Node | None:
     """Create a node, or update its values if is already present.
     The new/updated node will have values 'name', 'category', and 'value', and
     the values in other_properties.
@@ -290,7 +289,7 @@ def create_update_node(name: str, category: str, value: str,
     return updated_node
 
 
-def read_node(name: str = '', value: str = '') -> Union[Node, None]:
+def read_node(name: str = '', value: str = '') -> Node | None:
     """Read a node based on name and value.
     Since all nodes are supposed to be unique if both are
     specified, return the first one found.
@@ -368,7 +367,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
     return nodes
 
 
-def update_node_value(name: str, old_value: str, new_value: str) -> Union[Node, None]:
+def update_node_value(name: str, old_value: str, new_value: str) -> Node | None:
     """Update a node, change the value property.
     This is a special case because we change the key.
     Use carefully, because other property that contain 'old_value' (such
@@ -808,7 +807,7 @@ def connect_two_nodes(left_node: Node, right_node: Node) -> None:
 
 def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
                               name2: str, category2: str, value2: str,
-                              **other_properties: Union[dict, str]) -> None:
+                              **other_properties: dict | str) -> None:
     """Create two nodes (if they do not exist) and two directed edges between those two nodes.
     The nodes are specified by the properties passed.
     All 'left' nodes end with '1', all right nodes end with '2'.

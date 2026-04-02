@@ -45,13 +45,12 @@
 from os import makedirs
 from os.path import isfile, dirname, exists
 from pandas import DataFrame, read_csv
-from typing import Union
 from csv import QUOTE_ALL
 from json import load, dump
 
 
 def write_json_to_file(filename:str,
-                       json_data: Union[list, dict]) -> None:
+                       json_data: list | dict) -> None:
     """Write json data to a file. This also works for dicts.
     If no records are harvested, nothing is written.
 

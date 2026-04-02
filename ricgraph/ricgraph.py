@@ -100,7 +100,6 @@ In the default configuration of Ricgraph, the following properties are included:
 
 from numpy import nan
 from pandas import DataFrame, concat, set_option
-from typing import Union
 
 from .ricgraph_constants import PERSON_CATEGORY_PERSON
 from .ricgraph_utils import (timestamp, timestamp_posix,

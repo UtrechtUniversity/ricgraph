@@ -44,7 +44,7 @@
 
 from datetime import date
 from pandas import DataFrame
-from typing import Union, Optional
+from typing import Optional
 from re import split, fullmatch, sub, IGNORECASE
 from json import dumps
 from neo4j import GraphDatabase, Driver, ResultSummary
@@ -435,7 +435,7 @@ def ricgraph_get_harvest_date() -> str:
     return harvest_date
 
 
-def cypher_create_node(node_properties: dict) -> Union[Node, None]:
+def cypher_create_node(node_properties: dict) -> Node | None:
     """
     Create a node in the graph database.
     Create means: the node will be created, regardless if it is already
@@ -488,7 +488,7 @@ def cypher_create_node(node_properties: dict) -> Union[Node, None]:
         return node
 
 
-def cypher_read_node_elementid(node_element_id: str) -> Union[Node, None]:
+def cypher_read_node_elementid(node_element_id: str) -> Node | None:
     """
     Read a node from the graph database, based on elementid.
 
@@ -519,7 +519,7 @@ def cypher_read_node_elementid(node_element_id: str) -> Union[Node, None]:
         return node
 
 
-def cypher_read_node(name: str, value: str) -> Union[Node, None]:
+def cypher_read_node(name: str, value: str) -> Node | None:
     """
     Read a node from the graph database.
 
@@ -658,7 +658,7 @@ def cypher_delete_node(node_element_id: str) -> None:
     return
 
 
-def cypher_update_node_properties(node_element_id: str, node_properties: dict) -> Union[Node, None]:
+def cypher_update_node_properties(node_element_id: str, node_properties: dict) -> Node | None:
     """
     Update node properties in a node in the graph database.
     If the node is not present, nothing will happen.
@@ -711,7 +711,7 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
 
 def cypher_merge_nodes(node_merge_from_element_id: str,
                        node_merge_to_element_id: str,
-                       node_merge_to_properties: dict) -> Union[Node, None]:
+                       node_merge_to_properties: dict) -> Node | None:
     """Merge two nodes in the graph database.
     The neighbors of 'node_merge_from' will be merged to node 'node_merge_to'
     and 'node_merge_from' will be deleted.

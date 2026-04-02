@@ -47,7 +47,7 @@ from sys import prefix
 from re import sub, findall
 from numpy import maximum
 from pandas import DataFrame
-from typing import Union, Tuple
+from typing import Tuple
 from ast import literal_eval
 from random import choice
 from string import ascii_lowercase
@@ -296,7 +296,7 @@ def convert_cypher_recordslist_to_nodeslist(records_list:list) -> list:
 
 
 def convert_nodeslist_to_dataframe(nodes_list: list,
-                                   columns_and_order: list = None) -> Union[None, DataFrame]:
+                                   columns_and_order: list = None) -> None | DataFrame:
     """Convert a list of RicgraphNode nodes to a DataFrame,
     with selected columns in an order given.
 
@@ -736,7 +736,7 @@ def get_configfile_key(section: str, key: str) -> str:
     return value
 
 
-def get_configfile_key_organizations_with_hierarchies() -> Union[DataFrame, None]:
+def get_configfile_key_organizations_with_hierarchies() -> DataFrame | None:
     """Get the value of the key 'organizations_with_hierarchies'
     in the Ricgraph config file.
 
@@ -895,7 +895,7 @@ def json_item_get_list(json_item: dict, json_path: str,
         return []
 
 
-def json_item_get_int(json_item: dict, json_path: str) -> Union[int, None]:
+def json_item_get_int(json_item: dict, json_path: str) -> int | None:
     """Safely retrieve a nested value from a JSON-like structure
     using a string path. An int return value is expected.
     For examples see json_get_str().
@@ -927,7 +927,7 @@ def json_item_get_dict(json_item: dict, json_path: str) -> dict:
         return {}
 
 
-def json_item_get_bool(json_item: dict, json_path: str) -> Union[bool, None]:
+def json_item_get_bool(json_item: dict, json_path: str) -> bool | None:
     """Safely retrieve a nested value from a JSON-like structure
     using a string path. A bool return value is expected.
     For examples see json_get_str().
