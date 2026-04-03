@@ -43,6 +43,7 @@
 
 
 from neo4j.graph import Node
+from typing import List
 from .ricgraph_constants import (MAX_NR_HISTORYITEMS_TO_ADD,
                                  A_LARGE_NUMBER,
                                  PERSON_CATEGORY_PERSON,
@@ -422,10 +423,10 @@ def update_node_value(name: str, old_value: str, new_value: str) -> Node | None:
     node_properties['_key'] = newkey
     history_line = create_history_line(property_name='value', old_value=loldvalue, new_value=lnewvalue)
     history_line += create_history_line(property_name='_key', old_value=oldkey, new_value=newkey)
-    # The following generates a Cannot find reference '[' in 'None'
-    # warning in PyCharm, but the 'None' case has been caught above.
-    node_properties['_history'] = node['_history'].copy()
-    node_properties['_history'].append(time_stamp + ': Updated. ' + history_line)
+    # We need this to prevent a PyCharm warning.
+    history : List[str] = list(node['_history'].copy())
+    history.append(time_stamp + ': Updated. ' + history_line)
+    node_properties['_history'] = history
     if node_properties is None:
         # To silence a PyCharm warning.
         return None
@@ -963,17 +964,17 @@ def get_all_personroot_nodes(node: Node | None) -> list:
 
 
 def convert_nodes_to_list_of_dict(nodes_list: list,
-                                  max_nr_items: str = '0') -> list:
+                                  max_nr_items: int = 0) -> list:
     """Convert a list of nodes to a list of dict.
 
     :param nodes_list: The list of nodes.
     :param max_nr_items: The maximum number of items to return.
     :return: A list of dicts
     """
-    if max_nr_items == '0':
+    if max_nr_items == 0:
         max_nr_nodes = A_LARGE_NUMBER
     else:
-        max_nr_nodes = int(max_nr_items)
+        max_nr_nodes = max_nr_items
 
     result_list = []
     count = 0

@@ -47,12 +47,14 @@ from markupsafe import escape
 from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
                       ORGANIZATION_CATEGORY_ORGANISATION)
-from ricgraph_explorer_constants import (html_body_start, html_body_end,
+from ricgraph_explorer_constants import (RICGRAPH_NODEINFO_INTERNAL,
+                                         RICGRAPH_SYSTEMINFO,
+                                         html_body_start, html_body_end,
                                          button_style, button_width,
                                          DISCOVERER_MODE_ALL,
                                          COLLABORATION_MODES_ALL,
                                          MAX_ROWS_IN_TABLE,
-                                         MAX_ITEMS)
+                                         MAX_ITEMS_TO_RETURN)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_url_parameter_value, get_url_parameter_list,
                                      get_message,
@@ -157,7 +159,7 @@ def collabspage() -> str:
     form += '<input id="category_list" class="w3-input w3-border" list="researchresult_category_active_datalist"'
     form += 'name=category_list autocomplete=off>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += get_global_str(ricgraph_info='ricgraph_nodeinfo',
+    form += get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                            item='researchresult_category_active_datalist')
 
     form += '<br/>'
@@ -249,15 +251,15 @@ def collabsresultpage() -> str:
     collab_mode = get_url_parameter_value(parameter='collab_mode')
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                              default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
-                                           default_value=str(MAX_ITEMS))
+                                           default_value=str(MAX_ITEMS_TO_RETURN))
     if not max_nr_items.isnumeric():
         # This also catches negative numbers, they contain a '-' and are not numeric.
         # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
-        max_nr_items = str(MAX_ITEMS)
+        max_nr_items = str(MAX_ITEMS_TO_RETURN)
     extra_url_parameters['max_nr_items'] = max_nr_items
     max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
                                                 default_value=str(MAX_ROWS_IN_TABLE))

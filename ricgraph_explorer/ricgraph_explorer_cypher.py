@@ -71,7 +71,9 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       cypher_print_resultsummary,
                       check_valid_year)
-from ricgraph_explorer_constants import (MAX_ITEMS,
+from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
+                                         RICGRAPH_SYSTEMINFO,
+                                         MAX_ITEMS_TO_RETURN,
                                          ACCESS_MODE_ALL, ACCESS_MODE_OPEN)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import get_global_list, get_global_dataframe
@@ -80,7 +82,7 @@ from ricgraph_explorer_utils import get_global_list, get_global_dataframe
 def find_person_share_resouts_cypher(parent_node: Node | None,
                                      category_want_list: list = None,
                                      category_dontwant_list: list = None,
-                                     max_nr_items: str = str(MAX_ITEMS)) -> list:
+                                     max_nr_items: int = MAX_ITEMS_TO_RETURN) -> list:
     """ For documentation, see find_person_share_resouts().
     This is the cypher functionality for that function.
 
@@ -124,7 +126,7 @@ def find_person_share_resouts_cypher(parent_node: Node | None,
     else:
         cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
     cypher_query += 'RETURN DISTINCT neighbor_personroot '
-    if int(max_nr_items) > 0:
+    if max_nr_items > 0:
         cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
 
@@ -134,14 +136,14 @@ def find_person_share_resouts_cypher(parent_node: Node | None,
                                         startnode_personroot_element_id=personroot_node.element_id,
                                         category_want_list=category_want_list,
                                         category_dontwant_list=category_dontwant_list,
-                                        max_nr_items=int(max_nr_items),
+                                        max_nr_items=max_nr_items,
                                         database_=ricgraph_databasename())
     connected_persons = [record['neighbor_personroot'] for record in records]
     return connected_persons
 
 
 def find_person_organization_collaborations_cypher(parent_node: Node | None,
-                                                   max_nr_items: str = str(MAX_ITEMS)) -> Tuple[list, list]:
+                                                   max_nr_items: int = MAX_ITEMS_TO_RETURN) -> Tuple[list, list]:
     """ For documentation, see find_person_organization_collaborations().
     This is the cypher functionality for that function.
 
@@ -177,7 +179,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node | None,
         cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) AND '
     cypher_query += 'neighbor_organization.category="organization" '
     cypher_query += 'RETURN DISTINCT neighbor_organization '
-    if int(max_nr_items) > 0:
+    if max_nr_items > 0:
         cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
     # Note that the RETURN (as in RETURN DISTINCT *) also has all intermediate results, such
@@ -186,12 +188,12 @@ def find_person_organization_collaborations_cypher(parent_node: Node | None,
 
     # Note that 'records' will contain _all_ organizations that 'parent_node'
     # collaborates with, very probably also the organizations this person works for.
-    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                      item='researchresult_category_active')
     records, _, _ = graph.execute_query(query_=cypher_query,
                                         startnode_personroot_element_id=personroot_node.element_id,
                                         researchresult_category_active=researchresult_category_active,
-                                        max_nr_items=int(max_nr_items),
+                                        max_nr_items=max_nr_items,
                                         database_=ricgraph_databasename())
 
     # Get the organizations from 'parent_node'.
@@ -224,7 +226,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
                                              year_first: str = '',
                                              year_last: str = '',
                                              access_mode: str = '',
-                                             max_nr_items: str = str(MAX_ITEMS)) -> list:
+                                             max_nr_items: int = MAX_ITEMS_TO_RETURN) -> list:
     """For documentation, see find_organization_additional_info().
     This is the cypher functionality for that function.
 
@@ -282,7 +284,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
 
     cypher_query += 'RETURN DISTINCT second_neighbor, COUNT(second_neighbor) AS count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
-    if int(max_nr_items) > 0:
+    if max_nr_items > 0:
         cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
     records, _, _ = graph.execute_query(query_=cypher_query,
@@ -293,7 +295,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
                                         year_first=year_first,
                                         year_last=year_last,
                                         access_mode=access_mode,
-                                        max_nr_items=int(max_nr_items),
+                                        max_nr_items=max_nr_items,
                                         database_=ricgraph_databasename())
     if len(records) == 0:
         return []
@@ -331,7 +333,7 @@ def find_collabs_cypher(start_organizations: str,
       0 = return all collaborating organizations,
     :return: a list of nodes conforming to the cypher query, or [] if nothing found.
     """
-    orgs_with_hierarchies = get_global_dataframe(ricgraph_info='ricgraph_systeminfo',
+    orgs_with_hierarchies = get_global_dataframe(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                  item='orgs_with_hierarchies')
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
@@ -469,7 +471,7 @@ def find_collab_orgs_matrix(start_organizations: str,
       the columns to collab_organizations, and the cell value to the number
       of collaborations between start_organizations and collab_organizations.
     """
-    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                      item='researchresult_category_active')
     if isinstance(researchresult_category, str) and researchresult_category == '':
         researchresult_category = researchresult_category_active.copy()
@@ -544,7 +546,7 @@ def find_collab_orgs_persons_results(start_organizations: str,
       0 = return all collaborating organizations,
     :return: for all modes: a list of nodes, or [] if nothing found.
     """
-    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                      item='researchresult_category_active')
     if isinstance(researchresult_category, str) and researchresult_category == '':
         researchresult_category = researchresult_category_active.copy()

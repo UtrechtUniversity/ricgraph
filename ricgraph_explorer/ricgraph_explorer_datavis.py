@@ -55,7 +55,8 @@ from ricgraph import (datetimestamp, create_unique_string,
                       combine_dataframes, make_dataframe_square_symmetric,
                       convert_nodeslist_to_dataframe,
                       write_text_to_file, write_dataframe_to_csv)
-from ricgraph_explorer_constants import (ricgraph_reference, diagram_tooltip_style,
+from ricgraph_explorer_constants import (RICGRAPH_SYSTEMINFO,
+                                         ricgraph_reference, diagram_tooltip_style,
                                          observable_plot, observable_d3,
                                          chord_space_for_labels,
                                          sankey_pixels_per_link,
@@ -470,7 +471,7 @@ def org_collaborations_diagram(start_organizations: str,
     :return: the HTML produced (either full or body, see 'generate_full_html'),
       or '' if no HTML produced.
     """
-    orgs_with_hierarchies = get_global_dataframe(ricgraph_info='ricgraph_systeminfo',
+    orgs_with_hierarchies = get_global_dataframe(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                  item='orgs_with_hierarchies')
     print('-- org_collaborations_diagram(): start at ' + datetimestamp() + '.')
     if diagram_type != 'sankey' and diagram_type != 'chord':

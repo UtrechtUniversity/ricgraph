@@ -47,7 +47,10 @@ from flask import request, url_for
 from markupsafe import escape
 from neo4j.graph import Node
 from ricgraph import create_unique_string, extract_organization_abbreviation
-from ricgraph_explorer_constants import (spinner_style,
+from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
+                                         RICGRAPH_NODEINFO_INTERNAL,
+                                         RICGRAPH_SYSTEMINFO,
+                                         spinner_style,
                                          button_style, button_width,
                                          font_family,
                                          form_button_on_one_line_flexspace_style,
@@ -421,7 +424,7 @@ def get_html_for_yearcard(show_as_card: bool = True,
     :param button_text: The text to show on the 'submit' button.
     :return: HTML to be rendered.
     """
-    year_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+    year_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                           item='year_active_datalist')
     hidden_fields = ''
     if message == '':
@@ -599,7 +602,7 @@ def get_global_list(ricgraph_info: str, item: str) -> list:
     :param item: The element in that structure.
     :return: the value of the list, or [] if it does not exist.
     """
-    if ricgraph_info == 'ricgraph_cacheinfo':
+    if ricgraph_info == RICGRAPH_CACHEINFO:
         # First update the information about the cache.
         collect_ricgraph_cacheinfo()
     info = get_ricgraph_explorer_global(name=ricgraph_info)
@@ -617,7 +620,7 @@ def get_global_str(ricgraph_info: str, item: str) -> str:
     :param item: The element in that structure.
     :return: the value of the str, or '' if it does not exist.
     """
-    if ricgraph_info == 'ricgraph_cacheinfo':
+    if ricgraph_info == RICGRAPH_CACHEINFO:
         # First update the information about the cache.
         collect_ricgraph_cacheinfo()
     info = get_ricgraph_explorer_global(name=ricgraph_info)
@@ -635,7 +638,7 @@ def get_global_dataframe(ricgraph_info: str, item: str) -> Union[DataFrame, None
     :param item: The element in that structure.
     :return: the value of the DataFrame, or None if it does not exist.
     """
-    if ricgraph_info == 'ricgraph_cacheinfo':
+    if ricgraph_info == RICGRAPH_CACHEINFO:
         # First update the information about the cache.
         collect_ricgraph_cacheinfo()
     info = get_ricgraph_explorer_global(name=ricgraph_info)
@@ -650,6 +653,6 @@ def get_page_footer() -> str:
 
     :return: HTML for the page footer.
     """
-    page_footer = get_global_str(ricgraph_info='ricgraph_systeminfo',
+    page_footer = get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                  item='page_footer')
     return page_footer

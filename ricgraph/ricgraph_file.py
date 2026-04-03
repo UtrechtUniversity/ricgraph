@@ -123,8 +123,10 @@ def write_read_json_file(json_data: list | dict,
     :return: The JSON data received.
     """
     if filename == '':
+        # See note above.
         return json_data
     if len(json_data) == 0:
+        # See note above.
         return json_data
 
     write_json_to_file(filename=filename, json_data=json_data)

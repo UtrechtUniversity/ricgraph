@@ -70,7 +70,8 @@ from ricgraph import (get_personroot_node,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT)
-from ricgraph_explorer_constants import (MAX_NR_NODES_TO_ENRICH,
+from ricgraph_explorer_constants import (RICGRAPH_HARVESTINFO,
+                                         MAX_NR_NODES_TO_ENRICH,
                                          RESEARCH_OUTPUT_COLUMNS, DETAIL_COLUMNS,
                                          ACCESS_MODE_ANY)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
@@ -119,7 +120,7 @@ def find_person_share_resouts(parent_node: Node | None,
     connected_persons = find_person_share_resouts_cypher(parent_node=parent_node,
                                                          category_want_list=category_want_list,
                                                          category_dontwant_list=category_dontwant_list,
-                                                         max_nr_items=extra_url_parameters['max_nr_items'])
+                                                         max_nr_items=int(extra_url_parameters['max_nr_items']))
     if discoverer_mode == 'details_view':
         table_columns = DETAIL_COLUMNS
     else:
@@ -176,6 +177,12 @@ def find_enrich_candidates_one_person(personroot: Node | None,
         extra_url_parameters = {}
     year_first = extra_url_parameters.get('year_first', '')
     year_last = extra_url_parameters.get('year_last', '')
+    max_nr_items = extra_url_parameters.get('max_nr_items', '0')
+
+    # Do not use 'max_nr_items" on get_all_neighbor_nodes(), since
+    # we were asked to return max_nr_items for find_enrich_candidates_one_person().
+    # We might need more than max_nr_items from get_all_neighbor_nodes()
+    # to obtain that.
     neighbors = get_all_neighbor_nodes(node=personroot,
                                        name_want=name_want,
                                        category_want=category_want,
@@ -190,14 +197,16 @@ def find_enrich_candidates_one_person(personroot: Node | None,
             continue
 
     if len(nodes_in_source_system) == 0:
-        return [], nodes_not_in_source_system
+        # Here we return at most max_nr_items.
+        return [], nodes_not_in_source_system[:int(max_nr_items)]
 
     person_nodes = []
     for node_source in nodes_in_source_system:
         if node_source['category'] == PERSON_CATEGORY_PERSON:
             person_nodes.append(node_source)
 
-    return person_nodes, nodes_not_in_source_system
+    # Here we return at most max_nr_items.
+    return person_nodes[:int(max_nr_items)], nodes_not_in_source_system[:int(max_nr_items)]
 
 
 def find_enrich_candidates(parent_node: Union[Node, None],
@@ -224,7 +233,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
-    if source_system not in get_global_list(ricgraph_info='ricgraph_harvestinfo',
+    if source_system not in get_global_list(ricgraph_info=RICGRAPH_HARVESTINFO,
                                             item='source_active'):
         html = get_message(message='You have not specified a valid source system "'
                                    + source_system + '".')
@@ -376,7 +385,7 @@ def find_person_organization_collaborations(parent_node: Node | None,
 
     personroot_node_organizations, collaborating_organizations = \
         find_person_organization_collaborations_cypher(parent_node=parent_node,
-                                                       max_nr_items=extra_url_parameters['max_nr_items'])
+                                                       max_nr_items=int(extra_url_parameters['max_nr_items']))
 
     if discoverer_mode == 'details_view':
         table_columns = DETAIL_COLUMNS
@@ -466,7 +475,7 @@ def find_organization_additional_info(parent_node: Node | None,
                                                  year_first=year_first,
                                                  year_last=year_last,
                                                  access_mode=access_mode,
-                                                 max_nr_items=extra_url_parameters['max_nr_items'])
+                                                 max_nr_items=int(extra_url_parameters['max_nr_items']))
     if len(cypher_result) == 0:
         message = 'Could not find any persons or results for this organization'
         if name_str != '' and category_str != '':

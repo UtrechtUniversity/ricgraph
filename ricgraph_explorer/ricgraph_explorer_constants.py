@@ -41,6 +41,22 @@
 # ########################################################################
 
 
+# The name of the global Ricgraph lists.
+RICGRAPH_CACHEINFO = 'ricgraph_cacheinfo'
+RICGRAPH_HARVESTINFO = 'ricgraph_harvestinfo'
+RICGRAPH_HARVESTINFO_INTERNAL = 'ricgraph_harvestinfo_internal'
+RICGRAPH_NODEINFO = 'ricgraph_nodeinfo'
+RICGRAPH_NODEINFO_INTERNAL = 'ricgraph_nodeinfo_internal'
+RICGRAPH_SYSTEMINFO = 'ricgraph_systeminfo'
+RICGRAPH_GLOBAL_ALL = [
+    RICGRAPH_CACHEINFO,
+    RICGRAPH_HARVESTINFO,
+    RICGRAPH_HARVESTINFO_INTERNAL,
+    RICGRAPH_NODEINFO,
+    RICGRAPH_NODEINFO_INTERNAL,
+    RICGRAPH_SYSTEMINFO]
+
+
 # The port that Ricgraph Explorer runs on, in debug mode.
 RICGRAPH_EXPLORER_DEBUG_PORT = 3030
 
@@ -82,7 +98,9 @@ ID_COLUMNS = ['name', 'value', 'comment',
               'url_main', '_source']
 
 # When we do a query, we return at most this number of nodes.
-MAX_ITEMS = 1000
+MAX_ITEMS_TO_RETURN = 1000
+# In the RESTAPI, we return at most this maximum.
+MAX_ITEMS_TO_RETURN_RESTAPI = 250
 
 # If we render a table, we return at most this number of rows in that table.
 MAX_ROWS_IN_TABLE = 50

@@ -72,7 +72,13 @@ from ricgraph import (open_ricgraph, read_all_values_of_property,
                       ricgraph_nr_nodes, ricgraph_nr_edges,
                       datetimestamp)
 
-from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
+from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
+                                         RICGRAPH_HARVESTINFO,
+                                         RICGRAPH_HARVESTINFO_INTERNAL,
+                                         RICGRAPH_NODEINFO,
+                                         RICGRAPH_NODEINFO_INTERNAL,
+                                         RICGRAPH_SYSTEMINFO,
+                                         RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
                                          RICGRAPH_EXPLORER_RUNMODE_DEBUG,
                                          page_footer_general,
                                          HOMEPAGE_INTRO_FILE, HOMEPAGE_OUTRO_FILE,
@@ -158,7 +164,7 @@ def flask_read_file(ricgraph_explorer_app: FlaskApp, filename: str) -> str:
 # ################################################
 def collect_ricgraph_cacheinfo() -> None:
     """Collect information related to the cache.
-    Put it in a 'ricgraph_cacheinfo' dict in 'ricgraph_explorer_app'.
+    Put it in a RICGRAPH_CACHEINFO dict in 'ricgraph_explorer_app'.
 
     :return: None.
     """
@@ -175,14 +181,15 @@ def collect_ricgraph_cacheinfo() -> None:
         'size_kb': str(size_kb),
         'last_update': datetimestamp(seconds=True)
     }
-    set_ricgraph_explorer_global(name='ricgraph_cacheinfo',
+    set_ricgraph_explorer_global(name=RICGRAPH_CACHEINFO,
                                  value=ricgraph_cacheinfo)
     return
 
 
 def collect_ricgraph_harvestinfo() -> None:
     """Collect information related to the harvest.
-    Put it in a 'ricgraph_harvestinfo' dict in 'ricgraph_explorer_app'.
+    Put it in a RICGRAPH_HARVESTINFO or RICGRAPH_HARVESTINFO_INTERNAL
+    dict in 'ricgraph_explorer_app'.
 
     :return: None.
     """
@@ -210,17 +217,22 @@ def collect_ricgraph_harvestinfo() -> None:
         'nr_edges': str(ricgraph_nr_edges()),
         'nr_nodes': str(ricgraph_nr_nodes()),
         'source_active': source_active,
-        'source_active_datalist': source_active_datalist,
         'last_update': datetimestamp(seconds=True)
     }
-    set_ricgraph_explorer_global(name='ricgraph_harvestinfo',
+    set_ricgraph_explorer_global(name=RICGRAPH_HARVESTINFO,
+                                 value=ricgraph_harvestinfo)
+    ricgraph_harvestinfo = {
+        'source_active_datalist': source_active_datalist,
+    }
+    set_ricgraph_explorer_global(name=RICGRAPH_HARVESTINFO_INTERNAL,
                                  value=ricgraph_harvestinfo)
     return
 
 
 def collect_ricgraph_nodeinfo() -> None:
     """Collect information related to nodes.
-    Put it in a 'ricgraph_nodeinfo' dict in 'ricgraph_explorer_app'.
+    Put it in a RICGRAPH_NODEINFO or RICGRAPH_NODEINFO_INTERNAL
+    dict in 'ricgraph_explorer_app'.
 
     :return: None.
     """
@@ -318,10 +330,8 @@ def collect_ricgraph_nodeinfo() -> None:
     ricgraph_nodeinfo = {
         'access_all': ACCESS_ALL,
         'category_active': category_active,
-        'category_active_datalist': category_active_datalist,
         'competence_category_all': COMPETENCE_CATEGORY_ALL,
         'name_active': name_active,
-        'name_active_datalist': name_active_datalist,
         'license_all': LICENSE_ALL,
         'organization_category_all': ORGANIZATION_CATEGORY_ALL,
         'person_category_active': person_category_active,
@@ -331,27 +341,34 @@ def collect_ricgraph_nodeinfo() -> None:
         'project_category_all': PROJECT_CATEGORY_ALL,
         'remainder_category_active': remainder_category_active,
         'researchresult_category_active': researchresult_category_active,
-        'researchresult_category_active_datalist': researchresult_category_active_datalist,
         'researchresult_category_all': RESEARCHRESULT_CATEGORY_ALL,
         'researchresult_category_publication_active': researchresult_category_active,
-        'researchresult_category_publication_active_datalist': researchresult_category_active_datalist,
         'researchresult_category_publication_all': RESEARCHRESULT_CATEGORY_PUBLICATION,
         'researchresult_category_research_material': RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
         'researchresult_category_reporting_material': RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
         'researchresult_category_engagement_material': RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
         'year_active': year_active,
+        'last_update': datetimestamp(seconds=True)
+    }
+    set_ricgraph_explorer_global(name=RICGRAPH_NODEINFO,
+                                 value=ricgraph_nodeinfo)
+    ricgraph_nodeinfo_internal = {
+        'category_active_datalist': category_active_datalist,
+        'name_active_datalist': name_active_datalist,
+        'researchresult_category_active_datalist': researchresult_category_active_datalist,
+        'researchresult_category_publication_active_datalist': researchresult_category_active_datalist,
         'year_active_datalist': year_active_datalist,
         'last_update': datetimestamp(seconds=True)
     }
-    set_ricgraph_explorer_global(name='ricgraph_nodeinfo',
-                                 value=ricgraph_nodeinfo)
+    set_ricgraph_explorer_global(name=RICGRAPH_NODEINFO_INTERNAL,
+                                 value=ricgraph_nodeinfo_internal)
     return
 
 
 def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
                                 runmode: str) -> None:
     """Collect information related to Ricgraph or Ricgraph Explorer.
-    Put it in a 'ricgraph_systeminfo' dict in 'ricgraph_explorer_app'.
+    Put it in a RICGRAPH_SYSTEMINFO dict in 'ricgraph_explorer_app'.
     Note that 'ricgraph_explorer_app' is modified in this function (it is
     accessed by reference).
 
@@ -412,7 +429,7 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
         'ricgraph_version': ricgraph_version,
         'last_update': datetimestamp(seconds=True)
     }
-    set_ricgraph_explorer_global(name='ricgraph_systeminfo',
+    set_ricgraph_explorer_global(name=RICGRAPH_SYSTEMINFO,
                                  value=ricgraph_systeminfo)
     return
 

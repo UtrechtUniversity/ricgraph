@@ -70,6 +70,12 @@ from ricgraph import (read_all_nodes,
 from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
                                          RICGRAPH_EXPLORER_RUNMODE_DEBUG,
+                                         RICGRAPH_CACHEINFO,
+                                         RICGRAPH_HARVESTINFO,
+                                         RICGRAPH_HARVESTINFO_INTERNAL,
+                                         RICGRAPH_NODEINFO,
+                                         RICGRAPH_NODEINFO_INTERNAL,
+                                         RICGRAPH_SYSTEMINFO,
                                          html_body_start, html_body_end,
                                          button_style, button_width,
                                          form_button_on_one_line_style,
@@ -77,7 +83,7 @@ from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          DISCOVERER_MODE_ALL,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
                                          RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
-                                         MAX_ITEMS, SEARCH_STRING_MIN_LENGTH,
+                                         MAX_ITEMS_TO_RETURN, SEARCH_STRING_MIN_LENGTH,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
                                          ACCESS_MODE_ALL, ACCESS_MODE_ANY)
 from ricgraph_explorer_init import initialize_ricgraph_explorer
@@ -188,7 +194,7 @@ def homepage() -> str:
     html += 'one person identifier (such as ORCID, ISNI, or a source system identifier) '
     html += 'in the source systems harvested.'
 
-    html += get_global_str(ricgraph_info='ricgraph_systeminfo',
+    html += get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                            item='homepage_intro_html')
 
     html += '<h1>Start exploring</h1>'
@@ -207,7 +213,7 @@ def homepage() -> str:
                              hidden_fields={'search_mode': 'value_search',
                                             'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             })
-    if COMPETENCE_CATEGORY_COMPETENCE in get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    if COMPETENCE_CATEGORY_COMPETENCE in get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                          item='category_active'):
         html += create_html_form(destination='searchpage',
                                  button_text='search for a skill, expertise area or research area',
@@ -223,7 +229,7 @@ def homepage() -> str:
                              button_text='explore the open science landscape')
     html += '</div>'
     html += '<p/>'
-    if 'topic' in get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    if 'topic' in get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                   item='category_active'):
         html += create_html_form(destination='topicspage.topicspage',
                                  button_text='explore topics')
@@ -278,7 +284,7 @@ def homepage() -> str:
     html += '<ul>'
     html += '<li>'
     html += 'Items from the following source systems: '
-    source_active = get_global_list(ricgraph_info='ricgraph_harvestinfo',
+    source_active = get_global_list(ricgraph_info=RICGRAPH_HARVESTINFO,
                                     item='source_active')
     if len(source_active) == 0:
         html += '[no source systems harvested yet]'
@@ -288,7 +294,7 @@ def homepage() -> str:
     html += '</li>'
     html += '<li>'
     html += 'Types of items: '
-    name_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    name_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                   item='name_active')
     if len(name_active) == 0:
         html += '[no items yet]'
@@ -298,7 +304,7 @@ def homepage() -> str:
     html += '</li>'
     html += '<li>'
     html += 'Types of items that contain personal data: '
-    person_name_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    person_name_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                          item='person_name_active')
     if len(person_name_active) == 0:
         html += '[no items that contain personal data yet]'
@@ -307,13 +313,13 @@ def homepage() -> str:
     html += '.'
     html += '</li>'
     html += '<li>'
-    html += get_global_str(ricgraph_info='ricgraph_harvestinfo',
+    html += get_global_str(ricgraph_info=RICGRAPH_HARVESTINFO,
                            item='nr_nodes')
     html += ' nodes and '
-    html += get_global_str(ricgraph_info='ricgraph_harvestinfo',
+    html += get_global_str(ricgraph_info=RICGRAPH_HARVESTINFO,
                            item='nr_edges')
     html += ' edges, '
-    harvest_date = get_global_str(ricgraph_info='ricgraph_harvestinfo',
+    harvest_date = get_global_str(ricgraph_info=RICGRAPH_HARVESTINFO,
                                   item='harvest_date')
     if harvest_date == '':
         html += 'nothing has been harvested yet.'
@@ -322,19 +328,19 @@ def homepage() -> str:
     html += '</li>'
     html += '<li>'
     html += 'Ricgraph uses a '
-    html += get_global_str(ricgraph_info='ricgraph_cacheinfo',
+    html += get_global_str(ricgraph_info=RICGRAPH_CACHEINFO,
                            item='cache_name')
     html += '. This cache has '
-    html += get_global_str(ricgraph_info='ricgraph_cacheinfo',
+    html += get_global_str(ricgraph_info=RICGRAPH_CACHEINFO,
                            item='nr_items')
     html += ' elements, and its size is '
-    html += get_global_str(ricgraph_info='ricgraph_cacheinfo',
+    html += get_global_str(ricgraph_info=RICGRAPH_CACHEINFO,
                            item='size_kb')
     html += ' kB.'
     html += '</li>'
     html += '</ul>'
 
-    html += get_global_str(ricgraph_info='ricgraph_systeminfo',
+    html += get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                            item='homepage_outro_html')
 
     html += get_html_for_cardend()
@@ -359,7 +365,7 @@ def searchpage() -> str:
 
     :return: HTML to be rendered.
     """
-    year_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+    year_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                           item='year_active_datalist')
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
@@ -369,14 +375,14 @@ def searchpage() -> str:
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                              default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
-                                           default_value=str(MAX_ITEMS))
+                                           default_value=str(MAX_ITEMS_TO_RETURN))
     if not max_nr_items.isnumeric():
         # This also catches negative numbers, they contain a '-' and are not numeric.
         # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
-        max_nr_items = str(MAX_ITEMS)
+        max_nr_items = str(MAX_ITEMS_TO_RETURN)
     max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
                                                 default_value=str(MAX_ROWS_IN_TABLE))
     if not max_nr_table_rows.isnumeric():
@@ -387,7 +393,7 @@ def searchpage() -> str:
         form += '<input id="name" class="w3-input w3-border" list="name_active_datalist"'
         form += 'name=name autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-        form += get_global_str(ricgraph_info='ricgraph_nodeinfo',
+        form += get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                item='name_active_datalist')
         form += '<br/>'
 
@@ -395,7 +401,7 @@ def searchpage() -> str:
         form += '<input id="category" class="w3-input w3-border" list="category_active_datalist"'
         form += 'name=category autocomplete=off>'
         form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-        form += get_global_str(ricgraph_info='ricgraph_nodeinfo',
+        form += get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                item='category_active_datalist')
         form += '<br/>'
     if search_mode == 'value_search' and name != '':
@@ -415,29 +421,30 @@ def searchpage() -> str:
         form += 'These fields are case-sensitive and use exact match search. '
         form += 'If you enter values in more than one field, these fields are combined using AND.</br>'
 
-    # 14.5em is half of 'field_button_width' (a constant from
-    # ricgraph_explorer_constants.py, the width of the text & input fields
-    # on this page) minus 1em for the spacing between the input fields for year.
-    form_button_width = ' style="width:14.5em !important;" '
-
-    form += '<br/>'
-    form += 'If your search involves research results, you can specify their first and last year:'
-    form += '<div ' + form_button_on_one_line_style + '>'
-    form += '<div' + form_button_width + '>'
-    form += '<label for="year_first">first year of research result:</label>'
-    form += '<input id="year_first" class="w3-input w3-border" list="year_active_datalist"'
-    form += 'name=year_first autocomplete=off' + form_button_width + '>'
-    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += year_active_datalist
-    form += '</div>'
-    form += '<div' + form_button_width + '>'
-    form += '<label for="year_last">last year of research result:</label>'
-    form += '<input id="year_last" class="w3-input w3-border" list="year_active_datalist"'
-    form += 'name=year_last autocomplete=off' + form_button_width + '>'
-    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += year_active_datalist
-    form += '</div>'
-    form += '</div>'
+    # April 3, 2026: I disable the year form since here seems a confusing place.
+    # # 14.5em is half of 'field_button_width' (a constant from
+    # # ricgraph_explorer_constants.py, the width of the text & input fields
+    # # on this page) minus 1em for the spacing between the input fields for year.
+    # form_button_width = ' style="width:14.5em !important;" '
+    #
+    # form += '<br/>'
+    # form += 'If your search involves research results, you can specify their first and last year:'
+    # form += '<div ' + form_button_on_one_line_style + '>'
+    # form += '<div' + form_button_width + '>'
+    # form += '<label for="year_first">first year of research result:</label>'
+    # form += '<input id="year_first" class="w3-input w3-border" list="year_active_datalist"'
+    # form += 'name=year_first autocomplete=off' + form_button_width + '>'
+    # form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
+    # form += year_active_datalist
+    # form += '</div>'
+    # form += '<div' + form_button_width + '>'
+    # form += '<label for="year_last">last year of research result:</label>'
+    # form += '<input id="year_last" class="w3-input w3-border" list="year_active_datalist"'
+    # form += 'name=year_last autocomplete=off' + form_button_width + '>'
+    # form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
+    # form += year_active_datalist
+    # form += '</div>'
+    # form += '</div>'
 
     radio_person_text = ' <em>person_view</em>: only show relevant columns, '
     radio_person_text += 'results are presented in a <em>tabbed</em> format '
@@ -445,7 +452,7 @@ def searchpage() -> str:
     radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
     radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
     radio_person_tooltip += 'Also, tables have fewer columns to reduce information overload. '
-    if COMPETENCE_CATEGORY_COMPETENCE in get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    if COMPETENCE_CATEGORY_COMPETENCE in get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                          item='category_active'):
         radio_person_tooltip += 'This view has been tailored to the Utrecht University staff pages, since some '
         radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
@@ -551,14 +558,14 @@ def optionspage() -> Union[str, Response]:
                                           default_value=DEFAULT_SEARCH_MODE)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                              default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
-                                           default_value=str(MAX_ITEMS))
+                                           default_value=str(MAX_ITEMS_TO_RETURN))
     if not max_nr_items.isnumeric():
         # This also catches negative numbers, they contain a '-' and are not numeric.
         # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
-        max_nr_items = str(MAX_ITEMS)
+        max_nr_items = str(MAX_ITEMS_TO_RETURN)
     extra_url_parameters['max_nr_items'] = max_nr_items
     max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
                                                 default_value=str(MAX_ROWS_IN_TABLE))
@@ -682,15 +689,15 @@ def resultspage() -> str:
                                           default_value=ACCESS_MODE_ANY)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                              default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     extra_url_parameters = {}
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
-                                           default_value=str(MAX_ITEMS))
+                                           default_value=str(MAX_ITEMS_TO_RETURN))
     if not max_nr_items.isnumeric():
         # This also catches negative numbers, they contain a '-' and are not numeric.
         # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
-        max_nr_items = str(MAX_ITEMS)
+        max_nr_items = str(MAX_ITEMS_TO_RETURN)
     extra_url_parameters['max_nr_items'] = max_nr_items
     max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
                                                 default_value=str(MAX_ROWS_IN_TABLE))
@@ -819,13 +826,13 @@ def create_options_page_organization(node: Node,
       with each url. This dict can be extended as desired.
     :return: HTML to be rendered.
     """
-    name_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+    name_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                           item='name_active_datalist')
-    category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                       item='category_active')
-    category_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+    category_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                               item='category_active_datalist')
-    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                      item='researchresult_category_active')
     key = node['_key']
 
@@ -927,13 +934,13 @@ def create_options_page_person(node: Node,
       with each url. This dict can be extended as desired.
     :return: HTML to be rendered.
     """
-    researchresult_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                      item='researchresult_category_active')
-    researchresult_category_active_datalist = get_global_str(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                                              item='researchresult_category_active_datalist')
-    source_active_datalist = get_global_str(ricgraph_info='ricgraph_harvestinfo',
+    source_active_datalist = get_global_str(ricgraph_info=RICGRAPH_HARVESTINFO_INTERNAL,
                                             item='source_active_datalist')
-    remainder_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    remainder_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                 item='remainder_category_active')
     key = node['_key']
 
@@ -1103,7 +1110,7 @@ def create_results_page(view_mode: str,
         extra_url_parameters = {}
 
     max_nr_items = int(extra_url_parameters['max_nr_items'])
-    person_category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    person_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                              item='person_category_active')
     html = ''
 

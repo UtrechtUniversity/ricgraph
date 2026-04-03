@@ -6,7 +6,7 @@
 #
 # MIT License
 #
-# Copyright (c) 2023 - 2025 Rik D.T. Janssen
+# Copyright (c) 2023 - 2026 Rik D.T. Janssen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to June 2025.
+# Extended Rik D.T. Janssen, April 2026.
 #
 # ########################################################################
 
@@ -54,8 +55,13 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       COMPETENCE_CATEGORY_COMPETENCE)
-from ricgraph_explorer_constants import (html_preamble,
-                                         MAX_ITEMS, SEARCH_STRING_MIN_LENGTH)
+from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
+                                         RICGRAPH_HARVESTINFO,
+                                         RICGRAPH_NODEINFO,
+                                         RICGRAPH_GLOBAL_ALL,
+                                         html_preamble,
+                                         MAX_ITEMS_TO_RETURN_RESTAPI,
+                                         SEARCH_STRING_MIN_LENGTH)
 from ricgraph_explorer_init import (get_ricgraph_explorer_global,
                                     collect_ricgraph_cacheinfo)
 from ricgraph_explorer_utils import get_global_list
@@ -72,7 +78,7 @@ _restapidocpage_bp = Blueprint(name='restapidocpage', import_name=__name__)
 def restapidocpage() -> str:
     """Show the documentation for the Ricgraph REST API. Ricgraph uses RapiDoc.
 
-    :return: html to be rendered.
+    :return: HTML to be rendered.
     """
     # For more information, see: https://rapidocweb.com and https://github.com/rapi-doc/RapiDoc.
     # For options see: https://rapidocweb.com/api.html.
@@ -109,13 +115,32 @@ def restapidocpage() -> str:
     return html
 
 
+def get_max_nr_items(max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> int:
+    """Get the maximum number of items to return from the REST API.
+
+    :param max_nr_items: The value requested from the REST API (a str).
+    :return: The value allowed from the REST API (an int).
+    """
+    if not max_nr_items.isnumeric():
+        max_nr_items = str(MAX_ITEMS_TO_RETURN_RESTAPI)
+    items = int(max_nr_items)
+    # The following 2 lines only to be used when the REST API has a cursor
+    # to get a following page. Until then, we need the '0' to be able to get
+    # all records.
+    # if items == 0:
+    #    items = MAX_ITEMS_TO_RETURN_RESTAPI
+    if items > MAX_ITEMS_TO_RETURN_RESTAPI:
+        items = MAX_ITEMS_TO_RETURN_RESTAPI
+    return items
+
+
 def api_search_person(value: str = '',
-                      max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
+                      max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
     """REST API Search for a person.
 
     :param value: value of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
@@ -127,14 +152,14 @@ def api_search_person(value: str = '',
 def api_person_all_information(key: str = '',
                                year_first: str = '',
                                year_last: str = '',
-                               max_nr_items: str = str(MAX_ITEMS)):
+                               max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Show all information related to this person.
 
     :param key: key of the node(s) to find.
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     # This implements view_mode = 'view_unspecified_table_everything'.
@@ -142,7 +167,8 @@ def api_person_all_information(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    nodes = read_all_nodes(key=key)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -161,12 +187,12 @@ def api_person_all_information(key: str = '',
 
 
 def api_person_share_researchresults(key: str = '',
-                                      max_nr_items: str = str(MAX_ITEMS)):
+                                     max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Find persons that share any share research result types with this person.
 
     :param key: key of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     # This implements view_mode = 'view_regular_table_person_share_resouts'.
@@ -175,9 +201,8 @@ def api_person_share_researchresults(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if not max_nr_items.isnumeric():
-        max_nr_items = str(MAX_ITEMS)
-    nodes = read_all_nodes(key=key)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -188,7 +213,7 @@ def api_person_share_researchresults(key: str = '',
                                          category_dontwant_list=[PERSON_CATEGORY_PERSON,
                                                                  ORGANIZATION_CATEGORY_ORGANISATION,
                                                                  COMPETENCE_CATEGORY_COMPETENCE],
-                                         max_nr_items=max_nr_items)
+                                         max_nr_items=max_items)
     if len(connected_persons) == 0:
         message = 'Could not find persons that share any share research result types '
         message += 'with this person'
@@ -197,7 +222,7 @@ def api_person_share_researchresults(key: str = '',
         return response, status
 
     result_list = convert_nodes_to_list_of_dict(connected_persons,
-                                                max_nr_items=max_nr_items)
+                                                max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',
                                             http_status=HTTP_RESPONSE_OK)
@@ -205,12 +230,12 @@ def api_person_share_researchresults(key: str = '',
 
 
 def api_person_collaborating_organizations(key: str = '',
-                                           max_nr_items: str = str(MAX_ITEMS)):
+                                           max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Find persons that share any share research result types with this person.
 
     :param key: key of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     # This implements view_mode = 'view_regular_table_person_organization_collaborations'.
@@ -219,9 +244,8 @@ def api_person_collaborating_organizations(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if not max_nr_items.isnumeric():
-        max_nr_items = str(MAX_ITEMS)
-    nodes = read_all_nodes(key=key)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -229,7 +253,7 @@ def api_person_collaborating_organizations(key: str = '',
 
     personroot_node_organizations, collaborating_organizations = \
         find_person_organization_collaborations_cypher(parent_node=nodes[0],
-                                                       max_nr_items=max_nr_items)
+                                                       max_nr_items=max_items)
     message = ''
     if len(personroot_node_organizations) == 0:
         message += 'This person does not work at any organization. '
@@ -243,9 +267,9 @@ def api_person_collaborating_organizations(key: str = '',
         message += ' organizations, these are in "person_collaborates_with".'
 
     person_worksat_list = convert_nodes_to_list_of_dict(personroot_node_organizations,
-                                                        max_nr_items=max_nr_items)
+                                                        max_nr_items=max_items)
     person_collaborates_list = convert_nodes_to_list_of_dict(collaborating_organizations,
-                                                             max_nr_items=max_nr_items)
+                                                             max_nr_items=max_items)
     meta = {'message': message}
     result = {'meta': meta,
               'person_works_at': person_worksat_list,
@@ -263,7 +287,7 @@ def api_person_enrich(key: str = '',
                       source_system: str = '',
                       year_first: str = '',
                       year_last: str = '',
-                      max_nr_items: str = str(MAX_ITEMS)):
+                      max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Find persons that share any share research result types with this person.
 
     :param key: key of the node(s) to find.
@@ -278,7 +302,7 @@ def api_person_enrich(key: str = '',
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     # This implements view_mode = 'view_regular_table_person_enrich_source_system'.
@@ -292,11 +316,11 @@ def api_person_enrich(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    name_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    name_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                   item='name_active')
-    category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                       item='category_active')
-    source_active = get_global_list(ricgraph_info='ricgraph_harvestinfo',
+    source_active = get_global_list(ricgraph_info=RICGRAPH_HARVESTINFO,
                                     item='source_active')
     if len(result := list(set(name_want) - set(name_active))) > 0:
         response, status = create_http_response(message='You have not specified a valid name_want: '
@@ -321,9 +345,8 @@ def api_person_enrich(key: str = '',
         response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if not max_nr_items.isnumeric():
-        max_nr_items = str(MAX_ITEMS)
-    nodes = read_all_nodes(key=key)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -335,7 +358,8 @@ def api_person_enrich(key: str = '',
         return response, status
 
     extra_url_parameters = {'year_first': year_first,
-                            'year_last': year_last}
+                            'year_last': year_last,
+                            'max_nr_items': str(max_items)}
     person_nodes, nodes_not_in_source_system = \
         find_enrich_candidates_one_person(personroot=personroot_node,
                                           name_want=name_want,
@@ -366,9 +390,9 @@ def api_person_enrich(key: str = '',
     message += source_system + '" by using information harvested from other source systems.'
 
     person_identifying_nodes_list = convert_nodes_to_list_of_dict(person_nodes,
-                                                                  max_nr_items=max_nr_items)
+                                                                  max_nr_items=max_items)
     person_enrich_nodes_list = convert_nodes_to_list_of_dict(nodes_not_in_source_system,
-                                                             max_nr_items=max_nr_items)
+                                                             max_nr_items=max_items)
     meta = {'message': message}
     result = {'meta': meta,
               'person_identifying_nodes': person_identifying_nodes_list,
@@ -381,12 +405,12 @@ def api_person_enrich(key: str = '',
 
 
 def api_search_organization(value: str = '',
-                            max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
+                            max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
     """REST API Search for a (sub-)organization.
 
     :param value: value of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
@@ -396,12 +420,12 @@ def api_search_organization(value: str = '',
 
 
 def api_organization_all_information(key: str = '',
-                                     max_nr_items: str = str(MAX_ITEMS)):
+                                     max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Show all information related to this organization.
 
     :param key: key of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     # This implements view_mode = 'view_unspecified_table_organizations'.
@@ -415,7 +439,7 @@ def api_organization_information_persons_results(key: str = '',
                                                  category_want: list = None,
                                                  year_first: str = '',
                                                  year_last: str = '',
-                                                 max_nr_items: str = str(MAX_ITEMS)):
+                                                 max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Find any information from persons or their results in this organization.
 
     :param key: key of the node(s) to find.
@@ -429,7 +453,7 @@ def api_organization_information_persons_results(key: str = '',
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     # This implements view_mode = 'view_regular_table_organization_addinfo'.
@@ -449,7 +473,7 @@ def api_organization_enrich(key: str = '',
                             source_system: str = '',
                             year_first: str = '',
                             year_last: str = '',
-                            max_nr_items: str = str(MAX_ITEMS)):
+                            max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Find persons that share any share research result types with this organization.
 
     :param key: key of the node(s) to find.
@@ -464,7 +488,7 @@ def api_organization_enrich(key: str = '',
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     # This implements view_mode = 'view_regular_table_organization_addinfo'.
@@ -478,11 +502,11 @@ def api_organization_enrich(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    name_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    name_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                   item='name_active')
-    category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                       item='category_active')
-    source_active = get_global_list(ricgraph_info='ricgraph_harvestinfo',
+    source_active = get_global_list(ricgraph_info=RICGRAPH_HARVESTINFO,
                                     item='source_active')
     if len(result := list(set(name_want) - set(name_active))) > 0:
         response, status = create_http_response(message='You have not specified a valid name_want: '
@@ -503,9 +527,8 @@ def api_organization_enrich(key: str = '',
                                                         + source_system + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if not max_nr_items.isnumeric():
-        max_nr_items = str(MAX_ITEMS)
-    nodes = read_all_nodes(key=key)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -517,7 +540,7 @@ def api_organization_enrich(key: str = '',
                                                              source_system=source_system,
                                                              year_first=year_first,
                                                              year_last=year_last,
-                                                             max_nr_items=max_nr_items)
+                                                             max_nr_items=max_items)
     if len(cypher_result) == 0:
         message = 'Could not find any information from persons or '
         message += 'their results in this organization'
@@ -530,7 +553,7 @@ def api_organization_enrich(key: str = '',
         relevant_result.append(node)
 
     result_list = convert_nodes_to_list_of_dict(relevant_result,
-                                                max_nr_items=max_nr_items)
+                                                max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',
                                             http_status=HTTP_RESPONSE_OK)
@@ -538,12 +561,12 @@ def api_organization_enrich(key: str = '',
 
 
 def api_search_competence(value: str = '',
-                          max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
+                          max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
     """REST API Search for a skill, expertise area or research area.
 
     :param value: value of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
@@ -553,12 +576,12 @@ def api_search_competence(value: str = '',
 
 
 def api_competence_all_information(key: str = '',
-                                   max_nr_items: str = str(MAX_ITEMS)):
+                                   max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Show all information related to this competence.
 
     :param key: key of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_all_information_general(key=key,
@@ -567,12 +590,12 @@ def api_competence_all_information(key: str = '',
 
 
 def api_broad_search(value: str = '',
-                     max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
+                     max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
     """REST API Search for anything (broad search).
 
     :param value: value of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
@@ -581,33 +604,32 @@ def api_broad_search(value: str = '',
 
 
 def api_advanced_search(name: str = '', category: str = '', value: str = '',
-                        max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
+                        max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
     """REST API Advanced search.
 
     :param name: name of the node(s) to find.
     :param category: category of the node(s) to find.
     :param value: value of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     if name == '' and category == '' and value == '':
         response, status = create_http_response(message='You have not specified any search string',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if not max_nr_items.isnumeric():
-        max_nr_items = str(MAX_ITEMS)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
     nodes = read_all_nodes(name=name,
                            category=category,
                            value=value,
                            value_is_exact_match=True,
-                           max_nr_nodes=int(max_nr_items))
+                           max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
     result_list = convert_nodes_to_list_of_dict(nodes,
-                                                max_nr_items=max_nr_items)
+                                                max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',
                                             http_status=HTTP_RESPONSE_OK)
@@ -617,14 +639,14 @@ def api_advanced_search(name: str = '', category: str = '', value: str = '',
 def api_search_general(value: str = '',
                        name_restriction: str = '',
                        category_restriction: str = '',
-                       max_nr_items: str = str(MAX_ITEMS)) -> Tuple[dict, int]:
+                       max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
     """REST API General broad search function.
 
     :param value: value of the node(s) to find.
     :param name_restriction: Restrict the broad search on a certain name.
     :param category_restriction: Restrict the broad search on a certain category.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     if value == '':
@@ -636,13 +658,12 @@ def api_search_general(value: str = '',
         response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if not max_nr_items.isnumeric():
-        max_nr_items = str(MAX_ITEMS)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
     nodes = read_all_nodes(name=name_restriction,
                            category=category_restriction,
                            value=value,
                            value_is_exact_match=False,
-                           max_nr_nodes=int(max_nr_items))
+                           max_nr_nodes=max_items)
     if name_restriction == 'FULL_NAME' \
        and len(nodes) < int(max_nr_items):
         # Also return FULL_NAME_ASCII nodes, if applicable.
@@ -650,7 +671,7 @@ def api_search_general(value: str = '',
                                      category=category_restriction,
                                      value=value,
                                      value_is_exact_match=False,
-                                     max_nr_nodes=int(max_nr_items) - len(nodes))
+                                     max_nr_nodes=max_items - len(nodes))
         nodes.extend(nodes_ascii)
 
     if len(nodes) == 0:
@@ -658,7 +679,7 @@ def api_search_general(value: str = '',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
     result_list = convert_nodes_to_list_of_dict(nodes,
-                                                max_nr_items=max_nr_items)
+                                                max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',
                                             http_status=HTTP_RESPONSE_OK)
@@ -668,14 +689,14 @@ def api_search_general(value: str = '',
 def api_all_information_general(key: str = '',
                                 year_first: str = '',
                                 year_last: str = '',
-                                max_nr_items: str = str(MAX_ITEMS)):
+                                max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API General all information about a node function.
 
     :param key: key of the node(s) to find.
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     if key == '':
@@ -686,9 +707,8 @@ def api_all_information_general(key: str = '',
         response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    if not max_nr_items.isnumeric():
-        max_nr_items = str(MAX_ITEMS)
-    nodes = read_all_nodes(key=key)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -696,13 +716,13 @@ def api_all_information_general(key: str = '',
     neighbor_nodes = get_all_neighbor_nodes(node=nodes[0],
                                             year_first=year_first,
                                             year_last=year_last,
-                                            max_nr_neighbor_nodes=int(max_nr_items))
+                                            max_nr_neighbor_nodes=max_items)
     if len(neighbor_nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
     result_list = convert_nodes_to_list_of_dict(neighbor_nodes,
-                                                max_nr_items=max_nr_items)
+                                                max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',
                                             http_status=HTTP_RESPONSE_OK)
@@ -710,19 +730,20 @@ def api_all_information_general(key: str = '',
 
 
 def api_get_all_personroot_nodes(key: str = '',
-                                 max_nr_items: str = str(MAX_ITEMS)):
+                                 max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Get all the person-root nodes of a node.
 
     :param key: key of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     if key == '':
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    nodes = read_all_nodes(key=key)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -733,7 +754,7 @@ def api_get_all_personroot_nodes(key: str = '',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
     result_list = convert_nodes_to_list_of_dict(personroot_nodes,
-                                                max_nr_items=max_nr_items)
+                                                max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',
                                             http_status=HTTP_RESPONSE_OK)
@@ -745,7 +766,7 @@ def api_get_all_neighbor_nodes(key: str = '',
                                name_dontwant: list = None,
                                category_want: list = None,
                                category_dontwant: list = None,
-                               max_nr_items: str = str(MAX_ITEMS)):
+                               max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Get all the neighbor nodes of a node.
 
     :param key: key of the node(s) to find.
@@ -759,7 +780,7 @@ def api_get_all_neighbor_nodes(key: str = '',
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param category_dontwant: similar, but for property 'category' and nodes we don't want.
     :param max_nr_items: The maximum number of items to return.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     if name_want is None:
@@ -776,9 +797,9 @@ def api_get_all_neighbor_nodes(key: str = '',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
 
-    name_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    name_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                   item='name_active')
-    category_active = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                       item='category_active')
     if len(result := list(set(name_want) - set(name_active))) > 0:
         response, status = create_http_response(message='You have not specified a valid name_want: '
@@ -800,7 +821,8 @@ def api_get_all_neighbor_nodes(key: str = '',
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    nodes = read_all_nodes(key=key)
+    max_items = get_max_nr_items(max_nr_items=max_nr_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -810,13 +832,13 @@ def api_get_all_neighbor_nodes(key: str = '',
                                             name_dontwant=name_dontwant,
                                             category_want=category_want,
                                             category_dontwant=category_dontwant,
-                                            max_nr_neighbor_nodes=int(max_nr_items))
+                                            max_nr_neighbor_nodes=max_items)
     if len(neighbor_nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
     result_list = convert_nodes_to_list_of_dict(neighbor_nodes,
-                                                max_nr_items=max_nr_items)
+                                                max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',
                                             http_status=HTTP_RESPONSE_OK)
@@ -827,15 +849,15 @@ def api_get_ricgraph_info(ricgraph_info: str = '') -> Tuple[dict, int]:
     """REST API Get information about Ricgraph.
 
     :param ricgraph_info: what type of information to retrieve.
-    :return: An HTTP response (as dict, to be translated to json)
+    :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
-    if ricgraph_info == '':
+    if ricgraph_info not in RICGRAPH_GLOBAL_ALL:
         response, status = create_http_response(message='You have not specified a name of a Ricgraph list',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
 
-    if ricgraph_info == 'ricgraph_cacheinfo':
+    if ricgraph_info == RICGRAPH_CACHEINFO:
         # First update the information about the cache.
         collect_ricgraph_cacheinfo()
 

@@ -46,7 +46,9 @@ from ricgraph import (read_all_nodes,
                       check_valid_year,
                       get_year_range_text,
                       ORGANIZATION_CATEGORY_ORGANISATION)
-from ricgraph_explorer_constants import (html_body_start, html_body_end,
+from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
+                                         RICGRAPH_SYSTEMINFO,
+                                         html_body_start, html_body_end,
                                          DISCOVERER_MODE_ALL,
                                          MAX_ROWS_IN_TABLE,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
@@ -131,11 +133,11 @@ def osprofileresultpage() -> str:
 
     :return: HTML to be rendered.
     """
-    researchresult_category_research_material = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_research_material = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                                 item='researchresult_category_research_material')
-    researchresult_category_reporting_material = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_reporting_material = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                                  item='researchresult_category_reporting_material')
-    researchresult_category_engagement_material = get_global_list(ricgraph_info='ricgraph_nodeinfo',
+    researchresult_category_engagement_material = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                                   item='researchresult_category_engagement_material')
     key = get_url_parameter_value(parameter='key', use_escape=False)
     year_first = get_url_parameter_value(parameter='year_first')
@@ -153,7 +155,7 @@ def osprofileresultpage() -> str:
     extra_url_parameters = {}
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_global_str(ricgraph_info='ricgraph_systeminfo',
+                                              default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     # For this page, we ignore the value of 'max_nr_items' if it is passed.
     max_nr_items = '0'
