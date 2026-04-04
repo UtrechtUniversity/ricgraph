@@ -365,8 +365,8 @@ def searchpage() -> str:
 
     :return: HTML to be rendered.
     """
-    year_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
-                                          item='year_active_datalist')
+    # year_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
+    #                                       item='year_active_datalist')
     name = get_url_parameter_value(parameter='name')
     category = get_url_parameter_value(parameter='category')
     origin = get_url_parameter_value(parameter='origin')
@@ -1092,7 +1092,7 @@ def create_results_page(view_mode: str,
     :param name_list: a list containing several node names, indicating
       that we want all neighbor nodes where the property 'name' equals
       one of the names in the list 'name_str' (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
-      If empty , return all nodes.
+      If empty, return all nodes.
     :param category_list: as name_str, but for category.
     :param discoverer_mode: as usual.
     :param extra_url_parameters: a dict containing url parameters to be passed
@@ -1109,11 +1109,7 @@ def create_results_page(view_mode: str,
     if extra_url_parameters is None:
         extra_url_parameters = {}
 
-    max_nr_items = int(extra_url_parameters['max_nr_items'])
-    person_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
-                                             item='person_category_active')
     html = ''
-
     result = read_all_nodes(key=key)
     if len(result) == 0 or len(result) > 1:
         if len(result) == 0:
@@ -1124,10 +1120,6 @@ def create_results_page(view_mode: str,
         return get_message(message=message)
     node = result[0]
 
-    year_first = extra_url_parameters.get('year_first', '')
-    year_last = extra_url_parameters.get('year_last', '')
-    year_range_text = get_year_range_text(year_first=year_first,
-                                          year_last=year_last)
     if discoverer_mode == 'details_view':
         table_columns_ids = DETAIL_COLUMNS
         table_columns_org = DETAIL_COLUMNS
@@ -1144,30 +1136,40 @@ def create_results_page(view_mode: str,
         table_columns_org = ORGANIZATION_COLUMNS
         table_columns_resout = RESEARCH_OUTPUT_COLUMNS
 
-    # We need this multiple times.
     node_found = get_found_message(node=node,
                                    discoverer_mode=discoverer_mode,
                                    extra_url_parameters=extra_url_parameters)
     if node is None:
         # To silence a PyCharm warning.
         return ''
-    if view_mode == 'view_regular_table_personal':
-        personroot_node = get_personroot_node(node=node)
-        neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
-                                                         category_want=person_category_active)
-        html += get_page_title(title='Personal information related to this person')
-        html += node_found
-        if discoverer_mode == 'details_view':
-            html += get_regular_table(nodes_list=neighbor_nodes_personal,
-                                      table_header='This is personal information related to this person:',
-                                      table_columns=table_columns_ids,
-                                      discoverer_mode=discoverer_mode,
-                                      extra_url_parameters=extra_url_parameters)
-        else:
-            html += view_personal_information(nodes_list=neighbor_nodes_personal,
-                                              discoverer_mode=discoverer_mode,
-                                              extra_url_parameters=extra_url_parameters)
 
+    if view_mode == 'view_unspecified_table_organizations' \
+      or view_mode == 'view_regular_table_persons_of_org' \
+      or view_mode == 'view_regular_table_organization_addinfo':
+        html += create_results_page_organization(view_mode=view_mode,
+                                                 node=node,
+                                                 name_list=name_list,
+                                                 category_list=category_list,
+                                                 discoverer_mode=discoverer_mode,
+                                                 table_columns_ids=table_columns_ids,
+                                                 table_columns_resout=table_columns_resout,
+                                                 extra_url_parameters=extra_url_parameters)
+    elif view_mode == 'view_unspecified_table_everything' \
+       or view_mode == 'view_regular_table_personal' \
+       or view_mode == 'view_unspecified_table_resouts' \
+       or view_mode == 'view_regular_table_person_share_resouts' \
+       or view_mode == 'view_regular_table_person_organization_collaborations' \
+       or view_mode == 'view_regular_table_person_enrich_source_system' \
+       or view_mode == 'view_regular_table_overlap':
+        html += create_results_page_person(view_mode=view_mode,
+                                           node=node,
+                                           name_list=name_list,
+                                           category_list=category_list,
+                                           discoverer_mode=discoverer_mode,
+                                           table_columns_ids=table_columns_ids,
+                                           table_columns_org=table_columns_org,
+                                           table_columns_resout=table_columns_resout,
+                                           extra_url_parameters=extra_url_parameters)
     elif view_mode == 'view_regular_table_organizations' \
       or view_mode == 'view_regular_table_category':
         if view_mode == 'view_regular_table_category':
@@ -1191,27 +1193,41 @@ def create_results_page(view_mode: str,
                                   table_columns=table_columns,
                                   discoverer_mode=discoverer_mode,
                                   extra_url_parameters=extra_url_parameters)
+    # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
+    else:
+        html += get_message(message='create_results_page(): Unknown view_mode "' + view_mode + '".')
+    return html
 
-    elif view_mode == 'view_regular_table_persons_of_org':
-        # Some organizations have a large number of neighbors, but we will only show
-        # 'max_nr_items' in the table. Therefore, reduce the number of neighbors when
-        # searching for persons in an organization. Don't do this for other view_modes, because
-        # in that case the table shows how many items are found.
-        neighbor_nodes = get_all_neighbor_nodes(node=node,
-                                                name_want=name_list,
-                                                category_want=category_list,
-                                                max_nr_neighbor_nodes=max_nr_items)
-        table_header = 'These are persons related to this organization:'
-        table_columns = table_columns_ids
-        html += get_page_title(title='Persons related to this organization')
-        html += node_found
-        html += get_regular_table(nodes_list=neighbor_nodes,
-                                  table_header=table_header,
-                                  table_columns=table_columns,
-                                  discoverer_mode=discoverer_mode,
-                                  extra_url_parameters=extra_url_parameters)
 
-    elif view_mode == 'view_unspecified_table_organizations':
+def create_results_page_organization(view_mode: str,
+                                     node: Node,
+                                     name_list: list,
+                                     category_list: list,
+                                     discoverer_mode: str,
+                                     table_columns_ids: list,
+                                     table_columns_resout: list,
+                                     extra_url_parameters: dict) -> str:
+    """This function creates the page with results to show to the user,
+    for 'organization' like pages. It is a helper function for
+    create_results_page_organization().
+    What is produced depends on 'view_mode'.
+
+    :param view_mode: what type of page to create.
+    :param node: the node that is found and that determines where we start from.
+    :param name_list: as with create_results_page_organization().
+    :param category_list: as name_str, but for category.
+    :param discoverer_mode: as usual.
+    :param table_columns_ids: Columns to use for the table with IDs.
+    :param table_columns_resout: Columns to use for the table with research results.
+    :param extra_url_parameters: as usual.
+    :return: HTML to be rendered.
+    """
+    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    node_found = get_found_message(node=node,
+                                   discoverer_mode=discoverer_mode,
+                                   extra_url_parameters=extra_url_parameters)
+    html = ''
+    if view_mode == 'view_unspecified_table_organizations':
         # Some organizations have a large number of neighbors, but we will only show
         # 'max_nr_items' in the table. Therefore, reduce the number of neighbors when
         # searching for persons in an organization. Don't do this for other view_modes, because
@@ -1238,40 +1254,73 @@ def create_results_page(view_mode: str,
                                      tabs_on='category',
                                      discoverer_mode=discoverer_mode,
                                      extra_url_parameters=extra_url_parameters)
-
-    elif view_mode == 'view_unspecified_table_resouts' \
-      or view_mode == 'view_unspecified_table_everything_except_ids':
-        personroot_node = get_personroot_node(node=node)
-        neighbor_nodes = get_all_neighbor_nodes(node=personroot_node,
+    elif view_mode == 'view_regular_table_persons_of_org':
+        # Some organizations have a large number of neighbors, but we will only show
+        # 'max_nr_items' in the table. Therefore, reduce the number of neighbors when
+        # searching for persons in an organization. Don't do this for other view_modes, because
+        # in that case the table shows how many items are found.
+        neighbor_nodes = get_all_neighbor_nodes(node=node,
                                                 name_want=name_list,
                                                 category_want=category_list,
-                                                year_first = year_first,
-                                                year_last = year_last)
-        if view_mode == 'view_unspecified_table_resouts':
-            table_header = 'These are the research results related to this person '
-            table_header += year_range_text + ':'
-        else:
-            table_header = 'These are all the neighbors related to this person (without its identities):'
-        html += get_page_title(title='Research results related to this person')
+                                                max_nr_neighbor_nodes=max_nr_items)
+        table_header = 'These are persons related to this organization:'
+        table_columns = table_columns_ids
+        html += get_page_title(title='Persons related to this organization')
         html += node_found
-        html += get_html_for_yearcard()
-        if discoverer_mode == 'details_view':
-            html += get_faceted_table(parent_node=node,
-                                      neighbor_nodes=neighbor_nodes,
-                                      table_header=table_header,
-                                      table_columns=table_columns_resout,
-                                      view_mode=view_mode,
-                                      discoverer_mode=discoverer_mode,
-                                      extra_url_parameters=extra_url_parameters)
-        else:
-            html += get_tabbed_table(nodes_list=neighbor_nodes,
-                                     table_header=table_header,
-                                     table_columns=table_columns_resout,
-                                     tabs_on='category',
-                                     discoverer_mode=discoverer_mode,
-                                     extra_url_parameters=extra_url_parameters)
+        html += get_regular_table(nodes_list=neighbor_nodes,
+                                  table_header=table_header,
+                                  table_columns=table_columns,
+                                  discoverer_mode=discoverer_mode,
+                                  extra_url_parameters=extra_url_parameters)
 
-    elif view_mode == 'view_unspecified_table_everything':
+    elif view_mode == 'view_regular_table_organization_addinfo':
+        html += get_page_title(title='Information about this organization')
+        html += find_organization_additional_info(parent_node=node,
+                                                  name_list=name_list,
+                                                  category_list=category_list,
+                                                  discoverer_mode=discoverer_mode,
+                                                  extra_url_parameters=extra_url_parameters)
+    else:
+        html += get_message(message='create_results_page(): Unknown view_mode "' + view_mode + '".')
+    return html
+
+
+def create_results_page_person(view_mode: str,
+                               node: Node,
+                               name_list: list,
+                               category_list: list,
+                               discoverer_mode: str,
+                               table_columns_ids: list,
+                               table_columns_org: list,
+                               table_columns_resout: list,
+                               extra_url_parameters: dict) -> str:
+    """This function creates the page with results to show to the user,
+    for 'person' like pages. It is a helper function for
+    create_results_page_organization().
+    What is produced depends on 'view_mode'.
+
+    :param view_mode: what type of page to create.
+    :param node: the node that is found and that determines where we start from.
+    :param name_list: as with create_results_page_organization().
+    :param category_list: as name_str, but for category.
+    :param discoverer_mode: as usual.
+    :param table_columns_ids: Columns to use for the table with IDs.
+    :param table_columns_org: Columns to use for the table with organizations.
+    :param table_columns_resout: Columns to use for the table with research results.
+    :param extra_url_parameters: as usual.
+    :return: HTML to be rendered.
+    """
+    person_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                             item='person_category_active')
+    year_first = extra_url_parameters.get('year_first', '')
+    year_last = extra_url_parameters.get('year_last', '')
+    year_range_text = get_year_range_text(year_first=year_first,
+                                          year_last=year_last)
+    node_found = get_found_message(node=node,
+                                   discoverer_mode=discoverer_mode,
+                                   extra_url_parameters=extra_url_parameters)
+    html = ''
+    if view_mode == 'view_unspecified_table_everything':
         personroot_node = get_personroot_node(node=node)
         html += get_page_title(title='All information related to this person')
         html += node_found
@@ -1324,7 +1373,56 @@ def create_results_page(view_mode: str,
                                   table_columns=table_columns_org,
                                   discoverer_mode=discoverer_mode,
                                   extra_url_parameters=extra_url_parameters)
-
+    elif view_mode == 'view_regular_table_personal':
+        personroot_node = get_personroot_node(node=node)
+        neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
+                                                         category_want=person_category_active)
+        html += get_page_title(title='Personal information related to this person')
+        html += node_found
+        if discoverer_mode == 'details_view':
+            html += get_regular_table(nodes_list=neighbor_nodes_personal,
+                                      table_header='This is personal information related to this person:',
+                                      table_columns=table_columns_ids,
+                                      discoverer_mode=discoverer_mode,
+                                      extra_url_parameters=extra_url_parameters)
+        else:
+            html += view_personal_information(nodes_list=neighbor_nodes_personal,
+                                              discoverer_mode=discoverer_mode,
+                                              extra_url_parameters=extra_url_parameters)
+    # For "elif view_mode == 'view_regular_table_organizations'"
+    # see create_results_page().
+    elif view_mode == 'view_unspecified_table_resouts':
+        # [April 4, 2026] We do not have this anymore:
+        # or view_mode == 'view_unspecified_table_everything_except_ids':
+        personroot_node = get_personroot_node(node=node)
+        neighbor_nodes = get_all_neighbor_nodes(node=personroot_node,
+                                                name_want=name_list,
+                                                category_want=category_list,
+                                                year_first = year_first,
+                                                year_last = year_last)
+        if view_mode == 'view_unspecified_table_resouts':
+            table_header = 'These are the research results related to this person '
+            table_header += year_range_text + ':'
+        else:
+            table_header = 'These are all the neighbors related to this person (without its identities):'
+        html += get_page_title(title='Research results related to this person')
+        html += node_found
+        html += get_html_for_yearcard()
+        if discoverer_mode == 'details_view':
+            html += get_faceted_table(parent_node=node,
+                                      neighbor_nodes=neighbor_nodes,
+                                      table_header=table_header,
+                                      table_columns=table_columns_resout,
+                                      view_mode=view_mode,
+                                      discoverer_mode=discoverer_mode,
+                                      extra_url_parameters=extra_url_parameters)
+        else:
+            html += get_tabbed_table(nodes_list=neighbor_nodes,
+                                     table_header=table_header,
+                                     table_columns=table_columns_resout,
+                                     tabs_on='category',
+                                     discoverer_mode=discoverer_mode,
+                                     extra_url_parameters=extra_url_parameters)
     elif view_mode == 'view_regular_table_person_share_resouts':
         # Note the hard limit.
         html += get_page_title(title='Persons that share research results with this person')
@@ -1335,6 +1433,11 @@ def create_results_page(view_mode: str,
                                                                   COMPETENCE_CATEGORY_COMPETENCE],
                                           discoverer_mode=discoverer_mode,
                                           extra_url_parameters=extra_url_parameters)
+    elif view_mode == 'view_regular_table_person_organization_collaborations':
+        html += get_page_title(title='Organizations that this person collaborates with')
+        html += find_person_organization_collaborations(parent_node=node,
+                                                        discoverer_mode=discoverer_mode,
+                                                        extra_url_parameters=extra_url_parameters)
 
     elif view_mode == 'view_regular_table_person_enrich_source_system':
         # Note: we misuse the field 'category_list' to pass the name of the source system
@@ -1348,20 +1451,6 @@ def create_results_page(view_mode: str,
                                        source_system=source_system,
                                        discoverer_mode=discoverer_mode,
                                        extra_url_parameters=extra_url_parameters)
-
-    elif view_mode == 'view_regular_table_person_organization_collaborations':
-        html += get_page_title(title='Organizations that this person collaborates with')
-        html += find_person_organization_collaborations(parent_node=node,
-                                                        discoverer_mode=discoverer_mode,
-                                                        extra_url_parameters=extra_url_parameters)
-
-    elif view_mode == 'view_regular_table_organization_addinfo':
-        html += get_page_title(title='Information about this organization')
-        html += find_organization_additional_info(parent_node=node,
-                                                  name_list=name_list,
-                                                  category_list=category_list,
-                                                  discoverer_mode=discoverer_mode,
-                                                  extra_url_parameters=extra_url_parameters)
     elif view_mode == 'view_regular_table_overlap':
         html += get_page_title(title='Overlap in source systems for the neighbor nodes of this node')
         html += find_overlap_in_source_systems(name=node['name'],
@@ -1370,9 +1459,6 @@ def create_results_page(view_mode: str,
                                                discoverer_mode=discoverer_mode,
                                                overlap_mode='neighbornodes',
                                                extra_url_parameters=extra_url_parameters)
-
-    # Note: view_mode == 'view_regular_table_overlap_records' is caught in resultspage().
-
     else:
         html += get_message(message='create_results_page(): Unknown view_mode "' + view_mode + '".')
     return html
