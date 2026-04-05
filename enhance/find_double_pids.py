@@ -67,7 +67,7 @@ for pid_type in ('DAI', 'EMPLOYEE_ID', 'ISNI', 'ORCID', 'SCOPUS_AUTHOR_ID'):
                     continue
                 personroot_node = rcg.get_personroot_node(neighbor)
                 fullname_nodes = rcg.get_all_neighbor_nodes(node=personroot_node,
-                                                            name_want='FULL_NAME')
+                                                            name_want=['FULL_NAME'])
                 if len(fullname_nodes) == 0:
                     res = '[no FULL_NAME found]'
                 else:

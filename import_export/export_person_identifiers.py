@@ -80,7 +80,7 @@ for personroot_node in all_personroot_nodes:
         print('\n', end='', flush=True)
 
     neighbors = rcg.get_all_neighbor_nodes(personroot_node,
-                                           category_want=rcg.PERSON_CATEGORY_PERSON)
+                                           category_want=[rcg.PERSON_CATEGORY_PERSON])
     if len(neighbors) == 0:
         continue
 

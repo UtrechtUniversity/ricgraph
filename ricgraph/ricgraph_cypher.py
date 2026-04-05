@@ -964,11 +964,11 @@ def read_all_values_of_property(node_property: str = '') -> list:
     return result_list_sorted
 
 
-def get_all_neighbor_nodes(node: Node | None,
-                           name_want: str | list | None = '',
-                           name_dontwant: str | list | None = '',
-                           category_want: str | list | None = '',
-                           category_dontwant: str | list | None = '',
+def get_all_neighbor_nodes(node: Node = None,
+                           name_want: list = None,
+                           name_dontwant: list = None,
+                           category_want: list = None,
+                           category_dontwant: list = None,
                            year_first: str = '',
                            year_last: str = '',
                            max_nr_neighbor_nodes: int = 0) -> list:
@@ -1004,7 +1004,6 @@ def get_all_neighbor_nodes(node: Node | None,
 
     if node is None:
         return []
-
     if name_want is None:
         name_want = []
     if name_dontwant is None:
@@ -1013,15 +1012,6 @@ def get_all_neighbor_nodes(node: Node | None,
         category_want = []
     if category_dontwant is None:
         category_dontwant = []
-
-    if isinstance(name_want, str):
-        name_want = [] if name_want == '' else [name_want]
-    if isinstance(name_dontwant, str):
-        name_dontwant = [] if name_dontwant == '' else [name_dontwant]
-    if isinstance(category_want, str):
-        category_want = [] if category_want == '' else [category_want]
-    if isinstance(category_dontwant, str):
-        category_dontwant = [] if category_dontwant == '' else [category_dontwant]
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         print(message)
         return []
@@ -1087,11 +1077,11 @@ def get_all_neighbor_nodes(node: Node | None,
         return neighbor_nodes
 
 
-def get_all_neighbor_nodes_loop(node: Node | None,
-                                name_want: str | list | None,
-                                name_dontwant: str | list | None,
-                                category_want: str | list | None,
-                                category_dontwant: str | list | None,
+def get_all_neighbor_nodes_loop(node: Node,
+                                name_want: list = None,
+                                name_dontwant: list = None,
+                                category_want: list = None,
+                                category_dontwant: list = None,
                                 year_first: str = '',
                                 year_last: str = '',
                                 max_nr_neighbor_nodes: int = 0) -> list:
@@ -1120,7 +1110,7 @@ def get_all_neighbor_nodes_loop(node: Node | None,
     """
     global _graphdb_nr_reads
 
-    if node is None:
+    if len(node) == 0:
         return []
 
     candidate_neighbor_nodes = get_all_neighbor_nodes(node=node)

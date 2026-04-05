@@ -179,7 +179,7 @@ def find_enrich_candidates_one_person(personroot: Node | None,
     year_last = extra_url_parameters.get('year_last', '')
     max_nr_items = extra_url_parameters.get('max_nr_items', '0')
 
-    # Do not use 'max_nr_items" on get_all_neighbor_nodes(), since
+    # Do not use 'max_nr_items' on get_all_neighbor_nodes(), since
     # we were asked to return max_nr_items for find_enrich_candidates_one_person().
     # We might need more than max_nr_items from get_all_neighbor_nodes()
     # to obtain that.
@@ -306,7 +306,7 @@ def find_enrich_candidates(parent_node: Union[Node, None],
         html += get_html_for_yearcard()
         table_header = 'You could enrich source system "' + source_system + '" '
         table_header += 'by using this information harvested from other source systems '
-        table_header += year_range_text + '.'
+        table_header += year_range_text + '. '
         table_header += 'This information is not in source system "' + source_system + '".'
         html += get_tabbed_table(nodes_list=nodes_not_in_source_system,
                                  table_header=table_header,

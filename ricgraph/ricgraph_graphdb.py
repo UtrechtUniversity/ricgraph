@@ -127,7 +127,7 @@ def recreate_name_cache_in_personroot(personroot: Node | None) -> None:
     if personroot is None:
         return
     neighbornodes = get_all_neighbor_nodes(node=personroot,
-                                           name_want='FULL_NAME')
+                                           name_want=['FULL_NAME'])
     name_cache = []
     for node in neighbornodes:
         value = get_valuepart_from_ricgraph_value(node['value']) + ' ['
@@ -959,7 +959,7 @@ def get_all_personroot_nodes(node: Node | None) -> list:
         return [node]
 
     personroot_nodes = get_all_neighbor_nodes(node=node,
-                                              name_want=PERSON_NAME_PERSON_ROOT)
+                                              name_want=[PERSON_NAME_PERSON_ROOT])
     return personroot_nodes
 
 

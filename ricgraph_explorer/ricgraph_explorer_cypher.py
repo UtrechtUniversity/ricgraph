@@ -198,7 +198,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node | None,
     # Get the organizations from 'parent_node'.
     personroot_node = get_personroot_node(node=parent_node)
     personroot_node_organizations = get_all_neighbor_nodes(node=personroot_node,
-                                                           category_want=ORGANIZATION_CATEGORY_ORGANISATION)
+                                                           category_want=[ORGANIZATION_CATEGORY_ORGANISATION])
     # Now get the organizations that 'parent_node' collaborates with, excluding
     # this person's own organizations. Note that the types of 'records'
     # and 'personroot_node_organizations' are not the same.
