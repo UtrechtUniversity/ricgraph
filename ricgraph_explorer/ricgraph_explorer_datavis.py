@@ -45,7 +45,6 @@
 #
 # ########################################################################
 
-from typing import Union
 from ast import literal_eval
 from json import dumps
 from pandas import DataFrame
@@ -388,7 +387,7 @@ def org_collaborations_persons_results_df(start_organizations: str,
                                           collab_organizations: str,
                                           researchresult_category: list,
                                           mode: str = 'return_researchresults',
-                                          filename: str = '') -> Union[None, DataFrame]:
+                                          filename: str = '') -> DataFrame | None:
     """Find all collaborations of an organizations starting with a string,
     with other organizations with the same starting string
     (e.g. UU Faculty and UU Faculty).

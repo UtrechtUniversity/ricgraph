@@ -41,7 +41,6 @@
 # ########################################################################
 
 
-from typing import Union
 from pandas import DataFrame
 from flask import request, url_for
 from markupsafe import escape
@@ -484,7 +483,7 @@ def get_html_for_yearcard(show_as_card: bool = True,
 # ##############################################################################
 def remove_hierarchical_orgs(df: DataFrame | None,
                              orgs_with_hierarchies: DataFrame,
-                             org_to_keep: str) -> Union[DataFrame, None]:
+                             org_to_keep: str) -> DataFrame | None:
     """
     This function removes hierarchical orgs from a DataFrame, leaving the
     top level organization only, for the organizations in orgs_with_hierarchies,
@@ -630,7 +629,7 @@ def get_global_str(ricgraph_info: str, item: str) -> str:
     return value
 
 
-def get_global_dataframe(ricgraph_info: str, item: str) -> Union[DataFrame, None]:
+def get_global_dataframe(ricgraph_info: str, item: str) -> DataFrame | None:
     """Safely retrieve an entry from a Ricgraph info structure.
     A DataFrame return value is expected.
 

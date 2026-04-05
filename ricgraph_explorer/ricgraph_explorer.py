@@ -53,7 +53,6 @@
 
 from os import path
 from connexion import FlaskApp, options
-from typing import Union
 from flask import send_from_directory, redirect, url_for, Response
 from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
@@ -525,7 +524,7 @@ def searchpage() -> str:
 
 
 @_ricgraph_explorer.route(rule='/optionspage/', methods=['GET'])
-def optionspage() -> Union[str, Response]:
+def optionspage() -> str | Response:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     Find nodes based on URL parameters passed.
 

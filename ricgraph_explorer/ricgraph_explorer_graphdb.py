@@ -58,7 +58,7 @@
 # ########################################################################
 
 
-from typing import Tuple, Union
+from typing import Tuple
 from neo4j.graph import Node
 from flask import url_for
 from urllib.parse import urlencode
@@ -209,8 +209,8 @@ def find_enrich_candidates_one_person(personroot: Node | None,
     return person_nodes[:int(max_nr_items)], nodes_not_in_source_system[:int(max_nr_items)]
 
 
-def find_enrich_candidates(parent_node: Union[Node, None],
-                           source_system: str,
+def find_enrich_candidates(parent_node: Node = None,
+                           source_system: str = '',
                            discoverer_mode: str = '',
                            extra_url_parameters: dict = None) -> str:
     """This function tries to find nodes to enrich source system 'source_system'.

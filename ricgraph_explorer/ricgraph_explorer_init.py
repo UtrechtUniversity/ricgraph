@@ -42,7 +42,6 @@
 
 
 from os import path
-from typing import Union
 from json import loads
 from connexion import FlaskApp
 from pandas import DataFrame
@@ -112,7 +111,7 @@ def store_ricgraph_explorer_app(app: FlaskApp) -> None:
     return
 
 
-def retrieve_ricgraph_explorer_app() -> Union[FlaskApp, None]:
+def retrieve_ricgraph_explorer_app() -> FlaskApp | None:
     """Retrieve the Ricgraph Explorer app from a global string. We
     need it to retrieve global variables.
 

@@ -55,7 +55,7 @@
 
 from urllib.parse import urlencode
 from math import ceil, floor
-from typing import Union, Tuple
+from typing import Tuple
 from neo4j.graph import Node
 from flask import url_for
 from ricgraph import (nodes_cache_key_id_create,
@@ -345,8 +345,8 @@ def get_regular_table_worker(nodes_list: list,
     return html
 
 
-def get_faceted_table(parent_node: Node | None,
-                      neighbor_nodes: Union[list, None],
+def get_faceted_table(parent_node: Node = None,
+                      neighbor_nodes: list = None,
                       table_header: str = '',
                       table_columns: list = None,
                       view_mode: str = '',
@@ -408,7 +408,7 @@ def get_faceted_table(parent_node: Node | None,
     return html
 
 
-def get_tabbed_table(nodes_list: Union[list, None],
+def get_tabbed_table(nodes_list: list = None,
                      table_header: str = '',
                      table_columns: list = None,
                      tabs_on: str = '',
