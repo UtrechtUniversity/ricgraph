@@ -55,7 +55,7 @@
 
 from urllib.parse import urlencode
 from math import ceil, floor
-from typing import Union, Tuple
+from typing import Tuple
 from neo4j.graph import Node
 from flask import url_for
 from ricgraph import (nodes_cache_key_id_create,
@@ -66,8 +66,9 @@ from ricgraph import (nodes_cache_key_id_create,
                       PERSON_CATEGORY_PERSON,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT)
-from ricgraph_explorer_constants import (DETAIL_COLUMNS, RESEARCH_OUTPUT_COLUMNS,
-                                         MAX_ROWS_TO_EXPORT, ID_COLUMNS,
+from ricgraph_explorer_constants import (TABLE_DETAIL_COLUMNS,
+                                         TABLE_RESEARCH_OUTPUT_COLUMNS,
+                                         MAX_ROWS_TO_EXPORT, TABLE_ID_COLUMNS,
                                          RICGRAPH_NODEINFO,
                                          button_style)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
@@ -178,7 +179,7 @@ def view_personal_information(nodes_list: list,
             id_nodes.append(node)
     html += get_tabbed_table(nodes_list=id_nodes,
                              table_header='These are the identities related to this person:',
-                             table_columns=ID_COLUMNS,
+                             table_columns=TABLE_ID_COLUMNS,
                              tabs_on='name',
                              discoverer_mode=discoverer_mode,
                              extra_url_parameters=extra_url_parameters)
@@ -283,9 +284,9 @@ def get_regular_table_worker(nodes_list: list,
         extra_url_parameters = {}
     if table_columns is None:
         if discoverer_mode == 'details_view':
-            table_columns = DETAIL_COLUMNS
+            table_columns = TABLE_DETAIL_COLUMNS
         else:
-            table_columns = RESEARCH_OUTPUT_COLUMNS
+            table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
     len_nodes_list = len(nodes_list)
     if len_nodes_list == 0:
         return get_message(table_header + '</br>Nothing found.')
@@ -345,8 +346,8 @@ def get_regular_table_worker(nodes_list: list,
     return html
 
 
-def get_faceted_table(parent_node: Node | None,
-                      neighbor_nodes: Union[list, None],
+def get_faceted_table(parent_node: Node = None,
+                      neighbor_nodes: list = None,
                       table_header: str = '',
                       table_columns: list = None,
                       view_mode: str = '',
@@ -367,9 +368,9 @@ def get_faceted_table(parent_node: Node | None,
         extra_url_parameters = {}
     if table_columns is None:
         if discoverer_mode == 'details_view':
-            table_columns = DETAIL_COLUMNS
+            table_columns = TABLE_DETAIL_COLUMNS
         else:
-            table_columns = RESEARCH_OUTPUT_COLUMNS
+            table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
     if neighbor_nodes is None or len(neighbor_nodes) == 0:
         return get_message(table_header + '</br>Nothing found.')
 
@@ -408,7 +409,7 @@ def get_faceted_table(parent_node: Node | None,
     return html
 
 
-def get_tabbed_table(nodes_list: Union[list, None],
+def get_tabbed_table(nodes_list: list = None,
                      table_header: str = '',
                      table_columns: list = None,
                      tabs_on: str = '',
@@ -430,9 +431,9 @@ def get_tabbed_table(nodes_list: Union[list, None],
         extra_url_parameters = {}
     if table_columns is None:
         if discoverer_mode == 'details_view':
-            table_columns = DETAIL_COLUMNS
+            table_columns = TABLE_DETAIL_COLUMNS
         else:
-            table_columns = RESEARCH_OUTPUT_COLUMNS
+            table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
     if tabs_on != 'name' and tabs_on != 'category':
         return get_message(message='get_tabbed_table(): Invalid value for "tabs_on": ' + tabs_on + '.')
 

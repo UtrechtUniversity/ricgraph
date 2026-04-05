@@ -73,7 +73,7 @@ ricgraph_properties_hidden = _key,_source,_history
 # ###############################################################
 # Additional properties for nodes, make sure 'history_event' is last.
 # Don't use spaces, quotes or new lines in this entry.
-ricgraph_properties_additional = comment,url_main,url_other,year,license,access,source_event,history_event
+ricgraph_properties_additional = comment,year,license,access,url_main,url_other,source_event,history_event
 # ###############################################################
 
 # ###############################################################

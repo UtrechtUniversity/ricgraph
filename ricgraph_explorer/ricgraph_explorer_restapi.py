@@ -50,7 +50,6 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       HTTP_RESPONSE_NOTHING_FOUND, HTTP_RESPONSE_INVALID_SEARCH,
                       read_all_nodes, get_all_neighbor_nodes,
                       get_personroot_node, get_all_personroot_nodes,
-                      convert_nodes_to_list_of_dict,
                       check_valid_year,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
@@ -65,7 +64,8 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
 from ricgraph_explorer_init import (get_ricgraph_explorer_global,
                                     collect_ricgraph_cacheinfo)
 from ricgraph_explorer_utils import get_global_list
-from ricgraph_explorer_graphdb import (find_person_share_resouts_cypher,
+from ricgraph_explorer_graphdb import (convert_nodes_to_list_of_dict,
+                                       find_person_share_resouts_cypher,
                                        find_person_organization_collaborations_cypher,
                                        find_organization_additional_info_cypher,
                                        find_enrich_candidates_one_person)

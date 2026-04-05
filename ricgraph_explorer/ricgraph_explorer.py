@@ -53,7 +53,6 @@
 
 from os import path
 from connexion import FlaskApp, options
-from typing import Union
 from flask import send_from_directory, redirect, url_for, Response
 from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
@@ -80,9 +79,13 @@ from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          button_style, button_width,
                                          form_button_on_one_line_style,
                                          VIEW_MODE_ALL,
-                                         DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
-                                         RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
-                                         MAX_ITEMS_TO_RETURN, SEARCH_STRING_MIN_LENGTH,
+                                         TABLE_DETAIL_COLUMNS,
+                                         TABLE_ID_COLUMNS,
+                                         TABLE_ORGANIZATION_COLUMNS,
+                                         TABLE_RESEARCH_OUTPUT_COLUMNS,
+                                         MAX_ROWS_IN_TABLE,
+                                         MAX_ITEMS_TO_RETURN,
+                                         SEARCH_STRING_MIN_LENGTH,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON)
 from ricgraph_explorer_init import initialize_ricgraph_explorer
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
@@ -129,6 +132,10 @@ _swagger_ui_options = options.SwaggerUIOptions(swagger_ui=False)
 _ricgraph_explorer = FlaskApp(import_name=__name__,
                               specification_dir='./static/',
                               swagger_ui_options=_swagger_ui_options)
+# Disable key sorting on the underlying Flask app.
+# This ensures that the JSON output from the REST API is in the order
+# I would like to have it.
+_ricgraph_explorer.app.json.sort_keys = False
 _ricgraph_explorer.add_api(specification='openapi.yaml',
                            swagger_ui_options=_swagger_ui_options)
 _ricgraph_explorer.app.register_blueprint(blueprint=_oslpage_bp)
@@ -525,7 +532,7 @@ def searchpage() -> str:
 
 
 @_ricgraph_explorer.route(rule='/optionspage/', methods=['GET'])
-def optionspage() -> Union[str, Response]:
+def optionspage() -> str | Response:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
     Find nodes based on URL parameters passed.
 
@@ -1128,9 +1135,9 @@ def create_results_page(view_mode: str,
     node = result[0]
 
     if discoverer_mode == 'details_view':
-        table_columns_ids = DETAIL_COLUMNS
-        table_columns_org = DETAIL_COLUMNS
-        table_columns_resout = DETAIL_COLUMNS
+        table_columns_ids = TABLE_DETAIL_COLUMNS
+        table_columns_org = TABLE_DETAIL_COLUMNS
+        table_columns_resout = TABLE_DETAIL_COLUMNS
         if node is not None:
             html += get_you_searched_for_card(key=node['_key'],
                                               name_list=name_list,
@@ -1139,9 +1146,9 @@ def create_results_page(view_mode: str,
                                               discoverer_mode=discoverer_mode,
                                               extra_url_parameters=extra_url_parameters)
     else:
-        table_columns_ids = ID_COLUMNS
-        table_columns_org = ORGANIZATION_COLUMNS
-        table_columns_resout = RESEARCH_OUTPUT_COLUMNS
+        table_columns_ids = TABLE_ID_COLUMNS
+        table_columns_org = TABLE_ORGANIZATION_COLUMNS
+        table_columns_resout = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     node_found = get_found_message(node=node,
                                    discoverer_mode=discoverer_mode,

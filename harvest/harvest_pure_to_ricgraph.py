@@ -1404,7 +1404,7 @@ def get_pure_organization_info(url: str,
         if PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE:
             harvest_data = rcg.read_json_from_file(filename=harvest_data)
         else:
-            harvest_data = rcg.harvest_json(source=rcg.SOURCE_PURE,
+            harvest_data = rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
                                             url=url,
                                             headers=headers,
                                             body=PURE_ORGANIZATIONS_FIELDS,
@@ -1465,7 +1465,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
        or (mode == MODE_DATASETS and not PURE_DATASETS_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_PRESS_MEDIA and not PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE) \
        or (mode == MODE_PROJECTS and not PURE_PROJECTS_READ_HARVEST_FROM_FILE):
-        harvest_data = rcg.harvest_json(source=rcg.SOURCE_PURE,
+        harvest_data = rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
                                         url=url,
                                         headers=headers,
                                         body=body,

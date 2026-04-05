@@ -58,7 +58,7 @@
 # ########################################################################
 
 
-from typing import Tuple, Union
+from typing import Tuple
 from neo4j.graph import Node
 from flask import url_for
 from urllib.parse import urlencode
@@ -66,13 +66,16 @@ from ricgraph import (get_personroot_node,
                       get_all_neighbor_nodes, read_all_nodes,
                       create_multidimensional_dict,
                       get_year_range_text,
+                      A_LARGE_NUMBER,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT)
 from ricgraph_explorer_constants import (RICGRAPH_HARVESTINFO,
+                                         RICGRAPH_NODEINFO,
                                          MAX_NR_NODES_TO_ENRICH,
-                                         RESEARCH_OUTPUT_COLUMNS, DETAIL_COLUMNS,
+                                         TABLE_RESEARCH_OUTPUT_COLUMNS,
+                                         TABLE_DETAIL_COLUMNS,
                                          ACCESS_MODE_ANY)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
@@ -85,6 +88,34 @@ from ricgraph_explorer_cypher import (find_organization_additional_info_cypher,
 from ricgraph_explorer_table import  (get_regular_table, get_tabbed_table,
                                       get_html_for_histogram,
                                       get_html_for_tablestart, get_html_for_tableend)
+
+
+def convert_nodes_to_list_of_dict(nodes_list: list,
+                                  max_nr_items: int = 0) -> list:
+    """Convert a list of nodes to a list of dict.
+
+    :param nodes_list: The list of nodes.
+    :param max_nr_items: The maximum number of items to return.
+    :return: A list of dicts
+    """
+    if max_nr_items == 0:
+        max_nr_nodes = A_LARGE_NUMBER
+    else:
+        max_nr_nodes = max_nr_items
+
+    field_order = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                  item='ricgraph_node_all_properties')
+    result_list = []
+    count = 0
+    for node in nodes_list:
+        count += 1
+        if count > max_nr_nodes:
+            break
+        result = {}
+        for item in field_order:
+            result[item] = node.get(item, '')
+        result_list.append(result)
+    return result_list
 
 
 def find_person_share_resouts(parent_node: Node | None,
@@ -122,9 +153,9 @@ def find_person_share_resouts(parent_node: Node | None,
                                                          category_dontwant_list=category_dontwant_list,
                                                          max_nr_items=int(extra_url_parameters['max_nr_items']))
     if discoverer_mode == 'details_view':
-        table_columns = DETAIL_COLUMNS
+        table_columns = TABLE_DETAIL_COLUMNS
     else:
-        table_columns = RESEARCH_OUTPUT_COLUMNS
+        table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     table_header = 'This is the person we start with:'
     html += get_regular_table(nodes_list=[parent_node],
@@ -209,8 +240,8 @@ def find_enrich_candidates_one_person(personroot: Node | None,
     return person_nodes[:int(max_nr_items)], nodes_not_in_source_system[:int(max_nr_items)]
 
 
-def find_enrich_candidates(parent_node: Union[Node, None],
-                           source_system: str,
+def find_enrich_candidates(parent_node: Node = None,
+                           source_system: str = '',
                            discoverer_mode: str = '',
                            extra_url_parameters: dict = None) -> str:
     """This function tries to find nodes to enrich source system 'source_system'.
@@ -261,9 +292,9 @@ def find_enrich_candidates(parent_node: Union[Node, None],
         personroot_list = [personroot_node]
 
     if discoverer_mode == 'details_view':
-        table_columns = DETAIL_COLUMNS
+        table_columns = TABLE_DETAIL_COLUMNS
     else:
-        table_columns = RESEARCH_OUTPUT_COLUMNS
+        table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     count = 1
     something_found = False
@@ -388,9 +419,9 @@ def find_person_organization_collaborations(parent_node: Node | None,
                                                        max_nr_items=int(extra_url_parameters['max_nr_items']))
 
     if discoverer_mode == 'details_view':
-        table_columns = DETAIL_COLUMNS
+        table_columns = TABLE_DETAIL_COLUMNS
     else:
-        table_columns = RESEARCH_OUTPUT_COLUMNS
+        table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     table_header = 'This is the person we start with:'
     html += get_regular_table(nodes_list=[parent_node],
@@ -515,9 +546,9 @@ def find_organization_additional_info(parent_node: Node | None,
                                    'value': result['count_second_neighbor']})
 
     if discoverer_mode == 'details_view':
-        table_columns = DETAIL_COLUMNS
+        table_columns = TABLE_DETAIL_COLUMNS
     else:
-        table_columns = RESEARCH_OUTPUT_COLUMNS
+        table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     html = ''
     table_header = 'This item is used for finding information about the persons '
@@ -951,7 +982,7 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
             relevant_result.append(node)
 
     if discoverer_mode == 'details_view':
-        table_columns = DETAIL_COLUMNS
+        table_columns = TABLE_DETAIL_COLUMNS
         html += get_you_searched_for_card(name=name,
                                           category=category,
                                           value=value,
@@ -961,7 +992,7 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
                                           system2=system2,
                                           extra_url_parameters=extra_url_parameters)
     else:
-        table_columns = RESEARCH_OUTPUT_COLUMNS
+        table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     html += get_regular_table(nodes_list=relevant_result,
                               table_header='These items conform to your selection:',

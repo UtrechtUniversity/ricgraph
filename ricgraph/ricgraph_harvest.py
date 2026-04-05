@@ -52,7 +52,9 @@ from .ricgraph_constants import (A_LARGE_NUMBER,
                                  PERSON_CATEGORY_PERSON,
                                  COMPETENCE_CATEGORY_COMPETENCE,
                                  ORGANIZATION_CATEGORY_ORGANISATION,
-                                 SOURCE_OPENALEX, SOURCE_PURE, SOURCE_RSD)
+                                 HARVEST_JSON_SOURCE_OPENALEX,
+                                 HARVEST_JSON_SOURCE_PURE,
+                                 HARVEST_JSON_SOURCE_RSD)
 from .ricgraph_file import write_read_json_file
 from .ricgraph_utils import (timestamp, datetimestamp, timestamp_posix,
                              print_records_per_minute, print_progress)
@@ -84,11 +86,11 @@ def _harvest_json_get_print_nr_records(source: str,
     :return: None.
     """
     total_records = 0
-    if source == SOURCE_OPENALEX:
+    if source == HARVEST_JSON_SOURCE_OPENALEX:
         if 'meta' in chunk_json_data:
             if 'count' in chunk_json_data['meta']:
                 total_records = chunk_json_data['meta']['count']
-    elif source == SOURCE_PURE:
+    elif source == HARVEST_JSON_SOURCE_PURE:
         if 'count' in chunk_json_data:
             total_records = chunk_json_data['count']
     else:
@@ -155,12 +157,12 @@ def harvest_json(source: str,
         body = {}
 
     params = {}
-    if source == SOURCE_OPENALEX:
+    if source == HARVEST_JSON_SOURCE_OPENALEX:
         params['cursor'] = '*'
         params['per_page'] = str(chunksize)
-    elif source == SOURCE_PURE:
+    elif source == HARVEST_JSON_SOURCE_PURE:
         params['size'] = chunksize
-    elif source == SOURCE_RSD:
+    elif source == HARVEST_JSON_SOURCE_RSD:
         # RSD does not use this.
         pass
     else:
@@ -192,7 +194,7 @@ def harvest_json(source: str,
             attempt += 1
             response = None
             try:
-                if source == SOURCE_PURE:
+                if source == HARVEST_JSON_SOURCE_PURE:
                     response = post(url=url,
                                     params=params,
                                     headers=headers,
@@ -228,7 +230,7 @@ def harvest_json(source: str,
         chunk_json_data = response.json()
         if first_time:
             first_time = False
-            if source == SOURCE_RSD:
+            if source == HARVEST_JSON_SOURCE_RSD:
                 # For RSD, we have already gotten all data,
                 # (it can be gotten in one go), save & continue.
                 return write_read_json_file(json_data=chunk_json_data,
@@ -240,14 +242,14 @@ def harvest_json(source: str,
             print('Harvesting record:')
             stdout.flush()
 
-        if source == SOURCE_OPENALEX:
+        if source == HARVEST_JSON_SOURCE_OPENALEX:
             if 'results' not in chunk_json_data:
                 print('harvest_json(): Error: malformed json, "results" is missing.')
                 return []
             if len(chunk_json_data['results']) == 0:
                 break
             json_items = chunk_json_data['results']
-        elif source == SOURCE_PURE:
+        elif source == HARVEST_JSON_SOURCE_PURE:
             if 'items' not in chunk_json_data:
                 print('harvest_json(): Error: malformed json, "items" is missing.')
                 return []
@@ -262,13 +264,13 @@ def harvest_json(source: str,
         json_data += json_items
 
         # For the next round, if any.
-        if source == SOURCE_OPENALEX:
+        if source == HARVEST_JSON_SOURCE_OPENALEX:
             next_cursor = chunk_json_data.get('meta', {}).get('next_cursor', None)
             if next_cursor is None:
                 # We are ready.
                 break
             params['cursor'] = next_cursor
-        elif source == SOURCE_PURE:
+        elif source == HARVEST_JSON_SOURCE_PURE:
             if max_recs_to_harvest - records_harvested <= chunksize:
                 # We have to harvest the last few (< chunksize).
                 params['size'] = max_recs_to_harvest - records_harvested

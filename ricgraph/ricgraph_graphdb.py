@@ -45,7 +45,6 @@
 from neo4j.graph import Node
 from typing import List
 from .ricgraph_constants import (MAX_NR_HISTORYITEMS_TO_ADD,
-                                 A_LARGE_NUMBER,
                                  PERSON_CATEGORY_PERSON,
                                  PERSON_NAME_PERSON_ROOT)
 from .ricgraph_cypher import (cypher_create_node, cypher_read_node,
@@ -961,32 +960,6 @@ def get_all_personroot_nodes(node: Node | None) -> list:
     personroot_nodes = get_all_neighbor_nodes(node=node,
                                               name_want=[PERSON_NAME_PERSON_ROOT])
     return personroot_nodes
-
-
-def convert_nodes_to_list_of_dict(nodes_list: list,
-                                  max_nr_items: int = 0) -> list:
-    """Convert a list of nodes to a list of dict.
-
-    :param nodes_list: The list of nodes.
-    :param max_nr_items: The maximum number of items to return.
-    :return: A list of dicts
-    """
-    if max_nr_items == 0:
-        max_nr_nodes = A_LARGE_NUMBER
-    else:
-        max_nr_nodes = max_nr_items
-
-    result_list = []
-    count = 0
-    for node in nodes_list:
-        count += 1
-        if count > max_nr_nodes:
-            break
-        result = {}
-        for item in node:
-            result[item] = node[item]
-        result_list.append(result)
-    return result_list
 
 
 def get_ricgraph_properties_hidden() -> tuple:

@@ -42,7 +42,6 @@
 
 
 from os import path
-from typing import Union
 from json import loads
 from connexion import FlaskApp
 from pandas import DataFrame
@@ -69,6 +68,9 @@ from ricgraph import (open_ricgraph, read_all_values_of_property,
                       get_ricgraph_version,
                       get_configfile_key,
                       get_configfile_key_organizations_with_hierarchies,
+                      get_ricgraph_properties_standard,
+                      get_ricgraph_properties_additional,
+                      get_ricgraph_properties_hidden,
                       ricgraph_nr_nodes, ricgraph_nr_edges,
                       datetimestamp)
 
@@ -87,6 +89,10 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          HISTOGRAM_MODE_ALL,
                                          ACCESS_MODE_ALL,
                                          MAX_ITEMS_TO_RETURN_RESTAPI,
+                                         TABLE_DETAIL_COLUMNS,
+                                         TABLE_RESEARCH_OUTPUT_COLUMNS,
+                                         TABLE_ORGANIZATION_COLUMNS,
+                                         TABLE_ID_COLUMNS,
                                          page_footer_general,
                                          HOMEPAGE_INTRO_FILE, HOMEPAGE_OUTRO_FILE)
 
@@ -112,7 +118,7 @@ def store_ricgraph_explorer_app(app: FlaskApp) -> None:
     return
 
 
-def retrieve_ricgraph_explorer_app() -> Union[FlaskApp, None]:
+def retrieve_ricgraph_explorer_app() -> FlaskApp | None:
     """Retrieve the Ricgraph Explorer app from a global string. We
     need it to retrieve global variables.
 
@@ -242,9 +248,16 @@ def collect_ricgraph_nodeinfo() -> None:
 
     :return: None.
     """
-    # Read a lot of things from the graph database and store it in the app context.
+    # Read a lot of things from the Ricgraph ini file.
     # These are all constant in Ricgraph Explorer.
+    ricgraph_node_all_properties = list(get_ricgraph_properties_standard())
+    ricgraph_node_all_properties += list(get_ricgraph_properties_additional())
+    ricgraph_node_all_properties += list(get_ricgraph_properties_hidden())
+    # Shuffle '_key' element of the list, to have a more convenient order.
+    ricgraph_node_all_properties.remove('_key')
+    ricgraph_node_all_properties.insert(0, '_key')
 
+    # Read a lot of things from the graph database and store it in the app context.
     # Fields related to property 'name' in a node.
     name_active = read_all_values_of_property('name')
     if len(name_active) == 0:
@@ -353,6 +366,7 @@ def collect_ricgraph_nodeinfo() -> None:
         'researchresult_category_research_material': RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
         'researchresult_category_reporting_material': RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
         'researchresult_category_engagement_material': RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
+        'ricgraph_node_all_properties': ricgraph_node_all_properties,
         'year_active': year_active,
         'last_update': datetimestamp(seconds=True)
     }
@@ -440,6 +454,10 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
         'ricgraph_version': ricgraph_version,
         'search_mode_all': SEARCH_MODE_ALL,
         'search_mode_default': SEARCH_MODE_DEFAULT,
+        'table_detail_columns': TABLE_DETAIL_COLUMNS,
+        'table_id_columns': TABLE_ID_COLUMNS,
+        'table_organization_columns': TABLE_ORGANIZATION_COLUMNS,
+        'table_research_output_columns': TABLE_RESEARCH_OUTPUT_COLUMNS,
         'last_update': datetimestamp(seconds=True)
     }
     set_ricgraph_explorer_global(name=RICGRAPH_SYSTEMINFO,

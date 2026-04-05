@@ -87,12 +87,15 @@ MAX_NR_HISTORYITEMS_TO_ADD = 50
 MAX_ORG_ABBREVIATION_LENGTH = 4
 
 # For harvesting JSON, to be able to harvest based on source,
-# used in harvest_json() and the scripts that call it.
+# only used in harvest_json() and the scripts that call it.
 # Not every source uses the same harvest URL-keywords.
-SOURCE_OPENALEX = 'OpenAlex'
-SOURCE_PURE = 'Pure'
-SOURCE_RSD = 'Research Software Directory'
-SOURCE_ALL = [SOURCE_OPENALEX, SOURCE_PURE, SOURCE_RSD]
+HARVEST_JSON_SOURCE_OPENALEX = 'OpenAlex'
+HARVEST_JSON_SOURCE_PURE = 'Pure'
+HARVEST_JSON_SOURCE_RSD = 'Research Software Directory'
+HARVEST_JSON_SOURCE_ALL = \
+    [HARVEST_JSON_SOURCE_OPENALEX,
+     HARVEST_JSON_SOURCE_PURE,
+     HARVEST_JSON_SOURCE_RSD]
 
 # ########################################################################
 # For pretty formatting of Cypher queries.
