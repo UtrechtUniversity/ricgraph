@@ -59,11 +59,10 @@
 # ########################################################################
 
 
-from typing import Tuple, Union
+from typing import Tuple
 from pandas import DataFrame
 from neo4j.graph import Node
-from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
-                      read_node,
+from ricgraph import (read_node,
                       get_personroot_node, get_all_neighbor_nodes,
                       ricgraph_database, ricgraph_databasename,
                       convert_cypher_recordslist_to_nodeslist,
@@ -306,7 +305,7 @@ def find_organization_additional_info_cypher(parent_node: Node,
 
 def find_collabs_cypher(start_organizations: str,
                         collab_organizations: str = '',
-                        researchresult_category: Union[str, list] = '',
+                        researchresult_category: list = None,
                         cypher_return_clause: str = '',
                         max_nr_nodes: int = 0) -> list:
     """Find collaborations, starting from start_organizations,
@@ -324,10 +323,8 @@ def find_collabs_cypher(start_organizations: str,
       collaborate with start_organizations. If empty '', return any organization(s)
       that start_organizations collaborate with.
     :param researchresult_category: if specified, only return collaborations
-      for this research result category. If not, return all collaborations,
+      for this research result category. If empty list, return all collaborations,
       regardless of the research result category.
-      The value can be both a string containing one category, or
-      a list of categories.
     :param cypher_return_clause: the RETURN part of the cypher query that is
       constructed in this function.
     :param max_nr_nodes: return at most this number of collaborating organizations,
@@ -336,34 +333,32 @@ def find_collabs_cypher(start_organizations: str,
     """
     orgs_with_hierarchies = get_global_dataframe(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                  item='orgs_with_hierarchies')
+    researchresult_category_publication = get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                          item='researchresult_category_publication')
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
         print('find_collabs_cypher(): Error: graph has not been initialized or opened.')
         return []
-
     if start_organizations == '':
         print('find_collabs_cypher(): Warning: empty "start_organizations" not possible.')
         return []
-
     if cypher_return_clause == '':
         print('find_collabs_cypher(): Error, you have not specified a cypher RETURN clause, exiting.')
         exit(1)
+    if researchresult_category is None:
+        researchresult_category = []
 
     print('Finding collaborations')
     if collab_organizations == '':
         print('  from "' + start_organizations + '" to "all"')
     else:
         print('  from "' + start_organizations + '" to "' + collab_organizations + '"')
-    if isinstance(researchresult_category, str):
-        print('  using research result category "' + researchresult_category + '".')
-    elif isinstance(researchresult_category, list):
-        if sorted(researchresult_category) == sorted(RESEARCHRESULT_CATEGORY_PUBLICATION):
-            print('  using research result category (meta category) "publication".')
-        else:
-            print('  using research result category "' + str(researchresult_category) + '".')
+    if len(researchresult_category) == 0:
+        print('  using research result category "all".')
+    elif sorted(researchresult_category) == sorted(researchresult_category_publication):
+        print('  using research result category (meta category) "publication".')
     else:
-        print('find_collab_orgs_cypher(): Error, unexpected type.')
-        return []
+        print('  using research result category "' + str(researchresult_category) + '".')
 
     cypher_query = 'MATCH (start_orgs:RicgraphNode)'
     cypher_query += '-[]->(persroot1:RicgraphPersonRoot)'
@@ -381,18 +376,9 @@ def find_collabs_cypher(start_organizations: str,
         # This query is much more efficient.
         cypher_query += 'AND start_orgs.value=$start_orgs '
 
-    if isinstance(researchresult_category, str):
-        if researchresult_category != '':
-            # Restrict the result to collaborations of a certain research result category.
-            cypher_query += 'AND researchresult.category=$researchresult_category '
-    elif isinstance(researchresult_category, list):
-        if len(researchresult_category) > 0:
-            # Restrict the result to collaborations of a certain research result category.
-            cypher_query += 'AND researchresult.category IN $researchresult_category '
-    else:
-        print('find_collab_orgs_cypher(): unknown type for researchresult_category "'
-              + str(researchresult_category) + '".')
-        exit(1)
+    if len(researchresult_category) > 0:
+        # Restrict the result to collaborations of a certain research result category.
+        cypher_query += 'AND researchresult.category IN $researchresult_category '
 
     cypher_query += 'AND persroot1<>persroot2 '
     cypher_query += 'AND start_orgs<>collab_orgs '
@@ -447,8 +433,8 @@ def find_collabs_cypher(start_organizations: str,
 
 def find_collab_orgs_matrix(start_organizations: str,
                             collab_organizations: str = '',
-                            researchresult_category: Union[str, list] = '',
-                            max_nr_nodes: int = 0) -> Union[DataFrame, None]:
+                            researchresult_category: list = None,
+                            max_nr_nodes: int = 0) -> DataFrame | None:
     """Find collaborating organizations, starting from start_organizations,
     for a certain research result.
     Collaborations are defined as nodes connected as follows:
@@ -474,9 +460,7 @@ def find_collab_orgs_matrix(start_organizations: str,
     """
     researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                      item='researchresult_category_active')
-    if isinstance(researchresult_category, str) and researchresult_category == '':
-        researchresult_category = researchresult_category_active.copy()
-    if isinstance(researchresult_category, list) and len(researchresult_category) == 0:
+    if researchresult_category is None or len(researchresult_category) == 0:
         researchresult_category = researchresult_category_active.copy()
 
     cypher_return_clause = 'RETURN '
@@ -508,17 +492,14 @@ def find_collab_orgs_matrix(start_organizations: str,
 
     # Label the top left cell with the researchresult_category used to get this result.
     # Make sure it is a list.
-    if isinstance(researchresult_category, str):
-        result.index.name = str([researchresult_category])
-    else:
-        researchresult_category.sort(key=lambda s: s.lower())
-        result.index.name = str(researchresult_category)
+    researchresult_category.sort(key=lambda s: s.lower())
+    result.index.name = str(researchresult_category)
     return result
 
 
 def find_collab_orgs_persons_results(start_organizations: str,
                                      collab_organizations: str = '',
-                                     researchresult_category: Union[str, list] = '',
+                                     researchresult_category: list = None,
                                      mode: str = 'return_researchresults',
                                      max_nr_nodes: int = 0) -> list:
     """Find collaborating organizations, starting from start_organizations,
@@ -549,9 +530,7 @@ def find_collab_orgs_persons_results(start_organizations: str,
     """
     researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                      item='researchresult_category_active')
-    if isinstance(researchresult_category, str) and researchresult_category == '':
-        researchresult_category = researchresult_category_active.copy()
-    if isinstance(researchresult_category, list) and len(researchresult_category) == 0:
+    if researchresult_category is None or len(researchresult_category) == 0:
         researchresult_category = researchresult_category_active.copy()
 
     if mode != 'return_researchresults' \

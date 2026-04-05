@@ -227,7 +227,7 @@ def create_sankey_diagram(df: DataFrame,
         researchresult_category = []
     else:
         researchresult_category = literal_eval(researchresult_category_str)
-        if len(researchresult_category) == 0 and researchresult_category[0] == '':
+        if len(researchresult_category) == 1 and researchresult_category[0] == '':
             # If researchresult_category_str is [''], literal_eval() returns [''],
             # a list of length 1. I want a list of length 0.
             researchresult_category = []
@@ -354,7 +354,7 @@ def error_check(func):
 @error_check
 def org_collaborations_persons_results(start_organizations: str,
                                        collab_organizations: str,
-                                       researchresult_category: Union[str, list],
+                                       researchresult_category: list,
                                        mode: str = 'return_researchresults') -> list:
     """Find all collaborations of an organizations starting with a string,
     with other organizations with the same starting string
@@ -386,7 +386,7 @@ def org_collaborations_persons_results(start_organizations: str,
 
 def org_collaborations_persons_results_df(start_organizations: str,
                                           collab_organizations: str,
-                                          researchresult_category: Union[str, list],
+                                          researchresult_category: list,
                                           mode: str = 'return_researchresults',
                                           filename: str = '') -> Union[None, DataFrame]:
     """Find all collaborations of an organizations starting with a string,
@@ -428,7 +428,7 @@ def org_collaborations_persons_results_df(start_organizations: str,
 
 def org_collaborations_diagram(start_organizations: str,
                                collab_organizations: str,
-                               researchresult_category: Union[str, list],
+                               researchresult_category: list,
                                diagram_type: str = 'sankey',
                                filename: str = '',
                                caption: str = 'default_caption',
@@ -541,7 +541,7 @@ def org_collaborations_diagram(start_organizations: str,
 def three_org_collaborations_chord(first_org: str,
                                    second_org: str,
                                    third_org: str,
-                                   researchresult_category: Union[str, list],
+                                   researchresult_category: list,
                                    filename: str = '',
                                    generate_full_html: bool = True) -> str:
     """Find all collaborations for three (sub-)organizations.
