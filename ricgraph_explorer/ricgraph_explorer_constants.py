@@ -92,7 +92,7 @@ DETAIL_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
 RESEARCH_OUTPUT_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
                            'license', 'access',
                            'url_main', 'url_other', '_source']
-ORGANIZATION_COLUMNS = ['name', 'value', 'comment',
+ORGANIZATION_COLUMNS = ['name', 'value',
                         'url_main', '_source']
 ID_COLUMNS = ['name', 'value', 'comment',
               'url_main', '_source']
