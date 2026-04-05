@@ -72,15 +72,18 @@ RICGRAPH_EXPLORER_RUNMODE_ALL = [RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
 # gives the default mode. Possibilities are:
 # exact_match: do a search on exact match, we call it 'advanced search'.
 # value_search: do a broad search on field 'value'.
-DEFAULT_SEARCH_MODE = 'value_search'
+SEARCH_MODE_EXACT_MATCH = 'exact_match'
+SEARCH_MODE_VALUE = 'value_search'
+SEARCH_MODE_ALL = [SEARCH_MODE_EXACT_MATCH, SEARCH_MODE_VALUE]
+SEARCH_MODE_DEFAULT = SEARCH_MODE_VALUE
 
 # Minimum length of a value in a search field (in characters).
 SEARCH_STRING_MIN_LENGTH = 2
 
 # These are all the discoverer modes that are allowed.
-DISCOVERER_MODE_ALL = ['details_view',
-                       'person_view'
-                      ]
+DISCOVERER_MODE_DETAILS = 'details_view'
+DISCOVERER_MODE_PERSONS = 'person_view'
+DISCOVERER_MODE_ALL = [DISCOVERER_MODE_DETAILS, DISCOVERER_MODE_PERSONS]
 
 # Ricgraph Explorer shows tables. You can specify which columns you need.
 # You do this by making a list of one or more fields in a Ricgraph node.

@@ -49,21 +49,17 @@ from ricgraph import (read_all_nodes,
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          RICGRAPH_SYSTEMINFO,
                                          html_body_start, html_body_end,
-                                         DISCOVERER_MODE_ALL,
                                          MAX_ROWS_IN_TABLE,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
                                          button_style,
                                          form_button_on_one_line_flexspace_style,
                                          form_button_on_one_line_width,
-                                         HISTOGRAM_MODE_ALL,
                                          HISTOGRAM_MODE_COUNTS,
                                          HISTOGRAM_MODE_PERCENTAGES,
-                                         OSL_PROFILE_MODE_ALL,
                                          OSL_PROFILE_MODE_GROUPS,
                                          OSL_PROFILE_MODE_ITEMS,
                                          ACCESS_MODE_OPEN,
-                                         ACCESS_MODE_ANY,
-                                         ACCESS_MODE_ALL)
+                                         ACCESS_MODE_ANY)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form,
                                      get_page_title,
@@ -143,22 +139,25 @@ def osprofileresultpage() -> str:
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
     histogram_mode = get_url_parameter_value(parameter='histogram_mode',
-                                             allowed_values=HISTOGRAM_MODE_ALL,
+                                             allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                            item='histogram_mode_all'),
                                              default_value=HISTOGRAM_MODE_PERCENTAGES)
     oslprofile_mode = get_url_parameter_value(parameter='oslprofile_mode',
-                                              allowed_values=OSL_PROFILE_MODE_ALL,
+                                              allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                             item='osl_profile_mode_all'),
                                               default_value=OSL_PROFILE_MODE_GROUPS)
     access_mode = get_url_parameter_value(parameter='access_mode',
-                                          allowed_values=ACCESS_MODE_ALL,
+                                          allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                         item='access_mode_all'),
                                           default_value=ACCESS_MODE_ANY)
-
-    extra_url_parameters = {}
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=DISCOVERER_MODE_ALL,
+                                              allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                             item='discoverer_mode_all'),
                                               default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     # For this page, we ignore the value of 'max_nr_items' if it is passed.
     max_nr_items = '0'
+    extra_url_parameters = {}
     extra_url_parameters['max_nr_items'] = max_nr_items
     max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
                                                 default_value=str(MAX_ROWS_IN_TABLE))

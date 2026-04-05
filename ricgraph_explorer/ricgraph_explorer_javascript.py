@@ -235,6 +235,7 @@ def get_html_for_histogram_javascript(histogram_json: str,
     :param plot_name: The name of the plot.
     :return: HTML to be rendered.
     """
+    # Cannot use get_global_list() because then a circular import will be created.
     if histogram_mode not in HISTOGRAM_MODE_ALL:
         print('get_html_for_histogram_java(): Error: unknown histogram mode "'
               + histogram_mode + '". Exiting...')

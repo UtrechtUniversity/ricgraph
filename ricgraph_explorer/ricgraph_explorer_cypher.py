@@ -74,7 +74,7 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          RICGRAPH_SYSTEMINFO,
                                          MAX_ITEMS_TO_RETURN,
-                                         ACCESS_MODE_ALL, ACCESS_MODE_OPEN)
+                                         ACCESS_MODE_OPEN)
 from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import get_global_list, get_global_dataframe
 
@@ -247,7 +247,8 @@ def find_organization_additional_info_cypher(parent_node: Node,
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         print(message)
         return []
-    if access_mode not in ACCESS_MODE_ALL:
+    if access_mode not in get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                          item='access_mode_all'):
         print('find_organization_additional_info_cypher(): Error: invalid access mode "'
               + access_mode + '".')
         return []
@@ -604,7 +605,8 @@ def create_neighbor_histogram_cypher(node: Node,
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         print(message)
         return {}
-    if access_mode not in ACCESS_MODE_ALL:
+    if access_mode not in get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                          item='access_mode_all'):
         print('create_neighbor_histogram_cypher(): Error: unknown access mode "'
               + access_mode + '".')
         return {}

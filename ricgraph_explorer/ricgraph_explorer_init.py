@@ -80,10 +80,15 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          RICGRAPH_SYSTEMINFO,
                                          RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
                                          RICGRAPH_EXPLORER_RUNMODE_DEBUG,
+                                         DISCOVERER_MODE_ALL,
+                                         SEARCH_MODE_ALL,
+                                         SEARCH_MODE_DEFAULT,
+                                         OSL_PROFILE_MODE_ALL,
+                                         HISTOGRAM_MODE_ALL,
+                                         ACCESS_MODE_ALL,
                                          MAX_ITEMS_TO_RETURN_RESTAPI,
                                          page_footer_general,
-                                         HOMEPAGE_INTRO_FILE, HOMEPAGE_OUTRO_FILE,
-                                         DISCOVERER_MODE_ALL)
+                                         HOMEPAGE_INTRO_FILE, HOMEPAGE_OUTRO_FILE)
 
 
 # This global contains the Ricgraph Explorer app context.
@@ -421,14 +426,20 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
     page_footer += '</footer>'
 
     ricgraph_systeminfo = {
+        'access_mode_all': ACCESS_MODE_ALL,
+        'discoverer_mode_all': DISCOVERER_MODE_ALL,
         'discoverer_mode_default': discoverer_mode_default,
+        'histogram_mode_all': HISTOGRAM_MODE_ALL,
         'homepage_intro_html': homepage_intro_html,
         'homepage_outro_html': homepage_outro_html,
         'max_items_to_return_restapi': MAX_ITEMS_TO_RETURN_RESTAPI,
         'orgs_with_hierarchies': orgs_with_hierarchies_records,
+        'osl_profile_mode_all': OSL_PROFILE_MODE_ALL,
         'page_footer': page_footer,
         'ricgraph_explorer_runmode': runmode,
         'ricgraph_version': ricgraph_version,
+        'search_mode_all': SEARCH_MODE_ALL,
+        'search_mode_default': SEARCH_MODE_DEFAULT,
         'last_update': datetimestamp(seconds=True)
     }
     set_ricgraph_explorer_global(name=RICGRAPH_SYSTEMINFO,

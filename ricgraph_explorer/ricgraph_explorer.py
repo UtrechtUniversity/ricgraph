@@ -79,13 +79,11 @@ from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          html_body_start, html_body_end,
                                          button_style, button_width,
                                          form_button_on_one_line_style,
-                                         VIEW_MODE_ALL, DEFAULT_SEARCH_MODE,
-                                         DISCOVERER_MODE_ALL,
+                                         VIEW_MODE_ALL,
                                          DETAIL_COLUMNS, ID_COLUMNS, ORGANIZATION_COLUMNS,
                                          RESEARCH_OUTPUT_COLUMNS, MAX_ROWS_IN_TABLE,
                                          MAX_ITEMS_TO_RETURN, SEARCH_STRING_MIN_LENGTH,
-                                         ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
-                                         ACCESS_MODE_ALL, ACCESS_MODE_ANY)
+                                         ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON)
 from ricgraph_explorer_init import initialize_ricgraph_explorer
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_overlap_in_source_systems_records,
@@ -371,10 +369,13 @@ def searchpage() -> str:
     category = get_url_parameter_value(parameter='category')
     origin = get_url_parameter_value(parameter='origin')
     search_mode = get_url_parameter_value(parameter='search_mode',
-                                          allowed_values=['exact_match', 'value_search'],
-                                          default_value=DEFAULT_SEARCH_MODE)
+                                          allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                         item='search_mode_all'),
+                                          default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                       item='search_mode_default'))
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=DISCOVERER_MODE_ALL,
+                                              allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                             item='discoverer_mode_all'),
                                               default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
@@ -554,10 +555,13 @@ def optionspage() -> Union[str, Response]:
     if origin != '':
         extra_url_parameters['origin'] = origin
     search_mode = get_url_parameter_value(parameter='search_mode',
-                                          allowed_values=['exact_match', 'value_search'],
-                                          default_value=DEFAULT_SEARCH_MODE)
+                                          allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                         item='search_mode_all'),
+                                          default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                       item='search_mode_default'))
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=DISCOVERER_MODE_ALL,
+                                              allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                             item='discoverer_mode_all'),
                                               default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     max_nr_items = get_url_parameter_value(parameter='max_nr_items',
@@ -685,10 +689,13 @@ def resultspage() -> str:
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
     access_mode = get_url_parameter_value(parameter='access_mode',
-                                          allowed_values=ACCESS_MODE_ALL,
-                                          default_value=ACCESS_MODE_ANY)
+                                          allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                         item='access_mode_all'),
+                                          default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                       item='access_mode_default'))
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=DISCOVERER_MODE_ALL,
+                                              allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                             item='discoverer_mode_all'),
                                               default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='discoverer_mode_default'))
     extra_url_parameters = {}
