@@ -282,20 +282,28 @@ def collabsresultpage() -> str:
     if collab_mode == 'return_collab_sankey':
         header = 'This Sankey diagram shows the collaborations between '
         header += start_collab_html + '. '
-        if collab_orgs == '':
-            result_html = org_collaborations_diagram(start_organizations=start_orgs,
-                                                     collab_organizations=collab_orgs,
-                                                     researchresult_category=category_list,
-                                                     diagram_type='sankey',
-                                                     caption='',
-                                                     generate_full_html=False)
-        else:
-            result_html = org_collaborations_diagram(start_organizations=start_orgs,
-                                                     collab_organizations=collab_orgs,
-                                                     researchresult_category=category_list,
-                                                     diagram_type='sankey',
-                                                     caption='',
-                                                     generate_full_html=False)
+        result_html = org_collaborations_diagram(start_organizations=start_orgs,
+                                                 collab_organizations=collab_orgs,
+                                                 researchresult_category=category_list,
+                                                 diagram_type='sankey',
+                                                 caption='',
+                                                 generate_full_html=False)
+        # This 'if' does not make sense (April 5, 2026). I modified it to the
+        # line above.
+        # if collab_orgs == '':
+        #     result_html = org_collaborations_diagram(start_organizations=start_orgs,
+        #                                              collab_organizations=collab_orgs,
+        #                                              researchresult_category=category_list,
+        #                                              diagram_type='sankey',
+        #                                              caption='',
+        #                                              generate_full_html=False)
+        # else:
+        #     result_html = org_collaborations_diagram(start_organizations=start_orgs,
+        #                                              collab_organizations=collab_orgs,
+        #                                              researchresult_category=category_list,
+        #                                              diagram_type='sankey',
+        #                                              caption='',
+        #                                              generate_full_html=False)
         if len(category_list) == 0:
             header += ' It shows collaborations for all categories. '
         else:

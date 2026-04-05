@@ -118,6 +118,7 @@ from ricgraph_explorer_restapi import (_restapidocpage_bp,
                                        api_organization_information_persons_results,
                                        api_person_enrich, api_organization_enrich,
                                        api_search_competence, api_competence_all_information,
+                                       api_explore_collaborations,
                                        api_broad_search, api_advanced_search,
                                        api_get_all_personroot_nodes, api_get_all_neighbor_nodes,
                                        api_get_ricgraph_info)

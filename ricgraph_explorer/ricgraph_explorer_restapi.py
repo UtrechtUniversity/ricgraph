@@ -69,6 +69,7 @@ from ricgraph_explorer_graphdb import (convert_nodes_to_list_of_dict,
                                        find_person_organization_collaborations_cypher,
                                        find_organization_additional_info_cypher,
                                        find_enrich_candidates_one_person)
+from ricgraph_explorer_datavis import org_collaborations_diagram
 
 
 _restapidocpage_bp = Blueprint(name='restapidocpage', import_name=__name__)
@@ -556,6 +557,32 @@ def api_organization_enrich(key: str = '',
                                                 max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',
+                                            http_status=HTTP_RESPONSE_OK)
+    return response, status
+
+
+def api_explore_collaborations(start_organization: str = '',
+                               collaborating_organization: str = '',
+                               researchresult_category: list = None) -> Tuple[dict, int]:
+    if researchresult_category is None:
+        researchresult_category = []
+
+    if start_organization == '':
+        response, status = create_http_response(message='You have not specified a start organization',
+                                                http_status=HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
+    result_html = org_collaborations_diagram(start_organizations=start_organization,
+                                             collab_organizations=collaborating_organization,
+                                             researchresult_category=researchresult_category,
+                                             diagram_type='sankey',
+                                             caption='',
+                                             generate_full_html=True)
+    # Convert the resulting HTML to a one-element list, so the existing
+    # create_http_response() can be used.
+    result = [result_html]
+    message = 'The "results" field contains the HTML page that will generate the Sankey diagram.'
+    response, status = create_http_response(result_list=result,
+                                            message=message,
                                             http_status=HTTP_RESPONSE_OK)
     return response, status
 

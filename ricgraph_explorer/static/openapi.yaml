@@ -138,6 +138,38 @@ components:
       required: True
       schema:
         type: "string"
+    start_organization:
+      name: "start_organization"
+      description: "Type the name for *start_organization*. This field may either
+                    be a full (sub-)organization name, or a prefix of a 
+                    (sub-)organization."
+      in: query
+      required: True
+      schema:
+        type: "string"
+    collaborating_organization:
+      name: "collaborating_organization"
+      description: "Type the name for *collaborating_organization*. This field may either
+                    be a full (sub-)organization name, or a prefix of a 
+                    (sub-)organization. It may also be empty, in that case 
+                    the collaborations from *start_organization* to any 
+                    (sub-)organization will be found."
+      in: query
+      required: False
+      schema:
+        type: "string"
+    researchresult_category:
+      name: "researchresult_category"
+      description: "Restrict the collaborations to research results of a specific category.
+                    You can enter one or more categories. If you leave it empty,
+                    collaborations having any research result type will be found."
+      in: query
+      required: False
+      schema:
+        type: "array"
+        items:
+          type: "string"
+          default: ""          # To prevent the word 'string' in the input field.
     max_nr_items:
       name: "max_nr_items"
       description: "The maximum number of items to return, or 0 to return all items"
@@ -233,6 +265,8 @@ tags:
     description: "Everything related to persons in Ricgraph."
   - name: Organization
     description: "Everything related to organizations in Ricgraph."
+  - name: Open science landscape
+    description: "Explore the open science landscape."
   - name: Skill, expertise area or research area
     description: "Everything related to skills, expertise areas or research 
                   areas in Ricgraph (only if Ricgraph contains these entities)."
@@ -426,6 +460,41 @@ paths:
         - $ref: "#/components/parameters/year_first"
         - $ref: "#/components/parameters/year_last"
         - $ref: "#/components/parameters/max_nr_items"
+      responses:
+        "200":
+          description: "OK"
+        "250":
+          description: "Nothing found"
+        "251":
+          description: "Invalid search"
+  /opensciencelandscape/explorecollaborations:
+    get:
+      operationId: "ricgraph_explorer.api_explore_collaborations"
+      tags:
+        - Open science landscape
+      summary: "Explore collaborations"
+      description: "You can explore collaborations between (sub-)organizations.
+                    This function will return a full HTML page that
+                    includes JavaScript in the 'results'
+                    field of the response.
+                    If this 'results' field is empty, there were either no
+                    collaborations, or one or more invalid field values have been entered.
+                    Unfortunately, there is at the moment 
+                    no way to return error messages for the latter case.
+                    
+                    To make the HTML page work, you will need four files:
+                    
+                    * https://explorer.ricgraph.eu/static/d3.v7.min.js
+                    
+                    * https://explorer.ricgraph.eu/static/d3-chord.v3.min.js
+                    
+                    * https://explorer.ricgraph.eu/static/d3-scale-chromatic.v1.min.js
+                    
+                    * https://explorer.ricgraph.eu/static/d3-sankey.v0.12.3.min.js"
+      parameters:
+        - $ref: "#/components/parameters/start_organization"
+        - $ref: "#/components/parameters/collaborating_organization"
+        - $ref: "#/components/parameters/researchresult_category"
       responses:
         "200":
           description: "OK"
