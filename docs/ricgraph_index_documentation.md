@@ -78,7 +78,8 @@ __G__
 - [GET /competence/search](../docs/ricgraph_restapi_gendoc.md#get-competencesearch)
 - [GET /get_all_neighbor_nodes](../docs/ricgraph_restapi_gendoc.md#get-get_all_neighbor_nodes)
 - [GET /get_all_personroot_nodes](../docs/ricgraph_restapi_gendoc.md#get-get_all_personroot_nodes)
-- [GET /get_ricgraph_list](../docs/ricgraph_restapi_gendoc.md#get-get_ricgraph_list)
+- [GET /get_ricgraph_info](../docs/ricgraph_restapi_gendoc.md#get-get_ricgraph_info)
+- [GET /opensciencelandscape/explorecollaborations](../docs/ricgraph_restapi_gendoc.md#get-opensciencelandscapeexplorecollaborations)
 - [GET /organization/all_information](../docs/ricgraph_restapi_gendoc.md#get-organizationall_information)
 - [GET /organization/enrich](../docs/ricgraph_restapi_gendoc.md#get-organizationenrich)
 - [GET /organization/information_persons_results](../docs/ricgraph_restapi_gendoc.md#get-organizationinformation_persons_results)
@@ -87,7 +88,7 @@ __G__
 - [GET /person/collaborating_organizations](../docs/ricgraph_restapi_gendoc.md#get-personcollaborating_organizations)
 - [GET /person/enrich](../docs/ricgraph_restapi_gendoc.md#get-personenrich)
 - [GET /person/search](../docs/ricgraph_restapi_gendoc.md#get-personsearch)
-- [GET /person/share_research_results](../docs/ricgraph_restapi_gendoc.md#get-personshare_research_results)
+- [GET /person/share_researchresults](../docs/ricgraph_restapi_gendoc.md#get-personshare_researchresults)
 
 __H__
 

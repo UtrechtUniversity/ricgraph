@@ -45,6 +45,7 @@ Read more about [REST (representational state transfer)](https://en.wikipedia.or
 | GET | [GET /organization/all_information](#get-organizationall_information) | Show all information related to this organization |
 | GET | [GET /organization/information_persons_results](#get-organizationinformation_persons_results) | Find any information from persons or their results in this organization |
 | GET | [GET /organization/enrich](#get-organizationenrich) | Find information harvested from other source systems, not present in this source system |
+| GET | [GET /opensciencelandscape/explorecollaborations](#get-opensciencelandscapeexplorecollaborations) | Explore collaborations |
 | GET | [GET /competence/search](#get-competencesearch) | Search for a skill, expertise area or research area |
 | GET | [GET /competence/all_information](#get-competenceall_information) | Show all information related to this competence |
 | GET | [GET /broad_search](#get-broad_search) | Search for anything (broad search) |
@@ -365,6 +366,48 @@ __Parameters__
 | year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
 | year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
 | max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+
+
+
+
+
+__Responses__
+
+
+
+
+* 200:  OK 
+
+* 250:  Nothing found 
+
+* 251:  Invalid search 
+
+
+
+
+
+
+## GET /opensciencelandscape/explorecollaborations
+
+Explore collaborations
+
+
+Explore collaborations between (sub-)organizations. This function will return a full HTML page in the 'results' field of the response. If this 'results' field is empty, there were either no collaborations, or one or more invalid field values have been entered. Unfortunately, at the moment, there is no way to return error messages for the latter case.
+The REST API includes the text of the following four D3 JavaScript libraries in its response. These libraries can be found at https://github.com/UtrechtUniversity/ricgraph/tree/main/ricgraph_explorer/static.
+* d3.v7.min.js
+* d3-chord.v3.min.js
+* d3-scale-chromatic.v1.min.js
+* d3-sankey.v0.12.3.min.js
+
+
+
+__Parameters__
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| start_organization | string | True | Type the name for *start_organization*. This field may either be a full (sub-)organization name, or a prefix of a (sub-)organization. |
+| collaborating_organization | string | False | Type the name for *collaborating_organization*. This field may either be a full (sub-)organization name, or a prefix of a (sub-)organization. It may also be empty, in that case the collaborations from *start_organization* to any (sub-)organization will be found. |
+| researchresult_category | array | False | Restrict the collaborations to research results of a specific category. You can enter one or more categories. If you leave it empty, collaborations having any research result type will be found. |
 
 
 

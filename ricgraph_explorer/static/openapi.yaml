@@ -473,24 +473,26 @@ paths:
       tags:
         - Open science landscape
       summary: "Explore collaborations"
-      description: "You can explore collaborations between (sub-)organizations.
-                    This function will return a full HTML page that
-                    includes JavaScript in the 'results'
+      description: "Explore collaborations between (sub-)organizations.
+                    This function will return a full HTML page in the 'results'
                     field of the response.
                     If this 'results' field is empty, there were either no
                     collaborations, or one or more invalid field values have been entered.
-                    Unfortunately, there is at the moment 
+                    Unfortunately, at the moment, there is
                     no way to return error messages for the latter case.
                     
-                    To make the HTML page work, you will need four files:
+                    The REST API includes the text of the following
+                    four D3 JavaScript libraries
+                    in its response. These libraries can be found at
+                    https://github.com/UtrechtUniversity/ricgraph/tree/main/ricgraph_explorer/static.
                     
-                    * https://explorer.ricgraph.eu/static/d3.v7.min.js
+                    * d3.v7.min.js
                     
-                    * https://explorer.ricgraph.eu/static/d3-chord.v3.min.js
+                    * d3-chord.v3.min.js
                     
-                    * https://explorer.ricgraph.eu/static/d3-scale-chromatic.v1.min.js
+                    * d3-scale-chromatic.v1.min.js
                     
-                    * https://explorer.ricgraph.eu/static/d3-sankey.v0.12.3.min.js"
+                    * d3-sankey.v0.12.3.min.js"
       parameters:
         - $ref: "#/components/parameters/start_organization"
         - $ref: "#/components/parameters/collaborating_organization"
