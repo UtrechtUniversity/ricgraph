@@ -45,7 +45,6 @@
 
 
 from typing import Tuple
-from pathlib import Path
 from flask import Blueprint
 from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       HTTP_RESPONSE_NOTHING_FOUND, HTTP_RESPONSE_INVALID_SEARCH,
@@ -588,26 +587,6 @@ def api_explore_collaborations(start_organization: str = '',
                                              diagram_type='sankey',
                                              caption='',
                                              generate_full_html=True)
-
-    # Replace the references to JavaScript files with their contents.
-    # Usually the server that consumes the response of this REST API should
-    # get these JavaScript files from the server that serves the REST API.
-    # This has not been implemented yet.
-    # You can find the JavaScript files here:
-    # https://github.com/UtrechtUniversity/ricgraph/tree/main/ricgraph_explorer/static.
-    js_map = [
-        'static/d3.v7.min.js',
-        'static/d3-chord.v3.min.js',
-        'static/d3-scale-chromatic.v1.min.js',
-        'static/d3-sankey.v0.12.3.min.js']
-
-    for filename in js_map:
-        js_text = Path(filename).read_text(encoding='utf-8')
-        filename_with_slash = '/' + filename
-        result_html = result_html.replace(
-            f'<script src="{filename_with_slash}"></script>',
-            f'<script>{js_text}</script>'
-        )
 
     # Note that Flask will wrap 'result_html' that is raw HTML in
     # a JSON string that is in 'response'.

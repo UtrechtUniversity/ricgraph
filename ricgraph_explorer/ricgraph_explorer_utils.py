@@ -42,6 +42,7 @@
 
 
 from pandas import DataFrame
+from pathlib import Path
 from flask import request, url_for
 from markupsafe import escape
 from neo4j.graph import Node
@@ -571,8 +572,12 @@ def remove_one_hierarchical_org(df: DataFrame | None,
 
 
 def create_full_htmlpage(body_html: str) -> str:
-    """Given some HTML, create an HTML page from it,
-    and return it.
+    """Given some HTML, create an HTML page from it, and return it.
+    The JavaScript files in 'body_html' that are expected to be
+    in .../static/... are replaced with their contents.
+    We do that, since we do not know whether the server that generates
+    this page, is alive or externally accessible when the full HTML
+    file is viewed by someone in its browser.
 
     :param body_html: the HTML to convert to a full HTML page.
     :return: the full HTML page.
@@ -588,8 +593,30 @@ def create_full_htmlpage(body_html: str) -> str:
                         figure {{ margin: 1em 40px !important; }}</style>
                  <body>
                  '''
+
+    result_html = body_html
+    # Replace the references to JavaScript files in 'result_hmtl' with their
+    # contents. Usually these JavaScript files should be gotten from the server
+    # that generates this page. However, some may want just one a static
+    # standalone HTML, therefore we just include the JavaScript.
+    # You can find the JavaScript files here:
+    # https://github.com/UtrechtUniversity/ricgraph/tree/main/ricgraph_explorer/static.
+    js_map = [
+        'static/d3.v7.min.js',
+        'static/d3-chord.v3.min.js',
+        'static/d3-scale-chromatic.v1.min.js',
+        'static/d3-sankey.v0.12.3.min.js']
+
+    for filename in js_map:
+        js_text = Path(filename).read_text(encoding='utf-8')
+        filename_with_slash = '/' + filename
+        result_html = result_html.replace(
+            f'<script src="{filename_with_slash}"></script>',
+            f'<script>{js_text}</script>'
+        )
+
     end_html = '</body>'
-    full_html = start_html + body_html + end_html
+    full_html = start_html + result_html + end_html
     return full_html
 
 
