@@ -23,7 +23,7 @@
 #   ./multiple_harvest_open_ricgraph_demo_server.sh
 #
 # Original version Rik D.T. Janssen, June 2025.
-# Updated Rik D.T. Janssen, February 2026.
+# Updated Rik D.T. Janssen, February, April 2026.
 #
 # ########################################################################
 
@@ -69,6 +69,8 @@ data_collect_dir=$HOME/$(date +%y%m%d)-ricgraph_data_collect
 graphdb_backup_dir=$data_collect_dir/graphdb_backup
 harvest_result_dir=$data_collect_dir/harvest_result
 explorer_data_collect_dir=$HOME/$(date +%y%m%d)-explorer_data_collect
+year_first=2022
+year_last=2026
 
 echo "The following directories will be used:"
 echo "data_collect_dir: $data_collect_dir"
@@ -98,7 +100,7 @@ mkdir "$harvest_result_dir"
 
 echo "$0 start at $(date)."
 
-./multiple_harvest_organization.sh --organization DUT --empty_ricgraph yes --year_first 2022 --year_last 2026
+./multiple_harvest_organization.sh --organization DUT --empty_ricgraph yes --year_first $year_first --year_last $year_last
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut-$(date +%y%m%d-%H%M)
@@ -107,7 +109,7 @@ exit_on_error $?
 # Make sure neo4j is up and running.
 sleep 120
 
-./multiple_harvest_organization.sh --organization AUMC --empty_ricgraph no --year_first 2022 --year_last 2026
+./multiple_harvest_organization.sh --organization AUMC --empty_ricgraph no --year_first $year_first --year_last $year_last
 exit_on_error $?
 
 # AUMC is twice in RSD, harvest the other one (the first one has already been harvested above).
@@ -117,7 +119,14 @@ exit_on_error $?
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc-$(date +%y%m%d-%H%M)
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
-# Make sure neo4j is up and running.
+sleep 120
+
+./multiple_harvest_organization.sh --organization VUA --empty_ricgraph no --year_first $year_first --year_last $year_last
+exit_on_error $?
+
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua-$(date +%y%m%d-%H%M)
+sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+exit_on_error $?
 sleep 120
 
 cd ../enhance || exit 1
@@ -128,15 +137,53 @@ exit_on_error $?
 ./rename_organizations.sh --organization AUMC
 exit_on_error $?
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-all-$(date +%y%m%d-%H%M)
+./rename_organizations.sh --organization VUA
+exit_on_error $?
+
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua-renameorgs-$(date +%y%m%d-%H%M)
+demo_server=$graphdb_backup
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
+sleep 120
+
+cd ../harvest_multiple_sources || exit 1
+
+./multiple_harvest_organization.sh --organization UU --empty_ricgraph no --year_first $year_first --year_last $year_last
+exit_on_error $?
+
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+uu-$(date +%y%m%d-%H%M)
+sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+exit_on_error $?
+sleep 120
+
+cd ../enhance || exit 1
+
+./rename_organizations.sh --organization DUT
+exit_on_error $?
+
+./rename_organizations.sh --organization AUMC
+exit_on_error $?
+
+./rename_organizations.sh --organization VUA
+exit_on_error $?
+
+./rename_organizations.sh --organization UU
+exit_on_error $?
+
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+uu-renameorgs-$(date +%y%m%d-%H%M)
+sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+exit_on_error $?
+sleep 120
 
 
 # Do some saving operations.
 # Save the final graphdb dump in a separate directory, for easy transfer
 # to another VM.
-cp "$graphdb_backup"/* "$explorer_data_collect_dir"
+mkdir "$explorer_data_collect_dir"/demo_server
+mkdir "$explorer_data_collect_dir"/all
+
+cp "$demo_server"/* "$explorer_data_collect_dir"/demo_server
+cp "$graphdb_backup"/* "$explorer_data_collect_dir"/all
 tar -czf "$explorer_data_collect_dir".tar.gz "$explorer_data_collect_dir"
 exit_on_error $?
 
