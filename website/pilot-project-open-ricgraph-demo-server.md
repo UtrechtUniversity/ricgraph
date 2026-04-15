@@ -19,8 +19,9 @@ principles.
 
 ## Contents of the pilot
 In this pilot project, we have started with research information from
-[Amsterdam University Medical Centers](https://www.amsterdamumc.org/en/research.htm)
-and [Delft University of Technology](https://www.tudelft.nl/en), and
+[Amsterdam University Medical Centers](https://www.amsterdamumc.org/en/research.htm),
+[Delft University of Technology](https://www.tudelft.nl/en), and
+[Vrije Universiteit Amsterdam](https://vu.nl/en), and
 we will add more during the pilot period
 (see [Participate in the pilot project](#participate-in-the-pilot-project)).
 [Utrecht University](https://www.uu.nl/en)
@@ -60,9 +61,8 @@ Rik D.T. Janssen (2025),
 [https://doi.org/10.5281/zenodo.15637647](https://doi.org/10.5281/zenodo.15637647).
 
 ## Participate in the pilot project
-In September 2025, the Open Ricgraph demo server became operational.
-You can try it out for yourself by going to the webpage at the top
-of this page.
+You can use the Open Ricgraph demo server
+by going to the webpage at the top of this page.
 
 If your organization would like to participate, there are three things 
 that require your attention:
@@ -72,17 +72,16 @@ that require your attention:
     an *Agreement to host a pilot Open Ricgraph demo server*, and a 
     *Data Processing Agreement*.
     The effort required for this depends on how closely your organization's 
-    insights on legal and privacy policies align with those of Delft University
-    of Technology. 
-    You can find more information (including the agreements with
-    Delft University of Technology) in section 1.6 and chapter 5 
+    insights on legal and privacy policies align with those of the
+    already participating organizations.
+    You can find more information (including the agreements)
+    in section 1.6 and chapter 5 
     of the document above.
   * Your organization needs a *privacy statement* related to this pilot project.
     Possibly the general privacy statement of your organization suffices.
-    Your organization might also need additional *privacy measures*
-    (beyond those required by Delft University of Technology), 
-    and you may wish to conduct a *data classification*. 
-    These topics are also described in chapter 5
+    Your organization might also 
+    wish to conduct a *data classification*. 
+    These topics are described in chapter 5
     of the document above.
 * Execution of the pilot.
   * Someone of your organization needs to participate in the project group, 

@@ -1,8 +1,7 @@
 # Get Ricgraph
 To get Ricgraph, go to the 
 [Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
-Starting around mid-September, you can see Ricgraph in action with the
-[pilot project Open Ricgraph demo server](pilot-project-open-ricgraph-demo-server.md).
+You can also [use Ricgraph](pilot-project-open-ricgraph-demo-server.md).
 
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right
 *Star* button on that Ricgraph GitHub page.

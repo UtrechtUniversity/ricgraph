@@ -23,7 +23,9 @@ We use color=#4c1 (green), that color is used by the 'repo status' badge.
 Documentation about the Podman badges can be found here: https://github.com/eggplants/ghcr-badge.
 --->
 
-> Read the [Tutorial](docs/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph).
+> [Use Ricgraph](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+> [Read news about Ricgraph](https://www.ricgraph.eu/ricgraph-news.html).
+> Read the [Tutorial](https://docs.ricgraph.eu/docs/ricgraph_tutorial.html).
 > Go to the [Documentation website](https://docs.ricgraph.eu).
 > Consult the [Table of contents](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation), 
 > or the [Index](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
@@ -83,58 +85,6 @@ extensive one (also including the use cases).
    </td>
   </tr>
 </table>
-
-## Ricgraph news
-
-Read my recent preprint:
-
-* Rik D.T. Janssen (2025).
-  *Utilizing Ricgraph to gain insights into research collaborations across institutions,
-  at every organizational level*. Submitted to SoftwareX [preprint].
-  [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
-
-See Ricgraph in action:
-
-* Use the Open Ricgraph demo server 
-  via [https://explorer.ricgraph.eu](https://explorer.ricgraph.eu).
-  Read more (and join) at
-  [pilot project Open Ricgraph demo 
-  server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
-
-
-Currently, there are people working on the following extensions for Ricgraph:
-
-* [BackToPure](https://github.com/UtrechtUniversity/backtopure)
-  is a tool designed to enhance an organization's
-  [Research Information System Pure](https://www.elsevier.com/solutions/pure)
-  by enriching its content. BackToPure can identify items
-  (such as publications, data sets or software)
-  that exist in other external sources but are missing from the organization's Pure,
-  and then insert (enrich) those items into Pure.
-  The result is a more complete overview of research at that organization.
-  Status: experimental stage (beta).
-* A chatbot that allows you to "talk" to Ricgraph. You can formulate questions in
-  plain English, such as "Please give me the research results of the Geosciences
-  faculty of Utrecht University?"
-  or "With what organizations does that faculty collaborate?".
-  It uses a local Large Language Model.
-  Status: planning stage (pre-alpha).
-* A project with six students from the University of Applied Sciences, Utrecht, that aims to
-  [create a general harvester for
-  Ricgraph](docs/ricgraph_outreach.md#ricgraph-projects-with-students).
-  It will remove a lot of code duplication in the harvest scripts, and will
-  make it easier to add new harvest sources.
-  Status: planning stage (pre-alpha).
-* A project with a student from the University of Applied Sciences, Utrecht, that aims to use
-  [AI and Large Language Models to find topics and visualize large amounts of research
-  information](docs/ricgraph_outreach.md#ricgraph-projects-with-students).
-  It assigns *topics* to publications,
-  data sets, and software. By selecting a number of topics, research results are
-  grouped, and possibly experts on these topics can be found.
-  Status: planning stage (pre-alpha).
-* A tool that helps Pure administrators to clean up "external organizations" in Pure.
-  Status: planning stage (pre-alpha).
-
 
 ## Motivation
 
@@ -403,7 +353,8 @@ The following figure shows how three persons have contributed to one research ou
 
 ### Steps to take if you would like to use Ricgraph
 
-* Use [Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer),
+* [Use Ricgraph](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+* Read more about [Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer),
   the exploration tool for Ricgraph. 
 * Use the [Ricgraph REST API](docs/ricgraph_restapi.md#ricgraph-rest-api),
   the REST API for Ricgraph.

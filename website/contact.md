@@ -25,5 +25,3 @@ To subscribe, go to
 [Ricgraph Contact](https://docs.ricgraph.eu/README.html#contact).
 We also have a 
 [newsletter archive](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters).
-
-You might want to continue reading at [Get Ricgraph](get-ricgraph.md). 
