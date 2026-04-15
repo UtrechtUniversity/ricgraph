@@ -150,7 +150,8 @@ LICENSE_MAPPING_OPENALEX = {
     'cc-by-nd': rcg.LICENSE_CC_BY_ND,
     'cc-by-sa': rcg.LICENSE_CC_BY_SA,
     'other-oa': rcg.LICENSE_OPEN_ACCESS,
-    'public-domain': rcg.LICENSE_OPEN_ACCESS
+    'public-domain': rcg.LICENSE_OPEN_ACCESS,
+    'publisher-specific-oa': rcg.LICENSE_OPEN_ACCESS
 }
 
 
