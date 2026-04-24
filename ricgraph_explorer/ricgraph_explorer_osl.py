@@ -45,7 +45,9 @@ from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
                       check_valid_year,
                       get_year_range_text,
-                      ORGANIZATION_CATEGORY_ORGANISATION)
+                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      ACCESS_OPEN,
+                      ACCESS_ANY)
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          RICGRAPH_SYSTEMINFO,
                                          html_body_start, html_body_end,
@@ -57,9 +59,7 @@ from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          HISTOGRAM_MODE_COUNTS,
                                          HISTOGRAM_MODE_PERCENTAGES,
                                          OSL_PROFILE_MODE_GROUPS,
-                                         OSL_PROFILE_MODE_ITEMS,
-                                         ACCESS_MODE_OPEN,
-                                         ACCESS_MODE_ANY)
+                                         OSL_PROFILE_MODE_ITEMS)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form,
                                      get_page_title,
@@ -146,10 +146,10 @@ def osprofileresultpage() -> str:
                                               allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                              item='osl_profile_mode_all'),
                                               default_value=OSL_PROFILE_MODE_GROUPS)
-    access_mode = get_url_parameter_value(parameter='access_mode',
-                                          allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
-                                                                         item='access_mode_all'),
-                                          default_value=ACCESS_MODE_ANY)
+    access = get_url_parameter_value(parameter='access',
+                                     allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                    item='access_all'),
+                                     default_value=ACCESS_ANY)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                              item='discoverer_mode_all'),
@@ -175,7 +175,7 @@ def osprofileresultpage() -> str:
     extra_url_parameters['discoverer_mode'] = discoverer_mode
     extra_url_parameters['histogram_mode'] = histogram_mode
     extra_url_parameters['oslprofile_mode'] = oslprofile_mode
-    extra_url_parameters['access_mode'] = access_mode
+    extra_url_parameters['access'] = access
 
     result = read_all_nodes(key=key)
     if len(result) == 0 or len(result) > 1:
@@ -212,7 +212,7 @@ def osprofileresultpage() -> str:
         histogram_title += '(percentages, '
     else:
         histogram_title += '(counts, '
-    if access_mode == ACCESS_MODE_ANY:
+    if access == ACCESS_ANY:
         histogram_title += '"any" access) '
     else:
         histogram_title += ' only "open" access) '
@@ -237,11 +237,11 @@ def osprofileresultpage() -> str:
     html_histogram += what_to_show + '</a> '
 
     modified_url_parameters = extra_url_parameters.copy()
-    if access_mode == ACCESS_MODE_ANY:
-        modified_url_parameters['access_mode'] = ACCESS_MODE_OPEN
+    if access == ACCESS_ANY:
+        modified_url_parameters['access'] = ACCESS_OPEN
         what_to_show = 'only "open" access research results'
     else:
-        modified_url_parameters['access_mode'] = ACCESS_MODE_ANY
+        modified_url_parameters['access'] = ACCESS_ANY
         what_to_show = '"any" access research results'
     url = url_for(endpoint='osprofileresultpage.osprofileresultpage',
                   **modified_url_parameters)
@@ -329,7 +329,7 @@ def prepare_oslprofile(node: Node,
     """
     year_first = all_url_parameters['year_first']
     year_last = all_url_parameters['year_last']
-    access_mode = all_url_parameters['access_mode']
+    access = all_url_parameters['access']
     buttons = '</p><div ' + form_button_on_one_line_flexspace_style + '>'
     histogram_list = []
     for material, name in zip(material_group, material_name):
@@ -339,7 +339,7 @@ def prepare_oslprofile(node: Node,
                                                      category=material,
                                                      year_first=year_first,
                                                      year_last=year_last,
-                                                     access_mode=access_mode)
+                                                     access=access)
         hist_part_total = 0
         for item in hist_part:
             hist_part_total += hist_part[item]

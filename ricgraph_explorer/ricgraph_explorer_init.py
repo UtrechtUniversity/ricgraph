@@ -87,7 +87,6 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          SEARCH_MODE_DEFAULT,
                                          OSL_PROFILE_MODE_ALL,
                                          HISTOGRAM_MODE_ALL,
-                                         ACCESS_MODE_ALL,
                                          MAX_ITEMS_TO_RETURN_RESTAPI,
                                          TABLE_DETAIL_COLUMNS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
@@ -440,7 +439,7 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
     page_footer += '</footer>'
 
     ricgraph_systeminfo = {
-        'access_mode_all': ACCESS_MODE_ALL,
+        'access_all': ACCESS_ALL,
         'discoverer_mode_all': DISCOVERER_MODE_ALL,
         'discoverer_mode_default': discoverer_mode_default,
         'histogram_mode_all': HISTOGRAM_MODE_ALL,

@@ -70,13 +70,13 @@ from ricgraph import (get_personroot_node,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       COMPETENCE_CATEGORY_COMPETENCE,
-                      PERSON_NAME_PERSON_ROOT)
+                      PERSON_NAME_PERSON_ROOT,
+                      ACCESS_ANY)
 from ricgraph_explorer_constants import (RICGRAPH_HARVESTINFO,
                                          RICGRAPH_NODEINFO,
                                          MAX_NR_NODES_TO_ENRICH,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
-                                         TABLE_DETAIL_COLUMNS,
-                                         ACCESS_MODE_ANY)
+                                         TABLE_DETAIL_COLUMNS)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
                                      get_you_searched_for_card,
@@ -497,7 +497,7 @@ def find_organization_additional_info(parent_node: Node | None,
     year_last = extra_url_parameters.get('year_last', '')
     year_range_text = get_year_range_text(year_first=year_first,
                                           year_last=year_last)
-    access_mode = extra_url_parameters.get('access_mode', ACCESS_MODE_ANY)
+    access = extra_url_parameters.get('access', ACCESS_ANY)
     # Note the hard limit.
     cypher_result = \
         find_organization_additional_info_cypher(parent_node=parent_node,
@@ -505,7 +505,7 @@ def find_organization_additional_info(parent_node: Node | None,
                                                  category_list=category_list,
                                                  year_first=year_first,
                                                  year_last=year_last,
-                                                 access_mode=access_mode,
+                                                 access=access,
                                                  max_nr_items=int(extra_url_parameters['max_nr_items']))
     if len(cypher_result) == 0:
         message = 'Could not find any persons or results for this organization'

@@ -171,12 +171,6 @@ HISTOGRAM_MODE_COUNTS = 'histogram_counts'
 HISTOGRAM_MODE_PERCENTAGES = 'histogram_percentages'
 HISTOGRAM_MODE_ALL = [HISTOGRAM_MODE_COUNTS, HISTOGRAM_MODE_PERCENTAGES]
 
-# The open science profile page is available based on
-# research results that have access = "open", or have access = "any".
-ACCESS_MODE_OPEN = 'open'
-ACCESS_MODE_ANY = 'any'
-ACCESS_MODE_ALL = [ACCESS_MODE_OPEN, ACCESS_MODE_ANY]
-
 # ########################################################################
 # HTML button constants.
 # ########################################################################

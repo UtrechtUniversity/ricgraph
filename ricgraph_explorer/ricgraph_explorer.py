@@ -65,7 +65,7 @@ from ricgraph import (read_all_nodes,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       ORGANIZATION_CATEGORY_ALL,
                       COMPETENCE_CATEGORY_COMPETENCE,
-                      PERSON_NAME_PERSON_ROOT)
+                      PERSON_NAME_PERSON_ROOT, ACCESS_ANY)
 from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
                                          RICGRAPH_EXPLORER_RUNMODE_DEBUG,
@@ -696,11 +696,10 @@ def resultspage() -> str:
     key = get_url_parameter_value(parameter='key', use_escape=False)
     year_first = get_url_parameter_value(parameter='year_first')
     year_last = get_url_parameter_value(parameter='year_last')
-    access_mode = get_url_parameter_value(parameter='access_mode',
-                                          allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
-                                                                         item='access_mode_all'),
-                                          default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
-                                                                       item='access_mode_default'))
+    access = get_url_parameter_value(parameter='access',
+                                     allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                    item='access_all'),
+                                     default_value=ACCESS_ANY)
     discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
                                               allowed_values=get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                              item='discoverer_mode_all'),
@@ -731,7 +730,7 @@ def resultspage() -> str:
 
     extra_url_parameters['year_first'] = year_first
     extra_url_parameters['year_last'] = year_last
-    extra_url_parameters['access_mode'] = access_mode
+    extra_url_parameters['access'] = access
     html = html_body_start
     if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
         html += get_message(message=message)

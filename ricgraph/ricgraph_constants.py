@@ -441,13 +441,15 @@ LICENSE_ALL = \
 # ########################################################################
 # Access related constants.
 # ########################################################################
+ACCESS_ANY = 'any'   # May be deleted at some time, being empty may be an alternative.
 ACCESS_CLOSED = 'closed'
 ACCESS_EMBARGOED = 'embargoed'
 ACCESS_OPEN = 'open'
 ACCESS_RESTRICTED = 'restricted'
 
 ACCESS_ALL = \
-    [ACCESS_CLOSED,
+    [ACCESS_ANY,
+     ACCESS_CLOSED,
      ACCESS_EMBARGOED,
      ACCESS_OPEN,
      ACCESS_RESTRICTED]
