@@ -53,7 +53,8 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       check_valid_year,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
-                      COMPETENCE_CATEGORY_COMPETENCE)
+                      COMPETENCE_CATEGORY_COMPETENCE,
+                      create_empty_query_params)
 from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          RICGRAPH_HARVESTINFO,
                                          RICGRAPH_NODEINFO,
@@ -358,15 +359,16 @@ def api_person_enrich(key: str = '',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
 
-    extra_url_parameters = {'year_first': year_first,
-                            'year_last': year_last,
-                            'max_nr_items': str(max_items)}
+    query_params = create_empty_query_params()
+    query_params['source_system'] = source_system
+    query_params['year_first'] = year_first
+    query_params['year_last'] = year_last
+    query_params['max_nr_items'] = int(max_nr_items)
     person_nodes, nodes_not_in_source_system = \
         find_enrich_candidates_one_person(personroot=personroot_node,
+                                          query_params=query_params,
                                           name_want=name_want,
-                                          category_want=category_want,
-                                          source_system=source_system,
-                                          extra_url_parameters=extra_url_parameters)
+                                          category_want=category_want)
     if len(nodes_not_in_source_system) == 0:
         message = 'Ricgraph could not find any information in other source systems '
         message += 'to enrich source system "' + source_system + '"'
@@ -535,13 +537,15 @@ def api_organization_enrich(key: str = '',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
 
+    query_params = create_empty_query_params()
+    query_params['name_list'] = name_want
+    query_params['category_list'] = category_want
+    query_params['source_system'] = source_system
+    query_params['year_first'] = year_first
+    query_params['year_last'] = year_last
+    query_params['max_nr_items'] = int(max_nr_items)
     cypher_result = find_organization_additional_info_cypher(parent_node=nodes[0],
-                                                             name_list=name_want,
-                                                             category_list=category_want,
-                                                             source_system=source_system,
-                                                             year_first=year_first,
-                                                             year_last=year_last,
-                                                             max_nr_items=max_items)
+                                                             query_params=query_params)
     if len(cypher_result) == 0:
         message = 'Could not find any information from persons or '
         message += 'their results in this organization'
@@ -581,9 +585,11 @@ def api_explore_collaborations(start_organization: str = '',
         response, status = create_http_response(message='You have not specified a start organization',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    result_html = org_collaborations_diagram(start_organizations=start_organization,
-                                             collab_organizations=collaborating_organization,
-                                             researchresult_category=researchresult_category,
+    query_params = create_empty_query_params()
+    query_params['start_orgs'] = start_organization
+    query_params['collab_orgs'] = collaborating_organization
+    query_params['category_list'] = researchresult_category
+    result_html = org_collaborations_diagram(query_params=query_params,
                                              diagram_type='sankey',
                                              caption='',
                                              generate_full_html=True)

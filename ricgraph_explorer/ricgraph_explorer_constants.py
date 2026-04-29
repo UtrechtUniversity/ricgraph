@@ -39,7 +39,7 @@
 # Extended Rik D.T. Janssen, November 2025, March 2026.
 #
 # ########################################################################
-
+from ricgraph import UNKNOWN
 
 # The name of the global Ricgraph lists.
 RICGRAPH_CACHEINFO = 'ricgraph_cacheinfo'
@@ -54,7 +54,8 @@ RICGRAPH_GLOBAL_ALL = [
     RICGRAPH_HARVESTINFO_INTERNAL,
     RICGRAPH_NODEINFO,
     RICGRAPH_NODEINFO_INTERNAL,
-    RICGRAPH_SYSTEMINFO]
+    RICGRAPH_SYSTEMINFO
+]
 
 
 # The port that Ricgraph Explorer runs on, in debug mode.
@@ -65,8 +66,10 @@ RICGRAPH_EXPLORER_DEBUG_PORT = 3030
 # (then it may be both).
 RICGRAPH_EXPLORER_RUNMODE_GUNICORN = 'gunicorn'
 RICGRAPH_EXPLORER_RUNMODE_DEBUG = 'debug'
-RICGRAPH_EXPLORER_RUNMODE_ALL = [RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
-                                 RICGRAPH_EXPLORER_RUNMODE_DEBUG]
+RICGRAPH_EXPLORER_RUNMODE_ALL = [
+    RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
+    RICGRAPH_EXPLORER_RUNMODE_DEBUG
+]
 
 # You can search in two different ways in Ricgraph Explorer. This parameter
 # gives the default mode. Possibilities are:
@@ -74,7 +77,10 @@ RICGRAPH_EXPLORER_RUNMODE_ALL = [RICGRAPH_EXPLORER_RUNMODE_GUNICORN,
 # value_search: do a broad search on field 'value'.
 SEARCH_MODE_EXACT_MATCH = 'exact_match'
 SEARCH_MODE_VALUE = 'value_search'
-SEARCH_MODE_ALL = [SEARCH_MODE_EXACT_MATCH, SEARCH_MODE_VALUE]
+SEARCH_MODE_ALL = [
+    SEARCH_MODE_EXACT_MATCH,
+    SEARCH_MODE_VALUE
+]
 SEARCH_MODE_DEFAULT = SEARCH_MODE_VALUE
 
 # Minimum length of a value in a search field (in characters).
@@ -83,22 +89,49 @@ SEARCH_STRING_MIN_LENGTH = 2
 # These are all the discoverer modes that are allowed.
 DISCOVERER_MODE_DETAILS = 'details_view'
 DISCOVERER_MODE_PERSONS = 'person_view'
-DISCOVERER_MODE_ALL = [DISCOVERER_MODE_DETAILS, DISCOVERER_MODE_PERSONS]
+DISCOVERER_MODE_ALL = [
+    DISCOVERER_MODE_DETAILS,
+    DISCOVERER_MODE_PERSONS
+]
+
+# These are all the overlap modes that are allowed,
+# from 'overlap in source systems'.
+OVERLAP_MODE_THISNODE = 'thisnode'
+OVERLAP_MODE_NEIGHBORNODE = 'neighbornode'
+OVERLAP_MODE_ALL = [
+    OVERLAP_MODE_THISNODE,
+    OVERLAP_MODE_NEIGHBORNODE
+]
+# Special flags, used in TypedDict field source_system2.
+OVERLAP_MODE_SINGLESOURCE = 'singlesource'
+OVERLAP_MODE_MULTIPLESOURCE = 'multiplesource'
+OVERLAP_MODE_SOURCE_ALL = [
+    OVERLAP_MODE_SINGLESOURCE,
+    OVERLAP_MODE_MULTIPLESOURCE
+]
 
 # Ricgraph Explorer shows tables. You can specify which columns you need.
 # You do this by making a list of one or more fields in a Ricgraph node.
 # There are some predefined lists.
 # You need to put them in the order you want them in the table.
-TABLE_DETAIL_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
-                        'license', 'access',
-                        'url_main', 'url_other', '_source', '_history']
-TABLE_RESEARCH_OUTPUT_COLUMNS = ['name', 'category', 'value', 'comment', 'year',
-                                 'license', 'access',
-                                 'url_main', 'url_other', '_source']
-TABLE_ORGANIZATION_COLUMNS = ['name', 'value',
-                              'url_main', '_source']
-TABLE_ID_COLUMNS = ['name', 'value', 'comment',
-                    'url_main', '_source']
+TABLE_DETAIL_COLUMNS = [
+    'name', 'category', 'value', 'comment', 'year',
+    'license', 'access',
+    'url_main', 'url_other', '_source', '_history'
+]
+TABLE_RESEARCH_OUTPUT_COLUMNS = [
+    'name', 'category', 'value', 'comment', 'year',
+    'license', 'access',
+    'url_main', 'url_other', '_source'
+]
+TABLE_ORGANIZATION_COLUMNS = [
+    'name', 'value',
+    'url_main', '_source'
+]
+TABLE_ID_COLUMNS = [
+    'name', 'value', 'comment',
+    'url_main', '_source'
+]
 
 # When we do a query, we return at most this number of nodes.
 MAX_ITEMS_TO_RETURN = 1000
@@ -126,28 +159,30 @@ HOMEPAGE_OUTRO_FILE = 'homepage_outro.html'
 
 # These are all the 'view_mode's that are allowed.
 # The view mode indicates which page to create in create_results_page().
-VIEW_MODE_ALL = ['view_regular_table_personal',
-                 'view_regular_table_organizations',
-                 'view_regular_table_persons_of_org',
-                 'view_regular_table_category',
-                 'view_regular_table_overlap',
-                 'view_regular_table_overlap_records',
-                 'view_unspecified_table_resouts',
-                 'view_unspecified_table_everything',
-                 'view_unspecified_table_everything_except_ids',
-                 'view_unspecified_table_organizations',
-                 'view_regular_table_person_share_resouts',
-                 'view_regular_table_person_enrich_source_system',
-                 'view_regular_table_person_organization_collaborations',
-                 'view_regular_table_organization_addinfo',
-                 ]
+VIEW_MODE_ALL = [
+    'view_regular_table_personal',
+    'view_regular_table_organizations',
+    'view_regular_table_persons_of_org',
+    'view_regular_table_category',
+    'view_regular_table_overlap',
+    'view_regular_table_overlap_records',
+    'view_unspecified_table_resouts',
+    'view_unspecified_table_everything',
+    'view_unspecified_table_everything_except_ids',
+    'view_unspecified_table_organizations',
+    'view_regular_table_person_share_resouts',
+    'view_regular_table_person_enrich_source_system',
+    'view_regular_table_person_organization_collaborations',
+    'view_regular_table_organization_addinfo'
+]
 
 # These are all the collaboration modes that are allowed.
-COLLABORATION_MODES_ALL = ['return_researchresults',
-                           'return_startorg_persons',
-                           'return_collaborg_persons',
-                           'return_collab_sankey'
-                          ]
+COLLABORATION_MODES_ALL = [
+    'return_researchresults',
+    'return_startorg_persons',
+    'return_collaborg_persons',
+    'return_collab_sankey'
+]
 
 # The URL parameter 'origin' is used to track where a request for
 # a page originated.
@@ -158,18 +193,30 @@ COLLABORATION_MODES_ALL = ['return_researchresults',
 # but then you want to continue to the results page of
 # this open science profile page, and not to the organizations options page.
 ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON = 'osprofile_button'
+ORIGIN_BUTTON = UNKNOWN
+ORIGIN_BUTTON_ALL = [
+    ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
+    ORIGIN_BUTTON
+]
+
 
 # The open science profile page is available based on groups
 # (research, reporting, and engagement material) and on
 # all research result items.
 OSL_PROFILE_MODE_GROUPS = 'oslprofile_groups'
 OSL_PROFILE_MODE_ITEMS = 'oslprofile_items'
-OSL_PROFILE_MODE_ALL = [OSL_PROFILE_MODE_GROUPS, OSL_PROFILE_MODE_ITEMS]
+OSL_PROFILE_MODE_ALL = [
+    OSL_PROFILE_MODE_GROUPS,
+    OSL_PROFILE_MODE_ITEMS
+]
 
 # The histogram can show either counts or percentages.
 HISTOGRAM_MODE_COUNTS = 'histogram_counts'
 HISTOGRAM_MODE_PERCENTAGES = 'histogram_percentages'
-HISTOGRAM_MODE_ALL = [HISTOGRAM_MODE_COUNTS, HISTOGRAM_MODE_PERCENTAGES]
+HISTOGRAM_MODE_ALL = [
+    HISTOGRAM_MODE_COUNTS,
+    HISTOGRAM_MODE_PERCENTAGES
+]
 
 # ########################################################################
 # HTML button constants.

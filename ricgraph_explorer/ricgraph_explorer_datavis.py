@@ -63,7 +63,8 @@ from ricgraph_explorer_constants import (RICGRAPH_SYSTEMINFO,
                                          HISTOGRAM_MODE_COUNTS)
 from ricgraph_explorer_utils import (get_message, remove_hierarchical_orgs,
                                      create_full_htmlpage,
-                                     get_global_dataframe)
+                                     get_global_dataframe,
+                                     QueryParams)
 from ricgraph_explorer_cypher import (find_collab_orgs_matrix,
                                       find_collab_orgs_persons_results)
 from ricgraph_explorer_javascript import (get_html_for_histogram_javascript,
@@ -351,9 +352,7 @@ def error_check(func):
 
 
 @error_check
-def org_collaborations_persons_results(start_organizations: str,
-                                       collab_organizations: str,
-                                       researchresult_category: list,
+def org_collaborations_persons_results(query_params: QueryParams,
                                        mode: str = 'return_researchresults') -> list:
     """Find all collaborations of an organizations starting with a string,
     with other organizations with the same starting string
@@ -364,28 +363,22 @@ def org_collaborations_persons_results(start_organizations: str,
 
     Please read the design decision at org_collaborations_diagram().
 
-    :param start_organizations: see find_collab_orgs_persons_results().
-    :param collab_organizations: see find_collab_orgs_persons_results().
-    :param researchresult_category: see find_collab_orgs_persons_results().
+    :param query_params: Parameters related to the query passed in the URL.
     :param mode: one of the following:
       - mode = 'return_researchresults': return the research results.
-      - mode = 'return_startorg_persons': return the person-roots from start_organizations.
-      - mode = 'return_collaborg_persons': return the person-roots from collab_organizations.
+      - mode = 'return_startorg_persons': return the person-roots from start_orgs.
+      - mode = 'return_collaborg_persons': return the person-roots from collab_orgs.
     :return: a list of nodes, or [] if nothing found.
     """
     print('-- org_collaborations_start_org_persons(): start at ' + datetimestamp() + '.')
-    nodes_list = find_collab_orgs_persons_results(start_organizations=start_organizations,
-                                                  collab_organizations=collab_organizations,
-                                                  researchresult_category=researchresult_category,
+    nodes_list = find_collab_orgs_persons_results(query_params=query_params,
                                                   mode=mode)
     # No need to check for nothing found, if so, nodes_list will be [].
     print('-- org_collaborations_start_org_persons(): finished at ' + datetimestamp() + '.\n')
     return nodes_list
 
 
-def org_collaborations_persons_results_df(start_organizations: str,
-                                          collab_organizations: str,
-                                          researchresult_category: list,
+def org_collaborations_persons_results_df(query_params: QueryParams,
                                           mode: str = 'return_researchresults',
                                           filename: str = '') -> DataFrame | None:
     """Find all collaborations of an organizations starting with a string,
@@ -397,22 +390,18 @@ def org_collaborations_persons_results_df(start_organizations: str,
 
     Please read the design decision at org_collaborations_diagram().
 
-    :param start_organizations: see find_collab_orgs_persons_results().
-    :param collab_organizations: see find_collab_orgs_persons_results().
-    :param researchresult_category: see find_collab_orgs_persons_results().
+    :param query_params: Parameters related to the query passed in the URL.
     :param mode: one of the following:
       - mode = 'return_researchresults': return the research results.
-      - mode = 'return_startorg_persons': return the person-roots from start_organizations.
-      - mode = 'return_collaborg_persons': return the person-roots from collab_organizations.
+      - mode = 'return_startorg_persons': return the person-roots from start_orgs.
+      - mode = 'return_collaborg_persons': return the person-roots from collab_orgs.
     :param filename: this will the base of the filename, you can use it
       to reflect the type of query.
       It will also work if you specify a directory and filename.
       If you specify '', no files will be produced.
     :return: the DataFrame with the result, or None if nothing found.
     """
-    nodes_list = org_collaborations_persons_results(start_organizations=start_organizations,
-                                                    collab_organizations=collab_organizations,
-                                                    researchresult_category=researchresult_category,
+    nodes_list = org_collaborations_persons_results(query_params=query_params,
                                                     mode=mode)
     if len(nodes_list) == 0:
         return None
@@ -425,9 +414,17 @@ def org_collaborations_persons_results_df(start_organizations: str,
     return result
 
 
-def org_collaborations_diagram(start_organizations: str,
-                               collab_organizations: str,
-                               researchresult_category: list,
+# 260428: Was, for QSS:
+# def org_collaborations_diagram(start_organizations: str,
+#                                collab_organizations: str,
+#                                researchresult_category: list,
+#                                diagram_type: str = 'sankey',
+#                                filename: str = '',
+#                                caption: str = 'default_caption',
+#                                generate_full_html: bool = True) -> str:
+
+@error_check
+def org_collaborations_diagram(query_params: QueryParams,
                                diagram_type: str = 'sankey',
                                filename: str = '',
                                caption: str = 'default_caption',
@@ -455,9 +452,7 @@ def org_collaborations_diagram(start_organizations: str,
     It is also not necessary for three_org_collaborations_chord(),
     function since it find collaborations for three organizations.
 
-    :param start_organizations: see find_collab_orgs_matrix().
-    :param collab_organizations: see find_collab_orgs_matrix().
-    :param researchresult_category: see find_collab_orgs_matrix().
+    :param query_params: Parameters related to the query passed in the URL.
     :param diagram_type: the type of diagram to create, 'sankey' or 'chord'.
     :param filename: this will the base of the filename, you can use it
       to reflect the type of query.
@@ -477,21 +472,19 @@ def org_collaborations_diagram(start_organizations: str,
         print('org_collaborations_diagram(): Error, unknown diagram type "' + diagram_type + '", exiting.')
         exit(1)
 
-    collabs_orgs_raw = find_collab_orgs_matrix(start_organizations=start_organizations,
-                                               collab_organizations=collab_organizations,
-                                               researchresult_category=researchresult_category)
+    collabs_orgs_raw = find_collab_orgs_matrix(query_params=query_params)
     if collabs_orgs_raw is None:
         return ''
 
     collabs_orgs = collabs_orgs_raw.copy(deep=True)
-    if collab_organizations == '':
+    if query_params['collab_orgs'] == '':
         if orgs_with_hierarchies is None or orgs_with_hierarchies.empty:
             print('org_collaborations_diagram(): Error, you should have specified "orgs_with_hierarchies", exiting...')
             exit(1)
         collabs_orgs = remove_hierarchical_orgs(df=collabs_orgs,
                                                 orgs_with_hierarchies=orgs_with_hierarchies,
-                                                org_to_keep=start_organizations)
-    if start_organizations == collab_organizations:
+                                                org_to_keep=query_params['start_orgs'])
+    if query_params['start_orgs'] == query_params['collab_orgs']:
         collabs_orgs = make_dataframe_square_symmetric(df=collabs_orgs)
     if collabs_orgs is None:
         # To silence a PyCharm warning.
@@ -505,11 +498,11 @@ def org_collaborations_diagram(start_organizations: str,
         else:
             caption += filename
         caption += ' of a number of years for '
-        caption += start_organizations + ' and '
-        if collab_organizations == '':
+        caption += query_params['start_orgs'] + ' and '
+        if query_params['collab_orgs'] == '':
             caption += 'all' + '.'
         else:
-            caption += collab_organizations + '.'
+            caption += query_params['collab_orgs'] + '.'
     if diagram_type == 'sankey':
         if generate_full_html:
             tooltip_show_links = False
@@ -536,11 +529,20 @@ def org_collaborations_diagram(start_organizations: str,
     return return_html
 
 
+# 260428: Was, for QSS:
+# def org_collaborations_diagram(start_organizations: str,
+#                                collab_organizations: str,
+#                                researchresult_category: list,
+#                                diagram_type: str = 'sankey',
+#                                filename: str = '',
+#                                caption: str = 'default_caption',
+#                                generate_full_html: bool = True) -> str:
+
 @error_check
-def three_org_collaborations_chord(first_org: str,
+def three_org_collaborations_chord(query_params: QueryParams,
+                                   first_org: str,
                                    second_org: str,
                                    third_org: str,
-                                   researchresult_category: list,
                                    filename: str = '',
                                    generate_full_html: bool = True) -> str:
     """Find all collaborations for three (sub-)organizations.
@@ -554,11 +556,12 @@ def three_org_collaborations_chord(first_org: str,
     It is not applicable for this function since it find collaborations
     for three organizations.
 
+    :param query_params: Parameters related to the query passed in the URL.
+     - category_list: do it for this category,
+       either a str or list of categories.
     :param first_org: the first (sub-)organization or substring of it.
     :param second_org: the second (sub-)organization or substring of it.
     :param third_org: the third (sub-)organization or substring of it.
-    :param researchresult_category: do it for this category,
-      either a str or list of categories.
     :param filename: this will the base of the filename, you can use it
       to reflect the type of query.
       It will also work if you specify a directory and filename.
@@ -568,19 +571,21 @@ def three_org_collaborations_chord(first_org: str,
       or '' if no HTML produced.
     """
     print('-- collabs_three_orgs(): start at ' + datetimestamp() + '.')
-    collabs_1st_2nd = find_collab_orgs_matrix(start_organizations=first_org,
-                                              collab_organizations=second_org,
-                                              researchresult_category=researchresult_category)
+    query_params['start_orgs'] = first_org
+    query_params['collab_orgs'] = second_org
+    collabs_1st_2nd = find_collab_orgs_matrix(query_params=query_params)
     if collabs_1st_2nd is None:
         return ''
-    collabs_1st_3rd = find_collab_orgs_matrix(start_organizations=first_org,
-                                              collab_organizations=third_org,
-                                              researchresult_category=researchresult_category)
+
+    query_params['start_orgs'] = first_org
+    query_params['collab_orgs'] = third_org
+    collabs_1st_3rd = find_collab_orgs_matrix(query_params=query_params)
     if collabs_1st_3rd is None:
         return ''
-    collabs_2nd_3rd = find_collab_orgs_matrix(start_organizations=second_org,
-                                              collab_organizations=third_org,
-                                              researchresult_category=researchresult_category)
+
+    query_params['start_orgs'] = second_org
+    query_params['collab_orgs'] = third_org
+    collabs_2nd_3rd = find_collab_orgs_matrix(query_params=query_params)
     if collabs_2nd_3rd is None:
         return ''
 
@@ -593,7 +598,7 @@ def three_org_collaborations_chord(first_org: str,
         return ''
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     combine_df = combine_df.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
-    caption = 'Overview of ' + str(researchresult_category)
+    caption = 'Overview of ' + str(query_params['category_list'])
     caption += ' of a number of years for the (sub-)organizations '
     caption += first_org + ', ' + second_org + ', and ' + third_org + '.'
     body_html = create_chord_diagram(df=combine_df,

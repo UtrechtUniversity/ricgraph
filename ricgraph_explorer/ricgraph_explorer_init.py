@@ -88,6 +88,10 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          OSL_PROFILE_MODE_ALL,
                                          HISTOGRAM_MODE_ALL,
                                          MAX_ITEMS_TO_RETURN_RESTAPI,
+                                         COLLABORATION_MODES_ALL,
+                                         VIEW_MODE_ALL,
+                                         ORIGIN_BUTTON_ALL,
+                                         OVERLAP_MODE_ALL,
                                          TABLE_DETAIL_COLUMNS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
                                          TABLE_ORGANIZATION_COLUMNS,
@@ -217,7 +221,6 @@ def collect_ricgraph_harvestinfo() -> None:
         print('Warning (possibly Error) in obtaining list with all property values for property "_source".')
         print('Continuing with an empty list. This might give unexpected results.')
         source_active = []
-    source_active = sorted(source_active, key=lambda x: x.lower())
     source_active_datalist = '<datalist id="source_active_datalist">'
     for property_item in source_active:
         source_active_datalist += '<option value="' + property_item + '">'
@@ -263,7 +266,6 @@ def collect_ricgraph_nodeinfo() -> None:
         print('Warning (possibly Error) in obtaining list with all property values for property "name".')
         print('Continuing with an empty list. This might give unexpected results.')
         name_active = []
-    name_active = sorted(name_active, key=lambda x: x.lower())
     name_active_datalist = '<datalist id="name_active_datalist">'
     for property_item in name_active:
         name_active_datalist += '<option value="' + property_item + '">'
@@ -273,7 +275,6 @@ def collect_ricgraph_nodeinfo() -> None:
         print('Warning (possibly Error) in obtaining list with all property values for property "person_name".')
         print('Continuing with an empty list. This might give unexpected results.')
         person_name_active = []
-    person_name_active = sorted(person_name_active, key=lambda x: x.lower())
 
     # Fields related to property 'category' in a node.
     category_active = read_all_values_of_property('category')
@@ -281,14 +282,13 @@ def collect_ricgraph_nodeinfo() -> None:
         print('Warning (possibly Error) in obtaining list with all property values for property "category".')
         print('Continuing with an empty list. This might give unexpected results.')
         category_active = []
-    category_active = sorted(category_active, key=lambda x: x.lower())
 
     if COMPETENCE_CATEGORY_COMPETENCE in category_active:
-        person_category_active = [PERSON_CATEGORY_PERSON, COMPETENCE_CATEGORY_COMPETENCE]
+        person_category_active = PERSON_CATEGORY_ALL
     else:
         person_category_active = [PERSON_CATEGORY_PERSON]
 
-    remainder_category_active = []
+    non_person_category_active = []
     category_active_datalist = '<datalist id="category_active_datalist">'
     # 'researchresult_category_active' are elements of RESEARCHRESULT_CATEGORY_ALL that are present in your Ricgraph.
     # I.e., those have been harvested from the source systems that you chose to harvest.
@@ -312,7 +312,7 @@ def collect_ricgraph_nodeinfo() -> None:
             researchresult_category_publication_active.append(property_item)
             researchresult_category_publication_active_datalist += '<option value="' + property_item + '">'
         if property_item not in person_category_active:
-            remainder_category_active.append(property_item)
+            non_person_category_active.append(property_item)
         category_active_datalist += '<option value="' + property_item + '">'
     researchresult_category_active_datalist += '</datalist>'
     researchresult_category_publication_active_datalist += '</datalist>'
@@ -325,11 +325,13 @@ def collect_ricgraph_nodeinfo() -> None:
         print('Warning (possibly Error) in obtaining list with all property values for property "year".')
         print('Continuing with an empty list. This might give unexpected results.')
         year_active = []
-    year_active = sorted(year_active, key=lambda x: x.lower())
     year_active_datalist = '<datalist id="year_active_datalist">'
     for property_item in year_active:
         year_active_datalist += '<option value="' + property_item + '">'
     year_active_datalist += '</datalist>'
+
+    access_active = read_all_values_of_property('access')
+    license_active = read_all_values_of_property('license')
 
     # Check on the completeness of some lists.
     # The following three should be equal to RESEARCHRESULT_CATEGORY_ALL.
@@ -346,10 +348,12 @@ def collect_ricgraph_nodeinfo() -> None:
         print('  have a different length then they should have.')
 
     ricgraph_nodeinfo = {
+        'access_active': access_active,
         'access_all': ACCESS_ALL,
         'category_active': category_active,
         'competence_category_all': COMPETENCE_CATEGORY_ALL,
         'name_active': name_active,
+        'license_active': license_active,
         'license_all': LICENSE_ALL,
         'organization_category_all': ORGANIZATION_CATEGORY_ALL,
         'person_category_active': person_category_active,
@@ -357,10 +361,10 @@ def collect_ricgraph_nodeinfo() -> None:
         'person_name_active': person_name_active,
         'person_name_person_root_list': PERSON_NAME_PERSON_ROOT_LIST,
         'project_category_all': PROJECT_CATEGORY_ALL,
-        'remainder_category_active': remainder_category_active,
+        'non_person_category_active': non_person_category_active,
         'researchresult_category_active': researchresult_category_active,
         'researchresult_category_all': RESEARCHRESULT_CATEGORY_ALL,
-        'researchresult_category_publication_active': researchresult_category_active,
+        'researchresult_category_publication_active': researchresult_category_publication_active,
         'researchresult_category_publication_all': RESEARCHRESULT_CATEGORY_PUBLICATION,
         'researchresult_category_research_material': RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
         'researchresult_category_reporting_material': RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
@@ -440,6 +444,7 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
 
     ricgraph_systeminfo = {
         'access_all': ACCESS_ALL,
+        'collaboration_modes_all': COLLABORATION_MODES_ALL,
         'discoverer_mode_all': DISCOVERER_MODE_ALL,
         'discoverer_mode_default': discoverer_mode_default,
         'histogram_mode_all': HISTOGRAM_MODE_ALL,
@@ -447,7 +452,9 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
         'homepage_outro_html': homepage_outro_html,
         'max_items_to_return_restapi': MAX_ITEMS_TO_RETURN_RESTAPI,
         'orgs_with_hierarchies': orgs_with_hierarchies_records,
+        'origin_button_all': ORIGIN_BUTTON_ALL,
         'osl_profile_mode_all': OSL_PROFILE_MODE_ALL,
+        'overlap_mode': OVERLAP_MODE_ALL,
         'page_footer': page_footer,
         'ricgraph_explorer_runmode': runmode,
         'ricgraph_version': ricgraph_version,
@@ -457,6 +464,7 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
         'table_id_columns': TABLE_ID_COLUMNS,
         'table_organization_columns': TABLE_ORGANIZATION_COLUMNS,
         'table_research_output_columns': TABLE_RESEARCH_OUTPUT_COLUMNS,
+        'view_mode_all': VIEW_MODE_ALL,
         'last_update': datetimestamp(seconds=True)
     }
     set_ricgraph_explorer_global(name=RICGRAPH_SYSTEMINFO,

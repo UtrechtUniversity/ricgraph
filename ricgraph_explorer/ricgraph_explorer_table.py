@@ -65,23 +65,26 @@ from ricgraph import (nodes_cache_key_id_create,
                       get_valuepart_from_ricgraph_value, get_additionalpart_from_ricgraph_value,
                       PERSON_CATEGORY_PERSON,
                       COMPETENCE_CATEGORY_COMPETENCE,
-                      PERSON_NAME_PERSON_ROOT)
+                      PERSON_NAME_PERSON_ROOT,
+                      PageParams, QueryParams)
 from ricgraph_explorer_constants import (TABLE_DETAIL_COLUMNS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
                                          MAX_ROWS_TO_EXPORT, TABLE_ID_COLUMNS,
                                          RICGRAPH_NODEINFO,
+                                         DISCOVERER_MODE_DETAILS,
                                          button_style)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_global_list,
-                                     get_message)
+                                     get_message,
+                                     merge_and_remove_empty)
 from ricgraph_explorer_datavis import get_html_for_histogram
 from ricgraph_explorer_javascript import (get_regular_table_javascript, get_tabbed_table_javascript,
                                           get_html_for_tableend_javascript)
 
 
 def view_personal_information(nodes_list: list,
-                              discoverer_mode: str = '',
-                              extra_url_parameters: dict = None) -> str:
+                              page_params: PageParams,
+                              query_params: QueryParams) -> str:
     """Create a person page of the node.
     This page shows the name variants, a photo (if present),
     and a list of competences (if present). Then a table with the other identities.
@@ -89,18 +92,17 @@ def view_personal_information(nodes_list: list,
     extensions.
 
     :param nodes_list: the nodes to create a table from.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :return: HTML to be rendered.
     """
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-
     if len(nodes_list) == 0:
         return get_message('No neighbors found.')
 
     html = get_html_for_cardstart()
     names = []
+    url_parameters = merge_and_remove_empty(page_params=page_params,
+                                            query_params=query_params)
     for node in nodes_list:
         key = node['_key']
         nodes_cache_key_id_create(key=key, elementid=node.element_id)
@@ -110,9 +112,8 @@ def view_personal_information(nodes_list: list,
         value = get_valuepart_from_ricgraph_value(node['value'])
         # Don't get the 'additionalpart'.
         item = '<a href=' + url_for('optionspage') + '?'
-        item += urlencode({'key': key,
-                           'discoverer_mode': discoverer_mode}
-                          | extra_url_parameters) + '>'
+        item += urlencode(url_parameters |
+                          {'key': key}) + '>'
         item += value + '</a>'
         names.append(item)
     if len(names) == 1:
@@ -129,9 +130,8 @@ def view_personal_information(nodes_list: list,
         key = create_ricgraph_key(name=node['name'], value=node['value'])
         html += '&nbsp;&nbsp;'
         html += '<a href=' + url_for('optionspage') + '?'
-        html += urlencode({'key': key,
-                           'discoverer_mode': discoverer_mode}
-                          | extra_url_parameters) + '>'
+        html += urlencode(url_parameters |
+                          {'key': key}) + '>'
         html += '<img src="' + node['url_main'] + '" alt="' + node['value']
         html += '" title="' + node['value'] + '" height="100"></a>'
     html += '</p>'
@@ -146,9 +146,8 @@ def view_personal_information(nodes_list: list,
             continue
         key = create_ricgraph_key(name=node['name'], value=node['value'])
         item = '<a href=' + url_for('optionspage') + '?'
-        item += urlencode({'key': key,
-                           'discoverer_mode': discoverer_mode}
-                          | extra_url_parameters) + '>'
+        item += urlencode(url_parameters |
+                          {'key': key}) + '>'
         item += node['value'] + '</a>'
         if node['name'] == 'SKILL':
             skills.append(item)
@@ -178,11 +177,11 @@ def view_personal_information(nodes_list: list,
            and node['name'] != 'PHOTO_ID':
             id_nodes.append(node)
     html += get_tabbed_table(nodes_list=id_nodes,
+                             page_params=page_params,
+                             query_params=query_params,
                              table_header='These are the identities related to this person:',
                              table_columns=TABLE_ID_COLUMNS,
-                             tabs_on='name',
-                             discoverer_mode=discoverer_mode,
-                             extra_url_parameters=extra_url_parameters)
+                             tabs_on='name')
     return html
 
 
@@ -225,35 +224,32 @@ def create_table_pagination(total_pages, table_id) -> str:
 
 
 def get_regular_table(nodes_list: list,
+                      page_params: PageParams,
+                      query_params: QueryParams,
                       table_header: str = '',
-                      table_columns: list = None,
-                      discoverer_mode: str = '',
-                      extra_url_parameters: dict = None) -> str:
+                      table_columns: list = None) -> str:
     """Create a paginated HTML table for all nodes in the list.
 
     :param nodes_list: the nodes to create a table from.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param table_header: the HTML to show above the table.
     :param table_columns: a list of columns to show in the table.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-
     table_id = create_unique_string(length=12)
     table_html = get_regular_table_worker(nodes_list=nodes_list,
+                                          page_params=page_params,
+                                          query_params=query_params,
                                           table_id=table_id,
                                           table_header=table_header,
-                                          table_columns=table_columns,
-                                          discoverer_mode=discoverer_mode,
-                                          extra_url_parameters=extra_url_parameters)
+                                          table_columns=table_columns)
 
-    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    max_nr_items = query_params['max_nr_items']
     if max_nr_items == 0:
         max_nr_items = A_LARGE_NUMBER
     len_nodes_list = min(len(nodes_list), max_nr_items)
-    max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
+    max_nr_table_rows = page_params['max_nr_table_rows']
     if max_nr_table_rows == 0:
         max_nr_table_rows = len_nodes_list
 
@@ -264,26 +260,24 @@ def get_regular_table(nodes_list: list,
 
 
 def get_regular_table_worker(nodes_list: list,
+                             page_params: PageParams,
+                             query_params: QueryParams,
                              table_id: str = '',
                              table_header: str = '',
-                             table_columns: list = None,
-                             discoverer_mode: str = '',
-                             extra_url_parameters: dict = None) -> str:
+                             table_columns: list = None) -> str:
     """Create an HTML table for all nodes in the list.
     Here the real work is done.
 
     :param nodes_list: the nodes to create a table from.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param table_id: the id of the table, required for pagination.
     :param table_header: the HTML to show above the table.
     :param table_columns: a list of columns to show in the table.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
     if table_columns is None:
-        if discoverer_mode == 'details_view':
+        if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
             table_columns = TABLE_DETAIL_COLUMNS
         else:
             table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
@@ -291,7 +285,7 @@ def get_regular_table_worker(nodes_list: list,
     if len_nodes_list == 0:
         return get_message(table_header + '</br>Nothing found.')
 
-    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    max_nr_items = query_params['max_nr_items']
     if max_nr_items == 0:
         max_nr_items = A_LARGE_NUMBER
     if len_nodes_list > max_nr_items:
@@ -300,7 +294,7 @@ def get_regular_table_worker(nodes_list: list,
         len_nodes_list = max_nr_items
 
     nr_rows_in_table_message = ''
-    max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
+    max_nr_table_rows = page_params['max_nr_table_rows']
     if max_nr_table_rows == 0:
         max_nr_table_rows = min(len_nodes_list, max_nr_items)
     if 0 < max_nr_table_rows < len_nodes_list:
@@ -328,8 +322,9 @@ def get_regular_table_worker(nodes_list: list,
                                       table_id=table_id,
                                       table_columns=table_columns,
                                       table_page_num=table_page_num,
-                                      discoverer_mode=discoverer_mode,
-                                      extra_url_parameters=extra_url_parameters)
+                                      url_parameters=
+                                          merge_and_remove_empty(page_params=page_params,
+                                                                 query_params=query_params))
 
         key = node['_key']
         nodes_cache_key_id_create(key=key, elementid=node.element_id)
@@ -346,35 +341,32 @@ def get_regular_table_worker(nodes_list: list,
     return html
 
 
-def get_faceted_table(parent_node: Node = None,
-                      neighbor_nodes: list = None,
+def get_faceted_table(parent_node: Node,
+                      neighbor_nodes: list,
+                      page_params: PageParams,
+                      query_params: QueryParams,
                       table_header: str = '',
-                      table_columns: list = None,
-                      view_mode: str = '',
-                      discoverer_mode: str = '',
-                      extra_url_parameters: dict = None) -> str:
+                      table_columns: list = None) -> str:
     """Create a faceted HTML table for all neighbor_nodes in the list.
 
     :param parent_node: the parent of the nodes to construct the facets from.
     :param neighbor_nodes: the neighbor_nodes to create a table from.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param table_header: the HTML to show above the table.
     :param table_columns: a list of columns to show in the table.
-    :param view_mode: which view to use.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
     if table_columns is None:
-        if discoverer_mode == 'details_view':
+        if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
             table_columns = TABLE_DETAIL_COLUMNS
         else:
             table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
-    if neighbor_nodes is None or len(neighbor_nodes) == 0:
+    if parent_node is None or \
+       neighbor_nodes is None or len(neighbor_nodes) == 0:
         return get_message(table_header + '</br>Nothing found.')
 
-    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    max_nr_items = query_params['max_nr_items']
     if max_nr_items == 0:
         max_nr_items = A_LARGE_NUMBER
     if len(neighbor_nodes) > max_nr_items:
@@ -383,14 +375,13 @@ def get_faceted_table(parent_node: Node = None,
 
     faceted_html = get_facets_from_nodes(parent_node=parent_node,
                                          neighbor_nodes=neighbor_nodes,
-                                         view_mode=view_mode,
-                                         discoverer_mode=discoverer_mode,
-                                         extra_url_parameters=extra_url_parameters)
+                                         url_parameters=merge_and_remove_empty(page_params=page_params,
+                                                                               query_params=query_params))
     table_html = get_regular_table(nodes_list=neighbor_nodes,
+                                   page_params=page_params,
+                                   query_params=query_params,
                                    table_header=table_header,
-                                   table_columns=table_columns,
-                                   discoverer_mode=discoverer_mode,
-                                   extra_url_parameters=extra_url_parameters)
+                                   table_columns=table_columns)
     html = ''
     if faceted_html == '':
         # Faceted navigation not useful, don't show the panel.
@@ -409,28 +400,26 @@ def get_faceted_table(parent_node: Node = None,
     return html
 
 
-def get_tabbed_table(nodes_list: list = None,
+def get_tabbed_table(nodes_list: list,
+                     page_params: PageParams,
+                     query_params: QueryParams,
                      table_header: str = '',
                      table_columns: list = None,
-                     tabs_on: str = '',
-                     discoverer_mode: str = '',
-                     extra_url_parameters: dict = None) -> str:
+                     tabs_on: str = '') -> str:
     """Create an HTML table with tabs for all nodes in the list.
 
     :param nodes_list: the nodes to create a table from.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param table_header: the HTML to show above the table.
     :param table_columns: a list of columns to show in the table.
     :param tabs_on: the name of the field in Ricgraph you'd like to have tabs on.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
 
     table_id = create_unique_string(length=12)
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
     if table_columns is None:
-        if discoverer_mode == 'details_view':
+        if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
             table_columns = TABLE_DETAIL_COLUMNS
         else:
             table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
@@ -440,7 +429,7 @@ def get_tabbed_table(nodes_list: list = None,
     if nodes_list is None or (len_nodes_list := len(nodes_list)) == 0:
         return get_message(table_header + '</br>Nothing found.')
 
-    max_nr_items = int(extra_url_parameters['max_nr_items'])
+    max_nr_items = query_params['max_nr_items']
     if max_nr_items == 0:
         max_nr_items = A_LARGE_NUMBER
     if len_nodes_list > max_nr_items:
@@ -460,10 +449,10 @@ def get_tabbed_table(nodes_list: list = None,
         # Note: len(histogram) cannot be 0, that has been caught above.
         # If we have only one thing to show tabs on, we do a regular table.
         html = get_regular_table(nodes_list=nodes_list,
+                                 page_params=page_params,
+                                 query_params=query_params,
                                  table_header=table_header,
-                                 table_columns=table_columns,
-                                 discoverer_mode=discoverer_mode,
-                                 extra_url_parameters=extra_url_parameters)
+                                 table_columns=table_columns)
         return html
 
     histogram_sort = sorted(histogram, key=lambda x: histogram[x], reverse=True)
@@ -499,17 +488,17 @@ def get_tabbed_table(nodes_list: list = None,
                 nodes_of_tab_name.append(node)
         table_title = 'List of ' + tab_name + 's:'
         table = get_regular_table(nodes_list=nodes_of_tab_name,
+                                  page_params=page_params,
+                                  query_params=query_params,
                                   table_header=table_title,
-                                  table_columns=table_columns,
-                                  discoverer_mode=discoverer_mode,
-                                  extra_url_parameters=extra_url_parameters)
+                                  table_columns=table_columns)
         tab_contents_html += table
         tab_contents_html += '</div>'
 
     tab_javascript = get_tabbed_table_javascript(table_id=table_id)
 
     nr_rows_in_table_message = ''
-    max_nr_table_rows = int(extra_url_parameters['max_nr_table_rows'])
+    max_nr_table_rows = page_params['max_nr_table_rows']
     if 0 < max_nr_table_rows < len_nodes_list:
         nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table, showing pages of '
         nr_rows_in_table_message += str(max_nr_table_rows) + '.'
@@ -676,9 +665,7 @@ def get_histogramcards_name_category_access(name_histogram: dict,
 
 def get_facets_from_nodes(parent_node: Node | None,
                           neighbor_nodes: list,
-                          view_mode: str = '',
-                          discoverer_mode: str = '',
-                          extra_url_parameters: dict = None) -> str:
+                          url_parameters: dict) -> str:
     """Do facet navigation in Ricgraph.
     The facets will be constructed based on 'name' and 'category'.
     Facets chosen will be "caught" in function search().
@@ -686,16 +673,12 @@ def get_facets_from_nodes(parent_node: Node | None,
 
     :param parent_node: the parent of the nodes to construct the facets from.
     :param neighbor_nodes: the nodes to construct the facets from.
-    :param view_mode: which view to use.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param url_parameters: parameters to be added to the url.
     :return: HTML to be rendered, or empty string ('') if faceted navigation is
       not useful because there is only one facet.
     """
     if parent_node is None:
         return ''
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
     if len(neighbor_nodes) == 0:
         return ''
 
@@ -710,11 +693,18 @@ def get_facets_from_nodes(parent_node: Node | None,
     faceted_form += '<div class="facetedform">'
     faceted_form += '<form method="get" action="' + url_for('resultspage') + '">'
     faceted_form += '<input type="hidden" name="key" value="' + str(parent_node['_key']) + '">'
-    faceted_form += '<input type="hidden" name="view_mode" value="' + str(view_mode) + '">'
-    faceted_form += '<input type="hidden" name="discoverer_mode" value="' + str(discoverer_mode) + '">'
-    for item in extra_url_parameters:
-        faceted_form += '<input type="hidden" name="' + item
-        faceted_form += '" value="' + extra_url_parameters[item] + '">'
+    for item, value in url_parameters.items():
+        if item in ['key', 'name_list', 'category_list']:
+            # Skip. 'key' has been done above, 'name_list' and
+            # 'category_list' will be done below.
+            continue
+        if isinstance(value, list):
+            for one_value in value:
+                faceted_form += '<input type="hidden" name="' + item
+                faceted_form += '" value="' + str(one_value) + '">'
+        else:
+            faceted_form += '<input type="hidden" name="' + item
+            faceted_form += '" value="' + str(value) + '">'
     faceted_form += _get_part_of_facet_form(histogram=name_histogram,
                                             url_field_name='name_list',
                                             title='Filter on "name"')
@@ -771,22 +761,20 @@ def get_html_for_tablerow(node: Node,
                           table_id: str = '',
                           table_columns: list = None,
                           table_page_num: int = 1,
-                          discoverer_mode: str = '',
-                          extra_url_parameters: dict = None) -> str:
+                          url_parameters: dict = None) -> str:
     """Get the HTML required for a row of an HTML table.
 
     :param node: the node to show in the table.
     :param table_id: the id of the table, required for pagination.
     :param table_columns: a list of columns to show in the table.
     :param table_page_num: the page number of the table.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param url_parameters: parameters to be added to the url.
     :return: HTML to be rendered.
     """
     if table_columns is None:
         table_columns = []
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
+    if url_parameters is None:
+        url_parameters = {}
 
     # Show only the first page initially.
     display_style = '' if table_page_num == 1 else 'display: none;'
@@ -803,9 +791,7 @@ def get_html_for_tablerow(node: Node,
                 value = node['value']
 
             html += '<td><a href=' + url_for('optionspage') + '?'
-            html += urlencode({'key': key,
-                               'discoverer_mode': discoverer_mode}
-                              | extra_url_parameters) + '>'
+            html += urlencode(url_parameters | {'key': key}) + '>'
             html += value + '</a></td>'
         elif column in ['url_main', 'url_other']:
             if node[column] == '':

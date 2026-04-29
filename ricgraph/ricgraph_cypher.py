@@ -912,7 +912,8 @@ def graphdb_nr_accesses_print() -> None:
 
 
 def read_all_values_of_property(node_property: str = '') -> list:
-    """Read all the values of a certain property.
+    """Read all the values of a certain property,
+    and return the sorted list.
 
     :param node_property: the property to find all values:
        'name': all different name properties.
@@ -935,6 +936,8 @@ def read_all_values_of_property(node_property: str = '') -> list:
        and node_property != 'person_name' \
        and node_property != 'category' \
        and node_property != 'year' \
+       and node_property != 'access' \
+       and node_property != 'license' \
        and node_property != '_source':
         print('\nread_all_values_of_property(): Error: function does not work for property "'
               + node_property + '".\n\n')
@@ -946,11 +949,13 @@ def read_all_values_of_property(node_property: str = '') -> list:
         # so it is also a name property that is a personal identifier.
         cypher_query += 'WHERE node.category = "' + PERSON_CATEGORY_PERSON + '" '
         cypher_query += 'RETURN DISTINCT node.name AS entry '
-    else:
-        # This UNWIND is only necessary for node_property = _source. It 'flattens' the list.
-        # For other values of node_property it does not really matter.
+    elif node_property == '_source':
+        # This UNWIND is only necessary for node_property = _source.
+        # It 'flattens' the list.
         cypher_query += 'UNWIND node[$node_property] AS value '
         cypher_query += 'RETURN DISTINCT value AS entry '
+    else:
+        cypher_query += 'RETURN DISTINCT node[$node_property] AS entry '
 
     result, _, _ = _graph.execute_query(query_=cypher_query,
                                         node_property=node_property,

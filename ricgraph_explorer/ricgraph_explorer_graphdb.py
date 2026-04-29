@@ -66,22 +66,26 @@ from ricgraph import (get_personroot_node,
                       get_all_neighbor_nodes, read_all_nodes,
                       create_multidimensional_dict,
                       get_year_range_text,
+                      PageParams, QueryParams,
                       A_LARGE_NUMBER,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANISATION,
                       COMPETENCE_CATEGORY_COMPETENCE,
-                      PERSON_NAME_PERSON_ROOT,
-                      ACCESS_ANY)
-from ricgraph_explorer_constants import (RICGRAPH_HARVESTINFO,
-                                         RICGRAPH_NODEINFO,
+                      PERSON_NAME_PERSON_ROOT)
+from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          MAX_NR_NODES_TO_ENRICH,
+                                         DISCOVERER_MODE_DETAILS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
-                                         TABLE_DETAIL_COLUMNS)
+                                         TABLE_DETAIL_COLUMNS,
+                                         OVERLAP_MODE_NEIGHBORNODE,
+                                         OVERLAP_MODE_MULTIPLESOURCE,
+                                         OVERLAP_MODE_SINGLESOURCE)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
                                      get_you_searched_for_card,
                                      get_html_for_yearcard,
-                                     get_global_list)
+                                     get_global_list,
+                                     merge_and_remove_empty)
 from ricgraph_explorer_cypher import (find_organization_additional_info_cypher,
                                       find_person_organization_collaborations_cypher,
                                       find_person_share_resouts_cypher)
@@ -119,23 +123,21 @@ def convert_nodes_to_list_of_dict(nodes_list: list,
 
 
 def find_person_share_resouts(parent_node: Node | None,
+                              page_params: PageParams,
+                              query_params: QueryParams,
                               category_want_list: list = None,
-                              category_dontwant_list: list = None,
-                              discoverer_mode: str = '',
-                              extra_url_parameters: dict = None) -> str:
+                              category_dontwant_list: list = None) -> str:
     """Function that finds with whom a person shares research results.
 
     :param parent_node: the starting node for finding shared research result types.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param category_want_list: the category list used for selection, or [] if any category.
     :param category_dontwant_list: the category list used for selection (i.e. not these).
-    :param discoverer_mode: as usual.
-    :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
     if parent_node is None:
         return ''
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
     if category_want_list is None:
         category_want_list = []
     if category_dontwant_list is None:
@@ -151,18 +153,18 @@ def find_person_share_resouts(parent_node: Node | None,
     connected_persons = find_person_share_resouts_cypher(parent_node=parent_node,
                                                          category_want_list=category_want_list,
                                                          category_dontwant_list=category_dontwant_list,
-                                                         max_nr_items=int(extra_url_parameters['max_nr_items']))
-    if discoverer_mode == 'details_view':
+                                                         max_nr_items=query_params['max_nr_items'])
+    if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
         table_columns = TABLE_DETAIL_COLUMNS
     else:
         table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     table_header = 'This is the person we start with:'
     html += get_regular_table(nodes_list=[parent_node],
+                              page_params=page_params,
+                              query_params=query_params,
                               table_header=table_header,
-                              table_columns=table_columns,
-                              discoverer_mode=discoverer_mode,
-                              extra_url_parameters=extra_url_parameters)
+                              table_columns=table_columns)
     if len(connected_persons) == 0:
         if len(category_want_list) == 1:
             message = 'This person does not share research result type "' + category_want_list[0] + '" '
@@ -175,21 +177,21 @@ def find_person_share_resouts(parent_node: Node | None,
     table_header += 'for these categories: '
     table_header += str(category_want_list) + '.'
     html += get_regular_table(nodes_list=connected_persons,
+                              page_params=page_params,
+                              query_params=query_params,
                               table_header=table_header,
-                              table_columns=table_columns,
-                              discoverer_mode=discoverer_mode,
-                              extra_url_parameters=extra_url_parameters)
+                              table_columns=table_columns)
     return html
 
 
 def find_enrich_candidates_one_person(personroot: Node | None,
+                                      query_params: QueryParams,
                                       name_want: list = None,
-                                      category_want: list = None,
-                                      source_system: str = '',
-                                      extra_url_parameters: dict = None) -> Tuple[list, list]:
+                                      category_want: list = None) -> Tuple[list, list]:
     """This function tries to find nodes to enrich source system 'source_system'.
 
     :param personroot: the starting node for finding enrichments for.
+    :param query_params: parameters related to the query passed in the URL.
     :param name_want: a list containing several node names, indicating
       that we want all neighbor nodes of the person-root node of the organization
       specified by 'key', where the property 'name' equals
@@ -197,19 +199,10 @@ def find_enrich_candidates_one_person(personroot: Node | None,
       (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
       If empty (empty string), return all nodes.
     :param category_want: similar to 'name_want', but now for the property 'category'.
-    :param source_system: the source system to find enrichments for.
-    :param extra_url_parameters: a dict containing url parameters to be passed
-      with each url. This dict can be extended as desired.
     :return: 2 lists, nodes to identify and nodes to enrich.
     """
     nodes_in_source_system = []
     nodes_not_in_source_system = []
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-    year_first = extra_url_parameters.get('year_first', '')
-    year_last = extra_url_parameters.get('year_last', '')
-    max_nr_items = extra_url_parameters.get('max_nr_items', '0')
-
     # Do not use 'max_nr_items' on get_all_neighbor_nodes(), since
     # we were asked to return max_nr_items for find_enrich_candidates_one_person().
     # We might need more than max_nr_items from get_all_neighbor_nodes()
@@ -217,19 +210,19 @@ def find_enrich_candidates_one_person(personroot: Node | None,
     neighbors = get_all_neighbor_nodes(node=personroot,
                                        name_want=name_want,
                                        category_want=category_want,
-                                       year_first=year_first,
-                                       year_last=year_last)
+                                       year_first=query_params['year_first'],
+                                       year_last=query_params['year_last'])
     for neighbor in neighbors:
-        if source_system in neighbor['_source']:
+        if query_params['source_system'] in neighbor['_source']:
             nodes_in_source_system.append(neighbor)
             continue
-        if source_system not in neighbor['_source']:
+        if query_params['source_system'] not in neighbor['_source']:
             nodes_not_in_source_system.append(neighbor)
             continue
 
     if len(nodes_in_source_system) == 0:
         # Here we return at most max_nr_items.
-        return [], nodes_not_in_source_system[:int(max_nr_items)]
+        return [], nodes_not_in_source_system[:query_params['max_nr_items']]
 
     person_nodes = []
     for node_source in nodes_in_source_system:
@@ -237,13 +230,12 @@ def find_enrich_candidates_one_person(personroot: Node | None,
             person_nodes.append(node_source)
 
     # Here we return at most max_nr_items.
-    return person_nodes[:int(max_nr_items)], nodes_not_in_source_system[:int(max_nr_items)]
+    return person_nodes[:query_params['max_nr_items']], nodes_not_in_source_system[:query_params['max_nr_items']]
 
 
-def find_enrich_candidates(parent_node: Node = None,
-                           source_system: str = '',
-                           discoverer_mode: str = '',
-                           extra_url_parameters: dict = None) -> str:
+def find_enrich_candidates(parent_node: Node,
+                           page_params: PageParams,
+                           query_params: QueryParams) -> str:
     """This function tries to find nodes to enrich source system 'source_system'.
     It is built around 'person-root' nodes. For each person-root node (in case there are
     more than one) we check if we can enrich that node.
@@ -256,31 +248,19 @@ def find_enrich_candidates(parent_node: Node = None,
 
     :param parent_node: the starting node for finding enrichments for, or None if
       you want to find enrichments for all 'person-root' nodes in Ricgraph.
-    :param source_system: the source system to find enrichments for.
-    :param discoverer_mode: as usual.
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :return: HTML to be rendered.
     """
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-
-    if source_system not in get_global_list(ricgraph_info=RICGRAPH_HARVESTINFO,
-                                            item='source_active'):
-        html = get_message(message='You have not specified a valid source system "'
-                                   + source_system + '".')
-        return html
-
-    year_first = extra_url_parameters.get('year_first', '')
-    year_last = extra_url_parameters.get('year_last', '')
-    year_range_text = get_year_range_text(year_first=year_first,
-                                          year_last=year_last)
+    year_range_text = get_year_range_text(year_first=query_params['year_first'],
+                                          year_last=query_params['year_last'])
     html = ''
     if parent_node is None:
         personroot_list = read_all_nodes(name=PERSON_NAME_PERSON_ROOT,
-                                         max_nr_nodes=int(extra_url_parameters['max_nr_items']))
+                                         max_nr_nodes=query_params['max_nr_items'])
         personroot_node = None
         message = 'You have chosen to enrich <em>all</em> nodes in Ricgraph for source system "'
-        message += source_system + '". '
+        message += query_params['source_system'] + '". '
         message += 'However, that will take a long time. '
         message += 'Ricgraph Explorer will find enrich candidates for at most '
         message += str(MAX_NR_NODES_TO_ENRICH) + ' nodes. '
@@ -291,7 +271,7 @@ def find_enrich_candidates(parent_node: Node = None,
         personroot_node = get_personroot_node(node=parent_node)
         personroot_list = [personroot_node]
 
-    if discoverer_mode == 'details_view':
+    if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
         table_columns = TABLE_DETAIL_COLUMNS
     else:
         table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
@@ -303,8 +283,7 @@ def find_enrich_candidates(parent_node: Node = None,
             break
         person_nodes, nodes_not_in_source_system = \
             find_enrich_candidates_one_person(personroot=personroot,
-                                              source_system=source_system,
-                                              extra_url_parameters=extra_url_parameters)
+                                              query_params=query_params)
         if len(nodes_not_in_source_system) == 0:
             # All neighbors are only from 'source_system', nothing to report.
             continue
@@ -314,37 +293,39 @@ def find_enrich_candidates(parent_node: Node = None,
         count += 1
         html += get_html_for_cardstart()
         table_header = 'This item is used to determine possible enrichments of source system "'
-        table_header += source_system + '":'
+        table_header += query_params['source_system'] + '":'
         html += get_regular_table(nodes_list=[personroot],
+                                  page_params=page_params,
+                                  query_params=query_params,
                                   table_header=table_header,
-                                  table_columns=table_columns,
-                                  extra_url_parameters=extra_url_parameters)
+                                  table_columns=table_columns)
 
         if len(person_nodes) == 0:
             message = 'There are enrich candidates '
-            message += 'to enrich source system "' + source_system
+            message += 'to enrich source system "' + query_params['source_system']
             message += '", but there are no <em>person</em> nodes to identify this item in "'
-            message += source_system + '".'
+            message += query_params['source_system'] + '".'
             html += get_message(message=message, please_try_again=False)
         else:
             table_header = 'You can use the information in this table to find this item in source system "'
-            table_header += source_system + '":'
+            table_header += query_params['source_system'] + '":'
             html += get_regular_table(nodes_list=person_nodes,
+                                      page_params=page_params,
+                                      query_params=query_params,
                                       table_header=table_header,
-                                      table_columns=table_columns,
-                                      extra_url_parameters=extra_url_parameters)
+                                      table_columns=table_columns)
 
         html += get_html_for_yearcard()
-        table_header = 'You could enrich source system "' + source_system + '" '
+        table_header = 'You could enrich source system "' + query_params['source_system'] + '" '
         table_header += 'by using this information harvested from other source systems '
         table_header += year_range_text + '. '
-        table_header += 'This information is not in source system "' + source_system + '".'
+        table_header += 'This information is not in source system "' + query_params['source_system'] + '".'
         html += get_tabbed_table(nodes_list=nodes_not_in_source_system,
+                                 page_params=page_params,
+                                 query_params=query_params,
                                  table_header=table_header,
                                  table_columns=table_columns,
-                                 tabs_on='category',
-                                 discoverer_mode=discoverer_mode,
-                                 extra_url_parameters=extra_url_parameters)
+                                 tabs_on='category')
         html += get_html_for_cardend()
 
     if something_found:
@@ -366,18 +347,19 @@ def find_enrich_candidates(parent_node: Node = None,
     else:
         if parent_node is None:
             message = 'Ricgraph could not find any information in other source systems '
-            message += 'to enrich source system "' + source_system + '".'
+            message += 'to enrich source system "' + query_params['source_system'] + '".'
             html += get_message(message=message)
         else:
             html += get_html_for_cardstart()
             table_header = 'This item is used to determine possible enrichments of source system "'
-            table_header += source_system + '":'
+            table_header += query_params['source_system'] + '":'
             html += get_regular_table(nodes_list=[personroot_node],
+                                      page_params=page_params,
+                                      query_params=query_params,
                                       table_header=table_header,
-                                      table_columns=table_columns,
-                                      extra_url_parameters=extra_url_parameters)
+                                      table_columns=table_columns)
             html += '</br>Ricgraph could not find any information in other source systems '
-            html += 'to enrich source system "' + source_system + '".'
+            html += 'to enrich source system "' + query_params['source_system'] + '".'
             html += get_html_for_cardend()
 
     html += '</p>'
@@ -386,8 +368,8 @@ def find_enrich_candidates(parent_node: Node = None,
 
 
 def find_person_organization_collaborations(parent_node: Node | None,
-                                            discoverer_mode: str = '',
-                                            extra_url_parameters: dict = None) -> str:
+                                            page_params: PageParams,
+                                            query_params: QueryParams) -> str:
     """Function that finds with which organization a person collaborates.
 
     A person X from organization A collaborates with a person Y from
@@ -398,15 +380,12 @@ def find_person_organization_collaborations(parent_node: Node | None,
     another function to do that.
 
     :param parent_node: the starting node for finding collaborating organizations.
-    :param discoverer_mode: as usual.
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :return: HTML to be rendered.
     """
     if parent_node is None:
         return ''
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-
     html = ''
     if parent_node['category'] != PERSON_CATEGORY_PERSON:
         message = 'Unexpected result in find_person_organization_collaborations(): '
@@ -416,19 +395,19 @@ def find_person_organization_collaborations(parent_node: Node | None,
 
     personroot_node_organizations, collaborating_organizations = \
         find_person_organization_collaborations_cypher(parent_node=parent_node,
-                                                       max_nr_items=int(extra_url_parameters['max_nr_items']))
+                                                       max_nr_items=query_params['max_nr_items'])
 
-    if discoverer_mode == 'details_view':
+    if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
         table_columns = TABLE_DETAIL_COLUMNS
     else:
         table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     table_header = 'This is the person we start with:'
     html += get_regular_table(nodes_list=[parent_node],
+                              page_params=page_params,
+                              query_params=query_params,
                               table_header=table_header,
-                              table_columns=table_columns,
-                              discoverer_mode=discoverer_mode,
-                              extra_url_parameters=extra_url_parameters)
+                              table_columns=table_columns)
 
     if len(personroot_node_organizations) == 0:
         html += get_message(message='This person does not work at any organization.',
@@ -436,10 +415,10 @@ def find_person_organization_collaborations(parent_node: Node | None,
     else:
         table_header = 'This person works at the following organizations:'
         html += get_regular_table(nodes_list=personroot_node_organizations,
+                                  page_params=page_params,
+                                  query_params=query_params,
                                   table_header=table_header,
-                                  table_columns=table_columns,
-                                  discoverer_mode=discoverer_mode,
-                                  extra_url_parameters=extra_url_parameters)
+                                  table_columns=table_columns)
 
     if len(collaborating_organizations) == 0:
         message = 'This person has no collaborations with other organizations.'
@@ -447,30 +426,23 @@ def find_person_organization_collaborations(parent_node: Node | None,
 
     table_header = 'This person collaborates with the following organizations:'
     html += get_regular_table(nodes_list=collaborating_organizations,
+                              page_params=page_params,
+                              query_params=query_params,
                               table_header=table_header,
-                              table_columns=table_columns,
-                              discoverer_mode=discoverer_mode,
-                              extra_url_parameters=extra_url_parameters)
+                              table_columns=table_columns)
     return html
 
 
 def find_organization_additional_info(parent_node: Node | None,
-                                      name_list: list = None,
-                                      category_list: list = None,
-                                      discoverer_mode: str = '',
-                                      extra_url_parameters: dict = None) -> str:
+                                      page_params: PageParams,
+                                      query_params: QueryParams) -> str:
     """Function that finds additional information connected to a (sub-)organization.
 
     :param parent_node: the starting node for finding additional information.
-    :param name_list: the name list used for selection.
-    :param category_list: the category list used for selection.
-    :param discoverer_mode: as usual.
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :return: HTML to be rendered.
     """
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-
     if parent_node is None:
         message = 'Unexpected result in find_organization_additional_info(): '
         message += 'This organization cannot be found in Ricgraph.'
@@ -482,31 +454,19 @@ def find_organization_additional_info(parent_node: Node | None,
         message += '" node. '
         return get_message(message=message)
 
-    if name_list is None:
-        name_list = []
-    if category_list is None:
-        category_list = []
     name_str = ''
     category_str = ''
-    if len(name_list) == 1:
-        name_str = name_list[0]
-    if len(category_list) == 1:
-        category_str = category_list[0]
+    if len(query_params['name_list']) == 1:
+        name_str = query_params['name_list'][0]
+    if len(query_params['category_list']) == 1:
+        category_str = query_params['category_list'][0]
 
-    year_first = extra_url_parameters.get('year_first', '')
-    year_last = extra_url_parameters.get('year_last', '')
-    year_range_text = get_year_range_text(year_first=year_first,
-                                          year_last=year_last)
-    access = extra_url_parameters.get('access', ACCESS_ANY)
+    year_range_text = get_year_range_text(year_first=query_params['year_first'],
+                                          year_last=query_params['year_last'])
     # Note the hard limit.
     cypher_result = \
         find_organization_additional_info_cypher(parent_node=parent_node,
-                                                 name_list=name_list,
-                                                 category_list=category_list,
-                                                 year_first=year_first,
-                                                 year_last=year_last,
-                                                 access=access,
-                                                 max_nr_items=int(extra_url_parameters['max_nr_items']))
+                                                 query_params=query_params)
     if len(cypher_result) == 0:
         message = 'Could not find any persons or results for this organization'
         if name_str != '' and category_str != '':
@@ -526,7 +486,7 @@ def find_organization_additional_info(parent_node: Node | None,
     expertise_area_list = []
     research_area_list = []
     skill_list = []
-    if COMPETENCE_CATEGORY_COMPETENCE in category_list:
+    if COMPETENCE_CATEGORY_COMPETENCE in query_params['category_list']:
         we_have_competence = True
     else:
         we_have_competence = False
@@ -545,7 +505,7 @@ def find_organization_additional_info(parent_node: Node | None,
                 skill_list.append({'name': node['value'],
                                    'value': result['count_second_neighbor']})
 
-    if discoverer_mode == 'details_view':
+    if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
         table_columns = TABLE_DETAIL_COLUMNS
     else:
         table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
@@ -554,10 +514,10 @@ def find_organization_additional_info(parent_node: Node | None,
     table_header = 'This item is used for finding information about the persons '
     table_header += 'or their results of this organization:'
     html += get_regular_table(nodes_list=[parent_node],
+                              page_params=page_params,
+                              query_params=query_params,
                               table_header=table_header,
-                              table_columns=table_columns,
-                              discoverer_mode=discoverer_mode,
-                              extra_url_parameters=extra_url_parameters)
+                              table_columns=table_columns)
     table_header = 'These are all the '
     if name_str != '' and category_str != '':
         table_header += '"' + name_str + '" and "' + category_str + '" '
@@ -573,11 +533,11 @@ def find_organization_additional_info(parent_node: Node | None,
     else:
         table_header += 'items of this organization:'
     table_html = get_tabbed_table(nodes_list=relevant_result,
+                                  page_params=page_params,
+                                  query_params=query_params,
                                   table_header=table_header,
                                   table_columns=table_columns,
-                                  tabs_on='category',
-                                  discoverer_mode=discoverer_mode,
-                                  extra_url_parameters=extra_url_parameters)
+                                  tabs_on='category')
 
     if we_have_competence:
         histogram_html = ''
@@ -619,41 +579,35 @@ def find_organization_additional_info(parent_node: Node | None,
     return html
 
 
-def find_overlap_in_source_systems(name: str = '', category: str = '', value: str = '',
-                                   discoverer_mode: str = '',
-                                   overlap_mode: str = 'neighbornodes',
-                                   extra_url_parameters: dict = None) -> str:
+def find_overlap_in_source_systems(node: Node,
+                                   page_params: PageParams,
+                                   query_params: QueryParams) -> str:
     """Get the overlap in items from source systems.
-    We do need a 'name', 'category' and/or 'value', otherwise we won't be able
-    to find overlap in source systems for a list of items. That list can only be
-    found using these fields, and then these fields can be passed to
-    find_overlap_in_source_systems_records() to show the overlap nodes in a table.
-    If we want to find overlap of only one node, these fields will result in only one item
-    to be found, and the overlap will be computed of the neighbors of that node.
     This function is tightly connected to find_overlap_in_source_systems_records().
 
-    :param name: name of the node(s) to find.
-    :param category: category of the node(s) to find.
-    :param value: value of the node(s) to find.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param overlap_mode: which overlap to compute: from this node ('thisnode')
-      or from the neighbors of this node ('neighbornodes').
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param node: the starting node for finding overlap.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
+      Contains e.g.
+      'overlap_mode': which overlap to compute:
+        from this node ('thisnode') or from the neighbors
+        of this node ('neighbornodes').
+      'source_system' and 'source_system2': the two source
+        systems to compute the overlap.
     :return: HTML to be rendered.
     """
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-
     html = ''
-    nodes = read_all_nodes(name=name, category=category, value=value)
+    nodes = read_all_nodes(name=node['name'],
+                           category=node['category'],
+                           value=node['value'])
     if len(nodes) == 0:
         # Let's try again, assuming we did a broad search instead of an exact match search.
-        nodes = read_all_nodes(value=value,
-                               value_is_exact_match=False)
+        nodes = read_all_nodes(value=node['value'],
+                                value_is_exact_match=False)
         if len(nodes) == 0:
             return get_message(message='Ricgraph Explorer could not find anything.')
 
-    if overlap_mode == 'neighbornodes':
+    if page_params['overlap_mode'] == OVERLAP_MODE_NEIGHBORNODE:
         # In this case, we would like to know the overlap of nodes neighboring the node
         # we have just found. We can only do that if we have found only one node.
         if len(nodes) > 1:
@@ -697,7 +651,7 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
                 recs_from_multiple_sources_histogram[system1][system2] += 1
 
     if nr_total_recs == 0:
-        if overlap_mode == 'neighbornodes':
+        if page_params['overlap_mode'] == OVERLAP_MODE_NEIGHBORNODE:
             message = 'Ricgraph Explorer found no overlap in source systems for '
             message += 'the neighbors of this node. '
             message += 'This may be caused by that these neighbors are "person-root" nodes. '
@@ -716,18 +670,6 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     all_harvested_systems.sort()
 
     html += get_html_for_cardstart()
-    # html += '<h2>Your query</h2>'
-    # html += 'This was your query:'
-    # html += '<ul>'
-    # if name != '':
-    #     html += '<li>name: <i>"' + str(name) + '"</i>'
-    # if category != '':
-    #     html += '<li>category: <i>"' + str(category) + '"</i>'
-    # if value != '':
-    #     html += '<li>value: <i>"' + str(value) + '"</i>'
-    # html += '</ul>'
-    #
-    # html += '<br/>'
     html += '<h2>Number of items in source systems</h2>'
     html += 'This table shows the number of items found in only one source or '
     html += 'found in multiple sources for your query. '
@@ -750,6 +692,8 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     html += '</th>'
     html += '</tr>'
 
+    url_parameters = merge_and_remove_empty(page_params=page_params,
+                                            query_params=query_params)
     for system in all_harvested_systems:
         html += '<tr class="item">'
         html += '<td>' + system + '</td>'
@@ -766,13 +710,11 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
         if system in recs_from_one_source:
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
-            html += urlencode({'name': name, 'category': category, 'value': value,
-                               'system1': system,
-                               'system2': 'singlesource',
-                               'view_mode': 'view_regular_table_overlap_records',
-                               'discoverer_mode': discoverer_mode,
-                               'overlap_mode': overlap_mode}
-                               | extra_url_parameters)
+            html += urlencode(url_parameters |
+                              {'source_system': system,
+                               'source_system2': OVERLAP_MODE_SINGLESOURCE,
+                               'view_mode': 'view_regular_table_overlap_records'
+                              })
             html += '">'
             html += str(recs_from_one_source[system])
             html += '</a>'
@@ -784,13 +726,11 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
         if system in recs_from_multiple_sources:
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
-            html += urlencode({'name': name, 'category': category, 'value': value,
-                               'system1': system,
-                               'system2': 'multiplesource',
-                               'view_mode': 'view_regular_table_overlap_records',
-                               'discoverer_mode': discoverer_mode,
-                               'overlap_mode': overlap_mode}
-                               | extra_url_parameters)
+            html += urlencode(url_parameters |
+                              {'source_system': system,
+                               'source_system2': OVERLAP_MODE_MULTIPLESOURCE,
+                               'view_mode': 'view_regular_table_overlap_records'
+                              })
             html += '">'
             html += str(recs_from_multiple_sources[system])
             html += '</a>'
@@ -845,13 +785,11 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
         if system1 in recs_from_multiple_sources:
             html += '<td>'
             html += '<a href="' + url_for('resultspage') + '?'
-            html += urlencode({'name': name, 'category': category, 'value': value,
-                               'system1': system1,
-                               'system2': 'multiplesource',
-                               'view_mode': 'view_regular_table_overlap_records',
-                               'discoverer_mode': discoverer_mode,
-                               'overlap_mode': overlap_mode}
-                               | extra_url_parameters)
+            html += urlencode(url_parameters |
+                              {'source_system': system1,
+                               'source_system2': OVERLAP_MODE_MULTIPLESOURCE,
+                               'view_mode': 'view_regular_table_overlap_records'
+                              })
             html += '">'
             html += str(recs_from_multiple_sources[system1])
             html += '</a>'
@@ -865,13 +803,11 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
             if system2 in recs_from_multiple_sources_histogram[system1]:
                 html += '<td>'
                 html += '<a href="' + url_for('resultspage') + '?'
-                html += urlencode({'name': name, 'category': category, 'value': value,
-                                   'system1': system1,
-                                   'system2': system2,
-                                   'view_mode': 'view_regular_table_overlap_records',
-                                   'discoverer_mode': discoverer_mode,
-                                   'overlap_mode': overlap_mode}
-                                   | extra_url_parameters)
+                html += urlencode(url_parameters |
+                                  {'source_system': system1,
+                                   'source_system2': system2,
+                                   'view_mode': 'view_regular_table_overlap_records'
+                                  })
                 html += '">'
                 html += str(recs_from_multiple_sources_histogram[system1][system2])
                 percent = recs_from_multiple_sources_histogram[system1][system2]/recs_from_multiple_sources[system1]
@@ -891,54 +827,45 @@ def find_overlap_in_source_systems(name: str = '', category: str = '', value: st
     return html
 
 
-def find_overlap_in_source_systems_records(name: str = '', category: str = '', value: str = '',
-                                           system1: str = '', system2: str = '',
-                                           discoverer_mode: str = '',
-                                           overlap_mode: str = '',
-                                           extra_url_parameters: dict = None) -> str:
+def find_overlap_in_source_systems_records(node: Node,
+                                           page_params: PageParams,
+                                           query_params: QueryParams) -> str:
     """Show the overlap items in an HTML table.
     This function is tightly connected to find_overlap_in_source_systems().
     We do need a 'name', 'category' and/or 'value', otherwise we won't be able
     to find overlap in source systems for a list of items.
 
-    :param name: name of the node(s) to find.
-    :param category: category of the node(s) to find.
-    :param value: value of the node(s) to find.
-    :param system1: source system 1 used to compute the overlap.
-    :param system2: source system 2 used to compute the overlap.
-    :param discoverer_mode: the discoverer_mode to use.
-    :param overlap_mode: which overlap to compute: from this node ('thisnode')
-      or from the neighbors of this node ('neighbornodes').
-    :param extra_url_parameters: extra parameters to be added to the url.
+    :param node: the starting node for finding overlap.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
+      Contains e.g.
+      'overlap_mode': which overlap to compute:
+        from this node ('thisnode') or from the neighbors
+        of this node ('neighbornodes').
+      'source_system' and 'source_system2': the two source
+        systems to compute the overlap.
     :return: HTML to be rendered.
     """
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-
     html = ''
-    if system1 == '' and system2 != '':
+    if query_params['source_system'] == '' and query_params['source_system2'] != '':
         # swap
-        system1 = system2
-        system2 = ''
-    if system1 == 'singlesource' or system1 == 'multiplesource':
-        if system2 != '':
-            # swap
-            temp = system1
-            system1 = system2
-            system2 = temp
+        query_params['source_system'] = query_params['source_system2']
+        query_params['source_system2'] = ''
 
-    result = read_all_nodes(name=name, category=category, value=value)
+    result = read_all_nodes(name=node['name'],
+                           category=node['category'],
+                           value=node['value'])
     if len(result) == 0:
         # Let's try again, assuming we did a broad search instead of an exact match search.
-        result = read_all_nodes(value=value,
-                                value_is_exact_match=False)
+        result = read_all_nodes(value=node['value'],
+                               value_is_exact_match=False)
         if len(result) == 0:
             # No, we really didn't find anything.
             message = 'Unexpected result in find_overlap_in_source_systems_records(): '
             message += 'This node cannot be found in Ricgraph.'
             return get_message(message=message)
 
-    if overlap_mode == 'neighbornodes':
+    if page_params['overlap_mode'] == OVERLAP_MODE_NEIGHBORNODE:
         # In this case, we would like to know the overlap of nodes neighboring the node
         # we have just found. We can only do that if we have found only one node.
         if len(result) > 1:
@@ -962,41 +889,36 @@ def find_overlap_in_source_systems_records(name: str = '', category: str = '', v
     relevant_result = []
     for node in result:
         sources = node['_source']
-        if system1 == '':
+        if query_params['source_system'] == '':
             # Then system2 will also be '', see swap above.
             relevant_result.append(node)
             continue
-        if system2 == '':
-            if system1 in sources:
+        if query_params['source_system2'] == '':
+            if query_params['source_system'] in sources:
                 relevant_result.append(node)
                 continue
-        if system2 == 'singlesource':
-            if system1 in sources and len(sources) == 1:
+        if query_params['source_system2'] == OVERLAP_MODE_SINGLESOURCE:
+            if query_params['source_system'] in sources and len(sources) == 1:
                 relevant_result.append(node)
                 continue
-        if system2 == 'multiplesource':
-            if system1 in sources and len(sources) > 1:
+        if query_params['source_system2'] == OVERLAP_MODE_MULTIPLESOURCE:
+            if query_params['source_system'] in sources and len(sources) > 1:
                 relevant_result.append(node)
                 continue
-        if system1 in sources and system2 in sources:
+        if query_params['source_system'] in sources \
+           and query_params['source_system2'] in sources:
             relevant_result.append(node)
 
-    if discoverer_mode == 'details_view':
+    if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
         table_columns = TABLE_DETAIL_COLUMNS
-        html += get_you_searched_for_card(name=name,
-                                          category=category,
-                                          value=value,
-                                          discoverer_mode=discoverer_mode,
-                                          overlap_mode=overlap_mode,
-                                          system1=system1,
-                                          system2=system2,
-                                          extra_url_parameters=extra_url_parameters)
+        html += get_you_searched_for_card(page_params=page_params,
+                                          query_params=query_params)
     else:
         table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     html += get_regular_table(nodes_list=relevant_result,
+                              page_params=page_params,
+                              query_params=query_params,
                               table_header='These items conform to your selection:',
-                              table_columns=table_columns,
-                              discoverer_mode=discoverer_mode,
-                              extra_url_parameters=extra_url_parameters)
+                              table_columns=table_columns)
     return html

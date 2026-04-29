@@ -60,7 +60,9 @@ from markupsafe import escape as markupsafe_escape
 from .ricgraph_constants import (RICGRAPH_INI_FILENAME,
                                  RICGRAPH_KEY_SEPARATOR, RICGRAPH_KEY_SEPARATOR_REPLACEMENT,
                                  RICGRAPH_VALUE_SEPARATOR, RICGRAPH_VALUE_SEPARATOR_REPLACEMENT,
-                                 MAX_ORG_ABBREVIATION_LENGTH)
+                                 MAX_ORG_ABBREVIATION_LENGTH,
+                                 A_LARGE_NUMBER,
+                                 PageParams, QueryParams)
 
 
 def get_ricgraph_ini_file() -> str:
@@ -967,3 +969,50 @@ def print_progress(count: int, now: bool = False, interval: int = 250) -> int:
     if (count % (interval * 10)) == 0:
         print('(' + timestamp() + ')\n', end='', flush=True)
     return count
+
+
+def create_empty_query_params() -> QueryParams:
+    """Construct an empty QueryParams TypedDict.
+    If you add fields, add them to
+    ricgraph_explorer/ricgraph_explorer_utils.py/get_url_query_params() too.
+
+    :return: The dict with all URL parameters related to a query.
+    """
+    query_params: QueryParams = {
+        'key': '',
+        'name': '',
+        'name_list': [],
+        'category': '',
+        'category_list': [],
+        'value': '',
+        'year_first': '',
+        'year_last': '',
+        'access': [],
+        'source_system': '',
+        'source_system2': '',
+        'start_orgs': '',
+        'collab_orgs': '',
+        'max_nr_items': -A_LARGE_NUMBER
+    }
+    return query_params
+
+
+def create_empty_page_params() -> PageParams:
+    """Construct an empty PageParams TypedDict.
+    If you add fields, add them to
+    ricgraph_explorer/ricgraph_explorer_utils.py/get_url_page_params() too.
+
+    :return: The dict with all URL parameters related to a page.
+    """
+    page_params: PageParams = {
+        'collab_mode': '',
+        'discoverer_mode': '',
+        'histogram_mode': '',
+        'max_nr_table_rows': -A_LARGE_NUMBER,
+        'origin': '',
+        'oslprofile_mode': '',
+        'overlap_mode': '',
+        'search_mode': '',
+        'view_mode': ''
+    }
+    return page_params

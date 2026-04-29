@@ -48,18 +48,13 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
                       ORGANIZATION_CATEGORY_ORGANISATION)
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO_INTERNAL,
-                                         RICGRAPH_SYSTEMINFO,
                                          html_body_start, html_body_end,
-                                         button_style, button_width,
-                                         DISCOVERER_MODE_ALL,
-                                         COLLABORATION_MODES_ALL,
-                                         MAX_ROWS_IN_TABLE,
-                                         MAX_ITEMS_TO_RETURN)
+                                         button_style, button_width)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     get_url_parameter_value, get_url_parameter_list,
                                      get_message,
                                      get_spinner, get_page_title,
-                                     get_global_str, get_page_footer)
+                                     get_global_str, get_page_footer,
+                                     get_url_page_params, get_url_query_params)
 from ricgraph_explorer_table import get_regular_table
 from ricgraph_explorer_datavis import (org_collaborations_diagram,
                                        org_collaborations_persons_results)
@@ -82,7 +77,8 @@ def collabspage() -> str:
 
     :return: HTML to be rendered.
     """
-    start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
+    query_params = get_url_query_params()
+    start_orgs = query_params['start_orgs']
 
     html = html_body_start
     html += get_page_title(title='Explore collaborations page')
@@ -242,73 +238,33 @@ def collabsresultpage() -> str:
 
     :return: HTML to be rendered.
     """
-    start_orgs = get_url_parameter_value(parameter='start_orgs', use_escape=False)
-    collab_orgs = get_url_parameter_value(parameter='collab_orgs', use_escape=False)
-    category_list = get_url_parameter_list(parameter='category_list')
-    if len(category_list) == 1 and category_list[0] == RESEARCHRESULT_CATEGORY_PUBLICATION_ALL:
+    page_params = get_url_page_params()
+    query_params = get_url_query_params()
+    if len(query_params['category_list']) == 1 \
+       and query_params['category_list'][0] == RESEARCHRESULT_CATEGORY_PUBLICATION_ALL:
         # Special case: return all publication type research results.
-        category_list = RESEARCHRESULT_CATEGORY_PUBLICATION.copy()
-    collab_mode = get_url_parameter_value(parameter='collab_mode')
-    discoverer_mode = get_url_parameter_value(parameter='discoverer_mode',
-                                              allowed_values=DISCOVERER_MODE_ALL,
-                                              default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
-                                                                           item='discoverer_mode_default'))
-    extra_url_parameters = {}
-    max_nr_items = get_url_parameter_value(parameter='max_nr_items',
-                                           default_value=str(MAX_ITEMS_TO_RETURN))
-    if not max_nr_items.isnumeric():
-        # This also catches negative numbers, they contain a '-' and are not numeric.
-        # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
-        max_nr_items = str(MAX_ITEMS_TO_RETURN)
-    extra_url_parameters['max_nr_items'] = max_nr_items
-    max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
-                                                default_value=str(MAX_ROWS_IN_TABLE))
-    if not max_nr_table_rows.isnumeric():
-        max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
-    extra_url_parameters['max_nr_table_rows'] = max_nr_table_rows
+        query_params['category_list'] = RESEARCHRESULT_CATEGORY_PUBLICATION.copy()
 
     html = html_body_start
-    if collab_mode not in COLLABORATION_MODES_ALL:
-        html += get_message(message='Unknown collab_mode: "' + collab_mode + '".')
-        html += get_page_footer() + html_body_end
-        return html
-
     html += get_page_title(title='Collaborations related to these organizations')
     html += get_html_for_cardstart()
     # A fragment of text to be reused. Escape organization names for safety, since
     # they will be included in the HTML of the webpage that is being generated.
-    start_collab_html = '"' + str(escape(start_orgs)) + '" and '
-    start_collab_html += 'any organization' if collab_orgs == '' else '"' + str(escape(collab_orgs)) + '"'
-    if collab_mode == 'return_collab_sankey':
+    start_collab_html = '"' + str(escape(query_params['start_orgs'])) + '" and '
+    start_collab_html += 'any organization' if query_params['collab_orgs'] == '' \
+                                            else '"' + str(escape(query_params['collab_orgs'])) + '"'
+    if page_params['collab_mode'] == 'return_collab_sankey':
         header = 'This Sankey diagram shows the collaborations between '
         header += start_collab_html + '. '
-        result_html = org_collaborations_diagram(start_organizations=start_orgs,
-                                                 collab_organizations=collab_orgs,
-                                                 researchresult_category=category_list,
+        result_html = org_collaborations_diagram(query_params=query_params,
                                                  diagram_type='sankey',
                                                  caption='',
                                                  generate_full_html=False)
-        # This 'if' does not make sense (April 5, 2026). I modified it to the
-        # line above.
-        # if collab_orgs == '':
-        #     result_html = org_collaborations_diagram(start_organizations=start_orgs,
-        #                                              collab_organizations=collab_orgs,
-        #                                              researchresult_category=category_list,
-        #                                              diagram_type='sankey',
-        #                                              caption='',
-        #                                              generate_full_html=False)
-        # else:
-        #     result_html = org_collaborations_diagram(start_organizations=start_orgs,
-        #                                              collab_organizations=collab_orgs,
-        #                                              researchresult_category=category_list,
-        #                                              diagram_type='sankey',
-        #                                              caption='',
-        #                                              generate_full_html=False)
-        if len(category_list) == 0:
+        if len(query_params['category_list']) == 0:
             header += ' It shows collaborations for all categories. '
         else:
             header += ' It shows collaborations for the following categories: '
-            header += str(category_list) + '. '
+            header += str(query_params['category_list']) + '. '
         if result_html == '':
             result_html = get_message(header + '<p/>Nothing found.')
         else:
@@ -319,11 +275,11 @@ def collabsresultpage() -> str:
             result_html = header + '<p/>' + result_html
     else:
         header = 'This table shows the '
-        if collab_mode == 'return_researchresults':
+        if page_params['collab_mode'] == 'return_researchresults':
             header += 'research results that originate from the collaborations between '
             header += start_collab_html + '. '
             what = 'research results'
-        elif collab_mode == 'return_startorg_persons':
+        elif page_params['collab_mode'] == 'return_startorg_persons':
             header += 'persons that are participating in the collaborations between '
             header += start_collab_html
             header += ', they are member of the first organization.'
@@ -333,22 +289,20 @@ def collabsresultpage() -> str:
             header += start_collab_html
             header += ', they are member of the latter organization(s).'
             what = 'collaborations'
-        if len(category_list) == 0:
+        if len(query_params['category_list']) == 0:
             header += ' It shows ' + what + ' for all categories.'
         else:
             header += ' It shows ' + what + ' for the following categories: '
-            header += str(category_list) + '.'
-        nodes_list = org_collaborations_persons_results(start_organizations=start_orgs,
-                                                        collab_organizations=collab_orgs,
-                                                        researchresult_category=category_list,
-                                                        mode=collab_mode)
+            header += str(query_params['category_list']) + '.'
+        nodes_list = org_collaborations_persons_results(query_params=query_params,
+                                                        mode=page_params['collab_mode'])
         if len(nodes_list) == 0:
             result_html = get_message(header + '<p/>Nothing found.')
         else:
             result_html = get_regular_table(nodes_list=nodes_list,
-                                            table_header=header,
-                                            discoverer_mode=discoverer_mode,
-                                            extra_url_parameters=extra_url_parameters)
+                                            page_params=page_params,
+                                            query_params=query_params,
+                                            table_header=header)
     html += result_html
     html += get_html_for_cardend()
 

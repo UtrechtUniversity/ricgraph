@@ -41,7 +41,47 @@
 #
 # ########################################################################
 
+from typing import TypedDict
 from re import escape, compile, IGNORECASE
+
+
+# A TypedDict helps to describe the exact keys and value types a dictionary
+# is supposed to have. The type definition shows which fields are
+# required, optional, or read‑only.
+# It also prevents adding a function parameter when a new parameter
+# is necessary for e.g. a Cypher query.
+# This TypedDict is filled in ricgraph_utils.py/create_empty_query_params(),
+# and in ricgraph_explorer_utils.py/get_url_query_params().
+# If you add something, add it there too.
+class QueryParams(TypedDict):
+    key: str
+    name: str
+    name_list: list[str]
+    category: str
+    category_list: list[str]
+    value: str
+    year_first: str
+    year_last: str
+    access: list[str]
+    source_system: str
+    source_system2: str
+    start_orgs: str
+    collab_orgs: str
+    max_nr_items: int
+
+# This TypedDict is filled in ricgraph_utils.py/create_empty_page_params(),
+# and in ricgraph_explorer_utils.py/get_url_page_params().
+# If you add something, add it there too.
+class PageParams(TypedDict):
+    collab_mode: str
+    discoverer_mode: str
+    histogram_mode: str
+    max_nr_table_rows: int
+    origin: str
+    oslprofile_mode: str
+    overlap_mode: str
+    search_mode: str
+    view_mode: str
 
 
 RICGRAPH_INI_FILENAME = 'ricgraph.ini'
@@ -59,6 +99,10 @@ RICGRAPH_VALUE_SEPARATOR_REPLACEMENT = '_'
 
 # Used for some loop iterations, in case no max iteration for such a loop is specified.
 A_LARGE_NUMBER = 9999999999
+
+# The 'unknown' value of a property, now '', maybe changed to 'unknown' later on.
+# For e.g. 'access' and 'license' property.
+UNKNOWN = ''
 
 # For the REST API, we need to return an HTTP response status code. These are
 # listed on https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml.
@@ -211,63 +255,65 @@ RESEARCHRESULT_CATEGORY_PUBLICATION_ALL = 'publication_all'
 # RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
 # RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
 # RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL.
-RESEARCHRESULT_CATEGORY_ALL = \
-    [RESEARCHRESULT_CATEGORY_ABSTRACT,
-     RESEARCHRESULT_CATEGORY_ARTEFACT,
-     RESEARCHRESULT_CATEGORY_BOOK,
-     RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
-     RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
-     RESEARCHRESULT_CATEGORY_DATASET,
-     RESEARCHRESULT_CATEGORY_DESIGN,
-     RESEARCHRESULT_CATEGORY_DIGITAL_VISUAL_PRODUCT,
-     RESEARCHRESULT_CATEGORY_EDITORIAL,
-     RESEARCHRESULT_CATEGORY_ENTRY,
-     RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE,
-     RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
-     RESEARCHRESULT_CATEGORY_LETTER,
-     RESEARCHRESULT_CATEGORY_MEMORANDUM,
-     RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
-     RESEARCHRESULT_CATEGORY_MODEL,
-     RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
-     RESEARCHRESULT_CATEGORY_PATENT,
-     RESEARCHRESULT_CATEGORY_PHDTHESIS,
-     RESEARCHRESULT_CATEGORY_POSTER,
-     RESEARCHRESULT_CATEGORY_PREPRINT,
-     RESEARCHRESULT_CATEGORY_PRESENTATION,
-     RESEARCHRESULT_CATEGORY_PRESS_MEDIA,
-     RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
-     RESEARCHRESULT_CATEGORY_REPORT,
-     RESEARCHRESULT_CATEGORY_RETRACTION,
-     RESEARCHRESULT_CATEGORY_REVIEW,
-     RESEARCHRESULT_CATEGORY_SOFTWARE,
-     RESEARCHRESULT_CATEGORY_THESIS,
-     RESEARCHRESULT_CATEGORY_WEBSITE]
+RESEARCHRESULT_CATEGORY_ALL = [
+    RESEARCHRESULT_CATEGORY_ABSTRACT,
+    RESEARCHRESULT_CATEGORY_ARTEFACT,
+    RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+    RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    RESEARCHRESULT_CATEGORY_DATASET,
+    RESEARCHRESULT_CATEGORY_DESIGN,
+    RESEARCHRESULT_CATEGORY_DIGITAL_VISUAL_PRODUCT,
+    RESEARCHRESULT_CATEGORY_EDITORIAL,
+    RESEARCHRESULT_CATEGORY_ENTRY,
+    RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE,
+    RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+    RESEARCHRESULT_CATEGORY_LETTER,
+    RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
+    RESEARCHRESULT_CATEGORY_MODEL,
+    RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
+    RESEARCHRESULT_CATEGORY_PATENT,
+    RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    RESEARCHRESULT_CATEGORY_POSTER,
+    RESEARCHRESULT_CATEGORY_PREPRINT,
+    RESEARCHRESULT_CATEGORY_PRESENTATION,
+    RESEARCHRESULT_CATEGORY_PRESS_MEDIA,
+    RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
+    RESEARCHRESULT_CATEGORY_REPORT,
+    RESEARCHRESULT_CATEGORY_RETRACTION,
+    RESEARCHRESULT_CATEGORY_REVIEW,
+    RESEARCHRESULT_CATEGORY_SOFTWARE,
+    RESEARCHRESULT_CATEGORY_THESIS,
+    RESEARCHRESULT_CATEGORY_WEBSITE
+]
 
 # A researchresult_category_active is defined in collect_ricgraph_nodeinfo().
 # These are elements of RESEARCHRESULT_CATEGORY_ALL that are present in your Ricgraph.
 # I.e., those have been harvested from the source systems that you chose to harvest.
 
-RESEARCHRESULT_CATEGORY_PUBLICATION = \
-    [RESEARCHRESULT_CATEGORY_ABSTRACT,
-     RESEARCHRESULT_CATEGORY_BOOK,
-     RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
-     RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
-     RESEARCHRESULT_CATEGORY_EDITORIAL,
-     RESEARCHRESULT_CATEGORY_ENTRY,
-     RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
-     RESEARCHRESULT_CATEGORY_LETTER,
-     RESEARCHRESULT_CATEGORY_MEMORANDUM,
-     RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
-     RESEARCHRESULT_CATEGORY_PATENT,
-     RESEARCHRESULT_CATEGORY_PHDTHESIS,
-     RESEARCHRESULT_CATEGORY_POSTER,
-     RESEARCHRESULT_CATEGORY_PREPRINT,
-     RESEARCHRESULT_CATEGORY_PRESENTATION,
-     RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
-     RESEARCHRESULT_CATEGORY_REPORT,
-     RESEARCHRESULT_CATEGORY_RETRACTION,
-     RESEARCHRESULT_CATEGORY_REVIEW,
-     RESEARCHRESULT_CATEGORY_THESIS]
+RESEARCHRESULT_CATEGORY_PUBLICATION = [
+    RESEARCHRESULT_CATEGORY_ABSTRACT,
+    RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+    RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    RESEARCHRESULT_CATEGORY_EDITORIAL,
+    RESEARCHRESULT_CATEGORY_ENTRY,
+    RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+    RESEARCHRESULT_CATEGORY_LETTER,
+    RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
+    RESEARCHRESULT_CATEGORY_PATENT,
+    RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    RESEARCHRESULT_CATEGORY_POSTER,
+    RESEARCHRESULT_CATEGORY_PREPRINT,
+    RESEARCHRESULT_CATEGORY_PRESENTATION,
+    RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
+    RESEARCHRESULT_CATEGORY_REPORT,
+    RESEARCHRESULT_CATEGORY_RETRACTION,
+    RESEARCHRESULT_CATEGORY_REVIEW,
+    RESEARCHRESULT_CATEGORY_THESIS
+]
 
 # A researchresult_category_active is defined in collect_ricgraph_nodeinfo().
 # These are elements of RESEARCHRESULT_CATEGORY_PUBLICATION that are present in your Ricgraph.
@@ -277,81 +323,90 @@ RESEARCHRESULT_CATEGORY_PUBLICATION = \
 # ########################################################################
 # Research result types related to open science monitoring (category property).
 # ########################################################################
-RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL = \
-    [RESEARCHRESULT_CATEGORY_DATASET,
-     RESEARCHRESULT_CATEGORY_SOFTWARE]
+RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL = [
+    RESEARCHRESULT_CATEGORY_DATASET,
+    RESEARCHRESULT_CATEGORY_SOFTWARE
+]
 
-RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL = \
-    [RESEARCHRESULT_CATEGORY_ABSTRACT,
-     RESEARCHRESULT_CATEGORY_ARTEFACT,
-     RESEARCHRESULT_CATEGORY_BOOK,
-     RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
-     RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
-     RESEARCHRESULT_CATEGORY_DESIGN,
-     RESEARCHRESULT_CATEGORY_EDITORIAL,
-     RESEARCHRESULT_CATEGORY_ENTRY,
-     RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
-     RESEARCHRESULT_CATEGORY_LETTER,
-     RESEARCHRESULT_CATEGORY_MEMORANDUM,
-     RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
-     RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
-     RESEARCHRESULT_CATEGORY_PHDTHESIS,
-     RESEARCHRESULT_CATEGORY_POSTER,
-     RESEARCHRESULT_CATEGORY_PREPRINT,
-     RESEARCHRESULT_CATEGORY_PRESENTATION,
-     RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
-     RESEARCHRESULT_CATEGORY_REPORT,
-     RESEARCHRESULT_CATEGORY_RETRACTION,
-     RESEARCHRESULT_CATEGORY_REVIEW,
-     RESEARCHRESULT_CATEGORY_THESIS]
+RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL = [
+    RESEARCHRESULT_CATEGORY_ABSTRACT,
+    RESEARCHRESULT_CATEGORY_ARTEFACT,
+    RESEARCHRESULT_CATEGORY_BOOK,
+    RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
+    RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    RESEARCHRESULT_CATEGORY_DESIGN,
+    RESEARCHRESULT_CATEGORY_EDITORIAL,
+    RESEARCHRESULT_CATEGORY_ENTRY,
+    RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
+    RESEARCHRESULT_CATEGORY_LETTER,
+    RESEARCHRESULT_CATEGORY_MEMORANDUM,
+    RESEARCHRESULT_CATEGORY_METHOD_DESCRIPTION,
+    RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
+    RESEARCHRESULT_CATEGORY_PHDTHESIS,
+    RESEARCHRESULT_CATEGORY_POSTER,
+    RESEARCHRESULT_CATEGORY_PREPRINT,
+    RESEARCHRESULT_CATEGORY_PRESENTATION,
+    RESEARCHRESULT_CATEGORY_REGISTERED_REPORT,
+    RESEARCHRESULT_CATEGORY_REPORT,
+    RESEARCHRESULT_CATEGORY_RETRACTION,
+    RESEARCHRESULT_CATEGORY_REVIEW,
+    RESEARCHRESULT_CATEGORY_THESIS
+]
 
-RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL = \
-    [RESEARCHRESULT_CATEGORY_DIGITAL_VISUAL_PRODUCT,
-     RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE,
-     RESEARCHRESULT_CATEGORY_MODEL,
-     RESEARCHRESULT_CATEGORY_PATENT,
-     RESEARCHRESULT_CATEGORY_PRESS_MEDIA,
-     RESEARCHRESULT_CATEGORY_WEBSITE]
-
-
-# ########################################################################
-# Person related constants (category property).
-# ########################################################################
-PERSON_CATEGORY_PERSON = 'person'
-PERSON_CATEGORY_ALL = \
- [PERSON_CATEGORY_PERSON]
-
-
-# ########################################################################
-# Organization related constants (category property).
-# ########################################################################
-ORGANIZATION_CATEGORY_ORGANISATION = 'organization'
-ORGANIZATION_CATEGORY_ALL = \
-    [ORGANIZATION_CATEGORY_ORGANISATION]
+RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL = [
+    RESEARCHRESULT_CATEGORY_DIGITAL_VISUAL_PRODUCT,
+    RESEARCHRESULT_CATEGORY_EXHIBITION_PERFORMANCE,
+    RESEARCHRESULT_CATEGORY_MODEL,
+    RESEARCHRESULT_CATEGORY_PATENT,
+    RESEARCHRESULT_CATEGORY_PRESS_MEDIA,
+    RESEARCHRESULT_CATEGORY_WEBSITE
+]
 
 
 # ########################################################################
 # Competence related constants (category property).
 # ########################################################################
 COMPETENCE_CATEGORY_COMPETENCE= 'competence'
-COMPETENCE_CATEGORY_ALL = \
-    [COMPETENCE_CATEGORY_COMPETENCE]
+COMPETENCE_CATEGORY_ALL = [
+    COMPETENCE_CATEGORY_COMPETENCE
+]
+
+
+# ########################################################################
+# Person related constants (category property).
+# ########################################################################
+PERSON_CATEGORY_PERSON = 'person'
+PERSON_CATEGORY_ALL = [
+    COMPETENCE_CATEGORY_COMPETENCE,
+    PERSON_CATEGORY_PERSON
+]
+
+
+# ########################################################################
+# Organization related constants (category property).
+# ########################################################################
+ORGANIZATION_CATEGORY_ORGANISATION = 'organization'
+ORGANIZATION_CATEGORY_ALL = [
+    ORGANIZATION_CATEGORY_ORGANISATION
+]
 
 
 # ########################################################################
 # Project related constants (category property).
 # ########################################################################
 PROJECT_CATEGORY_PROJECT = 'project'
-PROJECT_CATEGORY_ALL = \
-    [PROJECT_CATEGORY_PROJECT]
+PROJECT_CATEGORY_ALL = [
+    PROJECT_CATEGORY_PROJECT
+]
 
 
 # ########################################################################
 # Person related constants (name property).
 # ########################################################################
 PERSON_NAME_PERSON_ROOT = 'person-root'
-PERSON_NAME_PERSON_ROOT_LIST = \
-    [PERSON_NAME_PERSON_ROOT]
+PERSON_NAME_PERSON_ROOT_LIST = [
+    PERSON_NAME_PERSON_ROOT
+]
 
 
 # ########################################################################
@@ -373,19 +428,21 @@ PERSON_NAME_PERSON_ROOT_LIST = \
 # that only nodes of the same type (i.e. with the same node labels)
 # are merged.
 # ########################################################################
-NODELABELS_NAME = [{'namelist': PERSON_NAME_PERSON_ROOT_LIST,
-                    'nodelabel_for_namelist': 'RicgraphPersonRoot'}
-                   ]
+NODELABELS_NAME = [
+    {'namelist': PERSON_NAME_PERSON_ROOT_LIST,
+     'nodelabel_for_namelist': 'RicgraphPersonRoot'}
+]
 
-NODELABELS_CATEGORY = [{'categorylist': PERSON_CATEGORY_ALL,
-                        'nodelabel_for_categorylist': 'RicgraphPerson'},
-                       {'categorylist': ORGANIZATION_CATEGORY_ALL,
-                        'nodelabel_for_categorylist': 'RicgraphOrganization'},
-                       {'categorylist': RESEARCHRESULT_CATEGORY_ALL,
-                        'nodelabel_for_categorylist': 'RicgraphResearchResult'},
-                       {'categorylist': COMPETENCE_CATEGORY_ALL,
-                        'nodelabel_for_categorylist': 'RicgraphCompetence'}
-                       ]
+NODELABELS_CATEGORY = [
+    {'categorylist': PERSON_CATEGORY_ALL,
+     'nodelabel_for_categorylist': 'RicgraphPerson'},
+    {'categorylist': ORGANIZATION_CATEGORY_ALL,
+     'nodelabel_for_categorylist': 'RicgraphOrganization'},
+    {'categorylist': RESEARCHRESULT_CATEGORY_ALL,
+     'nodelabel_for_categorylist': 'RicgraphResearchResult'},
+    {'categorylist': COMPETENCE_CATEGORY_ALL,
+     'nodelabel_for_categorylist': 'RicgraphCompetence'}
+]
 
 
 # ########################################################################
@@ -414,43 +471,47 @@ LICENSE_MULTIPLE = 'Multiple'
 LICENSE_ODC_BY_10 = 'ODC-By-1.0'
 LICENSE_OPEN_ACCESS = 'Open access'
 LICENSE_TAVERNE = 'Taverne (not for re-use)'
+LICENSE_UNKNOWN = UNKNOWN
 
-LICENSE_ALL = \
-    [LICENSE_AGPL_30,
-     LICENSE_APACHE_20,
-     LICENSE_BSD_2,
-     LICENSE_BSD_3,
-     LICENSE_CC0,
-     LICENSE_CC_BY,
-     LICENSE_CC_BY_40,
-     LICENSE_CC_BY_NC,
-     LICENSE_CC_BY_NC_ND,
-     LICENSE_CC_BY_NC_SA,
-     LICENSE_CC_BY_ND,
-     LICENSE_CC_BY_SA,
-     LICENSE_GPL_20,
-     LICENSE_GPL_30,
-     LICENSE_LGPL_21,
-     LICENSE_LGPL_30,
-     LICENSE_MIT,
-     LICENSE_MULTIPLE,
-     LICENSE_ODC_BY_10,
-     LICENSE_OPEN_ACCESS,
-     LICENSE_TAVERNE]
+LICENSE_ALL = [
+    LICENSE_AGPL_30,
+    LICENSE_APACHE_20,
+    LICENSE_BSD_2,
+    LICENSE_BSD_3,
+    LICENSE_CC0,
+    LICENSE_CC_BY,
+    LICENSE_CC_BY_40,
+    LICENSE_CC_BY_NC,
+    LICENSE_CC_BY_NC_ND,
+    LICENSE_CC_BY_NC_SA,
+    LICENSE_CC_BY_ND,
+    LICENSE_CC_BY_SA,
+    LICENSE_GPL_20,
+    LICENSE_GPL_30,
+    LICENSE_LGPL_21,
+    LICENSE_LGPL_30,
+    LICENSE_MIT,
+    LICENSE_MULTIPLE,
+    LICENSE_ODC_BY_10,
+    LICENSE_OPEN_ACCESS,
+    LICENSE_TAVERNE,
+    LICENSE_UNKNOWN
+]
 
 # ########################################################################
 # Access related constants.
 # ########################################################################
-ACCESS_ANY = 'any'   # May be deleted at some time, being empty may be an alternative.
 ACCESS_CLOSED = 'closed'
 ACCESS_EMBARGOED = 'embargoed'
 ACCESS_OPEN = 'open'
 ACCESS_RESTRICTED = 'restricted'
+ACCESS_UNKNOWN = UNKNOWN
 
-ACCESS_ALL = \
-    [ACCESS_ANY,
-     ACCESS_CLOSED,
-     ACCESS_EMBARGOED,
-     ACCESS_OPEN,
-     ACCESS_RESTRICTED]
+ACCESS_ALL = [
+    ACCESS_CLOSED,
+    ACCESS_EMBARGOED,
+    ACCESS_OPEN,
+    ACCESS_RESTRICTED,
+    ACCESS_UNKNOWN
+]
 

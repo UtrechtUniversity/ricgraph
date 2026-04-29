@@ -46,10 +46,18 @@ from pathlib import Path
 from flask import request, url_for
 from markupsafe import escape
 from neo4j.graph import Node
-from ricgraph import create_unique_string, extract_organization_abbreviation
+from ricgraph import (create_unique_string,
+                      extract_organization_abbreviation,
+                      QueryParams, PageParams)
 from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
+                                         RICGRAPH_HARVESTINFO,
+                                         RICGRAPH_NODEINFO,
                                          RICGRAPH_NODEINFO_INTERNAL,
                                          RICGRAPH_SYSTEMINFO,
+                                         HISTOGRAM_MODE_PERCENTAGES,
+                                         OSL_PROFILE_MODE_GROUPS,
+                                         OVERLAP_MODE_SOURCE_ALL,
+                                         MAX_ITEMS_TO_RETURN, MAX_ROWS_IN_TABLE,
                                          spinner_style,
                                          button_style, button_width,
                                          font_family,
@@ -60,6 +68,76 @@ from ricgraph_explorer_init import (get_ricgraph_explorer_global,
 from ricgraph_explorer_javascript import get_spinner_javascript
 
 
+# ##############################################################################
+# Various global functions.
+# ##############################################################################
+def get_global_list(ricgraph_info: str, item: str) -> list:
+    """Safely retrieve an entry from a Ricgraph info structure.
+    A list return value is expected.
+
+    :param ricgraph_info: The Ricgraph info structure.
+    :param item: The element in that structure.
+    :return: the value of the list, or [] if it does not exist.
+    """
+    if ricgraph_info == RICGRAPH_CACHEINFO:
+        # First update the information about the cache.
+        collect_ricgraph_cacheinfo()
+    info = get_ricgraph_explorer_global(name=ricgraph_info)
+    if info is None:
+        return []
+    value = info.get(item, [])
+    return value
+
+
+def get_global_str(ricgraph_info: str, item: str) -> str:
+    """Safely retrieve an entry from a Ricgraph info structure.
+    A str return value is expected.
+
+    :param ricgraph_info: The Ricgraph info structure.
+    :param item: The element in that structure.
+    :return: the value of the str, or '' if it does not exist.
+    """
+    if ricgraph_info == RICGRAPH_CACHEINFO:
+        # First update the information about the cache.
+        collect_ricgraph_cacheinfo()
+    info = get_ricgraph_explorer_global(name=ricgraph_info)
+    if info is None:
+        return ''
+    value = info.get(item, '')
+    return value
+
+
+def get_global_dataframe(ricgraph_info: str, item: str) -> DataFrame | None:
+    """Safely retrieve an entry from a Ricgraph info structure.
+    A DataFrame return value is expected.
+
+    :param ricgraph_info: The Ricgraph info structure.
+    :param item: The element in that structure.
+    :return: the value of the DataFrame, or None if it does not exist.
+    """
+    if ricgraph_info == RICGRAPH_CACHEINFO:
+        # First update the information about the cache.
+        collect_ricgraph_cacheinfo()
+    info = get_ricgraph_explorer_global(name=ricgraph_info)
+    if info is None:
+        return None
+    value = info.get(item, '')
+    return DataFrame(value)
+
+
+def get_page_footer() -> str:
+    """Get the page footer.
+
+    :return: HTML for the page footer.
+    """
+    page_footer = get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                 item='page_footer')
+    return page_footer
+
+
+# ##############################################################################
+# URL related functions.
+# ##############################################################################
 def get_url_parameter_value(parameter: str,
                             allowed_values: list = None,
                             default_value: str = '',
@@ -99,10 +177,14 @@ def get_url_parameter_value(parameter: str,
 
 
 def get_url_parameter_list(parameter: str,
+                           allowed_values: list = None,
+                           default_value: str = '',
                            use_escape: bool = True) -> list:
     """Get a URL parameter list and its values.
 
     :param parameter: name of the URL parameter.
+    :param allowed_values: allowed values of the URL parameter, if any.
+    :param default_value: the default value, if any.
     :param use_escape: whether to call escape() or not for the values of the URL
         parameter. We should do this for safety, however, we cannot always do
         this, because for some cases we cannot search correctly in Ricgraph.
@@ -112,23 +194,185 @@ def get_url_parameter_list(parameter: str,
         will not be found in Ricgraph.
     :return: the list of values of the URL parameter.
     """
-    raw_value_list = request.args.getlist(parameter)
-    if len(raw_value_list) == 0:
-        # This fires if URL parameter 'parameter' is not present.
-        return []
-    if len(raw_value_list) == 1 and raw_value_list[0] == '':
-        # This fires if URL parameter 'parameter' is present and is emtpy
-        # (as in /some/path?parameter=).
-        return []
+    if allowed_values is None:
+        allowed_values = []
 
+    raw_value_list = request.args.getlist(parameter)
     if use_escape:
         value_list = [str(escape(item)) for item in raw_value_list]
     else:
         value_list = raw_value_list.copy()
 
+    if len(allowed_values) > 0:
+        value_list = list(set(value_list) & set(allowed_values))
+
+    if len(value_list) == 0:
+        if default_value == '':
+            value_list = []
+        else:
+            value_list = [default_value]
     return value_list
 
 
+def get_url_query_params() -> QueryParams:
+    """Construct a dict that contains all possible parameters
+    for a Cypher query from the URL. If the URL does not
+    contain a certain parameter, insert its default value,
+    so that we can always assume that every key in the dict
+    exists.
+    If you add fields, add them to
+    ricgraph/ricgraph_utils.py/create_empty_query_params() too.
+
+    :return: The dict with all URL parameters related to a query.
+    """
+    max_nr_items = get_url_parameter_value(parameter='max_nr_items',
+                                           default_value=str(MAX_ITEMS_TO_RETURN))
+    if not max_nr_items.isnumeric():
+        # This also catches negative numbers, they contain a '-' and are not numeric.
+        # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
+        max_nr_items = str(MAX_ITEMS_TO_RETURN)
+
+    name_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                  item='name_active')
+    category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                      item='category_active')
+    access_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                    item='access_active')
+    source_active = get_global_list(ricgraph_info=RICGRAPH_HARVESTINFO,
+                                    item='source_active')
+
+    # The rationale behind the following is as follows:
+    # 1. Only allow 'active' values for a property of type list.
+    # 2. Then, if the list passed in the URL param has the same length
+    #    as the list of active values, the two list must be the same.
+    # 3. If (2) is the case, then, for Cypher queries, it is not
+    #    necessary to filter on that property using a WHERE, since
+    #    any value for that property in the graph database is
+    #    already taken into account. Change the list to [], so
+    #    it will not be added to the Cypher query (so the query
+    #    is faster).
+    name_list = get_url_parameter_list(parameter='name_list',
+                                       allowed_values=name_active)
+    if len(name_active) == len(name_list):
+        name_list = []
+    category_list = get_url_parameter_list(parameter='category_list',
+                                           allowed_values=category_active)
+    if len(name_active) == len(category_list):
+        category_list = []
+    access = get_url_parameter_list(parameter='access',
+                                    allowed_values=access_active)
+    if len(access_active) == len(access):
+        # Note that access_active may also contain '', for unknown.
+        access = []
+
+    query_params: QueryParams = {
+        'key': get_url_parameter_value(parameter='key', use_escape=False),
+        'name': get_url_parameter_value(parameter='name',
+                                        allowed_values=name_active),
+        'name_list': name_list,
+        'category': get_url_parameter_value(parameter='category',
+                                            allowed_values=category_active),
+        'category_list': category_list,
+        'value': get_url_parameter_value(parameter='value', use_escape=False),
+        'year_first': get_url_parameter_value(parameter='year_first'),
+        'year_last': get_url_parameter_value(parameter='year_last'),
+        'access': access,
+        'source_system': get_url_parameter_value(parameter='source_system',
+                                                 allowed_values=source_active),
+        'source_system2': get_url_parameter_value(parameter='source_system2',
+                                                  allowed_values=source_active + OVERLAP_MODE_SOURCE_ALL),
+        'start_orgs': get_url_parameter_value(parameter='start_orgs', use_escape=False),
+        'collab_orgs': get_url_parameter_value(parameter='collab_orgs', use_escape=False),
+        'max_nr_items': int(max_nr_items)
+    }
+    return query_params
+
+
+def get_url_page_params() -> PageParams:
+    """Construct a dict that contains all possible parameters
+    for a page from the URL. If the URL does not
+    contain a certain parameter, insert its default value,
+    so that we can always assume that every key in the dict
+    exists.
+    If you add fields, add them to
+    ricgraph/ricgraph_utils.py/create_empty_page_params() too.
+
+    :return: The dict with all URL parameters related to a page.
+    """
+    max_nr_table_rows = get_url_parameter_value(parameter='max_nr_table_rows',
+                                                default_value=str(MAX_ROWS_IN_TABLE))
+    if not max_nr_table_rows.isnumeric():
+        # This also catches negative numbers, they contain a '-' and are not numeric.
+        # See https://www.w3schools.com/python/ref_string_isnumeric.asp.
+        max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
+
+    page_params: PageParams = {
+        'collab_mode': get_url_parameter_value(parameter='collab_mode',
+                                               allowed_values=get_global_list(
+                                                   ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                   item='collab_mode_all')),
+        'discoverer_mode': get_url_parameter_value(parameter='discoverer_mode',
+                                                   allowed_values=get_global_list(
+                                                      ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                      item='discoverer_mode_all'),
+                                                   default_value=get_global_str(
+                                                      ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                      item='discoverer_mode_default')),
+        'histogram_mode': get_url_parameter_value(parameter='histogram_mode',
+                                                  allowed_values=get_global_list(
+                                                      ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                      item='histogram_mode_all'),
+                                                  default_value=HISTOGRAM_MODE_PERCENTAGES),
+        'max_nr_table_rows': int(max_nr_table_rows),
+        'origin': get_url_parameter_value(parameter='origin',
+                                          allowed_values=get_global_list(
+                                              ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                              item='origin_button_all')),
+        'oslprofile_mode': get_url_parameter_value(parameter='oslprofile_mode',
+                                                   allowed_values=get_global_list(
+                                                      ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                      item='osl_profile_mode_all'),
+                                                   default_value=OSL_PROFILE_MODE_GROUPS),
+        'overlap_mode': get_url_parameter_value(parameter='overlap_mode',
+                                                allowed_values=get_global_list(
+                                                    ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                    item='overlap_mode_all')),
+        'search_mode': get_url_parameter_value(parameter='search_mode',
+                                               allowed_values=get_global_list(
+                                                   ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                   item='search_mode_all'),
+                                               default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                                           item='search_mode_default')),
+        'view_mode': get_url_parameter_value(parameter='view_mode',
+                                             allowed_values=get_global_list(
+                                                 ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                                 item='view_mode_all'))
+    }
+    return page_params
+
+
+def merge_and_remove_empty(page_params: PageParams,
+                           query_params: QueryParams) -> dict:
+    """Merges two TypedDicts 'page_params' and 'query_params',
+    and removes empty values (as in '' or []) from  the result.
+    To be used before constructing a URL, to prevent lots of empty
+    values in the URL (as in ...&year_first=&year_last=&...).
+
+    :param page_params: The PageParams dict.
+    :param query_params: The QueryParams dict.
+    :return: The dict that has no empty values.
+    """
+    merge = {**page_params, **query_params}
+    non_empty = {}
+    for key in merge:
+        if merge[key] not in ['', []]:
+            non_empty[key] = merge[key]
+    return non_empty
+
+
+# ##############################################################################
+# HTML utility functions.
+# ##############################################################################
 def get_message(message: str, please_try_again: bool = True) -> str:
     """This function creates an HTML message containing 'message'.
 
@@ -145,23 +389,20 @@ def get_message(message: str, please_try_again: bool = True) -> str:
 
 
 def get_found_message(node: Node | None,
-                      table_header: str = '',
-                      discoverer_mode: str = '',
-                      extra_url_parameters: dict = None) -> str:
+                      page_params: PageParams,
+                      query_params: QueryParams,
+                      table_header: str = '') -> str:
     """This function creates an HTML table containing 'node'.
 
     :param node: the node to put in the table.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param table_header: header for the table.
-    :param discoverer_mode: as usual.
-    :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
     # To solve circular dependency on get_regular_table() which depends
     # on this file.
     from ricgraph_explorer_table import get_regular_table
-
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
 
     if table_header == '':
         header = 'Ricgraph Explorer found item:'
@@ -169,9 +410,9 @@ def get_found_message(node: Node | None,
         header = table_header
 
     html = get_regular_table(nodes_list=[node],
-                             table_header=header,
-                             discoverer_mode=discoverer_mode,
-                             extra_url_parameters=extra_url_parameters)
+                             page_params=page_params,
+                             query_params=query_params,
+                             table_header=header)
     return html
 
 
@@ -185,7 +426,6 @@ def get_page_title(title: str) -> str:
     html += '<h1 style="margin-top:0px; margin-bottom:0px">' + title + '</h1>'
     html += get_html_for_cardend()
     return html
-
 
 
 def create_html_form(destination: str,
@@ -264,19 +504,10 @@ def create_html_form(destination: str,
     return form
 
 
-def get_you_searched_for_card(name: str = 'None', category: str = 'None', value: str = 'None',
-                              key: str = 'None',
-                              name_list: list = None,
-                              category_list: list = None,
-                              view_mode: str = 'None',
-                              discoverer_mode: str = 'None',
-                              overlap_mode: str = 'None',
-                              system1: str = 'None',
-                              system2: str = 'None',
-                              source_system: str = 'None',
+def get_you_searched_for_card(page_params: PageParams,
+                              query_params: QueryParams,
                               name_filter: str = 'None',
-                              category_filter: str = 'None',
-                              extra_url_parameters: dict = None) -> str:
+                              category_filter: str = 'None') -> str:
     """Get the HTML for the "You searched for" card.
     If you do not pass a str parameter, such as 'key', the default value will
     be 'None', which indicates that that value has not been passed.
@@ -285,30 +516,12 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
     Then that parameter will be shown.
     This makes it possible to pass a parameter with value '' and show that value.
 
-    :param name: name.
-    :param category: category.
-    :param value: value.
-    :param key: key.
-    :param name_list: name_list.
-    :param category_list: category_list.
-    :param view_mode: view_mode.
-    :param discoverer_mode: discoverer_mode.
-    :param overlap_mode: overlap_mode.
-    :param system1: system1.
-    :param system2: system2.
-    :param source_system: source_system.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param name_filter: name_filter.
     :param category_filter: category_filter.
-    :param extra_url_parameters: extra parameters to be added to the url.
     :return: HTML to be rendered.
     """
-    if name_list is None:
-        name_list = []
-    if category_list is None:
-        category_list = []
-    if extra_url_parameters is None:
-        extra_url_parameters = {}
-
     html = '<details><summary class="uu-yellow" '
     # Use the same amount at both 'top' and 'margin-bottom'.
     html += 'style="position:relative; top:-3ex; text-align:right; margin-bottom:-3ex; float:right;">'
@@ -316,100 +529,17 @@ def get_you_searched_for_card(name: str = 'None', category: str = 'None', value:
     html += get_html_for_cardstart()
     html += 'Your search consisted of these fields and values:'
     html += '<ul>'
-    if name != 'None':
-        html += '<li>name: <i>"' + str(name) + '"</i>'
-    if category != 'None':
-        html += '<li>category: <i>"' + str(category) + '"</i>'
-    if value != 'None':
-        html += '<li>value: <i>"' + str(value) + '"</i>'
-    if key != 'None':
-        html += '<li>key: <i>"' + str(key) + '"</i>'
-    if len(name_list) > 0:
-        html += '<li>name_list: <i>"' + str(name_list) + '"</i>'
-    if len(category_list) > 0:
-        html += '<li>category_list: <i>"' + str(category_list) + '"</i>'
-    if view_mode != 'None':
-        html += '<li>view_mode: <i>"' + str(view_mode) + '"</i>'
-    if discoverer_mode != 'None':
-        html += '<li>discoverer_mode: <i>"' + str(discoverer_mode) + '"</i>'
-    if overlap_mode != 'None':
-        html += '<li>overlap_mode: <i>"' + str(overlap_mode) + '"</i>'
-    if system1 != 'None':
-        html += '<li>system1: <i>"' + str(system1) + '"</i>'
-    if system2 != 'None':
-        html += '<li>system2: <i>"' + str(system2) + '"</i>'
-    if source_system != 'None':
-        html += '<li>source_system: <i>"' + str(source_system) + '"</i>'
+    for item, value in page_params.items():
+        html += '<li>page_params["' + item + '"]: <i>"' + str(value) + '"</i>'
+    for item, value in query_params.items():
+        html += '<li>query_params["' + item + '"]: <i>"' + str(value) + '"</i>'
     if name_filter != 'None':
         html += '<li>name_filter: <i>"' + str(name_filter) + '"</i>'
     if category_filter != 'None':
         html += '<li>category_filter: <i>"' + str(category_filter) + '"</i>'
-    for item in extra_url_parameters:
-        html += '<li>extra_url_parameters["' + item + '"]: <i>"' + extra_url_parameters[item] + '"</i>'
     html += '</ul>'
     html += get_html_for_cardend()
     html += '</details>'
-    return html
-
-
-def get_spinner(message: str = '') -> str:
-    """Get a spinner, indicating that an operation may take a long time.
-
-    :param message: message to show below the spinner.
-    :return: HTML to be rendered.
-    """
-    html = f'''
-           <div id="ricgraph_spinner" class="ricgraph_spinner_overlay w3-center">
-             <div class="{button_style}" style="width:30vw;">
-               <span class="ricgraph_spinner"></span>
-               <div style="margin-left: 10px; white-space:normal;">{message}</div>
-             </div>
-           </div>
-           '''
-    javascript = get_spinner_javascript()
-    return spinner_style + html + javascript
-
-
-# ##############################################################################
-# The HTML for the W3CSS cards is generated here.
-# ##############################################################################
-def get_html_for_cardstart() -> str:
-    """Get the HTML required for the start of a W3.CSS 'card'.
-    W3.CSS is a modern, responsive, mobile first CSS framework.
-
-    :return: HTML to be rendered.
-    """
-    html = '<section class="w3-container">'
-    html += '<div class="w3-card-4">'
-    html += '<div class="w3-container w3-responsive">'
-    return html
-
-
-def get_html_for_cardend() -> str:
-    """Get the HTML required for the end of a W3.CSS 'card'.
-    W3.CSS is a modern, responsive, mobile first CSS framework.
-
-    :return: HTML to be rendered.
-    """
-    html = '</div>'
-    html += '</div>'
-    html += '</section>'
-    return html
-
-
-def get_html_for_cardline() -> str:
-    """Get the HTML required for a yellow line. It is a W3.CSS 'card'
-    filled with the color 'yellow'.
-
-    :return: HTML to be rendered.
-    """
-    html = '<section class="w3-container">'
-    html += '<div class="w3-card-4">'
-    # Adjust the height of the line is padding-top + padding-bottom.
-    html += '<div class="w3-container uu-yellow" style="padding-top:3px; padding-bottom:3px">'
-    html += '</div>'
-    html += '</div>'
-    html += '</section>'
     return html
 
 
@@ -431,7 +561,9 @@ def get_html_for_yearcard(show_as_card: bool = True,
         message = 'You can choose a different time period for the research results:'
 
     # Get all current URL parameters using Flask's request. Note that
-    # Flask’s request.args.to_dict(flat=False) always returns values as lists.
+    # Flask’s request.args.to_dict(flat=False) always returns values as lists,
+    # which we need. Assume the URL has ...&cat=abc&cat=def&..., then, with
+    # 'flat=True', only the last 'cat' is returned.
     endpoint = str(request.endpoint)
     current_params = request.args.to_dict(flat=False)
 
@@ -477,6 +609,116 @@ def get_html_for_yearcard(show_as_card: bool = True,
     if show_as_card:
         form += get_html_for_cardend()
     return form
+
+
+def get_spinner(message: str = '') -> str:
+    """Get a spinner, indicating that an operation may take a long time.
+
+    :param message: message to show below the spinner.
+    :return: HTML to be rendered.
+    """
+    html = f'''
+           <div id="ricgraph_spinner" class="ricgraph_spinner_overlay w3-center">
+             <div class="{button_style}" style="width:30vw;">
+               <span class="ricgraph_spinner"></span>
+               <div style="margin-left: 10px; white-space:normal;">{message}</div>
+             </div>
+           </div>
+           '''
+    javascript = get_spinner_javascript()
+    return spinner_style + html + javascript
+
+
+def create_full_htmlpage(body_html: str) -> str:
+    """Given some HTML, create an HTML page from it, and return it.
+    The JavaScript files in 'body_html' that are expected to be
+    in .../static/... are replaced with their contents.
+    We do that, since we do not know whether the server that generates
+    this page, is alive or externally accessible when the full HTML
+    file is viewed by someone in its browser.
+
+    :param body_html: the HTML to convert to a full HTML page.
+    :return: the full HTML page.
+    """
+    # A non-zero margin looks better when we create a full HTML page.
+    # Therefore, for 'figure' 'margin': this needs to be
+    # (re)set, because it is set at 0px in create_sankey_diagram() and
+    # create_chord_diagram().
+    start_html = f'''
+                 <!DOCTYPE html>
+                 <meta charset="utf-8">
+                 <style>body {{ font-family: {font_family}; }}
+                        figure {{ margin: 1em 40px !important; }}</style>
+                 <body>
+                 '''
+
+    result_html = body_html
+    # Replace the references to JavaScript files in 'result_hmtl' with their
+    # contents. Usually these JavaScript files should be gotten from the server
+    # that generates this page. However, some may want just one a static
+    # standalone HTML, therefore we just include the JavaScript.
+    # You can find the JavaScript files here:
+    # https://github.com/UtrechtUniversity/ricgraph/tree/main/ricgraph_explorer/static.
+    js_map = [
+        'static/d3.v7.min.js',
+        'static/d3-chord.v3.min.js',
+        'static/d3-scale-chromatic.v1.min.js',
+        'static/d3-sankey.v0.12.3.min.js']
+
+    for filename in js_map:
+        js_text = Path(filename).read_text(encoding='utf-8')
+        filename_with_slash = '/' + filename
+        result_html = result_html.replace(
+            f'<script src="{filename_with_slash}"></script>',
+            f'<script>{js_text}</script>'
+        )
+
+    end_html = '</body>'
+    full_html = start_html + result_html + end_html
+    return full_html
+
+
+# ##############################################################################
+# The HTML for the W3CSS cards is generated here.
+# ##############################################################################
+def get_html_for_cardstart() -> str:
+    """Get the HTML required for the start of a W3.CSS 'card'.
+    W3.CSS is a modern, responsive, mobile first CSS framework.
+
+    :return: HTML to be rendered.
+    """
+    html = '<section class="w3-container">'
+    html += '<div class="w3-card-4">'
+    html += '<div class="w3-container w3-responsive">'
+    return html
+
+
+def get_html_for_cardend() -> str:
+    """Get the HTML required for the end of a W3.CSS 'card'.
+    W3.CSS is a modern, responsive, mobile first CSS framework.
+
+    :return: HTML to be rendered.
+    """
+    html = '</div>'
+    html += '</div>'
+    html += '</section>'
+    return html
+
+
+def get_html_for_cardline() -> str:
+    """Get the HTML required for a yellow line. It is a W3.CSS 'card'
+    filled with the color 'yellow'.
+
+    :return: HTML to be rendered.
+    """
+    html = '<section class="w3-container">'
+    html += '<div class="w3-card-4">'
+    # Adjust the height of the line is padding-top + padding-bottom.
+    html += '<div class="w3-container uu-yellow" style="padding-top:3px; padding-bottom:3px">'
+    html += '</div>'
+    html += '</div>'
+    html += '</section>'
+    return html
 
 
 # ##############################################################################
@@ -569,116 +811,3 @@ def remove_one_hierarchical_org(df: DataFrame | None,
     df_copy = df.copy(deep=True)
     result = df_copy.drop(index=rows_to_drop, columns=cols_to_drop)
     return result
-
-
-def create_full_htmlpage(body_html: str) -> str:
-    """Given some HTML, create an HTML page from it, and return it.
-    The JavaScript files in 'body_html' that are expected to be
-    in .../static/... are replaced with their contents.
-    We do that, since we do not know whether the server that generates
-    this page, is alive or externally accessible when the full HTML
-    file is viewed by someone in its browser.
-
-    :param body_html: the HTML to convert to a full HTML page.
-    :return: the full HTML page.
-    """
-    # A non-zero margin looks better when we create a full HTML page.
-    # Therefore, for 'figure' 'margin': this needs to be
-    # (re)set, because it is set at 0px in create_sankey_diagram() and
-    # create_chord_diagram().
-    start_html = f'''
-                 <!DOCTYPE html>
-                 <meta charset="utf-8">
-                 <style>body {{ font-family: {font_family}; }}
-                        figure {{ margin: 1em 40px !important; }}</style>
-                 <body>
-                 '''
-
-    result_html = body_html
-    # Replace the references to JavaScript files in 'result_hmtl' with their
-    # contents. Usually these JavaScript files should be gotten from the server
-    # that generates this page. However, some may want just one a static
-    # standalone HTML, therefore we just include the JavaScript.
-    # You can find the JavaScript files here:
-    # https://github.com/UtrechtUniversity/ricgraph/tree/main/ricgraph_explorer/static.
-    js_map = [
-        'static/d3.v7.min.js',
-        'static/d3-chord.v3.min.js',
-        'static/d3-scale-chromatic.v1.min.js',
-        'static/d3-sankey.v0.12.3.min.js']
-
-    for filename in js_map:
-        js_text = Path(filename).read_text(encoding='utf-8')
-        filename_with_slash = '/' + filename
-        result_html = result_html.replace(
-            f'<script src="{filename_with_slash}"></script>',
-            f'<script>{js_text}</script>'
-        )
-
-    end_html = '</body>'
-    full_html = start_html + result_html + end_html
-    return full_html
-
-
-def get_global_list(ricgraph_info: str, item: str) -> list:
-    """Safely retrieve an entry from a Ricgraph info structure.
-    A list return value is expected.
-
-    :param ricgraph_info: The Ricgraph info structure.
-    :param item: The element in that structure.
-    :return: the value of the list, or [] if it does not exist.
-    """
-    if ricgraph_info == RICGRAPH_CACHEINFO:
-        # First update the information about the cache.
-        collect_ricgraph_cacheinfo()
-    info = get_ricgraph_explorer_global(name=ricgraph_info)
-    if info is None:
-        return []
-    value = info.get(item, [])
-    return value
-
-
-def get_global_str(ricgraph_info: str, item: str) -> str:
-    """Safely retrieve an entry from a Ricgraph info structure.
-    A str return value is expected.
-
-    :param ricgraph_info: The Ricgraph info structure.
-    :param item: The element in that structure.
-    :return: the value of the str, or '' if it does not exist.
-    """
-    if ricgraph_info == RICGRAPH_CACHEINFO:
-        # First update the information about the cache.
-        collect_ricgraph_cacheinfo()
-    info = get_ricgraph_explorer_global(name=ricgraph_info)
-    if info is None:
-        return ''
-    value = info.get(item, '')
-    return value
-
-
-def get_global_dataframe(ricgraph_info: str, item: str) -> DataFrame | None:
-    """Safely retrieve an entry from a Ricgraph info structure.
-    A DataFrame return value is expected.
-
-    :param ricgraph_info: The Ricgraph info structure.
-    :param item: The element in that structure.
-    :return: the value of the DataFrame, or None if it does not exist.
-    """
-    if ricgraph_info == RICGRAPH_CACHEINFO:
-        # First update the information about the cache.
-        collect_ricgraph_cacheinfo()
-    info = get_ricgraph_explorer_global(name=ricgraph_info)
-    if info is None:
-        return None
-    value = info.get(item, '')
-    return DataFrame(value)
-
-
-def get_page_footer() -> str:
-    """Get the page footer.
-
-    :return: HTML for the page footer.
-    """
-    page_footer = get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
-                                 item='page_footer')
-    return page_footer
