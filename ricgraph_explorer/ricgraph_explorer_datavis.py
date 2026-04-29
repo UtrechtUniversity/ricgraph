@@ -530,13 +530,12 @@ def org_collaborations_diagram(query_params: QueryParams,
 
 
 # 260428: Was, for QSS:
-# def org_collaborations_diagram(start_organizations: str,
-#                                collab_organizations: str,
-#                                researchresult_category: list,
-#                                diagram_type: str = 'sankey',
-#                                filename: str = '',
-#                                caption: str = 'default_caption',
-#                                generate_full_html: bool = True) -> str:
+#def three_org_collaborations_chord(first_org: str,
+#                                   second_org: str,
+#                                   third_org: str,
+#                                   researchresult_category: list,
+#                                   filename: str = '',
+#                                   generate_full_html: bool = True) -> str:
 
 @error_check
 def three_org_collaborations_chord(query_params: QueryParams,
