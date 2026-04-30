@@ -53,6 +53,7 @@ from inspect import signature
 from ricgraph import (datetimestamp, create_unique_string,
                       combine_dataframes, make_dataframe_square_symmetric,
                       convert_nodeslist_to_dataframe,
+                      create_empty_query_params,
                       write_text_to_file, write_dataframe_to_csv)
 from ricgraph_explorer_constants import (RICGRAPH_SYSTEMINFO,
                                          ricgraph_reference, diagram_tooltip_style,
@@ -414,15 +415,6 @@ def org_collaborations_persons_results_df(query_params: QueryParams,
     return result
 
 
-# 260428: Was, for QSS:
-# def org_collaborations_diagram(start_organizations: str,
-#                                collab_organizations: str,
-#                                researchresult_category: list,
-#                                diagram_type: str = 'sankey',
-#                                filename: str = '',
-#                                caption: str = 'default_caption',
-#                                generate_full_html: bool = True) -> str:
-
 @error_check
 def org_collaborations_diagram(query_params: QueryParams,
                                diagram_type: str = 'sankey',
@@ -529,14 +521,6 @@ def org_collaborations_diagram(query_params: QueryParams,
     return return_html
 
 
-# 260428: Was, for QSS:
-#def three_org_collaborations_chord(first_org: str,
-#                                   second_org: str,
-#                                   third_org: str,
-#                                   researchresult_category: list,
-#                                   filename: str = '',
-#                                   generate_full_html: bool = True) -> str:
-
 @error_check
 def three_org_collaborations_chord(query_params: QueryParams,
                                    first_org: str,
@@ -615,3 +599,78 @@ def three_org_collaborations_chord(query_params: QueryParams,
         write_text_to_file(filename=filename + '.html', text=return_html)
     print('-- collabs_three_orgs(): finished at ' + datetimestamp() + '.')
     return return_html
+
+
+def org_collaborations_diagram_qss(start_organizations: str,
+                                   collab_organizations: str,
+                                   researchresult_category: list,
+                                   diagram_type: str = 'sankey',
+                                   filename: str = '',
+                                   caption: str = 'default_caption',
+                                   generate_full_html: bool = True) -> str:
+    """This is a wrapper for org_collaborations_diagram(), to be
+    used for the supplementary material for:
+    Rik D.T. Janssen (2026). Multi-source, multi-level, graph-based
+    institutional collaboration indicators for research assessment
+    with Ricgraph.
+    Reference to the supplementary material:
+    Janssen, Rik D. T. (2026). Supplemental material for
+    Rik D.T. Janssen (2026), Multi-source, multi-level, graph-based
+    institutional collaboration indicators for research assessment
+    with Ricgraph. https://doi.org/10.5281/zenodo.19591591.
+
+    :param start_organizations: See org_collaborations_diagram().
+    :param collab_organizations: See org_collaborations_diagram().
+    :param researchresult_category: See org_collaborations_diagram().
+    :param diagram_type: See org_collaborations_diagram().
+    :param filename: See org_collaborations_diagram().
+    :param caption: See org_collaborations_diagram().
+    :param generate_full_html: See org_collaborations_diagram().
+    :return: See org_collaborations_diagram().
+    """
+    query_params = create_empty_query_params()
+    query_params['start_orgs'] = start_organizations
+    query_params['collab_orgs'] = collab_organizations
+    query_params['category_list'] = researchresult_category
+    html = org_collaborations_diagram(query_params=query_params,
+                                      diagram_type=diagram_type,
+                                      filename=filename,
+                                      caption=caption,
+                                      generate_full_html=generate_full_html)
+    return html
+
+
+def three_org_collaborations_chord_qss(first_org: str,
+                                       second_org: str,
+                                       third_org: str,
+                                       researchresult_category: list,
+                                       filename: str = '',
+                                       generate_full_html: bool = True) -> str:
+    """This is a wrapper for three_org_collaborations_chord(), to be
+    used for the supplementary material for:
+    Rik D.T. Janssen (2026). Multi-source, multi-level, graph-based
+    institutional collaboration indicators for research assessment
+    with Ricgraph.
+    Reference to the supplementary material:
+    Janssen, Rik D. T. (2026). Supplemental material for
+    Rik D.T. Janssen (2026), Multi-source, multi-level, graph-based
+    institutional collaboration indicators for research assessment
+    with Ricgraph. https://doi.org/10.5281/zenodo.19591591.
+
+    :param first_org: See three_org_collaborations_chord().
+    :param second_org: See three_org_collaborations_chord().
+    :param third_org: See three_org_collaborations_chord().
+    :param researchresult_category: See three_org_collaborations_chord().
+    :param filename: See three_org_collaborations_chord().
+    :param generate_full_html: See three_org_collaborations_chord().
+    :return: See three_org_collaborations_chord().
+    """
+    query_params = create_empty_query_params()
+    query_params['category_list'] = researchresult_category
+    html = three_org_collaborations_chord(query_params=query_params,
+                                          first_org=first_org,
+                                          second_org=second_org,
+                                          third_org=third_org,
+                                          filename=filename,
+                                          generate_full_html=generate_full_html)
+    return html
