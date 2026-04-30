@@ -1,19 +1,31 @@
-# pyproject.toml file to build module ricgraph for PyPI.
+# pyproject.toml file to build module ricgraph_explorer for PyPI.
+#
+# April 30, 2026.
+# Building package ricgraph_explorer will generate several warnings like:
+# .../build_py.py:215: _Warning: Package 'ricgraph_explorer.static'
+# is absent from the `packages` configuration.
+# These can be ignored.
+# Although this .toml file builds and uploads to PyPI, the imports
+# in the ricgraph_explorer_...py files are not relative, as needed
+# for a module. I will change that in the future.
 
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["ricgraph"]
+packages = ["ricgraph_explorer"]
+
+[tool.setuptools.package-data]
+ricgraph_explorer = ["static/*", "static/**/*"]
 
 [project]
-name = "ricgraph"
+name = "ricgraph-explorer"
 version = "3.3"
 authors = [
   { name="Rik D.T. Janssen" },
 ]
-description = "Ricgraph - Research in context graph"
+description = "Ricgraph Explorer - Exploration for Ricgraph - Research in context graph"
 readme = "README-PyPI.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -28,12 +40,10 @@ keywords = ["Research in context graph", "Ricgraph", "Ricgraph Explorer",
 	    "Harvest", "Harvest data", "Harvester", "Knowledge graph",
 	    "Linked data", "Metadata", "Utrecht University", "Visualization"]
 dependencies = [
-    "neo4j>=5.8",
-    "numpy",
+    "ricgraph==3.3",
+    "flask",
     "pandas",
-    "pymemcache",
-    "requests",
-    "unidecode",
+    "connexion[swagger-ui,flask,uvicorn]",
     "markupsafe",
 ]
 
