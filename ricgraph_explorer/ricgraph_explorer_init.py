@@ -64,6 +64,7 @@ from ricgraph import (open_ricgraph, read_all_values_of_property,
                       RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
                       RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
                       RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
+                      RICGRAPH_UNKNOWN,
                       get_ricgraph_ini_file,
                       get_ricgraph_version,
                       get_configfile_key,
@@ -320,7 +321,7 @@ def collect_ricgraph_nodeinfo() -> None:
 
     # Fields related to property 'year' in a node.
     year_active = read_all_values_of_property('year')
-    year_active = [x for x in year_active if x != '']       # Remove empty values.
+    year_active = [x for x in year_active if x != RICGRAPH_UNKNOWN]       # Remove empty values.
     if len(year_active) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "year".')
         print('Continuing with an empty list. This might give unexpected results.')

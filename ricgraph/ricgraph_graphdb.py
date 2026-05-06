@@ -46,7 +46,9 @@ from neo4j.graph import Node
 from typing import List
 from .ricgraph_constants import (MAX_NR_HISTORYITEMS_TO_ADD,
                                  PERSON_CATEGORY_PERSON,
-                                 PERSON_NAME_PERSON_ROOT)
+                                 PERSON_NAME_PERSON_ROOT,
+                                 RICGRAPH_UNKNOWN,
+                                 SOURCE_RICGRAPH)
 from .ricgraph_cypher import (cypher_create_node, cypher_read_node,
                               cypher_find_nodes, cypher_delete_node,
                               cypher_update_node_properties, cypher_create_edge_if_not_exists,
@@ -86,7 +88,7 @@ def create_name_cache_in_personroot(node: Node | None, personroot: Node | None) 
         value = get_valuepart_from_ricgraph_value(node['value']) + ' ['
         value += get_additionalpart_from_ricgraph_value(node['value']) + ']'
         if isinstance(personroot['comment'], str):
-            if personroot['comment'] == '':
+            if personroot['comment'] == RICGRAPH_UNKNOWN:
                 old_value = str(personroot['comment'])      # Not necessary, for symmetry.
                 node_properties = {'comment': [value]}
                 history_line = create_history_line(property_name='comment',
@@ -137,7 +139,7 @@ def recreate_name_cache_in_personroot(personroot: Node | None) -> None:
     # We need to do this irrespective of the length of name_cache.
     # If the length is 0, we might be deleting FULL_NAME nodes and that
     # should also be reflected in the name cache.
-    if (isinstance(personroot['comment'], str) and personroot['comment'] == '') \
+    if (isinstance(personroot['comment'], str) and personroot['comment'] == RICGRAPH_UNKNOWN) \
        or isinstance(personroot['comment'], list):
         time_stamp = datetimestamp()
         history_line = create_history_line(property_name='comment',
@@ -199,29 +201,36 @@ def create_update_node(name: str, category: str, value: str,
 
         # Then do the properties in _RICGRAPH_PROPERTIES_ADDITIONAL.
         for prop_name in _RICGRAPH_PROPERTIES_ADDITIONAL:
-            if prop_name in other_properties:
+            node_properties[prop_name] = RICGRAPH_UNKNOWN
+            if prop_name in other_properties \
+               and str(other_properties[prop_name]) != '':
                 node_properties[prop_name] = str(other_properties[prop_name])
-            else:
-                node_properties[prop_name] = ''
 
         # If no url_main has been passed, insert an ISNI, DOI, etc. url if category is ISNI, DOI, etc.
         url = create_well_known_url(name=lname, value=lvalue)
-        if node_properties['url_main'] == '' and url != '':
+        if node_properties['url_main'] == RICGRAPH_UNKNOWN and url != '':
+            # node_properties['url_main'] has been filled in the loop above.
             node_properties['url_main'] = url
 
         # Then do the properties in _RICGRAPH_PROPERTIES_HIDDEN.
+        # We test on node_properties[], since they are guaranteed to exist
+        # (when their index is in _RICGRAPH_PROPERTIES_ADDITIONAL),
+        # since they have been filled in the loop above.
         node_properties['_key'] = create_ricgraph_key(name=lname, value=lvalue)
-        if node_properties['source_event'] == '':
-            node_properties['_source'] = []
+        if node_properties['source_event'] == RICGRAPH_UNKNOWN:
+            if node_properties['name'] == PERSON_NAME_PERSON_ROOT:
+                node_properties['_source'] = [SOURCE_RICGRAPH]
+            else:
+                node_properties['_source'] = [RICGRAPH_UNKNOWN]
         else:
             node_properties['_source'] = [node_properties['source_event']]
-            node_properties['source_event'] = ''
+            node_properties['source_event'] = RICGRAPH_UNKNOWN
 
-        if node_properties['history_event'] == '':
+        if node_properties['history_event'] == RICGRAPH_UNKNOWN:
             node_properties['_history'] = [time_stamp + ': Created. ']
         else:
             node_properties['_history'] = [time_stamp + ': Created. ' + node_properties['history_event']]
-            node_properties['history_event'] = ''
+            node_properties['history_event'] = RICGRAPH_UNKNOWN
 
         new_node = cypher_create_node(node_properties=node_properties)
         return new_node
@@ -254,13 +263,16 @@ def create_update_node(name: str, category: str, value: str,
         if prop_name == 'history_event' or prop_name == 'source_event':
             # Do not add these to node_properties, and don't add them to _history.
             continue
-        if str(other_properties[prop_name]) == '':
-            # Do not change a value if the future value is ''.
+        if str(other_properties[prop_name]) == RICGRAPH_UNKNOWN \
+           or str(other_properties[prop_name]) ==  '':
+            # Do not change a value if the future value would change
+            # to RICGRAPH_UNKNOWN or '' (this means we lose information).
             continue
         # Only in case a property is in other_properties, its value may change.
         present_val = str(node[prop_name])
         if present_val != str(other_properties[prop_name]):
-            # But its value is only changed if it is different then the old value.
+            # But its value is only changed if it is different from the old value.
+            # The case that the new value is RICGRAPH_UNKNOWN or '' has been caught above.
             node_properties[prop_name] = str(other_properties[prop_name])
             history_line += create_history_line(property_name=prop_name,
                                                 old_value=present_val,

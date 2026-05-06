@@ -66,6 +66,7 @@ from ricgraph import (nodes_cache_key_id_create,
                       PERSON_CATEGORY_PERSON,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT,
+                      RICGRAPH_UNKNOWN,
                       PageParams, QueryParams)
 from ricgraph_explorer_constants import (TABLE_DETAIL_COLUMNS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
@@ -609,8 +610,6 @@ def compute_histogramcards_name_category_access(nodes_list: list) -> Tuple[dict,
         if node['category'] in researchresult_category_active:
             # Only for research results.
             access_name = node['access']
-            if access_name == '':
-                access_name = 'unknown'
             if access_name not in access_histogram:
                 access_histogram[access_name] = 1
             else:
@@ -794,7 +793,7 @@ def get_html_for_tablerow(node: Node,
             html += urlencode(url_parameters | {'key': key}) + '>'
             html += value + '</a></td>'
         elif column in ['url_main', 'url_other']:
-            if node[column] == '':
+            if node[column] == RICGRAPH_UNKNOWN:
                 html += '<td></td>'
             else:
                 html += '<td><a href=' + node[column] + ' target="_blank">'
@@ -816,7 +815,7 @@ def get_html_for_tablerow(node: Node,
                     html += '</ul></td>'
         elif column == 'comment':
             if isinstance(node[column], str):
-                if node[column] == '':
+                if node[column] == RICGRAPH_UNKNOWN:
                     html += '<td><ul>'
                 else:
                     html += '<td width=30%>' + node[column] + '</td>'
@@ -832,7 +831,7 @@ def get_html_for_tablerow(node: Node,
                 else:
                     html += '<td width=30%>' + str(node[column]) + '</td>'
         else:
-            if node[column] == '':
+            if node[column] == RICGRAPH_UNKNOWN:
                 html += '<td></td>'
             else:
                 html += '<td>' + node[column] + '</td>'
