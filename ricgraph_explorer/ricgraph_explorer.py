@@ -88,6 +88,7 @@ from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          SEARCH_MODE_EXACT_MATCH, SEARCH_MODE_VALUE,
                                          SEARCH_STRING_MIN_LENGTH,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
+                                         ORIGIN_DEFAULT_BUTTON,
                                          OVERLAP_MODE_NEIGHBORNODE)
 from ricgraph_explorer_init import initialize_ricgraph_explorer
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
@@ -603,7 +604,7 @@ def optionspage() -> str | Response:
         # button 'get an open science profile for a (sub-)organization'
         # on page oslpage(), then skip the options page and go directly
         # to the osprofileresult() page. Reset 'origin'.
-        page_params['origin'] = ''
+        page_params['origin'] = ORIGIN_DEFAULT_BUTTON
         merged = merge_and_remove_empty(page_params=page_params,
                                         query_params=query_params) | {'key': node['_key']}
         return redirect(url_for(endpoint='osprofileresultpage.osprofileresultpage',

@@ -41,8 +41,6 @@
 # ########################################################################
 
 
-from ricgraph import RICGRAPH_UNKNOWN
-
 # The name of the global Ricgraph lists.
 RICGRAPH_CACHEINFO = 'ricgraph_cacheinfo'
 RICGRAPH_HARVESTINFO = 'ricgraph_harvestinfo'
@@ -195,10 +193,10 @@ COLLABORATION_MODES_ALL = [
 # but then you want to continue to the results page of
 # this open science profile page, and not to the organizations options page.
 ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON = 'osprofile_button'
-ORIGIN_BUTTON = RICGRAPH_UNKNOWN
+ORIGIN_DEFAULT_BUTTON = ''
 ORIGIN_BUTTON_ALL = [
     ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
-    ORIGIN_BUTTON
+    ORIGIN_DEFAULT_BUTTON
 ]
 
 
