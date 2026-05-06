@@ -294,13 +294,14 @@ def lookup_item_in_mapping(item: str,
 
     :param item: An item to look up.
     :param mapping: The mapping to be used.
-    :return: The result, in a few words, or 'empty' on no item, or 'unknown'
+    :return: The result, in a few words, or 'no item type'
+      on no item, or 'unknown item type'
       on an unknown (absent) item in mapping.
     """
     if item == '':
         print('lookup_item_in_mapping(): no item type specified.')
-        return 'empty'
+        return 'no item type'
     if item not in mapping:
         print('lookup_item_in_mapping(): unknown item type: "' + item + '".')
-        return 'unknown'
+        return 'unknown item type'
     return mapping[item]

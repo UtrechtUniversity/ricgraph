@@ -262,7 +262,6 @@ def get_url_query_params() -> QueryParams:
     access = get_url_parameter_list(parameter='access',
                                     allowed_values=access_active)
     if len(access_active) == len(access):
-        # Note that access_active may also contain '', for unknown.
         access = []
 
     query_params: QueryParams = {
