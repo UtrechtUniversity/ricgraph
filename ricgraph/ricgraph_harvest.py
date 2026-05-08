@@ -357,7 +357,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
         - Optionally, there may be columns 'TITLE', 'YEAR', 'URL_MAIN'
           and 'URL_OTHER'.
     :param harvest_source: The source system we harvest from.
-    :param what: Text to show to the user and in '_source'
+    :param what: Text to show to the user and in '_history'
     :return: None.
     """
     if entities is None or entities.empty:
@@ -392,6 +392,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
                             'history_event1': history_event,
                             'name2': personal_id_name,
                             'category2': PERSON_CATEGORY_PERSON,
+                            'source_event2': harvest_source,
                             'history_event2': history_event}
     entities = entities.assign(**new_entities_columns)
 
@@ -406,7 +407,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
                 entities.rename(columns={column: ricgraph_column}, inplace=True)
                 cols.append(ricgraph_column)
     cols.extend(['source_event1', 'history_event1',
-                 'name2', 'category2', 'value2', 'history_event2'])
+                 'name2', 'category2', 'value2', 'source_event2', 'history_event2'])
     entities = entities[cols]
 
     if entities.empty:
@@ -440,7 +441,7 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
           If URL_MAIN is not present, note that the URL to the
           DOI will be added automatically.
     :param harvest_source: The source system we harvest from.
-    :param what: Text to show to the user and in '_source'
+    :param what: Text to show to the user and in '_history'
     :return: None.
     """
     if 'DOI' not in resouts.columns:
@@ -471,7 +472,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
         - Optionally there may be a 3rd column that contains the URLs
           to the entity in the 2nd column.
     :param harvest_source: The source system we harvest from.
-    :param what: Text to show to the user and in '_source'
+    :param what: Text to show to the user and in '_history'
     :return: None.
     """
     entity_name = entities.columns[1]
@@ -517,7 +518,7 @@ def update_urls_in_ricgraph(entities: DataFrame,
           The 'value' property will be the value in this columns' row.
         - The other column should be named 'URL_MAIN'.
     :param harvest_source: The source system we harvest from.
-    :param what: Text to show to the user and in '_source'
+    :param what: Text to show to the user and in '_history'
     :return: None.
     """
     if 'URL_MAIN' not in entities.columns:
@@ -525,6 +526,8 @@ def update_urls_in_ricgraph(entities: DataFrame,
         exit(1)
     print('Updating ' + what + ' from ' + harvest_source
           + ' in Ricgraph at ' + timestamp() + '...')
+    history_event = 'Source: Harvest "' + harvest_source + '" '
+    history_event += what + ' at ' + datetimestamp() + '.'
 
     entity_name = entities.columns[0]
     if entity_name in ['PURE_ID_PERS', 'UUSTAFF_PAGEID', 'PHOTO_ID']:
@@ -543,9 +546,12 @@ def update_urls_in_ricgraph(entities: DataFrame,
     entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
     entities.rename(columns={entity_name: 'value',
                              'URL_MAIN': 'url_main'}, inplace=True)
-    new_entities_columns = {'name': entity_name}
+    new_entities_columns = {'name': entity_name,
+                            'source_event': harvest_source,
+                            'history_event': history_event}
     entities = entities.assign(**new_entities_columns)
-    entities = entities[['name', 'category', 'value', 'url_main']]
+    entities = entities[['name', 'category', 'value', 'url_main',
+                         'source_event', 'history_event']]
 
     print('The following ' + what + ' will be updated in Ricgraph:')
     print(entities)

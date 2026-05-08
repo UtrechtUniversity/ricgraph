@@ -217,14 +217,9 @@ def create_update_node(name: str, category: str, value: str,
         # (when their index is in _RICGRAPH_PROPERTIES_ADDITIONAL),
         # since they have been filled in the loop above.
         node_properties['_key'] = create_ricgraph_key(name=lname, value=lvalue)
-        if node_properties['source_event'] == RICGRAPH_UNKNOWN:
-            if node_properties['name'] == PERSON_NAME_PERSON_ROOT:
-                node_properties['_source'] = [SOURCE_RICGRAPH]
-            else:
-                node_properties['_source'] = [RICGRAPH_UNKNOWN]
-        else:
-            node_properties['_source'] = [node_properties['source_event']]
-            node_properties['source_event'] = RICGRAPH_UNKNOWN
+
+        node_properties['_source'] = [node_properties['source_event']]
+        node_properties['source_event'] = RICGRAPH_UNKNOWN
 
         if node_properties['history_event'] == RICGRAPH_UNKNOWN:
             node_properties['_history'] = [time_stamp + ': Created. ']
@@ -500,7 +495,8 @@ def get_or_create_personroot_node(person_node: Node | None) -> Node | None:
         value = create_unique_string()
         personroot = create_update_node(name=PERSON_NAME_PERSON_ROOT,
                                         category=PERSON_CATEGORY_PERSON,
-                                        value=value)
+                                        value=value,
+                                        other_properties={'source_event': SOURCE_RICGRAPH})
         if personroot is None:
             return None
         cypher_create_edge_if_not_exists(left_node_element_id=person_node.element_id,
@@ -881,6 +877,7 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
                                       category2=node1['category'],
                                       value2=create_ricgraph_value(value=asc,
                                                                    additional=personroot['value']),
+                                      source_event2=SOURCE_RICGRAPH,
                                       history_event2=history_event)
         node_upd = update_node_value(name='FULL_NAME',
                                      old_value=node1['value'],
@@ -900,6 +897,7 @@ def create_two_nodes_and_edge(name1: str, category1: str, value1: str,
                                       category2=node2['category'],
                                       value2=create_ricgraph_value(value=asc,
                                                                    additional=personroot['value']),
+                                      source_event2=SOURCE_RICGRAPH,
                                       history_event2=history_event)
         node_upd = update_node_value(name='FULL_NAME',
                                      old_value=node2['value'],

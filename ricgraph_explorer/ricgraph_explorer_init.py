@@ -65,6 +65,7 @@ from ricgraph import (open_ricgraph, read_all_values_of_property,
                       RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
                       RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
                       RICGRAPH_UNKNOWN,
+                      SOURCE_RICGRAPH,
                       get_ricgraph_ini_file,
                       get_ricgraph_version,
                       get_configfile_key,
@@ -218,6 +219,8 @@ def collect_ricgraph_harvestinfo() -> None:
         print('The harvest date of Ricgraph is ' + harvest_date + '.')
 
     source_active = read_all_values_of_property('_source')
+    # Remove source system SOURCE_RICGRAPH.
+    source_active = [x for x in source_active if x != SOURCE_RICGRAPH]
     if len(source_active) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "_source".')
         print('Continuing with an empty list. This might give unexpected results.')
@@ -321,7 +324,8 @@ def collect_ricgraph_nodeinfo() -> None:
 
     # Fields related to property 'year' in a node.
     year_active = read_all_values_of_property('year')
-    year_active = [x for x in year_active if x != RICGRAPH_UNKNOWN]       # Remove empty values.
+    # Remove RICGRAPH_UNKNOWN from year_active.
+    year_active = [x for x in year_active if x != RICGRAPH_UNKNOWN]
     if len(year_active) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "year".')
         print('Continuing with an empty list. This might give unexpected results.')
