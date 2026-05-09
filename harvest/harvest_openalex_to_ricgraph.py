@@ -135,7 +135,8 @@ RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX = {
     'report': rcg.RESEARCHRESULT_CATEGORY_REPORT,
     'retraction': rcg.RESEARCHRESULT_CATEGORY_RETRACTION,
     'review': rcg.RESEARCHRESULT_CATEGORY_REVIEW,
-    'supplementary-materials': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION
+    'supplementary-materials': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
+    'standard': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION
 }
 
 
@@ -197,8 +198,10 @@ def parse_openalex(harvest: list,
            or (category := rcg.json_item_get_str(json_item=harvest_item,
                                                  json_path='type')) == '':
             continue
-        category = rcg.lookup_item_in_mapping(item=category,
-                                              mapping=RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX)
+        if (category := rcg.lookup_item_in_mapping(item=category,
+                                                   mapping=RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX)) == rcg.RICGRAPH_UNKNOWN:
+            # Must have a valid category.
+            continue
         publication_year = rcg.json_item_get_str(json_item=harvest_item,
                                                  json_path='publication_year')
         if (licentie := rcg.json_item_get_str(json_item=harvest_item,

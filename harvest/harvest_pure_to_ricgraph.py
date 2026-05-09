@@ -1097,6 +1097,9 @@ def parse_pure_entities(harvest: list,
         elif mode == MODE_PRESS_MEDIA:
             id_name = id_name_tobeused = 'PURE_ID_PRESS_MEDIA'
             category = rcg.RESEARCHRESULT_CATEGORY_PRESS_MEDIA
+        if category == rcg.RICGRAPH_UNKNOWN:
+            # Must have a valid category.
+            continue
         # #####
         if len(list_of_persons := json_item_get_list_pure(json_item=harvest_item,
                                                           json_path_read='personAssociations',
@@ -1322,6 +1325,9 @@ def parse_pure_projects(harvest: list,
                    and 'uri' in resout['type']:
                     category = rcg.lookup_item_in_mapping(item=str(resout['type']['uri']),
                                                           mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
+                    if category == rcg.RICGRAPH_UNKNOWN:
+                        # Must have a valid category.
+                        continue
                 else:
                     continue
 

@@ -231,6 +231,8 @@ def process_parsed_data(df: pandas.DataFrame) -> pandas.DataFrame:
     df_mod['CATEGORY'] = df_mod[['CATEGORY']].apply(
         lambda row: rcg.lookup_item_in_mapping(item=row['CATEGORY'],
                                                mapping=RESEARCHRESULT_CATEGORY_MAPPING_YODA), axis=1)
+    # Remove all rows that have RICGRAPH_UNKNOWN in column CATEGORY.
+    df_mod = df_mod[df_mod['CATEGORY'] != rcg.RICGRAPH_UNKNOWN]
     return df_mod
 
 

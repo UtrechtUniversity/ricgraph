@@ -45,6 +45,7 @@
 from re import sub
 from numpy import nan
 from pandas import DataFrame
+from .ricgraph_constants import RICGRAPH_UNKNOWN
 from .ricgraph_file import write_dataframe_to_csv, read_dataframe_from_csv
 
 
@@ -294,14 +295,12 @@ def lookup_item_in_mapping(item: str,
 
     :param item: An item to look up.
     :param mapping: The mapping to be used.
-    :return: The result, in a few words, or 'no item type'
-      on no item, or 'unknown item type'
-      on an unknown (absent) item in mapping.
+    :return: The result, in a few words, or RICGRAPH_UNKNOWN.
     """
     if item == '':
         print('lookup_item_in_mapping(): no item type specified.')
-        return 'no item type'
+        return RICGRAPH_UNKNOWN
     if item not in mapping:
         print('lookup_item_in_mapping(): unknown item type: "' + item + '".')
-        return 'unknown item type'
+        return RICGRAPH_UNKNOWN
     return mapping[item]
