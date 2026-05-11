@@ -1032,14 +1032,14 @@ def get_all_neighbor_nodes(node: Node = None,
         cypher_query += 'AND (neighbor.name IN $name_want) '
 
     if name_dontwant is not None and len(name_dontwant) > 0:
-        cypher_query += 'AND (neighbor.name NOT IN $name_dontwant) '
+        cypher_query += 'AND NOT (neighbor.name IN $name_dontwant) '
         nr_of_not_clauses += 1
 
     if category_want is not None and len(category_want) > 0:
         cypher_query += 'AND (neighbor.category IN $category_want) '
 
     if category_dontwant is not None and len(category_dontwant) > 0:
-        cypher_query += 'AND (neighbor.category NOT IN $category_dontwant) '
+        cypher_query += 'AND NOT (neighbor.category IN $category_dontwant) '
         nr_of_not_clauses += 1
 
     if nr_of_not_clauses >= 2:
