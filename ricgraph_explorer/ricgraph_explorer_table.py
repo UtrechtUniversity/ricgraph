@@ -438,8 +438,9 @@ def get_tabbed_table(nodes_list: list,
         del nodes_list[max_nr_items:]
         len_nodes_list = max_nr_items
 
-    name_histogram, category_histogram, access_histogram = \
-        compute_histogramcards_name_category_access(nodes_list=nodes_list)
+    (name_histogram, category_histogram, year_histogram,
+     license_histogram, access_histogram) = \
+        compute_histogramcards(nodes_list=nodes_list)
 
     if tabs_on == 'name':
         histogram = name_histogram.copy()
@@ -518,9 +519,11 @@ def get_tabbed_table(nodes_list: list,
     table_html += nr_rows_in_table_message
     table_html += get_html_for_cardend()
 
-    histogram_html = get_histogramcards_name_category_access(name_histogram=name_histogram,
-                                                             category_histogram=category_histogram,
-                                                             access_histogram=access_histogram)
+    histogram_html = get_histogramcards(name_histogram=name_histogram,
+                                        category_histogram=category_histogram,
+                                        year_histogram=year_histogram,
+                                        license_histogram=license_histogram,
+                                        access_histogram=access_histogram)
 
     # The following is partly copied from get_faceted_table().
     # We could split this function similar to get_faceted_table(), i.e. in a function
@@ -585,80 +588,68 @@ def _get_part_of_facet_form(histogram: dict,
     return part_of_form
 
 
-def compute_histogramcards_name_category_access(nodes_list: list) -> Tuple[dict, dict, dict]:
-    """Computer the histograms for name, category, and access.
+def compute_histogramcards(nodes_list: list) -> Tuple[dict, dict, dict, dict, dict]:
+    """Computer the histograms for name, category, year,
+    license, and access.
 
     :param nodes_list: The list of nodes the histogram is based on.
-    :return: Three histograms, on 'name', 'category', and 'access'.
+    :return: Five histograms, on 'name', 'category', 'year',
+      'license', and 'access'.
     """
     name_histogram = {}
     category_histogram = {}
+    year_histogram = {}
+    license_histogram = {}
     access_histogram = {}
     researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                      item='researchresult_category_active')
     for node in nodes_list:
-        if node['name'] not in name_histogram:
-            name_histogram[node['name']] = 1
-        else:
-            name_histogram[node['name']] += 1
-
-        if node['category'] not in category_histogram:
-            category_histogram[node['category']] = 1
-        else:
-            category_histogram[node['category']] += 1
-
+        name_histogram[node['name']] = name_histogram.get(node['name'], 0) + 1
+        category_histogram[node['category']] = category_histogram.get(node['category'], 0) + 1
         if node['category'] in researchresult_category_active:
             # Only for research results.
-            access_name = node['access']
-            if access_name not in access_histogram:
-                access_histogram[access_name] = 1
-            else:
-                access_histogram[access_name] += 1
+            year_histogram[node['year']] = year_histogram.get(node['year'], 0) + 1
+            license_histogram[node['license']] = license_histogram.get(node['license'], 0) + 1
+            access_histogram[node['access']] = access_histogram.get(node['access'], 0) + 1
 
-    return name_histogram, category_histogram, access_histogram
+    return (name_histogram, category_histogram,
+            year_histogram, license_histogram, access_histogram)
 
 
-def get_histogramcards_name_category_access(name_histogram: dict,
-                                            category_histogram: dict,
-                                            access_histogram: dict) -> str:
-    """Get the histogram cards for name, category, and access.
+def get_histogramcards(name_histogram: dict,
+                       category_histogram: dict,
+                       year_histogram: dict,
+                       license_histogram: dict,
+                       access_histogram: dict) -> str:
+    """Computer the histograms for name, category, year,
+    license, and access.
 
     :param name_histogram: Histogram on 'name', or {} when there is none.
     :param category_histogram: Histogram on 'access', or {} when there is none.
+    :param year_histogram: Histogram on 'year', or {} when there is none.
+    :param license_histogram: Histogram on 'license', or {} when there is none.
     :param access_histogram: Histogram on 'access', or {} when there is none.
     :return: HTML to be rendered.
     """
-    name_list = []
-    category_list = []
-    access_list = []
-    if len(name_histogram) > 0:
-        for bucket in sorted(name_histogram, key=lambda x: name_histogram[x], reverse=True):
-            name_list.append({'name': bucket, 'value': name_histogram[bucket]})
-    if len(category_histogram) > 0:
-        for bucket in sorted(category_histogram, key=lambda x: category_histogram[x], reverse=True):
-            category_list.append({'name': bucket, 'value': category_histogram[bucket]})
-    if len(access_histogram) > 0:
-        for bucket in sorted(access_histogram, key=lambda x: access_histogram[x], reverse=True):
-            access_list.append({'name': bucket, 'value': access_histogram[bucket]})
+    histograms = [
+        ('name', name_histogram),
+        ('category', category_histogram),
+        ('year', year_histogram),
+        ('license', license_histogram),
+        ('access', access_histogram),
+    ]
     html = ''
-    if len(name_list) > 1:
-        html += get_html_for_cardstart()
-        html += get_html_for_histogram(histogram_list=name_list,
-                                       histogram_width=200,
-                                       histogram_title='Histogram on "name"')
-        html += get_html_for_cardend()
-    if len(category_list) > 1:
-        html += get_html_for_cardstart()
-        html += get_html_for_histogram(histogram_list=category_list,
-                                       histogram_width=200,
-                                       histogram_title='Histogram on "category"')
-        html += get_html_for_cardend()
-    if len(access_list) > 1:
-        html += get_html_for_cardstart()
-        html += get_html_for_histogram(histogram_list=access_list,
-                                       histogram_width=200,
-                                       histogram_title='Histogram on "access"')
-        html += get_html_for_cardend()
+    for title, histogram in histograms:
+        histogram_list = []
+        if len(histogram) > 0:
+            for bucket in sorted(histogram, key=lambda x: histogram[x], reverse=True):
+                histogram_list.append({'name': bucket, 'value': histogram[bucket]})
+        if len(histogram_list) > 0:
+            html += get_html_for_cardstart()
+            html += get_html_for_histogram(histogram_list=histogram_list,
+                                           histogram_width=200,
+                                           histogram_title='Histogram on "' + title + '"')
+            html += get_html_for_cardend()
     return html
 
 
@@ -681,8 +672,9 @@ def get_facets_from_nodes(parent_node: Node | None,
     if len(neighbor_nodes) == 0:
         return ''
 
-    name_histogram, category_histogram, access_histogram = \
-        compute_histogramcards_name_category_access(nodes_list=neighbor_nodes)
+    (name_histogram, category_histogram, year_histogram,
+     license_histogram, access_histogram) = \
+        compute_histogramcards(nodes_list=neighbor_nodes)
 
     if len(name_histogram) <= 1 and len(category_histogram) <= 1:
         # We have only one facet, so don't show the facet panel.
@@ -718,9 +710,11 @@ def get_facets_from_nodes(parent_node: Node | None,
     faceted_form += '</div>'
     faceted_form += get_html_for_cardend()
 
-    faceted_form += get_histogramcards_name_category_access(name_histogram=name_histogram,
-                                                            category_histogram=category_histogram,
-                                                            access_histogram=access_histogram)
+    faceted_form += get_histogramcards(name_histogram=name_histogram,
+                                       category_histogram=category_histogram,
+                                       year_histogram=year_histogram,
+                                       license_histogram=license_histogram,
+                                       access_histogram=access_histogram)
     return faceted_form
 
 
