@@ -69,6 +69,7 @@ data_collect_dir=$HOME/$(date +%y%m%d)-ricgraph_data_collect
 graphdb_backup_dir=$data_collect_dir/graphdb_backup
 harvest_result_dir=$data_collect_dir/harvest_result
 explorer_data_collect_dir=$HOME/$(date +%y%m%d)-explorer_data_collect
+all_data_collect_dir=$HOME/$(date +%y%m%d)-all_data_collect
 year_first=2022
 year_last=2026
 
@@ -85,6 +86,9 @@ if [ -d "$data_collect_dir" ]; then
   exit 1
 else
   mkdir "$data_collect_dir"
+  mkdir "$graphdb_backup_dir"
+  mkdir "$harvest_result_dir"
+
 fi
 
 if [ -d "$explorer_data_collect_dir" ]; then
@@ -95,8 +99,13 @@ else
   mkdir "$explorer_data_collect_dir"
 fi
 
-mkdir "$graphdb_backup_dir"
-mkdir "$harvest_result_dir"
+if [ -d "$all_data_collect_dir" ]; then
+  echo "Error: explorer_data_collect_dir '$explorer_data_collect_dir'"
+  echo "does already exist, exiting."
+  exit 1
+else
+  mkdir "$all_data_collect_dir"
+fi
 
 echo "$0 start at $(date)."
 
@@ -141,11 +150,18 @@ exit_on_error $?
 exit_on_error $?
 
 graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua-renameorgs-$(date +%y%m%d-%H%M)
-demo_server=$graphdb_backup
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 sleep 120
 
+# Save the demo server graphdb dump in a separate directory, for easy transfer
+# to another VM.
+cp "$graphdb_backup"/* "$explorer_data_collect_dir"
+tar -czf "$explorer_data_collect_dir".tar.gz "$explorer_data_collect_dir"
+exit_on_error $?
+
+
+# And now add UU.
 cd ../harvest_multiple_sources || exit 1
 
 ./multiple_harvest_organization.sh --organization UU --empty_ricgraph no --year_first $year_first --year_last $year_last
@@ -175,17 +191,12 @@ sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=n
 exit_on_error $?
 sleep 120
 
-
-# Do some saving operations.
-# Save the final graphdb dump in a separate directory, for easy transfer
+# Save the all graphdb dump in a separate directory, for easy transfer
 # to another VM.
-mkdir "$explorer_data_collect_dir"/demo_server
-mkdir "$explorer_data_collect_dir"/all
-
-cp "$demo_server"/* "$explorer_data_collect_dir"/demo_server
-cp "$graphdb_backup"/* "$explorer_data_collect_dir"/all
-tar -czf "$explorer_data_collect_dir".tar.gz "$explorer_data_collect_dir"
+cp "$graphdb_backup"/* "$all_data_collect_dir"
+tar -czf "$all_data_collect_dir".tar.gz "$all_data_collect_dir"
 exit_on_error $?
+
 
 # Collect all results in one directory, $data_collect_dir, for easy
 # transfer to another computer.
@@ -198,7 +209,9 @@ mv ./*.xml ./*.csv ./*.json "$harvest_result_dir"
 tar -czf "$data_collect_dir.tar.gz" "$data_collect_dir"
 
 echo "$0 done at $(date)."
-echo "You can find the final graphdb dump in"
+echo "You can find the demo server graphdb dump in"
 echo "  file '$explorer_data_collect_dir.tar.gz."
+echo "You can find the all graphdb dump in"
+echo "  file '$all_data_collect_dir.tar.gz."
 echo "You can find all of the harvested data in"
 echo "  file '$data_collect_dir.tar.gz'."
