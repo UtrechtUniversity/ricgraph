@@ -68,16 +68,12 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
                                      get_page_footer,
                                      get_url_query_params, get_url_page_params,
                                      merge_and_remove_empty)
-from ricgraph_explorer_table import (compute_histogramcards,
-                                     get_histogramcards)
 from ricgraph_explorer_datavis import get_html_for_histogram
-from ricgraph_explorer_cypher import (create_neighbor_histogram_cypher,
-                                      find_organization_additional_info_cypher)
+from ricgraph_explorer_cypher import create_neighbor_histogram_cypher
 
 
 _oslpage_bp = Blueprint(name='oslpage', import_name=__name__)
 _osprofileresultpage_bp = Blueprint(name='osprofileresultpage', import_name=__name__)
-_osdashboardresultpage_bp = Blueprint(name='osdashboardresultpage', import_name=__name__)
 
 
 @_oslpage_bp.route(rule='/oslpage/', methods=['GET'])
@@ -285,137 +281,6 @@ def osprofileresultpage() -> str:
     html += '<br/>'
     html += 'These are the result result categories ' + str(researchresult_category_engagement_material) + '.'
     html += '</li></ol>'
-    html += get_html_for_cardend()
-
-    return html + get_page_footer() + html_body_end
-
-
-@_osdashboardresultpage_bp.route(rule='/osdashboardresultpage/', methods=['GET'])
-def osdashboardresultpage() -> str:
-    """Ricgraph Explorer entry, this 'page' only uses URL parameters.
-    Find the open science profile of a (sub-)organizations based on
-    URL parameters passed.
-
-    Possible url parameters are:
-    - key: key of the organization to find.
-    - year_first: first year of the research results to count.
-    - year_last: last year of the research results to count.
-    - histogram_mode: The mode of the histogram, either counts
-      (HISTOGRAM_MODE_COUNTS), or percentages (HISTOGRAM_MODE_PERCENTAGES).
-    - oslprofile_mode: report on the three groups
-      (OSL_PROFILE_MODE_GROUPS), or on all item types (OSL_PROFILE_MODE_ITEMS).
-    - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
-      or 'person_view' to have a nicer layout.
-    - max_nr_items: this usually signifies the maximum number of items to return,
-      or 0 to return all items. In this page, it will be ignored and set to 0.
-    - max_nr_table_rows: the maximum number of rows in a table to return (the page
-      size of the table), or 0 to return all rows.
-
-    :return: HTML to be rendered.
-    """
-    page_params = get_url_page_params()
-    query_params = get_url_query_params()
-    researchresult_category_all = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
-                                                     item='researchresult_category_all')
-
-    # For this page, we ignore the value of 'max_nr_items' if it is passed.
-    query_params['max_nr_items'] = 0
-    query_params['category_list'] = researchresult_category_all.copy()
-    html = html_body_start
-    if (message := check_valid_year(year_first=query_params['year_first'],
-                                    year_last=query_params['year_last'])) != '':
-        html += get_message(message=message)
-        return html + get_page_footer() + html_body_end
-
-    result = read_all_nodes(key=query_params['key'])
-    if len(result) == 0 or len(result) > 1:
-        if len(result) == 0:
-            message = 'Ricgraph Explorer could not find anything. '
-        else:
-            message = 'Ricgraph Explorer found too many nodes. '
-        message += 'This should not happen. '
-        html += get_message(message=message)
-        return html + get_page_footer() + html_body_end
-    node = result[0]
-
-    histogram_list, buttons = prepare_oslprofile(node=node,
-                                                 material_group=researchresult_category_all,
-                                                 material_name=researchresult_category_all,
-                                                 page_params=page_params,
-                                                 query_params=query_params)
-    records = find_organization_additional_info_cypher(parent_node=node,
-                                                     query_params=query_params)
-    # Convert to nodes, should be done elsewhere.
-    nodes_list = [record['second_neighbor'] for record in records]
-    (name_histogram, category_histogram, year_histogram,
-     license_histogram, access_histogram) = \
-        compute_histogramcards(nodes_list=nodes_list)
-
-    histogram_html = get_histogramcards(name_histogram=name_histogram,
-                                        category_histogram=category_histogram,
-                                        year_histogram=year_histogram,
-                                        license_histogram=license_histogram,
-                                        access_histogram=access_histogram)
-
-    histogram_title = 'Open science dashboard '
-    if page_params['histogram_mode'] == HISTOGRAM_MODE_PERCENTAGES:
-        histogram_title += '(percentages, '
-    else:
-        histogram_title += '(counts, '
-    if len(query_params['access']) == 0:
-        histogram_title += '"any" access) '
-    else:
-        histogram_title += ' only "open" access) '
-    histogram_title += get_year_range_text(year_first=query_params['year_first'],
-                                           year_last=query_params['year_last'])
-    histogram_title += ' for "' + node['value'] + '"'
-    html_histogram = '<div ' + form_button_on_one_line_flexspace_style + '>'
-    html_histogram += get_html_for_histogram(histogram_list=histogram_list,
-                                             histogram_title=histogram_title,
-                                             histogram_mode=page_params['histogram_mode'])
-
-    modified_page_params: PageParams = page_params.copy()
-    if page_params['histogram_mode'] == HISTOGRAM_MODE_PERCENTAGES:
-        modified_page_params['histogram_mode'] = HISTOGRAM_MODE_COUNTS
-        modified_page_params['histogram_mode'] = HISTOGRAM_MODE_COUNTS
-        what_to_show = 'counts'
-    else:
-        modified_page_params['histogram_mode'] = HISTOGRAM_MODE_PERCENTAGES
-        what_to_show = 'percentages'
-    url = url_for(endpoint='osdashboardresultpage.osdashboardresultpage',
-                  **merge_and_remove_empty(page_params=modified_page_params,
-                                           query_params=query_params))
-    html_histogram += '<a href="' + url + '">toggle this histogram to show '
-    html_histogram += what_to_show + '</a> '
-
-    modified_query_params: QueryParams = query_params.copy()
-    if len(query_params['access']) == 0:
-        modified_query_params['access'] = [ACCESS_OPEN]
-        what_to_show = 'only "open" access research results'
-    else:
-        modified_query_params['access'] = []
-        what_to_show = '"any" access research results'
-    url = url_for(endpoint='osdashboardresultpage.osdashboardresultpage',
-                  **merge_and_remove_empty(page_params=page_params,
-                                           query_params=modified_query_params))
-    html_histogram += '<a href="' + url + '">toggle this histogram to show '
-    html_histogram += what_to_show + '</a>'
-
-    message = 'You can choose a different time period for this open science profile, '
-    message += 'note that recreating it may take a while:'
-    form = get_html_for_yearcard(show_as_card=False,
-                                 message=message,
-                                 button_text='recreate')
-
-    html += get_page_title(title='Open science dashboard for "' + node['value'] + '"')
-    html += get_html_for_cardstart()
-    html += html_histogram
-    html += histogram_html
-    html += buttons
-    html += '<br/>'
-    html += form
-    message = 'Recreating the open science dashboard, this may take a while. Please wait...'
-    html += get_spinner(message=message)
     html += get_html_for_cardend()
 
     return html + get_page_footer() + html_body_end
