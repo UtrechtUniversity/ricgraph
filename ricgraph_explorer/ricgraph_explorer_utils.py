@@ -487,9 +487,10 @@ def create_html_form(destination: str,
             form += '>'
 
     for item in hidden_fields:
-        if isinstance(hidden_fields[item], str):
+        if isinstance(hidden_fields[item], str) \
+           or isinstance(hidden_fields[item], int):
             form += '<input type="hidden" name="' + item
-            form += '" value="' + hidden_fields[item] + '">'
+            form += '" value="' + str(hidden_fields[item]) + '">'
         elif isinstance(hidden_fields[item], list):
             # For every element in the list we add a URL param with
             # the same name and a different value.
