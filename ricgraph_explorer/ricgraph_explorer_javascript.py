@@ -287,6 +287,14 @@ def get_html_for_histogram_javascript(histogram_json: str,
                      insetRight: 10,
                      domain: [0, histogram_value_max],
                    }},
+                   y: {{ 
+                     // We need this to prevent a JavaScript warning. It emits
+                     // this warning in case the y-axis looks like an int,
+                     // e.g. when we make a histogram on year.
+                     // JavaScript even emits this warning if we pass a
+                     // year as string.
+                     type: "band"
+                   }},
                    marks: [
                      Plot.axisX({{ 
                        anchor: "bottom",
