@@ -187,6 +187,8 @@ for index, row in df_nodes.iterrows():
                         _key=row['_key'],
                         comment=row['comment'],
                         year=row['year'],
+                        license=row['license'],
+                        access=row['access'],
                         url_main=row['url_main'],
                         url_other=row['url_other'],
                         _source=row['_source'],
