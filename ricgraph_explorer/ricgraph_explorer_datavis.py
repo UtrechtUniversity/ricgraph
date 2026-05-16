@@ -65,7 +65,7 @@ from ricgraph_explorer_constants import (RICGRAPH_SYSTEMINFO,
 from ricgraph_explorer_utils import (get_message, remove_hierarchical_orgs,
                                      create_full_htmlpage,
                                      get_global_dataframe,
-                                     QueryParams)
+                                     QueryParams, get_html_for_boxedcard)
 from ricgraph_explorer_cypher import (find_collab_orgs_matrix,
                                       find_collab_orgs_persons_results)
 from ricgraph_explorer_javascript import (get_html_for_histogram_javascript,
@@ -73,31 +73,26 @@ from ricgraph_explorer_javascript import (get_html_for_histogram_javascript,
                                           create_sankey_diagram_javascript)
 
 
-def get_html_for_histogram(histogram_list: list,
-                           histogram_width: int = 0,
-                           histogram_mode: str = HISTOGRAM_MODE_COUNTS,
-                           histogram_title: str = ''):
+def get_html_for_histogramcard(histogram_list: list,
+                               histogram_width: int = 0,
+                               histogram_mode: str = HISTOGRAM_MODE_COUNTS,
+                               histogram_title: str = ''):
     """This function creates a histogram using the Observable D3 and Observable Plot framework
     for data visualization. See https://d3js.org and https://observablehq.com/plot.
 
     :param histogram_list: A list of histogram data to be plotted in the histogram.
-      A list of JSON values: {'name': [something], 'value': [a value]}.
-      Each element in the list has a 'name' and 'value'.
+      Its elements look like [{'name': 'DOI', 'value': 148},
+      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
       The histogram will be in the order as specified in the list.
     :param histogram_width: The width of the histogram, in pixels.
-      If 0, then use the innerWidth of the viewport.
+      If 0, then use the space available.
     :param histogram_mode: The mode of the histogram, either counts
       (HISTOGRAM_MODE_COUNTS), or percentages (HISTOGRAM_MODE_PERCENTAGES).
     :param histogram_title: The title of the histogram.
     :return: HTML to be rendered.
     """
-    # The required js files for Observable are included in html_body_end above.
-    # The code below is inspired by an example from
-    # https://observablehq.com/@observablehq/plot-labelled-horizontal-bar-chart-variants.
-
     if len(histogram_list) == 0:
-        message = 'Unexpected result in get_html_for_histogram(): '
-        message += 'The histogram list is empty.'
+        message = 'Nothing to show, the histogram is empty.'
         return get_message(message=message)
 
     histogram_json = dumps(histogram_list)
@@ -105,20 +100,17 @@ def get_html_for_histogram(histogram_list: list,
     # The plot name should be unique, otherwise we get strange side effects.
     plot_name = 'myplot' + '_' + create_unique_string()
 
-    html = '<div class="w3-card-4">'
-    if histogram_title != '':
-        html += '<div class="w3-container uu-yellow">'
-        html += '<b>' + histogram_title + '</b>'
-        html += '</div>'
-    html += '</br>'
-    html += '<div id="' + plot_name + '"></div>'
-    html += '</br></div>'
+    body = '<div class="w3-container">'
+    body += '<div id="' + plot_name + '"></div>'
+    body += '</div>'
 
     javascript = get_html_for_histogram_javascript(histogram_json=histogram_json,
                                                    histogram_width=histogram_width,
                                                    histogram_mode=histogram_mode,
                                                    plot_name=plot_name)
-    return observable_plot + html + javascript
+    html = get_html_for_boxedcard(header=histogram_title,
+                                  inner_html=observable_plot + body + javascript)
+    return html
 
 
 # ########################################################################

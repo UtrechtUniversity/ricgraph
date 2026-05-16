@@ -62,6 +62,7 @@ class QueryParams(TypedDict):
     value: str
     year_first: str
     year_last: str
+    license: list[str]
     access: list[str]
     source_system: str
     source_system2: str

@@ -88,6 +88,7 @@ from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          SEARCH_MODE_EXACT_MATCH, SEARCH_MODE_VALUE,
                                          SEARCH_STRING_MIN_LENGTH,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
+                                         ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON,
                                          ORIGIN_DEFAULT_BUTTON,
                                          OVERLAP_MODE_NEIGHBORNODE)
 from ricgraph_explorer_init import initialize_ricgraph_explorer
@@ -109,7 +110,8 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
-from ricgraph_explorer_osl import _oslpage_bp, _osprofileresultpage_bp
+from ricgraph_explorer_osl import (_oslpage_bp, _osprofileresultpage_bp,
+                                   _osdashboardresultpage_bp)
 from ricgraph_explorer_collabs import _collabspage_bp, _collabsresultpage_bp
 from ricgraph_explorer_topics import _topicspage_bp
 # In PyCharm, the import below generates an "Unused import statement", but it is
@@ -143,8 +145,10 @@ _ricgraph_explorer = FlaskApp(import_name=__name__,
 _ricgraph_explorer.app.json.sort_keys = False
 _ricgraph_explorer.add_api(specification='openapi.yaml',
                            swagger_ui_options=_swagger_ui_options)
+
 _ricgraph_explorer.app.register_blueprint(blueprint=_oslpage_bp)
 _ricgraph_explorer.app.register_blueprint(blueprint=_osprofileresultpage_bp)
+_ricgraph_explorer.app.register_blueprint(blueprint=_osdashboardresultpage_bp)
 _ricgraph_explorer.app.register_blueprint(blueprint=_collabspage_bp)
 _ricgraph_explorer.app.register_blueprint(blueprint=_collabsresultpage_bp)
 _ricgraph_explorer.app.register_blueprint(blueprint=_topicspage_bp)
@@ -599,16 +603,25 @@ def optionspage() -> str | Response:
         return html
 
     node = result[0]
-    if page_params['origin'] == ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON:
+    if page_params['origin'] == ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON \
+       or page_params['origin'] == ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON:
         # If we have reached this point, and we came here using the
         # button 'get an open science profile for a (sub-)organization'
         # on page oslpage(), then skip the options page and go directly
         # to the osprofileresult() page. Reset 'origin'.
-        page_params['origin'] = ORIGIN_DEFAULT_BUTTON
         merged = merge_and_remove_empty(page_params=page_params,
                                         query_params=query_params) | {'key': node['_key']}
-        return redirect(url_for(endpoint='osprofileresultpage.osprofileresultpage',
-                                **merged))
+        if page_params['origin'] == ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON:
+            page_params['origin'] = ORIGIN_DEFAULT_BUTTON
+            return redirect(url_for(endpoint='osprofileresultpage.osprofileresultpage',
+                                    **merged))
+        elif page_params['origin'] == ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON:
+            page_params['origin'] = ORIGIN_DEFAULT_BUTTON
+            return redirect(url_for(endpoint='osdashboardresultpage.osdashboardresultpage',
+                                    **merged))
+        else:
+            html += get_message(message='optionspage(): Error, this cannot happen.')
+            html += get_page_footer() + html_body_end
 
     html += create_options_page(node=node,
                                 page_params=page_params,
@@ -766,6 +779,11 @@ def create_options_page_organization(node: Node,
                              button_text='get an open science profile for this organization',
                              hidden_fields={'key': key
                                            })
+    html += '<p/>'
+    html += create_html_form(destination='osdashboardresultpage.osdashboardresultpage',
+                             button_text='get an open science dashboard for this organization',
+                             hidden_fields={'key': key
+                                            })
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
@@ -1208,7 +1226,6 @@ def create_results_page_person(node: Node,
                                      table_header='This is personal information related to this person:',
                                      table_columns=table_columns_ids,
                                      tabs_on='name')
-            html += get_html_for_yearcard()
             # [29-3-2026] Generates a PyCharm warning:
             # Expected type 'Node', got 'Node | str' instead.
             # I don't understand, above it is ok.
@@ -1222,7 +1239,6 @@ def create_results_page_person(node: Node,
             html += view_personal_information(nodes_list=neighbor_nodes_personal,
                                               page_params=page_params,
                                               query_params=query_params)
-            html += get_html_for_yearcard()
             html += get_tabbed_table(nodes_list=neighbor_nodes_researchresult,
                                      page_params=page_params,
                                      query_params=query_params,
@@ -1268,7 +1284,6 @@ def create_results_page_person(node: Node,
             table_header = 'These are all the neighbors related to this person (without its identities):'
         html += get_page_title(title='Research results related to this person')
         html += node_found
-        html += get_html_for_yearcard()
         if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
             html += get_faceted_table(parent_node=node,
                                       neighbor_nodes=neighbor_nodes,

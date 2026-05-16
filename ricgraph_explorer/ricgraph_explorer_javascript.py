@@ -228,8 +228,9 @@ def get_html_for_histogram_javascript(histogram_json: str,
 
     :param histogram_json: The histogram data.
     :param histogram_width: The width of the histogram, in pixels.
-      If 0, then use the innerWidth of the viewport, which basically
-      determines the width automatically, depending on the space available.
+      If 0, then use div.clientWidth. This sets the width to the width of the
+      <div> the histogram is in, and doing so, makes it dependent on
+      the space available.
     :param histogram_mode: The mode of the histogram, either counts
       (HISTOGRAM_MODE_COUNTS), or percentages (HISTOGRAM_MODE_PERCENTAGES).
     :param plot_name: The name of the plot.
@@ -247,7 +248,8 @@ def get_html_for_histogram_javascript(histogram_json: str,
                  const histogram_mode = "{histogram_mode}";
                  const histogram_mode_counts = "{HISTOGRAM_MODE_COUNTS}";
                  const histogram_value_sum = histogram.reduce((acc, histogram) => acc + histogram.value, 0);
-                 const plot_width = {histogram_width} === 0 ? window.innerWidth : {histogram_width};
+                 const div = document.querySelector("#{plot_name}");
+                 const plot_width = {histogram_width} === 0 ? div.clientWidth : {histogram_width};
                  // 'histogram_value_max' is used to compute whether a histogram 
                  // label should be shown in the histogram bar or next to it.
                  let histogram_value_max = histogram.reduce((max, histogram) => histogram.value > max ? histogram.value : max, 0);
@@ -280,6 +282,10 @@ def get_html_for_histogram_javascript(histogram_json: str,
                  const plot = Plot.plot({{
                    width: plot_width,
                    axis: null,
+                   // marginLeft = 3, to leave some space to be able to read the '0' axis label.
+                   // Similar for marginRight.
+                   marginLeft: 3,
+                   marginRight: 3,
                    // Make height dependent on the number of items in histogram.
                    // The "+ 40" is for the horizontal scale.
                    height: histogram.length * 20 + 40,
@@ -327,7 +333,6 @@ def get_html_for_histogram_javascript(histogram_json: str,
                      }})
                    ]           // End of marks.
                  }});         // End of Plot.plot().
-                 const div = document.querySelector("#{plot_name}");
                  div.append(plot);
                  </script>
                  '''

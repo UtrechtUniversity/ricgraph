@@ -193,9 +193,11 @@ COLLABORATION_MODES_ALL = [
 # but then you want to continue to the results page of
 # this open science profile page, and not to the organizations options page.
 ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON = 'osprofile_button'
+ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON = 'osdashboard_button'
 ORIGIN_DEFAULT_BUTTON = ''
 ORIGIN_BUTTON_ALL = [
     ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
+    ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON,
     ORIGIN_DEFAULT_BUTTON
 ]
 
@@ -229,6 +231,9 @@ button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 button_style_border = button_style + ' w3-border rj-border-black '
 # Restrict the width of a button. Use 'min-width' to make sure the text fits.
 button_width = ' style="min-width:' + field_button_width + ';" '
+
+# The width of the button on a boxed card.
+boxedcard_button_width = ' style="width:8em !important;" '
 
 # Responsive HTML that keeps buttons and forms on one line, with a 1em spacing.
 # I am not sure if all of this is necessary, but it works.
@@ -294,7 +299,7 @@ stylesheet += 'th {text-align:left;}'
 # Style for tabbed HTML table header.
 stylesheet += '.tablink {font-size:85%;}'
 # Style for faceted box.
-stylesheet += '.facetedform {font-size:90%;}'
+stylesheet += '.boxedcard {font-size:90%;}'
 # For table sorting. \u00a0 is a non-breaking space.
 stylesheet += 'table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse)'
 stylesheet += ':not(.sorttable_nosort):after{content:"\u00a0\u25b4\u00a0\u25be"}'

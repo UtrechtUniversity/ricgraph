@@ -987,6 +987,7 @@ def create_empty_query_params() -> QueryParams:
         'value': '',
         'year_first': '',
         'year_last': '',
+        'license': [],
         'access': [],
         'source_system': '',
         'source_system2': '',

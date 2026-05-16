@@ -62,7 +62,7 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          button_style, button_width,
                                          font_family,
                                          form_button_on_one_line_flexspace_style,
-                                         form_button_on_one_line_width)
+                                         boxedcard_button_width)
 from ricgraph_explorer_init import (get_ricgraph_explorer_global,
                                     collect_ricgraph_cacheinfo)
 from ricgraph_explorer_javascript import get_spinner_javascript
@@ -236,6 +236,8 @@ def get_url_query_params() -> QueryParams:
                                   item='name_active')
     category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                       item='category_active')
+    license_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                    item='license_active')
     access_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                     item='access_active')
     source_active = get_global_list(ricgraph_info=RICGRAPH_HARVESTINFO,
@@ -259,6 +261,10 @@ def get_url_query_params() -> QueryParams:
                                            allowed_values=category_active)
     if len(name_active) == len(category_list):
         category_list = []
+    licentie = get_url_parameter_list(parameter='license',
+                                      allowed_values=license_active)
+    if len(license_active) == len(licentie):
+        licentie = []
     access = get_url_parameter_list(parameter='access',
                                     allowed_values=access_active)
     if len(access_active) == len(access):
@@ -275,6 +281,7 @@ def get_url_query_params() -> QueryParams:
         'value': get_url_parameter_value(parameter='value', use_escape=False),
         'year_first': get_url_parameter_value(parameter='year_first'),
         'year_last': get_url_parameter_value(parameter='year_last'),
+        'license': licentie,
         'access': access,
         'source_system': get_url_parameter_value(parameter='source_system',
                                                  allowed_values=source_active),
@@ -543,22 +550,55 @@ def get_you_searched_for_card(page_params: PageParams,
     return html
 
 
-def get_html_for_yearcard(show_as_card: bool = True,
-                          message: str = '',
+def get_html_for_boxedcard(header: str = '',
+                           inner_html: str = '',
+                           outer_html: str = '') -> str:
+    """Get the HTML required for a boxed card. Such a card has
+    a header and a body, the body can have a button. This button
+    will appear outside of the body.
+
+    :param header: The header of the boxed card.
+    :param inner_html: The HTML for the body.
+    :param outer_html: The HTML for the button.
+    :return:
+    """
+    form = ''
+    form += get_html_for_cardstart()
+    form += '<div class="boxedcard">'
+
+    form += '<div class="w3-card-4">'
+
+    form += '<div class="w3-container uu-yellow">'
+    form += '<b>' + header + '</b>'
+    form += '</div>'
+
+    form += inner_html
+
+    form += '</div>'  # from '<div class="w3-card-4">'.
+
+    if outer_html != '':
+        form += '<br/>'
+        form += outer_html
+
+    form += '</div>'  # from '<div class="boxedcard">'.
+    form += get_html_for_cardend()
+    return form
+
+
+def get_html_for_yearcard(header: str = '',
                           button_text: str = 'refresh') -> str:
     """Get the HTML required for a card that can be used to filter on
     year.
 
-    :param show_as_card: If True, show as card, otherwise show inline.
-    :param message: The message to show before the input fields.
+    :param header: The header to show before the input fields.
     :param button_text: The text to show on the 'submit' button.
     :return: HTML to be rendered.
     """
     year_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                           item='year_active_datalist')
     hidden_fields = ''
-    if message == '':
-        message = 'You can choose a different time period for the research results:'
+    if header == '':
+        header = 'You can choose a different time period'
 
     # Get all current URL parameters using Flask's request. Note that
     # Flask’s request.args.to_dict(flat=False) always returns values as lists,
@@ -577,38 +617,37 @@ def get_html_for_yearcard(show_as_card: bool = True,
             hidden_fields += '<input type="hidden" name="'
             hidden_fields += key + '" value="' + val + '">'
 
-    form = ''
-    if show_as_card:
-        form += get_html_for_cardstart()
-    form += message
-    form += '<br/>'
+    form = '<div class="w3-container">'
     form += '<form method="get" action="' + url_for(endpoint=endpoint)
     form += '"' + form_button_on_one_line_flexspace_style + '>'
 
     form += hidden_fields
 
-    form += '<div' + form_button_on_one_line_width + '>'
+    form += '<div>'
     form += '<label for="year_first">specify the first year:</label>'
     form += '<input id="year_first" class="w3-input w3-border" list="year_active_datalist"'
-    form += 'name=year_first autocomplete=off' + form_button_on_one_line_width + '>'
+    form += 'name=year_first autocomplete=off' + boxedcard_button_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
     form += str(year_active_datalist)
     form += '</div>'
 
-    form += '<div' + form_button_on_one_line_width + '>'
+    form += '<div>'
     form += '<label for="year_last">specify the last year:</label>'
     form += '<input id="year_last" class="w3-input w3-border" list="year_active_datalist"'
-    form += 'name=year_last autocomplete=off' + form_button_on_one_line_width + '>'
+    form += 'name=year_last autocomplete=off' + boxedcard_button_width + '>'
     form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
     form += str(year_active_datalist)
     form += '</div>'
 
-    form += '<input class="' + button_style + '"' + form_button_on_one_line_width
-    form += 'type=submit value="' + button_text + '">'
-    form += '</form>'
-    if show_as_card:
-        form += get_html_for_cardend()
-    return form
+    form += '</div>'        # from '<div class="w3-container">'.
+
+    button = '<input class="' + button_style + '"' + boxedcard_button_width
+    button += 'type=submit value="' + button_text + '">'
+    button += '</form>'
+    html = get_html_for_boxedcard(header=header,
+                                  inner_html=form,
+                                  outer_html=button)
+    return html
 
 
 def get_spinner(message: str = '') -> str:

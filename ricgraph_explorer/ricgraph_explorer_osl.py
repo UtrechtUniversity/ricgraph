@@ -51,9 +51,11 @@ from ricgraph import (read_all_nodes,
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          html_body_start, html_body_end,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
+                                         ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON,
                                          button_style,
                                          form_button_on_one_line_flexspace_style,
                                          form_button_on_one_line_width,
+                                         button_width,
                                          HISTOGRAM_MODE_COUNTS,
                                          HISTOGRAM_MODE_PERCENTAGES,
                                          OSL_PROFILE_MODE_GROUPS,
@@ -62,18 +64,22 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
                                      create_html_form,
                                      get_page_title,
                                      get_message,
-                                     get_spinner,
                                      get_html_for_yearcard,
                                      get_global_list,
                                      get_page_footer,
                                      get_url_query_params, get_url_page_params,
                                      merge_and_remove_empty)
-from ricgraph_explorer_datavis import get_html_for_histogram
-from ricgraph_explorer_cypher import create_neighbor_histogram_cypher
+from ricgraph_explorer_table import (compute_histogramcards,
+                                     get_histogramcards,
+                                     get_html_for_facetcard)
+from ricgraph_explorer_datavis import get_html_for_histogramcard
+from ricgraph_explorer_cypher import (create_neighbor_histogram_cypher,
+                                      find_organization_additional_info_nodes)
 
 
 _oslpage_bp = Blueprint(name='oslpage', import_name=__name__)
 _osprofileresultpage_bp = Blueprint(name='osprofileresultpage', import_name=__name__)
+_osdashboardresultpage_bp = Blueprint(name='osdashboardresultpage', import_name=__name__)
 
 
 @_oslpage_bp.route(rule='/oslpage/', methods=['GET'])
@@ -99,6 +105,13 @@ def oslpage() -> str:
                                             'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             'origin': ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON
                                             })
+    html += '<p/>'
+    html += create_html_form(destination='searchpage',
+                             button_text='get an open science dashboard for a (sub-)organization',
+                             hidden_fields={'search_mode': 'value_search',
+                                            'category': ORGANIZATION_CATEGORY_ORGANISATION,
+                                            'origin': ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON
+                                            })
     html += get_html_for_cardend()
 
     html += get_page_footer() + html_body_end
@@ -108,7 +121,7 @@ def oslpage() -> str:
 @_osprofileresultpage_bp.route(rule='/osprofileresultpage/', methods=['GET'])
 def osprofileresultpage() -> str:
     """Ricgraph Explorer entry, this 'page' only uses URL parameters.
-    Find the open science profile of a (sub-)organizations based on
+    Find the open science profile of a (sub-)organization based on
     URL parameters passed.
 
     Possible url parameters are:
@@ -188,10 +201,9 @@ def osprofileresultpage() -> str:
     histogram_title += get_year_range_text(year_first=query_params['year_first'],
                                            year_last=query_params['year_last'])
     histogram_title += ' for "' + node['value'] + '"'
-    html_histogram = '<div ' + form_button_on_one_line_flexspace_style + '>'
-    html_histogram += get_html_for_histogram(histogram_list=histogram_list,
-                                             histogram_title=histogram_title,
-                                             histogram_mode=page_params['histogram_mode'])
+    html_histogram = get_html_for_histogramcard(histogram_list=histogram_list,
+                                                histogram_title=histogram_title,
+                                                histogram_mode=page_params['histogram_mode'])
 
     modified_page_params: PageParams = page_params.copy()
     if page_params['histogram_mode'] == HISTOGRAM_MODE_PERCENTAGES:
@@ -204,6 +216,8 @@ def osprofileresultpage() -> str:
     url = url_for(endpoint='osprofileresultpage.osprofileresultpage',
                   **merge_and_remove_empty(page_params=modified_page_params,
                                            query_params=query_params))
+    html_histogram += '<br/>'
+    html_histogram += '<div ' + form_button_on_one_line_flexspace_style + '>'
     html_histogram += '<a href="' + url + '">toggle this histogram to show '
     html_histogram += what_to_show + '</a> '
 
@@ -234,21 +248,18 @@ def osprofileresultpage() -> str:
     html_histogram += what_to_show + '</a>'
     html_histogram += '</div>'
 
-    message = 'You can choose a different time period for this open science profile, '
-    message += 'note that recreating it may take a while:'
-    form = get_html_for_yearcard(show_as_card=False,
-                                 message=message,
-                                 button_text='recreate')
-
     html += get_page_title(title='Open science profile for "' + node['value'] + '"')
+    html += '<div class="w3-row-padding w3-stretch">'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_yearcard()
+    html += '</div>'
+    html += '<div class="w3-col s12 m9">'
     html += get_html_for_cardstart()
     html += html_histogram
     html += buttons
-    html += '<br/>'
-    html += form
-    message = 'Recreating the open science profile, this may take a while. Please wait...'
-    html += get_spinner(message=message)
     html += get_html_for_cardend()
+    html += '</div>'
+    html += '</div>'
 
     html += get_html_for_cardstart()
     html += '<h2>What is an open science profile in Ricgraph?</h2>'
@@ -281,6 +292,141 @@ def osprofileresultpage() -> str:
     html += '<br/>'
     html += 'These are the result result categories ' + str(researchresult_category_engagement_material) + '.'
     html += '</li></ol>'
+    html += get_html_for_cardend()
+
+    return html + get_page_footer() + html_body_end
+
+
+@_osdashboardresultpage_bp.route(rule='/osdashboardresultpage/', methods=['GET'])
+def osdashboardresultpage() -> str:
+    """Ricgraph Explorer entry, this 'page' only uses URL parameters.
+    Find the open science dashboard of a (sub-)organization based on
+    URL parameters passed.
+
+    :return: HTML to be rendered.
+    """
+    page_params = get_url_page_params()
+    query_params = get_url_query_params()
+
+    page_params['histogram_mode'] = HISTOGRAM_MODE_COUNTS
+    # For this page, we ignore the value of 'max_nr_items' if it is passed.
+    query_params['max_nr_items'] = 0
+    if len(query_params['category_list']) == 0:
+        query_params['category_list'] = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                                        item='researchresult_category_active')
+    query_params['category_list'] = sorted(query_params['category_list'], key=lambda x: x.lower())
+    html = html_body_start
+    if (message := check_valid_year(year_first=query_params['year_first'],
+                                    year_last=query_params['year_last'])) != '':
+        html += get_message(message=message)
+        return html + get_page_footer() + html_body_end
+
+    result = read_all_nodes(key=query_params['key'])
+    if len(result) == 0 or len(result) > 1:
+        if len(result) == 0:
+            message = 'Ricgraph Explorer could not find anything. '
+        else:
+            message = 'Ricgraph Explorer found too many nodes. '
+        message += 'This should not happen. '
+        html += get_message(message=message)
+        return html + get_page_footer() + html_body_end
+    node = result[0]
+
+    # This should be done more efficiently. Now we search twice for the same nodes.
+    histogram_list, buttons = prepare_oslprofile(node=node,
+                                                 material_group=query_params['category_list'],
+                                                 material_name=query_params['category_list'],
+                                                 page_params=page_params,
+                                                 query_params=query_params)
+    nodes_list = find_organization_additional_info_nodes(parent_node=node,
+                                                         query_params=query_params)
+    # Delete empty histogram entries.
+    histogram_list = [x for x in histogram_list if x.get('value') != 0]
+
+    (name_histogram, category_histogram, year_histogram,
+     license_histogram, access_histogram) = \
+        compute_histogramcards(nodes_list=nodes_list,
+                               reverse_sort_on_value=False)
+
+    histogram_title = 'Open science dashboard for "' + node['value'] + '"'
+
+    html += get_page_title(title='Open science dashboard for "' + node['value'] + '"')
+
+    html += '<div class="w3-row-padding w3-stretch">'
+    html += '<div class="w3-col s12 m3">'
+    html += get_histogramcards(name_histogram=[],
+                               category_histogram=[],
+                               year_histogram=year_histogram,
+                               license_histogram=license_histogram,
+                               access_histogram=access_histogram)
+    html += '</div>'
+    html += '<div class="w3-col s12 m9">'
+    html += get_html_for_cardstart()
+    html += get_html_for_histogramcard(histogram_list=histogram_list,
+                                       histogram_mode=page_params['histogram_mode'],
+                                       histogram_title=histogram_title)
+    html += buttons
+    html += get_html_for_cardend()
+    html += '</div>'
+    html += '</div>'
+
+    html += get_html_for_cardstart()
+    html += '<h2>You can modify this dashboard by filtering</h2>'
+    html += '<div class="w3-row-padding w3-stretch">'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_facetcard(histogram=category_histogram,
+                                            url_field_name='category_list',
+                                            header='Filter on "category"')
+    html += '</div>'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_yearcard(header='Filter on "year"')
+    html += '</div>'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_facetcard(histogram=license_histogram,
+                                           url_field_name='license',
+                                           header='Filter on "license"')
+    html += '</div>'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_facetcard(histogram=access_histogram,
+                                          url_field_name='access',
+                                          header='Filter on "access"')
+    html += '</div>'
+    html += get_html_for_cardend()
+
+    html += '</div>'
+    html += '</div>'
+
+    # This following can be enabled as soon as:
+    # 1. the os profile page shows the selection for the os profile
+    #    (including year, license, access involved).
+    # 2. the collabs pages shows the selection, and works with that selection.
+    # html += get_html_for_cardstart()
+    # html += '<h2>Other exploration options for this organization</h2>'
+    # url_osprofile = url_for(endpoint='osprofileresultpage.osprofileresultpage',
+    #                         **merge_and_remove_empty(page_params=page_params,
+    #                                                  query_params=query_params))
+    # html += '<a href="' + url_osprofile + '" class="w3-bar-item'
+    # html += button_style + '"' + button_width
+    # html += '>get the open science profile for this (sub-)organization' + '</a>'
+    #
+    # html += '<p/>'
+    #
+    # url_collabs = url_for(endpoint='collabspage.collabspage',
+    #                       **merge_and_remove_empty(page_params=page_params,
+    #                                                query_params=query_params)| {'start_orgs': query_params['value']})
+    # html += '<a href="' + url_collabs + '" class="w3-bar-item'
+    # html += button_style + '"' + button_width
+    # html += '>explore collaborations for this (sub-)organization' + '</a>'
+    # html += get_html_for_cardend()
+
+    html += get_html_for_cardstart()
+    html += '<h2>What is an open science dashboard in Ricgraph?</h2>'
+    html += 'Ricgraph allows to explore research results for a (sub-)organization. '
+    html += 'Starting with a (sub-)organization, you can filter its '
+    html += 'research results based on "category", "year", "license", '
+    html += 'and "access" values. '
+    html += 'After clicking "refresh", the result of your selection will '
+    html += 'be shown as a histogram. '
     html += get_html_for_cardend()
 
     return html + get_page_footer() + html_body_end

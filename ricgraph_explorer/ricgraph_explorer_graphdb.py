@@ -83,14 +83,13 @@ from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
                                      get_you_searched_for_card,
-                                     get_html_for_yearcard,
                                      get_global_list,
                                      merge_and_remove_empty)
 from ricgraph_explorer_cypher import (find_organization_additional_info_cypher,
                                       find_person_organization_collaborations_cypher,
                                       find_person_share_resouts_cypher)
 from ricgraph_explorer_table import  (get_regular_table, get_tabbed_table,
-                                      get_html_for_histogram,
+                                      get_html_for_histogramcard,
                                       get_html_for_tablestart, get_html_for_tableend)
 
 
@@ -315,7 +314,6 @@ def find_enrich_candidates(parent_node: Node,
                                       table_header=table_header,
                                       table_columns=table_columns)
 
-        html += get_html_for_yearcard()
         table_header = 'You could enrich source system "' + query_params['source_system'] + '" '
         table_header += 'by using this information harvested from other source systems '
         table_header += year_range_text + '. '
@@ -464,10 +462,9 @@ def find_organization_additional_info(parent_node: Node | None,
     year_range_text = get_year_range_text(year_first=query_params['year_first'],
                                           year_last=query_params['year_last'])
     # Note the hard limit.
-    cypher_result = \
-        find_organization_additional_info_cypher(parent_node=parent_node,
-                                                 query_params=query_params)
-    if len(cypher_result) == 0:
+    records = find_organization_additional_info_cypher(parent_node=parent_node,
+                                                       query_params=query_params)
+    if len(records) == 0:
         message = 'Could not find any persons or results for this organization'
         if name_str != '' and category_str != '':
             message += ', using search terms '
@@ -491,7 +488,7 @@ def find_organization_additional_info(parent_node: Node | None,
     else:
         we_have_competence = False
 
-    for result in cypher_result:
+    for result in records:
         node = result['second_neighbor']
         relevant_result.append(node)
         if we_have_competence:
@@ -528,7 +525,6 @@ def find_organization_additional_info(parent_node: Node | None,
     else:
         table_header += 'shared '
     if category_str != COMPETENCE_CATEGORY_COMPETENCE:
-        html += get_html_for_yearcard()
         table_header += 'items of this organization ' + year_range_text + ':'
     else:
         table_header += 'items of this organization:'
@@ -542,23 +538,14 @@ def find_organization_additional_info(parent_node: Node | None,
     if we_have_competence:
         histogram_html = ''
         if len(expertise_area_list) > 1:
-            histogram_html += get_html_for_cardstart()
-            histogram_html += get_html_for_histogram(histogram_list=expertise_area_list,
-                                                     histogram_width=250,
-                                                     histogram_title='Histogram of "expertise area":')
-            histogram_html += get_html_for_cardend()
+            histogram_html += get_html_for_histogramcard(histogram_list=expertise_area_list,
+                                                         histogram_title='Histogram of "expertise area"')
         if len(research_area_list) > 1:
-            histogram_html += get_html_for_cardstart()
-            histogram_html += get_html_for_histogram(histogram_list=research_area_list,
-                                                     histogram_width=250,
-                                                     histogram_title='Histogram of "research area":')
-            histogram_html += get_html_for_cardend()
+            histogram_html += get_html_for_histogramcard(histogram_list=research_area_list,
+                                                         histogram_title='Histogram of "research area"')
         if len(skill_list) > 1:
-            histogram_html += get_html_for_cardstart()
-            histogram_html += get_html_for_histogram(histogram_list=skill_list,
-                                                     histogram_width=250,
-                                                     histogram_title='Histogram of "skill":')
-            histogram_html += get_html_for_cardend()
+            histogram_html += get_html_for_histogramcard(histogram_list=skill_list,
+                                                         histogram_title='Histogram of "skill"')
 
         if histogram_html == '':
             # No data for any of the histograms.
@@ -566,10 +553,10 @@ def find_organization_additional_info(parent_node: Node | None,
         else:
             # Divide space between histogram and table.
             html += '<div class="w3-row-padding w3-stretch" >'
-            html += '<div class="w3-col" style="width:23em" >'
+            html += '<div class="w3-col s12 m3">'
             html += histogram_html
             html += '</div>'
-            html += '<div class="w3-rest" >'
+            html += '<div class="w3-col s12 m9">'
             html += table_html
             html += '</div>'
             html += '</div>'

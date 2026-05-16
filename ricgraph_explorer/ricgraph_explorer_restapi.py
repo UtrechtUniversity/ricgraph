@@ -65,10 +65,10 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
 from ricgraph_explorer_init import (get_ricgraph_explorer_global,
                                     collect_ricgraph_cacheinfo)
 from ricgraph_explorer_utils import get_global_list
+from ricgraph_explorer_cypher import find_organization_additional_info_nodes
 from ricgraph_explorer_graphdb import (convert_nodes_to_list_of_dict,
                                        find_person_share_resouts_cypher,
                                        find_person_organization_collaborations_cypher,
-                                       find_organization_additional_info_cypher,
                                        find_enrich_candidates_one_person)
 from ricgraph_explorer_datavis import org_collaborations_diagram
 
@@ -544,20 +544,16 @@ def api_organization_enrich(key: str = '',
     query_params['year_first'] = year_first
     query_params['year_last'] = year_last
     query_params['max_nr_items'] = int(max_nr_items)
-    cypher_result = find_organization_additional_info_cypher(parent_node=nodes[0],
-                                                             query_params=query_params)
-    if len(cypher_result) == 0:
+    nodes_list = find_organization_additional_info_nodes(parent_node=nodes[0],
+                                                         query_params=query_params)
+    if len(nodes_list) == 0:
         message = 'Could not find any information from persons or '
         message += 'their results in this organization'
         response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
-    relevant_result = []
-    for result in cypher_result:
-        node = result['second_neighbor']
-        relevant_result.append(node)
 
-    result_list = convert_nodes_to_list_of_dict(relevant_result,
+    result_list = convert_nodes_to_list_of_dict(nodes_list=nodes_list,
                                                 max_nr_items=max_items)
     response, status = create_http_response(result_list=result_list,
                                             message=str(len(result_list)) + ' items found',

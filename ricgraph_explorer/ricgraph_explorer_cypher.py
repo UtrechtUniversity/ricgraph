@@ -218,14 +218,37 @@ def find_person_organization_collaborations_cypher(parent_node: Node | None,
     return personroot_node_organizations, collaborating_organizations
 
 
+def find_organization_additional_info_nodes(parent_node: Node,
+                                            query_params: QueryParams) -> list:
+    """Function that finds additional information connected to a (sub-)organization.
+    Very similar to find_organization_additional_info_cypher(),
+    except that this function returns a list of nodes.
+
+    :param parent_node: the starting node for finding additional information.
+    :param query_params: parameters related to the query passed in the URL.
+    :return: A list of Nodes.
+"""
+    records = find_organization_additional_info_cypher(parent_node=parent_node,
+                                                       query_params=query_params)
+    nodes_list = [record['second_neighbor'] for record in records]
+    if len(nodes_list) == 0:
+        return []
+    else:
+        return nodes_list
+
+
 def find_organization_additional_info_cypher(parent_node: Node,
                                              query_params: QueryParams) -> list:
-    """For documentation, see find_organization_additional_info().
-    This is the cypher functionality for that function.
+    """Function that finds additional information connected to a (sub-)organization.
+    This is the cypher functionality for find_organization_additional_info().
+    You can also use it to find additional info for any type of node, which
+    is connected to a person-root.
 
-    :param parent_node:
-    :param query_params:
-    :return:
+    :param parent_node: the starting node for finding additional information.
+    :param query_params: parameters related to the query passed in the URL.
+    :return: A list of Records. Each element is a Record, where the first
+      element is a Node, and the second the number of times it is found.
+      If you only need nodes, use find_organization_additional_info_nodes().
     """
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
@@ -238,13 +261,13 @@ def find_organization_additional_info_cypher(parent_node: Node,
 
     # Prepare and execute Cypher query.
     clauses = []
-    cypher_query = 'MATCH (node:RicgraphNode)-[]->(neighbor:RicgraphNode) '
+    cypher_query = 'MATCH (node:RicgraphNode)'
+    cypher_query += '-[]->(neighbor:RicgraphPersonRoot)'
+    cypher_query += '-[]->(second_neighbor:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
         cypher_query += 'WHERE elementId(node)=$node_element_id '
     else:
         cypher_query += 'WHERE id(node)=toInteger($node_element_id) '
-    cypher_query += ' AND neighbor.name="person-root" '
-    cypher_query += 'MATCH (neighbor:RicgraphNode)-[]->(second_neighbor:RicgraphNode) '
     if len(query_params['name_list']) > 0:
         clauses.append('second_neighbor.name IN $name_list')
     if len(query_params['category_list']) > 0:
@@ -255,11 +278,13 @@ def find_organization_additional_info_cypher(parent_node: Node,
         clauses.append('second_neighbor.year >= $year_first')
     if query_params['year_last'] != '':
         clauses.append('second_neighbor.year <= $year_last')
+    if len(query_params['license']) > 0:
+        clauses.append('second_neighbor.license IN $license')
     if len(query_params['access']) > 0:
         clauses.append('second_neighbor.access IN $access')
 
     if len(clauses) >= 1:
-        cypher_query += 'WHERE ' + ' AND '.join(clauses) + ' '
+        cypher_query += 'AND ' + ' AND '.join(clauses) + ' '
 
     cypher_query += 'RETURN DISTINCT second_neighbor, COUNT(second_neighbor) AS count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
@@ -550,6 +575,8 @@ def create_neighbor_histogram_cypher(node: Node,
         cypher_query += 'AND researchresult.year >= $year_first '
     if query_params['year_last'] != '':
         cypher_query += 'AND researchresult.year <= $year_last '
+    if len(query_params['license']) > 0:
+        cypher_query += 'AND researchresult.license IN $license '
     if len(query_params['access']) > 0:
         cypher_query += 'AND researchresult.access IN $access '
     cypher_query += 'WITH DISTINCT researchresult '

@@ -57,7 +57,7 @@ from urllib.parse import urlencode
 from math import ceil, floor
 from typing import Tuple
 from neo4j.graph import Node
-from flask import url_for
+from flask import request, url_for
 from ricgraph import (nodes_cache_key_id_create,
                       create_ricgraph_key,
                       create_unique_string,
@@ -73,12 +73,15 @@ from ricgraph_explorer_constants import (TABLE_DETAIL_COLUMNS,
                                          MAX_ROWS_TO_EXPORT, TABLE_ID_COLUMNS,
                                          RICGRAPH_NODEINFO,
                                          DISCOVERER_MODE_DETAILS,
-                                         button_style)
+                                         button_style,
+                                         boxedcard_button_width)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_global_list,
                                      get_message,
-                                     merge_and_remove_empty)
-from ricgraph_explorer_datavis import get_html_for_histogram
+                                     merge_and_remove_empty,
+                                     get_html_for_yearcard,
+                                     get_html_for_boxedcard)
+from ricgraph_explorer_datavis import get_html_for_histogramcard
 from ricgraph_explorer_javascript import (get_regular_table_javascript, get_tabbed_table_javascript,
                                           get_html_for_tableend_javascript)
 
@@ -374,29 +377,34 @@ def get_faceted_table(parent_node: Node,
         # Remove elements from list following the max_nr_items'th.
         del neighbor_nodes[max_nr_items:]
 
-    faceted_html = get_facets_from_nodes(parent_node=parent_node,
-                                         neighbor_nodes=neighbor_nodes,
-                                         url_parameters=merge_and_remove_empty(page_params=page_params,
-                                                                               query_params=query_params))
-    table_html = get_regular_table(nodes_list=neighbor_nodes,
-                                   page_params=page_params,
-                                   query_params=query_params,
-                                   table_header=table_header,
-                                   table_columns=table_columns)
-    html = ''
-    if faceted_html == '':
-        # Faceted navigation not useful, don't show the panel.
-        html += table_html
-    else:
-        # Divide space between facet panel and table.
-        html += '<div class="w3-row-padding w3-stretch">'
-        html += '<div class="w3-col" style="width:20em">'
-        html += faceted_html
-        html += '</div>'
-        html += '<div class="w3-rest" >'
-        html += table_html
-        html += '</div>'
-        html += '</div>'
+    (name_histogram, category_histogram, year_histogram,
+     license_histogram, access_histogram) = \
+        compute_histogramcards(nodes_list=neighbor_nodes)
+
+    # Divide space between panels and table.
+    html = '<div class="w3-row-padding w3-stretch">'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_yearcard()
+    html += get_html_for_facetcard(histogram=name_histogram,
+                                   url_field_name='name_list',
+                                   header='Filter on "name"')
+    html += get_html_for_facetcard(histogram=category_histogram,
+                                   url_field_name='category_list',
+                                   header='Filter on "category"')
+    html += get_histogramcards(name_histogram=name_histogram,
+                               category_histogram=category_histogram,
+                               year_histogram=year_histogram,
+                               license_histogram=license_histogram,
+                               access_histogram=access_histogram)
+    html += '</div>'
+    html += '<div class="w3-col s12 m9">'
+    html += get_regular_table(nodes_list=neighbor_nodes,
+                              page_params=page_params,
+                              query_params=query_params,
+                              table_header=table_header,
+                              table_columns=table_columns)
+    html += '</div>'
+    html += '</div>'
 
     return html
 
@@ -457,12 +465,11 @@ def get_tabbed_table(nodes_list: list,
                                  table_columns=table_columns)
         return html
 
-    histogram_sort = sorted(histogram, key=lambda x: histogram[x], reverse=True)
-
     first_iteration = True
     tab_names_html = '<div class="w3-bar uu-yellow">'
-    for tab_name in histogram_sort:
-        tab_text = tab_name + '&nbsp;<i>(' + str(histogram[tab_name]) + ')</i>'
+    for item in histogram:
+        tab_name = item['name']
+        tab_text = tab_name + '&nbsp;<i>(' + str(item['value']) + ')</i>'
         tab_names_html += f'<button class="w3-bar-item w3-button tablink {table_id}'
 
         if first_iteration:
@@ -475,7 +482,8 @@ def get_tabbed_table(nodes_list: list,
 
     first_iteration = True
     tab_contents_html = ''
-    for tab_name in histogram_sort:
+    for item in histogram:
+        tab_name = item['name']
         tab_contents_html += f'<div id="{tab_name}" class="w3-container w3-border tabitem {table_id}"'
         if first_iteration:
             tab_contents_html += ''
@@ -511,91 +519,79 @@ def get_tabbed_table(nodes_list: list,
     elif len_nodes_list >= 2:
         nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table.'
 
-    table_html = get_html_for_cardstart()
-    table_html += '<span style="float:left;">' + table_header + '</span>'
-    table_html += '<span style="float:right;">' + nr_rows_in_table_message + '</span>'
-
-    table_html += tab_names_html + tab_contents_html + tab_javascript
-    table_html += nr_rows_in_table_message
-    table_html += get_html_for_cardend()
-
-    histogram_html = get_histogramcards(name_histogram=name_histogram,
-                                        category_histogram=category_histogram,
-                                        year_histogram=year_histogram,
-                                        license_histogram=license_histogram,
-                                        access_histogram=access_histogram)
-
-    # The following is partly copied from get_faceted_table().
-    # We could split this function similar to get_faceted_table(), i.e. in a function
-    # that shows the left panel (histogram) and right panel (tabbed table),
-    # and a function that generates the tabbed table, but this will not work since
-    # the function that generates the histogram needs the histogram computed in the
-    # function that generates the tabbed table.
-    html = ''
-    # Divide space between histogram panel and table.
-    html += '<div class="w3-row-padding w3-stretch" >'
-    html += '<div class="w3-col" style="width:20em" >'
-    html += histogram_html
+    # Divide space between panels and table.
+    html = '<div class="w3-row-padding w3-stretch" >'
+    html += '<div class="w3-col s12 m3">'
+    if len(year_histogram) > 0:
+        html += get_html_for_yearcard()
+    html += get_histogramcards(name_histogram=name_histogram,
+                               category_histogram=category_histogram,
+                               year_histogram=year_histogram,
+                               license_histogram=license_histogram,
+                               access_histogram=access_histogram)
     html += '</div>'
-    html += '<div class="w3-rest" >'
-    html += table_html
+    html += '<div class="w3-col s12 m9">'
+    html += get_html_for_cardstart()
+    html += '<span style="float:left;">' + table_header + '</span>'
+    html += '<span style="float:right;">' + nr_rows_in_table_message + '</span>'
+    html += tab_names_html + tab_contents_html + tab_javascript
+    html += nr_rows_in_table_message
+    html += get_html_for_cardend()
     html += '</div>'
     html += '</div>'
 
     return html
 
 
-def _get_part_of_facet_form(histogram: dict,
-                            url_field_name: str,
-                            title: str) -> str:
-    """Helper function for get_facets_from_nodes() to avoid code
-    duplication.
+def histogram_dict_to_list(histogram: dict,
+                           reverse_sort_on_value: bool = True) -> list:
+    """Convert a histogram in dict format to a list format.
+    The dict should look like:
+    {'DOI': 148, 'PURE_ID_PRESS_MEDIA': 102, 'PURE_ID_RESOUT': 183}.
+    Then the list will look like:
+    having elements like [{'name': 'DOI', 'value': 148},
+    {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102},
+    {'name': 'PURE_ID_RESOUT', 'value': 183}].
 
-    :param histogram: Histogram
-    :param url_field_name: The facet that is built will produce url_field_name
-      in the URL.
-    :param title: The title of the facet.
-    :return: HTML to be rendered.
+    :param histogram: The dict with the histogram.
+    :param reverse_sort_on_value: If True: reverse sort on the 'value' field.
+      If two items have the same value for 'value', the one that is
+      lexicographically first will be first in the resulting list.
+      Otherwise, sort on 'name'.
+    :return: The sorted list.
     """
-    part_of_form = ''
-    if len(histogram) == 1:
-        # Get the first (and only) element in the dict, pass it as hidden field.
-        name_key = str(list(histogram.keys())[0])
-        part_of_form += '<input type="hidden" name="' + url_field_name
-        part_of_form += '" value="' + name_key + '">'
+    if reverse_sort_on_value:
+        sorted_list = [
+            {'name': k, 'value': v}
+            for k, v in sorted(histogram.items(), key=lambda kv: (-kv[1], kv[0]))
+        ]
     else:
-        part_of_form += '<div class="w3-card-4">'
-        part_of_form += '<div class="w3-container uu-yellow">'
-        part_of_form += '<b>' + title + '</b>'
-        part_of_form += '</div>'
-        part_of_form += '<div class="w3-container" style="font-size: 90%;">'
-        part_of_form += '<fieldset style="border:none; margin:0px; padding:0px;">'
-        # For screen readers.
-        part_of_form += '<legend style="display:none">' + title + '</legend>'
-
-        # Sort a dict on value:
-        # https://stackoverflow.com/questions/613183/how-do-i-sort-a-dictionary-by-value
-        for bucket in sorted(histogram, key=lambda x: histogram[x], reverse=True):
-            label_id = create_unique_string(length=12)
-            label = bucket + '&nbsp;<i>(' + str(histogram[bucket]) + ')</i>'
-            part_of_form += '<input id="' + label_id + '" class="w3-check" '
-            part_of_form += 'type="checkbox" name="' + url_field_name + '" value="'
-            part_of_form += bucket + '" checked>'
-            part_of_form += '<label for="' + label_id + '">&nbsp;' + label + '</label><br/>'
-        part_of_form += '</fieldset>'
-        part_of_form += '</div>'
-        part_of_form += '</div><br/>'
-    return part_of_form
+        sorted_list = [
+            {'name': k, 'value': v}
+            for k, v in sorted(histogram.items(), key=lambda kv: kv[0].lower())
+        ]
+    return sorted_list
 
 
-def compute_histogramcards(nodes_list: list) -> Tuple[dict, dict, dict, dict, dict]:
-    """Computer the histograms for name, category, year,
+def compute_histogramcards(nodes_list: list,
+                           reverse_sort_on_value: bool = True,
+                           remove_zero_values: bool = True) -> Tuple[list, list, list, list, list]:
+    """Compute histograms for name, category, year,
     license, and access.
 
-    :param nodes_list: The list of nodes the histogram is based on.
+    :param nodes_list: The list of nodes the histogram are based on.
+    :param reverse_sort_on_value: If True: reverse sort on the 'value' field.
+      If two items have the same value for 'value', the one that is
+      lexicographically first will be first in the resulting list.
+      Otherwise, sort on 'name'.
+    :param remove_zero_values: If True, remove values that are 0 from
+      the resulting histogram list.
     :return: Five histograms, on 'name', 'category', 'year',
       'license', and 'access'.
+      Each histogram elements looks like [{'name': 'DOI', 'value': 148},
+      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
     """
+    # Use a dict for intermediate storage because it is fast.
     name_histogram = {}
     category_histogram = {}
     year_histogram = {}
@@ -612,23 +608,41 @@ def compute_histogramcards(nodes_list: list) -> Tuple[dict, dict, dict, dict, di
             license_histogram[node['license']] = license_histogram.get(node['license'], 0) + 1
             access_histogram[node['access']] = access_histogram.get(node['access'], 0) + 1
 
-    return (name_histogram, category_histogram,
-            year_histogram, license_histogram, access_histogram)
+    name_histogram_list = histogram_dict_to_list(name_histogram,
+                                                 reverse_sort_on_value=reverse_sort_on_value)
+    category_histogram_list = histogram_dict_to_list(category_histogram,
+                                                     reverse_sort_on_value=reverse_sort_on_value)
+    year_histogram_list = histogram_dict_to_list(year_histogram,
+                                                 reverse_sort_on_value=reverse_sort_on_value)
+    license_histogram_list = histogram_dict_to_list(license_histogram,
+                                                    reverse_sort_on_value=reverse_sort_on_value)
+    access_histogram_list = histogram_dict_to_list(access_histogram,
+                                                   reverse_sort_on_value=reverse_sort_on_value)
+    if remove_zero_values:
+        name_histogram_list = [x for x in name_histogram_list if x.get('value') != 0]
+        category_histogram_list = [x for x in category_histogram_list if x.get('value') != 0]
+        year_histogram_list = [x for x in year_histogram_list if x.get('value') != 0]
+        license_histogram_list = [x for x in license_histogram_list if x.get('value') != 0]
+        access_histogram_list = [x for x in access_histogram_list if x.get('value') != 0]
+
+    return (name_histogram_list, category_histogram_list,
+            year_histogram_list, license_histogram_list, access_histogram_list)
 
 
-def get_histogramcards(name_histogram: dict,
-                       category_histogram: dict,
-                       year_histogram: dict,
-                       license_histogram: dict,
-                       access_histogram: dict) -> str:
-    """Computer the histograms for name, category, year,
-    license, and access.
+def get_histogramcards(name_histogram: list,
+                       category_histogram: list,
+                       year_histogram: list,
+                       license_histogram: list,
+                       access_histogram: list) -> str:
+    """Get the histograms for name, category, year, license, and access.
+    Each histogram elements looks like [{'name': 'DOI', 'value': 148},
+    {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
 
-    :param name_histogram: Histogram on 'name', or {} when there is none.
-    :param category_histogram: Histogram on 'access', or {} when there is none.
-    :param year_histogram: Histogram on 'year', or {} when there is none.
-    :param license_histogram: Histogram on 'license', or {} when there is none.
-    :param access_histogram: Histogram on 'access', or {} when there is none.
+    :param name_histogram: Histogram on 'name', or [] when there is none.
+    :param category_histogram: Histogram on 'access', or [] when there is none.
+    :param year_histogram: Histogram on 'year', or [] when there is none.
+    :param license_histogram: Histogram on 'license', or [] when there is none.
+    :param access_histogram: Histogram on 'access', or [] when there is none.
     :return: HTML to be rendered.
     """
     histograms = [
@@ -640,82 +654,86 @@ def get_histogramcards(name_histogram: dict,
     ]
     html = ''
     for title, histogram in histograms:
-        histogram_list = []
         if len(histogram) > 0:
-            for bucket in sorted(histogram, key=lambda x: histogram[x], reverse=True):
-                histogram_list.append({'name': bucket, 'value': histogram[bucket]})
-        if len(histogram_list) > 0:
-            html += get_html_for_cardstart()
-            html += get_html_for_histogram(histogram_list=histogram_list,
-                                           histogram_width=200,
-                                           histogram_title='Histogram on "' + title + '"')
-            html += get_html_for_cardend()
+            html += get_html_for_histogramcard(histogram_list=histogram,
+                                               histogram_title='Histogram on "' + title + '"')
     return html
 
 
-def get_facets_from_nodes(parent_node: Node | None,
-                          neighbor_nodes: list,
-                          url_parameters: dict) -> str:
+def get_html_for_facetcard(histogram: list,
+                           url_field_name: str,
+                           header:str) -> str:
     """Do facet navigation in Ricgraph.
-    The facets will be constructed based on 'name' and 'category'.
-    Facets chosen will be "caught" in function search().
-    If there is only one facet (for either one or both), it will not be shown.
+    The facets will be constructed based on 'url_field_name'.
 
-    :param parent_node: the parent of the nodes to construct the facets from.
-    :param neighbor_nodes: the nodes to construct the facets from.
-    :param url_parameters: parameters to be added to the url.
-    :return: HTML to be rendered, or empty string ('') if faceted navigation is
-      not useful because there is only one facet.
+    :param histogram: The histogram to construct the facets from.
+      Its elements look like [{'name': 'DOI', 'value': 148},
+      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
+    :param url_field_name: The facet that is built will produce url_field_name
+      in the URL.
+    :param header: The header of the facet.
+    :return: HTML to be rendered, or '' if there is no facet.
     """
-    if parent_node is None:
-        return ''
-    if len(neighbor_nodes) == 0:
-        return ''
-
-    (name_histogram, category_histogram, year_histogram,
-     license_histogram, access_histogram) = \
-        compute_histogramcards(nodes_list=neighbor_nodes)
-
-    if len(name_histogram) <= 1 and len(category_histogram) <= 1:
-        # We have only one facet, so don't show the facet panel.
+    if len(histogram) == 0:
+        # There is nothing to show.
         return ''
 
-    faceted_form = get_html_for_cardstart()
-    faceted_form += '<div class="facetedform">'
-    faceted_form += '<form method="get" action="' + url_for('resultspage') + '">'
-    faceted_form += '<input type="hidden" name="key" value="' + str(parent_node['_key']) + '">'
-    for item, value in url_parameters.items():
-        if item in ['key', 'name_list', 'category_list']:
-            # Skip. 'key' has been done above, 'name_list' and
-            # 'category_list' will be done below.
+    hidden_fields = ''
+
+    # Get all current URL parameters using Flask's request. Note that
+    # Flask’s request.args.to_dict(flat=False) always returns values as lists,
+    # which we need. Assume the URL has ...&cat=abc&cat=def&..., then, with
+    # 'flat=True', only the last 'cat' is returned.
+    endpoint = str(request.endpoint)
+    current_params = request.args.to_dict(flat=False)
+
+    # Put all query parameters into hidden fields, except url_field_name,
+    # because it will be the result of the form below.
+    for key, values in current_params.items():
+        if key == url_field_name:
             continue
-        if isinstance(value, list):
-            for one_value in value:
-                faceted_form += '<input type="hidden" name="' + item
-                faceted_form += '" value="' + str(one_value) + '">'
-        else:
-            faceted_form += '<input type="hidden" name="' + item
-            faceted_form += '" value="' + str(value) + '">'
-    faceted_form += _get_part_of_facet_form(histogram=name_histogram,
-                                            url_field_name='name_list',
-                                            title='Filter on "name"')
-    faceted_form += _get_part_of_facet_form(histogram=category_histogram,
-                                            url_field_name='category_list',
-                                            title='Filter on "category"')
-    # No facet on 'access'.
+        # If it appears multiple times, emit each value.
+        for val in values:
+            hidden_fields += '<input type="hidden" name="'
+            hidden_fields += key + '" value="' + val + '">'
 
-    # Send name, category and value as hidden fields to search().
-    faceted_form += '<input class="w3-input' + button_style + '" style="width:8em;" type=submit value="refresh">'
-    faceted_form += '</form>'
-    faceted_form += '</div>'
-    faceted_form += get_html_for_cardend()
+    additional_hidden_field = ''
+    form = '<div class="w3-container" style="font-size: 90%;">'
+    form += '<form method="get" action="' + url_for(endpoint=endpoint) + '">'
 
-    faceted_form += get_histogramcards(name_histogram=name_histogram,
-                                       category_histogram=category_histogram,
-                                       year_histogram=year_histogram,
-                                       license_histogram=license_histogram,
-                                       access_histogram=access_histogram)
-    return faceted_form
+    form += hidden_fields
+
+    form += '<fieldset style="border:none; margin:0px; padding:0px;">'
+    # For screen readers.
+    form += '<legend style="display:none">' + header + '</legend>'
+    for item in histogram:
+        label_id = create_unique_string(length=12)
+        label = item['name'] + '&nbsp;<i>(' + str(item['value']) + ')</i>'
+        form += '<input id="' + label_id + '" class="w3-check" '
+        form += 'type="checkbox" name="' + url_field_name + '" value="'
+        form += item['name'] + '" checked'
+        if len(histogram) == 1:
+            form += ' disabled'
+            # If a checkbox is disabled, it is not added to the URL, so
+            # we need to add it explicitly by using a hidden field.
+            additional_hidden_field += '<input type="hidden" name="' + url_field_name
+            additional_hidden_field += '" value="' + str(item['name']) + '">'
+        form += '>'
+        form += '<label for="' + label_id + '">&nbsp;' + label + '</label><br/>'
+    form += '</fieldset>'
+
+    if len(histogram) == 1:
+        form += additional_hidden_field
+
+    form += '</div>'        # from '<div class="w3-container">'.
+
+    button = '<input class="w3-input' + button_style + '"'
+    button += boxedcard_button_width + '" type=submit value="refresh">'
+    button += '</form>'
+    html = get_html_for_boxedcard(header=header,
+                                  inner_html=form,
+                                  outer_html=button)
+    return html
 
 
 # ##############################################################################
