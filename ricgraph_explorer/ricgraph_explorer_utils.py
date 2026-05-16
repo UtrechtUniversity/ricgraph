@@ -586,19 +586,32 @@ def get_html_for_boxedcard(header: str = '',
 
 
 def get_html_for_yearcard(header: str = '',
-                          button_text: str = 'refresh') -> str:
+                          button_text: str = 'refresh',
+                          for_year_list: list = None) -> str:
     """Get the HTML required for a card that can be used to filter on
     year.
 
     :param header: The header to show before the input fields.
     :param button_text: The text to show on the 'submit' button.
+    :param for_year_list: If specified, the years in the list are
+      shown in the selection boxes, otherwise the active years
+      in Ricgraph.
     :return: HTML to be rendered.
     """
-    year_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
-                                          item='year_active_datalist')
-    hidden_fields = ''
     if header == '':
         header = 'You can choose a different time period'
+
+    if for_year_list is None:
+        for_year_list = []
+
+    if len(for_year_list) == 0:
+        year_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
+                                              item='year_active_datalist')
+    else:
+        year_active_datalist = '<datalist id="year_active_datalist">'
+        for item in for_year_list:
+            year_active_datalist += '<option value="' + item['name'] + '">'
+        year_active_datalist += '</datalist>'
 
     # Get all current URL parameters using Flask's request. Note that
     # Flask’s request.args.to_dict(flat=False) always returns values as lists,
@@ -609,6 +622,7 @@ def get_html_for_yearcard(header: str = '',
 
     # Put all query parameters into hidden fields, except year_first/year_last,
     # because they will be the result of the form below.
+    hidden_fields = ''
     for key, values in current_params.items():
         if key == 'year_first' or key == 'year_last':
             continue

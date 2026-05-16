@@ -379,7 +379,8 @@ def osdashboardresultpage() -> str:
                                             header='Filter on "category"')
     html += '</div>'
     html += '<div class="w3-col s12 m3">'
-    html += get_html_for_yearcard(header='Filter on "year"')
+    html += get_html_for_yearcard(header='Filter on "year"',
+                                  for_year_list=year_histogram)
     html += '</div>'
     html += '<div class="w3-col s12 m3">'
     html += get_html_for_facetcard(histogram=license_histogram,

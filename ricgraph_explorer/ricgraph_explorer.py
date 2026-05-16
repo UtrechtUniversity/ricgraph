@@ -610,13 +610,12 @@ def optionspage() -> str | Response:
         # on page oslpage(), then skip the options page and go directly
         # to the osprofileresult() page. Reset 'origin'.
         merged = merge_and_remove_empty(page_params=page_params,
-                                        query_params=query_params) | {'key': node['_key']}
+                                        query_params=query_params) | {'key': node['_key'],
+                                                                      'origin': ORIGIN_DEFAULT_BUTTON}
         if page_params['origin'] == ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON:
-            page_params['origin'] = ORIGIN_DEFAULT_BUTTON
             return redirect(url_for(endpoint='osprofileresultpage.osprofileresultpage',
                                     **merged))
         elif page_params['origin'] == ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON:
-            page_params['origin'] = ORIGIN_DEFAULT_BUTTON
             return redirect(url_for(endpoint='osdashboardresultpage.osdashboardresultpage',
                                     **merged))
         else:
