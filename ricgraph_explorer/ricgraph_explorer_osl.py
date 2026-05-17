@@ -57,8 +57,7 @@ from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          button_width,
                                          HISTOGRAM_MODE_COUNTS,
                                          HISTOGRAM_MODE_PERCENTAGES,
-                                         OSL_PROFILE_MODE_GROUPS,
-                                         OSL_PROFILE_MODE_ITEMS)
+                                         OSL_PROFILE_MODE_GROUPS)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form,
                                      get_page_title,
@@ -140,15 +139,16 @@ def osprofileresultpage() -> str:
     """
     page_params = get_url_page_params()
     query_params = get_url_query_params()
+    page_params['oslprofile_mode'] = OSL_PROFILE_MODE_GROUPS
+    # For this page, we ignore the value of 'max_nr_items' if it is passed.
+    query_params['max_nr_items'] = 0
+
     researchresult_category_research_material = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                                 item='researchresult_category_research_material')
     researchresult_category_reporting_material = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                                  item='researchresult_category_reporting_material')
     researchresult_category_engagement_material = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                                   item='researchresult_category_engagement_material')
-
-    # For this page, we ignore the value of 'max_nr_items' if it is passed.
-    query_params['max_nr_items'] = 0
     if len(query_params['category_list']) == 0:
         query_params['category_list'] = researchresult_category_research_material + \
                                         researchresult_category_reporting_material + \
@@ -173,31 +173,20 @@ def osprofileresultpage() -> str:
         compute_histogramcards(query_params=query_params,
                                reverse_sort_on_value=False)
 
-    if page_params['oslprofile_mode'] == OSL_PROFILE_MODE_ITEMS:
-        material_group = researchresult_category_research_material + \
-                         researchresult_category_reporting_material + \
-                         researchresult_category_engagement_material
-        material_group = sorted(material_group, key=lambda x: x.lower())
-        material_name = material_group.copy()
-        # Now convert it to a list of lists.
-        material_group = [[x] for x in material_group]
-        histogram_list = category_histogram.copy()
-    else:
-        # List of lists.
-        material_group = [researchresult_category_research_material,
-                          researchresult_category_reporting_material,
-                          researchresult_category_engagement_material]
-        material_name = ['research material',
-                         'reporting material',
-                         'engagement material']
-        new_histogram = []
-        for group in material_group:
-            total = 0
-            for item in category_histogram:
-                if item['name'] in group:
-                    total += item['value']
-            new_histogram.append(total)
-        histogram_list = [{'name': name, 'value': value} for name, value in zip(material_name, new_histogram)]
+    material_group = [researchresult_category_research_material,
+                      researchresult_category_reporting_material,
+                      researchresult_category_engagement_material]
+    material_name = ['research material',
+                     'reporting material',
+                     'engagement material']
+    new_histogram = []
+    for group in material_group:
+        total = 0
+        for item in category_histogram:
+            if item['name'] in group:
+                total += item['value']
+        new_histogram.append(total)
+    histogram_list = [{'name': name, 'value': value} for name, value in zip(material_name, new_histogram)]
 
     buttons = create_researchresult_buttons(category_histogram=category_histogram,
                                             material_group=material_group,
@@ -209,10 +198,7 @@ def osprofileresultpage() -> str:
         histogram_title += '(percentages, '
     else:
         histogram_title += '(counts, '
-    if len(query_params['access']) == 0:
-        histogram_title += '"any" access) '
-    else:
-        histogram_title += ' only "open" access) '
+    histogram_title += 'conforming to the selections at the left) '
     histogram_title += get_year_range_text(year_first=query_params['year_first'],
                                            year_last=query_params['year_last'])
     histogram_title += ' for "' + node['value'] + '"'
@@ -222,7 +208,6 @@ def osprofileresultpage() -> str:
 
     modified_page_params: PageParams = page_params.copy()
     if page_params['histogram_mode'] == HISTOGRAM_MODE_PERCENTAGES:
-        modified_page_params['histogram_mode'] = HISTOGRAM_MODE_COUNTS
         modified_page_params['histogram_mode'] = HISTOGRAM_MODE_COUNTS
         what_to_show = 'counts'
     else:
@@ -239,26 +224,13 @@ def osprofileresultpage() -> str:
     modified_query_params: QueryParams = query_params.copy()
     if len(query_params['access']) == 0:
         modified_query_params['access'] = [ACCESS_OPEN]
-        what_to_show = 'only "open" access research results'
+        what_to_show = 'only research results that have "access" value "open"'
     else:
         modified_query_params['access'] = []
-        what_to_show = '"any" access research results'
+        what_to_show = 'research results with all "access" values'
     url = url_for(endpoint='osprofileresultpage.osprofileresultpage',
                   **merge_and_remove_empty(page_params=page_params,
                                            query_params=modified_query_params))
-    html_histogram += '<a href="' + url + '">toggle this histogram to show '
-    html_histogram += what_to_show + '</a>'
-
-    modified_page_params: PageParams = page_params.copy()
-    if page_params['oslprofile_mode'] == OSL_PROFILE_MODE_GROUPS:
-        modified_page_params['oslprofile_mode'] = OSL_PROFILE_MODE_ITEMS
-        what_to_show = 'all research result item types'
-    else:
-        modified_page_params['oslprofile_mode'] = OSL_PROFILE_MODE_GROUPS
-        what_to_show = 'research, reporting, and engagement material'
-    url = url_for(endpoint='osprofileresultpage.osprofileresultpage',
-                  **merge_and_remove_empty(page_params=modified_page_params,
-                                           query_params=query_params))
     html_histogram += '<a href="' + url + '">toggle this histogram to show '
     html_histogram += what_to_show + '</a>'
     html_histogram += '</div>'
@@ -266,7 +238,14 @@ def osprofileresultpage() -> str:
     html += get_page_title(title='Open science profile for "' + node['value'] + '"')
     html += '<div class="w3-row-padding w3-stretch">'
     html += '<div class="w3-col s12 m3">'
-    html += get_html_for_yearcard()
+    html += get_html_for_yearcard(header='Filter on "year"',
+                                  for_year_list=year_histogram)
+    html += get_html_for_facetcard(histogram=license_histogram,
+                                   url_field_name='license',
+                                   header='Filter on "license"')
+    html += get_html_for_facetcard(histogram=access_histogram,
+                                   url_field_name='access',
+                                   header='Filter on "access"')
     html += '</div>'
     html += '<div class="w3-col s12 m9">'
     html += get_html_for_cardstart()
@@ -322,33 +301,24 @@ def osdashboardresultpage() -> str:
     """
     page_params = get_url_page_params()
     query_params = get_url_query_params()
-
     page_params['histogram_mode'] = HISTOGRAM_MODE_COUNTS
     # For this page, we ignore the value of 'max_nr_items' if it is passed.
     query_params['max_nr_items'] = 0
-    if len(query_params['category_list']) == 0:
-        query_params['category_list'] = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
-                                                        item='researchresult_category_active')
-    query_params['category_list'] = sorted(query_params['category_list'], key=lambda x: x.lower())
+
     html = html_body_start
     if (message := check_valid_year(year_first=query_params['year_first'],
                                     year_last=query_params['year_last'])) != '':
         html += get_message(message=message)
         return html + get_page_footer() + html_body_end
 
-    # We need this so we can show the name of the (sub-)organization.
-    result = read_all_nodes(key=query_params['key'])
-    if len(result) == 0 or len(result) > 1:
-        message = 'Ricgraph Explorer found either too little or too many nodes. '
-        message += 'This should not happen. '
-        html += get_message(message=message)
-        return html + get_page_footer() + html_body_end
-    node = result[0]
-
     (name_histogram, category_histogram, year_histogram,
      license_histogram, access_histogram) = \
         compute_histogramcards(query_params=query_params,
                                reverse_sort_on_value=False)
+    if len(query_params['category_list']) == 0:
+        # We cannot use category_histogram.
+        query_params['category_list'] = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                                        item='researchresult_category_active')
 
     material_group = query_params['category_list'].copy()
     # Now convert it to a list of lists.
@@ -360,7 +330,14 @@ def osdashboardresultpage() -> str:
                                             page_params=page_params,
                                             query_params=query_params)
 
-    histogram_title = 'Open science dashboard for "' + node['value'] + '"'
+    # We need this so we can show the name of the (sub-)organization.
+    result = read_all_nodes(key=query_params['key'])
+    if len(result) == 0 or len(result) > 1:
+        message = 'Ricgraph Explorer found either too little or too many nodes. '
+        message += 'This should not happen. '
+        html += get_message(message=message)
+        return html + get_page_footer() + html_body_end
+    node = result[0]
 
     html += get_page_title(title='Open science dashboard for "' + node['value'] + '"')
 
@@ -374,6 +351,7 @@ def osdashboardresultpage() -> str:
     html += '</div>'
     html += '<div class="w3-col s12 m9">'
     html += get_html_for_cardstart()
+    histogram_title = 'Open science dashboard for "' + node['value'] + '"'
     html += get_html_for_histogramcard(histogram_list=category_histogram,
                                        histogram_mode=page_params['histogram_mode'],
                                        histogram_title=histogram_title)
@@ -409,28 +387,31 @@ def osdashboardresultpage() -> str:
     html += '</div>'
     html += '</div>'
 
-    # This following can be enabled as soon as:
-    # 1. the os profile page shows the selection for the os profile
+    html += get_html_for_cardstart()
+    html += '<h2>Other exploration options for this organization</h2>'
+    html += 'Choosing to get an open science profile for this (sub-)organization '
+    html += 'will reset any filter on "category". '
+    html += 'Other filters will be propagated.'
+    html += '<p/>'
+    url_osprofile = url_for(endpoint='osprofileresultpage.osprofileresultpage',
+                            **merge_and_remove_empty(page_params=page_params | {'histogram_mode': HISTOGRAM_MODE_PERCENTAGES},
+                                                     query_params=query_params) | {'category_list': []})
+    html += '<a href="' + url_osprofile + '" class="w3-bar-item'
+    html += button_style + '"' + button_width
+    html += '>get the open science profile for this (sub-)organization' + '</a>'
+
+    # The following can be enabled as soon as:
+    # 1. the collabs pages shows the selection, and works with that selection.
     #    (including year, license, access involved).
-    # 2. the collabs pages shows the selection, and works with that selection.
-    # html += get_html_for_cardstart()
-    # html += '<h2>Other exploration options for this organization</h2>'
-    # url_osprofile = url_for(endpoint='osprofileresultpage.osprofileresultpage',
-    #                         **merge_and_remove_empty(page_params=page_params,
-    #                                                  query_params=query_params))
-    # html += '<a href="' + url_osprofile + '" class="w3-bar-item'
-    # html += button_style + '"' + button_width
-    # html += '>get the open science profile for this (sub-)organization' + '</a>'
-    #
     # html += '<p/>'
-    #
+    # html += '<br/>'
     # url_collabs = url_for(endpoint='collabspage.collabspage',
     #                       **merge_and_remove_empty(page_params=page_params,
     #                                                query_params=query_params)| {'start_orgs': query_params['value']})
     # html += '<a href="' + url_collabs + '" class="w3-bar-item'
     # html += button_style + '"' + button_width
     # html += '>explore collaborations for this (sub-)organization' + '</a>'
-    # html += get_html_for_cardend()
+    html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
     html += '<h2>What is an open science dashboard in Ricgraph?</h2>'
