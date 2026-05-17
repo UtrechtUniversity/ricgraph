@@ -72,7 +72,6 @@ from ricgraph_explorer_table import (compute_histogramcards,
                                      get_histogramcards,
                                      get_html_for_facetcard)
 from ricgraph_explorer_datavis import get_html_for_histogramcard
-from ricgraph_explorer_cypher import find_organization_additional_info_nodes
 
 
 _oslpage_bp = Blueprint(name='oslpage', import_name=__name__)
@@ -160,22 +159,18 @@ def osprofileresultpage() -> str:
         html += get_message(message=message)
         return html + get_page_footer() + html_body_end
 
+    # We need this so we can show the name of the (sub-)organization.
     result = read_all_nodes(key=query_params['key'])
     if len(result) == 0 or len(result) > 1:
-        if len(result) == 0:
-            message = 'Ricgraph Explorer could not find anything. '
-        else:
-            message = 'Ricgraph Explorer found too many nodes. '
+        message = 'Ricgraph Explorer found either too little or too many nodes. '
         message += 'This should not happen. '
         html += get_message(message=message)
         return html + get_page_footer() + html_body_end
     node = result[0]
 
-    nodes_list = find_organization_additional_info_nodes(parent_node=node,
-                                                         query_params=query_params)
     (name_histogram, category_histogram, year_histogram,
      license_histogram, access_histogram) = \
-        compute_histogramcards(nodes_list=nodes_list,
+        compute_histogramcards(query_params=query_params,
                                reverse_sort_on_value=False)
 
     if page_params['oslprofile_mode'] == OSL_PROFILE_MODE_ITEMS:
@@ -341,22 +336,18 @@ def osdashboardresultpage() -> str:
         html += get_message(message=message)
         return html + get_page_footer() + html_body_end
 
+    # We need this so we can show the name of the (sub-)organization.
     result = read_all_nodes(key=query_params['key'])
     if len(result) == 0 or len(result) > 1:
-        if len(result) == 0:
-            message = 'Ricgraph Explorer could not find anything. '
-        else:
-            message = 'Ricgraph Explorer found too many nodes. '
+        message = 'Ricgraph Explorer found either too little or too many nodes. '
         message += 'This should not happen. '
         html += get_message(message=message)
         return html + get_page_footer() + html_body_end
     node = result[0]
 
-    nodes_list = find_organization_additional_info_nodes(parent_node=node,
-                                                         query_params=query_params)
     (name_histogram, category_histogram, year_histogram,
      license_histogram, access_histogram) = \
-        compute_histogramcards(nodes_list=nodes_list,
+        compute_histogramcards(query_params=query_params,
                                reverse_sort_on_value=False)
 
     material_group = query_params['category_list'].copy()

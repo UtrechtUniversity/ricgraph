@@ -62,12 +62,15 @@ from ricgraph import (nodes_cache_key_id_create,
                       create_ricgraph_key,
                       create_unique_string,
                       A_LARGE_NUMBER,
-                      get_valuepart_from_ricgraph_value, get_additionalpart_from_ricgraph_value,
+                      get_valuepart_from_ricgraph_value,
+                      get_additionalpart_from_ricgraph_value,
                       PERSON_CATEGORY_PERSON,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT,
                       RICGRAPH_UNKNOWN,
-                      PageParams, QueryParams)
+                      PageParams, QueryParams,
+                      create_empty_query_params)
+from ricgraph_explorer_cypher import create_researchresult_histogram_cypher
 from ricgraph_explorer_constants import (TABLE_DETAIL_COLUMNS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
                                          MAX_ROWS_TO_EXPORT, TABLE_ID_COLUMNS,
@@ -573,13 +576,18 @@ def histogram_dict_to_list(histogram: dict,
     return sorted_list
 
 
-def compute_histogramcards(nodes_list: list,
+def compute_histogramcards(nodes_list: list = None,
+                           query_params: QueryParams = None,
                            reverse_sort_on_value: bool = True,
                            remove_zero_values: bool = True) -> Tuple[list, list, list, list, list]:
-    """Compute histograms for name, category, year,
-    license, and access.
+    """Compute histograms for name, category, year, license, and access.
+    This can be done either on the basis of a 'nodes_list', or on
+    a Cypher query, based on query_params['key'].
+    The latter will be much faster, because the graph database will compute
+    the histograms.
 
     :param nodes_list: The list of nodes the histogram are based on.
+    :param query_params: parameters related to the query passed in the URL.
     :param reverse_sort_on_value: If True: reverse sort on the 'value' field.
       If two items have the same value for 'value', the one that is
       lexicographically first will be first in the resulting list.
@@ -591,22 +599,32 @@ def compute_histogramcards(nodes_list: list,
       Each histogram elements looks like [{'name': 'DOI', 'value': 148},
       {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
     """
-    # Use a dict for intermediate storage because it is fast.
+    if nodes_list is None:
+        nodes_list = []
+    if query_params is None:
+        query_params = create_empty_query_params()
+
     name_histogram = {}
     category_histogram = {}
     year_histogram = {}
     license_histogram = {}
     access_histogram = {}
-    researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
-                                                     item='researchresult_category_active')
-    for node in nodes_list:
-        name_histogram[node['name']] = name_histogram.get(node['name'], 0) + 1
-        category_histogram[node['category']] = category_histogram.get(node['category'], 0) + 1
-        if node['category'] in researchresult_category_active:
-            # Only for research results.
-            year_histogram[node['year']] = year_histogram.get(node['year'], 0) + 1
-            license_histogram[node['license']] = license_histogram.get(node['license'], 0) + 1
-            access_histogram[node['access']] = access_histogram.get(node['access'], 0) + 1
+    if len(nodes_list) > 0:
+        # Use a dict for intermediate storage because it is fast.
+        researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                                         item='researchresult_category_active')
+        for node in nodes_list:
+            name_histogram[node['name']] = name_histogram.get(node['name'], 0) + 1
+            category_histogram[node['category']] = category_histogram.get(node['category'], 0) + 1
+            if node['category'] in researchresult_category_active:
+                # Only for research results.
+                year_histogram[node['year']] = year_histogram.get(node['year'], 0) + 1
+                license_histogram[node['license']] = license_histogram.get(node['license'], 0) + 1
+                access_histogram[node['access']] = access_histogram.get(node['access'], 0) + 1
+    else:
+        (name_histogram, category_histogram, year_histogram,
+         license_histogram, access_histogram) = \
+            create_researchresult_histogram_cypher(query_params=query_params)
 
     name_histogram_list = histogram_dict_to_list(name_histogram,
                                                  reverse_sort_on_value=reverse_sort_on_value)

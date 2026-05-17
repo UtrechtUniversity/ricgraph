@@ -542,13 +542,14 @@ def find_collab_orgs_persons_results(query_params: QueryParams,
     return nodes_list
 
 
-def create_neighbor_histogram_cypher(node: Node,
-                                     query_params: QueryParams) -> dict:
-    """Create a histogram of the neighbors of a node.
+def create_researchresult_histogram_cypher(query_params: QueryParams) -> Tuple[dict, dict, dict, dict, dict]:
+    """Compute histograms for name, category, year, license, and access.
+    To do this, we need a node that is connected to a 'person-root' node.
+    The histograms are computed from the research results neighbors of that
+    person-root node.
 
-    :param node: The node that is the base of the histogram.
     :param query_params: Parameters related to the query passed in the URL.
-    :return: a dict that represents the histogram.
+    :return: five dicts that represent the five histograms.
     """
     # Note that this function is similar to find_organization_additional_info_cypher(),
     # except that this function returns a dict and the other a list with nodes.
@@ -556,21 +557,21 @@ def create_neighbor_histogram_cypher(node: Node,
     # to have two different versions.
     graph = get_ricgraph_explorer_global(name='graph')
     if graph is None:
-        print('create_neighbor_histogram_cypher(): Error: graph has not been initialized or opened.')
-        return {}
+        print('create_researchresult_histogram_cypher(): Error: graph has not been initialized or opened.')
+        return {}, {}, {}, {}, {}
     if (message := check_valid_year(year_first=query_params['year_first'],
                                     year_last=query_params['year_last'])) != '':
         print(message)
-        return {}
+        return {}, {}, {}, {}, {}
 
-    cypher_query = 'MATCH (organization:RicgraphNode)'
+    cypher_query = 'MATCH (node:RicgraphNode)'
     cypher_query += '-[]->(persroot:RicgraphPersonRoot)'
     cypher_query += '-[]->(researchresult:RicgraphResearchResult) '
-    if ricgraph_database() == 'neo4j':
-        cypher_query += 'WHERE elementId(organization)=$node_element_id '
-    else:
-        cypher_query += 'WHERE id(organization)=toInteger($node_element_id) '
-    cypher_query += 'AND researchresult.category IN $category_list '
+    cypher_query += 'WHERE node._key = $key '
+    if len(query_params['name_list']) > 0:
+        cypher_query += 'AND researchresult.name IN $name_list '
+    if len(query_params['category_list']) > 0:
+        cypher_query += 'AND researchresult.category IN $category_list '
     if query_params['year_first'] != '':
         cypher_query += 'AND researchresult.year >= $year_first '
     if query_params['year_last'] != '':
@@ -580,19 +581,42 @@ def create_neighbor_histogram_cypher(node: Node,
     if len(query_params['access']) > 0:
         cypher_query += 'AND researchresult.access IN $access '
     cypher_query += 'WITH DISTINCT researchresult '
-    cypher_query += 'WITH researchresult.category AS category, COUNT(*) AS count '
-    cypher_query += 'RETURN category, count '
-    cypher_query += 'ORDER BY count DESC'
+    cypher_query += 'UNWIND ['
+    cypher_query += '{prop: "name", name: researchresult.name}, '
+    cypher_query += '{prop: "category", name: researchresult.category}, '
+    cypher_query += '{prop: "year", name: researchresult.year}, '
+    cypher_query += '{prop: "license", name: researchresult.license}, '
+    cypher_query += '{prop: "access", name: researchresult.access}'
+    cypher_query += '] AS row '
+    cypher_query += 'WITH row.prop AS property, row.name AS name '
+    cypher_query += 'WHERE name IS NOT NULL '
+    cypher_query += 'RETURN property, name, COUNT(*) AS value '
+    cypher_query += 'ORDER BY property, value DESC, name '
     # print(cypher_query)
 
     # This call returns a list of Records and not a list of Nodes, which
     # is logical since it needs to be able to store any type of result.
     records, _, _ = graph.execute_query(query_=cypher_query,
-                                        node_element_id=node.element_id,
+                                        #node_element_id=node.element_id,
                                         **query_params,
                                         database_=ricgraph_databasename())
-    cypher_dict = dict(records)
-    if len(cypher_dict) == 0:
-        return {}
-    else:
-        return cypher_dict
+
+    name_histogram = {}
+    category_histogram = {}
+    year_histogram = {}
+    license_histogram = {}
+    access_histogram = {}
+    for record in records:
+        if record['property'] == 'name':
+            name_histogram[record['name']] = record['value']
+        if record['property'] == 'category':
+            category_histogram[record['name']] = record['value']
+        if record['property'] == 'year':
+            year_histogram[record['name']] = record['value']
+        if record['property'] == 'license':
+            license_histogram[record['name']] = record['value']
+        if record['property'] == 'access':
+            access_histogram[record['name']] = record['value']
+
+    return (name_histogram, category_histogram,
+            year_histogram, license_histogram, access_histogram)
