@@ -41,7 +41,6 @@
 
 
 from flask import Blueprint, url_for
-from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
                       check_valid_year,
                       get_year_range_text,
@@ -73,8 +72,7 @@ from ricgraph_explorer_table import (compute_histogramcards,
                                      get_histogramcards,
                                      get_html_for_facetcard)
 from ricgraph_explorer_datavis import get_html_for_histogramcard
-from ricgraph_explorer_cypher import (create_neighbor_histogram_cypher,
-                                      find_organization_additional_info_nodes)
+from ricgraph_explorer_cypher import find_organization_additional_info_nodes
 
 
 _oslpage_bp = Blueprint(name='oslpage', import_name=__name__)
@@ -152,6 +150,10 @@ def osprofileresultpage() -> str:
 
     # For this page, we ignore the value of 'max_nr_items' if it is passed.
     query_params['max_nr_items'] = 0
+    if len(query_params['category_list']) == 0:
+        query_params['category_list'] = researchresult_category_research_material + \
+                                        researchresult_category_reporting_material + \
+                                        researchresult_category_engagement_material
     html = html_body_start
     if (message := check_valid_year(year_first=query_params['year_first'],
                                     year_last=query_params['year_last'])) != '':
@@ -169,13 +171,22 @@ def osprofileresultpage() -> str:
         return html + get_page_footer() + html_body_end
     node = result[0]
 
+    nodes_list = find_organization_additional_info_nodes(parent_node=node,
+                                                         query_params=query_params)
+    (name_histogram, category_histogram, year_histogram,
+     license_histogram, access_histogram) = \
+        compute_histogramcards(nodes_list=nodes_list,
+                               reverse_sort_on_value=False)
+
     if page_params['oslprofile_mode'] == OSL_PROFILE_MODE_ITEMS:
-        # List of items.
         material_group = researchresult_category_research_material + \
                          researchresult_category_reporting_material + \
                          researchresult_category_engagement_material
         material_group = sorted(material_group, key=lambda x: x.lower())
         material_name = material_group.copy()
+        # Now convert it to a list of lists.
+        material_group = [[x] for x in material_group]
+        histogram_list = category_histogram.copy()
     else:
         # List of lists.
         material_group = [researchresult_category_research_material,
@@ -184,11 +195,20 @@ def osprofileresultpage() -> str:
         material_name = ['research material',
                          'reporting material',
                          'engagement material']
-    histogram_list, buttons = prepare_oslprofile(node=node,
-                                                 material_group=material_group,
-                                                 material_name=material_name,
-                                                 page_params=page_params,
-                                                 query_params=query_params)
+        new_histogram = []
+        for group in material_group:
+            total = 0
+            for item in category_histogram:
+                if item['name'] in group:
+                    total += item['value']
+            new_histogram.append(total)
+        histogram_list = [{'name': name, 'value': value} for name, value in zip(material_name, new_histogram)]
+
+    buttons = create_researchresult_buttons(category_histogram=category_histogram,
+                                            material_group=material_group,
+                                            material_name=material_name,
+                                            page_params=page_params,
+                                            query_params=query_params)
     histogram_title = 'Open science profile '
     if page_params['histogram_mode'] == HISTOGRAM_MODE_PERCENTAGES:
         histogram_title += '(percentages, '
@@ -332,21 +352,22 @@ def osdashboardresultpage() -> str:
         return html + get_page_footer() + html_body_end
     node = result[0]
 
-    # This should be done more efficiently. Now we search twice for the same nodes.
-    histogram_list, buttons = prepare_oslprofile(node=node,
-                                                 material_group=query_params['category_list'],
-                                                 material_name=query_params['category_list'],
-                                                 page_params=page_params,
-                                                 query_params=query_params)
     nodes_list = find_organization_additional_info_nodes(parent_node=node,
                                                          query_params=query_params)
-    # Delete empty histogram entries.
-    histogram_list = [x for x in histogram_list if x.get('value') != 0]
-
     (name_histogram, category_histogram, year_histogram,
      license_histogram, access_histogram) = \
         compute_histogramcards(nodes_list=nodes_list,
                                reverse_sort_on_value=False)
+
+    material_group = query_params['category_list'].copy()
+    # Now convert it to a list of lists.
+    material_group = [[x] for x in material_group]
+    material_name = query_params['category_list'].copy()
+    buttons = create_researchresult_buttons(category_histogram=category_histogram,
+                                            material_group=material_group,
+                                            material_name=material_name,
+                                            page_params=page_params,
+                                            query_params=query_params)
 
     histogram_title = 'Open science dashboard for "' + node['value'] + '"'
 
@@ -362,7 +383,7 @@ def osdashboardresultpage() -> str:
     html += '</div>'
     html += '<div class="w3-col s12 m9">'
     html += get_html_for_cardstart()
-    html += get_html_for_histogramcard(histogram_list=histogram_list,
+    html += get_html_for_histogramcard(histogram_list=category_histogram,
                                        histogram_mode=page_params['histogram_mode'],
                                        histogram_title=histogram_title)
     html += buttons
@@ -433,44 +454,45 @@ def osdashboardresultpage() -> str:
     return html + get_page_footer() + html_body_end
 
 
-def prepare_oslprofile(node: Node,
-                       material_group: list,
-                       material_name: list,
-                       page_params: PageParams,
-                       query_params: QueryParams) -> tuple[list, str]:
-    """Prepare information for the Ricgraph open science profile.
+def create_researchresult_buttons(category_histogram: list,
+                                  material_group: list,
+                                  material_name: list,
+                                  page_params: PageParams,
+                                  query_params: QueryParams) -> str:
+    """Create the buttons that correspond to 'material_name'.
 
-    :param node: Organization node to consider.
-    :param material_group: List of research result items.
+    :param category_histogram: The histogram to build the buttons from.
+    :param material_group: List of lists of research result items.
     :param material_name: List of names how to name these research result items.
     :param page_params: Parameters related to the page passed in the URL.
     :param query_params: Parameters related to the query passed in the URL.
-    :return: A list that contains the histogram (as JSON), and
-      HTML for the buttons to get more information about the items
+    :return: HTML for the buttons to get more information about the items
       in the histogram.
     """
     page_params['view_mode'] = 'view_regular_table_organization_addinfo'
-    local_query_params: QueryParams = query_params.copy()
-    histogram_list = []
     buttons = '</p><div ' + form_button_on_one_line_flexspace_style + '>'
-    for material, name in zip(material_group, material_name):
-        if isinstance(material, str):
-            material = [material]
-        local_query_params['category_list'] = material
-        hist_part = create_neighbor_histogram_cypher(node=node,
-                                                     query_params=local_query_params)
-        hist_part_total = 0
-        for item in hist_part:
-            hist_part_total += hist_part[item]
-        histogram_list.append({'name': name, 'value': hist_part_total})
 
-        if hist_part_total > 0:
-            # Only a button if there is material to show.
-            url = url_for(endpoint='resultspage',
-                          **merge_and_remove_empty(page_params=page_params,
-                                                   query_params=local_query_params))
-            buttons += '<a href="' + url + '" class="w3-bar-item'
-            buttons += button_style + '"' + form_button_on_one_line_width
-            buttons += '>show ' + name + '</a>'
+    # Use a dict for efficiency.
+    histogram_by_name = {
+        item['name']: item['value']
+        for item in category_histogram
+    }
+
+    for group, name in zip(material_group, material_name):
+        value = sum(histogram_by_name.get(cat, 0) for cat in group)
+        if value == 0:
+            # Skip buttons for groups that have 0 elements.
+            continue
+
+        local_query_params: QueryParams = query_params.copy()
+        local_query_params['category_list'] = group
+        url = url_for(endpoint='resultspage',
+                      **merge_and_remove_empty(page_params=page_params,
+                                               query_params=local_query_params))
+
+        buttons += '<a href="' + url + '" class="w3-bar-item'
+        buttons += button_style + '"' + form_button_on_one_line_width
+        buttons += '>show ' + name + '</a>'
+
     buttons += '</div>'
-    return histogram_list, buttons
+    return buttons
