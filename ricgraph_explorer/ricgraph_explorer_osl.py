@@ -41,8 +41,7 @@
 
 
 from flask import Blueprint, url_for
-from ricgraph import (read_all_nodes,
-                      check_valid_year,
+from ricgraph import (check_valid_year,
                       get_year_range_text,
                       PageParams, QueryParams,
                       ORGANIZATION_CATEGORY_ORGANISATION,
@@ -56,8 +55,7 @@ from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          form_button_on_one_line_width,
                                          button_width,
                                          HISTOGRAM_MODE_COUNTS,
-                                         HISTOGRAM_MODE_PERCENTAGES,
-                                         OSL_PROFILE_MODE_GROUPS)
+                                         HISTOGRAM_MODE_PERCENTAGES)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form,
                                      get_page_title,
@@ -86,6 +84,11 @@ def oslpage() -> str:
 
     :return: HTML to be rendered.
     """
+    page_params = get_url_page_params()
+    query_params = get_url_query_params()
+    url_parameters = merge_and_remove_empty(page_params=page_params,
+                                            query_params=query_params)
+
     html = html_body_start
 
     html += get_page_title(title='Explore open science monitoring')
@@ -97,17 +100,19 @@ def oslpage() -> str:
     html += '<p/>'
     html += create_html_form(destination='searchpage',
                              button_text='get an open science profile for a (sub-)organization',
-                             hidden_fields={'search_mode': 'value_search',
+                             hidden_fields=url_parameters |
+                                           {'search_mode': 'value_search',
                                             'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             'origin': ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON
-                                            })
+                                           })
     html += '<p/>'
     html += create_html_form(destination='searchpage',
                              button_text='get an open science dashboard for a (sub-)organization',
-                             hidden_fields={'search_mode': 'value_search',
+                             hidden_fields=url_parameters |
+                                           {'search_mode': 'value_search',
                                             'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             'origin': ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON
-                                            })
+                                           })
     html += get_html_for_cardend()
 
     html += get_page_footer() + html_body_end
@@ -126,8 +131,6 @@ def osprofileresultpage() -> str:
     - year_last: last year of the research results to count.
     - histogram_mode: The mode of the histogram, either counts
       (HISTOGRAM_MODE_COUNTS), or percentages (HISTOGRAM_MODE_PERCENTAGES).
-    - oslprofile_mode: report on the three groups
-      (OSL_PROFILE_MODE_GROUPS), or on all item types (OSL_PROFILE_MODE_ITEMS).
     - discoverer_mode: the discoverer_mode to use, 'details_view' to see all details,
       or 'person_view' to have a nicer layout.
     - max_nr_items: this usually signifies the maximum number of items to return,
@@ -139,7 +142,9 @@ def osprofileresultpage() -> str:
     """
     page_params = get_url_page_params()
     query_params = get_url_query_params()
-    page_params['oslprofile_mode'] = OSL_PROFILE_MODE_GROUPS
+    if page_params['histogram_mode'] == '':
+        # Set the default histogram_mode.
+        page_params['histogram_mode'] = HISTOGRAM_MODE_PERCENTAGES
     # For this page, we ignore the value of 'max_nr_items' if it is passed.
     query_params['max_nr_items'] = 0
 
@@ -158,15 +163,6 @@ def osprofileresultpage() -> str:
                                     year_last=query_params['year_last'])) != '':
         html += get_message(message=message)
         return html + get_page_footer() + html_body_end
-
-    # We need this so we can show the name of the (sub-)organization.
-    result = read_all_nodes(key=query_params['key'])
-    if len(result) == 0 or len(result) > 1:
-        message = 'Ricgraph Explorer found either too little or too many nodes. '
-        message += 'This should not happen. '
-        html += get_message(message=message)
-        return html + get_page_footer() + html_body_end
-    node = result[0]
 
     (name_histogram, category_histogram, year_histogram,
      license_histogram, access_histogram) = \
@@ -201,7 +197,7 @@ def osprofileresultpage() -> str:
     histogram_title += 'conforming to the selections at the left) '
     histogram_title += get_year_range_text(year_first=query_params['year_first'],
                                            year_last=query_params['year_last'])
-    histogram_title += ' for "' + node['value'] + '"'
+    histogram_title += ' for "' + query_params['value'] + '"'
     html_histogram = get_html_for_histogramcard(histogram_list=histogram_list,
                                                 histogram_title=histogram_title,
                                                 histogram_mode=page_params['histogram_mode'])
@@ -235,7 +231,7 @@ def osprofileresultpage() -> str:
     html_histogram += what_to_show + '</a>'
     html_histogram += '</div>'
 
-    html += get_page_title(title='Open science profile for "' + node['value'] + '"')
+    html += get_page_title(title='Open science profile for "' + query_params['value'] + '"')
     html += '<div class="w3-row-padding w3-stretch">'
     html += '<div class="w3-col s12 m3">'
     html += get_html_for_yearcard(header='Filter on "year"',
@@ -330,16 +326,7 @@ def osdashboardresultpage() -> str:
                                             page_params=page_params,
                                             query_params=query_params)
 
-    # We need this so we can show the name of the (sub-)organization.
-    result = read_all_nodes(key=query_params['key'])
-    if len(result) == 0 or len(result) > 1:
-        message = 'Ricgraph Explorer found either too little or too many nodes. '
-        message += 'This should not happen. '
-        html += get_message(message=message)
-        return html + get_page_footer() + html_body_end
-    node = result[0]
-
-    html += get_page_title(title='Open science dashboard for "' + node['value'] + '"')
+    html += get_page_title(title='Open science dashboard for "' + query_params['value'] + '"')
 
     html += '<div class="w3-row-padding w3-stretch">'
     html += '<div class="w3-col s12 m3">'
@@ -351,7 +338,7 @@ def osdashboardresultpage() -> str:
     html += '</div>'
     html += '<div class="w3-col s12 m9">'
     html += get_html_for_cardstart()
-    histogram_title = 'Open science dashboard for "' + node['value'] + '"'
+    histogram_title = 'Open science dashboard for "' + query_params['value'] + '"'
     html += get_html_for_histogramcard(histogram_list=category_histogram,
                                        histogram_mode=page_params['histogram_mode'],
                                        histogram_title=histogram_title)
@@ -394,7 +381,7 @@ def osdashboardresultpage() -> str:
     html += 'Other filters will be propagated.'
     html += '<p/>'
     url_osprofile = url_for(endpoint='osprofileresultpage.osprofileresultpage',
-                            **merge_and_remove_empty(page_params=page_params | {'histogram_mode': HISTOGRAM_MODE_PERCENTAGES},
+                            **merge_and_remove_empty(page_params=page_params | {'histogram_mode': ''},
                                                      query_params=query_params) | {'category_list': []})
     html += '<a href="' + url_osprofile + '" class="w3-bar-item'
     html += button_style + '"' + button_width
@@ -456,11 +443,9 @@ def create_researchresult_buttons(category_histogram: list,
             # Skip buttons for groups that have 0 elements.
             continue
 
-        local_query_params: QueryParams = query_params.copy()
-        local_query_params['category_list'] = group
         url = url_for(endpoint='resultspage',
-                      **merge_and_remove_empty(page_params=page_params,
-                                               query_params=local_query_params))
+                      **merge_and_remove_empty(page_params=page_params | {'histogram_mode': ''},
+                                               query_params=query_params) | {'category_list': group})
 
         buttons += '<a href="' + url + '" class="w3-bar-item'
         buttons += button_style + '"' + form_button_on_one_line_width

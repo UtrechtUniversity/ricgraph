@@ -54,8 +54,6 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          RICGRAPH_NODEINFO,
                                          RICGRAPH_NODEINFO_INTERNAL,
                                          RICGRAPH_SYSTEMINFO,
-                                         HISTOGRAM_MODE_PERCENTAGES,
-                                         OSL_PROFILE_MODE_GROUPS,
                                          OVERLAP_MODE_SOURCE_ALL,
                                          MAX_ITEMS_TO_RETURN, MAX_ROWS_IN_TABLE,
                                          spinner_style,
@@ -313,10 +311,12 @@ def get_url_page_params() -> PageParams:
         max_nr_table_rows = str(MAX_ROWS_IN_TABLE)
 
     page_params: PageParams = {
+        # Used in collabspage() and collabsresultpage() and some related functions.
         'collab_mode': get_url_parameter_value(parameter='collab_mode',
                                                allowed_values=get_global_list(
                                                    ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                    item='collab_mode_all')),
+        # Used in many pages.
         'discoverer_mode': get_url_parameter_value(parameter='discoverer_mode',
                                                    allowed_values=get_global_list(
                                                       ricgraph_info=RICGRAPH_SYSTEMINFO,
@@ -324,31 +324,31 @@ def get_url_page_params() -> PageParams:
                                                    default_value=get_global_str(
                                                       ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                       item='discoverer_mode_default')),
+        # Used in osprofileresultpage() and osdashboardresultpage().
         'histogram_mode': get_url_parameter_value(parameter='histogram_mode',
                                                   allowed_values=get_global_list(
                                                       ricgraph_info=RICGRAPH_SYSTEMINFO,
-                                                      item='histogram_mode_all'),
-                                                  default_value=HISTOGRAM_MODE_PERCENTAGES),
+                                                      item='histogram_mode_all')),
+        # Used in many pages.
         'max_nr_table_rows': int(max_nr_table_rows),
+        # Used in some pages.
         'origin': get_url_parameter_value(parameter='origin',
                                           allowed_values=get_global_list(
                                               ricgraph_info=RICGRAPH_SYSTEMINFO,
                                               item='origin_button_all')),
-        'oslprofile_mode': get_url_parameter_value(parameter='oslprofile_mode',
-                                                   allowed_values=get_global_list(
-                                                      ricgraph_info=RICGRAPH_SYSTEMINFO,
-                                                      item='osl_profile_mode_all'),
-                                                   default_value=OSL_PROFILE_MODE_GROUPS),
+        # Used in some pages.
         'overlap_mode': get_url_parameter_value(parameter='overlap_mode',
                                                 allowed_values=get_global_list(
                                                     ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                     item='overlap_mode_all')),
+        # Used in many pages.
         'search_mode': get_url_parameter_value(parameter='search_mode',
                                                allowed_values=get_global_list(
                                                    ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                    item='search_mode_all'),
                                                default_value=get_global_str(ricgraph_info=RICGRAPH_SYSTEMINFO,
                                                                            item='search_mode_default')),
+        # Used in many pages.
         'view_mode': get_url_parameter_value(parameter='view_mode',
                                              allowed_values=get_global_list(
                                                  ricgraph_info=RICGRAPH_SYSTEMINFO,

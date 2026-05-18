@@ -295,7 +295,7 @@ def find_enrich_candidates(parent_node: Node,
         table_header += query_params['source_system'] + '":'
         html += get_regular_table(nodes_list=[personroot],
                                   page_params=page_params,
-                                  query_params=query_params,
+                                  query_params=query_params | {'source_system': ''},
                                   table_header=table_header,
                                   table_columns=table_columns)
 
@@ -310,7 +310,7 @@ def find_enrich_candidates(parent_node: Node,
             table_header += query_params['source_system'] + '":'
             html += get_regular_table(nodes_list=person_nodes,
                                       page_params=page_params,
-                                      query_params=query_params,
+                                      query_params=query_params | {'source_system': ''},
                                       table_header=table_header,
                                       table_columns=table_columns)
 
@@ -320,7 +320,7 @@ def find_enrich_candidates(parent_node: Node,
         table_header += 'This information is not in source system "' + query_params['source_system'] + '".'
         html += get_tabbed_table(nodes_list=nodes_not_in_source_system,
                                  page_params=page_params,
-                                 query_params=query_params,
+                                 query_params=query_params | {'source_system': ''},
                                  table_header=table_header,
                                  table_columns=table_columns,
                                  tabs_on='category')
@@ -353,7 +353,7 @@ def find_enrich_candidates(parent_node: Node,
             table_header += query_params['source_system'] + '":'
             html += get_regular_table(nodes_list=[personroot_node],
                                       page_params=page_params,
-                                      query_params=query_params,
+                                      query_params=query_params | {'source_system': ''},
                                       table_header=table_header,
                                       table_columns=table_columns)
             html += '</br>Ricgraph could not find any information in other source systems '
@@ -904,8 +904,9 @@ def find_overlap_in_source_systems_records(node: Node,
         table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
 
     html += get_regular_table(nodes_list=relevant_result,
-                              page_params=page_params,
-                              query_params=query_params,
+                              page_params=page_params | {'overlap_mode': ''},
+                              query_params=query_params | {'source_system': '',
+                                                           'source_system2': ''},
                               table_header='These items conform to your selection:',
                               table_columns=table_columns)
     return html

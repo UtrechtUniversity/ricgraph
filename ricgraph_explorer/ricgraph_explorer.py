@@ -89,7 +89,6 @@ from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          SEARCH_STRING_MIN_LENGTH,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
                                          ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON,
-                                         ORIGIN_DEFAULT_BUTTON,
                                          OVERLAP_MODE_NEIGHBORNODE)
 from ricgraph_explorer_init import initialize_ricgraph_explorer
 from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
@@ -603,6 +602,8 @@ def optionspage() -> str | Response:
         return html
 
     node = result[0]
+    query_params['name'] = node['name']
+    query_params['value'] = node['value']
     if page_params['origin'] == ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON \
        or page_params['origin'] == ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON:
         # If we have reached this point, and we came here using the
@@ -611,7 +612,7 @@ def optionspage() -> str | Response:
         # to the osprofileresult() page. Reset 'origin'.
         merged = merge_and_remove_empty(page_params=page_params,
                                         query_params=query_params) | {'key': node['_key'],
-                                                                      'origin': ORIGIN_DEFAULT_BUTTON}
+                                                                      'origin': ''}
         if page_params['origin'] == ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON:
             return redirect(url_for(endpoint='osprofileresultpage.osprofileresultpage',
                                     **merged))
@@ -771,18 +772,21 @@ def create_options_page_organization(node: Node,
     html += '<p/>'
     html += create_html_form(destination='collabspage.collabspage',
                              button_text='explore collaborations for this organization',
-                             hidden_fields={'start_orgs': node['value']
+                             hidden_fields=url_parameters |
+                                           {'start_orgs': node['value']
                                            })
     html += '<p/>'
     html += create_html_form(destination='osprofileresultpage.osprofileresultpage',
                              button_text='get an open science profile for this organization',
-                             hidden_fields={'key': key
+                             hidden_fields=url_parameters |
+                                           {'key': key
                                            })
     html += '<p/>'
     html += create_html_form(destination='osdashboardresultpage.osdashboardresultpage',
                              button_text='get an open science dashboard for this organization',
-                             hidden_fields={'key': key
-                                            })
+                             hidden_fields=url_parameters |
+                                           {'key': key
+                                           })
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()

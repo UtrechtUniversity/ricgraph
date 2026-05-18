@@ -1011,7 +1011,6 @@ def create_empty_page_params() -> PageParams:
         'histogram_mode': '',
         'max_nr_table_rows': -A_LARGE_NUMBER,
         'origin': '',
-        'oslprofile_mode': '',
         'overlap_mode': '',
         'search_mode': '',
         'view_mode': ''

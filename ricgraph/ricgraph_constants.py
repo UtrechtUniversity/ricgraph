@@ -79,7 +79,6 @@ class PageParams(TypedDict):
     histogram_mode: str
     max_nr_table_rows: int
     origin: str
-    oslprofile_mode: str
     overlap_mode: str
     search_mode: str
     view_mode: str

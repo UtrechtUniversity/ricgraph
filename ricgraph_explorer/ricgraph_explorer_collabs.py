@@ -300,8 +300,9 @@ def collabsresultpage() -> str:
             result_html = get_message(header + '<p/>Nothing found.')
         else:
             result_html = get_regular_table(nodes_list=nodes_list,
-                                            page_params=page_params,
-                                            query_params=query_params,
+                                            page_params=page_params | {'collab_mode': ''},
+                                            query_params=query_params | {'start_orgs': '',
+                                                                         'collab_orgs': ''},
                                             table_header=header)
     html += result_html
     html += get_html_for_cardend()
