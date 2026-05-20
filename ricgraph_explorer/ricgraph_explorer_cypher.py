@@ -68,6 +68,7 @@ from ricgraph import (read_node,
                       convert_cypher_recordslist_to_nodeslist,
                       extract_organization_abbreviation,
                       ORGANIZATION_CATEGORY_ORGANISATION,
+                      RICGRAPH_UNKNOWN,
                       cypher_print_resultsummary,
                       check_valid_year,
                       QueryParams)
@@ -612,7 +613,12 @@ def create_researchresult_histogram_cypher(query_params: QueryParams) -> Tuple[d
         if record['property'] == 'category':
             category_histogram[record['name']] = record['value']
         if record['property'] == 'year':
-            year_histogram[record['name']] = record['value']
+            if record['name'] != RICGRAPH_UNKNOWN:
+                # Note that we have only research results.
+                # For years, we do not want RICGRAPH_UNKNOWN value.
+                # This is also done in ricgraph_explorer_init.py,
+                # function collect_ricgraph_nodeinfo().
+                year_histogram[record['name']] = record['value']
         if record['property'] == 'license':
             license_histogram[record['name']] = record['value']
         if record['property'] == 'access':

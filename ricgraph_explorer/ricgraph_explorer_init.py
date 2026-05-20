@@ -325,6 +325,8 @@ def collect_ricgraph_nodeinfo() -> None:
     # Fields related to property 'year' in a node.
     year_active = read_all_values_of_property('year')
     # Remove RICGRAPH_UNKNOWN from year_active.
+    # This is also done in ricgraph_explorer_cypher.py,
+    # function create_researchresult_histogram_cypher().
     year_active = [x for x in year_active if x != RICGRAPH_UNKNOWN]
     if len(year_active) == 0:
         print('Warning (possibly Error) in obtaining list with all property values for property "year".')
