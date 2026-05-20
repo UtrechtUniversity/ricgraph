@@ -267,44 +267,6 @@ def get_regular_table(nodes_list: list,
     return javascript + table_html
 
 
-def _get_nr_rows_in_table_message(len_nodes_list: int,
-                                  max_nr_items: int,
-                                  actual_nr_table_rows: int) -> str:
-    """Helper function to get the correct message at the right top and
-    bottom of a table.
-
-    :param len_nodes_list: the number of nodes in the table.
-    :param max_nr_items: the max number of elements in the table.
-    :param actual_nr_table_rows: the number of rows in a page of a table.
-    :return: the message.
-    """
-    nr_rows_in_table_message = ''
-    if 1 < len_nodes_list < actual_nr_table_rows:
-        # Results fit on one page of the table.
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list)
-        nr_rows_in_table_message += ' rows in this table.'
-    elif len_nodes_list == max_nr_items:
-        # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
-        # so we have no idea how many search results there are.
-        nr_rows_in_table_message = 'This table shows the first ' + str(len_nodes_list)
-        nr_rows_in_table_message += ' rows'
-        if len_nodes_list <= actual_nr_table_rows:
-            # All the rows fit on one page.
-            nr_rows_in_table_message += '.'
-        else:
-            nr_rows_in_table_message += ' rows, in pages of '
-            nr_rows_in_table_message += str(actual_nr_table_rows) + '.'
-    elif len_nodes_list > actual_nr_table_rows:
-        # All results fit, on more than one page of the table.
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list)
-        nr_rows_in_table_message += ' rows in this table, showing pages of '
-        nr_rows_in_table_message += str(actual_nr_table_rows) + '.'
-    elif len_nodes_list >= 2:
-        # No header when the table has only one row.
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table.'
-    return nr_rows_in_table_message
-
-
 def get_regular_table_worker(nodes_list: list,
                              page_params: PageParams,
                              query_params: QueryParams,
@@ -327,24 +289,37 @@ def get_regular_table_worker(nodes_list: list,
             table_columns = TABLE_DETAIL_COLUMNS
         else:
             table_columns = TABLE_RESEARCH_OUTPUT_COLUMNS
-    len_nodes_list = len(nodes_list)
-    if len_nodes_list == 0:
+    if nodes_list is None or (len_nodes_list := len(nodes_list)) == 0:
         return get_message(table_header + '</br>Nothing found.')
 
+    nr_rows_in_table_message = ''
     max_nr_items = query_params['max_nr_items']
-    if max_nr_items == 0:
-        max_nr_items = A_LARGE_NUMBER
-    if len_nodes_list > max_nr_items:
-        # Remove elements from list following the max_nr_items'th.
-        del nodes_list[max_nr_items:]
-        len_nodes_list = max_nr_items
+    if max_nr_items == 0 or len_nodes_list < max_nr_items:
+        # We show everything.
+        nr_rows_in_table_message += 'There are ' + str(len_nodes_list)
+        nr_rows_in_table_message += ' rows in this table'
+    else:
+        if len_nodes_list > max_nr_items:
+            # Remove elements from list following the max_nr_items'th.
+            del nodes_list[max_nr_items:]
+            len_nodes_list = max_nr_items
+        # We cannot show everything.
+        nr_rows_in_table_message += 'This table shows the first ' + str(len_nodes_list)
+        nr_rows_in_table_message += ' rows'
 
-    actual_nr_table_rows = page_params['max_nr_table_rows']
-    if actual_nr_table_rows == 0:
-        actual_nr_table_rows = len_nodes_list
-    nr_rows_in_table_message = _get_nr_rows_in_table_message(len_nodes_list=len_nodes_list,
-                                                             max_nr_items=max_nr_items,
-                                                             actual_nr_table_rows=actual_nr_table_rows)
+    max_nr_table_rows = page_params['max_nr_table_rows']
+    if max_nr_table_rows == 0 or len_nodes_list <= max_nr_table_rows:
+        # All rows fit on one page of the table.
+        nr_rows_in_table_message += '.'
+        max_nr_table_rows = len_nodes_list
+    else:
+        # We will need more than one page for the table.
+        nr_rows_in_table_message += ', showing pages of '
+        nr_rows_in_table_message += str(max_nr_table_rows) + '.'
+
+    if len_nodes_list == 1:
+        # No message above the table.
+        nr_rows_in_table_message = ''
 
     # Clean the URL to be passed in the 'value' field of the table.
     # Seeing from where we have come here, this URL may have any parameters in it,
@@ -367,7 +342,7 @@ def get_regular_table_worker(nodes_list: list,
     html += '</thead>'
     html += '<tbody>'
     for count, node in enumerate(nodes_list):
-        table_page_num = floor(count / actual_nr_table_rows) + 1
+        table_page_num = floor(count / max_nr_table_rows) + 1
         html += get_html_for_tablerow(node=node,
                                       page_params=page_params_cleaned,
                                       query_params=query_params_cleaned,
@@ -382,7 +357,7 @@ def get_regular_table_worker(nodes_list: list,
     html += '</div>'        # Ends </div> from above [A].
     html += nr_rows_in_table_message
 
-    total_pages = ceil(len_nodes_list / actual_nr_table_rows)
+    total_pages = ceil(len_nodes_list / max_nr_table_rows)
     pagination_html = create_table_pagination(total_pages, table_id)
     html += '<div class="w3-center" id="' + table_id + '-pagination-container">'
     html += pagination_html + '</div>'
@@ -483,13 +458,24 @@ def get_tabbed_table(nodes_list: list,
     if nodes_list is None or (len_nodes_list := len(nodes_list)) == 0:
         return get_message(table_header + '</br>Nothing found.')
 
+    nr_rows_in_table_message = ''
     max_nr_items = query_params['max_nr_items']
-    if max_nr_items == 0:
-        max_nr_items = A_LARGE_NUMBER
-    if len_nodes_list > max_nr_items:
-        # Remove elements from list following the max_nr_items'th.
-        del nodes_list[max_nr_items:]
-        len_nodes_list = max_nr_items
+    if max_nr_items == 0 or len_nodes_list < max_nr_items:
+        # We show everything.
+        nr_rows_in_table_message += 'There are ' + str(len_nodes_list)
+        nr_rows_in_table_message += ' rows in this table.'
+    else:
+        if len_nodes_list > max_nr_items:
+            # Remove elements from list following the max_nr_items'th.
+            del nodes_list[max_nr_items:]
+            len_nodes_list = max_nr_items
+        # We cannot show everything.
+        nr_rows_in_table_message += 'This table shows the first ' + str(len_nodes_list)
+        nr_rows_in_table_message += ' rows.'
+
+    if len_nodes_list == 1:
+        # No message above the table.
+        nr_rows_in_table_message = ''
 
     (name_histogram, category_histogram, year_histogram,
      license_histogram, access_histogram) = \
@@ -551,11 +537,6 @@ def get_tabbed_table(nodes_list: list,
         tab_contents_html += '</div>'
 
     tab_javascript = get_tabbed_table_javascript(table_id=table_id)
-
-    if 1 < len_nodes_list < max_nr_items:
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table.'
-    else:
-        nr_rows_in_table_message = 'This tabbed table shows the first ' + str(len_nodes_list) + ' rows.'
 
     # Divide space between panels and table.
     html = '<div class="w3-row-padding w3-stretch" >'
