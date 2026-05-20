@@ -452,12 +452,20 @@ def find_organization_additional_info(parent_node: Node | None,
         message += '" node. '
         return get_message(message=message)
 
-    name_str = ''
-    category_str = ''
-    if len(query_params['name_list']) == 1:
-        name_str = query_params['name_list'][0]
-    if len(query_params['category_list']) == 1:
-        category_str = query_params['category_list'][0]
+    if len(query_params['name_list']) == 0:
+        name_str = ''
+    elif len(query_params['name_list']) == 1:
+        name_str = str(query_params['name_list'][0])
+    else:
+        # Do not show the full list.
+        name_str = ''
+    if len(query_params['category_list']) == 0:
+        category_str = ''
+    elif len(query_params['category_list']) == 1:
+         category_str = str(query_params['category_list'][0])
+    else:
+        # Do not show the full list.
+        category_str = ''
 
     year_range_text = get_year_range_text(year_first=query_params['year_first'],
                                           year_last=query_params['year_last'])
@@ -522,8 +530,7 @@ def find_organization_additional_info(parent_node: Node | None,
         table_header += '"' + name_str + '" '
     elif category_str != '':
         table_header += '"' + category_str + '" '
-    else:
-        table_header += 'shared '
+
     if category_str != COMPETENCE_CATEGORY_COMPETENCE:
         table_header += 'items of this organization ' + year_range_text + ':'
     else:

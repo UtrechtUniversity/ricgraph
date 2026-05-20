@@ -55,7 +55,8 @@ from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          form_button_on_one_line_width,
                                          button_width,
                                          HISTOGRAM_MODE_COUNTS,
-                                         HISTOGRAM_MODE_PERCENTAGES)
+                                         HISTOGRAM_MODE_PERCENTAGES,
+                                         SEARCH_MODE_VALUE)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      create_html_form,
                                      get_page_title,
@@ -84,11 +85,6 @@ def oslpage() -> str:
 
     :return: HTML to be rendered.
     """
-    page_params = get_url_page_params()
-    query_params = get_url_query_params()
-    url_parameters = merge_and_remove_empty(page_params=page_params,
-                                            query_params=query_params)
-
     html = html_body_start
 
     html += get_page_title(title='Explore open science monitoring')
@@ -100,16 +96,14 @@ def oslpage() -> str:
     html += '<p/>'
     html += create_html_form(destination='searchpage',
                              button_text='get an open science profile for a (sub-)organization',
-                             hidden_fields=url_parameters |
-                                           {'search_mode': 'value_search',
+                             hidden_fields={'search_mode': SEARCH_MODE_VALUE,
                                             'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             'origin': ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON
                                            })
     html += '<p/>'
     html += create_html_form(destination='searchpage',
                              button_text='get an open science dashboard for a (sub-)organization',
-                             hidden_fields=url_parameters |
-                                           {'search_mode': 'value_search',
+                             hidden_fields={'search_mode': SEARCH_MODE_VALUE,
                                             'category': ORGANIZATION_CATEGORY_ORGANISATION,
                                             'origin': ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON
                                            })

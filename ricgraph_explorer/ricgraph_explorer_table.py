@@ -69,6 +69,7 @@ from ricgraph import (nodes_cache_key_id_create,
                       PERSON_NAME_PERSON_ROOT,
                       RICGRAPH_UNKNOWN,
                       PageParams, QueryParams,
+                      create_empty_page_params,
                       create_empty_query_params)
 from ricgraph_explorer_cypher import create_researchresult_histogram_cypher
 from ricgraph_explorer_constants import (TABLE_DETAIL_COLUMNS,
@@ -266,6 +267,44 @@ def get_regular_table(nodes_list: list,
     return javascript + table_html
 
 
+def _get_nr_rows_in_table_message(len_nodes_list: int,
+                                  max_nr_items: int,
+                                  actual_nr_table_rows: int) -> str:
+    """Helper function to get the correct message at the right top and
+    bottom of a table.
+
+    :param len_nodes_list: the number of nodes in the table.
+    :param max_nr_items: the max number of elements in the table.
+    :param actual_nr_table_rows: the number of rows in a page of a table.
+    :return: the message.
+    """
+    nr_rows_in_table_message = ''
+    if 1 < len_nodes_list < actual_nr_table_rows:
+        # Results fit on one page of the table.
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list)
+        nr_rows_in_table_message += ' rows in this table.'
+    elif len_nodes_list == max_nr_items:
+        # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
+        # so we have no idea how many search results there are.
+        nr_rows_in_table_message = 'This table shows the first ' + str(len_nodes_list)
+        nr_rows_in_table_message += ' rows'
+        if len_nodes_list <= actual_nr_table_rows:
+            # All the rows fit on one page.
+            nr_rows_in_table_message += '.'
+        else:
+            nr_rows_in_table_message += ' rows, in pages of '
+            nr_rows_in_table_message += str(actual_nr_table_rows) + '.'
+    elif len_nodes_list > actual_nr_table_rows:
+        # All results fit, on more than one page of the table.
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list)
+        nr_rows_in_table_message += ' rows in this table, showing pages of '
+        nr_rows_in_table_message += str(actual_nr_table_rows) + '.'
+    elif len_nodes_list >= 2:
+        # No header when the table has only one row.
+        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table.'
+    return nr_rows_in_table_message
+
+
 def get_regular_table_worker(nodes_list: list,
                              page_params: PageParams,
                              query_params: QueryParams,
@@ -300,19 +339,23 @@ def get_regular_table_worker(nodes_list: list,
         del nodes_list[max_nr_items:]
         len_nodes_list = max_nr_items
 
-    nr_rows_in_table_message = ''
-    max_nr_table_rows = page_params['max_nr_table_rows']
-    if max_nr_table_rows == 0:
-        max_nr_table_rows = min(len_nodes_list, max_nr_items)
-    if 0 < max_nr_table_rows < len_nodes_list:
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table, showing pages of '
-        nr_rows_in_table_message += str(max_nr_table_rows) + '.'
-    elif len_nodes_list == max_nr_table_rows:
-        # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
-        # so we have no idea how many search results there are.
-        nr_rows_in_table_message = 'This table shows the first ' + str(max_nr_table_rows) + ' rows.'
-    elif len_nodes_list >= 2:
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this table.'
+    actual_nr_table_rows = page_params['max_nr_table_rows']
+    if actual_nr_table_rows == 0:
+        actual_nr_table_rows = len_nodes_list
+    nr_rows_in_table_message = _get_nr_rows_in_table_message(len_nodes_list=len_nodes_list,
+                                                             max_nr_items=max_nr_items,
+                                                             actual_nr_table_rows=actual_nr_table_rows)
+
+    # Clean the URL to be passed in the 'value' field of the table.
+    # Seeing from where we have come here, this URL may have any parameters in it,
+    # but to continue we only need to pass a few URL parameters.
+    # key, name, value will be set in get_html_for_tablerow().
+    page_params_cleaned = create_empty_page_params()
+    page_params_cleaned['discoverer_mode'] = page_params['discoverer_mode']
+    page_params_cleaned['max_nr_table_rows'] = page_params['max_nr_table_rows']
+    page_params_cleaned['view_mode'] = page_params['view_mode']
+    query_params_cleaned = create_empty_query_params()
+    query_params_cleaned['max_nr_items'] = query_params['max_nr_items']
 
     html = get_html_for_cardstart()
     html += '<span style="float:left;">' + table_header + '</span>'
@@ -324,15 +367,13 @@ def get_regular_table_worker(nodes_list: list,
     html += '</thead>'
     html += '<tbody>'
     for count, node in enumerate(nodes_list):
-        table_page_num = floor(count / max_nr_table_rows) + 1
+        table_page_num = floor(count / actual_nr_table_rows) + 1
         html += get_html_for_tablerow(node=node,
+                                      page_params=page_params_cleaned,
+                                      query_params=query_params_cleaned,
                                       table_id=table_id,
                                       table_columns=table_columns,
-                                      table_page_num=table_page_num,
-                                      url_parameters=
-                                          merge_and_remove_empty(page_params=page_params,
-                                                                 query_params=query_params))
-
+                                      table_page_num=table_page_num)
         key = node['_key']
         nodes_cache_key_id_create(key=key, elementid=node.element_id)
 
@@ -341,9 +382,10 @@ def get_regular_table_worker(nodes_list: list,
     html += '</div>'        # Ends </div> from above [A].
     html += nr_rows_in_table_message
 
-    total_pages = ceil(min(len(nodes_list), max_nr_items) / max_nr_table_rows)
+    total_pages = ceil(len_nodes_list / actual_nr_table_rows)
     pagination_html = create_table_pagination(total_pages, table_id)
-    html += '<div class="w3-center" id="' + table_id + '-pagination-container">' + pagination_html + '</div>'
+    html += '<div class="w3-center" id="' + table_id + '-pagination-container">'
+    html += pagination_html + '</div>'
     html += get_html_for_cardend()
     return html
 
@@ -510,17 +552,10 @@ def get_tabbed_table(nodes_list: list,
 
     tab_javascript = get_tabbed_table_javascript(table_id=table_id)
 
-    nr_rows_in_table_message = ''
-    max_nr_table_rows = page_params['max_nr_table_rows']
-    if 0 < max_nr_table_rows < len_nodes_list:
-        nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table, showing pages of '
-        nr_rows_in_table_message += str(max_nr_table_rows) + '.'
-    elif len_nodes_list == max_nr_table_rows:
-        # Special case: we have truncated the number of search results somewhere out of efficiency reasons,
-        # so we have no idea how many search results there are.
-        nr_rows_in_table_message = 'This tabbed table shows the first ' + str(max_nr_table_rows) + ' rows.'
-    elif len_nodes_list >= 2:
+    if 1 < len_nodes_list < max_nr_items:
         nr_rows_in_table_message = 'There are ' + str(len_nodes_list) + ' rows in this tabbed table.'
+    else:
+        nr_rows_in_table_message = 'This tabbed table shows the first ' + str(len_nodes_list) + ' rows.'
 
     # Divide space between panels and table.
     html = '<div class="w3-row-padding w3-stretch" >'
@@ -787,23 +822,23 @@ def get_html_for_tableheader(table_columns: list = None) -> str:
 
 
 def get_html_for_tablerow(node: Node,
+                          page_params: PageParams,
+                          query_params: QueryParams,
                           table_id: str = '',
                           table_columns: list = None,
-                          table_page_num: int = 1,
-                          url_parameters: dict = None) -> str:
+                          table_page_num: int = 1) -> str:
     """Get the HTML required for a row of an HTML table.
 
     :param node: the node to show in the table.
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param table_id: the id of the table, required for pagination.
     :param table_columns: a list of columns to show in the table.
     :param table_page_num: the page number of the table.
-    :param url_parameters: parameters to be added to the url.
     :return: HTML to be rendered.
     """
     if table_columns is None:
         table_columns = []
-    if url_parameters is None:
-        url_parameters = {}
 
     # Show only the first page initially.
     display_style = '' if table_page_num == 1 else 'display: none;'
@@ -819,8 +854,13 @@ def get_html_for_tablerow(node: Node,
             else:
                 value = node['value']
 
+            query_params['key'] = key
+            query_params['name'] = node['name']
+            query_params['value'] = node['value']
+            url_parameters = merge_and_remove_empty(page_params=page_params,
+                                                    query_params=query_params)
             html += '<td><a href=' + url_for('optionspage') + '?'
-            html += urlencode(url_parameters | {'key': key}) + '>'
+            html += urlencode(url_parameters) + '>'
             html += value + '</a></td>'
         elif column in ['url_main', 'url_other']:
             if node[column] == RICGRAPH_UNKNOWN:

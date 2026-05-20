@@ -49,7 +49,8 @@ from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
                       ORGANIZATION_CATEGORY_ORGANISATION)
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO_INTERNAL,
                                          html_body_start, html_body_end,
-                                         button_style, button_width)
+                                         button_style, button_width,
+                                         SEARCH_MODE_VALUE)
 from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
                                      get_message,
                                      get_spinner, get_page_title,
@@ -119,7 +120,7 @@ def collabspage() -> str:
 
     html += get_html_for_cardstart()
     base_url = url_for(endpoint='searchpage') + '?'
-    base_url += urlencode(query={'search_mode': 'value_search',
+    base_url += urlencode(query={'search_mode': SEARCH_MODE_VALUE,
                                  'category': ORGANIZATION_CATEGORY_ORGANISATION})
     form = '<form method="get" action="' + url_for(endpoint='collabsresultpage.collabsresultpage') + '">'
     form += '<label for="start_orgs">Type the name for <em>start organization</em> '

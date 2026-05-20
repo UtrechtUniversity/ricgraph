@@ -101,7 +101,6 @@ from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_carden
                                      create_html_form,
                                      get_message, get_found_message,
                                      get_you_searched_for_card, get_page_title,
-                                     get_html_for_yearcard,
                                      get_global_list, get_global_str,
                                      get_page_footer,
                                      get_url_page_params, get_url_query_params,
@@ -595,7 +594,7 @@ def optionspage() -> str | Response:
         html += get_page_title(title='Selection page')
         table_header = 'Your search resulted in more than one item. Please choose one item to continue:'
         html += get_regular_table(nodes_list=result,
-                                  page_params=page_params,
+                                  page_params=page_params | {'search_mode': ''},
                                   query_params=query_params,
                                   table_header=table_header)
         html += get_page_footer() + html_body_end
@@ -610,7 +609,7 @@ def optionspage() -> str | Response:
         # button 'get an open science profile for a (sub-)organization'
         # on page oslpage(), then skip the options page and go directly
         # to the osprofileresult() page. Reset 'origin'.
-        merged = merge_and_remove_empty(page_params=page_params,
+        merged = merge_and_remove_empty(page_params=page_params | {'search_mode': ''},
                                         query_params=query_params) | {'key': node['_key'],
                                                                       'origin': ''}
         if page_params['origin'] == ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON:
@@ -624,7 +623,7 @@ def optionspage() -> str | Response:
             html += get_page_footer() + html_body_end
 
     html += create_options_page(node=node,
-                                page_params=page_params,
+                                page_params=page_params | {'search_mode': ''},
                                 query_params=query_params)
     html += get_page_footer() + html_body_end
     return html
