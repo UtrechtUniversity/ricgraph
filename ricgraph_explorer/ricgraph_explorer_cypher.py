@@ -67,7 +67,7 @@ from ricgraph import (read_node,
                       ricgraph_database, ricgraph_databasename,
                       convert_cypher_recordslist_to_nodeslist,
                       extract_organization_abbreviation,
-                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      ORGANIZATION_CATEGORY_ORGANIZATION,
                       RICGRAPH_UNKNOWN,
                       cypher_print_resultsummary,
                       check_valid_year,
@@ -199,7 +199,7 @@ def find_person_organization_collaborations_cypher(parent_node: Node | None,
     # Get the organizations from 'parent_node'.
     personroot_node = get_personroot_node(node=parent_node)
     personroot_node_organizations = get_all_neighbor_nodes(node=personroot_node,
-                                                           category_want=[ORGANIZATION_CATEGORY_ORGANISATION])
+                                                           category_want=[ORGANIZATION_CATEGORY_ORGANIZATION])
     # Now get the organizations that 'parent_node' collaborates with, excluding
     # this person's own organizations. Note that the types of 'records'
     # and 'personroot_node_organizations' are not the same.
@@ -376,6 +376,14 @@ def find_collabs_cypher(query_params: QueryParams,
     if len(query_params['category_list']) > 0:
         # Restrict the result to collaborations of a certain research result category.
         cypher_query += 'AND researchresult.category IN $category_list '
+    if query_params['year_first'] != '':
+        cypher_query += 'AND researchresult.year >= $year_first '
+    if query_params['year_last'] != '':
+        cypher_query += 'AND researchresult.year <= $year_last '
+    if len(query_params['license']) > 0:
+       cypher_query += 'AND researchresult.license IN $license '
+    if len(query_params['access']) > 0:
+        cypher_query += 'AND researchresult.access IN $access '
 
     cypher_query += 'AND persroot1<>persroot2 '
     cypher_query += 'AND start_orgs<>collab_orgs '
@@ -405,10 +413,6 @@ def find_collabs_cypher(query_params: QueryParams,
             cypher_query += 'AND collab_orgs.value=$collab_orgs '
 
     cypher_query += cypher_return_clause + ' '
-
-    if query_params['max_nr_items'] > 0:
-        cypher_query += 'LIMIT $max_nr_items '
-    # print(cypher_query)
 
     # This call returns a list of Records and not a list of Nodes, which
     # is logical since it needs to be able to store any type of result.
@@ -478,11 +482,6 @@ def find_collab_orgs_matrix(query_params: QueryParams) -> DataFrame | None:
     result = result.convert_dtypes(convert_integer=True)
     # Sort row index (axis=0) case-insensitively, then sort column index (axis=1) case-insensitively
     result = result.sort_index(axis=0, key=lambda x: x.str.lower()).sort_index(axis=1, key=lambda x: x.str.lower())
-
-    # Label the top left cell with the category_list used to get this result.
-    # Make sure it is a list.
-    query_params['category_list'].sort(key=lambda s: s.lower())
-    result.index.name = str(query_params['category_list'])
     return result
 
 

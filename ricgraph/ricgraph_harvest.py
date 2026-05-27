@@ -51,7 +51,7 @@ from requests import get, post, Response
 from .ricgraph_constants import (A_LARGE_NUMBER,
                                  PERSON_CATEGORY_PERSON,
                                  COMPETENCE_CATEGORY_COMPETENCE,
-                                 ORGANIZATION_CATEGORY_ORGANISATION,
+                                 ORGANIZATION_CATEGORY_ORGANIZATION,
                                  HARVEST_JSON_SOURCE_OPENALEX,
                                  HARVEST_JSON_SOURCE_PURE,
                                  HARVEST_JSON_SOURCE_RSD)
@@ -480,7 +480,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
     entities.insert(loc=1, column='NAME', value=entity_name)
 
     if entity_name in ['ORGANIZATION_NAME']:
-        entities['CATEGORY'] = ORGANIZATION_CATEGORY_ORGANISATION
+        entities['CATEGORY'] = ORGANIZATION_CATEGORY_ORGANIZATION
     elif entity_name in ['EXPERTISE_AREA', 'RESEARCH_AREA', 'SKILL']:
         entities['CATEGORY'] = COMPETENCE_CATEGORY_COMPETENCE
         if len(entities.columns) != 5:
@@ -533,7 +533,7 @@ def update_urls_in_ricgraph(entities: DataFrame,
     if entity_name in ['PURE_ID_PERS', 'UUSTAFF_PAGEID', 'PHOTO_ID']:
         entities['category'] = PERSON_CATEGORY_PERSON
     elif entity_name in ['ORGANIZATION_NAME']:
-        entities['category'] = ORGANIZATION_CATEGORY_ORGANISATION
+        entities['category'] = ORGANIZATION_CATEGORY_ORGANIZATION
     else:
         print('update_urls_in_ricgraph(): Error, unknown column "'
               + entity_name + '".')
@@ -595,9 +595,9 @@ def create_parsed_rors_in_ricgraph(organizations: DataFrame,
     organizations.rename(columns={'ORGANIZATION_NAME': 'value1',
                                   'ROR': 'value2'}, inplace=True)
     new_organization_columns = {'name1': 'ORGANIZATION_NAME',
-                                'category1': ORGANIZATION_CATEGORY_ORGANISATION,
+                                'category1': ORGANIZATION_CATEGORY_ORGANIZATION,
                                 'name2': 'ROR',
-                                'category2': ORGANIZATION_CATEGORY_ORGANISATION,
+                                'category2': ORGANIZATION_CATEGORY_ORGANIZATION,
                                 'source_event2': harvest_source,
                                 'history_event2': history_event}
     organizations = organizations.assign(**new_organization_columns)

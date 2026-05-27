@@ -1749,7 +1749,7 @@ def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
         new_projorgnodes_columns = {'name1': 'PURE_ID_PROJECT',
                                     'category1': rcg.PROJECT_CATEGORY_PROJECT,
                                     'name2': 'ORGANIZATION_NAME',
-                                    'category2': rcg.ORGANIZATION_CATEGORY_ORGANISATION}
+                                    'category2': rcg.ORGANIZATION_CATEGORY_ORGANIZATION}
         projorgnodes = projorgnodes.assign(**new_projorgnodes_columns)
         projorgnodes = projorgnodes[['name1', 'category1', 'value1',
                                      'name2', 'category2', 'value2']]

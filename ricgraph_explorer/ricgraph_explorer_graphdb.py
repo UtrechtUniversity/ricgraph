@@ -69,7 +69,7 @@ from ricgraph import (get_personroot_node,
                       PageParams, QueryParams,
                       A_LARGE_NUMBER,
                       PERSON_CATEGORY_PERSON,
-                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      ORGANIZATION_CATEGORY_ORGANIZATION,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT)
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
@@ -80,16 +80,15 @@ from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          OVERLAP_MODE_NEIGHBORNODE,
                                          OVERLAP_MODE_MULTIPLESOURCE,
                                          OVERLAP_MODE_SINGLESOURCE)
-from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     get_message,
-                                     get_you_searched_for_card,
-                                     get_global_list,
-                                     merge_and_remove_empty)
+from ricgraph_explorer_utils import merge_and_remove_empty, get_global_list
+from ricgraph_explorer_html import (get_html_for_cardstart, get_html_for_cardend,
+                                    get_html_for_histogramcard,
+                                    get_message,
+                                    get_you_searched_for_card)
 from ricgraph_explorer_cypher import (find_organization_additional_info_cypher,
                                       find_person_organization_collaborations_cypher,
                                       find_person_share_resouts_cypher)
 from ricgraph_explorer_table import  (get_regular_table, get_tabbed_table,
-                                      get_html_for_histogramcard,
                                       get_html_for_tablestart, get_html_for_tableend)
 
 
@@ -446,7 +445,7 @@ def find_organization_additional_info(parent_node: Node | None,
         message += 'This organization cannot be found in Ricgraph.'
         return get_message(message=message)
 
-    if parent_node['category'] != ORGANIZATION_CATEGORY_ORGANISATION:
+    if parent_node['category'] != ORGANIZATION_CATEGORY_ORGANIZATION:
         message = 'Unexpected result in find_organization_additional_info(): '
         message += 'You have not passed an "organization" node, but a "' + parent_node['category']
         message += '" node. '

@@ -225,12 +225,14 @@ HISTOGRAM_MODE_ALL = [
 # ########################################################################
 # The HTML 'width' of input fields or 'min-width' of buttons.
 field_button_width = '30em'
+field_button_width_half = '15em'
 # The style for the buttons, note the space before and after the text.
 button_style = ' w3-button uu-yellow w3-round-large w3-mobile '
 # A button with a black line around it.
 button_style_border = button_style + ' w3-border rj-border-black '
 # Restrict the width of a button. Use 'min-width' to make sure the text fits.
 button_width = ' style="min-width:' + field_button_width + ';" '
+button_width_half = ' style="width:' + field_button_width_half + ';" '
 
 # The width of the button on a boxed card.
 boxedcard_button_width = ' style="width:8em !important;" '

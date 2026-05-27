@@ -44,19 +44,25 @@ from urllib.parse import urlencode
 from flask import Blueprint, url_for
 from markupsafe import escape
 
-from ricgraph import (RESEARCHRESULT_CATEGORY_PUBLICATION,
-                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
-                      ORGANIZATION_CATEGORY_ORGANISATION)
-from ricgraph_explorer_constants import (RICGRAPH_NODEINFO_INTERNAL,
+from ricgraph import (ORGANIZATION_CATEGORY_ORGANIZATION, create_ricgraph_key,
+                      get_year_range_text)
+from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          html_body_start, html_body_end,
                                          button_style, button_width,
                                          SEARCH_MODE_VALUE)
-from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     get_message,
-                                     get_spinner, get_page_title,
-                                     get_global_str, get_page_footer,
-                                     get_url_page_params, get_url_query_params)
 from ricgraph_explorer_table import get_regular_table
+from ricgraph_explorer_utils import (get_url_page_params, get_url_query_params,
+                                     get_global_list)
+from ricgraph_explorer_html import (get_html_for_cardstart, get_html_for_cardend,
+                                    get_spinner,
+                                    get_message,
+                                    get_you_searched_for_card, get_page_title,
+                                    get_page_footer,
+                                    compute_histogramcards,
+                                    get_html_for_yearcard,
+                                    get_html_for_facetcard,
+                                    get_html_for_radiobuttoncomponent,
+                                    get_html_for_checkboxcomponent)
 from ricgraph_explorer_datavis import (org_collaborations_diagram,
                                        org_collaborations_persons_results)
 
@@ -78,10 +84,16 @@ def collabspage() -> str:
 
     :return: HTML to be rendered.
     """
+    page_params = get_url_page_params()
     query_params = get_url_query_params()
+    # For this page, we ignore the value of 'max_nr_items' if it is passed.
+    query_params['max_nr_items'] = 0
+
     start_orgs = query_params['start_orgs']
 
     html = html_body_start
+    html += get_you_searched_for_card(page_params=page_params,
+                                      query_params=query_params)
     html += get_page_title(title='Explore collaborations page')
     html += get_html_for_cardstart()
     html += 'Using this page, you can explore collaborations between organizations in Ricgraph. '
@@ -121,7 +133,7 @@ def collabspage() -> str:
     html += get_html_for_cardstart()
     base_url = url_for(endpoint='searchpage') + '?'
     base_url += urlencode(query={'search_mode': SEARCH_MODE_VALUE,
-                                 'category': ORGANIZATION_CATEGORY_ORGANISATION})
+                                 'category': ORGANIZATION_CATEGORY_ORGANIZATION})
     form = '<form method="get" action="' + url_for(endpoint='collabsresultpage.collabsresultpage') + '">'
     form += '<label for="start_orgs">Type the name for <em>start organization</em> '
     form += '(or enter text that begins a (sub-)organization name):</label>'
@@ -148,46 +160,40 @@ def collabspage() -> str:
     form += 'organization names will be retrieved)):</label>'
     form += '<input id="collab_orgs" class="w3-input w3-border" type=text name=collab_orgs>'
     form += '<br/>'
-    form += '<label for="category_list">Restrict the collaborations to research results '
-    form += 'of a specific <em>category</em> '
-    form += '(or leave it empty to match research results of any category, or type '
-    form += '<em>' + RESEARCHRESULT_CATEGORY_PUBLICATION_ALL + '</em> '
-    form += 'to match any publication research result):</label>'
-    form += '<input id="category_list" class="w3-input w3-border" list="researchresult_category_active_datalist"'
-    form += 'name=category_list autocomplete=off>'
-    form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    form += get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
-                           item='researchresult_category_active_datalist')
 
+    header = 'Restrict the collaborations to research results '
+    header += 'of a specific <em>category</em>: '
+    researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                                     item='researchresult_category_active')
+    form += get_html_for_checkboxcomponent(checkboxes=researchresult_category_active,
+                                           url_field_name='category_list',
+                                           header=header)
     form += '<br/>'
-    form += '<fieldset>'
-    form += '<legend>Choose how to explore collaborations:</legend>'
-    form += '<input id="return_collab_sankey" class="w3-radio" type="radio" '
-    form += 'name="collab_mode" value="return_collab_sankey" checked>'
-    form += ' return the collaborations in a Sankey diagram'
-    form += '<br/>'
-    form += '<input id="return_startorg_persons" class="w3-radio" type="radio" '
-    form += 'name="collab_mode" value="return_startorg_persons">'
-    form += ' return the persons from <em>start organizations</em> '
-    form += 'involved in the collaborations'
-    form += '<br/>'
-    form += '<input id="return_researchresults" class="w3-radio" type="radio" '
-    form += 'name="collab_mode" value="return_researchresults">'
-    form += ' return the research results that originate from the collaborations'
-    form += '<br/>'
-    form += '<input id="return_collaborg_persons" class="w3-radio" type="radio" '
-    form += 'name="collab_mode" value="return_collaborg_persons">'
-    form += ' return the persons from <em>collaborating organizations</em> '
-    form += 'involved in the collaborations'
-    form += '<br/>'
-    form += '</fieldset>'
+
+    radiobuttons = [{'button_id': 'return_collab_sankey',
+                     'button_label': 'return the collaborations in a Sankey diagram'},
+                    {'button_id': 'return_startorg_persons',
+                     'button_label': 'return the persons from '
+                                     '<em>start organizations</em> '
+                                     'involved in the collaborations'},
+                    {'button_id': 'return_researchresults',
+                     'button_label': 'return the research results that '
+                                     'originate from the collaborations'},
+                    {'button_id': 'return_collaborg_persons',
+                     'button_label': 'return the persons from '
+                                     '<em>collaborating organizations</em> '
+                                     'involved in the collaborations'}]
+    header = 'Choose how to explore collaborations:'
+    form += get_html_for_radiobuttoncomponent(radiobuttons=radiobuttons,
+                                              url_field_name='collab_mode',
+                                              header=header)
     form += '<p/>'
 
     form += 'Finding collaborations may take (very) long depending on the '
     form += 'number of items involved. It may take anything between 5 seconds and 5 minutes. '
     form += 'If you have chosen to view the Sankey diagram, and '
     form += 'there appear to be a huge amount of collaborations (as in > 20000), your '
-    form += 'browser may become unresponsive due to the hugh number of lines that have to be drawn. '
+    form += 'browser may become unresponsive due to the huge number of lines that have to be drawn. '
     form += '<p/><input class="' + button_style + '" ' + button_width
     form += 'type=submit value="find collaborations, this may take (very) long">'
     form += '<p/>'
@@ -241,33 +247,33 @@ def collabsresultpage() -> str:
     """
     page_params = get_url_page_params()
     query_params = get_url_query_params()
-    if len(query_params['category_list']) == 1 \
-       and query_params['category_list'][0] == RESEARCHRESULT_CATEGORY_PUBLICATION_ALL:
-        # Special case: return all publication type research results.
-        query_params['category_list'] = RESEARCHRESULT_CATEGORY_PUBLICATION.copy()
 
     html = html_body_start
-    html += get_page_title(title='Collaborations related to these organizations')
-    html += get_html_for_cardstart()
+    html += get_you_searched_for_card(page_params=page_params,
+                                      query_params=query_params)
     # A fragment of text to be reused. Escape organization names for safety, since
     # they will be included in the HTML of the webpage that is being generated.
     start_collab_html = '"' + str(escape(query_params['start_orgs'])) + '" and '
     start_collab_html += 'any organization' if query_params['collab_orgs'] == '' \
                                             else '"' + str(escape(query_params['collab_orgs'])) + '"'
+    html += get_page_title(title='Collaborations between ' + start_collab_html)
+    html += get_html_for_cardstart()
     if page_params['collab_mode'] == 'return_collab_sankey':
-        header = 'This Sankey diagram shows the collaborations between '
-        header += start_collab_html + '. '
-        result_html = org_collaborations_diagram(query_params=query_params,
+        html += 'This Sankey diagram shows the collaborations between '
+        html += start_collab_html + ', '
+        html += get_year_range_text(year_first=query_params['year_first'],
+                                    year_last=query_params['year_last'])
+        html += '. It conforms to the selections at the bottom of this page. '
+        html += 'There, you can also modify these selections and recreate this diagram. '
+        html += '<p/>'
+        result_html = org_collaborations_diagram(page_params=page_params,
+                                                 query_params=query_params,
                                                  diagram_type='sankey',
                                                  caption='',
                                                  generate_full_html=False)
-        if len(query_params['category_list']) == 0:
-            header += ' It shows collaborations for all categories. '
-        else:
-            header += ' It shows collaborations for the following categories: '
-            header += str(query_params['category_list']) + '. '
+        header = ''
         if result_html == '':
-            result_html = get_message(header + '<p/>Nothing found.')
+            result_html = get_message('Nothing found.')
         else:
             header += '<p/>If you hover the lines in the diagram, you will get a tooltip. After '
             header += 'clicking a line, you can explore the collaborations in more depth '
@@ -306,6 +312,89 @@ def collabsresultpage() -> str:
                                                                          'collab_orgs': ''},
                                             table_header=header)
     html += result_html
+    html += get_html_for_cardend()
+
+    if page_params['collab_mode'] != 'return_collab_sankey':
+        # We are done.
+        html += get_page_footer() + html_body_end
+        return html
+
+    html += get_html_for_cardstart()
+    html += '<h2>You can modify this collaboration diagram by filtering</h2>'
+    key = create_ricgraph_key(name='ORGANIZATION_NAME',
+                              value=query_params['start_orgs'])
+    (_, _, year_histogram,
+     license_histogram, access_histogram) = \
+        compute_histogramcards(query_params=query_params | {'key': key},
+                               reverse_sort_on_value=False)
+
+    # If 'start_orgs' is not a full organization name, but only an
+    # initial part of an organization name (i.e. it is 'UU Department'
+    # instead of a department name), compute_histogramcards()
+    # will return empty lists for year_histogram, license_histogram,
+    # and access_histogram. We have to correct for them, to be able
+    # to filter on them.
+    # Note that 'value' does not matter since we don't show it.
+    if len(year_histogram) == 0:
+        for item in get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                    item='year_active'):
+            year_histogram.append({'name': item,
+                                   'value': 0})
+        year_histogram.sort(key=lambda d: d['name'].lower())
+    if len(license_histogram) == 0:
+        if len(query_params['license']) == 0:
+            items = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                    item='license_active')
+        else:
+            items = query_params['license'].copy()
+        for item in items:
+            license_histogram.append({'name': item,
+                                      'value': 0})
+        license_histogram.sort(key=lambda d: d['name'].lower())
+    if len(access_histogram) == 0:
+        if len(query_params['access']) == 0:
+            items = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
+                                    item='access_active')
+        else:
+            items = query_params['access'].copy()
+        for item in items:
+            access_histogram.append({'name': item,
+                                     'value': 0})
+        access_histogram.sort(key=lambda d: d['name'].lower())
+
+    # Create a category_histogram based on what is in
+    # query_params['category_list'], because it may be different from what
+    # compute_histogramcards() may deliver (it may have been passed
+    # from a previous page).
+    # Note that 'value' does not matter since we don't show it.
+    category_histogram = []
+    for item in query_params['category_list']:
+        category_histogram.append({'name': item,
+                                   'value': 0})
+    category_histogram.sort(key=lambda d: d['name'].lower())
+    html += '<div class="w3-row-padding w3-stretch">'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_facetcard(histogram=category_histogram,
+                                   url_field_name='category_list',
+                                   header='Filter on "category"',
+                                   show_counts=False)
+    html += '</div>'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_yearcard(header='Filter on "year"',
+                                  for_year_list=year_histogram)
+    html += '</div>'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_facetcard(histogram=license_histogram,
+                                   url_field_name='license',
+                                   header='Filter on "license"',
+                                   show_counts=False)
+    html += '</div>'
+    html += '<div class="w3-col s12 m3">'
+    html += get_html_for_facetcard(histogram=access_histogram,
+                                   url_field_name='access',
+                                   header='Filter on "access"',
+                                   show_counts=False)
+    html += '</div>'
     html += get_html_for_cardend()
 
     html += get_page_footer() + html_body_end

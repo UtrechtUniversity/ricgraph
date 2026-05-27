@@ -60,7 +60,6 @@ from ricgraph import (open_ricgraph, read_all_values_of_property,
                       PROJECT_CATEGORY_ALL,
                       RESEARCHRESULT_CATEGORY_ALL,
                       RESEARCHRESULT_CATEGORY_PUBLICATION,
-                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
                       RESEARCHRESULT_CATEGORY_RESEARCH_MATERIAL,
                       RESEARCHRESULT_CATEGORY_REPORTING_MATERIAL,
                       RESEARCHRESULT_CATEGORY_ENGAGEMENT_MATERIAL,
@@ -298,10 +297,6 @@ def collect_ricgraph_nodeinfo() -> None:
     # I.e., those have been harvested from the source systems that you chose to harvest.
     researchresult_category_active = []
     researchresult_category_active_datalist = '<datalist id="researchresult_category_active_datalist">'
-    # Add the meta type representing all publications, as first item.
-    # This only happens in the list of items that you can choose from
-    # in a text entry field. You will need to catch it further on in the code.
-    researchresult_category_active_datalist += '<option value="' + RESEARCHRESULT_CATEGORY_PUBLICATION_ALL + '">'
     # These are elements of RESEARCHRESULT_CATEGORY_PUBLICATION that are present in your Ricgraph.
     # I.e., those have been harvested from the source systems that you chose to harvest.
     researchresult_category_publication_active = []
@@ -450,7 +445,6 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
     page_footer += '</footer>'
 
     ricgraph_systeminfo = {
-        'access_all': ACCESS_ALL,
         'collaboration_modes_all': COLLABORATION_MODES_ALL,
         'discoverer_mode_all': DISCOVERER_MODE_ALL,
         'discoverer_mode_default': discoverer_mode_default,

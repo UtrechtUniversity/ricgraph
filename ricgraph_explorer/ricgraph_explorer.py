@@ -59,10 +59,8 @@ from ricgraph import (read_all_nodes,
                       get_personroot_node, get_all_neighbor_nodes,
                       check_valid_year,
                       get_year_range_text,
-                      RESEARCHRESULT_CATEGORY_PUBLICATION,
-                      RESEARCHRESULT_CATEGORY_PUBLICATION_ALL,
                       PERSON_CATEGORY_PERSON,
-                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      ORGANIZATION_CATEGORY_ORGANIZATION,
                       ORGANIZATION_CATEGORY_ALL,
                       COMPETENCE_CATEGORY_COMPETENCE,
                       PERSON_NAME_PERSON_ROOT,
@@ -84,7 +82,6 @@ from ricgraph_explorer_constants import (RICGRAPH_EXPLORER_DEBUG_PORT,
                                          TABLE_ORGANIZATION_COLUMNS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
                                          DISCOVERER_MODE_DETAILS,
-                                         DISCOVERER_MODE_PERSONS,
                                          SEARCH_MODE_EXACT_MATCH, SEARCH_MODE_VALUE,
                                          SEARCH_STRING_MIN_LENGTH,
                                          ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON,
@@ -97,14 +94,15 @@ from ricgraph_explorer_graphdb import (find_overlap_in_source_systems,
                                        find_enrich_candidates,
                                        find_person_organization_collaborations,
                                        find_organization_additional_info)
-from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     create_html_form,
-                                     get_message, get_found_message,
-                                     get_you_searched_for_card, get_page_title,
-                                     get_global_list, get_global_str,
-                                     get_page_footer,
+from ricgraph_explorer_utils import (get_global_list, get_global_str,
                                      get_url_page_params, get_url_query_params,
                                      merge_and_remove_empty)
+from ricgraph_explorer_html import (get_html_for_cardstart, get_html_for_cardend,
+                                    create_html_form,
+                                    get_message, get_found_message,
+                                    get_you_searched_for_card, get_page_title,
+                                    get_page_footer,
+                                    get_html_for_radiobuttoncomponent)
 from ricgraph_explorer_table import (get_regular_table,
                                      view_personal_information,
                                      get_faceted_table, get_tabbed_table)
@@ -223,7 +221,7 @@ def homepage() -> str:
     html += create_html_form(destination='searchpage',
                              button_text='search for a (sub-)organization',
                              hidden_fields={'search_mode': SEARCH_MODE_VALUE,
-                                            'category': ORGANIZATION_CATEGORY_ORGANISATION,
+                                            'category': ORGANIZATION_CATEGORY_ORGANIZATION,
                                             })
     if COMPETENCE_CATEGORY_COMPETENCE in get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
                                                          item='category_active'):
@@ -413,66 +411,31 @@ def searchpage() -> str:
         form += 'These fields are case-sensitive and use exact match search. '
         form += 'If you enter values in more than one field, these fields are combined using AND.</br>'
 
-    # April 3, 2026: I disable the year form since here seems a confusing place.
-    # # 14.5em is half of 'field_button_width' (a constant from
-    # # ricgraph_explorer_constants.py, the width of the text & input fields
-    # # on this page) minus 1em for the spacing between the input fields for year.
-    # form_button_width = ' style="width:14.5em !important;" '
-    #
-    # form += '<br/>'
-    # form += 'If your search involves research results, you can specify their first and last year:'
-    # form += '<div ' + form_button_on_one_line_style + '>'
-    # form += '<div' + form_button_width + '>'
-    # form += '<label for="year_first">first year of research result:</label>'
-    # form += '<input id="year_first" class="w3-input w3-border" list="year_active_datalist"'
-    # form += 'name=year_first autocomplete=off' + form_button_width + '>'
-    # form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    # form += year_active_datalist
-    # form += '</div>'
-    # form += '<div' + form_button_width + '>'
-    # form += '<label for="year_last">last year of research result:</label>'
-    # form += '<input id="year_last" class="w3-input w3-border" list="year_active_datalist"'
-    # form += 'name=year_last autocomplete=off' + form_button_width + '>'
-    # form += '<div class="firefox-only">Click twice to get a dropdown list.</div>'
-    # form += year_active_datalist
-    # form += '</div>'
-    # form += '</div>'
+    form += '<br/>'
 
     radio_person_text = ' <em>person_view</em>: only show relevant columns, '
-    radio_person_text += 'results are presented in a <em>tabbed</em> format '
-    radio_person_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg" alt="Click for more information">'
-    radio_person_tooltip += '<div class="w3-text" style="margin-left:60px;">'
-    radio_person_tooltip += 'This view presents results in a <em>tabbed</em> format. '
-    radio_person_tooltip += 'Also, tables have fewer columns to reduce information overload. '
-    if COMPETENCE_CATEGORY_COMPETENCE in get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
-                                                         item='category_active'):
-        radio_person_tooltip += 'This view has been tailored to the Utrecht University staff pages, since some '
-        radio_person_tooltip += 'of these pages also include expertise areas, research areas, skills or photos. '
-        radio_person_tooltip += 'These will be presented in a different way using lists. '
-    radio_person_tooltip += '</div>'
-
+    radio_person_text += 'results are presented in a <em>tabbed</em> format. '
+    radio_person_text += 'Tables have fewer columns to reduce information overload. '
     radio_details_text = ' <em>details_view</em>: show all columns, '
-    radio_details_text += 'research results are presented in a table with <em>facets</em> '
-    radio_details_tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg" alt="Click for more information">'
-    radio_details_tooltip += '<div class="w3-text" style="margin-left:60px;"> '
-    radio_details_tooltip += 'This view shows all columns in Ricgraph. '
-    radio_details_tooltip += 'Research results are presented in a table with <em>facets</em>. '
-    radio_details_tooltip += '</div>'
+    radio_details_text += 'research results are presented in a table with <em>facets</em>. '
+    radio_details_text += 'This view shows all columns in Ricgraph. '
 
-    form += '<br/>'
-    form += '<fieldset>'
-    form += '<legend>Please specify how you like to view your results:</legend>'
-    form += '<input id="person_view" class="w3-radio" type="radio" name="discoverer_mode" value="person_view"'
-    if page_params['discoverer_mode'] == DISCOVERER_MODE_PERSONS:
-        form += 'checked'
-    form += '>' + radio_person_text
-    form += '<label for="person_view" class="w3-tooltip">' + radio_person_tooltip + '</label><br/>'
-    form += '<input id="details_view" class="w3-radio" type="radio" name="discoverer_mode" value="details_view"'
+    # The first radio button in 'radiobuttons' will be checked. So,
+    # depending on the default discover mode, change the order in that list.
     if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
-        form += 'checked'
-    form += '>' + radio_details_text
-    form += '<label for="details_view" class="w3-tooltip">' + radio_details_tooltip + '</label><br/>'
-    form += '</fieldset>'
+        radiobuttons = [{'button_id': 'details_view',
+                         'button_label': radio_details_text},
+                        {'button_id': 'person_view',
+                         'button_label': radio_person_text}]
+    else:
+        radiobuttons = [{'button_id': 'person_view',
+                         'button_label': radio_person_text},
+                        {'button_id': 'details_view',
+                         'button_label': radio_details_text}]
+    header = 'Please specify how you like to view your results:'
+    form += get_html_for_radiobuttoncomponent(radiobuttons=radiobuttons,
+                                              url_field_name='discoverer_mode',
+                                              header=header)
 
     form += '</br>'
     tooltip = '<img src="/static/images/circle_info_solid_uuyellow.svg" alt="Click for more information">'
@@ -669,7 +632,7 @@ def resultspage() -> str:
         html += get_message(message=message)
         return html + get_page_footer() + html_body_end
 
-    html += create_results_page(page_params=page_params,
+    html += create_results_page(page_params=page_params | {'search_mode': ''},
                                 query_params=query_params)
 
     html += get_page_footer() + html_body_end
@@ -708,7 +671,7 @@ def create_options_page(node: Node,
     html_options_page += get_found_message(node=node,
                                            page_params=page_params,
                                            query_params=query_params)
-    if node['category'] == ORGANIZATION_CATEGORY_ORGANISATION:
+    if node['category'] == ORGANIZATION_CATEGORY_ORGANIZATION:
         result_html = create_options_page_organization(node=node,
                                                        page_params=page_params,
                                                        query_params=query_params)
@@ -894,7 +857,7 @@ def create_options_page_person(node: Node,
                              button_text='show organizations related to this person',
                              hidden_fields=url_parameters |
                                            {'key': key,
-                                            'category_list': ORGANIZATION_CATEGORY_ORGANISATION,
+                                            'category_list': ORGANIZATION_CATEGORY_ORGANIZATION,
                                             'view_mode': 'view_regular_table_organizations'
                                            })
     html += '<p/>'
@@ -922,9 +885,7 @@ def create_options_page_person(node: Node,
 
     html += '<br/>'
     label_text = 'By entering a value in the field below, '
-    label_text += 'you will get a list of persons who share a specific research result type with this person '
-    label_text += '(you can also type <em>' + RESEARCHRESULT_CATEGORY_PUBLICATION_ALL
-    label_text += '</em> to match any publication research result):'
+    label_text += 'you will get a list of persons who share a specific research result type with this person:'
     input_spec = ('list', 'category_list', 'researchresult_category_active_datalist', researchresult_category_active_datalist)
     html += create_html_form(destination='resultspage',
                              button_text='find persons that share a specific research result type with this person',
@@ -1008,11 +969,6 @@ def create_results_page(page_params: PageParams,
     :param query_params: parameters related to the query passed in the URL.
     :return: HTML to be rendered.
     """
-    if len(query_params['category_list']) == 1 \
-       and query_params['category_list'][0] == RESEARCHRESULT_CATEGORY_PUBLICATION_ALL:
-        # Special case: return all publication type research results.
-        query_params['category_list'] = RESEARCHRESULT_CATEGORY_PUBLICATION.copy()
-
     html = ''
     result = read_all_nodes(key=query_params['key'])
     if len(result) == 0 or len(result) > 1:
@@ -1308,7 +1264,7 @@ def create_results_page_person(node: Node,
                                           query_params=query_params,
                                           category_want_list=query_params['category_list'],
                                           category_dontwant_list=[PERSON_CATEGORY_PERSON,
-                                                                  ORGANIZATION_CATEGORY_ORGANISATION,
+                                                                  ORGANIZATION_CATEGORY_ORGANIZATION,
                                                                   COMPETENCE_CATEGORY_COMPETENCE])
     elif view_mode == 'view_regular_table_person_organization_collaborations':
         html += get_page_title(title='Organizations that this person collaborates with')

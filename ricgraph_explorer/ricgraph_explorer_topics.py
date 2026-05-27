@@ -43,8 +43,8 @@
 from flask import Blueprint
 
 from ricgraph_explorer_constants import html_body_start, html_body_end
-from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     get_page_title, get_page_footer)
+from ricgraph_explorer_html import (get_html_for_cardstart, get_html_for_cardend,
+                                    get_page_title, get_page_footer)
 
 _topicspage_bp = Blueprint(name='topicspage', import_name=__name__)
 

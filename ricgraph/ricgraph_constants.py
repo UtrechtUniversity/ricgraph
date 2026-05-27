@@ -245,12 +245,6 @@ RESEARCHRESULT_CATEGORY_THESIS = 'thesis'
 RESEARCHRESULT_CATEGORY_WEBSITE = 'website or web publication'
 
 
-# ########################################################################
-# This is a special research result type allowing to select all publication
-# types (category property).
-RESEARCHRESULT_CATEGORY_PUBLICATION_ALL = 'publication_all'
-
-
 # If you add something here, you may also want to add it to
 # one or more of
 # RESEARCHRESULT_CATEGORY_PUBLICATION,
@@ -387,9 +381,9 @@ PERSON_CATEGORY_ALL = [
 # ########################################################################
 # Organization related constants (category property).
 # ########################################################################
-ORGANIZATION_CATEGORY_ORGANISATION = 'organization'
+ORGANIZATION_CATEGORY_ORGANIZATION = 'organization'
 ORGANIZATION_CATEGORY_ALL = [
-    ORGANIZATION_CATEGORY_ORGANISATION
+    ORGANIZATION_CATEGORY_ORGANIZATION
 ]
 
 

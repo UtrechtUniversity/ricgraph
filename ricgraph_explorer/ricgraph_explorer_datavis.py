@@ -45,72 +45,29 @@
 #
 # ########################################################################
 
-from ast import literal_eval
 from json import dumps
 from pandas import DataFrame
 from functools import wraps
 from inspect import signature
-from ricgraph import (datetimestamp, create_unique_string,
+from ricgraph import (datetimestamp,
                       combine_dataframes, make_dataframe_square_symmetric,
                       convert_nodeslist_to_dataframe,
-                      create_empty_query_params,
-                      write_text_to_file, write_dataframe_to_csv)
+                      create_empty_page_params, create_empty_query_params,
+                      write_text_to_file, write_dataframe_to_csv,
+                      PageParams, QueryParams)
 from ricgraph_explorer_constants import (RICGRAPH_SYSTEMINFO,
                                          ricgraph_reference, diagram_tooltip_style,
-                                         observable_plot, observable_d3,
+                                         observable_d3,
                                          chord_space_for_labels,
                                          sankey_pixels_per_link,
-                                         sankey_min_height, sankey_max_height,
-                                         HISTOGRAM_MODE_COUNTS)
-from ricgraph_explorer_utils import (get_message, remove_hierarchical_orgs,
-                                     create_full_htmlpage,
-                                     get_global_dataframe,
-                                     QueryParams, get_html_for_boxedcard)
+                                         sankey_min_height, sankey_max_height)
+from ricgraph_explorer_utils import (remove_hierarchical_orgs,
+                                     get_global_dataframe)
+from ricgraph_explorer_html import create_full_htmlpage
 from ricgraph_explorer_cypher import (find_collab_orgs_matrix,
                                       find_collab_orgs_persons_results)
-from ricgraph_explorer_javascript import (get_html_for_histogram_javascript,
-                                          create_chord_diagram_javascript,
+from ricgraph_explorer_javascript import (create_chord_diagram_javascript,
                                           create_sankey_diagram_javascript)
-
-
-def get_html_for_histogramcard(histogram_list: list,
-                               histogram_width: int = 0,
-                               histogram_mode: str = HISTOGRAM_MODE_COUNTS,
-                               histogram_title: str = ''):
-    """This function creates a histogram using the Observable D3 and Observable Plot framework
-    for data visualization. See https://d3js.org and https://observablehq.com/plot.
-
-    :param histogram_list: A list of histogram data to be plotted in the histogram.
-      Its elements look like [{'name': 'DOI', 'value': 148},
-      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
-      The histogram will be in the order as specified in the list.
-    :param histogram_width: The width of the histogram, in pixels.
-      If 0, then use the space available.
-    :param histogram_mode: The mode of the histogram, either counts
-      (HISTOGRAM_MODE_COUNTS), or percentages (HISTOGRAM_MODE_PERCENTAGES).
-    :param histogram_title: The title of the histogram.
-    :return: HTML to be rendered.
-    """
-    if len(histogram_list) == 0:
-        message = 'Nothing to show, the histogram is empty.'
-        return get_message(message=message)
-
-    histogram_json = dumps(histogram_list)
-
-    # The plot name should be unique, otherwise we get strange side effects.
-    plot_name = 'myplot' + '_' + create_unique_string()
-
-    body = '<div class="w3-container">'
-    body += '<div id="' + plot_name + '"></div>'
-    body += '</div>'
-
-    javascript = get_html_for_histogram_javascript(histogram_json=histogram_json,
-                                                   histogram_width=histogram_width,
-                                                   histogram_mode=histogram_mode,
-                                                   plot_name=plot_name)
-    html = get_html_for_boxedcard(header=histogram_title,
-                                  inner_html=observable_plot + body + javascript)
-    return html
 
 
 # ########################################################################
@@ -184,7 +141,9 @@ def create_chord_diagram(df: DataFrame,
     return observable_d3 + intro_html + javascript + outro_html
 
 
-def create_sankey_diagram(df: DataFrame,
+def create_sankey_diagram(page_params: PageParams,
+                          query_params: QueryParams,
+                          df: DataFrame,
                           tooltip_show_links: bool = False,
                           width: int = 1200,
                           height: int = 0,
@@ -193,6 +152,8 @@ def create_sankey_diagram(df: DataFrame,
     """Create a D3 Sankey diagram from a DataFrame.
     Sankey diagram: https://d3-graph-gallery.com/sankey.html.
 
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
     :param df: the DataFrame (orgs as index/columns).
     :param tooltip_show_links: whether to show the 'drill down links' in
       the tooltip or not.
@@ -214,16 +175,6 @@ def create_sankey_diagram(df: DataFrame,
     links = []
     sources = sorted(df.index.tolist())
     targets = sorted(df.columns.tolist())
-
-    researchresult_category_str = str(df.index.name)
-    if researchresult_category_str == '':
-        researchresult_category = []
-    else:
-        researchresult_category = literal_eval(researchresult_category_str)
-        if len(researchresult_category) == 1 and researchresult_category[0] == '':
-            # If researchresult_category_str is [''], literal_eval() returns [''],
-            # a list of length 1. I want a list of length 0.
-            researchresult_category = []
 
     for org in sources:
         node_id = f"{org}_from"
@@ -300,9 +251,10 @@ def create_sankey_diagram(df: DataFrame,
                   '''
     outro_html = '</div>'
 
-    javascript = create_sankey_diagram_javascript(nodes_json=nodes_json,
+    javascript = create_sankey_diagram_javascript(page_params=page_params,
+                                                  query_params=query_params,
+                                                  nodes_json=nodes_json,
                                                   links_json=links_json,
-                                                  researchresult_category=researchresult_category,
                                                   tooltip_show_links=tooltip_show_links,
                                                   width=width,
                                                   height=height,
@@ -408,7 +360,8 @@ def org_collaborations_persons_results_df(query_params: QueryParams,
 
 
 @error_check
-def org_collaborations_diagram(query_params: QueryParams,
+def org_collaborations_diagram(page_params: PageParams,
+                               query_params: QueryParams,
                                diagram_type: str = 'sankey',
                                filename: str = '',
                                caption: str = 'default_caption',
@@ -436,6 +389,7 @@ def org_collaborations_diagram(query_params: QueryParams,
     It is also not necessary for three_org_collaborations_chord(),
     function since it find collaborations for three organizations.
 
+    :param page_params: parameters related to the page passed in the URL.
     :param query_params: Parameters related to the query passed in the URL.
     :param diagram_type: the type of diagram to create, 'sankey' or 'chord'.
     :param filename: this will the base of the filename, you can use it
@@ -492,7 +446,9 @@ def org_collaborations_diagram(query_params: QueryParams,
             tooltip_show_links = False
         else:
             tooltip_show_links = True
-        body_html = create_sankey_diagram(df=collabs_orgs,
+        body_html = create_sankey_diagram(page_params=page_params,
+                                          query_params=query_params,
+                                          df=collabs_orgs,
                                           tooltip_show_links=tooltip_show_links,
                                           figure_caption=caption,
                                           figure_filename=filename + '.svg')
@@ -620,11 +576,13 @@ def org_collaborations_diagram_qss(start_organizations: str,
     :param generate_full_html: See org_collaborations_diagram().
     :return: See org_collaborations_diagram().
     """
+    page_params = create_empty_page_params()
     query_params = create_empty_query_params()
     query_params['start_orgs'] = start_organizations
     query_params['collab_orgs'] = collab_organizations
     query_params['category_list'] = researchresult_category
-    html = org_collaborations_diagram(query_params=query_params,
+    html = org_collaborations_diagram(page_params=page_params,
+                                      query_params=query_params,
                                       diagram_type=diagram_type,
                                       filename=filename,
                                       caption=caption,

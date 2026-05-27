@@ -55,9 +55,8 @@
 
 from urllib.parse import urlencode
 from math import ceil, floor
-from typing import Tuple
 from neo4j.graph import Node
-from flask import request, url_for
+from flask import url_for
 from ricgraph import (nodes_cache_key_id_create,
                       create_ricgraph_key,
                       create_unique_string,
@@ -71,21 +70,16 @@ from ricgraph import (nodes_cache_key_id_create,
                       PageParams, QueryParams,
                       create_empty_page_params,
                       create_empty_query_params)
-from ricgraph_explorer_cypher import create_researchresult_histogram_cypher
 from ricgraph_explorer_constants import (TABLE_DETAIL_COLUMNS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
                                          MAX_ROWS_TO_EXPORT, TABLE_ID_COLUMNS,
-                                         RICGRAPH_NODEINFO,
-                                         DISCOVERER_MODE_DETAILS,
-                                         button_style,
-                                         boxedcard_button_width)
-from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     get_global_list,
-                                     get_message,
-                                     merge_and_remove_empty,
-                                     get_html_for_yearcard,
-                                     get_html_for_boxedcard)
-from ricgraph_explorer_datavis import get_html_for_histogramcard
+                                         DISCOVERER_MODE_DETAILS)
+from ricgraph_explorer_utils import merge_and_remove_empty
+from ricgraph_explorer_html import (get_html_for_cardstart, get_html_for_cardend,
+                                    get_message,
+                                    compute_histogramcards,
+                                    get_histogramcards,
+                                    get_html_for_yearcard, get_html_for_facetcard)
 from ricgraph_explorer_javascript import (get_regular_table_javascript, get_tabbed_table_javascript,
                                           get_html_for_tableend_javascript)
 
@@ -559,214 +553,6 @@ def get_tabbed_table(nodes_list: list,
     html += '</div>'
     html += '</div>'
 
-    return html
-
-
-def histogram_dict_to_list(histogram: dict,
-                           reverse_sort_on_value: bool = True) -> list:
-    """Convert a histogram in dict format to a list format.
-    The dict should look like:
-    {'DOI': 148, 'PURE_ID_PRESS_MEDIA': 102, 'PURE_ID_RESOUT': 183}.
-    Then the list will look like:
-    having elements like [{'name': 'DOI', 'value': 148},
-    {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102},
-    {'name': 'PURE_ID_RESOUT', 'value': 183}].
-
-    :param histogram: The dict with the histogram.
-    :param reverse_sort_on_value: If True: reverse sort on the 'value' field.
-      If two items have the same value for 'value', the one that is
-      lexicographically first will be first in the resulting list.
-      Otherwise, sort on 'name'.
-    :return: The sorted list.
-    """
-    if reverse_sort_on_value:
-        sorted_list = [
-            {'name': k, 'value': v}
-            for k, v in sorted(histogram.items(), key=lambda kv: (-kv[1], kv[0]))
-        ]
-    else:
-        sorted_list = [
-            {'name': k, 'value': v}
-            for k, v in sorted(histogram.items(), key=lambda kv: kv[0].lower())
-        ]
-    return sorted_list
-
-
-def compute_histogramcards(nodes_list: list = None,
-                           query_params: QueryParams = None,
-                           reverse_sort_on_value: bool = True,
-                           remove_zero_values: bool = True) -> Tuple[list, list, list, list, list]:
-    """Compute histograms for name, category, year, license, and access.
-    This can be done either on the basis of a 'nodes_list', or on
-    a Cypher query, based on query_params['key'].
-    The latter will be much faster, because the graph database will compute
-    the histograms.
-
-    :param nodes_list: The list of nodes the histogram are based on.
-    :param query_params: parameters related to the query passed in the URL.
-    :param reverse_sort_on_value: If True: reverse sort on the 'value' field.
-      If two items have the same value for 'value', the one that is
-      lexicographically first will be first in the resulting list.
-      Otherwise, sort on 'name'.
-    :param remove_zero_values: If True, remove values that are 0 from
-      the resulting histogram list.
-    :return: Five histograms, on 'name', 'category', 'year',
-      'license', and 'access'.
-      Each histogram elements looks like [{'name': 'DOI', 'value': 148},
-      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
-    """
-    if nodes_list is None:
-        nodes_list = []
-    if query_params is None:
-        query_params = create_empty_query_params()
-
-    name_histogram = {}
-    category_histogram = {}
-    year_histogram = {}
-    license_histogram = {}
-    access_histogram = {}
-    if len(nodes_list) > 0:
-        # Use a dict for intermediate storage because it is fast.
-        researchresult_category_active = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
-                                                         item='researchresult_category_active')
-        for node in nodes_list:
-            name_histogram[node['name']] = name_histogram.get(node['name'], 0) + 1
-            category_histogram[node['category']] = category_histogram.get(node['category'], 0) + 1
-            if node['category'] in researchresult_category_active:
-                # Only for research results.
-                year_histogram[node['year']] = year_histogram.get(node['year'], 0) + 1
-                license_histogram[node['license']] = license_histogram.get(node['license'], 0) + 1
-                access_histogram[node['access']] = access_histogram.get(node['access'], 0) + 1
-    else:
-        (name_histogram, category_histogram, year_histogram,
-         license_histogram, access_histogram) = \
-            create_researchresult_histogram_cypher(query_params=query_params)
-
-    name_histogram_list = histogram_dict_to_list(name_histogram,
-                                                 reverse_sort_on_value=reverse_sort_on_value)
-    category_histogram_list = histogram_dict_to_list(category_histogram,
-                                                     reverse_sort_on_value=reverse_sort_on_value)
-    year_histogram_list = histogram_dict_to_list(year_histogram,
-                                                 reverse_sort_on_value=reverse_sort_on_value)
-    license_histogram_list = histogram_dict_to_list(license_histogram,
-                                                    reverse_sort_on_value=reverse_sort_on_value)
-    access_histogram_list = histogram_dict_to_list(access_histogram,
-                                                   reverse_sort_on_value=reverse_sort_on_value)
-    if remove_zero_values:
-        name_histogram_list = [x for x in name_histogram_list if x.get('value') != 0]
-        category_histogram_list = [x for x in category_histogram_list if x.get('value') != 0]
-        year_histogram_list = [x for x in year_histogram_list if x.get('value') != 0]
-        license_histogram_list = [x for x in license_histogram_list if x.get('value') != 0]
-        access_histogram_list = [x for x in access_histogram_list if x.get('value') != 0]
-
-    return (name_histogram_list, category_histogram_list,
-            year_histogram_list, license_histogram_list, access_histogram_list)
-
-
-def get_histogramcards(name_histogram: list,
-                       category_histogram: list,
-                       year_histogram: list,
-                       license_histogram: list,
-                       access_histogram: list) -> str:
-    """Get the histograms for name, category, year, license, and access.
-    Each histogram elements looks like [{'name': 'DOI', 'value': 148},
-    {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
-
-    :param name_histogram: Histogram on 'name', or [] when there is none.
-    :param category_histogram: Histogram on 'access', or [] when there is none.
-    :param year_histogram: Histogram on 'year', or [] when there is none.
-    :param license_histogram: Histogram on 'license', or [] when there is none.
-    :param access_histogram: Histogram on 'access', or [] when there is none.
-    :return: HTML to be rendered.
-    """
-    histograms = [
-        ('name', name_histogram),
-        ('category', category_histogram),
-        ('year', year_histogram),
-        ('license', license_histogram),
-        ('access', access_histogram),
-    ]
-    html = ''
-    for title, histogram in histograms:
-        if len(histogram) > 0:
-            html += get_html_for_histogramcard(histogram_list=histogram,
-                                               histogram_title='Histogram on "' + title + '"')
-    return html
-
-
-def get_html_for_facetcard(histogram: list,
-                           url_field_name: str,
-                           header:str) -> str:
-    """Do facet navigation in Ricgraph.
-    The facets will be constructed based on 'url_field_name'.
-
-    :param histogram: The histogram to construct the facets from.
-      Its elements look like [{'name': 'DOI', 'value': 148},
-      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
-    :param url_field_name: The facet that is built will produce url_field_name
-      in the URL.
-    :param header: The header of the facet.
-    :return: HTML to be rendered, or '' if there is no facet.
-    """
-    if len(histogram) == 0:
-        # There is nothing to show.
-        return ''
-
-    hidden_fields = ''
-
-    # Get all current URL parameters using Flask's request. Note that
-    # Flask’s request.args.to_dict(flat=False) always returns values as lists,
-    # which we need. Assume the URL has ...&cat=abc&cat=def&..., then, with
-    # 'flat=True', only the last 'cat' is returned.
-    endpoint = str(request.endpoint)
-    current_params = request.args.to_dict(flat=False)
-
-    # Put all query parameters into hidden fields, except url_field_name,
-    # because it will be the result of the form below.
-    for key, values in current_params.items():
-        if key == url_field_name:
-            continue
-        # If it appears multiple times, emit each value.
-        for val in values:
-            hidden_fields += '<input type="hidden" name="'
-            hidden_fields += key + '" value="' + val + '">'
-
-    additional_hidden_field = ''
-    form = '<div class="w3-container" style="font-size: 90%;">'
-    form += '<form method="get" action="' + url_for(endpoint=endpoint) + '">'
-
-    form += hidden_fields
-
-    form += '<fieldset style="border:none; margin:0px; padding:0px;">'
-    # For screen readers.
-    form += '<legend style="display:none">' + header + '</legend>'
-    for item in histogram:
-        label_id = create_unique_string(length=12)
-        label = item['name'] + '&nbsp;<i>(' + str(item['value']) + ')</i>'
-        form += '<input id="' + label_id + '" class="w3-check" '
-        form += 'type="checkbox" name="' + url_field_name + '" value="'
-        form += item['name'] + '" checked'
-        if len(histogram) == 1:
-            form += ' disabled'
-            # If a checkbox is disabled, it is not added to the URL, so
-            # we need to add it explicitly by using a hidden field.
-            additional_hidden_field += '<input type="hidden" name="' + url_field_name
-            additional_hidden_field += '" value="' + str(item['name']) + '">'
-        form += '>'
-        form += '<label for="' + label_id + '">&nbsp;' + label + '</label><br/>'
-    form += '</fieldset>'
-
-    if len(histogram) == 1:
-        form += additional_hidden_field
-
-    form += '</div>'        # from '<div class="w3-container">'.
-
-    button = '<input class="w3-input' + button_style + '"'
-    button += boxedcard_button_width + '" type=submit value="refresh">'
-    button += '</form>'
-    html = get_html_for_boxedcard(header=header,
-                                  inner_html=form,
-                                  outer_html=button)
     return html
 
 

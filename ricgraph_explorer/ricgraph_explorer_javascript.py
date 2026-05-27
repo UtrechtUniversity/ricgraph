@@ -43,14 +43,15 @@
 # ########################################################################
 
 
-from urllib.parse import urlencode
 from flask import url_for
-from ricgraph_explorer_constants import (font_family, sankey_margin,
+from ricgraph import PageParams, QueryParams
+from ricgraph_explorer_constants import (RICGRAPH_SYSTEMINFO,
+                                         font_family, sankey_margin,
                                          chord_fontsize, chord_space_for_labels,
                                          chord_label_linespacing,
                                          diagram_tooltip_link_button_style,
-                                         HISTOGRAM_MODE_ALL,
                                          HISTOGRAM_MODE_COUNTS)
+from ricgraph_explorer_utils import get_global_list, merge_and_remove_empty
 
 
 def get_spinner_javascript() -> str:
@@ -236,8 +237,8 @@ def get_html_for_histogram_javascript(histogram_json: str,
     :param plot_name: The name of the plot.
     :return: HTML to be rendered.
     """
-    # Cannot use get_global_list() because then a circular import will be created.
-    if histogram_mode not in HISTOGRAM_MODE_ALL:
+    if histogram_mode not in get_global_list(ricgraph_info=RICGRAPH_SYSTEMINFO,
+                                             item='histogram_mode_all'):
         print('get_html_for_histogram_java(): Error: unknown histogram mode "'
               + histogram_mode + '". Exiting...')
         return ''
@@ -613,9 +614,10 @@ def create_chord_diagram_javascript(matrix_json: str,
 
 
 # The following code was inspired heavily by perplexity.ai.
-def create_sankey_diagram_javascript(nodes_json: str,
+def create_sankey_diagram_javascript(page_params: PageParams,
+                                     query_params: QueryParams,
+                                     nodes_json: str,
                                      links_json: str,
-                                     researchresult_category: list,
                                      tooltip_show_links: bool,
                                      width: int,
                                      height: int,
@@ -624,13 +626,14 @@ def create_sankey_diagram_javascript(nodes_json: str,
     """The JavaScript code to create a D3 Sankey diagram from a DataFrame.
     Sankey diagram: https://d3-graph-gallery.com/sankey.html.
 
-    :param nodes_json: JSON with nodes.
-    :param links_json: JSON with links.
-    :param researchresult_category: if specified, only return collaborations
+    :param page_params: parameters related to the page passed in the URL.
+    :param query_params: parameters related to the query passed in the URL.
+      From this, we use 'category_list': if specified, only return collaborations
       for this research result category. If not, return all collaborations,
       regardless of the research result category.
-      The value can be both a string containing one category, or
-      a list of categories.
+      Similary, we pass 'access', 'license', 'year_first', and 'year_last'.
+    :param nodes_json: JSON with nodes.
+    :param links_json: JSON with links.
     :param tooltip_show_links: whether to show the 'drill down links' in
       the tooltip or not.
     :param width: the width of the resulting svg image.
@@ -640,7 +643,6 @@ def create_sankey_diagram_javascript(nodes_json: str,
         in case you choose to use the 'Download this image' button.
     :return: HTML to be rendered, or empty ''.
     """
-
     # Note about the absence of an outline around lines in a Sankey diagram.
     # There is a difference between D3 Chord diagrams and D3 Sankey diagrams,
     # in that it is easy to have a small outline around a Chord line, but
@@ -661,12 +663,11 @@ def create_sankey_diagram_javascript(nodes_json: str,
     #
     # An alternative would be to use gradient lines, but since we often have
     # many small lines, this wouldn't make much of a difference.
-    if len(researchresult_category) == 0:
-        print('create_sankey_diagram_javascript(): Error: Research result category is empty. Exiting...')
-        return ''
     if tooltip_show_links:
-        base_url = url_for(endpoint='collabsresultpage.collabsresultpage') + '?'
-        base_url += urlencode(query={'category_list': researchresult_category}, doseq=True)
+        # 'collab_mode' will be set in the JavaScript below.
+        base_url = url_for(endpoint='collabsresultpage.collabsresultpage',
+                           **merge_and_remove_empty(page_params=page_params | {'collab_mode': ''},
+                                                    query_params=query_params))
     else:
         base_url = ''
 

@@ -44,7 +44,7 @@ from flask import Blueprint, url_for
 from ricgraph import (check_valid_year,
                       get_year_range_text,
                       PageParams, QueryParams,
-                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      ORGANIZATION_CATEGORY_ORGANIZATION,
                       ACCESS_OPEN)
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          html_body_start, html_body_end,
@@ -53,23 +53,20 @@ from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          button_style,
                                          form_button_on_one_line_flexspace_style,
                                          form_button_on_one_line_width,
-                                         button_width,
                                          HISTOGRAM_MODE_COUNTS,
                                          HISTOGRAM_MODE_PERCENTAGES,
                                          SEARCH_MODE_VALUE)
-from ricgraph_explorer_utils import (get_html_for_cardstart, get_html_for_cardend,
-                                     create_html_form,
-                                     get_page_title,
-                                     get_message,
-                                     get_html_for_yearcard,
+from ricgraph_explorer_utils import (get_url_query_params, get_url_page_params,
                                      get_global_list,
-                                     get_page_footer,
-                                     get_url_query_params, get_url_page_params,
                                      merge_and_remove_empty)
-from ricgraph_explorer_table import (compute_histogramcards,
-                                     get_histogramcards,
-                                     get_html_for_facetcard)
-from ricgraph_explorer_datavis import get_html_for_histogramcard
+from ricgraph_explorer_html import (get_html_for_cardstart, get_html_for_cardend,
+                                    create_html_form,
+                                    get_message,
+                                    get_you_searched_for_card, get_page_title,
+                                    get_page_footer,
+                                    compute_histogramcards,
+                                    get_histogramcards, get_html_for_histogramcard,
+                                    get_html_for_yearcard, get_html_for_facetcard)
 
 
 _oslpage_bp = Blueprint(name='oslpage', import_name=__name__)
@@ -97,14 +94,14 @@ def oslpage() -> str:
     html += create_html_form(destination='searchpage',
                              button_text='get an open science profile for a (sub-)organization',
                              hidden_fields={'search_mode': SEARCH_MODE_VALUE,
-                                            'category': ORGANIZATION_CATEGORY_ORGANISATION,
+                                            'category': ORGANIZATION_CATEGORY_ORGANIZATION,
                                             'origin': ORIGIN_OPEN_SCIENCE_PROFILE_BUTTON
                                            })
     html += '<p/>'
     html += create_html_form(destination='searchpage',
                              button_text='get an open science dashboard for a (sub-)organization',
                              hidden_fields={'search_mode': SEARCH_MODE_VALUE,
-                                            'category': ORGANIZATION_CATEGORY_ORGANISATION,
+                                            'category': ORGANIZATION_CATEGORY_ORGANIZATION,
                                             'origin': ORIGIN_OPEN_SCIENCE_DASHBOARD_BUTTON
                                            })
     html += get_html_for_cardend()
@@ -153,6 +150,8 @@ def osprofileresultpage() -> str:
                                         researchresult_category_reporting_material + \
                                         researchresult_category_engagement_material
     html = html_body_start
+    html += get_you_searched_for_card(page_params=page_params,
+                                      query_params=query_params)
     if (message := check_valid_year(year_first=query_params['year_first'],
                                     year_last=query_params['year_last'])) != '':
         html += get_message(message=message)
@@ -296,6 +295,8 @@ def osdashboardresultpage() -> str:
     query_params['max_nr_items'] = 0
 
     html = html_body_start
+    html += get_you_searched_for_card(page_params=page_params,
+                                      query_params=query_params)
     if (message := check_valid_year(year_first=query_params['year_first'],
                                     year_last=query_params['year_last'])) != '':
         html += get_message(message=message)
@@ -332,7 +333,12 @@ def osdashboardresultpage() -> str:
     html += '</div>'
     html += '<div class="w3-col s12 m9">'
     html += get_html_for_cardstart()
-    histogram_title = 'Open science dashboard for "' + query_params['value'] + '"'
+    histogram_title = 'Open science dashboard ('
+    histogram_title += 'conforming to the selections at the left) '
+    histogram_title += get_year_range_text(year_first=query_params['year_first'],
+                                           year_last=query_params['year_last'])
+    histogram_title += ' for "' + query_params['value'] + '". '
+    histogram_title += 'You can modify the selections at the bottom of this page.'
     html += get_html_for_histogramcard(histogram_list=category_histogram,
                                        histogram_mode=page_params['histogram_mode'],
                                        histogram_title=histogram_title)
@@ -368,35 +374,38 @@ def osdashboardresultpage() -> str:
     html += '</div>'
     html += '</div>'
 
+    url_parameters = merge_and_remove_empty(page_params=page_params,
+                                            query_params=query_params)
     html += get_html_for_cardstart()
     html += '<h2>Other exploration options for this organization</h2>'
+    html += 'Finding collaborations may take (very) long depending on the '
+    html += 'number of items involved. It may take anything between 5 seconds and 5 minutes. '
+    html += 'If there appear to be a huge amount of collaborations (as in > 20000), your '
+    html += 'browser may become unresponsive due to the huge number of lines that have to be drawn. '
+    html += 'All filters will be propagated.'
+    html += create_html_form(destination='collabsresultpage.collabsresultpage',
+                             button_text='explore collaborations for this organization, may take long',
+                             hidden_fields=url_parameters |
+                                           {'histogram_mode': '',
+                                            'collab_mode': 'return_collab_sankey',
+                                            'start_orgs': query_params['value']
+                                           })
+    html += '<br/>'
     html += 'Choosing to get an open science profile for this (sub-)organization '
     html += 'will reset any filter on "category". '
     html += 'Other filters will be propagated.'
-    html += '<p/>'
-    url_osprofile = url_for(endpoint='osprofileresultpage.osprofileresultpage',
-                            **merge_and_remove_empty(page_params=page_params | {'histogram_mode': ''},
-                                                     query_params=query_params) | {'category_list': []})
-    html += '<a href="' + url_osprofile + '" class="w3-bar-item'
-    html += button_style + '"' + button_width
-    html += '>get the open science profile for this (sub-)organization' + '</a>'
-
-    # The following can be enabled as soon as:
-    # 1. the collabs pages shows the selection, and works with that selection.
-    #    (including year, license, access involved).
-    # html += '<p/>'
-    # html += '<br/>'
-    # url_collabs = url_for(endpoint='collabspage.collabspage',
-    #                       **merge_and_remove_empty(page_params=page_params,
-    #                                                query_params=query_params)| {'start_orgs': query_params['value']})
-    # html += '<a href="' + url_collabs + '" class="w3-bar-item'
-    # html += button_style + '"' + button_width
-    # html += '>explore collaborations for this (sub-)organization' + '</a>'
+    html += create_html_form(destination='osprofileresultpage.osprofileresultpage',
+                             button_text='get an open science profile for this organization',
+                             hidden_fields=url_parameters |
+                                           {'histogram_mode': '',
+                                            'category_list': []
+                                           })
     html += get_html_for_cardend()
 
     html += get_html_for_cardstart()
     html += '<h2>What is an open science dashboard in Ricgraph?</h2>'
-    html += 'Ricgraph allows to explore research results for a (sub-)organization. '
+    html += 'The open science dashboard in Ricgraph '
+    html += 'allows to explore research results for a (sub-)organization. '
     html += 'Starting with a (sub-)organization, you can filter its '
     html += 'research results based on "category", "year", "license", '
     html += 'and "access" values. '
@@ -422,15 +431,13 @@ def create_researchresult_buttons(category_histogram: list,
     :return: HTML for the buttons to get more information about the items
       in the histogram.
     """
-    page_params['view_mode'] = 'view_regular_table_organization_addinfo'
-    buttons = '</p><div ' + form_button_on_one_line_flexspace_style + '>'
-
     # Use a dict for efficiency.
     histogram_by_name = {
         item['name']: item['value']
         for item in category_histogram
     }
 
+    buttons = '</p><div ' + form_button_on_one_line_flexspace_style + '>'
     for group, name in zip(material_group, material_name):
         value = sum(histogram_by_name.get(cat, 0) for cat in group)
         if value == 0:
@@ -438,7 +445,8 @@ def create_researchresult_buttons(category_histogram: list,
             continue
 
         url = url_for(endpoint='resultspage',
-                      **merge_and_remove_empty(page_params=page_params | {'histogram_mode': ''},
+                      **merge_and_remove_empty(page_params=page_params | {'histogram_mode': '',
+                                                                          'view_mode': 'view_regular_table_organization_addinfo'},
                                                query_params=query_params) | {'category_list': group})
 
         buttons += '<a href="' + url + '" class="w3-bar-item'

@@ -52,9 +52,9 @@ from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
                       get_personroot_node, get_all_personroot_nodes,
                       check_valid_year,
                       PERSON_CATEGORY_PERSON,
-                      ORGANIZATION_CATEGORY_ORGANISATION,
+                      ORGANIZATION_CATEGORY_ORGANIZATION,
                       COMPETENCE_CATEGORY_COMPETENCE,
-                      create_empty_query_params)
+                      create_empty_page_params, create_empty_query_params)
 from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          RICGRAPH_HARVESTINFO,
                                          RICGRAPH_NODEINFO,
@@ -213,7 +213,7 @@ def api_person_share_researchresults(key: str = '',
     connected_persons = \
         find_person_share_resouts_cypher(parent_node=nodes[0],
                                          category_dontwant_list=[PERSON_CATEGORY_PERSON,
-                                                                 ORGANIZATION_CATEGORY_ORGANISATION,
+                                                                 ORGANIZATION_CATEGORY_ORGANIZATION,
                                                                  COMPETENCE_CATEGORY_COMPETENCE],
                                          max_nr_items=max_items)
     if len(connected_persons) == 0:
@@ -417,7 +417,7 @@ def api_search_organization(value: str = '',
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
-                                          category_restriction=ORGANIZATION_CATEGORY_ORGANISATION,
+                                          category_restriction=ORGANIZATION_CATEGORY_ORGANIZATION,
                                           max_nr_items=max_nr_items)
     return response, status
 
@@ -581,11 +581,13 @@ def api_explore_collaborations(start_organization: str = '',
         response, status = create_http_response(message='You have not specified a start organization',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
+    page_params = create_empty_page_params()
     query_params = create_empty_query_params()
     query_params['start_orgs'] = start_organization
     query_params['collab_orgs'] = collaborating_organization
     query_params['category_list'] = researchresult_category
-    result_html = org_collaborations_diagram(query_params=query_params,
+    result_html = org_collaborations_diagram(page_params=page_params,
+                                             query_params=query_params,
                                              diagram_type='sankey',
                                              caption='',
                                              generate_full_html=True)
