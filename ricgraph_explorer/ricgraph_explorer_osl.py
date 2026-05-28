@@ -227,8 +227,8 @@ def osprofileresultpage() -> str:
     html += get_page_title(title='Open science profile for "' + query_params['value'] + '"')
     html += '<div class="w3-row-padding w3-stretch">'
     html += '<div class="w3-col s12 m3">'
-    html += get_html_for_yearcard(header='Filter on "year"',
-                                  for_year_list=year_histogram)
+    html += get_html_for_yearcard(for_year_histogram=year_histogram,
+                                  header='Filter on "year"')
     html += get_html_for_facetcard(histogram=license_histogram,
                                    url_field_name='license',
                                    header='Filter on "license"')
@@ -356,8 +356,8 @@ def osdashboardresultpage() -> str:
                                             header='Filter on "category"')
     html += '</div>'
     html += '<div class="w3-col s12 m3">'
-    html += get_html_for_yearcard(header='Filter on "year"',
-                                  for_year_list=year_histogram)
+    html += get_html_for_yearcard(for_year_histogram=year_histogram,
+                                  header='Filter on "year"')
     html += '</div>'
     html += '<div class="w3-col s12 m3">'
     html += get_html_for_facetcard(histogram=license_histogram,

@@ -290,8 +290,8 @@ def histogram_dict_to_list(histogram: dict,
     """Convert a histogram in dict format to a list format.
     The dict should look like:
     {'DOI': 148, 'PURE_ID_PRESS_MEDIA': 102, 'PURE_ID_RESOUT': 183}.
-    Then the list will look like:
-    having elements like [{'name': 'DOI', 'value': 148},
+    Then the resulting list will look like:
+    [{'name': 'DOI', 'value': 148},
     {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102},
     {'name': 'PURE_ID_RESOUT', 'value': 183}].
 
@@ -335,8 +335,10 @@ def compute_histogramcards(nodes_list: list = None,
       the resulting histogram list.
     :return: Five histograms, on 'name', 'category', 'year',
       'license', and 'access'.
-      Each histogram elements looks like [{'name': 'DOI', 'value': 148},
-      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
+      Each histogram will look like
+      [{'name': 'DOI', 'value': 148},
+      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102},
+      [etc.]].
     """
     if nodes_list is None:
         nodes_list = []
@@ -392,8 +394,10 @@ def get_histogramcards(name_histogram: list,
                        license_histogram: list,
                        access_histogram: list) -> str:
     """Get the histograms for name, category, year, license, and access.
-    Each histogram elements looks like [{'name': 'DOI', 'value': 148},
-    {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
+    Each histogram needs to look like
+    [{'name': 'DOI', 'value': 148},
+    {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102},
+    [etc.]].
 
     :param name_histogram: Histogram on 'name', or [] when there is none.
     :param category_histogram: Histogram on 'access', or [] when there is none.
@@ -425,8 +429,10 @@ def get_html_for_histogramcard(histogram_list: list,
     for data visualization. See https://d3js.org and https://observablehq.com/plot.
 
     :param histogram_list: A list of histogram data to be plotted in the histogram.
-      Its elements look like [{'name': 'DOI', 'value': 148},
-      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
+      Its elements need to look like
+      [{'name': 'DOI', 'value': 148},
+      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102},
+      [etc.]].
       The histogram will be in the order as specified in the list.
     :param histogram_width: The width of the histogram, in pixels.
       If 0, then use the space available.
@@ -465,8 +471,10 @@ def get_html_for_facetcard(histogram: list,
     The facets will be constructed based on 'url_field_name'.
 
     :param histogram: The histogram to construct the facets from.
-      Its elements look like [{'name': 'DOI', 'value': 148},
-      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102}, [etc] ].
+      Its elements need to look like
+      [{'name': 'DOI', 'value': 148},
+      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102},
+      [etc.]].
     :param url_field_name: The facet that is built will produce url_field_name
       in the URL.
     :param header: The header of the facet.
@@ -537,31 +545,36 @@ def get_html_for_facetcard(histogram: list,
     return html
 
 
-def get_html_for_yearcard(header: str = '',
-                          button_text: str = 'refresh',
-                          for_year_list: list = None) -> str:
+def get_html_for_yearcard(for_year_histogram: list = None,
+                          header: str = '',
+                          button_text: str = 'refresh') -> str:
     """Get the HTML required for a card that can be used to filter on
     year.
 
+    :param for_year_histogram: If specified, the years in the list are
+      shown in the selection boxes, otherwise the active years
+      in Ricgraph. Its elements need to look like
+      [{'name': 'DOI', 'value': 148},
+      {'name': 'PURE_ID_PRESS_MEDIA', 'value': 102},
+      [etc.]].
     :param header: The header to show before the input fields.
     :param button_text: The text to show on the 'submit' button.
-    :param for_year_list: If specified, the years in the list are
-      shown in the selection boxes, otherwise the active years
-      in Ricgraph.
     :return: HTML to be rendered.
     """
     if header == '':
         header = 'You can choose a different time period'
 
-    if for_year_list is None:
-        for_year_list = []
+    if for_year_histogram is None:
+        for_year_histogram = []
 
-    if len(for_year_list) == 0:
+    if len(for_year_histogram) == 0:
         year_active_datalist = get_global_str(ricgraph_info=RICGRAPH_NODEINFO_INTERNAL,
                                               item='year_active_datalist')
     else:
+        year_histogram = for_year_histogram.copy()
+        year_histogram.sort(key=lambda x: x['name'].lower())
         year_active_datalist = '<datalist id="year_active_datalist">'
-        for item in for_year_list:
+        for item in year_histogram:
             year_active_datalist += '<option value="' + item['name'] + '">'
         year_active_datalist += '</datalist>'
 

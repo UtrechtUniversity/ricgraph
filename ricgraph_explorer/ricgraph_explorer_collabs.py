@@ -340,7 +340,7 @@ def collabsresultpage() -> str:
                                     item='year_active'):
             year_histogram.append({'name': item,
                                    'value': 0})
-        year_histogram.sort(key=lambda d: d['name'].lower())
+        year_histogram.sort(key=lambda x: x['name'].lower())
     if len(license_histogram) == 0:
         if len(query_params['license']) == 0:
             items = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
@@ -350,7 +350,7 @@ def collabsresultpage() -> str:
         for item in items:
             license_histogram.append({'name': item,
                                       'value': 0})
-        license_histogram.sort(key=lambda d: d['name'].lower())
+        license_histogram.sort(key=lambda x: x['name'].lower())
     if len(access_histogram) == 0:
         if len(query_params['access']) == 0:
             items = get_global_list(ricgraph_info=RICGRAPH_NODEINFO,
@@ -360,7 +360,7 @@ def collabsresultpage() -> str:
         for item in items:
             access_histogram.append({'name': item,
                                      'value': 0})
-        access_histogram.sort(key=lambda d: d['name'].lower())
+        access_histogram.sort(key=lambda x: x['name'].lower())
 
     # Create a category_histogram based on what is in
     # query_params['category_list'], because it may be different from what
@@ -371,7 +371,7 @@ def collabsresultpage() -> str:
     for item in query_params['category_list']:
         category_histogram.append({'name': item,
                                    'value': 0})
-    category_histogram.sort(key=lambda d: d['name'].lower())
+    category_histogram.sort(key=lambda x: x['name'].lower())
     html += '<div class="w3-row-padding w3-stretch">'
     html += '<div class="w3-col s12 m3">'
     html += get_html_for_facetcard(histogram=category_histogram,
@@ -380,8 +380,8 @@ def collabsresultpage() -> str:
                                    show_counts=False)
     html += '</div>'
     html += '<div class="w3-col s12 m3">'
-    html += get_html_for_yearcard(header='Filter on "year"',
-                                  for_year_list=year_histogram)
+    html += get_html_for_yearcard(for_year_histogram=year_histogram,
+                                  header='Filter on "year"')
     html += '</div>'
     html += '<div class="w3-col s12 m3">'
     html += get_html_for_facetcard(histogram=license_histogram,

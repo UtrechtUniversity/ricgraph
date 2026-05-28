@@ -398,7 +398,7 @@ def get_faceted_table(parent_node: Node,
     # Divide space between panels and table.
     html = '<div class="w3-row-padding w3-stretch">'
     html += '<div class="w3-col s12 m3">'
-    html += get_html_for_yearcard()
+    html += get_html_for_yearcard(for_year_histogram=year_histogram)
     html += get_html_for_facetcard(histogram=name_histogram,
                                    url_field_name='name_list',
                                    header='Filter on "name"')
@@ -480,16 +480,6 @@ def get_tabbed_table(nodes_list: list,
     else:
         histogram = category_histogram.copy()
 
-    if len(histogram) == 1:
-        # Note: len(histogram) cannot be 0, that has been caught above.
-        # If we have only one thing to show tabs on, we do a regular table.
-        html = get_regular_table(nodes_list=nodes_list,
-                                 page_params=page_params,
-                                 query_params=query_params,
-                                 table_header=table_header,
-                                 table_columns=table_columns)
-        return html
-
     first_iteration = True
     tab_names_html = '<div class="w3-bar uu-yellow">'
     for item in histogram:
@@ -536,7 +526,7 @@ def get_tabbed_table(nodes_list: list,
     html = '<div class="w3-row-padding w3-stretch" >'
     html += '<div class="w3-col s12 m3">'
     if len(year_histogram) > 0:
-        html += get_html_for_yearcard()
+        html += get_html_for_yearcard(for_year_histogram=year_histogram)
     html += get_histogramcards(name_histogram=name_histogram,
                                category_histogram=category_histogram,
                                year_histogram=year_histogram,
