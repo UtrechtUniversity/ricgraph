@@ -31,10 +31,10 @@ so you can use Ricgraph to test your own ideas or to create your own application
 
 Ricgraph showcases:
 
-* [Collaborations between (sub-)organizations with 
+* [Explore collaborations between (sub-)organizations with 
   Ricgraph](collaborations-with-ricgraph.md).
-* [Open science with Ricgraph](open-science-with-ricgraph.md).
-* [Enhancing systems with Ricgraph](enhancing-with-ricgraph.md).
+* [Explore Open science with Ricgraph](open-science-with-ricgraph.md).
+* [Enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
 * [Various other use cases](#use-cases-for-ricgraph).
 
 
@@ -122,7 +122,7 @@ The items surrounded by the red line are the solution to this use case.
 * [You can explore collaborations between (sub-)organizations with
   Ricgraph](collaborations-with-ricgraph.md).
 * [You can explore open science with Ricgraph](open-science-with-ricgraph.md).
-* [You can enhance systems with Ricgraph](enhancing-with-ricgraph.md).
+* [You can enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
 * Ricgraph can store many types of items in a single graph.
 * Ricgraph harvests multiple source systems into a single graph.
 * Ricgraph Explorer is the exploration tool for Ricgraph.
@@ -130,7 +130,7 @@ The items surrounded by the red line are the solution to this use case.
 * You can extend Ricgraph.
 
 ## Next steps
-Read about [exploring collaborations between (sub-)organizations with
+Read about [explore collaborations between (sub-)organizations with
 Ricgraph](collaborations-with-ricgraph.md).
 Go to the [contact page](contact.md).
 

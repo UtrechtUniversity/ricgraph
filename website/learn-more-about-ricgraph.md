@@ -16,8 +16,8 @@ You can also:
 
 * [explore collaborations between (sub-)organizations with
   Ricgraph](collaborations-with-ricgraph.md).
-* [explore open science with Ricgraph](open-science-with-ricgraph.md).
-* [enhance systems with Ricgraph](enhancing-with-ricgraph.md).
+* [explore the open science landscape with Ricgraph](open-science-with-ricgraph.md).
+* [enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
 
 Also, more elaborate information can be found using Ricgraph and
 [Ricgraph Explorer](https://docs.ricgraph.eu/docs/ricgraph_explorer.html#ricgraph-explorer),

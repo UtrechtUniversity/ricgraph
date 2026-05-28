@@ -79,5 +79,6 @@ Or both: you can explore how the access value of research results that
 lie at the basis of the collaborations varies over the years.
 
 ## Next steps
-Read about [Open science with Ricgraph](open-science-with-ricgraph.md).
+Read about [Explore the open science landscape with 
+Ricgraph](open-science-with-ricgraph.md).
 Go to the [contact page](contact.md).
