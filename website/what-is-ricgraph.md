@@ -14,8 +14,28 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-Throughout this documentation, we illustrate how Ricgraph works by applying
-it to the application area research information.
+## Application areas
+
+There are many application areas for Ricgraph. It can be used
+either as a standalone tool,
+or as a component that provides a graph based data structure with
+a number of handy tools.
+Ricgraph has been developed for the application area 
+[research information](#research-information),
+and it can be used for other application areas that require
+relations between items from various source systems.
+
+The nice thing
+about Ricgraph is that anyone with Python knowledge can easily extend it,
+so you can use Ricgraph to test your own ideas or to create your own applications.
+
+Ricgraph showcases:
+
+* [Collaborations between (sub-)organizations with 
+  Ricgraph](collaborations-with-ricgraph.md).
+* [Open science with Ricgraph](open-science-with-ricgraph.md).
+* [Enhancing systems with Ricgraph](enhancing-with-ricgraph.md).
+* [Various other use cases](#use-cases-for-ricgraph).
 
 
 ## Ricgraph videos
@@ -46,11 +66,11 @@ extensive one (also including the use cases).
 </table>
 
 
-## Motivation
+## Research information
 Ricgraph is software that is about
 relations between items. These items can be collected from various source 
-systems and from multiple organizations. We
-explain how Ricgraph works by applying it to the application area 
+systems and from multiple organizations. Throughout this website,
+we explain how Ricgraph works by applying it to the application area 
 *research information*. We show the insights that can be
 obtained by combining information from various source systems, 
 insight arising from new relations that are not present
@@ -62,7 +82,7 @@ collaborations, their skills, projects in which they have
 participated, as well as the relations between these entities.
 Examples of *research results* are publications, data sets, and software.
 
-These following sections show three use cases that
+These following section shows three use cases that
 use different types of information (called *items*):
 researchers, skills, publications,
 etc. Most often, these types of information are not stored in 
@@ -70,10 +90,7 @@ one system, so the use cases may be difficult or
 time-consuming to answer. However, by using Ricgraph, these 
 use cases (and many others) are easy to answer.
 
-Although the following text illustrates Ricgraph in the application area 
-research information, the principle “relations
-between items from various source systems” is general, 
-so Ricgraph can be used in other application areas.
+## Use cases for Ricgraph
 
 ### Use case for a journalist
 As a journalist, I want to find researchers with a certain skill S and their publications,
@@ -102,19 +119,19 @@ The items surrounded by the red line are the solution to this use case.
 
 ## Main contributions of Ricgraph
 
+* [You can explore collaborations between (sub-)organizations with
+  Ricgraph](collaborations-with-ricgraph.md).
+* [You can explore open science with Ricgraph](open-science-with-ricgraph.md).
+* [You can enhance systems with Ricgraph](enhancing-with-ricgraph.md).
 * Ricgraph can store many types of items in a single graph.
 * Ricgraph harvests multiple source systems into a single graph.
 * Ricgraph Explorer is the exploration tool for Ricgraph.
 * Ricgraph facilitates reasoning about items because it infers new relations between items.
-* Ricgraph can be tailored for an application area.
+* You can extend Ricgraph.
 
 ## Next steps
-You might want to 
-[use Ricgraph](pilot-project-open-ricgraph-demo-server.md),
-or continue reading at 
-[Ricgraph news](ricgraph-news.md),
-[Learn more about Ricgraph](learn-more-about-ricgraph.md), 
-[Read more about Ricgraph](read-more-about-ricgraph.md), 
-or [Get Ricgraph](get-ricgraph.md).
+Read about [exploring collaborations between (sub-)organizations with
+Ricgraph](collaborations-with-ricgraph.md).
+Go to the [contact page](contact.md).
 
 <img src="images/ricgraph-sticker-1000x688.png" alt="Ricgraph sticker." width="35%">

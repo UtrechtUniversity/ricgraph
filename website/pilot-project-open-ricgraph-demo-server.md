@@ -48,8 +48,8 @@ This project consists of three parts:
 * Pilot A: Participating organizations can enrich Pure data using Ricgraph 
   and [BackToPure](https://github.com/UtrechtUniversity/backtopure). 
   BackToPure can insert (enrich) items from an organization 
-  that are absent from the Pure of that organization but are present in 
-  another source, back into the Pure of that organization.
+  that are absent from the Pure system of that organization but are present in 
+  another source, back into the Pure system of that organization.
 * Pilot B: Participating organizations can explore collaborations between 
   sub-organizations (faculties, departments, chairs) using Ricgraph.
 
@@ -91,3 +91,7 @@ that require your attention:
     of the document above.
  
 For more information, please [contact Rik D.T. Janssen](contact.md).
+
+## Next steps
+Read about [Ricgraph news](ricgraph-news.md).
+Go to the [contact page](contact.md).

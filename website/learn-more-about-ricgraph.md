@@ -12,6 +12,13 @@ Ricgraph can answer questions like:
 * Show a network of researchers who have worked together?
 * Which organizations have worked together?
 
+You can also:
+
+* [explore collaborations between (sub-)organizations with
+  Ricgraph](collaborations-with-ricgraph.md).
+* [explore open science with Ricgraph](open-science-with-ricgraph.md).
+* [enhance systems with Ricgraph](enhancing-with-ricgraph.md).
+
 Also, more elaborate information can be found using Ricgraph and
 [Ricgraph Explorer](https://docs.ricgraph.eu/docs/ricgraph_explorer.html#ricgraph-explorer),
 the exploration tool for Ricgraph:
@@ -51,8 +58,5 @@ Ricgraph provides harvest scripts for the systems mentioned above.
 Scripts for other sources can be written easily.
 
 ## Next steps
-You might want to
-[use Ricgraph](pilot-project-open-ricgraph-demo-server.md),
-or continue reading at
-[Read more about Ricgraph](read-more-about-ricgraph.md),
-or [Get Ricgraph](get-ricgraph.md).
+[Read more about Ricgraph](read-more-about-ricgraph.md).
+Go to the [contact page](contact.md).

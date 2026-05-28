@@ -16,3 +16,6 @@ please let me know by creating a GitHub *Issue* at the top left of that page.
   the exploration tool for Ricgraph. 
 * Use the [Ricgraph REST API](https://docs.ricgraph.eu/docs/ricgraph_restapi.html#ricgraph-rest-api),
   the REST API for Ricgraph.
+
+## Next steps
+[Contact Ricgraph](contact.md).
