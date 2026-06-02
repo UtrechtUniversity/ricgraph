@@ -603,16 +603,15 @@ def get_html_for_yearcard(for_year_histogram: list = None,
             hidden_fields += '<input type="hidden" name="'
             hidden_fields += key + '" value="' + val + '">'
 
-    now_showing = 'Now showing '
-    now_showing += get_year_range_text(year_first=year_first,
-                                       year_last=year_last)
-    now_showing += '.<br/>'
-
     form = '<div class="w3-container">'
+    form += '<div>Now showing '
+    form += get_year_range_text(year_first=year_first,
+                                       year_last=year_last)
+    form += '.</div><br/>'
+
     form += '<form method="get" action="' + url_for(endpoint=endpoint)
     form += '"' + form_button_on_one_line_flexspace_style + '>'
 
-    form += now_showing
     form += hidden_fields
 
     form += '<div>'
