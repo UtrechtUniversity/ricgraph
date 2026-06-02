@@ -21,7 +21,15 @@ interconnected information as nodes and relations in a graph,
 regardless of the field, is of interest.
 
 About three to four times a year we send out a newsletter.
-To subscribe, go to 
-[Ricgraph Contact](https://docs.ricgraph.eu/README.html#contact).
+To subscribe, 
+please send Rik an email. You can find his email address on
+[his Utrecht University employee page](https://www.uu.nl/staff/DTJanssen).
+Then 
+[click here to subscribe to it. Your email program will open with
+a subscribe email
+text](mailto:?subject=Please%20add%20me%20to%20the%20Ricgraph%20newsletter%20email%20list&body=Hi%20Rik%2C%0D%0A%0D%0ACan%20you%20please%20add%20me%20to%20your%20Ricgraph%20newsletter%20email%20list%3F%20Thanks!%0D%0A%0D%0ABest%20regards%2C%0D%0A%0D%0A%5Bplease%20replace%20with%20your%20name%5D%0D%0A%5Bplease%20replace%20with%20your%20email%20address%5D).
+Please complete it
+by filling in the email address you found on Riks employee page, and with
+your name and email address.
 We also have a 
 [newsletter archive](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters).

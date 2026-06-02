@@ -5,21 +5,40 @@
 
 ## What is Ricgraph?
 
-Ricgraph, also known as Research in context graph, enables the exploration of researchers, 
-teams, their results,
+Ricgraph, also known as Research in context graph, enables the exploration of researchers, teams, their results,
 collaborations, skills, projects, and the relations between these items.
 
-Ricgraph can store many types of items into a single graph. 
+Ricgraph can store many types of items into a single graph.
 These items can be obtained from various systems and from
-multiple organizations. Ricgraph facilitates reasoning about these 
+multiple organizations. Ricgraph facilitates reasoning about these
 items because it infers new relations between items,
-relations that are not present in any of the separate source systems. 
+relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-Throughout this documentation, we illustrate how Ricgraph works by applying
-it to the application area research information.
+## Application areas
 
+There are many application areas for Ricgraph. It can be used
+either as a standalone tool,
+or as a component that provides a graph based data structure with
+a number of handy tools.
+Ricgraph has been developed for the application area
+[research information](https://www.ricgraph.eu/what-is-ricgraph.html#research-information),
+and it can be used for other application areas that require
+relations between items from various source systems.
+
+The nice thing
+about Ricgraph is that anyone with Python knowledge can easily extend it,
+so you can use Ricgraph to test your own ideas or to create your own applications.
+
+Ricgraph showcases:
+
+* [Explore collaborations between (sub-)organizations with
+  Ricgraph](https://www.ricgraph.eu/collaborations-with-ricgraph.html).
+* [Explore Open science with Ricgraph](https://www.ricgraph.eu/open-science-with-ricgraph.html).
+* [Enhance research information systems with Ricgraph](https://www.ricgraph.eu/enhancing-with-ricgraph.html).
+* [Various other use cases](https://www.ricgraph.eu/what-is-ricgraph.html#use-cases-for-ricgraph).
+ 
 ## Ricgraph videos
 
 You may want to watch the following videos about Ricgraph. The left one is a
@@ -65,7 +84,7 @@ or browse through the full documentation:
   * Of course, every webpage has links that allow you to go to other sections
     or webpages.
   * Read the [full documentation as pdf](https://docs.ricgraph.eu/ricgraph_fulldocumentation.pdf).
-    This pdf is the concatenation of all Ricgraph documentation pages in one pdf.
+    This PDF is the concatenation of all Ricgraph documentation pages in one PDF.
 
 This website has been generated from the
 [Ricgraph GitHub](https://github.com/UtrechtUniversity/ricgraph) documentation.
@@ -80,15 +99,6 @@ He also has an ORCID profile on
 [ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).
 You can contact him for presentations, demos and workshops.
 
-He is also very interested in working together on projects involving Ricgraph.
-Ricgraph is a flexible platform that brings
-together information from multiple systems into a single graph.
-It allows users to analyze this information and explore how it relates
-to other types of information.
-We could work together on use cases applying Ricgraph to
-research information, such as exploring collaborations or
-analyzing how people or organizations contribute to research results.
-We could also explore entirely different domains.
-Any application that involves representing and analyzing
-interconnected information as nodes and relations in a graph,
-regardless of the field, is of interest.
+For more details, including subscribing to the Ricgraph newsletter and
+opportunities for collaboration, read
+the [Ricgraph contact page](https://www.ricgraph.eu/contact.html).

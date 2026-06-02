@@ -4,10 +4,12 @@ This index has been generated automatically.
 __A__
 
 - [A usage flow through Ricgraph Explorer](../docs/ricgraph_explorer.md#a-usage-flow-through-ricgraph-explorer)
-- [A usage flow through Ricgraph Explorer](../docs/ricgraph_tutorial.md#a-usage-flow-through-ricgraph-explorer)
 - [Access a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#access-a-surf-research-cloud-workspace)
 - [Actions while clicking on a node in Bloom](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node-in-bloom)
 - [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
+- [Application areas](../README.md#application-areas)
+- [Application areas](../docs/ricgraph_documentation_intro.md#application-areas)
+- [Application areas](../docs/ricgraph_tutorial.md#application-areas)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_outreach.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
 - [AWStats with Apache](../docs/ricgraph_as_server.md#awstats-with-apache)
 - [AWStats with Nginx](../docs/ricgraph_as_server.md#awstats-with-nginx)
@@ -16,7 +18,6 @@ __B__
 
 - [Base URL](../docs/ricgraph_restapi_gendoc.md#base-url)
 - [Browsing Ricgraph](../docs/ricgraph_explorer.md#browsing-ricgraph)
-- [Browsing using Ricgraph Explorer](../docs/ricgraph_tutorial.md#browsing-using-ricgraph-explorer)
 
 __C__
 
@@ -38,6 +39,7 @@ __C__
 __D__
 
 - [Delete personal data from Ricgraph (delete_personal_data)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_data)
+- [Demo harvest script (multiple_harvest_demo)](../docs/ricgraph_harvest_scripts.md#demo-harvest-script-multiple_harvest_demo)
 - [Documentation Ricgraph - Research in context graph](../docs/ricgraph_documentation_intro.md#documentation-ricgraph---research-in-context-graph)
 - [Download Ricgraph](../docs/ricgraph_install_configure.md#download-ricgraph)
 - [Dumping, restoring, and emptying the Ricgraph database](../docs/ricgraph_backend_neo4j.md#dumping-restoring-and-emptying-the-ricgraph-database)
@@ -48,7 +50,6 @@ __E__
 - [Endpoints](../docs/ricgraph_restapi_gendoc.md#endpoints)
 - [Error while emptying Ricgraph with Neo4j](../docs/ricgraph_known_bugs.md#error-while-emptying-ricgraph-with-neo4j)
 - [Example research questions](../docs/ricgraph_explorer.md#example-research-questions)
-- [Example research questions](../docs/ricgraph_tutorial.md#example-research-questions)
 - [Examples](../README.md#examples)
 - [Execute queries in Bloom](../docs/ricgraph_backend_neo4j.md#execute-queries-in-bloom)
 - [Export nodes and edges to a csv file, raw version (ricgraph_export_raw_to_csv)](../docs/ricgraph_misc_scripts.md#export-nodes-and-edges-to-a-csv-file-raw-version-ricgraph_export_raw_to_csv)
@@ -65,7 +66,6 @@ __F__
 - [Function calls for inserting nodes](../docs/ricgraph_script_writing.md#function-calls-for-inserting-nodes)
 - [Function calls to create, read (find), update and delete (CRUD) nodes](../docs/ricgraph_script_writing.md#function-calls-to-create-read-find-update-and-delete-crud-nodes)
 - [Function calls to get neighbors of nodes](../docs/ricgraph_script_writing.md#function-calls-to-get-neighbors-of-nodes)
-- [Further information about Ricgraph](../README.md#further-information-about-ricgraph)
 
 __G__
 
@@ -89,6 +89,7 @@ __G__
 - [GET /person/enrich](../docs/ricgraph_restapi_gendoc.md#get-personenrich)
 - [GET /person/search](../docs/ricgraph_restapi_gendoc.md#get-personsearch)
 - [GET /person/share_researchresults](../docs/ricgraph_restapi_gendoc.md#get-personshare_researchresults)
+- [Get and use Ricgraph](../docs/ricgraph_tutorial.md#get-and-use-ricgraph)
 
 __H__
 
@@ -97,7 +98,6 @@ __H__
 - [Harvest of Pure (harvest_pure_to_ricgraph)](../docs/ricgraph_harvest_scripts.md#harvest-of-pure-harvest_pure_to_ricgraph)
 - [Harvest of software from the Research Software Directory (harvest_rsd_to_ricgraph)](../docs/ricgraph_harvest_scripts.md#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph)
 - [Harvest of Utrecht University staff pages (harvest_uustaffpages_to_ricgraph)](../docs/ricgraph_harvest_scripts.md#harvest-of-utrecht-university-staff-pages-harvest_uustaffpages_to_ricgraph)
-- [Harvesting source systems](../docs/ricgraph_tutorial.md#harvesting-source-systems)
 - [Home page](../docs/ricgraph_explorer.md#home-page)
 - [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](../docs/ricgraph_as_server.md#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
 - [How to make your own harvesting scripts](../docs/ricgraph_script_writing.md#how-to-make-your-own-harvesting-scripts)
@@ -127,7 +127,6 @@ __I__
 - [Install your graph database backend](../docs/ricgraph_as_server.md#install-your-graph-database-backend)
 - [Install your graph database backend](../docs/ricgraph_install_configure.md#install-your-graph-database-backend)
 - [Installation Apache](../docs/ricgraph_as_server.md#installation-apache)
-- [Installation guide](../docs/ricgraph_tutorial.md#installation-guide)
 - [Installation Nginx](../docs/ricgraph_as_server.md#installation-nginx)
 - [Installation of the Ricgraph REST API](../docs/ricgraph_restapi.md#installation-of-the-ricgraph-rest-api)
 - [Installation using Windows Subsystem for Linux](../docs/ricgraph_install_configure.md#installation-using-windows-subsystem-for-linux)
@@ -137,6 +136,7 @@ __I__
 
 __L__
 
+- [Learn more about Ricgraph](../README.md#learn-more-about-ricgraph)
 - [Limit the amount of data to harvest from Pure](../docs/ricgraph_harvest_scripts.md#limit-the-amount-of-data-to-harvest-from-pure)
 
 __M__
@@ -144,8 +144,6 @@ __M__
 - [Main contributions of Ricgraph](../README.md#main-contributions-of-ricgraph)
 - [Main contributions of Ricgraph](../docs/ricgraph_tutorial.md#main-contributions-of-ricgraph)
 - [More information](../docs/ricgraph_tutorial.md#more-information)
-- [Motivation](../README.md#motivation)
-- [Motivation](../docs/ricgraph_tutorial.md#motivation)
 - [Munin with Apache](../docs/ricgraph_as_server.md#munin-with-apache)
 - [Munin with Nginx](../docs/ricgraph_as_server.md#munin-with-nginx)
 
@@ -197,7 +195,6 @@ __R__
 - [Ricgraph in a container](../docs/ricgraph_containerized.md#ricgraph-in-a-container)
 - [Ricgraph in bullet points](../README.md#ricgraph-in-bullet-points)
 - [Ricgraph initialization file](../docs/ricgraph_install_configure.md#ricgraph-initialization-file)
-- [Ricgraph introduction](../docs/ricgraph_tutorial.md#ricgraph-introduction)
 - [Ricgraph introduction videos](../README.md#ricgraph-introduction-videos)
 - [Ricgraph known bugs](../docs/ricgraph_known_bugs.md#ricgraph-known-bugs)
 - [Ricgraph Makefile](../docs/ricgraph_install_configure.md#ricgraph-makefile)
@@ -228,12 +225,9 @@ __S__
 - [Scripts that harvest multiple sources](../docs/ricgraph_harvest_scripts.md#scripts-that-harvest-multiple-sources)
 - [Search page](../docs/ricgraph_explorer.md#search-page)
 - [Settings for the graph database backend](../docs/ricgraph_install_configure.md#settings-for-the-graph-database-backend)
-- [Showing a privacy statement or privacy measures document](../docs/ricgraph_explorer.md#showing-a-privacy-statement-or-privacy-measures-document)
 - [Solution for Neo4j Community Edition](../docs/ricgraph_known_bugs.md#solution-for-neo4j-community-edition)
 - [Solution for Neo4j Desktop](../docs/ricgraph_known_bugs.md#solution-for-neo4j-desktop)
 - [Start Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#start-neo4j-desktop)
-- [Steps to take if you would like to install Ricgraph and harvest data](../README.md#steps-to-take-if-you-would-like-to-install-ricgraph-and-harvest-data)
-- [Steps to take if you would like to use Ricgraph](../README.md#steps-to-take-if-you-would-like-to-use-ricgraph)
 - [Steps to take to install Ricgraph as a server by hand](../docs/ricgraph_as_server.md#steps-to-take-to-install-ricgraph-as-a-server-by-hand)
 - [Steps to take to install Ricgraph for a single user by hand](../docs/ricgraph_install_configure.md#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
 - [Structure of a Python script that is harvesting data](../docs/ricgraph_script_writing.md#structure-of-a-python-script-that-is-harvesting-data)
@@ -251,12 +245,7 @@ __U__
 - [Use a Python virtual environment and install Python requirements](../docs/ricgraph_install_configure.md#use-a-python-virtual-environment-and-install-python-requirements)
 - [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](../docs/ricgraph_as_server.md#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 - [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
-- [Use case for a journalist](../README.md#use-case-for-a-journalist)
-- [Use case for a journalist](../docs/ricgraph_tutorial.md#use-case-for-a-journalist)
-- [Use case for a librarian](../README.md#use-case-for-a-librarian)
-- [Use case for a librarian](../docs/ricgraph_tutorial.md#use-case-for-a-librarian)
-- [Use case for a researcher](../README.md#use-case-for-a-researcher)
-- [Use case for a researcher](../docs/ricgraph_tutorial.md#use-case-for-a-researcher)
+- [Use cases](../README.md#use-cases)
 - [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 - [Use of the Ricgraph REST API](../docs/ricgraph_restapi.md#use-of-the-ricgraph-rest-api)
 - [Using a Python Integrated development environment (IDE)](../docs/ricgraph_install_configure.md#using-a-python-integrated-development-environment-ide)
@@ -272,9 +261,9 @@ __W__
 
 - [What is Ricgraph?](../README.md#what-is-ricgraph)
 - [What is Ricgraph?](../docs/ricgraph_documentation_intro.md#what-is-ricgraph)
+- [What is Ricgraph?](../docs/ricgraph_tutorial.md#what-is-ricgraph)
 - [What to find on the Documentation website for Ricgraph?](../docs/ricgraph_documentation_intro.md#what-to-find-on-the-documentation-website-for-ricgraph)
 - [What to find on this page?](../docs/ricgraph_restapi_gendoc.md#what-to-find-on-this-page)
-- [Why Ricgraph?](../README.md#why-ricgraph)
 - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)
 
 __Y__

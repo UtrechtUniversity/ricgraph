@@ -44,20 +44,40 @@ to remove everything up and including these lines. Do not modify the text in it.
 
 ## What is Ricgraph?
 
-Ricgraph, also known as Research in context graph, enables the exploration of researchers, 
-teams, their results,
+Ricgraph, also known as Research in context graph, enables the exploration of researchers, teams, their results,
 collaborations, skills, projects, and the relations between these items.
 
-Ricgraph can store many types of items into a single graph. 
+Ricgraph can store many types of items into a single graph.
 These items can be obtained from various systems and from
-multiple organizations. Ricgraph facilitates reasoning about these 
+multiple organizations. Ricgraph facilitates reasoning about these
 items because it infers new relations between items,
-relations that are not present in any of the separate source systems. 
+relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-Throughout this documentation, we illustrate how Ricgraph works by applying
-it to the application area research information.
+## Application areas
+
+There are many application areas for Ricgraph. It can be used
+either as a standalone tool,
+or as a component that provides a graph based data structure with
+a number of handy tools.
+Ricgraph has been developed for the application area
+[research information](https://www.ricgraph.eu/what-is-ricgraph.html#research-information),
+and it can be used for other application areas that require
+relations between items from various source systems.
+
+The nice thing
+about Ricgraph is that anyone with Python knowledge can easily extend it,
+so you can use Ricgraph to test your own ideas or to create your own applications.
+
+Ricgraph showcases:
+
+* [Explore collaborations between (sub-)organizations with
+  Ricgraph](https://www.ricgraph.eu/collaborations-with-ricgraph.html).
+* [Explore Open science with Ricgraph](https://www.ricgraph.eu/open-science-with-ricgraph.html).
+* [Enhance research information systems with Ricgraph](https://www.ricgraph.eu/enhancing-with-ricgraph.html).
+* [Various other use cases](https://www.ricgraph.eu/what-is-ricgraph.html#use-cases-for-ricgraph).
+
 
 ## Ricgraph introduction videos
 
@@ -86,124 +106,21 @@ extensive one (also including the use cases).
   </tr>
 </table>
 
-## Motivation
+## Use cases
 
-Ricgraph is software that is about
-relations between items. These items can be collected from various source
-systems and from multiple organizations. We
-explain how Ricgraph works by applying it to the application area
-*research information*. We show the insights that can be
-obtained by combining information from various source systems,
-insight arising from new relations that are not present
-in each separate source system.
-
-*Research information* is about anything related to research: research
-results, the persons in a research team, their
-collaborations, their skills, projects in which they have
-participated, as well as the relations between these entities.
-Examples of *research results* are publications, data sets, and software.
-
-The following sections show three use cases
-that use different types of information (called *items*):
-researchers, skills, publications,
-etc. Most often, these types of information are not stored in
-one system, so the use cases may be difficult or
-time-consuming to answer. However, by using Ricgraph, these
-use cases (and many others) are easy to answer, as will be
-explained throughout this documentation.
-
-Although this documentation illustrates Ricgraph in the application area
-research information, the principle “relations
-between items from various source systems” is general,
-so Ricgraph can be used in other application areas.
-
-### Use case for a journalist
-As a journalist, I want to find researchers with a certain skill S and their publications,
-so that I can interview them for a newspaper article.
-Example skills can be: *climate change* or *stem cells*.
-The items surrounded by the red line are the solution to this use case.
-
-<!-- 
-The 'width=...' in the lines below to include a figure are necessary for 
-the documentation generated with Quarto, a.o. for the documentation website.
-We will need a width instead of a height to prevent right margin overflows
-on small mobile screens.
--->
-
-<img src="docs/images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist." width="70%">
-
-### Use case for a librarian
-As a librarian, I want to enrich my local research information system with research results
-from person A that are in other systems (in orange, *RIS2*) but not in
-ours (in green, *RIS1*), so that we have a more complete view of research at our university.
-The items surrounded by the red line are the solution to this use case.
-
-<img src="docs/images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian." width="75%"> 
-
-### Use case for a researcher
-As a researcher A, I want to find researchers from other universities that have
-co-authored publications written by the co-authors of my own publications,
-so that I can read their publications to find out if we share common research interests.
-The items surrounded by the red line are the solution to this use case.
-
-<img src="docs/images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
-
+Read more about 
+[Use cases for Ricgraph](https://www.ricgraph.eu/what-is-ricgraph.html#use-cases-for-ricgraph).
 
 ## Main contributions of Ricgraph
 
-* Ricgraph can store many types of items in a single graph.
-* Ricgraph harvests multiple source systems into a single graph.
-* Ricgraph Explorer is the exploration tool for Ricgraph.
-* Ricgraph facilitates reasoning about items because it infers new relations between items.
-* Ricgraph can be tailored for an application area.
+Read more about
+[Main contributions of 
+Ricgraph](https://www.ricgraph.eu/what-is-ricgraph.html#main-contributions-of-ricgraph).
 
-## Why Ricgraph?
+## Learn more about Ricgraph
 
-Ricgraph can answer questions like:
-
-* Which researcher has contributed to which publication, dataset, software package, project, etc.?
-* Given e.g. a dataset, software package, or project, who has contributed to it?
-* What identifiers does a researcher have (e.g. 
-  [ORCID](https://en.wikipedia.org/wiki/ORCID), 
-  [ISNI](https://en.wikipedia.org/wiki/International_Standard_Name_Identifier),
-  organization employee ID, email address)?
-* What skills does a researcher have?
-* Show a network of researchers who have worked together?
-* Which organizations have worked together?
-
-Also, more elaborate information can be found using Ricgraph and 
-[Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer), the
-exploration tool for Ricgraph:
-
-* You can find information about persons or their results in a (sub-)organization 
-  (unit, department, faculty, university). 
-  For example, you can find out what data sets or software are produced in your faculty. 
-  Or the skills of all persons in your department. Of course this is only possible in case you have harvested them.
-* You can find out with whom a person shares research output types. 
-  For example, you can find out with whom someone shares software or data sets.
-* You can get tables showing how you can enrich a source system based on other systems you have harvested. 
-  For example, suppose you have harvested both 
-  [Research Information System Pure](https://www.elsevier.com/solutions/pure) and
-  [OpenAlex](https://openalex.org), using this feature you can find out 
-  which publications in OpenAlex are not in Pure. You might want to add those to Pure.
-* You can get a table that shows the overlap in harvests from different source systems. 
-  For example, after a query to show all ORCID nodes, 
-  the table summarizes the number of ORCID nodes which were
-  only found in one source, and which were found in multiple sources. 
-  Another table gives a detailed overview how many
-  nodes originate from which different source systems. Then, you can drill down by 
-  clicking on a number in one of these
-  two tables to find the nodes corresponding to that number. 
-
-If you would like to get this information programmatically, you can use
-the [Ricgraph REST API](https://docs.ricgraph.eu/docs/ricgraph_restapi.html#ricgraph-rest-api).
-
-With Ricgraph, you can get metadata from objects from any source system you’d like. 
-You run the harvest script for that
-system, and data will be imported in Ricgraph and will be 
-combined automatically with data which is already there.
-Ricgraph provides harvest scripts for the systems mentioned above. 
-Scripts for other sources can be written easily.
+[Learn more about
+Ricgraph](https://www.ricgraph.eu/learn-more-about-ricgraph.html).
 
 ## Examples
 
@@ -253,6 +170,8 @@ The following figure shows how three persons have contributed to one research ou
 
 ## Ricgraph in bullet points
 
+* Read more about [Application 
+  areas](https://www.ricgraph.eu/what-is-ricgraph.html#application-areas).
 * The philosophy of Ricgraph is that it stores metadata, not the objects the metadata
   refer to. To access an object, a node has a link to that object in
   the system it was obtained from. 
@@ -288,78 +207,12 @@ The following figure shows how three persons have contributed to one research ou
   easily find other identifiers of that person. When new identifiers are found when
   harvesting from new systems,
   they will be added automatically. 
-* Ricgraph can enrich a source system based on information that is present in one
-  source system, but not in another source system. 
-  See the [librarian use case](#use-case-for-a-librarian) above.
 
 ## Next steps
 
-### Further information about Ricgraph
+[Read more about Ricgraph](https://www.ricgraph.eu/read-more-about-ricgraph.html).
 
-* Explore the full documentation of Ricgraph on
-  [https://docs.ricgraph.eu](https://docs.ricgraph.eu).
-* Play the [Ricgraph use cases video](docs/videos/ricgraph_usecases.mp4), or the
-  [Ricgraph introduction video](docs/videos/ricgraph_intro_usecases.mp4).
-* For a gentle introduction in Ricgraph, read the reference publication:
-  Rik D.T. Janssen (2024). *Ricgraph: A flexible and extensible graph to explore research in
-  context from various systems*. SoftwareX, 26(101736).
-  [https://doi.org/10.1016/j.softx.2024.101736](https://doi.org/10.1016/j.softx.2024.101736).
-* We also have an article about collaborations and Ricgraph:
-  Rik D.T. Janssen (2025). 
-  *Utilizing Ricgraph to gain insights into research collaborations across institutions, 
-  at every organizational level*. Submitted to SoftwareX [preprint].
-  [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
-* For a further introduction, you might want to read these two presentations:
-  * A general presentation about Ricgraph, presenting Ricgraph in a visual manner:
-    [https://doi.org/10.5281/zenodo.12634234](https://doi.org/10.5281/zenodo.12634234).
-  * A presentation explaining how to enrich
-    the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
-    (and other source systems) using Ricgraph
-    and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
-    [https://doi.org/10.5281/zenodo.12634658](https://doi.org/10.5281/zenodo.12634658).
-    This presentation explains that after harvesting several Pure systems
-    (from different institutions)  and other source systems,
-    such as [OpenAlex](https://openalex.org),
-    one can enrich its own Pure _A_ by using information in other source
-    systems, not present in one's own Pure _A_.
-
-* Read more about
-  [publications](docs/ricgraph_outreach.md#ricgraph-publications),
-  [presentations](docs/ricgraph_outreach.md#ricgraph-presentations),
-  [newsletters](docs/ricgraph_outreach.md#ricgraph-newsletters)
-  (to subscribe, go to [Ricgraph Contact](#contact)),
-  [projects with students](docs/ricgraph_outreach.md#ricgraph-projects-with-students),
-  [use](docs/ricgraph_outreach.md#ricgraph-use), and
-  [mentions](docs/ricgraph_outreach.md#ricgraph-mentions)
-  of Ricgraph.
-* The Ricgraph main website is www.ricgraph.eu.
-  Alternative sites are www.ricgraph.nl and www.ricgraph.com.
-  These are generated using the 
-  [ricgraph-documentation](https://github.com/UtrechtUniversity/ricgraph-documentation)
-  GitHub repository.
-
-### Steps to take if you would like to install Ricgraph and harvest data
-
-* [Install and configure Ricgraph](docs/ricgraph_install_configure.md#install-and-configure-ricgraph).
-* Start harvesting data, see [Ricgraph harvest scripts](docs/ricgraph_harvest_scripts.md#ricgraph-harvest-scripts),
-  e.g. by doing a harvest for Utrecht University data sets and
-  software. 
-  You will observe that the information from two sources is neatly combined into one graph.
-* Unfortunately, there is a bug, see [known bugs](docs/ricgraph_known_bugs.md#ricgraph-known-bugs).
-  This bug may occur
-  if you start a harvest script, and as first step in the script you want to empty Ricgraph.
-  In that case, a Python error might occur while emptying Ricgraph. Follow the link
-  to read more and find out how to repair that.
-
-### Steps to take if you would like to use Ricgraph
-
-* [Use Ricgraph](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
-* Read more about [Ricgraph Explorer](docs/ricgraph_explorer.md#ricgraph-explorer),
-  the exploration tool for Ricgraph. 
-* Use the [Ricgraph REST API](docs/ricgraph_restapi.md#ricgraph-rest-api),
-  the REST API for Ricgraph.
-* You can also [write your own harvest scripts](docs/ricgraph_script_writing.md#ricgraph-script-writing),
-  or modify any part of the Ricgraph code.
+[Read how to get Ricgraph and how to use it](https://www.ricgraph.eu/get-and-use-ricgraph.html).
 
 ## Contact
 Ricgraph has been created and is being maintained by
@@ -370,26 +223,9 @@ He also has an ORCID profile on
 [ORCID 0000-0001-9510-0802](https://orcid.org/0000-0001-9510-0802).
 You can contact him for presentations, demos and workshops.
 
-He is also very interested in working together on projects involving Ricgraph.
-Ricgraph is a flexible platform that brings
-together information from multiple systems into a single graph.
-It allows users to analyze this information and explore how it relates
-to other types of information.
-We could work together on use cases applying Ricgraph to
-research information, such as exploring collaborations or
-analyzing how people or organizations contribute to research results.
-We could also explore entirely different domains.
-Any application that involves representing and analyzing
-interconnected information as nodes and relations in a graph,
-regardless of the field, is of interest.
-
-About three to four times a year we send out a 
-newsletter.
-[Please click here to subscribe to it. Your email program will open with
-a subscribe email text. Please complete it
-by filling in your name and email address](mailto:r.d.t.janssen@uu.nl?subject=Please%20add%20me%20to%20the%20Ricgraph%20newsletter%20email%20list&body=Hi%20Rik%2C%0D%0A%0D%0ACan%20you%20please%20add%20me%20to%20your%20Ricgraph%20newsletter%20email%20list%3F%20Thanks!%0D%0A%0D%0ABest%20regards%2C%0D%0A%0D%0A%5Bplease%20replace%20with%20your%20name%5D%0D%0A%5Bplease%20replace%20with%20your%20email%20address%5D).
-We also have a 
-[newsletter archive](docs/ricgraph_outreach.md#ricgraph-newsletters). 
+For more details, including subscribing to the Ricgraph newsletter and
+opportunities for collaboration, read
+the [Ricgraph contact page](https://www.ricgraph.eu/contact.html).
 
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right 
 *Star* button on the Ricgraph GitHub page

@@ -13,6 +13,7 @@ On this page, you can find:
 
 * [Introduction to harvest scripts](#introduction-to-harvest-scripts)
 * [Organization abbreviation](#organization-abbreviation)
+* [Demo harvest script (multiple_harvest_demo)](#demo-harvest-script-multiple_harvest_demo)
 * [Scripts that harvest multiple sources](#scripts-that-harvest-multiple-sources)
 * [Scripts that harvest a single source](#scripts-that-harvest-a-single-source)
   * [Harvest of OpenAlex (harvest_openalex_to_ricgraph)](#harvest-of-openalex-harvest_openalex_to_ricgraph)
@@ -81,6 +82,24 @@ You can use any (short) string and pass it to a harvest script. You only
 need to insert keys (and values) for the organization(s) you are planning
 to harvest.
 
+## Demo harvest script (multiple_harvest_demo)
+This bash script can be found in directory *harvest_multiple_sources*.
+
+*multiple_harvest_demo.sh* harvests the
+[Research Software Directory](#harvest-of-software-from-the-research-software-directory-harvest_rsd_to_ricgraph)
+and [Yoda-DataCite](#harvest-of-data-sets-from-yoda-datacite-harvest_yoda_datacite_to_ricgraph)
+for Utrecht University.
+These sources can be used
+to demonstrate Ricgraph, since these sources do not need a REST API key.
+
+You can use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
+to run this harvest script. To run *multiple_harvest_demo.sh*,
+execute command:
+
+```
+make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_demo.sh
+```
+
 ## Scripts that harvest multiple sources
 These bash scripts are in directory *harvest_multiple_sources*.
 
@@ -123,29 +142,24 @@ Options:
                 Show this help text.
 ```
 
-There are three wrapper scripts:
+There is a wrapper script:
 
-* *multiple_harvest_demo.sh*: 
-  harvests the Research Software Directory and Yoda-DataCite.
-  These sources can be used
-  to demonstrate Ricgraph, since these sources do not need a REST API key.
 * *multiple_harvest_open_ricgraph_demo_server.sh*: a script that harvests 
   the organizations for the [Open Ricgraph demo 
   server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
-* *multiple_harvest_rik.sh*: a script that harvests the favorite 
-  sources of the author of Ricgraph.
 
 You can use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile)
-to run these harvest scripts, e.g. to run *multiple_harvest_demo.sh*,
-execute command:
+to run these harvest scripts. 
 
-```
-make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_demo.sh
-```
-or to run *multiple_harvest_organization.sh*,
-where you will need to pass arguments, execute command:
+To run *multiple_harvest_organization.sh*,
+you will need to pass arguments, execute command:
 ```
 make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_organization.sh cmd_args="--organization UU --empty_ricgraph yes"
+```
+
+To run *multiple_harvest_open_ricgraph_demo_server.sh*, execute command:
+```
+make run_bash_script bash_script=harvest_multiple_sources/multiple_harvest_open_ricgraph_demo_server.sh
 ```
 
 ## Scripts that harvest a single source

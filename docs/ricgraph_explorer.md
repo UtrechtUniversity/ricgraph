@@ -15,7 +15,7 @@ Ricgraph Explorer
 has several pre-build queries tailored to this application area,
 each with its own button, for example:
 
-* find a person, a (sub-)organization, a skill;
+* find a person, a (sub-)organization, explore collaborations, etc.
 * when a person has been found, find its identities, skills, research results.
 
 Ricgraph Explorer offers
@@ -44,8 +44,6 @@ On this page, you can learn more about:
 * The [Organization options page](#organization-options-page) of Ricgraph Explorer.
 * The [Results page](#results-page) of Ricgraph Explorer.
 * Read about [browsing Ricgraph](#browsing-ricgraph).
-* Learn how to [show a privacy statement or privacy measures 
-  document](#showing-a-privacy-statement-or-privacy-measures-document).
 * [Video Ricgraph Explorer](#video-ricgraph-explorer)
  
 [Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
@@ -54,6 +52,11 @@ On this page, you can learn more about:
 Depending on how Ricgraph has been installed, there are various ways to start 
 Ricgraph Explorer.
 
+* You can use the Open Ricgraph demo server. This is the easiest method. 
+  Consult the web page
+  [Pilot project Open Ricgraph demo 
+  server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html) 
+  to find out what its link is.
 * If you have installed Ricgraph for a single user,
   you might need to start your graph database backend first:
   * If you use Neo4j Community Edition: this will be already running.
@@ -86,7 +89,8 @@ Ricgraph Explorer.
 
 The figure above shows screenshots of web pages of Ricgraph Explorer for
 answering the research question “What are the research results of
-person A”.
+person A”. It is a screenshot from the January 2025 version, in May 2026 it looks
+slightly different as shown in the screenshots below.
 
 The screenshot at the top left is the [home page](ricgraph_explorer.md#home-page).
 After clicking “search for a person”,
@@ -97,7 +101,9 @@ left). After clicking “show research results related to this person”, the
 [results page](ricgraph_explorer.md#results-page) is shown (bottom right). In that
 page, the rows in the second table are (in this case) the journal article neighbors of
 the item in the first table (the
-person the user searched). This person also has other types of research results:
+person the user searched). 
+
+This person also has other types of research results:
 book chapters, data sets, other
 contributions, books, reviews, and software (cf. row with orange rectangle, this is an
 example of the tabbed navigation). The “comment” column contains the titles of
@@ -126,35 +132,39 @@ the previous section corresponds to figure (a).
 ## Home page
 The figure below shows part of the home page.
 
-<img alt="Home page of Ricgraph Explorer." src="images/ricgraph-explorer-home-page.jpg" width="80%">
+<img alt="Home page of Ricgraph Explorer." src="images/ricgraph-explorer-home-page.png" width="80%">
 
 The home page lets the user choose between various methods to explore Ricgraph:
 
 * Button _search for a person_.
-  * in the [search page](#search-page) that is shown after you have clicked this button, 
-    to search, type a full name or substring of a name.
+  * after you have clicked this button, you will get the [search page](#search-page).
+  * to search, type a full name or substring of a name.
   * if there is more than one result, select one person.
   * this person is shown on the [person options page](#person-options-page)
     for further exploration.
 * Button _search for a (sub-)organization_. 
-  * in the [search page](#search-page) that is shown after you have clicked this button, 
-    to search, type a full organization name or substring of an organization name.
+  * after you have clicked this button, you will get the [search page](#search-page).
+  * to search, type a full organization name or substring of an organization name.
   * if there is more than one result, select one organization.
   * this organization is shown on the [organization options page](#organization-options-page)
     for further exploration.
-* Button _search for a skill, expertise area or research area_
-  [only available if you have nodes of category _competence_ in Ricgraph]:
-  * in the [search page](#search-page) that is shown after you have clicked this button, 
-    to search, type a skill, expertise area or research area, or
-    substring of one of these.
-  * if there is more than one result, select one.
-  * the results are shown on the [results page](#results-page).
+* Button _explore collaborations_.
+  Continue reading at [Explore collaborations between (sub-)organizations with
+  Ricgraph](https://www.ricgraph.eu/collaborations-with-ricgraph.html).
+* Button _explore the open science landscape_.
+  This will open a new page, that has three buttons:
+
+  * Button _explore collaborations_. The same button as in the previous bullet.
+    Continue reading at [Explore collaborations between (sub-)organizations with
+    Ricgraph](https://www.ricgraph.eu/collaborations-with-ricgraph.html).
+  * Button _get an open science profile for a (sub-)organization_.
+    Continue reading at [Explore the open science landscape with Ricgraph](https://www.ricgraph.eu/open-science-with-ricgraph.html).
+  * Button _get an open science dashboard for a (sub-)organization_.
+    Continue reading at [Enhance research information systems with Ricgraph](https://www.ricgraph.eu/enhancing-with-ricgraph.html).
 * Button _search for anything (broad search)_ or
   button _advanced search_.
-  * in the [search page](#search-page) that is shown after you have clicked this button, 
-    type something to search, the advanced search is a 
-    case-sensitive exact match search 
-    on one or more of the Ricgraph fields _name_, _category_, or _value_.
+  * after you have clicked this button, you will get the [search page](#search-page).
+  * for the difference between the two search methods, continue reading below.
   * if there is more than one result, select one.
   * depending on the type of result:
     * if the result is a person, 
@@ -185,11 +195,13 @@ There are two search pages:
   This search is a case-sensitive exact match search
   on one or more of the Ricgraph fields _name_, _category_, or _value_.
   
-The figures below show these search pages.
+The first figure below shows the broad search page.
 
-<img alt="Broad search page of Ricgraph Explorer." src="images/ricgraph-explorer-search-page-broad.jpg" width="80%"> 
+<img alt="Broad search page of Ricgraph Explorer." src="images/ricgraph-explorer-search-page-broad.png" width="80%"> 
 
-<img alt="Advanced search page of Ricgraph Explorer." src="images/ricgraph-explorer-search-page-advanced.jpg" width="80%">
+The second figure shows the advanced search page.
+
+<img alt="Advanced search page of Ricgraph Explorer." src="images/ricgraph-explorer-search-page-advanced.png" width="80%">
 
 There are two methods for viewing the results:
 
@@ -198,21 +210,24 @@ There are two methods for viewing the results:
   Tables have fewer columns to reduce information overload.
 * _details_view_: show all columns, research results are presented in 
   a [table with facets](https://en.wikipedia.org/wiki/Faceted_search).
-  This view shows all columns .
+  This view shows all columns in Ricgraph.
+
+You can limit the _maximum number of items to return_ and the _maximum
+number of rows in a table_ by entering a value in the input fields 
+just above the button.
 
 ## Person options page
 You only get on this page if the result of your search is a person.
 The figure below shows the person options page.
 
-<img alt="Person options page of Ricgraph Explorer." src="images/ricgraph-explorer-personoptions-page.jpg" width="80%">
+<img alt="Person options page of Ricgraph Explorer." src="images/ricgraph-explorer-personoptions-page.png" width="80%">
 
 You can use one of these exploration options:
 
+* Button _show all information related to this person_.
 * Button _show personal information related to this person_.
 * Button _show organizations related to this person_.
 * Button _show research results related to this person_.
-* Button _show everything except identities related to this person_.
-* Button _show all information related to this person_.
 * Button _find persons that share any research result types with this person_.
 * Button _find persons that share a specific research result type with this person_.
   
@@ -226,7 +241,7 @@ You can use one of these exploration options:
   not present in this source system_.
 
   You will need to enter a source system from a drop-down list.
-  Next, this button gives an overview
+  Clicking this button gives an overview
   of information that can be added to the source system entered, based on the information
   harvested from other source systems.
   The process of improving or enhancing information in a source system is called "enriching" 
@@ -244,66 +259,56 @@ For each of these buttons, the results are shown on the [results page](#results-
 You only get on this page if the result of your search is an organization.
 The figure below shows the organization options page.
 
-<img alt="Organization options page of Ricgraph Explorer." src="images/ricgraph-explorer-organizationoptions-page.jpg" width="80%">
+<img alt="Organization options page of Ricgraph Explorer." src="images/ricgraph-explorer-organizationoptions-page.png" width="80%">
 
 You can use one of these buttons:
 
-* Button _show persons related to this organization_.
 * Button _show all information related to this organization_.
+* Button _show persons related to this organization_.
+* Button _explore collaborations for this organization_.
+  Continue reading at [Explore collaborations between (sub-)organizations with
+  Ricgraph](https://www.ricgraph.eu/collaborations-with-ricgraph.html).
+* Button _get an open science profile for this organization_.
+  Continue reading at [Explore the open science landscape with Ricgraph](https://www.ricgraph.eu/open-science-with-ricgraph.html).
+* Button _get an open science dashboard for this organization_.
+  Continue reading at [Enhance research information systems with Ricgraph](https://www.ricgraph.eu/enhancing-with-ricgraph.html).
+* Button _find any information from all persons in this organization_.
 * Button _find research results from all persons in this organization_.
-* Button _find skills from all persons in this organization_.
-* Button _find any information from persons or their results in this organization_.
 * Button _find specific information_.
 
   You will need to enter a value for Ricgraph fields _name_ or _category_
-  from a drop-down list.
-  Next, this button gives an overview of the persons or their results in 
+  (or both) from a drop-down list.
+  Clicking this button gives an overview of the persons or their results in 
   this organization.
 
 For all of these buttons the results are shown on the [results page](#results-page).
 
 ## Results page
 The results page will look different depending on what results are shown.
-The figure below shows an example of a part of the skills in an organization.
+The figure below shows an example of research results page of a person.
 
-<img alt="Results page of Ricgraph Explorer." src="images/ricgraph-explorer-result-page.jpg" width="80%">
+<img alt="Results page of Ricgraph Explorer." src="images/ricgraph-explorer-result-page.png" width="80%">
+
+In the left column, you can enter the first and/or last year for the research results
+in the table. If you select *refresh*, the table will be recreated.
+Also, histograms on *name*, *category*, *year*, *license*, and *access*
+are shown, based on the results in the table.
 
 ## Browsing Ricgraph
 You can browse the graph that Ricgraph has obtained by harvesting source systems
 by clicking on a value in the _value_ column. 
 In the figure in section [Results page](#results-page), 
-the search was started with organization _Utrecht University_
-(in the first table). 
-The _SKILL_ neighbors of _Utrecht University_ are listed in the second table.
-By clicking on e.g. _NVivo_, you will traverse to the _NVivo_ node,
-and you will see the neighbors of this node. This can be repeated as desired.
+the search was started with a person.
+If you click on a value in the _value_ column (a DOI), 
+you will get a following page that shows the neighbors of this node, 
+which in this case
+will be the persons that have contributed to that research result. 
+This can be repeated as desired.
+
+So, if you click on a person in that following page, you will go to the
+[person options page](#person-options-page).
 It is also possible to start a new search using the buttons _Home_, _Advanced search_,
 or _Broad search_ in the yellow title bar.
-
-## Showing a privacy statement or privacy measures document
-Ricgraph Explorer offers the possibility to show
-a privacy statement or privacy measures document (or both) if desired for 
-your Ricgraph production environment.
-Placeholders have been provided in the files
-*privacy_statement_placeholder.pdf* and
-*privacy_measures_placeholder.pdf* in directory *ricgraph_explorer/static*.
-
-How to use a privacy statement in Ricgraph Explorer?
-
-* Create a privacy statement that fits your situation.
-* Use the filename *privacy_statement.[extension of your text editor]*.
-* Convert this file to a pdf file and use filename *privacy_statement.pdf*.
-* Put it in directory *ricgraph_explorer/static*.
-* In Ricgraph Explorer, in the footer you will find a link to this file.
-
-How to use a privacy measures document in Ricgraph Explorer?
-
-* Create a privacy measures document that fits your situation.
-* Use the filename *privacy_measures.[extension of your text editor]*.
-* Convert this file to a pdf file and use filename *privacy_measures.pdf*.
-* Put it in directory *ricgraph_explorer/static*.
-* In Ricgraph Explorer, in the footer you will find a link to this file.
-
 
 ## Video Ricgraph Explorer
 <!--- GitHub embedded video link

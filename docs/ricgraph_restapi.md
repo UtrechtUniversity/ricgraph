@@ -68,13 +68,13 @@ To do this, click the "REST API doc" button in the top bar of
 Ricgraph Explorer, and you will get an explanation how to do this.
 See the figure below, that shows part of the Home page of Ricgraph Explorer.
 
-<img alt="Home page of Ricgraph Explorer." src="images/ricgraph-explorer-home-page.jpg" width="80%">
+<img alt="Home page of Ricgraph Explorer." src="images/ricgraph-explorer-home-page.png" width="80%">
 
 
 ## Ricgraph REST API endpoint documentation
 Read 
 the [Ricgraph REST API documentation page](ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api).
-This page is automatically generated from the OpenAPI yaml specification file.
+This page is automatically generated from the OpenAPI YAML specification file.
 
 ## Generate the Ricgraph REST API documentation page
 Please read

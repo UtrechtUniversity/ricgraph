@@ -35,12 +35,12 @@ There are several places where you can start reading about Ricgraph:
   [presentations](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-presentations),
   [newsletters](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters)
   (to subscribe, go to [Ricgraph
-  Contact](https://docs.ricgraph.eu/README.html#contact)),
+  Contact](contact.md)),
   [projects with students](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students),
   [use](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-use), and
   [mentions](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-mentions)
   of Ricgraph.
 
 ## Next steps
-[Get Ricgraph](get-ricgraph.md).
+[Get Ricgraph](get-and-use-ricgraph.md).
 Go to the [contact page](contact.md).

@@ -121,7 +121,7 @@ The items surrounded by the red line are the solution to this use case.
 
 * [You can explore collaborations between (sub-)organizations with
   Ricgraph](collaborations-with-ricgraph.md).
-* [You can explore open science with Ricgraph](open-science-with-ricgraph.md).
+* [You can explore the open science landscape with Ricgraph](open-science-with-ricgraph.md).
 * [You can enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
 * Ricgraph can store many types of items in a single graph.
 * Ricgraph harvests multiple source systems into a single graph.
