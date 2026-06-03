@@ -1,8 +1,12 @@
 # Pilot project Open Ricgraph demo server
 
-> The Open Ricgraph demo server is now available for anyone to use.
-> You can access it via 
+> Anyone can use and explore Ricgraph with research information of
+> several universities in the Netherlands.
+> Access it via 
 > [https://explorer.ricgraph.eu](https://explorer.ricgraph.eu).
+
+This page tells more about
+the Pilot project Open Ricgraph demo server.
 
 ## Aim of the pilot project
 The aim of the pilot project is to demonstrate how Ricgraph

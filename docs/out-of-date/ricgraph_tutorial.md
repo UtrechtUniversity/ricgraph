@@ -1,3 +1,10 @@
+<!--- 
+Rik wrote this tutorial in Feb. 2025, but now (June 2026) it does
+not seem very useful. I leave this file as it is, but I do not
+generate a tutorial page and tutorial PDF whenever I generate the
+Ricgraph documentation website from this docs directory.
+--->
+
 # Tutorial Ricgraph - Research in context graph
 
 ## What is Ricgraph?

@@ -1,7 +1,7 @@
 # What is Ricgraph?
 
-> [Use Ricgraph](pilot-project-open-ricgraph-demo-server.md).
-> [Read news about Ricgraph](ricgraph-news.md).
+> Quick links: [Use or participate](pilot-project-open-ricgraph-demo-server.md) &
+> [Read news](ricgraph-news.md).
 
 Ricgraph, also known as Research in context graph, enables the exploration of researchers, teams, their results,
 collaborations, skills, projects, and the relations between these items.
@@ -14,29 +14,27 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-## Application areas
+## Why Ricgraph is unique
 
-There are many application areas for Ricgraph. It can be used
-either as a standalone tool,
+Ricgraph is unique because it allows you to:
+
+* [Explore collaborations between (sub-)organizations with
+  Ricgraph](collaborations-with-ricgraph.md).
+* [Explore Open science with Ricgraph](open-science-with-ricgraph.md).
+* [Enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
+
+The nice thing
+about Ricgraph is that anyone with Python knowledge can easily extend it,
+so you can use Ricgraph to test your own ideas or to create your own applications.
+
+You can use Ricgraph either as a standalone tool,
 or as a component that provides a graph based data structure with
 a number of handy tools.
 Ricgraph has been developed for the application area 
 [research information](#research-information),
 and it can be used for other application areas that require
 relations between items from various source systems.
-
-The nice thing
-about Ricgraph is that anyone with Python knowledge can easily extend it,
-so you can use Ricgraph to test your own ideas or to create your own applications.
-
-Ricgraph showcases:
-
-* [Explore collaborations between (sub-)organizations with 
-  Ricgraph](collaborations-with-ricgraph.md).
-* [Explore Open science with Ricgraph](open-science-with-ricgraph.md).
-* [Enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
-* [Various other use cases](#use-cases-for-ricgraph).
-
+[Read more about various other use cases](#use-cases-for-ricgraph).
 
 ## Ricgraph videos
 
@@ -132,6 +130,6 @@ The items surrounded by the red line are the solution to this use case.
 ## Next steps
 Read about [explore collaborations between (sub-)organizations with
 Ricgraph](collaborations-with-ricgraph.md).
-Go to the [contact page](contact.md).
+Go to the [Contact page](contact.md).
 
 <img src="images/ricgraph-sticker-1000x688.png" alt="Ricgraph sticker." width="35%">

@@ -44,7 +44,7 @@ If you would like to do this, please contact us
 using the [contact page](contact.md).
 
 ## Next steps
-Read about the [Pilot project Open Ricgraph demo 
-server](pilot-project-open-ricgraph-demo-server.md)
-or about [Ricgraph news](ricgraph-news.md).
-Go to the [contact page](contact.md).
+Read about using or participating in Ricgraph
+with the [Pilot project Open Ricgraph demo 
+server](pilot-project-open-ricgraph-demo-server.md).
+Go to the [Contact page](contact.md).

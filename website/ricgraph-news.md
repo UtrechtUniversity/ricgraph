@@ -1,7 +1,5 @@
 # Ricgraph news
 
-> [Use Ricgraph](pilot-project-open-ricgraph-demo-server.md).
-
 Read my recent preprint:
 
 * Rik D.T. Janssen (2025).
@@ -41,4 +39,4 @@ Currently, there are people working on the following extensions for Ricgraph:
  
 ## Next steps
 [Learn more about Ricgraph](learn-more-about-ricgraph.md).
-Go to the [contact page](contact.md).
+Go to the [Contact page](contact.md).

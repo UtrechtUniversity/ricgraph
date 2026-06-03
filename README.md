@@ -23,11 +23,11 @@ We use color=#4c1 (green), that color is used by the 'repo status' badge.
 Documentation about the Podman badges can be found here: https://github.com/eggplants/ghcr-badge.
 --->
 
-> [Use Ricgraph](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
-> [Read news about Ricgraph](https://www.ricgraph.eu/ricgraph-news.html).
-> Read the [Tutorial](https://docs.ricgraph.eu/docs/ricgraph_tutorial.html).
-> Go to the [Documentation website](https://docs.ricgraph.eu).
-> Consult the [Table of contents](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation), 
+> Quick links:
+> [Use Ricgraph](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html)
+> & [Read news about Ricgraph](https://www.ricgraph.eu/ricgraph-news.html)
+> & Go to the [Documentation website](https://docs.ricgraph.eu)
+> & Consult the [Table of contents](docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation), 
 > or the [Index](docs/ricgraph_index_documentation.md#index-ricgraph-documentation).
 
 <img alt="Ricgraph logo" src="docs/images/ricgraph_logo.png" width="30%"> 
@@ -55,28 +55,27 @@ relations that are not present in any of the separate source systems.
 It is flexible and extensible, and can be
 adapted to new application areas.
 
-## Application areas
+## Why Ricgraph is unique
 
-There are many application areas for Ricgraph. It can be used
-either as a standalone tool,
-or as a component that provides a graph based data structure with
-a number of handy tools.
-Ricgraph has been developed for the application area
-[research information](https://www.ricgraph.eu/what-is-ricgraph.html#research-information),
-and it can be used for other application areas that require
-relations between items from various source systems.
-
-The nice thing
-about Ricgraph is that anyone with Python knowledge can easily extend it,
-so you can use Ricgraph to test your own ideas or to create your own applications.
-
-Ricgraph showcases:
+Ricgraph is unique because it allows you to:
 
 * [Explore collaborations between (sub-)organizations with
   Ricgraph](https://www.ricgraph.eu/collaborations-with-ricgraph.html).
 * [Explore Open science with Ricgraph](https://www.ricgraph.eu/open-science-with-ricgraph.html).
 * [Enhance research information systems with Ricgraph](https://www.ricgraph.eu/enhancing-with-ricgraph.html).
-* [Various other use cases](https://www.ricgraph.eu/what-is-ricgraph.html#use-cases-for-ricgraph).
+
+The nice thing
+about Ricgraph is that anyone with Python knowledge can easily extend it,
+so you can use Ricgraph to test your own ideas or to create your own applications.
+
+You can use Ricgraph either as a standalone tool,
+or as a component that provides a graph based data structure with
+a number of handy tools.
+Ricgraph has been developed for the application area
+research information,
+and it can be used for other application areas that require
+relations between items from various source systems.
+[Read more about various other use cases](https://www.ricgraph.eu/what-is-ricgraph.html#use-cases-for-ricgraph).
 
 
 ## Ricgraph introduction videos
@@ -110,12 +109,6 @@ extensive one (also including the use cases).
 
 Read more about 
 [Use cases for Ricgraph](https://www.ricgraph.eu/what-is-ricgraph.html#use-cases-for-ricgraph).
-
-## Main contributions of Ricgraph
-
-Read more about
-[Main contributions of 
-Ricgraph](https://www.ricgraph.eu/what-is-ricgraph.html#main-contributions-of-ricgraph).
 
 ## Learn more about Ricgraph
 
@@ -207,12 +200,6 @@ The following figure shows how three persons have contributed to one research ou
   easily find other identifiers of that person. When new identifiers are found when
   harvesting from new systems,
   they will be added automatically. 
-
-## Next steps
-
-[Read more about Ricgraph](https://www.ricgraph.eu/read-more-about-ricgraph.html).
-
-[Read how to get Ricgraph and how to use it](https://www.ricgraph.eu/get-and-use-ricgraph.html).
 
 ## Contact
 Ricgraph has been created and is being maintained by

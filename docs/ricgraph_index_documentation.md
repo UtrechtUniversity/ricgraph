@@ -7,9 +7,8 @@ __A__
 - [Access a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#access-a-surf-research-cloud-workspace)
 - [Actions while clicking on a node in Bloom](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node-in-bloom)
 - [Advanced use of the Ricgraph Podman container](../docs/ricgraph_containerized.md#advanced-use-of-the-ricgraph-podman-container)
-- [Application areas](../README.md#application-areas)
 - [Application areas](../docs/ricgraph_documentation_intro.md#application-areas)
-- [Application areas](../docs/ricgraph_tutorial.md#application-areas)
+- [Application areas](../docs/out-of-date/ricgraph_tutorial.md#application-areas)
 - [Arjan Sieverink presents Ricgraph at Pure International Conference 2023](../docs/ricgraph_outreach.md#arjan-sieverink-presents-ricgraph-at-pure-international-conference-2023)
 - [AWStats with Apache](../docs/ricgraph_as_server.md#awstats-with-apache)
 - [AWStats with Nginx](../docs/ricgraph_as_server.md#awstats-with-nginx)
@@ -23,8 +22,7 @@ __C__
 
 - [Construct a Ricgraph from a csv file (construct_ricgraph_from_csv)](../docs/ricgraph_misc_scripts.md#construct-a-ricgraph-from-a-csv-file-construct_ricgraph_from_csv)
 - [Contact](../README.md#contact)
-- [Contact](../docs/ricgraph_documentation_intro.md#contact)
-- [Contact](../docs/ricgraph_tutorial.md#contact)
+- [Contact](../docs/out-of-date/ricgraph_tutorial.md#contact)
 - [Conventions for names of (sub-)organizations in Ricgraph](../docs/ricgraph_details.md#conventions-for-names-of-sub-organizations-in-ricgraph)
 - [Count the number of organizations that contributed to a category (count_organizations_contributed_to_category)](../docs/ricgraph_misc_scripts.md#count-the-number-of-organizations-that-contributed-to-a-category-count_organizations_contributed_to_category)
 - [Create a Neo4j Community Edition database dump of Ricgraph](../docs/ricgraph_backend_neo4j.md#create-a-neo4j-community-edition-database-dump-of-ricgraph)
@@ -89,7 +87,7 @@ __G__
 - [GET /person/enrich](../docs/ricgraph_restapi_gendoc.md#get-personenrich)
 - [GET /person/search](../docs/ricgraph_restapi_gendoc.md#get-personsearch)
 - [GET /person/share_researchresults](../docs/ricgraph_restapi_gendoc.md#get-personshare_researchresults)
-- [Get and use Ricgraph](../docs/ricgraph_tutorial.md#get-and-use-ricgraph)
+- [Get and use Ricgraph](../docs/out-of-date/ricgraph_tutorial.md#get-and-use-ricgraph)
 
 __H__
 
@@ -141,9 +139,8 @@ __L__
 
 __M__
 
-- [Main contributions of Ricgraph](../README.md#main-contributions-of-ricgraph)
-- [Main contributions of Ricgraph](../docs/ricgraph_tutorial.md#main-contributions-of-ricgraph)
-- [More information](../docs/ricgraph_tutorial.md#more-information)
+- [Main contributions of Ricgraph](../docs/out-of-date/ricgraph_tutorial.md#main-contributions-of-ricgraph)
+- [More information](../docs/out-of-date/ricgraph_tutorial.md#more-information)
 - [Munin with Apache](../docs/ricgraph_as_server.md#munin-with-apache)
 - [Munin with Nginx](../docs/ricgraph_as_server.md#munin-with-nginx)
 
@@ -152,7 +149,6 @@ __N__
 - [Neo4j Community Edition](../docs/ricgraph_backend_neo4j.md#neo4j-community-edition)
 - [Neo4j Desktop](../docs/ricgraph_backend_neo4j.md#neo4j-desktop)
 - [Neo4j Desktop with Bloom (optional)](../docs/ricgraph_backend_neo4j.md#neo4j-desktop-with-bloom-optional)
-- [Next steps](../README.md#next-steps)
 - [Notes on the Ricgraph Podman container](../docs/ricgraph_containerized.md#notes-on-the-ricgraph-podman-container)
 
 __O__
@@ -210,7 +206,6 @@ __R__
 - [Ricgraph REST API endpoint documentation](../docs/ricgraph_restapi.md#ricgraph-rest-api-endpoint-documentation)
 - [Ricgraph script writing](../docs/ricgraph_script_writing.md#ricgraph-script-writing)
 - [Ricgraph use](../docs/ricgraph_outreach.md#ricgraph-use)
-- [Ricgraph videos](../docs/ricgraph_documentation_intro.md#ricgraph-videos)
 - [Ricgraph videos](../docs/ricgraph_outreach.md#ricgraph-videos)
 - [Ricgraph with Memgraph graph database backend](../docs/ricgraph_backend_memgraph.md#ricgraph-with-memgraph-graph-database-backend)
 - [Ricgraph with Neo4j graph database backend](../docs/ricgraph_backend_neo4j.md#ricgraph-with-neo4j-graph-database-backend)
@@ -236,7 +231,7 @@ __T__
 
 - [Table of contents Ricgraph documentation](../docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation)
 - [Technicalities](../docs/ricgraph_restapi_gendoc.md#technicalities)
-- [Tutorial Ricgraph - Research in context graph](../docs/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph)
+- [Tutorial Ricgraph - Research in context graph](../docs/out-of-date/ricgraph_tutorial.md#tutorial-ricgraph---research-in-context-graph)
 
 __U__
 
@@ -261,9 +256,11 @@ __W__
 
 - [What is Ricgraph?](../README.md#what-is-ricgraph)
 - [What is Ricgraph?](../docs/ricgraph_documentation_intro.md#what-is-ricgraph)
-- [What is Ricgraph?](../docs/ricgraph_tutorial.md#what-is-ricgraph)
+- [What is Ricgraph?](../docs/out-of-date/ricgraph_tutorial.md#what-is-ricgraph)
+- [What NOT to find on this Documentation website?](../docs/ricgraph_documentation_intro.md#what-not-to-find-on-this-documentation-website)
 - [What to find on the Documentation website for Ricgraph?](../docs/ricgraph_documentation_intro.md#what-to-find-on-the-documentation-website-for-ricgraph)
 - [What to find on this page?](../docs/ricgraph_restapi_gendoc.md#what-to-find-on-this-page)
+- [Why Ricgraph is unique](../README.md#why-ricgraph-is-unique)
 - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)
 
 __Y__

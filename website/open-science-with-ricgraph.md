@@ -148,4 +148,4 @@ selected organization:
 
 ## Next steps
 Read about [Enhancing research information systems with Ricgraph](enhancing-with-ricgraph.md).
-Go to the [contact page](contact.md).
+Go to the [Contact page](contact.md).

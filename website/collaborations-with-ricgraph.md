@@ -81,4 +81,4 @@ lie at the basis of the collaborations varies over the years.
 ## Next steps
 Read about [Explore the open science landscape with 
 Ricgraph](open-science-with-ricgraph.md).
-Go to the [contact page](contact.md).
+Go to the [Contact page](contact.md).
