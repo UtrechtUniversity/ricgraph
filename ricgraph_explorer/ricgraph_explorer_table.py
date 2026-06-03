@@ -323,6 +323,7 @@ def get_regular_table_worker(nodes_list: list,
     page_params_cleaned['discoverer_mode'] = page_params['discoverer_mode']
     page_params_cleaned['max_nr_table_rows'] = page_params['max_nr_table_rows']
     page_params_cleaned['view_mode'] = page_params['view_mode']
+    page_params_cleaned['origin'] = page_params['origin']
     query_params_cleaned = create_empty_query_params()
     query_params_cleaned['max_nr_items'] = query_params['max_nr_items']
 

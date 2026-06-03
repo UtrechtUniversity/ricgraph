@@ -554,6 +554,9 @@ def optionspage() -> str | Response:
         html += get_page_footer() + html_body_end
         return html
     if len(result) > 1:
+        if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
+            html += get_you_searched_for_card(page_params=page_params,
+                                              query_params=query_params)
         html += get_page_title(title='Selection page')
         table_header = 'Your search resulted in more than one item. Please choose one item to continue:'
         html += get_regular_table(nodes_list=result,
