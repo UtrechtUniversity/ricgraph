@@ -42,6 +42,6 @@ However, it has not been tested extensively with Ricgraph.
   sysctl --system
   ```
   and the message should be gone. Start Memgraph as above.
-* To use Memgraph Platform, go to [http://localhost:3000](http://localhost:3000).
+* To use Memgraph Platform, go to [http://localhost:3000]().
 * How to start Memgraph automatically at system startup, is a 'to be done'.
 

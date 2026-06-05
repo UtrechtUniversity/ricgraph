@@ -1,4 +1,4 @@
-# Documentation Ricgraph - Research in context graph
+# Documentation Ricgraph
 
 ## What is Ricgraph?
 
@@ -34,6 +34,34 @@ Ricgraph has been developed for the application area
 research information,
 and it can be used for other application areas that require
 relations between items from various source systems.
+
+
+## Ricgraph videos
+
+You may want to watch the following videos about Ricgraph. The left one is a
+short video, only including the Ricgraph use cases. The right one is a more
+extensive one (also including the use cases).
+
+<table>
+  <tr>
+    <td style="width:50%;"><b>Ricgraph use cases video (1m30s)</b></td>
+    <td style="width:50%;"><b>Ricgraph introduction video including use cases (2m28s)</b></td>
+  </tr>
+  <tr>
+    <td><video src="videos/ricgraph_usecases.mp4" controls width="90%">Ricgraph use cases video (1m30s)</video></td>
+    <td><video src="videos/ricgraph_intro_usecases.mp4" controls width="90%">Ricgraph introduction video including use cases (2m28s)</video></td>
+  </tr>
+  <tr>
+   <td>
+     <a href="videos/ricgraph_usecases.mp4" target="_blank">
+     Click to play or download the Ricgraph use cases video</a>.
+   </td>
+   <td>
+     <a href="videos/ricgraph_intro_usecases.mp4" target="_blank">
+     Click to play or download the Ricgraph introduction video</a>.
+   </td>
+  </tr>
+</table>
 
 
 ## What to find on the Documentation website for Ricgraph?

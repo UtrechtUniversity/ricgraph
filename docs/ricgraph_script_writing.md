@@ -23,7 +23,6 @@ the code of Ricgraph Explorer in directory *ricgraph_explorer*.
 
 All code is documented and hints to use it can be found in the source files.
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## How to make your own harvesting scripts
 You can make your own harvesting script of your favorite source. The easiest way to
@@ -32,7 +31,7 @@ For example, if you use the script *harvest_pure_to_ricgraph.py*, you'll recogni
 three parts:
 
 1. Code for harvesting. This is done with `harvest_json_and_write_to_file()` which also writes
-   the harvested json data to a file. It gets data from a source.
+   the harvested JSON data to a file. It gets data from a source.
 1. Code for parsing. This is done with `parse_pure_persons()`, `parse_pure_organizations()` and
    `parse_pure_entities()` for persons, organizations and research outputs from Pure.
    It does data processing to get harvested results

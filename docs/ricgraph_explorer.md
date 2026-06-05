@@ -46,7 +46,6 @@ On this page, you can learn more about:
 * Read about [browsing Ricgraph](#browsing-ricgraph).
 * [Video Ricgraph Explorer](#video-ricgraph-explorer)
  
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## How to start Ricgraph Explorer
 Depending on how Ricgraph has been installed, there are various ways to start 
@@ -65,7 +64,7 @@ Ricgraph Explorer.
     Memgraph](ricgraph_backend_memgraph.md#install-and-start-memgraph).
 * Depending on how you have installed Ricgraph, Ricgraph Explorer
   may already be running. To check, in your web browser, go to 
-  [http://127.0.0.1:3030](http://127.0.0.1:3030).
+  [http://127.0.0.1:3030]().
 * If you get an error message, you will need to start Ricgraph Explorer:
   * Use the [Ricgraph Makefile](ricgraph_install_configure.md#ricgraph-makefile) and execute
     command
@@ -73,13 +72,13 @@ Ricgraph Explorer.
     make run_ricgraph_explorer
     ```
     In your web browser, go to
-    [http://127.0.0.1:3030](http://127.0.0.1:3030).
+    [http://127.0.0.1:3030]().
   * Run the *ricgraph_explorer.py* script in directory *ricgraph_explorer*.
     In your web browser, go to
-    [http://127.0.0.1:3030](http://127.0.0.1:3030).
+    [http://127.0.0.1:3030]().
 * If you have a domain name to access Ricgraph, for example _www.ricgraph-example.com_:
   * Open a web browser and go to
-    [https://www.ricgraph-example.com](https://www.ricgraph-example.com).
+    [https://www.ricgraph-example.com]().
 
 ## Working with Ricgraph Explorer
 

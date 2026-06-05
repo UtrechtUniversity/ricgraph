@@ -7,6 +7,10 @@
 
 This page tells more about
 the Pilot project Open Ricgraph demo server.
+Continue reading if you would like to
+[install and use](learn-more-about-ricgraph.md#install-and-use-ricgraph) 
+your own version of Ricgraph.
+
 
 ## Aim of the pilot project
 The aim of the pilot project is to demonstrate how Ricgraph

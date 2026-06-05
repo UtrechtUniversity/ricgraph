@@ -35,7 +35,6 @@ On this page, you can learn more about:
 * [Ricgraph REST API endpoint documentation](#ricgraph-rest-api-endpoint-documentation)
 * [Generate the Ricgraph REST API documentation page](#generate-the-ricgraph-rest-api-documentation-page)
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## Installation of the Ricgraph REST API
 The Ricgraph REST API is part of Ricgraph Explorer. Read [how to start Ricgraph 

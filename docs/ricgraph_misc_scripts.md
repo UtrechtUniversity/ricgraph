@@ -33,8 +33,6 @@ On this page, you can find:
 
 All code is documented and hints to use it can be found in the source files.
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
-
 
 ## Find (sub-)organization collaborations (organization_collaborations_batch)
 The script *organization_collaborations_batch.py*
@@ -484,7 +482,7 @@ create_index_documentation.py
 ## Create the Ricgraph REST API documentation (convert_openapi_to_mddoc)
 To create the Ricgraph REST API documentation 
 use the script *convert_openapi_to_mddoc.py*.
-This documentation is based on the Ricgraph OpenAPI yaml file *openapi.yaml*
+This documentation is based on the Ricgraph OpenAPI YAML file *openapi.yaml*
 in the directory *ricgraph_explorer/static*.
 You can find this script in the directory *maintenance*.
 The REST API documentation will be created in file

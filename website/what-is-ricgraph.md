@@ -31,10 +31,13 @@ You can use Ricgraph either as a standalone tool,
 or as a component that provides a graph based data structure with
 a number of handy tools.
 Ricgraph has been developed for the application area 
-[research information](#research-information),
-and it can be used for other application areas that require
+[research information](#research-information).
+It can be used for other application areas that require
 relations between items from various source systems.
-[Read more about various other use cases](#use-cases-for-ricgraph).
+
+Read more about
+[use cases](learn-more-about-ricgraph.md#use-cases) and
+[example research questions](learn-more-about-ricgraph.md#example-research-questions).
 
 ## Ricgraph videos
 
@@ -63,8 +66,8 @@ extensive one (also including the use cases).
   </tr>
 </table>
 
-
 ## Research information
+
 Ricgraph is software that is about
 relations between items. These items can be collected from various source 
 systems and from multiple organizations. Throughout this website,
@@ -79,41 +82,10 @@ results, the persons in a research team, their
 collaborations, their skills, projects in which they have 
 participated, as well as the relations between these entities.
 Examples of *research results* are publications, data sets, and software.
-
-These following section shows three use cases that
-use different types of information (called *items*):
-researchers, skills, publications,
-etc. Most often, these types of information are not stored in 
-one system, so the use cases may be difficult or
-time-consuming to answer. However, by using Ricgraph, these 
-use cases (and many others) are easy to answer.
-
-## Use cases for Ricgraph
-
-### Use case for a journalist
-As a journalist, I want to find researchers with a certain skill S and their publications,
-so that I can interview them for a newspaper article.
-Example skills can be: *climate change* or *stem cells*.
-The items surrounded by the red line are the solution to this use case.
-
-<img src="images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist." width="70%">
-
-### Use case for a librarian
-As a librarian, I want to enrich my local research information system with research results
-from person A that are in other systems (in orange, *RIS2*) but not in
-ours (in green, *RIS1*), so that we have a more complete view of research at our university.
-The items surrounded by the red line are the solution to this use case.
-
-<img src="images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian." width="75%"> 
-
-### Use case for a researcher
-As a researcher A, I want to find researchers from other universities that have
-co-authored publications written by the co-authors of my own publications,
-so that I can read their publications to find out if we share common research interests.
-The items surrounded by the red line are the solution to this use case.
-
-<img src="images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
-
+Persons can have various identifiers, such as
+[ORCIDs](https://en.wikipedia.org/wiki/ORCID),
+[ISNIs](https://en.wikipedia.org/wiki/International_Standard_Name_Identifier), organization employee IDs, and/or email addresses.
+All of these can be stored and explored in Ricgraph.
 
 ## Main contributions of Ricgraph
 
@@ -121,6 +93,9 @@ The items surrounded by the red line are the solution to this use case.
   Ricgraph](collaborations-with-ricgraph.md).
 * [You can explore the open science landscape with Ricgraph](open-science-with-ricgraph.md).
 * [You can enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
+*  Read more about
+  [use cases](learn-more-about-ricgraph.md#use-cases) and
+  [example research questions](learn-more-about-ricgraph.md#example-research-questions).
 * Ricgraph can store many types of items in a single graph.
 * Ricgraph harvests multiple source systems into a single graph.
 * Ricgraph Explorer is the exploration tool for Ricgraph.

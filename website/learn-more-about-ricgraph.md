@@ -1,63 +1,67 @@
 # Learn more about Ricgraph
 
+Ricgraph has been developed for the application area
+[research information](what-is-ricgraph.md#research-information).
+It can be used for other application areas that require
+relations between items from various source systems.
+
 ## What can you do with Ricgraph?
 
-Ricgraph can answer questions like:
-
-* Which researcher has contributed to which publication, dataset, 
-  software package, project, etc.?
-* Given e.g. a dataset, software package, or project, who has contributed to it?
-* What identifiers does a researcher have 
-  (e.g. [ORCID](https://en.wikipedia.org/wiki/ORCID),
-  [ISNI](https://en.wikipedia.org/wiki/International_Standard_Name_Identifier),   organization employee ID, email address)?
-* What skills does a researcher have?
-* Show a network of researchers who have worked together?
-* Which organizations have worked together?
-
-You can also:
+In the menu bar, you can find more information on how to:
 
 * [explore collaborations between (sub-)organizations with
   Ricgraph](collaborations-with-ricgraph.md).
 * [explore the open science landscape with Ricgraph](open-science-with-ricgraph.md).
 * [enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
 
-Also, more elaborate information can be found using Ricgraph and
-[Ricgraph Explorer](https://docs.ricgraph.eu/docs/ricgraph_explorer.html#ricgraph-explorer),
-the exploration tool for Ricgraph:
+Below, you will find more 
+[use cases](#use-cases) and 
+[example research questions](#example-research-questions).
 
-* You can find information about persons or their results in a
-  (sub-)organization (unit, department, faculty, university).
-  For example, you can find out what data sets or software are produced in your
-  faculty. Or the skills of all persons in your department. Of course this is
-  only possible in case you have harvested them.
-* You can find out with whom a person shares research output types.
-  For example, you can find out with whom someone shares software or data sets.
-* You can get tables showing how you can enrich a source system based on other
-  systems you have harvested. For example, suppose you have harvested both the
-  [Research Information System Pure](https://www.elsevier.com/solutions/pure)
-  and [OpenAlex](https://openalex.org), using this feature you can find out
-  which publications in OpenAlex are not in Pure. You might want to add those
-  to Pure.
-* You can get a table that shows the overlap in harvests from different source
-  systems.
-  For example, after a query to show all ORCID nodes,
-  the table summarizes the number of ORCID nodes which were
-  only found in one source, and which were found in multiple sources.
-  Another table gives a detailed overview how many
-  nodes originate from which different source systems. Then, you can 
-  drill down by
-  clicking on a number in one of these
-  two tables to find the nodes corresponding to that number.
+## Use cases
 
-If you would like to get this information programmatically, you can use
-the [Ricgraph REST API](https://docs.ricgraph.eu/docs/ricgraph_restapi.html#ricgraph-rest-api).
+### Use case for a journalist
+As a journalist, I want to find researchers with a certain skill S and their publications,
+so that I can interview them for a newspaper article.
+Example skills can be: *climate change* or *stem cells*.
+The items surrounded by the red line are the solution to this use case.
 
-With Ricgraph, you can get metadata from objects from any source system you’d
-like.  You run the harvest script for that
-system, and data will be imported in Ricgraph and will be
-combined automatically with data which is already there.
-Ricgraph provides harvest scripts for the systems mentioned above.
-Scripts for other sources can be written easily.
+<img src="images/journalist-use-case.jpg" alt="Ricgraph use case for a journalist." width="70%">
+
+### Use case for a librarian
+As a librarian, I want to enrich my local research information system with research results
+from person A that are in other systems (in orange, *RIS2*) but not in
+ours (in green, *RIS1*), so that we have a more complete view of research at our university.
+The items surrounded by the red line are the solution to this use case.
+
+<img src="images/librarian-use-case.jpg" alt="Ricgraph use case for a librarian." width="75%"> 
+
+### Use case for a researcher
+As a researcher A, I want to find researchers from other universities that have
+co-authored publications written by the co-authors of my own publications,
+so that I can read their publications to find out if we share common research interests.
+The items surrounded by the red line are the solution to this use case.
+
+<img src="images/researcher-use-case.jpg" alt="Ricgraph use case for a researcher." width="35%">
+
+
+## Example research questions
+
+<img src="images/examples-of-research-questions-general.jpg" alt="Example research questions for Ricgraph." width="90%">
+
+This figure shows eight example 
+research questions that can be answered using Ricgraph:
+
+* Figure a: What are the research results of person *A*?
+* Figure b: Who has contributed to research result *R*?
+* Figure c: With whom shares person *A* research results?
+* Figure d: What research results have person *A* and person *B* in common?
+* Figure e: What identifiers does a person *A* have 
+* Figure f: What is common between *organization 1* and *organization 2*
+  (e.g. persons, research results)?
+* Figure g: How are persons *A* and *B* related?
+* Figure h: With what universities (U) and departments of universities
+  (U-D) does person *A* collaborate?
 
 ## Read more about Ricgraph
 
@@ -92,7 +96,7 @@ There are several places where you can start reading about Ricgraph:
 * Source code can be found
   in the [GitHub
   repository](https://github.com/UtrechtUniversity/ricgraph).
-* Explore
+* Explore the Ricgraph outreach activities:
   [publications](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-publications),
   [presentations](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-presentations),
   [newsletters](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters)
@@ -103,20 +107,14 @@ There are several places where you can start reading about Ricgraph:
   [mentions](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-mentions)
   of Ricgraph.
 
-
-## Download Ricgraph
-
-To download Ricgraph, go to the 
-[Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
-
-
 ## Install and use Ricgraph
 
-You can [use Ricgraph by going to the Pilot project
+You can use Ricgraph by going to the [Pilot project
 Open Ricgraph demo server](pilot-project-open-ricgraph-demo-server.md).
 Then you don't need to install anything.
 
-You can install and use Ricgraph with the default sources, or with
+You can install Ricgraph on your own computer or server,
+and use it with the default sources, or with
 your own sources.
 Doing this has the advantage that you can modify Ricgraph so it suits your
 needs. Please let me know if you create something that may benefit
@@ -126,13 +124,14 @@ Please follow these steps (for more details go to
 the [Ricgraph documentation website](https://docs.ricgraph.eu)):
 
 * [Install and configure Ricgraph](https://docs.ricgraph.eu/docs/ricgraph_install_configure.html#install-and-configure-ricgraph).
-* Start harvesting data, see [Ricgraph harvest scripts](https://docs.ricgraph.eu/docs/ricgraph_harvest_scripts.html#ricgraph-harvest-scripts).
-  If you would like to start with a default demo data set, read
-  [Demo harvest script (multiple_harvest_demo)](https://docs.ricgraph.eu/docs/ricgraph_harvest_scripts.html#demo-harvest-script-multiple_harvest_demo).
+  That page also describes how to harvest research information.
 * Use [Ricgraph Explorer](https://docs.ricgraph.eu/docs/ricgraph_explorer.html#ricgraph-explorer),
   the exploration tool for Ricgraph. 
 * Use the [Ricgraph REST API](https://docs.ricgraph.eu/docs/ricgraph_restapi.html#ricgraph-rest-api),
   the REST API for Ricgraph.
+
+You can also download Ricgraph directly from the
+[Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
 
 ## Next steps
 Go to the [Contact page](contact.md).

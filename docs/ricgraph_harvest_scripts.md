@@ -26,8 +26,6 @@ On this page, you can find:
 
 All code is documented and hints to use it can be found in the source files.
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
-
 
 ## Introduction to harvest scripts
 
@@ -385,7 +383,7 @@ is harvesting records for Utrecht University, the following order is used:
 1. *harvest_yoda_datacite_to_ricgraph.py* (not too much data, so harvest is fast, but it
    contains several data entry errors);
 1. *harvest_openalex_to_ricgraph.py* (a lot of data from a [number of 
-   sources](https://docs.openalex.org/additional-help/faq#where-does-your-data-come-from)).
+   sources](https://developers.openalex.org/#data)).
 
 Note that the same order is used in *multiple_harvest_organization.sh*.
 

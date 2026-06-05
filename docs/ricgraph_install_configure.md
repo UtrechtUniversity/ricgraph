@@ -23,8 +23,6 @@ On this page, you can find:
 * [Ricgraph on Windows](#ricgraph-on-windows)
 * [Steps to take to install Ricgraph for a single user by hand](#steps-to-take-to-install-ricgraph-for-a-single-user-by-hand)
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
-
 
 ## Fast and recommended way to install Ricgraph for a single user
 
@@ -98,7 +96,7 @@ it will install everything automatically (by using the
    ```
    The Makefile will tell you to go to 
    your web browser, and go to 
-   [http://127.0.0.1:3030](http://127.0.0.1:3030).
+   [http://127.0.0.1:3030]().
    Read more at [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer).
 
 If everything succeeded, you are done installing Ricgraph for a single user.
@@ -349,7 +347,7 @@ in the initialization file explain how to do that.
 
 ### Extending Ricgraph with new properties in the nodes
 Optionally, you can extend Ricgraph by adding new
-[properties of nodes](ricgraph_details.md#Properties-of-nodes-in-Ricgraph).
+[properties of nodes](ricgraph_details.md#properties-of-nodes-in-ricgraph).
 
 ### RICGRAPH_NODEADD_MODE
 There is a parameter *RICGRAPH_NODEADD_MODE* in the initialization file 
@@ -436,7 +434,7 @@ on the [Microsoft documentation site for WSL](https://learn.microsoft.com/en-us/
 It explains how to install WSL and how to set it up.
 Add a Linux distribution of your choice.
 Then open WSL. Either find the distribution from the Start Menu, or type in 
-Powershell:
+PowerShell:
 ```
 wsl
 ```
@@ -456,7 +454,7 @@ user](#fast-and-recommended-way-to-install-ricgraph-for-a-single-user) and there
 1. [Download Ricgraph](#download-ricgraph).
 1. [Use a Python virtual environment and install Python
    requirements](#use-a-python-virtual-environment-and-install-python-requirements).
-1. Create and update the [Ricgraph initialization file](#Ricgraph-initialization-file). This is also the
+1. Create and update the [Ricgraph initialization file](#ricgraph-initialization-file). This is also the
    place where you specify which graph database backend you use.
 1. Start harvesting data, see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts), or
    writing scripts, see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).

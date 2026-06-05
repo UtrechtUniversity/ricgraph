@@ -19,8 +19,6 @@ follow these steps:
 * [Install and run the Ricgraph Podman container](#install-and-run-the-ricgraph-podman-container).
 * [Optional: Advanced use of the Ricgraph Podman container](#advanced-use-of-the-ricgraph-podman-container).
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
-
 
 ## Notes on the Ricgraph Podman container
 Warning: Do not use the Ricgraph Podman container in a production environment,
@@ -140,11 +138,11 @@ There are two ways to run the Ricgraph Podman container:
  Starting the container takes about ten seconds.
  Explore items with Ricgraph Explorer,
  in your browser, go to
- [http://localhost:3030](http://localhost:3030).
+ [http://localhost:3030]().
 
 If you started `podman run` for the first time, 
 the container does not have data in it. You can observe this by going to the 
-Ricgraph Explorer home page ([http://localhost:3030](http://localhost:3030)),
+Ricgraph Explorer home page ([http://localhost:3030]()),
 by scrolling down to the "About Ricgraph" section, and looking for the number
 of nodes and edges.
 The easiest method for getting data in it, is to run the 
@@ -176,7 +174,7 @@ podman restart ricgraph
 ```
 Explore the harvested items with Ricgraph Explorer,
 in your browser, go to 
-[http://localhost:3030](http://localhost:3030).
+[http://localhost:3030]().
 
 You can stop all containers by typing:
 ```

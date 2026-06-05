@@ -75,7 +75,11 @@ Ricgraph has been developed for the application area
 research information,
 and it can be used for other application areas that require
 relations between items from various source systems.
-[Read more about various other use cases](https://www.ricgraph.eu/what-is-ricgraph.html#use-cases-for-ricgraph).
+
+[Learn more about what you can do with
+Ricgraph](https://www.ricgraph.eu/learn-more-about-ricgraph.html).
+
+[Read more about Ricgraph details](docs/ricgraph_details.md).
 
 
 ## Ricgraph introduction videos
@@ -105,66 +109,10 @@ extensive one (also including the use cases).
   </tr>
 </table>
 
-## Use cases
-
-Read more about 
-[Use cases for Ricgraph](https://www.ricgraph.eu/what-is-ricgraph.html#use-cases-for-ricgraph).
-
-## Learn more about Ricgraph
-
-[Learn more about
-Ricgraph](https://www.ricgraph.eu/learn-more-about-ricgraph.html).
-
-## Examples
-
-See the figures below for example graphs that show how Ricgraph works. In this section, we use the following
-symbols and colors.
-
-|                            symbols for type of object                             |                                colors for source system                                 |
-|:---------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------:|
-| <img alt="Symbols for type of object." src="docs/images/symbols.jpg" width="20%"> | <img alt="Colors for source system." src="docs/images/colors-vertical.jpg" width="20%"> |
-
-
-The following figure shows one person with several research outputs.
-It shows one person *A* using a
-[*person-root* node, a node which "represents" a person](docs/ricgraph_details.md#person-root-node-in-ricgraph)
-as it is called
-in Ricgraph.
-This person has contributed to three articles, two data sets and one software package.
-Two articles and one data set are from
-the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
-(their color is green),
-one data set is from
-the data repository [Yoda](https://www.uu.nl/en/research/yoda)
-(in orange), 
-one article is from [OpenAlex](https://openalex.org) (in purple),
-and
-the software package is from the
-[Research Software Directory](https://research-software-directory.org) (in blue).
-
-<img alt="One person with several research outputs." src="docs/images/one-person-with-research-outputs.jpg" width="25%">
-
-The following figure shows several persons with several research outputs (the symbols) and
-how these are related (i.e. which person contributed to which research output).
-It also shows from which source system these research outputs have originated
-(using different colors).
-
-<img alt="Several persons with several research outputs." src="docs/images/several-persons-with-research-outputs.jpg" width="35%"> 
-
-The following figure shows one person having several identifiers and several research outputs.
-This person has two different ORCIDs, one ISNI, one SCOPUS_AUTHOR_ID, and two FULL_NAMEs (which differ
-in spelling). These identifiers have also been obtained from different source systems, as their color indicates.
-
-<img alt="One person with several identifiers and research outputs." src="docs/images/identifiers-and-outputs.jpg" width="25%">
-
-The following figure shows how three persons have contributed to one research output.
-
-<img alt="Three persons with one research output." src="docs/images/three-persons-one-research-output.jpg" width="15%">
-
 ## Ricgraph in bullet points
 
-* Read more about [Application 
-  areas](https://www.ricgraph.eu/what-is-ricgraph.html#application-areas).
+* Read more about [Why Ricgraph is 
+  unique](https://www.ricgraph.eu/what-is-ricgraph.html#why-ricgraph-is-unique).
 * The philosophy of Ricgraph is that it stores metadata, not the objects the metadata
   refer to. To access an object, a node has a link to that object in
   the system it was obtained from. 

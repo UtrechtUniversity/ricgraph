@@ -2,6 +2,7 @@
 
 On this page, you can find more information about:
 
+* [Example graphs in Ricgraph](#example-graphs-in-ricgraph).
 * [Person identifiers](#person-identifiers).
 * The [Person-root node in Ricgraph](#person-root-node-in-ricgraph).
 * [Properties of nodes in Ricgraph](#properties-of-nodes-in-ricgraph).
@@ -10,7 +11,52 @@ On this page, you can find more information about:
 You can also look at
 [Example research questions](ricgraph_explorer.md#example-research-questions).
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
+
+## Example graphs in Ricgraph
+
+See the figures below for example graphs that show how Ricgraph works. In this section, we use the following
+symbols and colors.
+
+|                          symbols for type of object                          |                              colors for source system                              |
+|:----------------------------------------------------------------------------:|:----------------------------------------------------------------------------------:|
+| <img alt="Symbols for type of object." src="images/symbols.jpg" width="20%"> | <img alt="Colors for source system." src="images/colors-vertical.jpg" width="20%"> |
+
+
+The following figure shows one person with several research outputs.
+It shows one person *A* using a
+[*person-root* node, a node which "represents" a person](#person-root-node-in-ricgraph)
+as it is called
+in Ricgraph.
+This person has contributed to three articles, two data sets and one software package.
+Two articles and one data set are from
+the [Research Information System Pure](https://www.elsevier.com/solutions/pure)
+(their color is green),
+one data set is from
+the data repository [Yoda](https://www.uu.nl/en/research/yoda)
+(in orange),
+one article is from [OpenAlex](https://openalex.org) (in purple),
+and
+the software package is from the
+[Research Software Directory](https://research-software-directory.org) (in blue).
+
+<img alt="One person with several research outputs." src="images/one-person-with-research-outputs.jpg" width="25%">
+
+The following figure shows several persons with several research outputs (the symbols) and
+how these are related (i.e. which person contributed to which research output).
+It also shows from which source system these research outputs have originated
+(using different colors).
+
+<img alt="Several persons with several research outputs." src="images/several-persons-with-research-outputs.jpg" width="35%"> 
+
+The following figure shows one person having several identifiers and several research outputs.
+This person has two different ORCIDs, one ISNI, one SCOPUS_AUTHOR_ID, and two FULL_NAMEs (which differ
+in spelling). These identifiers have also been obtained from different source systems, as their color indicates.
+
+<img alt="One person with several identifiers and research outputs." src="images/identifiers-and-outputs.jpg" width="25%">
+
+The following figure shows how three persons have contributed to one research output.
+
+<img alt="Three persons with one research output." src="images/three-persons-one-research-output.jpg" width="15%">
 
 ## Person identifiers
 
@@ -119,7 +165,7 @@ You can rename organizations after harvesting using the script
     | DUT Faculty: DUT Faculty: Industrial Design Engineering |
     | UU Faculty: Geosciences                                 |
     | VUA Faculty: Faculty of Science                         |
-* Department, Subdepartement, Chair/Subunit, or other sub-organization name in Ricgraph.
+* Department, Subdepartment, Chair/Subunit, or other sub-organization name in Ricgraph.
   * Combine the organization abbreviation, one of the words in this list
     ["Department", "Subdepartment", "Chair/Subunit", "Unit",
     "Research Institute", "Research Group"] (or similar word),

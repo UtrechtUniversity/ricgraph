@@ -37,7 +37,6 @@ On this page, you can find:
 * [How to install Ricgraph and Ricgraph Explorer on SURF Research Cloud](#how-to-install-ricgraph-and-ricgraph-explorer-on-surf-research-cloud)
 * [Steps to take to install Ricgraph as a server by hand](#steps-to-take-to-install-ricgraph-as-a-server-by-hand)
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## Fast and recommended way to install Ricgraph as a server
 To follow this procedure, you need to be able to change to user *root*.
@@ -105,7 +104,7 @@ This text applies to a new installation of Ricgraph. For an update, see below.
    ```
    The Makefile will tell you to go to
    your web browser, and go to 
-   [http://127.0.0.1:3030](http://127.0.0.1:3030).
+   [http://127.0.0.1:3030]().
    Read more at [Ricgraph Explorer](ricgraph_explorer.md).
    For the Ricgraph REST API, read
    more on the [Ricgraph REST API page](ricgraph_restapi.md#ricgraph-rest-api).
@@ -132,7 +131,7 @@ This text applies to a new installation of Ricgraph. For an update, see below.
    Read more at
    [Install Munin monitoring](#install-munin-monitoring).
 1. Optional: install [AWStats](https://awstats.sourceforge.io).
-   AWStats is a real-time logfile analyser, for e.g. web server log files.
+   AWStats is a real-time logfile analyzer, for e.g. web server log files.
    You can only do this if you have installed Apache or Nginx.
    Read more at
    [Install AWStats web server log analysis](#install-awstats-web-server-log-analysis).
@@ -376,10 +375,10 @@ the outside world. All data will only be accessible in the virtual machine.
   You may want to check the log for any errors, as above.
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer by typing
-  [http://localhost:3030](http://localhost:3030) in your web browser (i.e., the web browser of
+  [http://localhost:3030]() in your web browser (i.e., the web browser of
   the virtual machine).
   You can use the Ricgraph REST API by using the path
-  [http://localhost:3030/api](http://localhost:3030/api) followed by a REST API endpoint.
+  [http://localhost:3030/api]() followed by a REST API endpoint.
 
 
 ## Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine
@@ -515,15 +514,15 @@ and Ricgraph data to the outside world.*
   that. Then restart Apache.
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer from inside your virtual machine by typing 
-  [http://localhost](http://localhost) in your web browser in the virtual machine, or 
+  [http://localhost]() in your web browser in the virtual machine, or 
   from outside your virtual machine by going to
-  [http://[your IP address]](http://[your_IP_address) or
-  [http://[your hostname]](http://[your_hostname).
+  [http://[your IP address]]() or
+  [http://[your hostname]]().
 * You can use the Ricgraph REST API from inside your virtual machine by
-  using the path [http://localhost:3030/api](http://localhost:3030/api) followed by a REST API endpoint, or
+  using the path [http://localhost:3030/api]() followed by a REST API endpoint, or
   from outside your virtual machine by
-  using the path [http://[your IP address/api]](http://[your IP address]/api) or
-  [http://[your hostname]/api](http://[your hostname]/api),
+  using the path [http://[your IP address/api]]() or
+  [http://[your hostname]/api](),
   both followed by a REST API endpoint.
 
 
@@ -633,16 +632,16 @@ and Ricgraph data to the outside world.*
   that. Then restart Nginx.
 * Exit from user *root*.
 * Now you can use Ricgraph Explorer from inside your virtual machine by typing
-  [http://localhost](http://localhost) in your web browser in the virtual machine, or
+  [http://localhost]() in your web browser in the virtual machine, or
   from outside your virtual machine by going to
-  [http://[your IP address]](http://[your_IP_address) or
-  [http://[your hostname]](http://[your_hostname).
+  [http://[your IP address]]() or
+  [http://[your hostname]]().
 * You can use the Ricgraph REST API from inside your virtual machine by
-  using the path [http://localhost:3030/api](http://localhost:3030/api) followed by a REST API endpoint, or
+  using the path [http://localhost:3030/api]() followed by a REST API endpoint, or
   from outside your virtual machine by
   using the path 
-  [http://[your IP address]/api](http://[your_IP_address/api) or
-  [http://[your hostname]/api](http://[your_hostname/api),
+  [http://[your IP address]/api]() or
+  [http://[your hostname]/api](),
   both followed by a REST API endpoint.
 
 
@@ -666,14 +665,14 @@ You will need to create your own Apache configuration file
    ```
 * Exit from user *root*.
 * You can only access Munin on the server you have installed it
-  on. Go to [http://localhost:8060](http://localhost:8060).
+  on. Go to [http://localhost:8060]().
   Note that you will only be able to see any results after `munin-node` has
   executed at least once. This may take up to 5 minutes after your installation.
 
 
 ## Install AWStats web server log analysis
 [AWStats](https://awstats.sourceforge.io)
-is a real-time logfile analyser, for e.g. web server log files.
+is a real-time logfile analyzer, for e.g. web server log files.
 You can only do this if you have installed Apache or Nginx.
 
 ### AWStats with Apache
@@ -741,7 +740,7 @@ Read the first few lines of file
     You will not need to add a line to */etc/crontab*.
 * Exit from user *root*.
 * You can only access AWStats on the server you have installed it
-  on. Go to [http://localhost:8070](http://localhost:8070).
+  on. Go to [http://localhost:8070]().
   Note that you will only be able to see any results after `cron` has 
   executed the crontab entry above at least once.
 
@@ -850,10 +849,10 @@ in your browser. There are two ways to access your workspace and authenticate:
 
 * Use port 443, then you will log in on your workspace using SURF conext.
   In this case, the link will look like: 
-  [https://[name of your workspace].src.surf-hosted.nl](https://[name of your workspace].src.surf-hosted.nl).
+  [https://[name of your workspace].src.surf-hosted.nl]().
 * Use port 3389, then you will log in on your workspace using a one time password.
   In this case, the link will look like: 
-  [https://[name of your workspace].src.surf-hosted.nl:3389](https://[name of your workspace].src.surf-hosted.nl:3389).
+  [https://[name of your workspace].src.surf-hosted.nl:3389]().
 
 
 ## Steps to take to install Ricgraph as a server by hand

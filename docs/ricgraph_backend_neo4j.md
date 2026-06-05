@@ -7,10 +7,13 @@ This page describes how to install Ricgraph with Neo4j graph
 database backend.
 Neo4j has several products:
 
-* [Neo4j Community Edition](https://neo4j.com/download-center/#community), allows
+* [Neo4j Community Edition](https://neo4j.com/download-center) 
+  (scroll down to "Graph Database 
+  Self-Managed", choose "Community"), allows
   to explore the graph using
   [Cypher queries](https://en.wikipedia.org/wiki/Cypher_(query_language)) only.
-* [Neo4j Desktop](https://neo4j.com/download-center/#desktop);
+* [Neo4j Desktop](https://neo4j.com/download-center)
+  (scroll down to "Neo4j Desktop");
 * (optional) [Neo4j Bloom graph visualization tool](https://neo4j.com/product/bloom),
   included with Neo4j Desktop.
 
@@ -30,7 +33,6 @@ On this page you can find:
 * [How to reset the Neo4j Community Edition password](#how-to-reset-the-neo4j-community-edition-password)
 * [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
 
-[Return to main README.md file](../README.md#ricgraph---research-in-context-graph).
 
 ## Neo4j Community Edition
 
@@ -312,13 +314,13 @@ Rules which determine the color of a node:
 * if property *category* = "data set": color = green.
 * if property *category* = "journal article": color = yellow.
 * if property *category* = "software": color = red.
-* all other nodes: color = grey.
+* all other nodes: color = gray.
 
 Rules which determine the size of a node:
 
 * if property *url_main* contains "uu01": size of the node = small. This indicates
   which nodes have been harvested from
-  the data repository [Yoda](https://search.datacite.org/repositories/delft.uu).
+  the data repository [Yoda](https://www.uu.nl/en/research/yoda).
 * if property *url_other* contains "research-software-directory": size of the node = large.
   This indicates which nodes have been harvested from
   the [Research Software Directory](https://research-software-directory.org).
