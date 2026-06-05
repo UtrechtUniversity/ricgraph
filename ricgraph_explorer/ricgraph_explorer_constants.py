@@ -353,8 +353,12 @@ html_preamble += '<link rel="apple-touch-icon" sizes="120x120" href="/static/ima
 html_preamble += '<link rel="apple-touch-icon" sizes="152x152" href="/static/images/icons/ios/ricgraph-icon-152x152.png">'
 html_preamble += '<link rel="apple-touch-icon" sizes="180x180" href="/static/images/icons/ios/ricgraph-icon-180x180.png">'
 html_preamble += '<meta name="author" content="Rik D.T. Janssen">'
-html_preamble += '<meta name="description" content="Ricgraph - Research in context graph">'
-html_preamble += '<meta name="keywords" content="Ricgraph, Ricgraph Explorer, Ricgraph REST API">'
+html_preamble += '<meta name="description" content="Ricgraph (Research in context graph): '
+html_preamble += 'explore collaborations, open science, researchers, teams, '
+html_preamble += 'research results, and (sub-)organizations with a graph">'
+# Don't do keywords, they seem to be ignored by all major search engines.
+#html_preamble += '<meta name="keywords" content="Ricgraph, Ricgraph Explorer, Ricgraph REST API">'
+
 # The W3.css style file is at https://www.w3schools.com/w3css/4/w3.css. I use the "pro" version.
 # The pro version is identical to the standard version except for it has no colors defined.
 html_preamble += '<link rel="stylesheet" href="/static/w3pro.css">'
