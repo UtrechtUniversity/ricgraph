@@ -47,7 +47,8 @@ These three groups are defined as:
 
 ### How to do this?
 
-* Go to [Use Ricgraph](pilot-project-open-ricgraph-demo-server.md) to find
+* Go to [Pilot Open Ricgraph demo
+  server](pilot-project-open-ricgraph-demo-server.md) to find
   the link to the Open Ricgraph demo server.
 * Click "explore the open science landscape". Then click
   "get an open science profile for a (sub-)organization".
@@ -102,7 +103,8 @@ It is possible to  filter on category, year, license, and/or access.
 
 ### How to do this?
 
-* Go to [Use Ricgraph](pilot-project-open-ricgraph-demo-server.md) to find
+* Go to [Pilot Open Ricgraph demo
+  server](pilot-project-open-ricgraph-demo-server.md) to find
   the link to the Open Ricgraph demo server.
 * Click "explore the open science landscape". Then click
   "get an open science dashboard for a (sub-)organization".

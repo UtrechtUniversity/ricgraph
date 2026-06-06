@@ -134,6 +134,8 @@ __L__
 
 __M__
 
+- [More information about Ricgraph](../README.md#more-information-about-ricgraph)
+- [More information about Ricgraph](../docs/ricgraph_documentation_intro.md#more-information-about-ricgraph)
 - [Munin with Apache](../docs/ricgraph_as_server.md#munin-with-apache)
 - [Munin with Nginx](../docs/ricgraph_as_server.md#munin-with-nginx)
 

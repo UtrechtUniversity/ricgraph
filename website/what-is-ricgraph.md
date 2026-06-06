@@ -1,7 +1,8 @@
 # What is Ricgraph?
 
-> Quick links: [Use or participate](pilot-project-open-ricgraph-demo-server.md) &
-> [Read news](ricgraph-news.md).
+> Quick links: [Use Ricgraph or participate](pilot-project-open-ricgraph-demo-server.md) &
+> [Read news](ricgraph-news.md) &
+> [Detailed documentation](https://docs.ricgraph.eu).
 
 Ricgraph, also known as Research in context graph, enables the exploration of researchers, teams, their results,
 collaborations, skills, projects, and the relations between these items.

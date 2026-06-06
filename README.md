@@ -76,11 +76,6 @@ research information,
 and it can be used for other application areas that require
 relations between items from various source systems.
 
-[Learn more about what you can do with
-Ricgraph](https://www.ricgraph.eu/learn-more-about-ricgraph.html).
-
-[Read more about Ricgraph details](docs/ricgraph_details.md).
-
 
 ## Ricgraph introduction videos
 
@@ -108,6 +103,17 @@ extensive one (also including the use cases).
    </td>
   </tr>
 </table>
+
+
+## More information about Ricgraph
+
+To learn more about Ricgraph, please go to the 
+[Ricgraph website www.ricgraph.eu](https://www.ricgraph.eu).
+
+If you would like to know more details about Ricgraph, please go to the
+[Ricgraph documentation website docs.ricgraph.eu](https://docs.ricgraph.eu).
+
+[Use Ricgraph or participate](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
 
 ## Ricgraph in bullet points
 

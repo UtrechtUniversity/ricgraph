@@ -12,7 +12,7 @@ See Ricgraph in action:
 * Use the Open Ricgraph demo server.
   Read more (and join) at
   [pilot project Open Ricgraph demo
-  server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+  server](pilot-project-open-ricgraph-demo-server.md).
 
 Currently, there are people working on the following extensions for Ricgraph:
 

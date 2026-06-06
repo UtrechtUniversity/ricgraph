@@ -1,5 +1,8 @@
 # Documentation Ricgraph
 
+> Quick links: [Use Ricgraph or participate](https://www.ricgraph.eud/pilot-project-open-ricgraph-demo-server.md) &
+> [Read news](https://www.ricgraph.eud/ricgraph-news.md). 
+ 
 ## What is Ricgraph?
 
 Ricgraph, also known as Research in context graph, enables the exploration of researchers, teams, their results,
@@ -64,6 +67,17 @@ extensive one (also including the use cases).
 </table>
 
 
+## More information about Ricgraph
+
+To learn more about Ricgraph, please go to the
+[Ricgraph website www.ricgraph.eu](https://www.ricgraph.eu).
+
+[Use Ricgraph or participate](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+
+You are now on the
+Ricgraph documentation website.
+
+
 ## What to find on the Documentation website for Ricgraph?
 
 This documentation website offers quite a bit of information about Ricgraph.
@@ -84,10 +98,10 @@ This website has been generated from the
 
 ## What NOT to find on this Documentation website?
 
-This documentation website is primarily for documentation about Ricgraph.
+This documentation website is primarily for details and documentation about Ricgraph.
 If you would like to know more about Ricgraph, such as what it is, what you
 can do with it, how you can contribute, etc., please go the 
 [Ricgraph website](https://www.ricgraph.eu).
 
 Read more about 
-[Using Ricgraph](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+[Use Ricgraph or participate](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).

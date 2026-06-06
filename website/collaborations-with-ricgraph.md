@@ -38,7 +38,8 @@ A journal article of a revised version of this preprint is in review.
 
 ## How to do this?
 
-* Go to [Use Ricgraph](pilot-project-open-ricgraph-demo-server.md) to find
+* Go to [Pilot Open Ricgraph demo 
+  server](pilot-project-open-ricgraph-demo-server.md) to find
   the link to the Open Ricgraph demo server.
 * Click "explore collaborations". You will get to a page that explains
   what you can do and how it works.
