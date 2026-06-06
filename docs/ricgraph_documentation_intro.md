@@ -1,7 +1,7 @@
 # Documentation Ricgraph
 
-> Quick links: [Use Ricgraph or participate](https://www.ricgraph.eud/pilot-project-open-ricgraph-demo-server.md) &
-> [Read news](https://www.ricgraph.eud/ricgraph-news.md). 
+> Quick links: [Use Ricgraph or participate](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html) &
+> [Read news](https://www.ricgraph.eu/ricgraph-news.html). 
  
 ## What is Ricgraph?
 
