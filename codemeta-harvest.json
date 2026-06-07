@@ -92,10 +92,10 @@
     ],
     "softwareHelp": [
         {
-            "@id": "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md",
+            "@id": "https://www.ricgraph.eu",
             "@type": "CreativeWork",
-            "name": "Ricgraph - Research in context graph documentation",
-            "url": "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
+            "name": "Website for Ricgraph - Research in context graph",
+            "url": "https://www.ricgraph.eu"
         },
         {
             "@id": "https://docs.ricgraph.eu",
@@ -104,16 +104,16 @@
             "url": "https://docs.ricgraph.eu"
         },
         {
-            "@id": "https://docs.ricgraph.eu/docs/ricgraph_tutorial.html",
+            "@id": "https://docs.ricgraph.eu/ricgraph_fulldocumentation.pdf",
             "@type": "CreativeWork",
-            "name": "Tutorial for Ricgraph - Research in context graph",
-            "url": "https://docs.ricgraph.eu/docs/ricgraph_tutorial.html"
+            "name": "Full documentation PDF for Ricgraph - Research in context graph",
+            "url": "https://docs.ricgraph.eu/ricgraph_fulldocumentation.pdf"
         },
         {
-            "@id": "https://docs.ricgraph.eu/ricgraph_tutorial.pdf",
+            "@id": "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md",
             "@type": "CreativeWork",
-            "name": "Tutorial pdf for Ricgraph - Research in context graph",
-            "url": "https://docs.ricgraph.eu/ricgraph_tutorial.pdf"
+            "name": "GitHub README for Ricgraph - Research in context graph documentation",
+            "url": "https://github.com/UtrechtUniversity/ricgraph/blob/main/README.md"
         }
     ],
     "applicationCategory": [

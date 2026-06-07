@@ -76,8 +76,8 @@ There are several places where you can start reading about Ricgraph:
   *Utilizing Ricgraph to gain insights into research collaborations across institutions,
   at every organizational level*. [preprint].
   [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
-* Play the [Ricgraph use cases video](https://docs.ricgraph.eu/docs/videos/ricgraph_usecases.mp4), or the
-  [Ricgraph introduction video](https://docs.ricgraph.eu/docs/videos/ricgraph_intro_usecases.mp4).
+* Play the [Ricgraph use cases video](https://docs.ricgraph.eu/videos/ricgraph_usecases.mp4), or the
+  [Ricgraph introduction video](https://docs.ricgraph.eu/videos/ricgraph_intro_usecases.mp4).
 * You can read the general presentation about Ricgraph, presenting Ricgraph in
   a visual   manner:
   [https://doi.org/10.5281/zenodo.12634234](https://doi.org/10.5281/zenodo.12634234).
@@ -97,14 +97,14 @@ There are several places where you can start reading about Ricgraph:
   in the [GitHub
   repository](https://github.com/UtrechtUniversity/ricgraph).
 * Explore the Ricgraph outreach activities:
-  [publications](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-publications),
-  [presentations](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-presentations),
-  [newsletters](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters)
+  [publications](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-publications),
+  [presentations](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-presentations),
+  [newsletters](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-newsletters)
   (to subscribe, go to [Ricgraph
   Contact](contact.md)),
-  [projects with students](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students),
-  [use](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-use), and
-  [mentions](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-mentions)
+  [projects with students](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-projects-with-students),
+  [use](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-use), and
+  [mentions](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-mentions)
   of Ricgraph.
 
 ## Install and use Ricgraph
@@ -123,11 +123,11 @@ other users, so I can add it to Ricgraph.
 Please follow these steps (for more details go to
 the [Ricgraph documentation website](https://docs.ricgraph.eu)):
 
-* [Install and configure Ricgraph](https://docs.ricgraph.eu/docs/ricgraph_install_configure.html#install-and-configure-ricgraph).
+* [Install and configure Ricgraph](https://docs.ricgraph.eu/ricgraph_install_configure.html#install-and-configure-ricgraph).
   That page also describes how to harvest research information.
-* Use [Ricgraph Explorer](https://docs.ricgraph.eu/docs/ricgraph_explorer.html#ricgraph-explorer),
+* Use [Ricgraph Explorer](https://docs.ricgraph.eu/ricgraph_explorer.html#ricgraph-explorer),
   the exploration tool for Ricgraph. 
-* Use the [Ricgraph REST API](https://docs.ricgraph.eu/docs/ricgraph_restapi.html#ricgraph-rest-api),
+* Use the [Ricgraph REST API](https://docs.ricgraph.eu/ricgraph_restapi.html#ricgraph-rest-api),
   the REST API for Ricgraph.
 
 You can also download Ricgraph directly from the

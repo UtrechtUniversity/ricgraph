@@ -75,11 +75,11 @@ extensive one (also including the use cases).
   </tr>
   <tr>
    <td>
-     <a href="https://docs.ricgraph.eu/docs/videos/ricgraph_usecases.mp4" target="_blank">
+     <a href="https://docs.ricgraph.eu/videos/ricgraph_usecases.mp4" target="_blank">
      Click to play or download the Ricgraph use cases video</a>.
    </td>
    <td>
-     <a href="https://docs.ricgraph.eu/docs/videos/ricgraph_intro_usecases.mp4" target="_blank">
+     <a href="https://docs.ricgraph.eu/videos/ricgraph_intro_usecases.mp4" target="_blank">
      Click to play or download the Ricgraph introduction video</a>.
    </td>
   </tr>

@@ -23,18 +23,18 @@ Currently, there are people working on the following extensions for Ricgraph:
   It uses a local Large Language Model.
   This is a project with nine students from Utrecht University, Utrecht.
   Read more at
-  [Research AI](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students).
+  [Research AI](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-projects-with-students).
   Status: planning stage (pre-alpha).
 * A project with a student from the University of Applied Sciences, Utrecht, that aims to use
   [AI and Large Language Models to find topics and visualize large amounts of research
-  information](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students).
+  information](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-projects-with-students).
   It assigns *topics* to publications,
   data sets, and software. By selecting a number of topics, research results are
   grouped, and possibly experts on these topics can be found.
   Status: planning stage (pre-alpha).
 * A project with a student from the University of Applied Sciences, Utrecht, to
   [develop a modern frontend-backend user interface for Ricgraph
-  information](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students).
+  information](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-projects-with-students).
   Status: planning stage (pre-alpha).
  
 ## Next steps

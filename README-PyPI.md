@@ -55,10 +55,13 @@ research information
 and it can be used for other application areas that require
 relations between items from various source systems.
 
-## Learn more about Ricgraph
+## More information about Ricgraph
 
-To learn more about Ricgraph, go to the
-[Ricgraph website](https://www.ricgraph.eu).
+To learn more about Ricgraph, please go to the
+[Ricgraph website www.ricgraph.eu](https://www.ricgraph.eu).
+
+If you would like to know more details about Ricgraph, please go to the
+[Ricgraph documentation website docs.ricgraph.eu](https://docs.ricgraph.eu).
 
 ## Contact
 

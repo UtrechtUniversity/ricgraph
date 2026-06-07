@@ -76,7 +76,7 @@ me.
 **Gain insights into research collaborations across institutions**
 
 In the 
-[Ricgraph October 2025 newsletter](https://docs.ricgraph.eu/docs/newsletters/251000-Ricgraph_newsletter_Oct_2025.html), 
+[Ricgraph October 2025 newsletter](https://docs.ricgraph.eu/newsletters/251000-Ricgraph_newsletter_Oct_2025.html), 
 I reported on the preprint: 
 Rik D.T. Janssen (2025),
 _Utilizing Ricgraph to gain insights into research collaborations across
@@ -89,7 +89,7 @@ organizational levels for yourself. This section will show some examples.
 
 _Overview of publication collaborations (2022 – February 2026) between AUMC Divisions and DUT faculties. It has a total
 of 968 collaborations.
-[Click to enlarge](https://docs.ricgraph.eu/docs/newsletters/260300-publications-AUMC-div-and-DUT-fac.jpg).
+[Click to enlarge](https://docs.ricgraph.eu/newsletters/260300-publications-AUMC-div-and-DUT-fac.jpg).
 Create this figure for yourself: go to 
 [https://explorer.ricgraph.eu/collabspage/](https://explorer.ricgraph.eu/collabspage/), 
 type “AUMC Division” in the first textbox, “DUT Faculty” in the second
@@ -99,7 +99,7 @@ textbox, and “publication_all” in the third textbox._
 
 _Overview of publication collaborations (2022 – February 2026) between AUMC Departments and DUT Departments. It has a
 total of 1369 collaborations. 
-[Click to enlarge](https://docs.ricgraph.eu/docs/newsletters/260300-publications-AUMC-dep-and-DUT-dep.jpg).
+[Click to enlarge](https://docs.ricgraph.eu/newsletters/260300-publications-AUMC-dep-and-DUT-dep.jpg).
 Create this figure for yourself: go to 
 [https://explorer.ricgraph.eu/collabspage/](https://explorer.ricgraph.eu/collabspage/), 
 type “AUMC Department” in the first textbox, “DUT Department” in the
@@ -111,7 +111,7 @@ Note that collaboration figures can get quite large:
 
 _Overview of data set collaborations (2022 – February 2026) between AUMC Amsterdam UMC and other organizations. It has a
 total of 3448 collaborations. 
-[Click to enlarge](https://docs.ricgraph.eu/docs/newsletters/260300-datasets-AUMC-and-other-orgs.jpg).
+[Click to enlarge](https://docs.ricgraph.eu/newsletters/260300-datasets-AUMC-and-other-orgs.jpg).
 Create this figure for yourself: go to
 [https://explorer.ricgraph.eu/collabspage/](https://explorer.ricgraph.eu/collabspage/), 
 type “AUMC Amsterdam UMC” in the first textbox, leave the second textbox
@@ -176,7 +176,7 @@ applied sciences Utrecht (HU) and Utrecht University (UU):
   interface for Ricgraph. This project will create a user interface with reusable components.
 
 All of these projects do have a project description at 
-[https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-projects-with-students).
+[https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-projects-with-students](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-projects-with-students).
 
 
 **Other information that might be of interest**
@@ -193,7 +193,7 @@ All of these projects do have a project description at
 * Participate in the Open Ricgraph demo server, 
   [https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
 * Read more about our outreach activities on 
-  [https://docs.ricgraph.eu/docs/ricgraph_outreach.html](https://docs.ricgraph.eu/docs/ricgraph_outreach.html).
+  [https://docs.ricgraph.eu/ricgraph_outreach.html](https://docs.ricgraph.eu/ricgraph_outreach.html).
 * Ricgraph is now on version v3.2. To see a full overview of all changes, go to
   the releases page: [https://github.com/UtrechtUniversity/ricgraph/releases](https://github.com/UtrechtUniversity/ricgraph/releases).
 
@@ -206,7 +206,7 @@ _This newsletter has been sent to you because we have had a previous
 communication about Ricgraph. Please email me if you would like to be
 removed from this list (or if you want to be added to it, if someone forwarded
 it to you). Read the
-[newsletter archive](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters).
+[newsletter archive](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-newsletters).
 There will be about 2 to 3 newsletters per year about Ricgraph._
 
 To subscribe to the newsletter email list, go to [Ricgraph Contact](../../README.md#contact).

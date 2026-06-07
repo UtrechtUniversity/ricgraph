@@ -32,7 +32,7 @@ Please complete it
 by filling in the email address you found on Rik's employee page, and with
 your name and email address.
 We also have a 
-[newsletter archive](https://docs.ricgraph.eu/docs/ricgraph_outreach.html#ricgraph-newsletters).
+[newsletter archive](https://docs.ricgraph.eu/ricgraph_outreach.html#ricgraph-newsletters).
 
 If you like Ricgraph, please give it a GitHub Star by clicking on the top right
 *Star* button on the
