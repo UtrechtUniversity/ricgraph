@@ -783,6 +783,8 @@ follow the following steps:
   This is for advanced use only, since this storage will be attached to
   */data* in the virtual research environment, and not to */var/lib*,
   where the Neo4j Community Edition graph database lives.
+  Note that this may cost a substantial amount (compared to the cost
+  of the workspace without additional storage).
   * Click on "Create new storage".
   * Select the collaborative organization that you want to use for running
     Ricgraph. If you have only one, it will be preselected.
@@ -792,22 +794,46 @@ follow the following steps:
     The larger, the more credits it will cost.
   * Enter a name and a description.
   * After a few moments your storage will be created and available.
+* Optional: allocate an IP address.
+  * On the Research Cloud dashboard, choose the tab "IP addresses (advanced)".
+  * Click the "+" at the right.
+  * Select the collaborative organization that you want to use for running
+    Ricgraph (as above). If you have only one, it will be preselected.
+  * Select your wallet (as above). If you have only one, it will be preselected.
+  * Select the cloud provider. We use "SURF HPC Cloud IP".
+  * Select an IP v4 address.
+  * Give it a suitable name
+    (this will become the name of the IP address in the Research Cloud Dashboard).
+  * Give it a suitable description
+    (this will get into the "Description" field of the IP address
+    in the Research Cloud Dashboard).
+  * The "hostname" will always become "ip".
 * Create a workspace (that is, a virtual machine to run Ricgraph in):
   * Click on "Create new workspace".
   * Select the collaborative organization that you want to use for running
     Ricgraph (as above). If you have only one, it will be preselected.
   * Select your wallet (as above). If you have only one, it will be preselected.
   * Now select a "catalogue item", that is, a pre-installed virtual machine. 
-    Choose "Ubuntu Desktop".
+    Choose "Ubuntu Desktop 2404". It has XRDP and Guacamole which makes
+    administration much easier, since it can be done in a web browser.
   * Select the cloud provider. We use "SURF HPC Cloud".
-  * Select which version of Ubuntu you want to use. Choose "Ubuntu 22.04 Desktop".
   * Select a configuration.
     In the video below we use "1 Core - 8 GB RAM".
+    For the Pilot Open Ricgraph demo server (2026) we use "2 Core - 16 GB RAM" for
+    the explorer and "8 Core - 32 GB RAM" for the harvester.
     The larger, the more credits it will cost.
+  * If you have created an IP address above, you will get the question whether
+    you would like to use it.
   * By default, the workspace has ~95GB of storage on the system and home partition.
   * Optionally you can add more storage, above is explained how to allocate it. 
     If you have done this, select this additional storage.
-  * Rename your workspace.
+  * Give a suitable name to your workspace 
+    (this will get into the "Description" field in the Research Cloud Dashboard;
+    it will also become the name in the dashboard).
+  * Give a suitable hostname to your workspace
+    (this will get into the "hostname" field in the Research Cloud Dashboard,
+    it will also become part of the domain name for this workspace).
+  * Give a suitable description to your workspace.
   * After some minutes your workspace will be created and available. It will
     be started up automatically.
   * Note that your workspace has a *will be removed* date. You might want
@@ -818,7 +844,7 @@ You might want to watch the
 [video how to install Ricgraph and Ricgraph Explorer on SURF Research Cloud
 (2m14s) (click to view or download)](videos/ricgraph_howto_install_on_SURFResearchCloud.mp4).
 Note that in the video, we use an old version of Ubuntu. Please use
-Ubuntu 22.04 as described above.
+Ubuntu 24.04 as described above.
 
 <!--- GitHub embedded video link
 https://github.com/UtrechtUniversity/ricgraph/assets/121875841/c7196e89-3a2f-4a30-b7ae-d41a4c2fce5b

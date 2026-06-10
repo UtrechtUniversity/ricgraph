@@ -89,7 +89,7 @@ Ricgraph Explorer.
 The figure above shows screenshots of web pages of Ricgraph Explorer for
 answering the research question “What are the research results of
 person A”. It is a screenshot from the January 2025 version, in May 2026 it looks
-slightly different as shown in the screenshots below.
+slightly different. The May 2026 screenshots are shown below.
 
 The screenshot at the top left is the [home page](ricgraph_explorer.md#home-page).
 After clicking “search for a person”,
@@ -110,23 +110,6 @@ the journal articles. By clicking on an entry in the “value” column, in this
 DOI value, the user will go to this
 neighbor. Ricgraph Explorer will show a page with persons who have contributed to
 that journal article.
-
-### Example research questions
-
-In the figure in the previous section,
-after a click on a value in the “value” column in the bottom right result
-page, the user will get the persons who have contributed to that research
-result, as in figure (b) below.
-
-<img alt="Example research questions for Ricgraph." src="images/examples-of-research-questions-general.jpg" width="90%">
-
-Clicking “find
-persons that share any result types with this person” in the bottom left
-person option page (in the figure in the previous section) corresponds to figure (c),
-and clicking “show personal information related to this person” corresponds to figure (e).
-
-The research question “What are the research results of person A” from
-the previous section corresponds to figure (a).
 
 ## Home page
 The figure below shows part of the home page.
