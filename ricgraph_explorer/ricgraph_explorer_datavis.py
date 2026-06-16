@@ -54,7 +54,8 @@ from ricgraph import (datetimestamp,
                       convert_nodeslist_to_dataframe,
                       create_empty_page_params, create_empty_query_params,
                       write_text_to_file, write_dataframe_to_csv,
-                      PageParams, QueryParams)
+                      PageParams, QueryParams,
+                      datestamp)
 from ricgraph_explorer_constants import (RICGRAPH_SYSTEMINFO,
                                          ricgraph_reference, diagram_tooltip_style,
                                          observable_d3,
@@ -76,7 +77,7 @@ from ricgraph_explorer_javascript import (create_chord_diagram_javascript,
 def create_chord_diagram(df: DataFrame,
                          width: int = 1200,
                          figure_caption: str = '',
-                         figure_filename: str = 'chord_diagram.svg') -> str:
+                         figure_filename: str = '') -> str:
     """Create a D3 chord diagram from a DataFrame.
     Chord diagram: https://d3-graph-gallery.com/chord.html.
     The DataFrame needs to be square and symmetric. It is best to sort it.
@@ -95,6 +96,9 @@ def create_chord_diagram(df: DataFrame,
     if len(df.columns) != len(df.index):
         print('create_chord_diagram(): Error, the DataFrame needs to be square and symmetric.')
         return ''
+
+    if figure_filename == '':
+        figure_filename = datestamp() + '-ricgraph-chord-diagram.svg'
 
     matrix = df.values.tolist()
     labels = df.index.tolist()
@@ -148,7 +152,7 @@ def create_sankey_diagram(page_params: PageParams,
                           width: int = 1200,
                           height: int = 0,
                           figure_caption: str = '',
-                          figure_filename: str = 'sankey_diagram') -> str:
+                          figure_filename: str = '') -> str:
     """Create a D3 Sankey diagram from a DataFrame.
     Sankey diagram: https://d3-graph-gallery.com/sankey.html.
 
@@ -169,6 +173,9 @@ def create_sankey_diagram(page_params: PageParams,
     if df is None or df.empty:
         print('create_sankey_diagram(): Error, DataFrame is empty.')
         return ''
+
+    if figure_filename == '':
+        figure_filename = datestamp() + '-ricgraph-sankey-diagram.svg'
 
     nodes = []
     node_map = {}
@@ -451,11 +458,11 @@ def org_collaborations_diagram(page_params: PageParams,
                                           df=collabs_orgs,
                                           tooltip_show_links=tooltip_show_links,
                                           figure_caption=caption,
-                                          figure_filename=filename + '.svg')
+                                          figure_filename=filename)
     else:
         body_html = create_chord_diagram(df=collabs_orgs,
                                          figure_caption=caption,
-                                         figure_filename=filename + '.svg')
+                                         figure_filename=filename)
 
     if generate_full_html:
         return_html = create_full_htmlpage(body_html=body_html)
@@ -534,7 +541,7 @@ def three_org_collaborations_chord(query_params: QueryParams,
     caption += first_org + ', ' + second_org + ', and ' + third_org + '.'
     body_html = create_chord_diagram(df=combine_df,
                                      figure_caption=caption,
-                                     figure_filename=filename + '.svg')
+                                     figure_filename=filename)
     if generate_full_html:
         return_html = create_full_htmlpage(body_html=body_html)
     else:

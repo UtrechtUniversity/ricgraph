@@ -55,8 +55,10 @@
 
 from urllib.parse import urlencode
 from math import ceil, floor
+from json import dumps
 from neo4j.graph import Node
 from flask import url_for
+from markupsafe import escape
 from ricgraph import (nodes_cache_key_id_create,
                       create_ricgraph_key,
                       create_unique_string,
@@ -69,7 +71,8 @@ from ricgraph import (nodes_cache_key_id_create,
                       RICGRAPH_UNKNOWN,
                       PageParams, QueryParams,
                       create_empty_page_params,
-                      create_empty_query_params)
+                      create_empty_query_params,
+                      datestamp)
 from ricgraph_explorer_constants import (TABLE_DETAIL_COLUMNS,
                                          TABLE_RESEARCH_OUTPUT_COLUMNS,
                                          MAX_ROWS_TO_EXPORT, TABLE_ID_COLUMNS,
@@ -348,7 +351,8 @@ def get_regular_table_worker(nodes_list: list,
         nodes_cache_key_id_create(key=key, elementid=node.element_id)
 
     html += '</tbody>'
-    html += get_html_for_tableend(table_id=table_id)
+    html += get_html_for_tableend(table_id=table_id,
+                                  table_header=table_header)
     html += '</div>'        # Ends </div> from above [A].
     html += nr_rows_in_table_message
 
@@ -667,25 +671,32 @@ def get_html_for_tablerow(node: Node,
     return html
 
 
-def get_html_for_tableend(table_id: str = '') -> str:
+def get_html_for_tableend(table_id: str = '',
+                          table_header: str = '') -> str:
     """Get the HTML required for the end of an HTML table.
     Offer a possibility to export the table.
 
     :param table_id: the id of the table, required for exporting the
       table to csv, but not if you don't want it to be exported.
+    :param table_header: the HTML to show above the exported table.
     :return: HTML to be rendered.
     """
     html = '</table>'
     if table_id == '':
         return html
 
+    # The (json.)dumps() is required, since table_header may contain all kinds of
+    # characters (e.g. (, ), ", ') that can confuse the JavaScript.
+    onclick = f"exportTableToCSV('{table_id}-container', {MAX_ROWS_TO_EXPORT},"
+    onclick += f"{dumps(table_header)}); return false;"
+
     html += f'''
             <div style="float:right;">
-                <a href="#" onclick="exportTableToCSV('{table_id}-container', {MAX_ROWS_TO_EXPORT}); return false;">
+                <a href="#" onclick="{escape(onclick)}">
                    Export table to CSV file, at most {MAX_ROWS_TO_EXPORT} rows.</a>
             </div>
             '''
 
-    figure_filename = 'ricgraph_explorer_export_' + table_id + '.csv'
-    javascript = get_html_for_tableend_javascript(figure_filename=figure_filename)
+    table_filename = datestamp() + '-ricgraph-export-' + table_id + '.csv'
+    javascript = get_html_for_tableend_javascript(table_filename=table_filename)
     return javascript + html

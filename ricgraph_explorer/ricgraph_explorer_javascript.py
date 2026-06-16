@@ -178,17 +178,17 @@ def get_tabbed_table_javascript(table_id: str) -> str:
     return javascript
 
 
-def get_html_for_tableend_javascript(figure_filename: str) -> str:
+def get_html_for_tableend_javascript(table_filename: str) -> str:
     """This JavaScript code is to export the table with the given tableId as a CSV file.
     Only maxRows are exported (as a kind of safety not to be able to export everything).
     Note that the table is exported as it is shown on the webpage.
 
-    :param figure_filename: the filename of the resulting csv download file.
+    :param table_filename: the filename of the resulting csv download file.
     :return: HTML to be rendered.
     """
     javascript = f'''
                  <script>
-                 function exportTableToCSV(tableId, maxRows) {{
+                 function exportTableToCSV(tableId, maxRows, tableHeader) {{
                      const rows = document.querySelectorAll(`#${{tableId}} tr`);
                      const rowsToExport = [];
                      // Always include the header row (first row), then up to (maxRows) rows total (header + data)
@@ -199,16 +199,33 @@ def get_html_for_tableend_javascript(figure_filename: str) -> str:
                      // - Replace any double quotes with two double quotes (CSV escaping).
                      // - Enclose every cell value in double quotes.
                      // Join each cell in a row with commas, and join rows with newlines.
-                     const csvContent = Array.from(rowsToExport).map(row =>
-                         Array.from(row.children).map(cell =>
-                             '"' + cell.innerText.replace(/"/g, '""') + '"'
-                         ).join(',')
+                     // Add tableHeader as first line, followed by the correct number
+                     // of commas.
+                     const columnCount = rowsToExport.length > 0 ? rowsToExport[0].children.length : 1;
+                     const paddedHeader = '"' + String(tableHeader).replace(/"/g, '""') + '"' +
+                       ','.repeat(Math.max(0, columnCount - 1));
+                     const csvContent = paddedHeader + '\\n' +
+                       Array.from(rowsToExport).map(row =>
+                         Array.from(row.children).map(cell => {{
+                             const link = cell.querySelector('a');
+                             const linkText = link ? link.innerText.trim() : '';
+                             // If the cell content is "url_main link" or "url_other link",
+                             // substitute the contents with the actual link.
+                             const cellValue =
+                                 link && (linkText === 'url_main link' || linkText === 'url_other link')
+                                     ? link.href
+                                     : cell.innerText;
+                             // Never export cell contents that start with
+                             // "Click for history" (i.e. the _history column).
+                             const exportValue = cellValue.trim().startsWith('Click for history') ? '' : cellValue;
+                             return '"' + exportValue.replace(/"/g, '""') + '"';
+                         }}).join(',')
                      ).join('\\n');
                      const blob = new Blob([csvContent], {{type: 'text/csv'}});
                      // Create a hidden <a> element to trigger the download.
                      const link = document.createElement('a');
                      link.href = URL.createObjectURL(blob);
-                     link.download = '{figure_filename}';
+                     link.download = '{table_filename}';
                      document.body.appendChild(link);
                      link.click();
                      document.body.removeChild(link);

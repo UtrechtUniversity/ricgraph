@@ -142,7 +142,8 @@ MAX_ITEMS_TO_RETURN_RESTAPI = 250
 MAX_ROWS_IN_TABLE = 50
 
 # If we export a table, we export at most this number of rows in that table.
-MAX_ROWS_TO_EXPORT = 250
+# Note that this number must be equal or smaller than MAX_ITEMS_TO_RETURN.
+MAX_ROWS_TO_EXPORT = 1000
 
 # It is possible to find enrichments for all nodes in Ricgraph. However, that
 # will take a long time. This is the maximum number of nodes Ricgraph Explorer

@@ -253,17 +253,16 @@ def collabsresultpage() -> str:
                                       query_params=query_params)
     # A fragment of text to be reused. Escape organization names for safety, since
     # they will be included in the HTML of the webpage that is being generated.
-    start_collab_html = '"' + str(escape(query_params['start_orgs'])) + '" and '
+    start_collab_html = "'" + str(escape(query_params['start_orgs'])) + "' and "
     start_collab_html += 'any organization' if query_params['collab_orgs'] == '' \
-                                            else '"' + str(escape(query_params['collab_orgs'])) + '"'
+                                            else "'" + str(escape(query_params['collab_orgs'])) + "'"
+    start_collab_html += '. '
     html += get_page_title(title='Collaborations between ' + start_collab_html)
     html += get_html_for_cardstart()
     if page_params['collab_mode'] == 'return_collab_sankey':
         html += 'This Sankey diagram shows the collaborations between '
-        html += start_collab_html + ', '
-        html += get_year_range_text(year_first=query_params['year_first'],
-                                    year_last=query_params['year_last'])
-        html += '. It conforms to the selections at the bottom of this page. '
+        html += start_collab_html
+        html += 'It conforms to the selections at the bottom of this page. '
         html += 'There, you can also modify these selections and recreate this diagram. '
         html += '<p/>'
         result_html = org_collaborations_diagram(page_params=page_params,
@@ -284,23 +283,36 @@ def collabsresultpage() -> str:
         header = 'This table shows the '
         if page_params['collab_mode'] == 'return_researchresults':
             header += 'research results that originate from the collaborations between '
-            header += start_collab_html + '. '
-            what = 'research results'
+            header += start_collab_html
+            what = 'These research results '
         elif page_params['collab_mode'] == 'return_startorg_persons':
             header += 'persons that are participating in the collaborations between '
             header += start_collab_html
-            header += ', they are member of the first organization.'
-            what = 'collaborations'
+            header += 'They are member of the first organization. '
+            what = 'The research results involved in these collaborations '
         else:
             header += 'persons that are participating in the collaborations between '
             header += start_collab_html
-            header += ', they are member of the latter organization(s).'
-            what = 'collaborations'
+            header += 'They are member of the latter organization(s). '
+            what = 'The research results involved in these collaborations '
+        year_range_text = get_year_range_text(year_first=query_params['year_first'],
+                                              year_last=query_params['year_last'])
+        what += 'are ' + year_range_text + ', and '
         if len(query_params['category_list']) == 0:
-            header += ' It shows ' + what + ' for all categories.'
+            header += what + 'include all categories. '
         else:
-            header += ' It shows ' + what + ' for the following categories: '
-            header += str(query_params['category_list']) + '.'
+            header += what + 'include the following categories: '
+            header += str(query_params['category_list']) + '. '
+        if len(query_params['license']) == 0:
+            header += 'They also include all license values, '
+        else:
+            header += 'They also include the following license values: '
+            header += str(query_params['license']) + ', '
+        if len(query_params['access']) == 0:
+            header += 'and all access values. '
+        else:
+            header += 'and the following access values: '
+            header += str(query_params['access']) + '. '
         nodes_list = org_collaborations_persons_results(query_params=query_params,
                                                         mode=page_params['collab_mode'])
         if len(nodes_list) == 0:

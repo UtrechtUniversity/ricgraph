@@ -170,7 +170,7 @@ def get_url_parameter_list(parameter: str,
         such as in 'Department: Research & Data Management Services',
         that '&' will be translated to the HTML character '&amp;', which then
         will not be found in Ricgraph.
-    :return: the list of values of the URL parameter.
+    :return: the list of values of the URL parameter. It will be sorted.
     """
     if allowed_values is None:
         allowed_values = []
@@ -189,6 +189,7 @@ def get_url_parameter_list(parameter: str,
             value_list = []
         else:
             value_list = [default_value]
+    value_list.sort(key=lambda x: x.lower())
     return value_list
 
 

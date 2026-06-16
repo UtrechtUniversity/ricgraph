@@ -89,31 +89,49 @@ def get_ricgraph_ini_file() -> str:
     exit(1)
 
 
+def datestamp(hyphens: bool = False) -> str:
+    """Get a datestamp
+    in the format YY-MM-DD or YYMMDD.
+
+    :param hyphens: If True, separate the parts of the date
+      with a dash.
+    :return: the datestamp.
+    """
+    now = datetime.now()
+    if hyphens:
+        date_stamp = now.strftime(format='%y-%m-%d')
+    else:
+        date_stamp = now.strftime(format='%y%m%d')
+    return date_stamp
+
+
 def timestamp(seconds: bool = False) -> str:
-    """Get a timestamp only consisting of a time.
+    """Get a timestamp only consisting of a time,
+    in the format HH:MM:SS or HH:MM.
 
     :param seconds: If True, also show seconds in the timestamp.
     :return: the timestamp.
     """
     now = datetime.now()
     if seconds:
-        time_stamp = now.strftime("%H:%M:%S")
+        time_stamp = now.strftime(format='%H:%M:%S')
     else:
-        time_stamp = now.strftime("%H:%M")
+        time_stamp = now.strftime(format='%H:%M')
     return time_stamp
 
 
 def datetimestamp(seconds: bool = False) -> str:
-    """Get a timestamp consisting of a date and a time.
+    """Get a timestamp consisting of a date and a time,
+    in the format YYYY-MM-DD HH:MM:SS or YYYY-MM-DD HH:MM.
 
     :param seconds: If True, also show seconds in the timestamp.
     :return: the timestamp.
     """
     now = datetime.now()
     if seconds:
-        datetime_stamp = now.strftime("%Y-%m-%d %H:%M:%S")
+        datetime_stamp = now.strftime(format='%Y-%m-%d %H:%M:%S')
     else:
-        datetime_stamp = now.strftime("%Y-%m-%d %H:%M")
+        datetime_stamp = now.strftime(format='%Y-%m-%d %H:%M')
     return datetime_stamp
 
 
