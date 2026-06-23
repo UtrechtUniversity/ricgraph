@@ -74,21 +74,39 @@ it will install everything automatically (by using the
    make install_ricgraph_singleuser_cuttingedge_neo4j_community
    ```
    On success, the Makefile will print *installed successfully*.
-1. Harvest two source systems in Ricgraph:
-   ```
-   cd $HOME/ricgraph_venv
-   make run_bash_script
-   ```
-   This will harvest two source systems,
-   [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
-   [the Research Software Directory](https://research-software-directory.org).
-   It will print a lot of output, and it will take a few minutes. 
-   When ready, it will print *Done*.
+1. You can now harvest source systems, or restore a
+   graph database dump from previously harvested source systems.
+    1. If you have never harvested a source system, start
+       with harvesting two source systems into Ricgraph:
+       ```
+       cd /opt/ricgraph_venv
+       make run_bash_script
+       ```
+       This will harvest two source systems,
+       [the data repository Yoda](https://www.uu.nl/en/research/yoda) and
+       [the Research Software Directory](https://research-software-directory.org).
+       It will print a lot of output, and it will take a few minutes.
+       When ready, it will print *Done*.
+    1. Harvest your own source systems in Ricgraph.
 
-   To read more about harvesting data, 
-   see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md#ricgraph-harvest-scripts).
-   To read more about writing harvesting scripts,
-   see [Ricgraph script writing](ricgraph_script_writing.md#ricgraph-script-writing).
+       To read more about harvesting data,
+       see [Ricgraph harvest scripts](ricgraph_harvest_scripts.md).
+       To read more about writing harvesting scripts,
+       see [Ricgraph script writing](ricgraph_script_writing.md).
+    1. Restore a
+       graph database dump from previously harvested source systems.
+
+       If you have harvested source systems before, first empty
+       the graph database:
+       ```
+       make empty_graphdb_neo4j_community
+       ```
+       The restore your graph database:
+       ```
+       make restore_graphdb_neo4j_community graphdb_backup_dir=[directory]'
+       ```
+       Substitute *[directory]* for
+       the directory to restore the graph database from.
 1. Start Ricgraph Explorer to browse the information harvested:
    ```
    cd $HOME/ricgraph_venv
