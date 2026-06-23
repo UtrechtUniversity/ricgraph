@@ -105,8 +105,8 @@ bash_script_log := $(dir $(bash_script))$(basename $(notdir $(bash_script)))_$$(
 neo4j_download := https://dist.neo4j.org
 
 # Misc. variables.
-readdoc_server := https://docs.ricgraph.eu/docs/ricgraph_as_server.html#fast-and-recommended-way-to-install-ricgraph-as-a-server
-readdoc_singleuser := https://docs.ricgraph.eu/docs/ricgraph_install_configure.html#fast-and-recommended-way-to-install-ricgraph-for-a-single-user
+readdoc_server := https://docs.ricgraph.eu/ricgraph_as_server.html#fast-and-recommended-way-to-install-ricgraph-as-a-server
+readdoc_singleuser := https://docs.ricgraph.eu/ricgraph_install_configure.html#fast-and-recommended-way-to-install-ricgraph-for-a-single-user
 tmp_dir := /tmp/cuttingedge_$(shell echo $$PPID)
 graphdb_backup_dir := /root/graphdb_backup
 graphdb_password_file := /var/tmp/0-ricgraph-password.txt
@@ -186,20 +186,24 @@ ifeq ($(shell test -d /etc/apache2/vhosts.d && echo true),true)
 	apache_vhosts_dir := /etc/apache2/vhosts.d
 	apache_service_file := /usr/lib/systemd/system/apache2.service
 	certbot := python3-certbot
+	certbot_timer := certbot-systemd-timer
 else ifeq ($(shell test -d /etc/apache2/sites-available && echo true),true)
 	# E.g. for Ubuntu and Debian.
 	apache_vhosts_dir := /etc/apache2/sites-available
 	apache_service_file := /usr/lib/systemd/system/apache2.service
 	certbot := certbot
+	certbot_timer :=
 else ifeq ($(shell test -d /etc/httpd/conf.d && echo true),true)
 	# E.g. for Fedora.
 	apache_vhosts_dir := /etc/httpd/conf.d
 	apache_service_file := /usr/lib/systemd/system/httpd.service
 	certbot := certbot
+	certbot_timer := certbot-systemd-timer
 else
 	apache_vhosts_dir := [not_set]
 	apache_service_file := [not_set]
 	certbot := [not_set]
+	certbot_timer := [not_set]
 endif
 
 # Determine which Nginx paths to use.
@@ -207,14 +211,22 @@ endif
 ifeq ($(shell test -d /etc/nginx/vhosts.d && echo true),true)
 	# E.g. for OpenSUSE Leap & Tumbleweed.
 	nginx_vhosts_dir := /etc/nginx/vhosts.d
+	certbot := python3-certbot
+	certbot_timer := certbot-systemd-timer
 else ifeq ($(shell test -d /etc/nginx/sites-available && echo true),true)
 	# E.g. for Ubuntu and Debian.
 	nginx_vhosts_dir := /etc/nginx/sites-available
+	certbot := certbot
+	certbot_timer :=
 else ifeq ($(shell test -d /etc/nginx/conf.d && echo true),true)
 	# E.g. for Fedora.
 	nginx_vhosts_dir := /etc/nginx/conf.d
+	certbot := certbot
+	certbot_timer := certbot-systemd-timer
 else
 	nginx_vhosts_dir := [not_set]
+	certbot := [not_set]
+	certbot_timer := [not_set]
 endif
 
 # Determine the www root dir.
@@ -277,7 +289,7 @@ help:
 allhelp: help
 	@echo "OTHER RICGRAPH INSTALL METHODS"
 	@echo "For installation options, please read"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_install_configure.html"
+	@echo "https://docs.ricgraph.eu/ricgraph_install_configure.html"
 	@echo ""
 	@echo "Commands to install Ricgraph as a single user, recommended for"
 	@echo "users that cannot change to user 'root':"
@@ -389,6 +401,7 @@ makefile_variables:
 	@echo "- apache_service_file: $(apache_service_file)"
 	@echo "- nginx_vhosts_dir: $(nginx_vhosts_dir)"
 	@echo "- certbot: $(certbot)"
+	@echo "- certbot_timer: $(certbot_timer)"
 	@echo "- neo4j_community: $(neo4j_community)"
 	@echo "- neo4j_community_path: $(neo4j_community_path)"
 	@echo "- neo4j_cyphershell: $(neo4j_cyphershell)"
@@ -425,7 +438,7 @@ ifeq ($(shell test ! -f /lib/systemd/system/neo4j.service && echo true),true)
 	@echo ""
 	@echo "Starting Install and enable Neo4j Community Edition."
 	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#neo4j-community-edition"
+	@echo "https://docs.ricgraph.eu/ricgraph_backend_neo4j.html#neo4j-community-edition"
 	$(call are_you_sure)
 	@echo ""
 	@if [ ! -f $(HOME)/$(neo4j_community) ]; then cd $(HOME); echo "Downloading Neo4j Community Edition..."; wget $(neo4j_community_path); fi
@@ -456,7 +469,7 @@ ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo ""
 	@echo "Starting Download and install Neo4j Desktop." 
 	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#neo4j-desktop"
+	@echo "https://docs.ricgraph.eu/ricgraph_backend_neo4j.html#neo4j-desktop"
 	$(call are_you_sure)
 	@echo ""
 	@cd $(HOME); echo "Downloading Neo4j Desktop..."; wget $(neo4j_desktop_path)
@@ -465,7 +478,7 @@ ifeq ($(shell test ! -f $(HOME)/$(neo4j_desktop) && echo true),true)
 	@echo "Done."
 	@echo "Neo4j Desktop version $(neo4j_desktop_version) has been downloaded."
 	@echo "Before you can use it, please read the post-install steps at"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_backend_neo4j.html#post-install-steps-neo4j-desktop"
+	@echo "https://docs.ricgraph.eu/ricgraph_backend_neo4j.html#post-install-steps-neo4j-desktop"
 	@echo "One of the steps is to fill in a password. Use the"
 	@echo "password in file $(graphdb_password_file)."
 	@echo "If you do this, you do not need to fill in this password in"
@@ -521,7 +534,7 @@ ifeq ($(shell test ! -f /etc/systemd/system/ricgraph_explorer_gunicorn.service &
 	@echo "Starting Install and enable Ricgraph Explorer and REST API."
 	@echo "Memcached will also be installed."
 	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api"
+	@echo "https://docs.ricgraph.eu/ricgraph_as_server.html#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api"
 	$(call are_you_sure)
 	@echo ""
 	cp $(ricgraph_server_install_dir)/ricgraph_server_config/ricgraph_explorer_gunicorn.service /etc/systemd/system
@@ -556,7 +569,7 @@ ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && ec
 	@echo "This includes installing certbot, if it is not there yet."
 	@echo "Please make sure you know what you do."
 	@echo "Please, please, do read the documentation at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
+	@echo "https://docs.ricgraph.eu/ricgraph_as_server.html#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
 	$(call are_you_sure)
 	@echo ""
 	cp $(ricgraph_server_install_dir)/ricgraph_server_config/ricgraph_explorer.conf-apache $(apache_vhosts_dir)
@@ -564,12 +577,12 @@ ifeq ($(shell test ! -f $(apache_vhosts_dir)/ricgraph_explorer.conf-apache && ec
 	a2enmod mod_proxy
 	a2enmod mod_proxy_http
 	a2enmod headers
-	@if [ ! -d /etc/letsencrypt ]; then $(package_install_cmd) $(certbot) certbot-systemd-timer python3-certbot-apache; fi
+	@if [ ! -d /etc/letsencrypt ]; then $(package_install_cmd) $(certbot) $(certbot-timer) python3-certbot-apache; fi
 	@echo ""
 	@echo "Done."
 	@echo "Webserver Apache has been prepared. Certbot has been installed."
 	@echo "To make it work, continue reading at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-apache"
+	@echo "https://docs.ricgraph.eu/ricgraph_as_server.html#post-install-steps-apache"
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
@@ -584,17 +597,17 @@ ifeq ($(shell test ! -f $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx && echo
 	@echo "This includes installing certbot, if it is not there yet."
 	@echo "Please make sure you know what you do."
 	@echo "Please, please, do read the documentation at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
+	@echo "https://docs.ricgraph.eu/ricgraph_as_server.html#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine"
 	$(call are_you_sure)
 	@echo ""
 	cp $(ricgraph_server_install_dir)/ricgraph_server_config/ricgraph_explorer.conf-nginx $(nginx_vhosts_dir)
 	chmod 600 $(nginx_vhosts_dir)/ricgraph_explorer.conf-nginx
-	@if [ ! -d /etc/letsencrypt ]; then $(package_install_cmd) $(certbot) certbot-systemd-timer python3-certbot-nginx; fi
+	@if [ ! -d /etc/letsencrypt ]; then $(package_install_cmd) $(certbot) $(certbot-timer) python3-certbot-nginx; fi
 	@echo ""
 	@echo "Done."
 	@echo "Webserver Nginx has been prepared. Certbot has been installed."
 	@echo "To make it work, continue reading at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-nginx"
+	@echo "https://docs.ricgraph.eu/ricgraph_as_server.html#post-install-steps-nginx"
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endif
@@ -690,7 +703,7 @@ install_munin_nginx: check_user_root
 	@echo ""
 	@echo "Starting install Munin monitoring for Nginx."
 	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#munin-with-nginx"
+	@echo "https://docs.ricgraph.eu/ricgraph_as_server.html#munin-with-nginx"
 	$(call are_you_sure)
 	@echo ""
 	$(package_install_cmd) munin munin-node
@@ -719,7 +732,7 @@ install_awstats_nginx: check_user_root
 	@echo ""
 	@echo "Starting install AWStats web server log analysis for Nginx."
 	@echo "You may want to read more at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#awstats-with-nginx"
+	@echo "https://docs.ricgraph.eu/ricgraph_as_server.html#awstats-with-nginx"
 	$(call are_you_sure)
 	@echo ""
 	$(package_install_cmd) awstats
@@ -736,7 +749,7 @@ endif
 	@echo ""
 	@echo "Done."
 	@echo "Don't forget to add an entry to /etc/crontab. Continue reading at:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_as_server.html#post-install-steps-awstats-with-nginx"
+	@echo "https://docs.ricgraph.eu/ricgraph_as_server.html#post-install-steps-awstats-with-nginx"
 	@echo "After doing that you can access Munin monitoring on http://localhost:8070."
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
@@ -1025,7 +1038,7 @@ define install_ricgraph
 	@echo "'run_' targets, type 'make help' to learn more."
 	@echo "Also, you may want to modify '$(1)/ricgraph.ini'"
 	@echo "to suit your needs, please read:"
-	@echo "https://docs.ricgraph.eu/docs/ricgraph_install_configure.html#ricgraph-initialization-file"
+	@echo "https://docs.ricgraph.eu/ricgraph_install_configure.html#ricgraph-initialization-file"
 	@echo ""
 	@echo "'make $(MAKEOVERRIDES) $@' finished successfully."
 endef
