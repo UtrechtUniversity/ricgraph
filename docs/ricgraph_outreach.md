@@ -88,7 +88,8 @@ extensive one (also including the use cases).
 ## Ricgraph newsletters
 
 These are the newsletters that have been sent out to our newsletter subscribers. 
-To subscribe to the newsletter email list, go to [Ricgraph Contact](../README.md#contact).
+To subscribe to the newsletter email list, go to 
+[Ricgraph Contact](https://www.ricgraph.eu/contact.html).
 
 | Date         | Title                                                                                                                                                                              |
 |--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
