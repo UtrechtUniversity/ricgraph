@@ -59,14 +59,13 @@ adapted to new application areas.
 
 Ricgraph is unique because it allows you to:
 
-* [Explore collaborations between (sub-)organizations with
-  Ricgraph](https://www.ricgraph.eu/collaborations-with-ricgraph.html).
-* [Explore Open science with Ricgraph](https://www.ricgraph.eu/open-science-with-ricgraph.html).
-* [Enhance research information systems with Ricgraph](https://www.ricgraph.eu/enhancing-with-ricgraph.html).
+* [Explore collaborations between (sub-)organizations](https://www.ricgraph.eu/collaborations-with-ricgraph.html).
+* [Explore open science](https://www.ricgraph.eu/open-science-with-ricgraph.html).
+* [Enhance research information systems](https://www.ricgraph.eu/enhancing-with-ricgraph.html).
 
-The nice thing
-about Ricgraph is that anyone with Python knowledge can easily extend it,
-so you can use Ricgraph to test your own ideas or to create your own applications.
+One of the other strengths of Ricgraph is that anyone with
+Python knowledge can easily extend it, allowing you to test
+your own ideas or create your own applications.
 
 You can use Ricgraph either as a standalone tool,
 or as a component that provides a graph based data structure with
