@@ -17,6 +17,8 @@ In the menu bar, you can find more information on how to:
 Below, you will find more 
 [use cases](#use-cases) and 
 [example research questions](#example-research-questions).
+You can [read more about Ricgraph](#read-more-about-ricgraph) and 
+[install and use Ricgraph](#install-and-use-ricgraph).
 
 ## Use cases
 

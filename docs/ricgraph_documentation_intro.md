@@ -1,7 +1,7 @@
 # Documentation Ricgraph
 
 > Quick links: [Use Ricgraph or participate](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html) &
-> [Read news](https://www.ricgraph.eu/ricgraph-news.html). 
+> [Learn more about Ricgraph](https://www.ricgraph.eu).
  
 ## What is Ricgraph?
 
@@ -20,15 +20,14 @@ adapted to new application areas.
 
 Ricgraph is unique because it allows you to:
 
-* Explore collaborations between (sub-)organizations with Ricgraph;
-* Explore Open science with Ricgraph;
-* Enhance research information systems with Ricgraph;
+* Explore collaborations between (sub-)organizations;
+* Explore open science;
+* Enhance research information systems.
 
+One of the other strengths of Ricgraph is that anyone with
+Python knowledge can easily extend it, allowing you to test
+your own ideas or create your own applications.
 Go to the [Ricgraph website](https://www.ricgraph.eu) to read more.
-
-The nice thing
-about Ricgraph is that anyone with Python knowledge can easily extend it,
-so you can use Ricgraph to test your own ideas or to create your own applications.
 
 You can use Ricgraph either as a standalone tool,
 or as a component that provides a graph based data structure with
@@ -96,12 +95,9 @@ Feel free to browse through the full documentation:
 This website has been generated from the
 [Ricgraph GitHub](https://github.com/UtrechtUniversity/ricgraph) documentation.
 
-## What NOT to find on this Documentation website?
+## What not to find on this Documentation website?
 
 This documentation website is primarily for details and documentation about Ricgraph.
 If you would like to know more about Ricgraph, such as what it is, what you
 can do with it, how you can contribute, etc., please go the 
 [Ricgraph website](https://www.ricgraph.eu).
-
-Read more about 
-[Use Ricgraph or participate](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).

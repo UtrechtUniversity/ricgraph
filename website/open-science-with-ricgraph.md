@@ -11,8 +11,10 @@ science landscape:
 * [Explore collaborations between (sub-)organizations with
   Ricgraph](collaborations-with-ricgraph.md).
 
-The nice thing
-about Ricgraph is that anyone with Python knowledge can easily extend it.
+One of the strengths of Ricgraph is that anyone with
+Python knowledge can easily extend it, allowing you to test
+your own ideas or create your own applications.
+
 That means, that if you have an idea for an open science
 indicator, you can implement it in Ricgraph. Then, you can apply it to your own
 research information (and to research information from other organizations,
@@ -32,7 +34,7 @@ It is possible to filter on year, license, and/or access.
 
 These three groups are defined as: 
 
-* *Research material*: input/output and supporting
+* *Research material*: input and supporting
   material of the research.
   E.g., the research result categories *data set*, *software*.
 * *Reporting material*: documents reporting on process and results of research.

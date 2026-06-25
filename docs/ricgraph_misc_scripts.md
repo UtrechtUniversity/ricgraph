@@ -30,6 +30,7 @@ On this page, you can find:
   * [Create a table of contents of the Ricgraph documentation (create_toc_documentation)](#create-a-table-of-contents-of-the-ricgraph-documentation-create_toc_documentation)
   * [Create an index of the Ricgraph documentation (create_index_documentation)](#create-an-index-of-the-ricgraph-documentation-create_index_documentation)
   * [Create the Ricgraph REST API documentation (convert_openapi_to_mddoc)](#create-the-ricgraph-rest-api-documentation-convert_openapi_to_mddoc)
+  * [Scripts to check for missing links on the Ricgraph websites](#scripts-to-check-for-missing-links-on-the-ricgraph-websites-check_links_)
 
 All code is documented and hints to use it can be found in the source files.
 
@@ -491,4 +492,33 @@ The REST API documentation will be created in file
 Usage:
 convert_openapi_to_mddoc.py
 ```
+
+## Scripts to check for missing links on the Ricgraph websites (check_links_...)
+There are four scripts
+to check for missing links on the Ricgraph websites.
+They differ in whether they check
+[www.ricgraph.eu](https://www.ricgraph.eu) or
+[docs.ricgraph.eu](https://docs.ricgraph.eu), and whether they check
+the local version (built using quarto) (then the name of the
+script will end in *_local.sh*), or the actual website.
+You can find these scripts in the directory *maintenance*.
+
+Use one or more of the following commands to run them.
+```
+Usage:
+check_links_www.ricgraph.eu.sh
+```
+```
+Usage:
+check_links_www.ricgraph.eu_local.sh
+```
+```
+Usage:
+check_links_docs.ricgraph.eu.sh
+```
+```
+Usage:
+check_links_docs.ricgraph.eu_local.sh
+```
+
 

@@ -23,7 +23,8 @@ regardless of the field, is of interest.
 About three to four times a year we send out a newsletter.
 To subscribe, 
 please send Rik an email. You can find his email address on
-[his Utrecht University employee page](https://www.uu.nl/staff/DTJanssen).
+[his Utrecht University employee page](https://www.uu.nl/staff/DTJanssen)
+(this is to prevent spam).
 Then 
 [click here to subscribe to it. Your email program will open with
 a subscribe email
@@ -38,4 +39,6 @@ If you like Ricgraph, please give it a GitHub Star by clicking on the top right
 *Star* button on the
 [Ricgraph GitHub repository](https://github.com/UtrechtUniversity/ricgraph).
 If you have any suggestions or improvements,
-please let me know by creating a GitHub *Issue* at the top left of that page. 
+please let me know by 
+sending an email or
+creating a GitHub *Issue* at the top left of that page. 

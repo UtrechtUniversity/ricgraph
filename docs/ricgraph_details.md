@@ -9,7 +9,7 @@ On this page, you can find more information about:
 * [Conventions for names of (sub-)organizations in Ricgraph](#conventions-for-names-of-sub-organizations-in-ricgraph).
 
 You can also look at
-[Example research questions](ricgraph_explorer.md#example-research-questions).
+[Example research questions](https://www.ricgraph.eu/learn-more-about-ricgraph.html#example-research-questions).
 
 
 ## Example graphs in Ricgraph
