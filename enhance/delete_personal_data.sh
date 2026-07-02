@@ -25,7 +25,7 @@ delete_personal_data () {
   echo "Batch deleting personal data for organization '$organization', using"
   echo "file '$pers_to_delete_file' that tells what personal data to rename."
 
-  PYTHONPATH=$python_path $python_cmd ./rename_orgs.py --filename "$pers_to_delete_file" --are_you_sure yes
+  PYTHONPATH=$python_path $python_cmd ./delete_pers_data.py --filename "$pers_to_delete_file" --are_you_sure yes
   exit_code=$?
   if [ "$exit_code" = "0" ] ; then
     echo "Done with deleting personal data for organization $organization."
@@ -36,7 +36,8 @@ delete_personal_data () {
 }
 
 
-echo "This script delete personal data based on a file."
+echo "This script deletes personal data based on a file."
+echo "To run it, you should at least specify '--organization'."
 
 # The following script returns $python_cmd, $python_path,
 # $organization, and $empty_ricgraph.

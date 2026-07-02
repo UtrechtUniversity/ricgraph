@@ -95,6 +95,10 @@ print('Filename used: "' + filename + '".')
 print('\nPreparing graph, starting script at ' + rcg.timestamp() + '...\n')
 graph = rcg.open_ricgraph()
 
+print('Are you sure you have removed all lines that start')
+print('with a "#" from "' + filename + '"?')
+print('If not, this script will throw an error.\n')
+
 # Import all values as string.
 personal_ids = rcg.read_dataframe_from_csv(filename=filename, datatype=str)
 
@@ -156,7 +160,7 @@ rcg.close_ricgraph()
 print('Summary')
 print('File "' + filename + '" has ' + str(len(personal_ids)) + ' personal identifiers')
 print('identifying persons to be deleted from Ricgraph.')
-if personal_ids_found == len(personal_ids):
+if personal_ids_found == len(personal_ids) and len(personal_ids) > 0:
     print('From these, all have been found.')
 else:
     print('From these, only ' + str(personal_ids_found) + ' could be found.')

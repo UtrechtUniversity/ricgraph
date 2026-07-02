@@ -1,8 +1,17 @@
 "name","value"
 # This is a placeholder file for batch deleting personal data of a person.
 # It is read by script delete_pers_data.py.
-# It has two columns, name and value. Of course, 
-# the file containing personal data to delete will never be on GitHub.
-# If you are going to use this file, fill it with your own data and
-# remove every line that starts with '#'.
-# Make sure the result is not accessible by anyone.
+# The file containing personal data to delete should never appear anywhere.
+# Make sure this file is not accessible by anyone.
+#
+# Remove every line that starts with '#' (if you don't do this,
+# the script will throw  an error).
+# Then, fill it with your own data.
+# This file should have two columns, the first column containing
+# a 'name' value and the second a 'value' (as in Ricgraph Explorer).
+# If you need to enclose name or value in quotes, use
+# double quotes ("). The spelling of name and value should be
+# correctly capitalized (as in Ricgraph Explorer).
+# Examples:
+# "ORCID","0000-0000-1111-2222"
+# "ISNI","0034-4300-4444-5555"
