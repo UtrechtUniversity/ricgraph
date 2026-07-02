@@ -32,9 +32,19 @@
 #
 # With this code, you can harvest persons, organizations, research results,
 # data sets, press media items, and projects from Pure.
-# using both the READ API as well as the CRUD API. You don't need to specify this,
-# the script will know.
+# using both the READ API as well as the CRUD API. You don't need to specify
+# this, the script will know. For the CRUD API, continue reading below.
 #
+# You have to set some parameters in ricgraph.ini.
+# Also, you can set a number of parameters in the code following
+# the "import" statements below.
+#
+# In Pure, organizations are hierarchical. That means, an organization has
+# a parent org, which has a parent org, up until a root org.
+# This script will connect a person (i.e. its person-root node)
+# to all of these hierarchical orgs.
+#
+# Notes on using the Pure CRUD API (better use the READ API).
 # As of June 30, 2026, there is still no way to harvest
 # research outputs and press media items from the CRUD API endpoint by
 # (1) filtering on year;
@@ -42,20 +52,18 @@
 # It is only possible to request the CRUD API results sorted
 # on year descending. Both (1) and (2) imply that this script will
 # need to retrieve every research output and press media item and then filter
-# (in this script) on year, which will probably
-# lead to overflows. It will surely lead to a very long execution
-# time and a lot of useless data transferred from Pure to this script.
+# (in this script) on year. It will lead to a very long execution
+# time and a lot of data transferred from Pure to this script.
 #
-# I would recommend to use the READ API. Although this script can harvest
-# using the CRUD API, it fails on correctly harvesting year_first to year_last.
-#
-# In Pure, organizations are hierarchical. That means, an organization has a parent org,
-# which has a parent org, up until a root org.
-# At the end of this script, a person (i.e. its person-root node) will be connected to
-# all of these hierarchical orgs.
-#
-# You have to set some parameters in ricgraph.ini.
-# Also, you can set a number of parameters in the code following the "import" statements below.
+# I would recommend to use the READ API. If you use the CRUD API,
+# this script simulates what the CRUD API should do by itself,
+# by implementing (1) and (2). See the functions
+# preharvest_pure_data() and filter_allowed_values_in_list().
+# With the CRUD API, the nr of records for research outputs and
+# press media items is determined by the constants
+# PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR and
+# PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR (times the number
+# of years to harvest).
 #
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, April, October, November 2023, February 2025.
@@ -94,7 +102,7 @@
 import sys
 import pandas
 import numpy
-from typing import Union
+from typing import Union, Any
 import requests
 from pathlib import PurePath
 import ricgraph as rcg
@@ -118,11 +126,13 @@ HARVEST_PRESS_MEDIA = True
 
 # These specify the mode for harvesting.
 MODE_PERSONS = 'persons'
+MODE_ORGANIZATIONS = 'organizations'
 MODE_RESOUTS = 'research results'
 MODE_DATASETS = 'data sets'
 MODE_PRESS_MEDIA = 'press media'
 MODE_PROJECTS = 'projects'
 MODE_ALL = [MODE_PERSONS,
+            MODE_ORGANIZATIONS,
             MODE_RESOUTS,
             MODE_DATASETS,
             MODE_PRESS_MEDIA,
@@ -168,20 +178,32 @@ PURE_PERSONS_READ_DATA_FROM_FILE = False
 # PURE_PERSONS_READ_DATA_FROM_FILE = True
 PURE_PERSONS_DATA_FILENAME = 'pure_persons_data.csv'
 
+# Used for both the READ API and the CRUD API.
 PURE_PERSONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+
+global PURE_PERSONS_FIELDS
+PURE_READ_PERSONS_FIELDS = {'fields': ['uuid',
+                                       'name.*',
+                                       'orcid',
+                                       'visibility.key',
+                                       'ids.value.*',
+                                       'ids.type.*',
+                                       'staffOrganisationAssociations.period.*',
+                                       'staffOrganisationAssociations.organisationalUnit.uuid'
+                                       ]
+                            }
 # The current version of the Pure CRUD API does not have these filters yet.
-PURE_PERSONS_FIELDS = {'fields': ['uuid',
-                                  'name.*',
-                                  'orcid',
-                                  'visibility.key',
-                                  'ids.value.*',
-                                  'ids.type.*',
-                                  'staffOrganisationAssociations.period.*',
-                                  'staffOrganisationAssociations.organisationalUnit.uuid',
-                                  ]
-                       # See remark below.
-                       # 'employmentStatus': 'ACTIVE'
-                       }
+# We simulate them in filter_allowed_values_in_list().
+PURE_CRUD_PERSONS_FIELDS = {'fields': ['uuid',
+                                       'name.*',
+                                       'orcid',
+                                       'visibility.key',
+                                       'identifiers.id.*',
+                                       'identifiers.type.*',
+                                       'staffOrganizationAssociations.period.*',
+                                       'staffOrganizationAssociations.organization.uuid'
+                                       ]
+                            }
 
 # For the Pure READ API.
 # We harvest all persons from Pure, whether they are active or not. We do this,
@@ -218,18 +240,31 @@ PURE_ORGANIZATIONS_READ_DATA_FROM_FILE = False
 # PURE_ORGANIZATIONS_READ_DATA_FROM_FILE = True
 PURE_ORGANIZATIONS_DATA_FILENAME = 'pure_organizations_data.json'
 
+# Used for both the READ API and the CRUD API.
 PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+
+global PURE_ORGANIZATIONS_FIELDS
+PURE_READ_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
+                                             'period.*',
+                                             'name.text.*',
+                                             'type.*',
+                                             'visibility.key',
+                                             #'ids.*',
+                                             'parents.uuid',
+                                             'parents.type.uri'
+                                             ]
+                                  }
 # The current version of the Pure CRUD API does not have these filters yet.
-PURE_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
-                                        'period.*',
-                                        'name.text.*',
-                                        'type.*',
-                                        'visibility.key',
-                                        #'ids.*',
-                                        'parents.uuid',
-                                        'parents.type.uri',
-                                        ]
-                             }
+# We simulate them in filter_allowed_values_in_list().
+PURE_CRUD_ORGANIZATIONS_FIELDS = {'fields': ['uuid',
+                                             'lifecycle.*',
+                                             'name.*',
+                                             'type.*',
+                                             'visibility.key',
+                                             'parents.uuid',
+                                             'parents.systemName'
+                                             ]
+                                  }
 
 # ######################################################
 # Parameters for harvesting research results from Pure
@@ -254,11 +289,15 @@ PURE_RESOUTS_READ_DATA_FROM_FILE = False
 # PURE_RESOUTS_READ_DATA_FROM_FILE = True
 PURE_RESOUTS_DATA_FILENAME = 'pure_resout_data.csv'
 
-# For Pure READ API: this number is the max recs to harvest per year, not total
-# For Pure CRUD API: this number is the max recs to harvest total.
+# Only used for the READ API.
 PURE_RESOUTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+# June 30, 2026: When harvesting using the CRUD API, we assume
+# that there are at most this number of records to harvest per year.
+# We need this because the CRUD API still lacks important features,
+# see the comment at the beginning of this file.
+PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR = 20000
+
 global PURE_RESOUTS_FIELDS
-# The current version of the Pure CRUD API does not have these filters yet.
 PURE_READ_RESOUTS_FIELDS = {'fields': ['uuid',
                                        'title.value',
                                        'confidential',
@@ -275,16 +314,35 @@ PURE_READ_RESOUTS_FIELDS = {'fields': ['uuid',
                                        'personAssociations.authorCollaboration.*',
                                        'electronicVersions.doi',
                                        'electronicVersions.accessType.*',
-                                       'electronicVersions.licenseType.*',
+                                       'electronicVersions.licenseType.*'
                                        ],
                             # These values will be overwritten.
                             # They exist to prevent a PyCharm warning.
                             'publishedBeforeDate': '',
                             'publishedAfterDate': '',
                             }
+# The current version of the Pure CRUD API does not have these filters yet.
+# We simulate them in filter_allowed_values_in_list().
 PURE_CRUD_RESOUTS_FIELDS = {'orderings': ['publicationYear'],
-                            'orderBy': 'descending'
-                            }
+                            'orderBy': 'descending',
+                            'fields': ['uuid',
+                                       'title.value',
+                                       'confidential',
+                                       'type.uri',
+                                       'visibility.key',
+                                       'workflow.step',
+                                       'publicationStatuses.current',
+                                       'publicationStatuses.publicationDate.*',
+                                       'publicationStatuses.publicationStatus.uri',
+                                       'contributors.person.*',
+                                       'contributors.externalPerson.*',
+                                       'contributors.externalOrganisations.*',
+                                       'contributors.authorCollaboration.*',
+                                       'electronicVersions.doi',
+                                       'electronicVersions.accessType.*',
+                                       'electronicVersions.licenseType.*'
+                                      ]
+                           }
 
 # ######################################################
 # Parameters for harvesting data sets from Pure
@@ -306,8 +364,10 @@ PURE_DATASETS_READ_DATA_FROM_FILE = False
 # PURE_DATASETS_READ_DATA_FROM_FILE = True
 PURE_DATASETS_DATA_FILENAME = 'pure_datasets_data.csv'
 
+# Used for both the READ API and the CRUD API.
 PURE_DATASETS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-# The current version of the Pure CRUD API does not have these filters yet.
+
+global PURE_DATASETS_FIELDS
 PURE_READ_DATASETS_FIELDS = {'fields': ['uuid',
                                         'doi',
                                         'publicationDate.*',
@@ -320,12 +380,28 @@ PURE_READ_DATASETS_FIELDS = {'fields': ['uuid',
                                         'personAssociations.person.*',
                                         'personAssociations.externalPerson.*',
                                         'personAssociations.externalOrganisations.*',
-                                        'personAssociations.authorCollaboration.*',
-                                        #'links.*',
+                                        'personAssociations.authorCollaboration.*'
                                         ]
                              }
+# The current version of the Pure CRUD API does not have these filters yet.
+# We simulate them in filter_allowed_values_in_list().
 PURE_CRUD_DATASETS_FIELDS = {'orderings': ['dateAvailable'],
-                             'orderBy': 'descending'
+                             'orderBy': 'descending',
+                             'fields': ['uuid',
+                                        'doi.doi',
+                                        'publicationAvailableDate.year',
+                                        'confidential',
+                                        'title.*',
+                                        'type.uri',
+                                        'openAccess.openAccessPermission.*',
+                                        'license.*',
+                                        'workflow.step',
+                                        'visibility.key',
+                                        'contributors.person.*',
+                                        'contributors.externalPerson.*',
+                                        'contributors.externalOrganisations.*',
+                                        'contributors.authorCollaboration.*'
+                                        ]
                             }
 
 # ######################################################
@@ -351,10 +427,16 @@ PURE_PRESS_MEDIA_READ_DATA_FROM_FILE = False
 # PURE_PRESS_MEDIA_READ_DATA_FROM_FILE = True
 PURE_PRESS_MEDIA_DATA_FILENAME = 'pure_pressmedia_data.csv'
 
+# Only used for the READ API.
 PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-# The current version of the Pure CRUD API does not have these filters yet.
+# June 30, 2026: When harvesting using the CRUD API, we assume
+# that there are at most this number of records to harvest per year.
+# We need this because the CRUD API still lacks important features,
+# see the comment at the beginning of this file.
+PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR = 5000
+
+global PURE_PRESS_MEDIA_FIELDS
 PURE_READ_PRESS_MEDIA_FIELDS = {'fields': ['uuid',
-                                           #'title.*',
                                            'type.uri',
                                            'confidential',
                                            'visibility.key',
@@ -377,8 +459,19 @@ PURE_READ_PRESS_MEDIA_FIELDS = {'fields': ['uuid',
                                                        'year': '9999'},
                                           }
                               }
+# The current version of the Pure CRUD API does not have these filters yet.
+# We simulate them in filter_allowed_values_in_list().
 PURE_CRUD_PRESS_MEDIA_FIELDS = {'orderings': ['date'],
-                                'orderBy': 'descending'
+                                'orderBy': 'descending',
+                                'fields': ['uuid',
+                                           'title.*',
+                                           'type.uri',
+                                           'confidential',
+                                           'visibility.key',
+                                           'workflow.step',
+                                           'mediaCoverages.date',
+                                           'mediaCoverages.persons.*'
+                                           ]
                                }
 
 # ######################################################
@@ -646,6 +739,92 @@ def json_item_get_list_pure(json_item: dict,
     # Then for Pure CRUD API.
     return rcg.json_item_get_list(json_item=json_item,
                                   json_path=json_path_crud)
+
+
+def filter_allowed_values_in_list(harvest_list: list,
+                                  allowed_fields_list: list) -> list:
+    """This function takes a list (harvest_list), and returns only
+    the elements that are in allowed_fields_list. If such an element
+    ends in a '*', the whole tree from that element is returned.
+    This function is used to reduce the number of fields in the data
+    harvested with the Pure CRUD API.
+
+    :param harvest_list: The list with elements to filter.
+    :param allowed_fields_list: The list with elements to remain.
+    :return: The filtered list.
+    """
+    def keep_path(path: str) -> bool:
+        return (
+                path in exact
+                or any(path == p or path.startswith(p + ".") for p in prefixes)
+                or any(p.startswith(path + ".") for p in exact)
+                or any(p.startswith(path + ".") for p in prefixes)
+        )
+
+    def walk(value: Any, path: str = "") -> Any:
+        if isinstance(value, dict):
+            result_dict = {}
+            for k, v in value.items():
+                new_path = f"{path}.{k}" if path else k
+                if not keep_path(new_path):
+                    continue
+                filtered = walk(v, new_path)
+                if filtered == {} or filtered == []:
+                    continue
+                result_dict[k] = filtered
+            return result_dict
+
+        if isinstance(value, list):
+            result_list = []
+            for item in value:
+                filtered = walk(item, path)
+                if filtered == {} or filtered == []:
+                    continue
+                result_list.append(filtered)
+            return result_list
+
+        return value
+
+    exact = {p for p in allowed_fields_list if not p.endswith(".*")}
+    prefixes = tuple(p[:-2] for p in allowed_fields_list if p.endswith(".*"))
+
+    result = []
+    for harvest_item in harvest_list:
+        result.append(walk(harvest_item))
+    return result
+
+
+def get_correct_year_from_resout(harvest_item: dict) -> str:
+    """For research outputs from Pure, we need to determine its
+    publication year. We return the publication year of the first
+    research output that has 'current = True'.
+    Also, it must have status 'published'.
+
+    :param harvest_item: The item to investigate.
+    :return: The publication year, or '' if there is none.
+    """
+    pubstatus_list = rcg.json_item_get_list(json_item=harvest_item,
+                                            json_path='publicationStatuses')
+    if len(pubstatus_list) == 0:
+        # Skip if no publicationStatuses, because we won't find a year.
+        return ''
+    published_found = False
+    publication_year = ''
+    for pub_item in pubstatus_list:
+        if 'current' not in pub_item:
+            continue
+        if pub_item['current']:
+            publication_year = str(rcg.json_item_get_int(json_item=pub_item,
+                                                         json_path='publicationDate.year'))
+            publication_status = rcg.json_item_get_str(json_item=pub_item,
+                                                       json_path='publicationStatus.uri')
+            if PurePath(publication_status).name == 'published':
+                published_found = True
+                break
+    if not published_found:
+        # We need a 'published' status.
+        return ''
+    return publication_year
 
 
 # ######################################################
@@ -1039,24 +1218,7 @@ def parse_pure_entities(harvest: list,
         # #####
         publication_year = ''
         if mode == MODE_RESOUTS:
-            if len(rcg.json_item_get_list(json_item=harvest_item,
-                                          json_path='publicationStatuses')) == 0:
-                # Skip if no publicationStatuses.
-                continue
-            published_found = False
-            for pub_item in rcg.json_item_get_list(json_item=harvest_item,
-                                                   json_path='publicationStatuses'):
-                if pub_item['current']:
-                    publication_year = str(rcg.json_item_get_int(json_item=pub_item,
-                                                                 json_path='publicationDate.year'))
-                    publication_path = rcg.json_item_get_str(json_item=pub_item,
-                                                             json_path='publicationStatus.uri')
-                    if PurePath(publication_path).name == 'published':
-                        published_found = True
-                        break
-            if not published_found:
-                # We need a 'published' status.
-                continue
+            publication_year = get_correct_year_from_resout(harvest_item=harvest_item)
         elif mode == MODE_DATASETS:
             publication_year = json_item_get_str_pure(json_item=harvest_item,
                                                       json_path_read='publicationDate.year',
@@ -1066,6 +1228,9 @@ def parse_pure_entities(harvest: list,
                                                       json_path_read='references.0.date',
                                                       json_path_crud='mediaCoverages.0.date')
             publication_year = publication_year[:4]
+        if publication_year == '':
+            # Skip if it doesn't have a publication year.
+            continue
         # #####
         # Get 'access' and 'license' info.
         # For research results:
@@ -1456,6 +1621,107 @@ def get_pure_organization_info(url: str,
     return org_uuids_to_org_names
 
 
+def preharvest_pure_data(mode: str, endpoint: str,
+                         headers: dict, body: dict,
+                         base_filename: str,
+                         year_start:str = '',
+                         year_end: str = ''):
+    """This function pre-harvests data from Pure.
+    We need it, because the Pure CRUD API still lacks important features,
+    see the comment at the beginning of this file.
+    By pre-harvesting, we provide the existing code with files that
+    contain the data harvested in the format that is expected by it.
+    We separate the cludge that is necessary to catch the missing
+    features from the CRUD API from the other code.
+    At some time, when the Pure CRUD API does have these features,
+    this code may be removed.
+
+    :param mode: as in MODE_ALL, to indicate what to harvest.
+    :param endpoint: endpoint Pure.
+    :param headers: headers for Pure.
+    :param body: contains the fields to harvest, and the harvest time period.
+    :param base_filename: base of the filename to write harvest results to.
+    :param year_start: the first year that we would like to harvest.
+        Only relevant when parsing persons and data sets.
+    :param year_end: the first year that we would like to harvest.
+        Only relevant when data sets.
+    :return: No return value.
+    """
+    nr_years_to_harvest = int(year_last) + 1 - int(year_first)
+    if mode == MODE_PERSONS:
+        max_recs_to_harvest = PURE_PERSONS_MAX_RECS_TO_HARVEST
+    elif mode == MODE_ORGANIZATIONS:
+        max_recs_to_harvest = PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST
+    elif mode == MODE_RESOUTS:
+        max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR
+    elif mode == MODE_DATASETS:
+        max_recs_to_harvest = PURE_DATASETS_MAX_RECS_TO_HARVEST
+    elif mode == MODE_PRESS_MEDIA:
+        max_recs_to_harvest = PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST
+    elif mode == MODE_PROJECTS:
+        max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR
+    else:
+        # Should not happen.
+        return
+
+    print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
+    url_base = PURE_URL + '/' + PURE_API_VERSION + '/'
+    url = url_base + endpoint
+    harvest_file_all = rcg.construct_filename(base_filename=base_filename,
+                                              year='all', organization=organization)
+    harvest_data = rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
+                                    url=url,
+                                    headers=headers,
+                                    body=body,
+                                    max_recs_to_harvest=max_recs_to_harvest,
+                                    chunksize=PURE_CHUNKSIZE,
+                                    filename=harvest_file_all)
+    if 'fields' in body:
+        harvest_data = filter_allowed_values_in_list(harvest_list=harvest_data,
+                                                     allowed_fields_list=body['fields'])
+    if year_start == '' and year_end == '':
+        # We harvest everything in one file.
+        harvest_file_filtered = rcg.construct_filename(base_filename=base_filename,
+                                                       organization=organization)
+        rcg.write_read_json_file(json_data=harvest_data,
+                                 filename=harvest_file_filtered)
+        return
+
+    # We harvest everything in one file per year.
+    harvest_data_year = {}
+    for harvest_item in harvest_data:
+        publication_year = ''
+        if mode == MODE_RESOUTS:
+            publication_year = get_correct_year_from_resout(harvest_item=harvest_item)
+        elif mode == MODE_PRESS_MEDIA:
+            # Note that preharvest_pure_data() only works for Pure CRUD API.
+            publication_year = json_item_get_str_pure(json_item=harvest_item,
+                                                      json_path_read='',
+                                                      json_path_crud='mediaCoverages.0.date')
+            publication_year = publication_year[:4]
+
+        if publication_year == '':
+            # Empty publication year, skip.
+            continue
+
+        if int(year_start) <= int(publication_year) <= int(year_end):
+            if publication_year not in harvest_data_year:
+                harvest_data_year[publication_year] = [harvest_item]
+            else:
+                harvest_data_year[publication_year].append(harvest_item)
+
+    for year_nr in range(int(year_first), int(year_last) + 1):
+        if str(year_nr) not in harvest_data_year:
+            # No records found for this year.
+            continue
+        harvest_file_yr = rcg.construct_filename(base_filename=base_filename,
+                                                 year=str(year_nr),
+                                                 organization=organization)
+        rcg.write_read_json_file(json_data=harvest_data_year[str(year_nr)],
+                                 filename=harvest_file_yr)
+    return
+
+
 def harvest_and_parse_pure_data(mode: str, endpoint: str,
                                 headers: dict, body: dict,
                                 harvest_filename: str,
@@ -1491,7 +1757,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     elif mode == MODE_PROJECTS:
         max_recs_to_harvest = PURE_PROJECTS_MAX_RECS_TO_HARVEST
     else:
-        # Should not happen
+        # Should not happen.
         return None
 
     print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
@@ -1510,7 +1776,8 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
                                         chunksize=PURE_CHUNKSIZE,
                                         filename=harvest_filename)
     else:
-        harvest_data = rcg.read_json_from_file(filename=harvest_filename)
+        harvest_data = rcg.read_json_from_file(filename=harvest_filename,
+                                               exit_on_error=False)
 
     # To prevent PyCharm warning
     # Local variable 'parse' might be referenced before assignment.
@@ -1903,7 +2170,9 @@ if read_response.status_code == requests.codes.ok:
     print('Pure will be harvested using the Pure READ API.')
     PURE_API_VERSION = PURE_READ_API_VERSION
     PURE_PERSONS_ENDPOINT = PURE_READ_PERSONS_ENDPOINT
+    PURE_PERSONS_FIELDS = PURE_READ_PERSONS_FIELDS
     PURE_ORGANIZATIONS_ENDPOINT = PURE_READ_ORGANIZATIONS_ENDPOINT
+    PURE_ORGANIZATIONS_FIELDS = PURE_READ_ORGANIZATIONS_FIELDS
     PURE_RESOUTS_ENDPOINT = PURE_READ_RESOUTS_ENDPOINT
     PURE_RESOUTS_FIELDS = PURE_READ_RESOUTS_FIELDS
     PURE_DATASETS_ENDPOINT = PURE_READ_DATASETS_ENDPOINT
@@ -1915,7 +2184,9 @@ elif crud_response.status_code == requests.codes.ok:
     print('Pure will be harvested using the Pure CRUD API.')
     PURE_API_VERSION = PURE_CRUD_API_VERSION
     PURE_PERSONS_ENDPOINT = PURE_CRUD_PERSONS_ENDPOINT
+    PURE_PERSONS_FIELDS = PURE_CRUD_PERSONS_FIELDS
     PURE_ORGANIZATIONS_ENDPOINT = PURE_CRUD_ORGANIZATIONS_ENDPOINT
+    PURE_ORGANIZATIONS_FIELDS = PURE_CRUD_ORGANIZATIONS_FIELDS
     PURE_RESOUTS_ENDPOINT = PURE_CRUD_RESOUTS_ENDPOINT
     PURE_RESOUTS_FIELDS = PURE_CRUD_RESOUTS_FIELDS
     PURE_DATASETS_ENDPOINT = PURE_CRUD_DATASETS_ENDPOINT
@@ -1951,6 +2222,62 @@ else:
 
 resout_uuid_or_doi = {}
 
+if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+    # The Pure CRUD API still lacks important features,
+    # see the comment at the beginning of this file.
+    if HARVEST_PERSONS:
+        print('Pre-harvesting persons with the Pure CRUD API...')
+        preharvest_pure_data(mode=MODE_PERSONS,
+                             endpoint=PURE_PERSONS_ENDPOINT,
+                             headers=PURE_HEADERS,
+                             body=PURE_PERSONS_FIELDS,
+                             base_filename=PURE_PERSONS_HARVEST_FILENAME)
+        PURE_PERSONS_READ_HARVEST_FROM_FILE = True
+        print('Done pre-harvesting persons.\n')
+    if HARVEST_ORGANIZATIONS:
+        print('Pre-harvesting organizations with the Pure CRUD API...')
+        preharvest_pure_data(mode=MODE_ORGANIZATIONS,
+                             endpoint=PURE_ORGANIZATIONS_ENDPOINT,
+                             headers=PURE_HEADERS,
+                             body=PURE_ORGANIZATIONS_FIELDS,
+                             base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME)
+        PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE = True
+        print('Done pre-harvesting organizations.\n')
+    if HARVEST_RESOUTS:
+        print('Pre-harvesting research outputs with the Pure CRUD API...')
+        preharvest_pure_data(mode=MODE_RESOUTS,
+                             endpoint=PURE_RESOUTS_ENDPOINT,
+                             headers=PURE_HEADERS,
+                             body=PURE_RESOUTS_FIELDS,
+                             base_filename=PURE_RESOUTS_HARVEST_FILENAME,
+                             year_start=year_first,
+                             year_end=year_last)
+        PURE_RESOUTS_READ_HARVEST_FROM_FILE = True
+        print('Done pre-harvesting research outputs.\n')
+    if HARVEST_DATASETS:
+        print('Pre-harvesting data sets with the Pure CRUD API...')
+        preharvest_pure_data(mode=MODE_DATASETS,
+                             endpoint=PURE_DATASETS_ENDPOINT,
+                             headers=PURE_HEADERS,
+                             body=PURE_DATASETS_FIELDS,
+                             base_filename=PURE_DATASETS_HARVEST_FILENAME)
+        PURE_DATASETS_READ_HARVEST_FROM_FILE = True
+        print('Done pre-harvesting data sets.\n')
+    if HARVEST_PRESS_MEDIA:
+        print('Pre-harvesting press media items with the Pure CRUD API...')
+        preharvest_pure_data(mode=MODE_PRESS_MEDIA,
+                             endpoint=PURE_PRESS_MEDIA_ENDPOINT,
+                             headers=PURE_HEADERS,
+                             body=PURE_PRESS_MEDIA_FIELDS,
+                             base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
+                             year_start=year_first,
+                             year_end=year_last)
+        PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE = True
+        print('Done pre-harvesting press media items.\n')
+
+rcg.graphdb_nr_accesses_print()
+print(rcg.nodes_cache_key_id_type_size() + '\n')
+
 # ########################################################################
 # You can use 'True' or 'False' depending on your needs to harvest
 # persons/organizations/research results/data sets/press media items.
@@ -1958,10 +2285,6 @@ resout_uuid_or_doi = {}
 # You might also want to set parameters as 'PURE_[object name]_HARVEST_FROM_FILE' = True,
 # see the top of this file.
 # ########################################################################
-
-rcg.graphdb_nr_accesses_print()
-print(rcg.nodes_cache_key_id_type_size() + '\n')
-
 
 # ########################################################################
 # Code for harvesting persons. Harvested organizations are required for persons.
@@ -1998,10 +2321,6 @@ if HARVEST_PERSONS:
 # ########################################################################
 # Code for harvesting research results.
 if HARVEST_RESOUTS:
-    # Note that in 2023, the Pure CRUD API did not allow
-    # harvesting separate years. This might cause memory problems.
-    # You might want to set PURE_RESOUTS_MAX_RECS_TO_HARVEST.
-    # The Pure READ API does allow to specify years to harvest.
     for year_int in range(int(year_first), int(year_last) + 1):
         year = str(year_int)
         data_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_DATA_FILENAME,
@@ -2083,48 +2402,48 @@ if HARVEST_DATASETS:
 # ########################################################################
 # Code for harvesting press media items.
 if HARVEST_PRESS_MEDIA:
-    data_file = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_DATA_FILENAME,
-                                       organization=organization)
-    if PURE_PRESS_MEDIA_READ_DATA_FROM_FILE:
-        error_message = 'There are no press media items from ' + HARVEST_SOURCE
-        error_message += ' for year ' + year_first + ' to ' + year_last
-        error_message += ' to read from file ' + data_file + '.\n'
-        print('Reading press media items from ' + HARVEST_SOURCE + ' for year '
-              + year_first + ' to ' + year_last + ' from file ' + data_file + '.')
-        parse_press_media = rcg.read_dataframe_from_csv(filename=data_file,
-                                                        datatype=str)
-    else:
-        error_message = 'There are no press media items from ' + HARVEST_SOURCE
-        error_message += ' for year ' + year_first + ' to ' + year_last
-        error_message += ' to harvest.\n'
-        print('Harvesting press media items from ' + HARVEST_SOURCE
-              + ' for year ' + year_first + ' to ' + year_last + '.')
-        harvest_file = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
-                                              organization=organization)
-        if PURE_API_VERSION == PURE_READ_API_VERSION:
-            # This does not work for the Pure CRUD API.
-            # For the Pure CRUD API, all press media items will be harvested.
-            PURE_PRESS_MEDIA_FIELDS['period']['startDate'] = {'day': '1',
-                                                              'month': '1',
-                                                              'year': year_first}
-            PURE_PRESS_MEDIA_FIELDS['period']['endDate'] = {'day': '31',
-                                                            'month': '12',
-                                                            'year': year_last}
-        parse_press_media = harvest_and_parse_pure_data(mode=MODE_PRESS_MEDIA,
-                                                        endpoint=PURE_PRESS_MEDIA_ENDPOINT,
-                                                        headers=PURE_HEADERS,
-                                                        body=PURE_PRESS_MEDIA_FIELDS,
-                                                        harvest_filename=harvest_file,
-                                                        df_filename=data_file)
+    for year_int in range(int(year_first), int(year_last) + 1):
+        year = str(year_int)
+        data_file_year = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_DATA_FILENAME,
+                                                year=year, organization=organization)
+        if PURE_PRESS_MEDIA_READ_DATA_FROM_FILE:
+            error_message = 'There are no press media items from ' + HARVEST_SOURCE
+            error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
+            print('Reading press media items from ' + HARVEST_SOURCE + ' for year '
+                  + year + ' from file ' + data_file_year + '.')
+            parse_press_media = rcg.read_dataframe_from_csv(filename=data_file_year,
+                                                            datatype=str)
+        else:
+            error_message = 'There are no press media items from ' + HARVEST_SOURCE
+            error_message += ' for year ' + year + ' to harvest.\n'
+            print('Harvesting press media items from ' + HARVEST_SOURCE
+                  + ' for year ' + year + '.')
+            harvest_file_year = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
+                                                       year=year, organization=organization)
+            if PURE_API_VERSION == PURE_READ_API_VERSION:
+                # This does not work for the Pure CRUD API.
+                # For the Pure CRUD API, all press media items will be harvested.
+                PURE_PRESS_MEDIA_FIELDS['period']['startDate'] = {'day': '1',
+                                                                  'month': '1',
+                                                                  'year': year}
+                PURE_PRESS_MEDIA_FIELDS['period']['endDate'] = {'day': '31',
+                                                                'month': '12',
+                                                                'year': year}
+            parse_press_media = harvest_and_parse_pure_data(mode=MODE_PRESS_MEDIA,
+                                                            endpoint=PURE_PRESS_MEDIA_ENDPOINT,
+                                                            headers=PURE_HEADERS,
+                                                            body=PURE_PRESS_MEDIA_FIELDS,
+                                                            harvest_filename=harvest_file_year,
+                                                            df_filename=data_file_year)
 
-    if parse_press_media is None or parse_press_media.empty:
-        print(error_message)
-    else:
-        parsed_entities_to_ricgraph(parsed_content=parse_press_media,
-                                    what='press media items')
+        if parse_press_media is None or parse_press_media.empty:
+            print(error_message)
+        else:
+            parsed_entities_to_ricgraph(parsed_content=parse_press_media,
+                                        what='press media items')
 
-    rcg.graphdb_nr_accesses_print()
-    print(rcg.nodes_cache_key_id_type_size() + '\n')
+        rcg.graphdb_nr_accesses_print()
+        print(rcg.nodes_cache_key_id_type_size() + '\n')
 
 
 org_and_all_parents = {}

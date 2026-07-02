@@ -51,16 +51,16 @@ from json import load, dump
 
 def write_json_to_file(filename:str,
                        json_data: list | dict) -> None:
-    """Write json data to a file. This also works for dicts.
+    """Write JSON data to a file. This also works for dicts.
     If no records are harvested, nothing is written.
 
     :param filename: filename of the file to use for writing.
       It will also work if you specify a directory and filename.
-    :param json_data: a list of records in json format.
+    :param json_data: a list of records in JSON format.
       Can also be a dict.
     :return: None.
     """
-    print('Writing json data to file ' + filename + '...', end=' ')
+    print('Writing JSON data to file ' + filename + '...', end=' ')
     if filename == '':
         print('write_json_to_file(): Error, filename is empty, exiting.')
         exit(1)
@@ -79,7 +79,7 @@ def write_json_to_file(filename:str,
         with open(filename, 'a'):
             pass
     except:
-        # Generates a 'Local variable 'filename' might be referenced before assignment'
+        # Generates a "Local variable 'filename' might be referenced before assignment"
         # warning in PyCharm.
         print('write_json_to_file(): Error, filename "' + filename + '" is not writable, exiting.')
         exit(1)
@@ -90,16 +90,22 @@ def write_json_to_file(filename:str,
     return
 
 
-def read_json_from_file(filename: str) -> list:
-    """Read json data from a file.
+def read_json_from_file(filename: str,
+                        exit_on_error: bool = True) -> list:
+    """Read JSON data from a file.
 
     :param filename: filename of the file to use for writing.
-    :return: list of records in json format, or empty list if nothing found.
+    :param exit_on_error: exit on error, otherwise continue.
+    :return: list of records in JSON format, or empty list if nothing found.
     """
-    print('Reading json data from file ' + filename + '...', end=' ')
+    print('Reading JSON data from file ' + filename + '...', end=' ')
     if not isfile(path=filename):
-        print('read_json_from_file(): Error, file "' + filename + '" does not exist, exiting...')
-        exit(1)
+        if exit_on_error:
+            print('\nread_json_from_file(): Error, file "' + filename + '" does not exist, exiting...\n')
+            exit(1)
+        else:
+            print('\nread_json_from_file(): Warning, file "' + filename + '" does not exist, continuing...\n')
+            return []
 
     with open(filename) as fd:
         json_data = load(fp=fd)
@@ -118,7 +124,7 @@ def write_read_json_file(json_data: list | dict,
     """In case filename != '', write the JSON to a file and
     then read it back. In any case, return the JSON data received.
 
-    :param json_data: a list of records in json format.
+    :param json_data: a list of records in JSON format.
     :param filename: If filename != '', write it to a file and read it back.
     :return: The JSON data received.
     """
@@ -139,7 +145,7 @@ def write_dict_to_file(filename:str, json_data: dict) -> None:
 
     :param filename: filename of the file to use for writing.
       It will also work if you specify a directory and filename.
-    :param json_data: a list of records in json format.
+    :param json_data: a list of records in JSON format.
     :return: None.
     """
     write_json_to_file(filename=filename, json_data=json_data)
@@ -150,7 +156,7 @@ def read_dict_from_file(filename: str) -> dict:
     """Wrapper around read_json_from_file() for dicts.
 
     :param filename: filename of the file to use for writing.
-    :return: dict of records in json format, or empty dict if nothing found.
+    :return: dict of records in JSON format, or empty dict if nothing found.
     """
     return dict(read_json_from_file(filename=filename))
 
@@ -159,7 +165,7 @@ def write_read_dict_file(json_data: dict,
                          filename: str = '') -> dict:
     """Wrapper around write_read_json_file() for dicts.
 
-    :param json_data: a list of records in json format.
+    :param json_data: a list of records in JSON format.
     :param filename: If filename != '', write it to a file and read it back.
     :return: The JSON data received, as a dict.
     """
@@ -194,7 +200,7 @@ def write_text_to_file(filename: str, text: str) -> None:
         with open(filename, 'a'):
             pass
     except:
-        # Generates a 'Local variable 'filename' might be referenced before assignment'
+        # Generates a "Local variable 'filename' might be referenced before assignment"
         # warning in PyCharm.
         print('write_text_to_file(): Error, filename "' + filename + '" is not writable, exiting.')
         exit(1)
@@ -240,13 +246,13 @@ def write_dataframe_to_csv(filename: str,
         with open(filename, 'a'):
             pass
     except:
-        # Generates a 'Local variable 'filename' might be referenced before assignment'
+        # Generates a "Local variable 'filename' might be referenced before assignment"
         # warning in PyCharm.
         print('write_dataframe_to_csv(): Error, filename "' + filename + '" is not writable, exiting.')
         exit(1)
 
     # PyCharm generates a warning
-    # "Unexpected type(s):(str, str, bool, str, int, str) [etc]...".
+    # "Unexpected type(s): (str, str, bool, str, int, str) [etc.]...".
     df.to_csv(filename,
               sep=',',
               quotechar='"',
@@ -286,7 +292,7 @@ def read_dataframe_from_csv(filename: str,
     try:
         # Some input files have problems reading in utf-8.
         # PyCharm generates a warning
-        # "Unexpected type(s):(str, str, int | bool, dict [etc]...".
+        # "Unexpected type(s):(str, str, int | bool, dict [etc.]...".
         csv_data = read_csv(filename,
                             sep=',',
                             index_col=index_col,
@@ -302,7 +308,7 @@ def read_dataframe_from_csv(filename: str,
     except BaseException:
         print('read_dataframe_from_csv(): error reading in utf-8 format, reading in latin-1 format.')
         # PyCharm generates a warning
-        # "Unexpected type(s):(str, str, int | bool, dict [etc]...".
+        # "Unexpected type(s):(str, str, int | bool, dict [etc.]...".
         csv_data = read_csv(filename,
                             sep=',',
                             index_col=index_col,
