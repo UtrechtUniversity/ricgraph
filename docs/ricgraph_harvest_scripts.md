@@ -230,7 +230,8 @@ Options:
   --year_last <last year of harvest>
           End the harvest at this year.
 ```
-With this script, you can harvest persons, organizations and research outputs.
+With this script, you can harvest persons, organizations, research outputs,
+data sets, and press media items.
 This script needs two parameters in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file):
 the url to Pure in *pure_url_XXXX*, and the 
@@ -244,36 +245,119 @@ reduce this by adjusting parameters at the start of the script. Look in the sect
 E.g., for the maximum number of
 records to harvest you can adjust *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
 
-#### Pure READ and Pure CRUD API
+#### Pure READ API and Pure CRUD API
 Pure has two APIs, a READ and a CRUD API.
 The Pure READ API ("old" API) is only for reading data from Pure.
 The Pure CRUD API ("new" API) can be used to create, read, update and delete data 
-in Pure (hence the name: CRUD). You do not need to specify which API you want to use,
-the script will be able to determine it for you
-(just include the API key in the initialization file).
-The author recommends to use the READ API.
-You can use both of them to harvest data from Pure,
-but each of them has its own advantages and disadvantages:
+in Pure (hence the name: CRUD).
+The Pure administrator hands out Pure API keys. Such a key determines
+whether the READ API or CRUD API will be used, what endpoints are accessible, and
+(for the CRUD API) which fields can be accessed and whether you can only read from
+or also write to Pure.
 
-* The Pure READ API has a number of filters, which allow to reduce data requested from Pure
-  on the Pure server,
-  thereby preventing this data to be sent to the computer which is running the Pure harvest 
-  script, and for the harvest script, to process all this data. 
-  E.g., the READ API has a filter for persons, so only active persons in Pure will
-  be sent to the harvesting computer, thereby reducing the number of persons to process in the harvest
-  script from all persons in Pure to only active persons in Pure. 
-  Another filter is the start and end publication year for research outputs. 
-  This makes it possible for the Pure harvest script to only process research outputs from a
-  certain year, instead of all research outputs in Pure. This prevents potential memory problems.
-* The Pure CRUD API allows the Pure administrator to specify which Pure fields are allowed
-  to be sent from the Pure server to the computer that is running the Pure harvest script.
-  This allows for only sending data that is requested. However, since this API is in development,
-  a lot of the filters present in the READ API do not exist (yet), especially the
-  filters mentioned in the previous bullet. That means, if you run
-  the Pure harvest script, you might encounter memory problems while harvesting 
-  research outputs due to the number of research outputs in Pure, 
-  unless you set *PURE_RESOUT_MAX_RECS_TO_HARVEST* in the Pure harvest script to some
-  suitable value. 
+For the Pure harvest script, you do not need to specify which 
+API you want to use, the script will be able to determine it for you
+(just include the API key in the initialization file).
+
+For now, it is recommended to use the Pure READ API.
+The reason for this is two important missing features in the Pure CRUD API
+(missing at the time of writing, July 2026, but this has been a
+feature request for Pure since at least 2023).
+For the Pure CRUD API, there is no way to harvest
+research outputs and press media items from the CRUD API endpoint by
+
+1. filtering on year;
+2. on fields to be returned.
+
+Both (1) and (2) imply that the harvest script will
+need to retrieve every research output and press media item and then filter
+(in the script, not on the Pure server as one would expect) on year. 
+It will lead to a very long execution
+time and a lot of data transferred from Pure to this script.
+This will especially hurt harvesting research outputs,
+since there are so many of them.
+
+For instance, there are two constants
+that determine the number of items to be harvested from Pure CRUD API:
+for research outputs and press media items
+*PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR* and
+*PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR*.
+Both of these numbers are multiplied by the number
+of years to harvest to determine the total number of records to 
+be harvested. If your Pure has far less records for the research outputs
+for the years you want to have harvested, it will still harvest this
+number of records. If you have more, the surplus will not be harvested.
+
+For more details, see the comments in the Pure harvest script
+*harvest_pure_to_ricgraph.py*. You can [access it on 
+GitHub](https://github.com/UtrechtUniversity/ricgraph/blob/main/harvest/harvest_pure_to_ricgraph.py).
+
+Note that the above only holds for the CRUD API. 
+The READ API can filter on year and on fields to be returned. 
+That is why using the Pure READ API is recommended.
+
+#### Pure endpoints
+For harvesting Pure, you will need the following endpoints:
+
+| what to harvest  | endpoint Pure READ API | endpoint Pure CRUD API  |
+|------------------|------------------------|-------------------------|
+| persons          | persons                | persons/search          |
+| organizations    | organisational-units   | organizations/search    |
+| research outputs | research-outputs       | research-outputs/search |
+| data sets        | datasets               | data-sets/search        |
+| press media      | press-media            | pressmedia/search       |
+
+
+#### Pure fields that are harvested
+
+For the precise fields that are harvested, you will need to look at the
+Python code of the Pure harvest script
+*harvest_pure_to_ricgraph.py* (this is to prevent a mismatch
+between this documentation and the harvest code). 
+You can [access the script on
+GitHub](https://github.com/UtrechtUniversity/ricgraph/blob/main/harvest/harvest_pure_to_ricgraph.py).
+The table below specifies what to look for.
+
+| endpoint         | Pure READ API                  | Pure CRUD API                  |
+|------------------|--------------------------------|--------------------------------|
+| persons          | PURE_READ_PERSONS_FIELDS       | PURE_CRUD_PERSONS_FIELDS       |
+| organizations    | PURE_READ_ORGANIZATIONS_FIELDS | PURE_CRUD_ORGANIZATIONS_FIELDS |
+| research outputs | PURE_READ_RESOUTS_FIELDS       | PURE_CRUD_RESOUTS_FIELDS       |
+| data sets        | PURE_READ_DATASETS_FIELDS      | PURE_CRUD_DATASETS_FIELDS      |
+| press media      | PURE_READ_PRESS_MEDIA_FIELDS   | PURE_CRUD_PRESS_MEDIA_FIELDS   |
+
+
+The fields to be harvested are in Python lists, that are itself part of
+Python dicts. So, to find the exact fields, click on the link 
+to the Pure harvest script above.
+Then, for a parameter name in the table, search for it in the harvest script.
+If you look at the harvest script in a webbrowser, depending on
+your browser, you very probably use *&lt;control key&gt; F* to search.
+
+If you have found the corresponding parameter in the code, the fields
+that are imported from pure are found in the list *fields*. If a list item
+starts with a '#', that field is not imported from Pure, the '#' is a
+Python comment sign.
+
+For an element in the list, if it ends with '\*', as in _period.*_,
+everything in the tree under the field _period_ is imported from Pure. If it does not 
+have a star, e.g. as in _uuid_, then only the _uuid_ field is imported from Pure.
+
+Not all the elements of the *fields* will be included in Ricgraph, some are only used
+to determine whether e.g. a person should be included in Ricgraph or not. For example,
+the start and
+end date of a person determine if a person should be included in Ricgraph, but both
+the start and end date itself are not in Ricgraph.
+
+The fields that are actually included in Ricgraph
+can be found at the bottom of the home page of
+[Ricgraph Explorer](ricgraph_explorer.md).
+For example, look at the bottom of the home page of the
+Open Ricgraph demo server. You can find the link to the demo server at
+the webpage of the
+[Pilot Open Ricgraph demo 
+server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+
 
 #### Pure harvesting of projects
 You can also harvest projects from Pure, if your organization uses them. You will
