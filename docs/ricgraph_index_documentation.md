@@ -165,8 +165,10 @@ __P__
 - [Post-install steps Nginx](../docs/ricgraph_as_server.md#post-install-steps-nginx)
 - [Preliminaries](../docs/ricgraph_as_server.md#preliminaries)
 - [Properties of nodes in Ricgraph](../docs/ricgraph_details.md#properties-of-nodes-in-ricgraph)
+- [Pure endpoints](../docs/ricgraph_harvest_scripts.md#pure-endpoints)
+- [Pure fields that are harvested](../docs/ricgraph_harvest_scripts.md#pure-fields-that-are-harvested)
 - [Pure harvesting of projects](../docs/ricgraph_harvest_scripts.md#pure-harvesting-of-projects)
-- [Pure READ and Pure CRUD API](../docs/ricgraph_harvest_scripts.md#pure-read-and-pure-crud-api)
+- [Pure READ API and Pure CRUD API](../docs/ricgraph_harvest_scripts.md#pure-read-api-and-pure-crud-api)
 
 __R__
 
