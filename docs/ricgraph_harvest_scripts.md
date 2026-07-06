@@ -232,16 +232,19 @@ Options:
 ```
 With this script, you can harvest persons, organizations, research outputs,
 data sets, and press media items.
-This script needs two parameters in the
+This script needs some parameters in the
 [Ricgraph initialization file](ricgraph_install_configure.md#ricgraph-initialization-file):
 the url to Pure in *pure_url_XXXX*, and the 
 Pure [API](https://en.wikipedia.org/wiki/API) key in *pure_api_key_XXXX*.
 *XXXX* is your [organization abbreviation](#organization-abbreviation).
+You also may want to set *pure_use_workflow_rr_XXXX*, which
+indicates whether or not to use the Pure workflow.
 
 #### Limit the amount of data to harvest from Pure
 There is a lot of data in Pure, so your harvest may take a long time. You may
 reduce this by adjusting parameters at the start of the script. Look in the sections
-"Parameters for harvesting persons/organizations/research outputs from Pure".
+"Parameters for harvesting 
+persons/organizations/research outputs/data sets/press media items from Pure".
 E.g., for the maximum number of
 records to harvest you can adjust *PURE_RESOUT_MAX_RECS_TO_HARVEST*.
 
@@ -250,11 +253,10 @@ Pure has two APIs, a READ and a CRUD API.
 The Pure READ API ("old" API) is only for reading data from Pure.
 The Pure CRUD API ("new" API) can be used to create, read, update and delete data 
 in Pure (hence the name: CRUD).
-The Pure administrator hands out Pure API keys. Such a key determines
+The Pure administrator hands out such a Pure API key. Such a key determines
 whether the READ API or CRUD API will be used, what endpoints are accessible, and
 (for the CRUD API) which fields can be accessed and whether you can only read from
 or also write to Pure.
-
 For the Pure harvest script, you do not need to specify which 
 API you want to use, the script will be able to determine it for you
 (just include the API key in the initialization file).
@@ -277,10 +279,11 @@ time and a lot of data transferred from Pure to this script.
 This will especially hurt harvesting research outputs,
 since there are so many of them.
 
-For instance, there are two constants
-that determine the number of items to be harvested from Pure CRUD API:
-for research outputs and press media items
-*PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR* and
+There are two constants
+that determine the number of items to be harvested from the Pure CRUD API:
+for research outputs
+*PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR*,
+and for press media items
 *PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR*.
 Both of these numbers are multiplied by the number
 of years to harvest to determine the total number of records to 
@@ -299,13 +302,13 @@ That is why using the Pure READ API is recommended.
 #### Pure endpoints
 For harvesting Pure, you will need the following endpoints:
 
-| what to harvest  | endpoint Pure READ API | endpoint Pure CRUD API  |
-|------------------|------------------------|-------------------------|
-| persons          | persons                | persons/search          |
-| organizations    | organisational-units   | organizations/search    |
-| research outputs | research-outputs       | research-outputs/search |
-| data sets        | datasets               | data-sets/search        |
-| press media      | press-media            | pressmedia/search       |
+| what to harvest   | endpoint Pure READ API | endpoint Pure CRUD API  |
+|-------------------|------------------------|-------------------------|
+| persons           | persons                | persons/search          |
+| organizations     | organisational-units   | organizations/search    |
+| research outputs  | research-outputs       | research-outputs/search |
+| data sets         | datasets               | data-sets/search        |
+| press media items | press-media            | pressmedia/search       |
 
 
 #### Pure fields that are harvested
@@ -318,24 +321,25 @@ You can [access the script on
 GitHub](https://github.com/UtrechtUniversity/ricgraph/blob/main/harvest/harvest_pure_to_ricgraph.py).
 The table below specifies what to look for.
 
-| endpoint         | Pure READ API                  | Pure CRUD API                  |
-|------------------|--------------------------------|--------------------------------|
-| persons          | PURE_READ_PERSONS_FIELDS       | PURE_CRUD_PERSONS_FIELDS       |
-| organizations    | PURE_READ_ORGANIZATIONS_FIELDS | PURE_CRUD_ORGANIZATIONS_FIELDS |
-| research outputs | PURE_READ_RESOUTS_FIELDS       | PURE_CRUD_RESOUTS_FIELDS       |
-| data sets        | PURE_READ_DATASETS_FIELDS      | PURE_CRUD_DATASETS_FIELDS      |
-| press media      | PURE_READ_PRESS_MEDIA_FIELDS   | PURE_CRUD_PRESS_MEDIA_FIELDS   |
+| what to harvest   | Pure READ API                  | Pure CRUD API                  |
+|-------------------|--------------------------------|--------------------------------|
+| persons           | PURE_READ_PERSONS_FIELDS       | PURE_CRUD_PERSONS_FIELDS       |
+| organizations     | PURE_READ_ORGANIZATIONS_FIELDS | PURE_CRUD_ORGANIZATIONS_FIELDS |
+| research outputs  | PURE_READ_RESOUTS_FIELDS       | PURE_CRUD_RESOUTS_FIELDS       |
+| data sets         | PURE_READ_DATASETS_FIELDS      | PURE_CRUD_DATASETS_FIELDS      |
+| press media items | PURE_READ_PRESS_MEDIA_FIELDS   | PURE_CRUD_PRESS_MEDIA_FIELDS   |
 
 
 The fields to be harvested are in Python lists, that are itself part of
 Python dicts. So, to find the exact fields, click on the link 
 to the Pure harvest script above.
 Then, for a parameter name in the table, search for it in the harvest script.
-If you look at the harvest script in a webbrowser, depending on
+Look at the first match when you search from the first line of the file.
+If you use a webbrowser, depending on
 your browser, you very probably use *&lt;control key&gt; F* to search.
 
 If you have found the corresponding parameter in the code, the fields
-that are imported from pure are found in the list *fields*. If a list item
+that are imported from Pure are found in the list *fields*. If a list item
 starts with a '#', that field is not imported from Pure, the '#' is a
 Python comment sign.
 
@@ -344,8 +348,11 @@ everything in the tree under the field _period_ is imported from Pure. If it doe
 have a star, e.g. as in _uuid_, then only the _uuid_ field is imported from Pure.
 
 Not all the elements of the *fields* will be included in Ricgraph, some are only used
-to determine whether e.g. a person should be included in Ricgraph or not. For example,
-the start and
+to determine whether another field should be included in Ricgraph.
+For others, it is too complicated to specify the precise field, so the whole
+tree is read from Pure and then the harvest script only uses a field deep
+down the tree.
+For example, the start and
 end date of a person determine if a person should be included in Ricgraph, but both
 the start and end date itself are not in Ricgraph.
 
