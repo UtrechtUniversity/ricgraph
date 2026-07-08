@@ -36,7 +36,7 @@
 # ########################################################################
 #
 # Usage
-# delete_personal_data.py [options]
+# delete_pers_data.py [options]
 #
 # Options:
 #   --filename <filename>

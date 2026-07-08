@@ -37,10 +37,19 @@ delete_personal_data () {
 
 
 echo "This script deletes personal data based on a file."
-echo "To run it, you should at least specify '--organization'."
+echo "To run it, you should at least specify '--organization'"
+echo "and '--are_you_sure yes'."
+echo ""
 
 # The following script returns $python_cmd, $python_path,
-# $organization, and $empty_ricgraph.
+# $organization, and $are_you_sure.
 source ../library/get_cmdline_args.sh
+
+if [ "$are_you_sure" != "yes" ]; then
+  echo "You have not specified the command line"
+  echo "parameter '--are_you_sure yes', or you have set it to 'no'."
+  echo "You need to set it to 'yes', otherwise this script will not run."
+  exit 1
+fi
 
 delete_personal_data
