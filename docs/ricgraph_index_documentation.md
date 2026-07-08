@@ -33,6 +33,7 @@ __C__
 
 __D__
 
+- [Delete EMPLOYEE_ID nodes from Ricgraph (delete_employeeids)](../docs/ricgraph_misc_scripts.md#delete-employee_id-nodes-from-ricgraph-delete_employeeids)
 - [Delete personal data from Ricgraph (delete_personal_data)](../docs/ricgraph_misc_scripts.md#delete-personal-data-from-ricgraph-delete_personal_data)
 - [Demo harvest script (multiple_harvest_demo)](../docs/ricgraph_harvest_scripts.md#demo-harvest-script-multiple_harvest_demo)
 - [Documentation Ricgraph](../docs/ricgraph_documentation_intro.md#documentation-ricgraph)

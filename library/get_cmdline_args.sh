@@ -62,6 +62,9 @@ usage+="\n\t\tvirtual environment is used, that interpreter is used."
 usage+="\n\t-p, --python_path [python path]"
 usage+="\n\t\tThe value for PYTHONPATH, the path to python libraries."
 usage+="\n\t\tIf absent, the current directory is used."
+usage+="\n\t-a, --are_you_sure [yes|no]"
+usage+="\n\t\tWhether you are sure to run this script."
+usage+="\n\t\tIf absent, 'no' is assumed."
 usage+="\n\t-h, --help"
 usage+="\n\t\tShow this help text."
 usage+="\n"
@@ -72,7 +75,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # the ':' after a parameter tells us it needs a parameter value.
-args=$(getopt --options o:e:f:l:c:p:h --longoptions organization:,empty_ricgraph:,year_first:,year_last:,python_cmd:,python_path:,help -n "$0" -- "$@")
+args=$(getopt --options o:e:f:l:c:p:a:h --longoptions organization:,empty_ricgraph:,year_first:,year_last:,python_cmd:,python_path:,are_you_sure:,help -n "$0" -- "$@")
 exit_code=$?
 if [ "$exit_code" != "0" ] ; then
   # 'getopt' went wrong, e.g. it got an invalid option.
@@ -88,6 +91,7 @@ while true; do
   -l|--year_last) year_last=$2; shift 2;;
   -c|--python_cmd) python_cmd=$2; shift 2;;
   -p|--python_path) python_path=$2; shift 2;;
+  -a|--are_you_sure) are_you_sure=$2; shift 2;;
   -h|--help) echo -e "$usage"; exit 1;;
   --) shift; break;;
   *) echo "Invalid option: $1"; exit 1;;
@@ -115,13 +119,13 @@ fi
 # Process $year_first. Do not check if it is a valid value, that will
 # be done in other scripts.
 if [ -z "$year_first" ]; then
-  echo "Are you sure you do not want to specify "year_first"? Continuing..."
+  echo "Are you sure you do not want to specify 'year_first'? Continuing..."
 fi
 
 # Process $year_last. Do not check if it is a valid value, that will
 # be done in other scripts.
 if [ -z "$year_last" ]; then
-  echo "Are you sure you do not want to specify "year_last"? Continuing..."
+  echo "Are you sure you do not want to specify 'year_last'? Continuing..."
 fi
 
 # Process $python_cmd.
@@ -158,6 +162,15 @@ if [ ! -d "$python_path" ]; then
   echo "Error: python path (PYTHONPATH) directory '$python_path' does not exist."
   exit 1
 fi
+
+# Process $are_you_sure.
+if [ -z "$are_you_sure" ]; then
+  are_you_sure=no
+fi
+if [ "$are_you_sure" != "yes" ]; then
+  are_you_sure=no
+fi
+
 # Do not remove or modify the next line, file Makefile may modify it.
 # ## ### #### #####
 # Do not remove or modify the line above.
@@ -173,4 +186,5 @@ echo "Ricgraph is emptied before harvesting: $empty_ricgraph."
 echo "First year: '$year_first', last year: '$year_last'."
 echo "Python interpreter: '$python_cmd'."
 echo "Python path: '$python_path'."
+echo "Are you sure: '$are_you_sure'."
 echo ""

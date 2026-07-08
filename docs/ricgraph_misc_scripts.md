@@ -23,6 +23,7 @@ On this page, you can find:
   * [Export nodes to a file (export_person_identifiers and export_person_node_properties)](#export-nodes-to-a-file-export_person_identifiers-and-export_person_node_properties)
 * Scripts to enhance (finding, enriching, etc.) information (directory *enhance*):
   * [Delete personal data from Ricgraph (delete_personal_data)](#delete-personal-data-from-ricgraph-delete_personal_data)
+  * [Delete EMPLOYEE_ID nodes from Ricgraph (delete_employeeids)](#delete-employee_id-nodes-from-ricgraph-delete_employeeids)
   * [Rename (sub-)organizations in Ricgraph (rename_organizations)](#rename-sub-organizations-in-ricgraph-rename_organizations)
   * [Script to enrich persons (enrich_orcids_scopusids)](#script-to-enrich-persons-enrich_orcids_scopusids)
   * [Script to find person identifiers pointing to different persons (find_double_pids)](#script-to-find-person-identifiers-pointing-to-different-persons-find_double_pids)
@@ -321,15 +322,15 @@ Options:
         -o, --organization [organization]
                 The organization to harvest. Specify the organization
                 abbreviation.
-        -e, --empty_ricgraph [yes|no]
-                Whether to empty Ricgraph before harvesting the
-                first organization. If absent, Ricgraph will not be emptied.
         -c, --python_cmd [python interpreter]
                 The python interpreter to use. If absent, and a python
                 virtual environment is used, that interpreter is used.
         -p, --python_path [python path]
                 The value for PYTHONPATH, the path to python libraries.
                 If absent, the current directory is used.
+        -a, --are_you_sure [yes|no]
+                Whether you are sure to run this script."
+                If absent, 'no' is assumed."
         -h, --help
                 Show this help text.
 ```
@@ -358,6 +359,46 @@ It contains exactly two columns and can have as many rows as necessary.
 The columns are:
 
 * name, value: values to identify the person in Ricgraph.
+
+
+## Delete EMPLOYEE_ID nodes from Ricgraph (delete_employeeids)
+This script deletes all EMPLOYEE_ID nodes from Ricgraph.
+The bash script *delete_employeeids.sh* is a wrapper for the
+Python script *delete_emplids.py*.
+Both can be found in the directory *enhance*.
+
+Bash script:
+```
+Usage:
+delete_employeeids.sh [options]
+
+Options:
+        -c, --python_cmd [python interpreter]
+                The python interpreter to use. If absent, and a python
+                virtual environment is used, that interpreter is used.
+        -p, --python_path [python path]
+                The value for PYTHONPATH, the path to python libraries.
+                If absent, the current directory is used.
+        -a, --are_you_sure [yes|no]
+                Whether you are sure to run this script."
+                If absent, 'no' is assumed."
+        -h, --help
+                Show this help text.
+```
+
+Python script:
+```
+Usage:
+delete_emplids.py [options]
+
+Options:
+  --are_you_sure <yes>
+          Safety check since the script will delete items from Ricgraph.
+          'yes': This script will run.
+          any other value: This script will not run.
+          If this option is not present, the script will prompt the user
+          whether to run the script.
+```
 
 
 ## Rename (sub-)organizations in Ricgraph (rename_organizations)
@@ -401,9 +442,6 @@ Options:
         -o, --organization [organization]
                 The organization to harvest. Specify the organization
                 abbreviation.
-        -e, --empty_ricgraph [yes|no]
-                Whether to empty Ricgraph before harvesting the
-                first organization. If absent, Ricgraph will not be emptied.
         -c, --python_cmd [python interpreter]
                 The python interpreter to use. If absent, and a python
                 virtual environment is used, that interpreter is used.
