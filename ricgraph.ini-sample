@@ -278,6 +278,20 @@ pure_use_workflow_rr_UG =
 pure_use_workflow_rr_VUA =
 pure_use_workflow_rr_UA =
 pure_use_workflow_rr_AUMC =
+#
+# This key indicates whether or not to harvest the
+# Pure field EMPLOYEE_ID for persons.
+# If it is 'False', empty, or absent, this field will not
+# be harvested. It will only be harvested if it is 'True'.
+pure_harvest_employeeids_UU =
+pure_harvest_employeeids_UMCU =
+pure_harvest_employeeids_DUT =
+pure_harvest_employeeids_EUR =
+pure_harvest_employeeids_EUT =
+pure_harvest_employeeids_UG =
+pure_harvest_employeeids_VUA =
+pure_harvest_employeeids_UA =
+pure_harvest_employeeids_AUMC =
 # ###############################################################
 
 

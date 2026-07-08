@@ -154,6 +154,7 @@ PURE_HEADERS = {'Accept': 'application/json'
                 }
 global PURE_URL
 global PURE_USE_WORKFLOW_RESEARCH_RESULTS
+global PURE_HARVEST_EMPLOYEEIDS
 global HARVEST_SOURCE
 global HARVEST_PROJECTS
 global resout_uuid_or_doi
@@ -945,6 +946,8 @@ def parse_pure_persons(harvest: list,
                and (name_identifier := json_item_get_str_pure(json_item=identities,
                                                               json_path_read='type.term.text.0.value',
                                                               json_path_crud='type.term.en_GB')) != '':
+                if name_identifier == 'Employee ID' and PURE_HARVEST_EMPLOYEEIDS != 'True':
+                    continue
                 parse_line = {'PURE_ID_PERS': pers_uuid,
                               name_identifier: value_identifier}
                 parse_chunk.append(parse_line)
@@ -2144,10 +2147,13 @@ else:
 pure_url = 'pure_url_' + organization
 pure_api_key = 'pure_api_key_' + organization
 pure_use_workflow_research_results = 'pure_use_workflow_rr_' + organization
+pure_harvest_employeeids = 'pure_harvest_employeeids_' + organization
 PURE_URL = rcg.get_configfile_key(section='Pure_harvesting', key=pure_url)
 PURE_API_KEY = rcg.get_configfile_key(section='Pure_harvesting', key=pure_api_key)
 PURE_USE_WORKFLOW_RESEARCH_RESULTS = rcg.get_configfile_key(section='Pure_harvesting',
                                                             key=pure_use_workflow_research_results)
+PURE_HARVEST_EMPLOYEEIDS = rcg.get_configfile_key(section='Pure_harvesting',
+                                                  key=pure_harvest_employeeids)
 if PURE_URL == '' or PURE_API_KEY == '':
     print('Ricgraph initialization: error, "' + pure_url + '" or "' + pure_api_key + '"')
     print('  not existing or empty in Ricgraph ini file, exiting.')
@@ -2156,6 +2162,9 @@ if PURE_URL == '' or PURE_API_KEY == '':
 # research results (status 'entryInProgress' will never be harvested).
 if PURE_USE_WORKFLOW_RESEARCH_RESULTS != 'False':
     PURE_USE_WORKFLOW_RESEARCH_RESULTS = 'True'
+# Only if this key is 'True', we harvest EMPLOYEE_IDs.
+if PURE_HARVEST_EMPLOYEEIDS != 'True':
+    PURE_HARVEST_EMPLOYEEIDS = 'False'
 
 PURE_HEADERS['api-key'] = PURE_API_KEY
 
