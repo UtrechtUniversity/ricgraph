@@ -174,6 +174,9 @@ sleep 120
 
 cd ../enhance || exit 1
 
+./delete_employeeids.sh --are_you_sure yes
+exit_on_error $?
+
 ./rename_organizations.sh --organization DUT
 exit_on_error $?
 
