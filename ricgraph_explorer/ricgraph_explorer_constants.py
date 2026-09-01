@@ -138,6 +138,13 @@ MAX_ITEMS_TO_RETURN = 1000
 # In the RESTAPI, we return at most this maximum.
 MAX_ITEMS_TO_RETURN_RESTAPI = 250
 
+# For the RESTAPI, the max page size.
+MAX_PAGE_SIZE_RESTAPI = 250
+# For the RESTAPI, the default page size.
+DEFAULT_PAGE_SIZE_RESTAPI = 50
+# For the RESTAPI, the number of results in one batch.
+BATCH_SIZE_RESTAPI = 1000
+
 # If we render a table, we return at most this number of rows in that table.
 MAX_ROWS_IN_TABLE = 50
 

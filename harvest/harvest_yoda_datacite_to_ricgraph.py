@@ -631,7 +631,7 @@ else:
     exit(1)
 
 rcg.graphdb_nr_accesses_print()
-print(rcg.nodes_cache_key_id_type_size() + '\n')
+print(rcg.ricgraph_cache_size_text() + '\n')
 
 data_file = rcg.construct_filename(base_filename=YODA_DATA_FILENAME,
                                    organization=organization)
@@ -656,5 +656,5 @@ else:
     parsed_yoda_datacite_to_ricgraph(parsed_content=parse_yoda_data)
 
 rcg.graphdb_nr_accesses_print()
-print(rcg.nodes_cache_key_id_type_size() + '\n')
+print(rcg.ricgraph_cache_size_text() + '\n')
 rcg.close_ricgraph()

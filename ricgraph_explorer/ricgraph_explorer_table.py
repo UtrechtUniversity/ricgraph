@@ -59,7 +59,7 @@ from json import dumps
 from neo4j.graph import Node
 from flask import url_for
 from markupsafe import escape
-from ricgraph import (nodes_cache_key_id_create,
+from ricgraph import (ricgraph_cache_item_create,
                       create_ricgraph_key,
                       create_unique_string,
                       A_LARGE_NUMBER,
@@ -110,7 +110,7 @@ def view_personal_information(nodes_list: list,
                                             query_params=query_params)
     for node in nodes_list:
         key = node['_key']
-        nodes_cache_key_id_create(key=key, elementid=node.element_id)
+        ricgraph_cache_item_create(key=key, value=node.element_id)
         if node['name'] != 'FULL_NAME':
             continue
         key = create_ricgraph_key(name=node['name'], value=node['value'])
@@ -145,7 +145,7 @@ def view_personal_information(nodes_list: list,
     research_areas = []
     expertise_areas = []
 
-    # Get the nodes of interest. Using get_all_neighbor_nodes() is not efficient.
+    # Get the nodes of interest. Using get_all_neighbor_nodes_id() is not efficient.
     for node in nodes_list:
         if node['category'] != COMPETENCE_CATEGORY_COMPETENCE:
             continue
@@ -348,7 +348,7 @@ def get_regular_table_worker(nodes_list: list,
                                       table_columns=table_columns,
                                       table_page_num=table_page_num)
         key = node['_key']
-        nodes_cache_key_id_create(key=key, elementid=node.element_id)
+        ricgraph_cache_item_create(key=key, value=node.element_id)
 
     html += '</tbody>'
     html += get_html_for_tableend(table_id=table_id,
@@ -512,7 +512,7 @@ def get_tabbed_table(nodes_list: list,
             tab_contents_html += ' style="display:none"'
         tab_contents_html += '>'
         nodes_of_tab_name = []
-        # Get the nodes of interest. Using get_all_neighbor_nodes() is not efficient.
+        # Get the nodes of interest. Using get_all_neighbor_nodes_id() is not efficient.
         for node in nodes_list:
             if node[tabs_on] == tab_name:
                 nodes_of_tab_name.append(node)

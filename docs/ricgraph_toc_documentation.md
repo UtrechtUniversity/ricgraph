@@ -74,6 +74,8 @@ This table of contents has been generated automatically.
   - [Function call for unifying personal identifiers](../docs/ricgraph_script_writing.md#function-call-for-unifying-personal-identifiers)
   - [Function calls to create, read (find), update and delete (CRUD) nodes](../docs/ricgraph_script_writing.md#function-calls-to-create-read-find-update-and-delete-crud-nodes)
   - [Function calls to get neighbors of nodes](../docs/ricgraph_script_writing.md#function-calls-to-get-neighbors-of-nodes)
+- [it is possible to restrict to nodes having](../docs/ricgraph_script_writing.md#it-is-possible-to-restrict-to-nodes-having)
+- [a certain property 'name' or 'category'](../docs/ricgraph_script_writing.md#a-certain-property-name-or-category)
 - [Table of contents Ricgraph documentation](../docs/ricgraph_toc_documentation.md#table-of-contents-ricgraph-documentation)
 - [Ricgraph with Memgraph graph database backend](../docs/ricgraph_backend_memgraph.md#ricgraph-with-memgraph-graph-database-backend)
   - [Install and start Memgraph](../docs/ricgraph_backend_memgraph.md#install-and-start-memgraph)

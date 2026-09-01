@@ -139,8 +139,8 @@ for personal_id in personal_ids.itertuples():
 
     print('  Found. Its "person-root" node is [' + personroot['name'] + ', ' + personroot['value'] + '].')
     print('  Deleting neighbors of this "person-root" node containing personal data:')
-    neighbors = rcg.get_all_neighbor_nodes(node=personroot,
-                                           category_want=[rcg.PERSON_CATEGORY_PERSON])
+    neighbors = rcg.get_all_neighbor_nodes_id(node_element_id=personroot.element_id,
+                                              category_want=[rcg.PERSON_CATEGORY_PERSON])
 
     for neighbor in neighbors:
         rcg.delete_node(node=neighbor)

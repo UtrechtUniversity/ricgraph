@@ -47,10 +47,11 @@ from sys import prefix
 from re import sub, findall
 from numpy import maximum
 from pandas import DataFrame
-from typing import Tuple
+from typing import Tuple, Any
 from ast import literal_eval
 from random import choice
 from string import ascii_lowercase
+from json import dumps, loads
 from datetime import datetime
 from uuid import uuid4
 from collections import defaultdict
@@ -218,22 +219,47 @@ def sanitize_string(to_sanitize: str) -> str:
     return result
 
 
-def serialize_value(value: str) -> bytes:
+def serialize_value(value: Any) -> bytes:
     """Serialize a value (convert to bytes).
+    This works for both str and dict (and for many other types).
 
     :param value: the value.
     :return: its serialized value.
     """
-    return value.encode(encoding='utf-8')
+    payload = {'__serialized_type__': 'json',
+               'value': value}
+    if isinstance(value, str):
+        payload['__serialized_type__'] = 'str'
+    if isinstance(value, bytes):
+        payload['__serialized_type__'] = 'bytes'
+    return dumps(payload, ensure_ascii=False).encode(encoding='utf-8')
 
 
-def deserialize_value(serialized: bytes) -> str:
+def deserialize_value(serialized: bytes) -> Any:
     """Deserialize a value (convert back from bytes).
 
     :param serialized: the serialized value.
     :return: its deserialized value.
     """
-    return serialized.decode(encoding='utf-8')
+    payload: dict[str, Any] = loads(serialized)
+
+    value_type = payload.get('__serialized_type__')
+    raw_value = payload.get('value')
+
+    if value_type == 'str':
+        if not isinstance(raw_value, str):
+            print('deserialize_value(): Error, invalid serialized str payload.')
+            return ''
+        return raw_value
+    if value_type == 'bytes':
+        if not isinstance(raw_value, bytes):
+            print('deserialize_value(): Error, invalid serialized bytes payload.')
+            return ''
+        return raw_value
+
+
+    # Now value_type == 'json'.
+    return raw_value
 
 
 def make_dataframe_square_symmetric(df: DataFrame | None) -> DataFrame | None:
@@ -447,6 +473,61 @@ def get_additionalpart_from_ricgraph_value(key: str) -> str:
     if len(key_list) != 2:
         return ''
     return key_list[1]
+
+
+def create_graphdb_cursor(cache_key: str = '',
+                          page_size: int = 0,
+                          first_to_retrieve = 0) -> str:
+    """Create a cursor for the graph database.
+
+    :param cache_key: The key for the cache.
+    :param page_size: The page size to be used.
+    :param first_to_retrieve: The index of the first element to retrieve.
+    :return: The cursor, composite of the three parameters.
+       In case of an invalid cursor, return ''.
+    """
+    if not isinstance(cache_key, str) \
+       or not isinstance(page_size, int) \
+       or not isinstance(first_to_retrieve, int):
+        return ''
+
+    if cache_key == '' or page_size < 0 or first_to_retrieve < 0:
+        return ''
+
+    cursor = cache_key.lower() + RICGRAPH_KEY_SEPARATOR
+    cursor += str(page_size) + RICGRAPH_KEY_SEPARATOR
+    cursor += str(first_to_retrieve)
+    return cursor
+
+
+def split_graphdb_cursor(cursor: str = '') -> Tuple[str, int, int]:
+    """Split a cursor for the graph database.
+
+    :param cursor: The cursor.
+    :return: The cursor, split in three parts:
+       - cache_key: The key for the cache.
+       - page_size: The page size to be used.
+       - first_to_retrieve: The index of the first element to retrieve.
+       In case of an invalid cursor, return '', -1, -1.
+    """
+    cursor_parts = cursor.split(sep=RICGRAPH_KEY_SEPARATOR)
+    if len(cursor_parts) != 3:
+        return '', -1, -1
+
+    cache_key = cursor_parts[0]
+    page_size_str = cursor_parts[1]
+    first_to_retrieve_str = cursor_parts[2]
+    if not page_size_str.isnumeric() or not first_to_retrieve_str.isnumeric():
+        return '', -1, -1
+
+    page_size = int(page_size_str)
+    first_to_retrieve = int(first_to_retrieve_str)
+
+    if cache_key == '' or page_size < 0 or first_to_retrieve < 0:
+        return '', -1, -1
+
+    return cache_key, page_size, first_to_retrieve
+
 
 
 def create_multidimensional_dict(dimension: int, dict_type):
@@ -1001,7 +1082,8 @@ def create_empty_query_params() -> QueryParams:
         'source_system2': '',
         'start_orgs': '',
         'collab_orgs': '',
-        'max_nr_items': -A_LARGE_NUMBER
+        'max_nr_items': -A_LARGE_NUMBER,
+        'skip_nr_nodes': 0
     }
     return query_params
 

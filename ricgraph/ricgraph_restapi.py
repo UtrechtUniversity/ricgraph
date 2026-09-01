@@ -43,12 +43,44 @@
 
 
 from typing import Tuple
-from .ricgraph_constants import HTTP_RESPONSE_OK
+from .ricgraph_constants import HTTP_RESPONSE_OK, HTTP_RESPONSE_NOTHING_FOUND
+
+
+def create_http_response_auto(result_list: list = None,
+                              message: str = '',
+                              next_cursor: str = '') -> Tuple[dict, int]:
+    """Create an HTTP response, based on result_list.
+    This is a wrapper for create_http_response().
+
+    :param result_list: A list of dicts, to be put in the 'result' section of
+      the response.
+    :param message: An optional message to be put in the 'meta' section of
+      the response.
+    :param next_cursor: The cursor for the next set of results.
+    :return: An HTTP response (as dict, to be translated to JSON)
+      and an HTTP response code.
+    """
+    if result_list is None:
+        result_list = []
+
+    if len(result_list) == 0:
+        message += 'Nothing found'
+        http_status = HTTP_RESPONSE_NOTHING_FOUND
+    else:
+        message += str(len(result_list)) + ' items found'
+        http_status = HTTP_RESPONSE_OK
+
+    response, status = create_http_response(result_list=result_list,
+                                            message=message,
+                                            http_status=HTTP_RESPONSE_OK,
+                                            next_cursor=next_cursor)
+    return response, http_status
 
 
 def create_http_response(result_list: list = None,
                          message: str = '',
-                         http_status: int = HTTP_RESPONSE_OK) -> Tuple[dict, int]:
+                         http_status: int = HTTP_RESPONSE_OK,
+                         next_cursor: str = '') -> Tuple[dict, int]:
     """Create an HTTP response.
 
     :param result_list: A list of dicts, to be put in the 'result' section of
@@ -57,6 +89,7 @@ def create_http_response(result_list: list = None,
       the response.
     :param http_status: The HTTP status code to be put in the 'meta' section of
       the response.
+    :param next_cursor: The cursor for the next set of results.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -64,10 +97,11 @@ def create_http_response(result_list: list = None,
         result_list = []
 
     meta = {'count': len(result_list),
-            'page': 1,                      # More pages not implemented yet.
-            'per_page': len(result_list),   # Should be page length, not implemented yet.
+            # 'page': 1,                      # More pages not implemented yet.
+            # 'per_page': len(result_list),   # Should be page length, not implemented yet.
             'status': http_status,
-            'message': ''}
+            'message': '',
+            'next_cursor': next_cursor}
     if message != '':
         meta['message'] = message
 

@@ -3,6 +3,7 @@ This index has been generated automatically.
 
 __A__
 
+- [a certain property 'name' or 'category'](../docs/ricgraph_script_writing.md#a-certain-property-name-or-category)
 - [A usage flow through Ricgraph Explorer](../docs/ricgraph_explorer.md#a-usage-flow-through-ricgraph-explorer)
 - [Access a SURF Research Cloud workspace](../docs/ricgraph_as_server.md#access-a-surf-research-cloud-workspace)
 - [Actions while clicking on a node in Bloom](../docs/ricgraph_backend_neo4j.md#actions-while-clicking-on-a-node-in-bloom)
@@ -127,6 +128,7 @@ __I__
 - [Introduction Apache webserver](../docs/ricgraph_as_server.md#introduction-apache-webserver)
 - [Introduction Nginx webserver](../docs/ricgraph_as_server.md#introduction-nginx-webserver)
 - [Introduction to harvest scripts](../docs/ricgraph_harvest_scripts.md#introduction-to-harvest-scripts)
+- [it is possible to restrict to nodes having](../docs/ricgraph_script_writing.md#it-is-possible-to-restrict-to-nodes-having)
 
 __L__
 

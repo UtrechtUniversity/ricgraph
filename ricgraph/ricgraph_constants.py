@@ -69,6 +69,8 @@ class QueryParams(TypedDict):
     start_orgs: str
     collab_orgs: str
     max_nr_items: int
+    skip_nr_nodes: int
+
 
 # This TypedDict is filled in ricgraph_utils.py/create_empty_page_params(),
 # and in ricgraph_explorer_utils.py/get_url_page_params().
@@ -82,6 +84,29 @@ class PageParams(TypedDict):
     overlap_mode: str
     search_mode: str
     view_mode: str
+
+
+# This TypedDict is a buffer/cache for the elements retrieved
+# from the graph database. Since retrieving elements may be
+# expensive, we get a batch_size of them and then return them
+# in pages of page_size. This is useful for the e.g. REST API.
+# graph_function_name is the function we call, and it has
+# graph_function_kwargs as parameters.
+# first_element and last_element are the 'real' indexes of
+# elements. E.g., if elements has a length of 100, and first_element
+# is 200, then the first element of elements is the 200-th element
+# returned from graph_function_name.
+# If exhausted is True, there are no more elements to retrieve
+# from graph_function_name, so it is not necessary to recall it.
+class GraphResultCache(TypedDict):
+    first_element: int      # Counts from 0, not from 1.
+    last_element: int       # So with 10 elems this will be 9.
+    elements: list[dict]    # In the dict, the elements are 0..9.
+    exhausted: bool
+    page_size: int
+    batch_size: int
+    graph_function_name: str
+    graph_function_kwargs: dict
 
 
 RICGRAPH_INI_FILENAME = 'ricgraph.ini'
@@ -114,7 +139,7 @@ HTTP_RESPONSE_OK = 200
 HTTP_RESPONSE_NOTHING_FOUND = 250
 HTTP_RESPONSE_INVALID_SEARCH = 251
 
-# The dict '_nodes_cache_key_id' is used to cache IDs to nodes. This is the cache size.
+# The dict '_ricgraph_cache' is used to cache IDs to nodes. This is the cache size.
 # The dict itself is defined in ricgraph_cache.py.
 # This dict will be emptied if it reaches this number of elements.
 # A cache entry is approx. 20 - 30 bytes. 30 x 2000000 ~ 60MB.

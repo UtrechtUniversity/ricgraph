@@ -62,8 +62,10 @@ from typing import Tuple
 from neo4j.graph import Node
 from flask import url_for
 from urllib.parse import urlencode
-from ricgraph import (get_personroot_node,
-                      get_all_neighbor_nodes, read_all_nodes,
+from ricgraph import (get_personroot_node, get_all_personroot_nodes_id,
+                      get_all_neighbor_nodes_id,
+                      cypher_find_nodes_name,
+                      read_all_nodes,
                       create_multidimensional_dict,
                       get_year_range_text,
                       PageParams, QueryParams,
@@ -71,7 +73,11 @@ from ricgraph import (get_personroot_node,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANIZATION,
                       COMPETENCE_CATEGORY_COMPETENCE,
-                      PERSON_NAME_PERSON_ROOT)
+                      PERSON_NAME_PERSON_ROOT,
+                      GraphResultCache,
+                      create_unique_string,
+                      ricgraph_cache_item_create, ricgraph_cache_item_read,
+                      create_graphdb_cursor, split_graphdb_cursor)
 from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          MAX_NR_NODES_TO_ENRICH,
                                          DISCOVERER_MODE_DETAILS,
@@ -79,7 +85,8 @@ from ricgraph_explorer_constants import (RICGRAPH_NODEINFO,
                                          TABLE_DETAIL_COLUMNS,
                                          OVERLAP_MODE_NEIGHBORNODE,
                                          OVERLAP_MODE_MULTIPLESOURCE,
-                                         OVERLAP_MODE_SINGLESOURCE)
+                                         OVERLAP_MODE_SINGLESOURCE,
+                                         BATCH_SIZE_RESTAPI)
 from ricgraph_explorer_utils import merge_and_remove_empty, get_global_list
 from ricgraph_explorer_html import (get_html_for_cardstart, get_html_for_cardend,
                                     get_html_for_histogramcard,
@@ -87,17 +94,199 @@ from ricgraph_explorer_html import (get_html_for_cardstart, get_html_for_cardend
                                     get_you_searched_for_card)
 from ricgraph_explorer_cypher import (find_organization_additional_info_cypher,
                                       find_person_organization_collaborations_cypher,
+                                      find_organization_additional_info_nodes,
                                       find_person_share_resouts_cypher)
 from ricgraph_explorer_table import  (get_regular_table, get_tabbed_table,
                                       get_html_for_tablestart, get_html_for_tableend)
 
 
+# Contains a mapping from a string function name to the
+# actual function (a kind of object).
+# retrieve_results_from_graphdb() will only work if the
+# mappings are in this dict.
+_GRAPHDB_FUNCTIONS = {
+    'read_all_nodes': read_all_nodes,
+    'cypher_find_nodes_name': cypher_find_nodes_name,
+    'get_all_neighbor_nodes_id': get_all_neighbor_nodes_id,
+    'get_all_personroot_nodes_id': get_all_personroot_nodes_id,
+    'find_person_share_resouts_cypher': find_person_share_resouts_cypher,
+    'find_organization_additional_info_nodes': find_organization_additional_info_nodes
+}
+
+
+def retrieve_results_from_graphdb(graph_function_name: str,
+                                  graph_function_kwargs: dict,
+                                  cache_key: str,
+                                  page_size: int,
+                                  first_to_retrieve: int = 0) -> Tuple[list, str, str]:
+    """This function does the work for process_graphdb_query(),
+    it calls graph_function_name to obtain new results.
+
+    :param graph_function_name: The name of the function to execute.
+    :param graph_function_kwargs: Its arguments.
+    :param cache_key: The key in the cache.
+    :param page_size: At most page size results will be returned.
+    :param first_to_retrieve: The first result to retrieve.
+    :return: A tuple:
+       - nodes_list: The list of nodes (a dict).
+       - cursor: The cursor for the next iteration.
+       - message: A possible error message.
+    """
+    message = ''
+    if graph_function_name not in _GRAPHDB_FUNCTIONS:
+        message = 'Error, function "' + graph_function_name
+        message += '" is not in _GRAPHDB_FUNCTIONS. '
+        return [], '', message
+
+    # print('Now getting elements by calling a function.')
+    graph_function = _GRAPHDB_FUNCTIONS[graph_function_name]
+    graph_function_params = graph_function_kwargs.copy()
+    if 'query_params' in graph_function_kwargs:
+        # Parameters are passed using QueryParams.
+        graph_function_kwargs['query_params']['skip_nr_nodes'] = first_to_retrieve
+        nodes_list = graph_function(**graph_function_params)
+    else:
+        nodes_list = graph_function(**graph_function_params,
+                                    skip_nr_nodes=first_to_retrieve)
+    if len(nodes_list) == 0:
+        # Nothing found. Message is generated in the function that calls this one.
+        return [], '', ''
+
+    # This 'if' should have a '<', not a '<=', otherwise exhausted will be wrong.
+    if len(nodes_list) < BATCH_SIZE_RESTAPI:
+        exhausted = True
+        last_element = first_to_retrieve + len(nodes_list) - 1
+    else:
+        exhausted = False
+        last_element = first_to_retrieve + BATCH_SIZE_RESTAPI - 1
+
+    nodes_dict = convert_nodes_to_list_of_dict(nodes_list=nodes_list,
+                                               include_all_properties=False)
+    cache_value: GraphResultCache = {
+        'first_element': first_to_retrieve,
+        'last_element': last_element,
+        'elements': nodes_dict,
+        'exhausted': exhausted,
+        'page_size': page_size,
+        'batch_size': BATCH_SIZE_RESTAPI,
+        'graph_function_name': graph_function_name,
+        'graph_function_kwargs': graph_function_kwargs
+    }
+    ricgraph_cache_item_create(key=cache_key,
+                               value=cache_value)
+    last_to_retrieve = first_to_retrieve + page_size - 1
+    if cache_value['exhausted'] \
+            and cache_value['last_element'] <= last_to_retrieve:
+        # To return the remaining elements.
+        last_to_retrieve = cache_value['last_element']
+
+    first_in_elements = first_to_retrieve - cache_value['first_element']
+    last_in_elements = last_to_retrieve - cache_value['first_element']
+    nodes_list = cache_value['elements'][first_in_elements:last_in_elements + 1]
+    if (cursor := create_graphdb_cursor(cache_key=cache_key,
+                                        page_size=page_size,
+                                        first_to_retrieve=last_to_retrieve + 1)) == '':
+        message = 'Error, creating graph database cursor failed, invalid format. '
+        return [], '', message
+    return nodes_list, cursor, message
+
+
+def process_graphdb_query(graph_function_name: str,
+                          graph_function_kwargs: dict,
+                          page_size: int,
+                          cursor: str) -> Tuple[list, str, str]:
+    """Execute function graph_function_name with arguments
+    graph_function_arguments, and store the results (at most
+    batch_size, see below) in a dict for efficient retrieval.
+    It provides a cursor to navigate the dict, for e.g.
+    the Ricgraph REST API.
+
+    :param graph_function_name: The name of the function to execute.
+    :param graph_function_kwargs: Its arguments.
+    :param page_size: At most page size results will be returned.
+    :param cursor: A cursor, to proceed with retrieving from a
+       previous iteration.
+    :return: A tuple:
+       - nodes_list: The list of nodes (a dict).
+       - cursor: The cursor for the next iteration.
+       - message: A possible error message.
+    """
+    message = ''
+    if cursor == '':
+        cache_key = create_unique_string()
+        nodes_list, cursor, message = \
+            retrieve_results_from_graphdb(graph_function_name=graph_function_name,
+                                          graph_function_kwargs=graph_function_kwargs,
+                                          cache_key=cache_key,
+                                          page_size=page_size,
+                                          first_to_retrieve=0)
+        return nodes_list, cursor, message
+
+    # Now we have a cursor.
+    # I think, that now that we have a cursor, we could write a general
+    # function. It will, based on this cursor, always return the next
+    # page to the REST API (since the function to call and its arguments
+    # are in the cache).
+    page_size_orig = page_size
+    cache_key, page_size, first_to_retrieve = split_graphdb_cursor(cursor=cursor)
+    if cache_key == '':
+        message = 'Error, invalid graph database cursor format, splitting failed. '
+        return [], '', message
+
+    cache_value = ricgraph_cache_item_read(key=cache_key)
+    if cache_value == '':
+        message = 'Warning, cache key "' + cache_key
+        message += '" not found in Ricgraph cache. '
+        return [], '', message
+
+    if page_size_orig < page_size:
+        # Adjust the page_size if the calling function requests less
+        # than the page_size value in the cursor.
+        page_size = page_size_orig
+        cache_value['page_size'] = page_size
+        # And update the changed value in the cache.
+        ricgraph_cache_item_create(key=cache_key,
+                                   value=cache_value)
+
+    last_to_retrieve = first_to_retrieve + page_size - 1
+    if cache_value['exhausted'] \
+            and cache_value['last_element'] <= last_to_retrieve:
+        # To return the remaining elements.
+        last_to_retrieve = cache_value['last_element']
+
+    if cache_value['first_element'] <= first_to_retrieve \
+            and last_to_retrieve <= cache_value['last_element']:
+        # All elements are in the cache.
+        # print('Now getting elements by retrieving from the cache.')
+        first_in_elements = first_to_retrieve - cache_value['first_element']
+        last_in_elements = last_to_retrieve - cache_value['first_element']
+        nodes_list = cache_value['elements'][first_in_elements:last_in_elements + 1]
+        if (cursor := create_graphdb_cursor(cache_key=cache_key,
+                                            page_size=page_size,
+                                            first_to_retrieve=last_to_retrieve + 1)) == '':
+            message = 'Error, creating graph database cursor failed, invalid format. '
+            return [], '', message
+    else:
+        # Elements are not in the cache (or some are not in the cache),
+        # get new ones.
+        nodes_list, cursor, message = \
+            retrieve_results_from_graphdb(graph_function_name=cache_value['graph_function_name'],
+                                          graph_function_kwargs=cache_value['graph_function_kwargs'],
+                                          cache_key=cache_key,
+                                          page_size=page_size,
+                                          first_to_retrieve=first_to_retrieve)
+    return nodes_list, cursor, message
+
+
 def convert_nodes_to_list_of_dict(nodes_list: list,
-                                  max_nr_items: int = 0) -> list:
+                                  max_nr_items: int = 0,
+                                  include_all_properties: bool = True) -> list:
     """Convert a list of nodes to a list of dict.
 
     :param nodes_list: The list of nodes.
     :param max_nr_items: The maximum number of items to return.
+    :param include_all_properties: Whether to include all properties in the
+       dict, e.g. such as _history. This saves space in the dict.
     :return: A list of dicts
     """
     if max_nr_items == 0:
@@ -115,6 +304,12 @@ def convert_nodes_to_list_of_dict(nodes_list: list,
             break
         result = {}
         for item in field_order:
+            if not include_all_properties:
+                # Only include 'interesting' properties.
+                if item == 'source_event' \
+                   or item == 'history_event' \
+                   or item == '_history':
+                    continue
             result[item] = node.get(item, '')
         result_list.append(result)
     return result_list
@@ -148,7 +343,7 @@ def find_person_share_resouts(parent_node: Node | None,
         message += '" node.'
         return get_message(message=message)
 
-    connected_persons = find_person_share_resouts_cypher(parent_node=parent_node,
+    connected_persons = find_person_share_resouts_cypher(parent_node_element_id=parent_node.element_id,
                                                          category_want_list=category_want_list,
                                                          category_dontwant_list=category_dontwant_list,
                                                          max_nr_items=query_params['max_nr_items'])
@@ -182,13 +377,16 @@ def find_person_share_resouts(parent_node: Node | None,
     return html
 
 
-def find_enrich_candidates_one_person(personroot: Node | None,
+def find_enrich_candidates_one_person(personroot_element_id: str,
                                       query_params: QueryParams,
                                       name_want: list = None,
-                                      category_want: list = None) -> Tuple[list, list]:
+                                      category_want: list = None,
+                                      max_nr_nodes: int = 0,
+                                      skip_nr_nodes: int = 0) -> Tuple[list, list]:
     """This function tries to find nodes to enrich source system 'source_system'.
 
-    :param personroot: the starting node for finding enrichments for.
+    :param personroot_element_id: the element_id of the
+      starting node for finding enrichments for.
     :param query_params: parameters related to the query passed in the URL.
     :param name_want: a list containing several node names, indicating
       that we want all neighbor nodes of the person-root node of the organization
@@ -197,19 +395,25 @@ def find_enrich_candidates_one_person(personroot: Node | None,
       (e.g. ['ORCID', 'ISNI', 'FULL_NAME']).
       If empty (empty string), return all nodes.
     :param category_want: similar to 'name_want', but now for the property 'category'.
+    :param max_nr_nodes: return at most this number of nodes, 0 = all nodes.
+    :param skip_nr_nodes: skip this number of nodes from results of the query.
     :return: 2 lists, nodes to identify and nodes to enrich.
     """
+    if personroot_element_id == '':
+        return [], []
     nodes_in_source_system = []
     nodes_not_in_source_system = []
-    # Do not use 'max_nr_items' on get_all_neighbor_nodes(), since
+    # Do not use 'max_nr_items' on get_all_neighbor_nodes_id(), since
     # we were asked to return max_nr_items for find_enrich_candidates_one_person().
-    # We might need more than max_nr_items from get_all_neighbor_nodes()
+    # We might need more than max_nr_items from get_all_neighbor_nodes_id()
     # to obtain that.
-    neighbors = get_all_neighbor_nodes(node=personroot,
-                                       name_want=name_want,
-                                       category_want=category_want,
-                                       year_first=query_params['year_first'],
-                                       year_last=query_params['year_last'])
+    neighbors = get_all_neighbor_nodes_id(node_element_id=personroot_element_id,
+                                          name_want=name_want,
+                                          category_want=category_want,
+                                          year_first=query_params['year_first'],
+                                          year_last=query_params['year_last'],
+                                          max_nr_neighbor_nodes=max_nr_nodes,
+                                          skip_nr_nodes=skip_nr_nodes)
     for neighbor in neighbors:
         if query_params['source_system'] in neighbor['_source']:
             nodes_in_source_system.append(neighbor)
@@ -277,10 +481,12 @@ def find_enrich_candidates(parent_node: Node,
     count = 1
     something_found = False
     for personroot in personroot_list:
+        if personroot is None:
+            continue
         if count > MAX_NR_NODES_TO_ENRICH:
             break
         person_nodes, nodes_not_in_source_system = \
-            find_enrich_candidates_one_person(personroot=personroot,
+            find_enrich_candidates_one_person(personroot_element_id=personroot.element_id,
                                               query_params=query_params)
         if len(nodes_not_in_source_system) == 0:
             # All neighbors are only from 'source_system', nothing to report.
@@ -615,9 +821,9 @@ def find_overlap_in_source_systems(node: Node,
                 message = 'Ricgraph Explorer found no "person-root" '
                 message += 'node in get_overlap_in_source_systems().'
                 return get_message(message=message)
-            neighbor_nodes = get_all_neighbor_nodes(node=personroot)
+            neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=personroot.element_id)
         else:
-            neighbor_nodes = get_all_neighbor_nodes(node=parent_node)
+            neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=parent_node.element_id)
         nodes = neighbor_nodes.copy()
 
     nr_total_recs = 0
@@ -874,9 +1080,9 @@ def find_overlap_in_source_systems_records(node: Node,
                 message = 'Unexpected result in find_overlap_in_source_systems_records(): '
                 message += 'Ricgraph Explorer found no "person-root" node.'
                 return get_message(message=message)
-            neighbor_nodes = get_all_neighbor_nodes(node=personroot)
+            neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=personroot.element_id)
         else:
-            neighbor_nodes = get_all_neighbor_nodes(node=node)
+            neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=node.element_id)
         result = neighbor_nodes.copy()
 
     relevant_result = []

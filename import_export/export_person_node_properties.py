@@ -82,8 +82,8 @@ for personroot_node in all_personroot_nodes:
     if count % 2000 == 0:
         print('\n', end='', flush=True)
 
-    neighbors = rcg.get_all_neighbor_nodes(personroot_node,
-                                           category_want=[rcg.PERSON_CATEGORY_PERSON])
+    neighbors = rcg.get_all_neighbor_nodes_id(node_element_id=personroot_node.element_id,
+                                              category_want=[rcg.PERSON_CATEGORY_PERSON])
     if len(neighbors) == 0:
         continue
 

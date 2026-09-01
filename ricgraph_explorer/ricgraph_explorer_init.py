@@ -48,7 +48,7 @@ from pandas import DataFrame
 
 from ricgraph import (open_ricgraph, read_all_values_of_property,
                       memcached_open_connection, memcached_check_available,
-                      nodes_cache_key_id_type_size, nodes_cache_key_id_size,
+                      ricgraph_cache_size_text, ricgraph_cache_size,
                       ricgraph_get_harvest_date,
                       ACCESS_ALL, LICENSE_ALL,
                       COMPETENCE_CATEGORY_ALL,
@@ -185,7 +185,7 @@ def collect_ricgraph_cacheinfo() -> None:
     :return: None.
     """
     # The cache is not constant, it changes while running Ricgraph Explorer.
-    nr_items, size_kb = nodes_cache_key_id_size()
+    nr_items, size_kb = ricgraph_cache_size()
     if memcached_check_available():
         cache_name = 'Memcached cache'
     else:
@@ -500,7 +500,7 @@ def initialize_ricgraph_explorer(ricgraph_explorer_app: FlaskApp,
     # Open the global cache (for nodes).
     # These are not constant, they change while running Ricgraph Explorer.
     memcached_open_connection()
-    print(nodes_cache_key_id_type_size())
+    print(ricgraph_cache_size_text())
 
     collect_ricgraph_cacheinfo()
     collect_ricgraph_harvestinfo()

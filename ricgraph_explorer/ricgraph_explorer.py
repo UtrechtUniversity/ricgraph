@@ -56,7 +56,8 @@ from connexion import FlaskApp, options
 from flask import send_from_directory, redirect, url_for, Response
 from neo4j.graph import Node
 from ricgraph import (read_all_nodes,
-                      get_personroot_node, get_all_neighbor_nodes,
+                      cypher_find_nodes_name,
+                      get_personroot_node, get_all_neighbor_nodes_id,
                       check_valid_year,
                       get_year_range_text,
                       PERSON_CATEGORY_PERSON,
@@ -535,13 +536,8 @@ def optionspage() -> str | Response:
             html += get_page_footer() + html_body_end
             return html
         if query_params['name'] == 'FULL_NAME':
-            # We also need to search on FULL_NAME_ASCII, therefore the 'name_is_exact_match = False'.
-            result = read_all_nodes(name=query_params['name'],
-                                    category=query_params['category'],
-                                    value=query_params['value'],
-                                    name_is_exact_match=False,
-                                    value_is_exact_match=False,
-                                    max_nr_nodes=query_params['max_nr_items'])
+            # We also need to search on FULL_NAME_ASCII.
+            result = cypher_find_nodes_name(value=query_params['value'])
         else:
             result = read_all_nodes(name=query_params['name'],
                                     category=query_params['category'],
@@ -1031,9 +1027,11 @@ def create_results_page(page_params: PageParams,
             personroot_node = node
         else:
             personroot_node = get_personroot_node(node=node)
-        neighbor_nodes = get_all_neighbor_nodes(node=personroot_node,
-                                                name_want=query_params['name_list'],
-                                                category_want=query_params['category_list'])
+        if personroot_node is None:
+            return ''
+        neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=personroot_node.element_id,
+                                                   name_want=query_params['name_list'],
+                                                   category_want=query_params['category_list'])
         if view_mode == 'view_regular_table_organizations':
             table_header = 'These are the organizations related to this person:'
             table_columns = table_columns_org
@@ -1080,10 +1078,10 @@ def create_results_page_organization(node: Node,
         # 'max_nr_items' in the table. Therefore, reduce the number of neighbors when
         # searching for persons in an organization. Don't do this for other view_modes, because
         # in that case the table shows how many items are found.
-        neighbor_nodes = get_all_neighbor_nodes(node=node,
-                                                name_want=query_params['name_list'],
-                                                category_want=query_params['category_list'],
-                                                max_nr_neighbor_nodes=query_params['max_nr_items'])
+        neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=node.element_id,
+                                                   name_want=query_params['name_list'],
+                                                   category_want=query_params['category_list'],
+                                                   max_nr_neighbor_nodes=query_params['max_nr_items'])
         table_header = 'This is all information related to this organization:'
         html += get_page_title(title='All information related to this organization')
         html += node_found
@@ -1106,10 +1104,10 @@ def create_results_page_organization(node: Node,
         # 'max_nr_items' in the table. Therefore, reduce the number of neighbors when
         # searching for persons in an organization. Don't do this for other view_modes, because
         # in that case the table shows how many items are found.
-        neighbor_nodes = get_all_neighbor_nodes(node=node,
-                                                name_want=query_params['name_list'],
-                                                category_want=query_params['category_list'],
-                                                max_nr_neighbor_nodes=query_params['max_nr_items'])
+        neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=node.element_id,
+                                                   name_want=query_params['name_list'],
+                                                   category_want=query_params['category_list'],
+                                                   max_nr_neighbor_nodes=query_params['max_nr_items'])
         table_header = 'These are persons related to this organization:'
         table_columns = table_columns_ids
         html += get_page_title(title='Persons related to this organization')
@@ -1162,10 +1160,12 @@ def create_results_page_person(node: Node,
         personroot_node = get_personroot_node(node=node)
         html += get_page_title(title='All information related to this person')
         html += node_found
-        neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
-                                                         category_want=person_category_active)
-        neighbor_nodes_organization = get_all_neighbor_nodes(node=personroot_node,
-                                                             category_want=ORGANIZATION_CATEGORY_ALL)
+        if personroot_node is None:
+            return ''
+        neighbor_nodes_personal = get_all_neighbor_nodes_id(node_element_id=personroot_node.element_id,
+                                                            category_want=person_category_active)
+        neighbor_nodes_organization = get_all_neighbor_nodes_id(node_element_id=personroot_node.element_id,
+                                                                category_want=ORGANIZATION_CATEGORY_ALL)
         if len(query_params['category_list']) == 0:
             # We have only personal identifier records for this person,
             # so there are no other categories of nodes to show.
@@ -1173,11 +1173,11 @@ def create_results_page_person(node: Node,
         else:
             researchresult_list = [node for node in query_params['category_list']
                                    if node not in ORGANIZATION_CATEGORY_ALL]
-            neighbor_nodes_researchresult = get_all_neighbor_nodes(node=personroot_node,
-                                                                   name_want=query_params['name_list'],
-                                                                   category_want=researchresult_list,
-                                                                   year_first=query_params['year_first'],
-                                                                   year_last=query_params['year_last'])
+            neighbor_nodes_researchresult = get_all_neighbor_nodes_id(node_element_id=personroot_node.element_id,
+                                                                      name_want=query_params['name_list'],
+                                                                      category_want=researchresult_list,
+                                                                      year_first=query_params['year_first'],
+                                                                      year_last=query_params['year_last'])
         other_table_header = 'These are the research results related to this person '
         other_table_header += year_range_text + ':'
         if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
@@ -1213,8 +1213,10 @@ def create_results_page_person(node: Node,
                                   table_columns=table_columns_org)
     elif view_mode == 'view_regular_table_personal':
         personroot_node = get_personroot_node(node=node)
-        neighbor_nodes_personal = get_all_neighbor_nodes(node=personroot_node,
-                                                         category_want=person_category_active)
+        if personroot_node is None:
+            return ''
+        neighbor_nodes_personal = get_all_neighbor_nodes_id(node_element_id=personroot_node.element_id,
+                                                            category_want=person_category_active)
         html += get_page_title(title='Personal information related to this person')
         html += node_found
         if page_params['discoverer_mode'] == DISCOVERER_MODE_DETAILS:
@@ -1233,11 +1235,13 @@ def create_results_page_person(node: Node,
         # [April 4, 2026] We do not have this anymore:
         # or view_mode == 'view_unspecified_table_everything_except_ids':
         personroot_node = get_personroot_node(node=node)
-        neighbor_nodes = get_all_neighbor_nodes(node=personroot_node,
-                                                name_want=query_params['name_list'],
-                                                category_want=query_params['category_list'],
-                                                year_first = query_params['year_first'],
-                                                year_last = query_params['year_last'])
+        if personroot_node is None:
+            return ''
+        neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=personroot_node.element_id,
+                                                   name_want=query_params['name_list'],
+                                                   category_want=query_params['category_list'],
+                                                   year_first = query_params['year_first'],
+                                                   year_last = query_params['year_last'])
         if view_mode == 'view_unspecified_table_resouts':
             table_header = 'These are the research results related to this person '
             table_header += year_range_text + ':'

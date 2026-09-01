@@ -137,9 +137,10 @@ for node in nodes:
         print('\n', end='', flush=True)
 
     node_in_organizations = set()
-    personroots = rcg.get_all_personroot_nodes(node=node)
+    personroots = rcg.get_all_personroot_nodes_id(node_element_id=node.element_id)
     for personroot in personroots:
-        organizations = rcg.get_all_neighbor_nodes(node=personroot, category_want=[rcg.ORGANIZATION_CATEGORY_ORGANIZATION])
+        organizations = rcg.get_all_neighbor_nodes_id(node_element_id=personroot.element_id,
+                                                      category_want=[rcg.ORGANIZATION_CATEGORY_ORGANIZATION])
         for organization in organizations:
             node_in_organizations.add(organization['value'])
 

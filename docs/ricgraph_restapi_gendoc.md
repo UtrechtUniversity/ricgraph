@@ -70,8 +70,9 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | string | False | Search for a value in Ricgraph field *value* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| value | string | False | Search for a value in Ricgraph field *value*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -104,10 +105,11 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
 | year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
 | year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -140,8 +142,9 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -176,8 +179,8 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items. |
 
 
 
@@ -212,13 +215,13 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
-| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
-| source_system | string | True | The name of the source system you would like to enrich |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name*. |
+| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category*. |
+| source_system | string | True | The name of the source system you would like to enrich. |
 | year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
 | year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items. |
 
 
 
@@ -251,8 +254,9 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | string | False | Search for a value in Ricgraph field *value* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| value | string | False | Search for a value in Ricgraph field *value*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -285,8 +289,9 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -319,12 +324,13 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
-| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name*. |
+| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category*. |
 | year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
 | year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -359,13 +365,14 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
-| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
-| source_system | string | True | The name of the source system you would like to enrich |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name*. |
+| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category*. |
+| source_system | string | True | The name of the source system you would like to enrich. |
 | year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
 | year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -440,8 +447,9 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | string | False | Search for a value in Ricgraph field *value* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| value | string | False | Search for a value in Ricgraph field *value*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -474,8 +482,9 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -508,8 +517,9 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| value | string | False | Search for a value in Ricgraph field *value* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| value | string | False | Search for a value in Ricgraph field *value*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -544,10 +554,11 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| name | string | False | Search for a value in Ricgraph field *name* |
-| category | string | False | Search for a value in Ricgraph field *category* |
-| value | string | False | Search for a value in Ricgraph field *value* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| name | string | False | Search for a value in Ricgraph field *name*. |
+| category | string | False | Search for a value in Ricgraph field *category*. |
+| value | string | False | Search for a value in Ricgraph field *value*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -580,8 +591,9 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 
@@ -614,12 +626,13 @@ __Parameters__
 
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| key | string | True | Search for a value in Ricgraph field *_key* |
-| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
-| name_dontwant | array | False | Return only neighbor nodes whose field *name* does *not* match any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name* |
-| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
-| category_dontwant | array | False | Return only neighbor nodes whose field *category* does *not* match any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category* |
-| max_nr_items | string | False | The maximum number of items to return, or 0 to return all items |
+| key | string | True | Search for a value in Ricgraph field *_key*. |
+| name_want | array | False | Return only neighbor nodes whose field *name* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name*. |
+| name_dontwant | array | False | Return only neighbor nodes whose field *name* does *not* match any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *name*. |
+| category_want | array | False | Return only neighbor nodes whose field *category* matches any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category*. |
+| category_dontwant | array | False | Return only neighbor nodes whose field *category* does *not* match any value in the provided list; if the list is empty, return all neighbor nodes regardless of their field *category*. |
+| page_size | string | False | The number of items to return for one page (at most 250 items). To get the following page, you need to use the cursor that is returned in the REST API reply. |
+| cursor | string | False | The cursor for the graph query. If you change the parameters for this query, you should empty the cursor. |
 
 
 

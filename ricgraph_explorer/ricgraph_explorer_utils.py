@@ -268,7 +268,8 @@ def get_url_query_params() -> QueryParams:
                                                   allowed_values=source_active + OVERLAP_MODE_SOURCE_ALL),
         'start_orgs': get_url_parameter_value(parameter='start_orgs', use_escape=False),
         'collab_orgs': get_url_parameter_value(parameter='collab_orgs', use_escape=False),
-        'max_nr_items': int(max_nr_items)
+        'max_nr_items': int(max_nr_items),
+        'skip_nr_nodes': 0
     }
     return query_params
 

@@ -407,7 +407,7 @@ else:
     exit(1)
 
 rcg.graphdb_nr_accesses_print()
-print(rcg.nodes_cache_key_id_type_size() + '\n')
+print(rcg.ricgraph_cache_size_text() + '\n')
 
 for year_int in range(int(year_first), int(year_last) + 1):
     year = str(year_int)
@@ -439,6 +439,6 @@ for year_int in range(int(year_first), int(year_last) + 1):
         parsed_resout_to_ricgraph(parsed_content=parse_persons_resout)
 
     rcg.graphdb_nr_accesses_print()
-    print(rcg.nodes_cache_key_id_type_size() + '\n')
+    print(rcg.ricgraph_cache_size_text() + '\n')
 
 rcg.close_ricgraph()

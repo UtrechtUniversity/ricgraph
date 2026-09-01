@@ -49,11 +49,12 @@ from .ricgraph_constants import (MAX_NR_HISTORYITEMS_TO_ADD,
                                  PERSON_NAME_PERSON_ROOT,
                                  RICGRAPH_UNKNOWN,
                                  SOURCE_RICGRAPH)
-from .ricgraph_cypher import (cypher_create_node, cypher_read_node,
+from .ricgraph_cypher import (cypher_create_node,
+                              cypher_read_node, cypher_read_node_elementid,
                               cypher_find_nodes, cypher_delete_node,
                               cypher_update_node_properties, cypher_create_edge_if_not_exists,
                               cypher_merge_nodes,
-                              get_all_neighbor_nodes,
+                              get_all_neighbor_nodes_id,
                               ricgraph_nr_edges_of_node)
 from .ricgraph_utils import (get_ricgraph_ini_file, get_configfile_key,
                              convert_string_to_ascii, create_unique_string, datetimestamp,
@@ -127,8 +128,8 @@ def recreate_name_cache_in_personroot(personroot: Node | None) -> None:
     """
     if personroot is None:
         return
-    neighbornodes = get_all_neighbor_nodes(node=personroot,
-                                           name_want=['FULL_NAME'])
+    neighbornodes = get_all_neighbor_nodes_id(node_element_id=personroot.element_id,
+                                              name_want=['FULL_NAME'])
     name_cache = []
     for node in neighbornodes:
         value = get_valuepart_from_ricgraph_value(node['value']) + ' ['
@@ -319,7 +320,8 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
                    key: str = '',
                    name_is_exact_match: bool = True,
                    value_is_exact_match: bool = True,
-                   max_nr_nodes: int = 0) -> list:
+                   max_nr_nodes: int = 0,
+                   skip_nr_nodes: int = 0) -> list:
     """Read a number of nodes based on name, category or value.
     Any of these parameters can be specified.
     It is also possible to read a number of nodes based on key.
@@ -338,6 +340,7 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
       on field 'value', if False, then do a case-insensitive match.
       Note that a case-insensitive match is more expensive.
     :param max_nr_nodes: return at most this number of nodes, 0 = all nodes.
+    :param skip_nr_nodes: skip this number of nodes from results of the query.
     :return: list of nodes read, or empty list if nothing found.
     """
     if not isinstance(name, str) \
@@ -370,7 +373,8 @@ def read_all_nodes(name: str = '', category: str = '', value: str = '',
     nodes = cypher_find_nodes(name=name, category=category, value=value,
                               name_is_exact_match=name_is_exact_match,
                               value_is_exact_match=value_is_exact_match,
-                              max_nr_nodes=max_nr_nodes)
+                              max_nr_nodes=max_nr_nodes,
+                              skip_nr_nodes=skip_nr_nodes)
     return nodes
 
 
@@ -489,7 +493,7 @@ def get_or_create_personroot_node(person_node: Node | None) -> Node | None:
     if person_node['name'] == PERSON_NAME_PERSON_ROOT:
         return person_node
 
-    personroot_nodes = get_all_personroot_nodes(node=person_node)
+    personroot_nodes = get_all_personroot_nodes_id(node_element_id=person_node.element_id)
     if len(personroot_nodes) == 0:
         # Create the 'person-root' node with a unique value.
         value = create_unique_string()
@@ -628,7 +632,7 @@ def merge_two_nodes(node_merge_from: Node | None,
     what_happened += 'now merged with the neighbors of this node:'
     node_merge_to_properties['_history'].append(what_happened)
 
-    neighbornodes = get_all_neighbor_nodes(node=node_merge_from)
+    neighbornodes = get_all_neighbor_nodes_id(node_element_id=node_merge_from.element_id)
     if len(neighbornodes) == 0:
         count += 1
         what_happened = time_stamp + '-' + format(count, '02d') + ': '
@@ -944,31 +948,41 @@ def get_personroot_node(node: Node | None) -> Node | None:
     :param node: the node.
     :return: the person-root node.
     """
-    personroot_nodes = get_all_personroot_nodes(node=node)
+    if node is None:
+        return None
+    personroot_nodes = get_all_personroot_nodes_id(node_element_id=node.element_id)
     if len(personroot_nodes) == 0:
         return None
     else:
         return personroot_nodes[0]
 
 
-def get_all_personroot_nodes(node: Node | None) -> list:
-    """Get the 'person-root' node(s) for any type of node.
-    If 'node' is already a 'person-root' node, return 'node'.
+def get_all_personroot_nodes_id(node_element_id: str = '',
+                                skip_nr_nodes: int = 0) -> list:
+    """Get the 'person-root' node(s) for any type of node,
+    based on the element_id of that node.
+    If node is already a 'person-root' node, return that node.
     If there is more than one person-root node (which can happen if
     node is e.g. a research result, and which should not happen
     if the category is 'person'), all will be returned in a list.
 
-    :param node: the node.
+    :param node_element_id: the element_id of the node.
+    :param skip_nr_nodes: skip this number of nodes from results of the query.
     :return: a list of all the person-root nodes found.
     """
+    if node_element_id == '':
+        return []
+
+    node = cypher_read_node_elementid(node_element_id=node_element_id)
     if node is None:
         return []
 
     if node['name'] == PERSON_NAME_PERSON_ROOT:
         return [node]
 
-    personroot_nodes = get_all_neighbor_nodes(node=node,
-                                              name_want=[PERSON_NAME_PERSON_ROOT])
+    personroot_nodes = get_all_neighbor_nodes_id(node_element_id=node_element_id,
+                                                 name_want=[PERSON_NAME_PERSON_ROOT],
+                                                 skip_nr_nodes=skip_nr_nodes)
     return personroot_nodes
 
 

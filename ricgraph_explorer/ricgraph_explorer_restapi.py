@@ -39,17 +39,19 @@
 #
 # Original version Rik D.T. Janssen, January 2023.
 # Extended Rik D.T. Janssen, February, September 2023 to June 2025.
-# Extended Rik D.T. Janssen, April 2026.
+# Extended Rik D.T. Janssen, April, July 2026.
 #
 # ########################################################################
 
 
 from typing import Tuple
 from flask import Blueprint
-from ricgraph import (create_http_response, HTTP_RESPONSE_OK,
+
+from ricgraph import (create_http_response, create_http_response_auto,
+                      HTTP_RESPONSE_OK,
                       HTTP_RESPONSE_NOTHING_FOUND, HTTP_RESPONSE_INVALID_SEARCH,
-                      read_all_nodes, get_all_neighbor_nodes,
-                      get_personroot_node, get_all_personroot_nodes,
+                      read_all_nodes,
+                      get_personroot_node,
                       check_valid_year,
                       PERSON_CATEGORY_PERSON,
                       ORGANIZATION_CATEGORY_ORGANIZATION,
@@ -61,15 +63,16 @@ from ricgraph_explorer_constants import (RICGRAPH_CACHEINFO,
                                          RICGRAPH_GLOBAL_ALL,
                                          html_preamble,
                                          MAX_ITEMS_TO_RETURN_RESTAPI,
+                                         DEFAULT_PAGE_SIZE_RESTAPI, MAX_PAGE_SIZE_RESTAPI,
+                                         BATCH_SIZE_RESTAPI,
                                          SEARCH_STRING_MIN_LENGTH)
 from ricgraph_explorer_init import (get_ricgraph_explorer_global,
                                     collect_ricgraph_cacheinfo)
 from ricgraph_explorer_utils import get_global_list
-from ricgraph_explorer_cypher import find_organization_additional_info_nodes
 from ricgraph_explorer_graphdb import (convert_nodes_to_list_of_dict,
-                                       find_person_share_resouts_cypher,
                                        find_person_organization_collaborations_cypher,
-                                       find_enrich_candidates_one_person)
+                                       find_enrich_candidates_one_person,
+                                       process_graphdb_query)
 from ricgraph_explorer_datavis import org_collaborations_diagram
 
 
@@ -126,41 +129,58 @@ def get_max_nr_items(max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> in
     if not max_nr_items.isnumeric():
         max_nr_items = str(MAX_ITEMS_TO_RETURN_RESTAPI)
     items = int(max_nr_items)
-    # The following 2 lines only to be used when the REST API has a cursor
-    # to get a following page. Until then, we need the '0' to be able to get
-    # all records.
-    # if items == 0:
-    #    items = MAX_ITEMS_TO_RETURN_RESTAPI
     if items > MAX_ITEMS_TO_RETURN_RESTAPI:
         items = MAX_ITEMS_TO_RETURN_RESTAPI
     return items
 
 
+def get_page_size(page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI)) -> int:
+    """Get the page size to return from the REST API.
+
+    :param page_size: The value requested from the REST API (a str).
+    :return: The value allowed from the REST API (an int).
+    """
+    if not page_size.isnumeric():
+        page_size = str(DEFAULT_PAGE_SIZE_RESTAPI)
+    nr_items = int(page_size)
+    if nr_items > MAX_PAGE_SIZE_RESTAPI:
+        nr_items = MAX_PAGE_SIZE_RESTAPI
+    if nr_items > BATCH_SIZE_RESTAPI:
+        # Otherwise weird things will happen.
+        nr_items = BATCH_SIZE_RESTAPI
+    return nr_items
+
+
 def api_search_person(value: str = '',
-                      max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
+                      page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                      cursor: str = '') -> Tuple[dict, int]:
     """REST API Search for a person.
 
     :param value: value of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
                                           name_restriction='FULL_NAME',
-                                          max_nr_items=max_nr_items)
+                                          page_size=page_size,
+                                          cursor=cursor)
     return response, status
 
 
 def api_person_all_information(key: str = '',
                                year_first: str = '',
                                year_last: str = '',
-                               max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                               page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                               cursor: str = ''):
     """REST API Show all information related to this person.
 
     :param key: key of the node(s) to find.
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -169,8 +189,7 @@ def api_person_all_information(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=1)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -184,16 +203,19 @@ def api_person_all_information(key: str = '',
     response, status = api_all_information_general(key=personroot_node['_key'],
                                                    year_first=year_first,
                                                    year_last=year_last,
-                                                   max_nr_items=max_nr_items)
+                                                   page_size=page_size,
+                                                   cursor=cursor)
     return response, status
 
 
 def api_person_share_researchresults(key: str = '',
-                                     max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                                     page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                                     cursor: str = ''):
     """REST API Find persons that share any share research result types with this person.
 
     :param key: key of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -203,37 +225,36 @@ def api_person_share_researchresults(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
+    page_size_int = get_page_size(page_size=page_size)
+    nodes = read_all_nodes(key=key, max_nr_nodes=1)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
-
-    connected_persons = \
-        find_person_share_resouts_cypher(parent_node=nodes[0],
-                                         category_dontwant_list=[PERSON_CATEGORY_PERSON,
-                                                                 ORGANIZATION_CATEGORY_ORGANIZATION,
-                                                                 COMPETENCE_CATEGORY_COMPETENCE],
-                                         max_nr_items=max_items)
-    if len(connected_persons) == 0:
+    items, cursor, message = \
+        process_graphdb_query(graph_function_name='find_person_share_resouts_cypher',
+                              graph_function_kwargs={'parent_node_element_id': nodes[0].element_id,
+                                                     'category_dontwant_list': [PERSON_CATEGORY_PERSON,
+                                                                               ORGANIZATION_CATEGORY_ORGANIZATION,
+                                                                               COMPETENCE_CATEGORY_COMPETENCE],
+                                                     'max_nr_items': BATCH_SIZE_RESTAPI},
+                              page_size=page_size_int,
+                              cursor=cursor)
+    if len(items) == 0:
         message = 'Could not find persons that share any share research result types '
-        message += 'with this person'
-        response, status = create_http_response(message=message,
-                                                http_status=HTTP_RESPONSE_OK)
-        return response, status
-
-    result_list = convert_nodes_to_list_of_dict(connected_persons,
-                                                max_nr_items=max_items)
-    response, status = create_http_response(result_list=result_list,
-                                            message=str(len(result_list)) + ' items found',
-                                            http_status=HTTP_RESPONSE_OK)
+        message += 'with this person. '
+    response, status = create_http_response_auto(result_list=items,
+                                                 message=message,
+                                                 next_cursor=cursor)
     return response, status
 
 
 def api_person_collaborating_organizations(key: str = '',
                                            max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Find persons that share any share research result types with this person.
+
+    This function will not work with a cursor since
+    find_person_organization_collaborations_cypher() returns two lists.
 
     :param key: key of the node(s) to find.
     :param max_nr_items: The maximum number of items to return.
@@ -292,6 +313,9 @@ def api_person_enrich(key: str = '',
                       max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
     """REST API Find persons that share any share research result types with this person.
 
+    This function will not work with a cursor since
+    find_enrich_candidates_one_person() returns two lists.
+
     :param key: key of the node(s) to find.
     :param name_want: a list containing several node names, indicating
       that we want all neighbor nodes of the person-root node of the organization
@@ -348,7 +372,7 @@ def api_person_enrich(key: str = '',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
     max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
+    nodes = read_all_nodes(key=key, max_nr_nodes=1)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -365,7 +389,7 @@ def api_person_enrich(key: str = '',
     query_params['year_last'] = year_last
     query_params['max_nr_items'] = int(max_nr_items)
     person_nodes, nodes_not_in_source_system = \
-        find_enrich_candidates_one_person(personroot=personroot_node,
+        find_enrich_candidates_one_person(personroot_element_id=personroot_node.element_id,
                                           query_params=query_params,
                                           name_want=name_want,
                                           category_want=category_want)
@@ -408,32 +432,38 @@ def api_person_enrich(key: str = '',
 
 
 def api_search_organization(value: str = '',
-                            max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
+                            page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                            cursor: str = '') -> Tuple[dict, int]:
     """REST API Search for a (sub-)organization.
 
     :param value: value of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
                                           category_restriction=ORGANIZATION_CATEGORY_ORGANIZATION,
-                                          max_nr_items=max_nr_items)
+                                          page_size=page_size,
+                                          cursor=cursor)
     return response, status
 
 
 def api_organization_all_information(key: str = '',
-                                     max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                                     page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                                     cursor: str = ''):
     """REST API Show all information related to this organization.
 
     :param key: key of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     # This implements view_mode = 'view_unspecified_table_organizations'.
     response, status = api_all_information_general(key=key,
-                                                   max_nr_items=max_nr_items)
+                                                   page_size=page_size,
+                                                   cursor=cursor)
     return response, status
 
 
@@ -442,7 +472,8 @@ def api_organization_information_persons_results(key: str = '',
                                                  category_want: list = None,
                                                  year_first: str = '',
                                                  year_last: str = '',
-                                                 max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                                                 page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                                                 cursor: str = ''):
     """REST API Find any information from persons or their results in this organization.
 
     :param key: key of the node(s) to find.
@@ -455,7 +486,8 @@ def api_organization_information_persons_results(key: str = '',
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -466,7 +498,8 @@ def api_organization_information_persons_results(key: str = '',
                                                category_want=category_want,
                                                year_first=year_first,
                                                year_last=year_last,
-                                               max_nr_items=max_nr_items)
+                                               page_size=page_size,
+                                               cursor=cursor)
     return response, status
 
 
@@ -476,7 +509,8 @@ def api_organization_enrich(key: str = '',
                             source_system: str = '',
                             year_first: str = '',
                             year_last: str = '',
-                            max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                            page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                            cursor: str = ''):
     """REST API Find persons that share any share research result types with this organization.
 
     :param key: key of the node(s) to find.
@@ -490,7 +524,8 @@ def api_organization_enrich(key: str = '',
     :param source_system: the source system to find enrichments for.
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -530,8 +565,8 @@ def api_organization_enrich(key: str = '',
                                                         + source_system + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
+    page_size_int = get_page_size(page_size=page_size)
+    nodes = read_all_nodes(key=key, max_nr_nodes=1)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
@@ -543,21 +578,19 @@ def api_organization_enrich(key: str = '',
     query_params['source_system'] = source_system
     query_params['year_first'] = year_first
     query_params['year_last'] = year_last
-    query_params['max_nr_items'] = int(max_nr_items)
-    nodes_list = find_organization_additional_info_nodes(parent_node=nodes[0],
-                                                         query_params=query_params)
-    if len(nodes_list) == 0:
-        message = 'Could not find any information from persons or '
-        message += 'their results in this organization'
-        response, status = create_http_response(message=message,
-                                                http_status=HTTP_RESPONSE_NOTHING_FOUND)
-        return response, status
-
-    result_list = convert_nodes_to_list_of_dict(nodes_list=nodes_list,
-                                                max_nr_items=max_items)
-    response, status = create_http_response(result_list=result_list,
-                                            message=str(len(result_list)) + ' items found',
-                                            http_status=HTTP_RESPONSE_OK)
+    query_params['max_nr_items'] = BATCH_SIZE_RESTAPI
+    items, cursor, message = \
+        process_graphdb_query(graph_function_name='find_organization_additional_info_nodes',
+                              graph_function_kwargs={'parent_node_element_id': nodes[0].element_id,
+                                                     'query_params': query_params},
+                              page_size=page_size_int,
+                              cursor=cursor)
+    if len(items) == 0:
+        message += 'Could not find any information from persons or '
+        message += 'their results in this organization. '
+    response, status = create_http_response_auto(result_list=items,
+                                                 message=message,
+                                                 next_cursor=cursor)
     return response, status
 
 
@@ -608,56 +641,67 @@ def api_explore_collaborations(start_organization: str = '',
 
 
 def api_search_competence(value: str = '',
-                          max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
+                          page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                          cursor: str = '') -> Tuple[dict, int]:
     """REST API Search for a skill, expertise area or research area.
 
     :param value: value of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
                                           category_restriction=COMPETENCE_CATEGORY_COMPETENCE,
-                                          max_nr_items=max_nr_items)
+                                          page_size=page_size,
+                                          cursor=cursor)
     return response, status
 
 
 def api_competence_all_information(key: str = '',
-                                   max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                                   page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                                   cursor: str = ''):
     """REST API Show all information related to this competence.
 
     :param key: key of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_all_information_general(key=key,
-                                                   max_nr_items=max_nr_items)
+                                                   page_size=page_size,
+                                                   cursor=cursor)
     return response, status
 
 
 def api_broad_search(value: str = '',
-                     max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
+                     page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                     cursor: str = '') -> Tuple[dict, int]:
     """REST API Search for anything (broad search).
 
     :param value: value of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     response, status = api_search_general(value=value,
-                                          max_nr_items=max_nr_items)
+                                          page_size=page_size,
+                                          cursor=cursor)
     return response, status
 
 
 def api_advanced_search(name: str = '', category: str = '', value: str = '',
-                        max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
+                        page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                        cursor: str = '') -> Tuple[dict, int]:
     """REST API Advanced search.
 
     :param name: name of the node(s) to find.
     :param category: category of the node(s) to find.
     :param value: value of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -665,34 +709,34 @@ def api_advanced_search(name: str = '', category: str = '', value: str = '',
         response, status = create_http_response(message='You have not specified any search string',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(name=name,
-                           category=category,
-                           value=value,
-                           value_is_exact_match=True,
-                           max_nr_nodes=max_items)
-    if len(nodes) == 0:
-        response, status = create_http_response(message='Nothing found',
-                                                http_status=HTTP_RESPONSE_NOTHING_FOUND)
-        return response, status
-    result_list = convert_nodes_to_list_of_dict(nodes,
-                                                max_nr_items=max_items)
-    response, status = create_http_response(result_list=result_list,
-                                            message=str(len(result_list)) + ' items found',
-                                            http_status=HTTP_RESPONSE_OK)
+    page_size_int = get_page_size(page_size=page_size)
+    items, cursor, message = \
+        process_graphdb_query(graph_function_name='read_all_nodes',
+                              graph_function_kwargs={'name': name,
+                                                     'category': category,
+                                                     'value': value,
+                                                     'value_is_exact_match': True,
+                                                     'max_nr_nodes': BATCH_SIZE_RESTAPI},
+                              page_size=page_size_int,
+                              cursor=cursor)
+    response, status = create_http_response_auto(result_list=items,
+                                                 message=message,
+                                                 next_cursor=cursor)
     return response, status
 
 
 def api_search_general(value: str = '',
                        name_restriction: str = '',
                        category_restriction: str = '',
-                       max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)) -> Tuple[dict, int]:
+                       page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                       cursor: str = '') -> Tuple[dict, int]:
     """REST API General broad search function.
 
     :param value: value of the node(s) to find.
     :param name_restriction: Restrict the broad search on a certain name.
     :param category_restriction: Restrict the broad search on a certain category.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -705,44 +749,44 @@ def api_search_general(value: str = '',
         response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(name=name_restriction,
-                           category=category_restriction,
-                           value=value,
-                           value_is_exact_match=False,
-                           max_nr_nodes=max_items)
-    if name_restriction == 'FULL_NAME' \
-       and len(nodes) < int(max_nr_items):
-        # Also return FULL_NAME_ASCII nodes, if applicable.
-        nodes_ascii = read_all_nodes(name='FULL_NAME_ASCII',
-                                     category=category_restriction,
-                                     value=value,
-                                     value_is_exact_match=False,
-                                     max_nr_nodes=max_items - len(nodes))
-        nodes.extend(nodes_ascii)
-
-    if len(nodes) == 0:
-        response, status = create_http_response(message='Nothing found',
-                                                http_status=HTTP_RESPONSE_NOTHING_FOUND)
-        return response, status
-    result_list = convert_nodes_to_list_of_dict(nodes,
-                                                max_nr_items=max_items)
-    response, status = create_http_response(result_list=result_list,
-                                            message=str(len(result_list)) + ' items found',
-                                            http_status=HTTP_RESPONSE_OK)
+    page_size_int = get_page_size(page_size=page_size)
+    if name_restriction == 'FULL_NAME':
+        # If it is FULL_NAME, we should also search for FULL_NAME_ASCII.
+        items, cursor, message = \
+            process_graphdb_query(graph_function_name='cypher_find_nodes_name',
+                                  graph_function_kwargs={'value': value,
+                                                         'max_nr_nodes': BATCH_SIZE_RESTAPI},
+                                  page_size=page_size_int,
+                                  cursor=cursor)
+    else:
+        # For all other values, use the general search function.
+        items, cursor, message = \
+            process_graphdb_query(graph_function_name='read_all_nodes',
+                                  graph_function_kwargs={'name': name_restriction,
+                                                         'category': category_restriction,
+                                                         'value': value,
+                                                         'value_is_exact_match': False,
+                                                         'max_nr_nodes': BATCH_SIZE_RESTAPI},
+                                  page_size=page_size_int,
+                                  cursor=cursor)
+    response, status = create_http_response_auto(result_list=items,
+                                                 message=message,
+                                                 next_cursor=cursor)
     return response, status
 
 
 def api_all_information_general(key: str = '',
                                 year_first: str = '',
                                 year_last: str = '',
-                                max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                                page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                                cursor: str = ''):
     """REST API General all information about a node function.
 
     :param key: key of the node(s) to find.
     :param year_first: The first year of the results.
     :param year_last: The last year of the results.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -754,34 +798,34 @@ def api_all_information_general(key: str = '',
         response, status = create_http_response(message=message,
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
+    page_size_int = get_page_size(page_size=page_size)
+    nodes = read_all_nodes(key=key, max_nr_nodes=1)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
-    neighbor_nodes = get_all_neighbor_nodes(node=nodes[0],
-                                            year_first=year_first,
-                                            year_last=year_last,
-                                            max_nr_neighbor_nodes=max_items)
-    if len(neighbor_nodes) == 0:
-        response, status = create_http_response(message='Nothing found',
-                                                http_status=HTTP_RESPONSE_NOTHING_FOUND)
-        return response, status
-    result_list = convert_nodes_to_list_of_dict(neighbor_nodes,
-                                                max_nr_items=max_items)
-    response, status = create_http_response(result_list=result_list,
-                                            message=str(len(result_list)) + ' items found',
-                                            http_status=HTTP_RESPONSE_OK)
+    items, cursor, message = \
+        process_graphdb_query(graph_function_name='get_all_neighbor_nodes_id',
+                              graph_function_kwargs={'node_element_id': nodes[0].element_id,
+                                                     'year_first': year_first,
+                                                     'year_last': year_last,
+                                                     'max_nr_neighbor_nodes': BATCH_SIZE_RESTAPI},
+                              page_size=page_size_int,
+                              cursor=cursor)
+    response, status = create_http_response_auto(result_list=items,
+                                                 message=message,
+                                                 next_cursor=cursor)
     return response, status
 
 
 def api_get_all_personroot_nodes(key: str = '',
-                                 max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                                 page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                                 cursor: str = ''):
     """REST API Get all the person-root nodes of a node.
 
     :param key: key of the node(s) to find.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -789,22 +833,20 @@ def api_get_all_personroot_nodes(key: str = '',
         response, status = create_http_response(message='You have not specified a search key',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
+    page_size_int = get_page_size(page_size=page_size)
+    nodes = read_all_nodes(key=key, max_nr_nodes=1)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
-    personroot_nodes = get_all_personroot_nodes(node=nodes[0])
-    if len(personroot_nodes) == 0:
-        response, status = create_http_response(message='Nothing found',
-                                                http_status=HTTP_RESPONSE_NOTHING_FOUND)
-        return response, status
-    result_list = convert_nodes_to_list_of_dict(personroot_nodes,
-                                                max_nr_items=max_items)
-    response, status = create_http_response(result_list=result_list,
-                                            message=str(len(result_list)) + ' items found',
-                                            http_status=HTTP_RESPONSE_OK)
+    items, cursor, message = \
+        process_graphdb_query(graph_function_name='get_all_personroot_nodes_id',
+                              graph_function_kwargs={'node_element_id': nodes[0].element_id},
+                              page_size=page_size_int,
+                              cursor=cursor)
+    response, status = create_http_response_auto(result_list=items,
+                                                 message=message,
+                                                 next_cursor=cursor)
     return response, status
 
 
@@ -813,7 +855,8 @@ def api_get_all_neighbor_nodes(key: str = '',
                                name_dontwant: list = None,
                                category_want: list = None,
                                category_dontwant: list = None,
-                               max_nr_items: str = str(MAX_ITEMS_TO_RETURN_RESTAPI)):
+                               page_size: str = str(DEFAULT_PAGE_SIZE_RESTAPI),
+                               cursor: str = ''):
     """REST API Get all the neighbor nodes of a node.
 
     :param key: key of the node(s) to find.
@@ -826,7 +869,8 @@ def api_get_all_neighbor_nodes(key: str = '',
       If empty (empty string), all nodes are 'wanted'.
     :param category_want: similar to 'name_want', but now for the property 'category'.
     :param category_dontwant: similar, but for property 'category' and nodes we don't want.
-    :param max_nr_items: The maximum number of items to return.
+    :param page_size: The number of items to return for one page.
+    :param cursor: The cursor to continue the query.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
@@ -868,27 +912,25 @@ def api_get_all_neighbor_nodes(key: str = '',
                                                         + str(result) + '".',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
         return response, status
-    max_items = get_max_nr_items(max_nr_items=max_nr_items)
-    nodes = read_all_nodes(key=key, max_nr_nodes=max_items)
+    page_size_int = get_page_size(page_size=page_size)
+    nodes = read_all_nodes(key=key, max_nr_nodes=1)
     if len(nodes) == 0:
         response, status = create_http_response(message='Nothing found',
                                                 http_status=HTTP_RESPONSE_NOTHING_FOUND)
         return response, status
-    neighbor_nodes = get_all_neighbor_nodes(node=nodes[0],
-                                            name_want=name_want,
-                                            name_dontwant=name_dontwant,
-                                            category_want=category_want,
-                                            category_dontwant=category_dontwant,
-                                            max_nr_neighbor_nodes=max_items)
-    if len(neighbor_nodes) == 0:
-        response, status = create_http_response(message='Nothing found',
-                                                http_status=HTTP_RESPONSE_NOTHING_FOUND)
-        return response, status
-    result_list = convert_nodes_to_list_of_dict(neighbor_nodes,
-                                                max_nr_items=max_items)
-    response, status = create_http_response(result_list=result_list,
-                                            message=str(len(result_list)) + ' items found',
-                                            http_status=HTTP_RESPONSE_OK)
+    items, cursor, message = \
+        process_graphdb_query(graph_function_name='get_all_neighbor_nodes_id',
+                              graph_function_kwargs={'node_element_id': nodes[0].element_id,
+                                                     'name_want': name_want,
+                                                     'name_dontwant': name_dontwant,
+                                                     'category_want': category_want,
+                                                     'category_dontwant': category_dontwant,
+                                                     'max_nr_neighbor_nodes': BATCH_SIZE_RESTAPI},
+                              page_size=page_size_int,
+                              cursor=cursor)
+    response, status = create_http_response_auto(result_list=items,
+                                                 message=message,
+                                                 next_cursor=cursor)
     return response, status
 
 

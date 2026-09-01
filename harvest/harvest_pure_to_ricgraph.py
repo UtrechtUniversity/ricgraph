@@ -2285,7 +2285,7 @@ if PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('Done pre-harvesting press media items.\n')
 
 rcg.graphdb_nr_accesses_print()
-print(rcg.nodes_cache_key_id_type_size() + '\n')
+print(rcg.ricgraph_cache_size_text() + '\n')
 
 # ########################################################################
 # You can use 'True' or 'False' depending on your needs to harvest
@@ -2324,7 +2324,7 @@ if HARVEST_PERSONS:
         parsed_organizations_to_ricgraph(parsed_content=parse_persorgs)
 
     rcg.graphdb_nr_accesses_print()
-    print(rcg.nodes_cache_key_id_type_size() + '\n')
+    print(rcg.ricgraph_cache_size_text() + '\n')
 
 
 # ########################################################################
@@ -2366,7 +2366,7 @@ if HARVEST_RESOUTS:
                                         what='research results')
 
         rcg.graphdb_nr_accesses_print()
-        print(rcg.nodes_cache_key_id_type_size() + '\n')
+        print(rcg.ricgraph_cache_size_text() + '\n')
 
 
 # ########################################################################
@@ -2406,7 +2406,7 @@ if HARVEST_DATASETS:
                                     what='data sets (from Pure datasets endpoint)')
 
     rcg.graphdb_nr_accesses_print()
-    print(rcg.nodes_cache_key_id_type_size() + '\n')
+    print(rcg.ricgraph_cache_size_text() + '\n')
 
 # ########################################################################
 # Code for harvesting press media items.
@@ -2452,7 +2452,7 @@ if HARVEST_PRESS_MEDIA:
                                         what='press media items')
 
         rcg.graphdb_nr_accesses_print()
-        print(rcg.nodes_cache_key_id_type_size() + '\n')
+        print(rcg.ricgraph_cache_size_text() + '\n')
 
 
 org_and_all_parents = {}
@@ -2498,6 +2498,6 @@ if HARVEST_PROJECTS:
 
     print('WARNING: Harvesting of projects may not work as expected. Use at your own risk.')
     rcg.graphdb_nr_accesses_print()
-    print(rcg.nodes_cache_key_id_type_size() + '\n')
+    print(rcg.ricgraph_cache_size_text() + '\n')
 
 rcg.close_ricgraph()

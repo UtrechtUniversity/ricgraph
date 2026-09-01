@@ -132,9 +132,9 @@ or the code examples in file *ricgraph_explorer.py* in directory
 ```python
 import ricgraph as rcg
 
-rcg.get_personroot_node()            # get a 'person-root' node starting from any 'person' node
-rcg.get_all_personroot_nodes()       # get all 'person-root' nodes (there should be only one)
-rcg.get_all_neighbor_nodes()         # get all neighbor nodes connected to a node. 
-                                     # it is possible to restrict to nodes having
-                                     # a certain property 'name' or 'category'
+rcg.get_personroot_node()  # get a 'person-root' node starting from any 'person' node
+rcg.get_all_personroot_nodes_id()  # get all 'person-root' nodes (there should be only one)
+rcg.get_all_neighbor_nodes()  # get all neighbor nodes connected to a node. 
+# it is possible to restrict to nodes having
+# a certain property 'name' or 'category'
 ```

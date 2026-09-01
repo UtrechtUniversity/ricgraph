@@ -59,8 +59,8 @@ from .ricgraph_utils import (get_ricgraph_ini_file,
                              get_configfile_key_graphdb_parameters,
                              create_ricgraph_key, datetimestamp,
                              check_valid_year)
-from .ricgraph_cache import (nodes_cache_key_id_create, nodes_cache_key_id_read,
-                             nodes_cache_key_id_delete_key)
+from .ricgraph_cache import (ricgraph_cache_item_create, ricgraph_cache_item_read,
+                             ricgraph_cache_item_delete_key)
 
 
 # The graph.
@@ -486,13 +486,13 @@ def cypher_create_node(node_properties: dict) -> Node | None:
         return None
     else:
         node = nodes[0]
-        nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
+        ricgraph_cache_item_create(key=node['_key'], value=node.element_id)
         return node
 
 
 def cypher_read_node_elementid(node_element_id: str) -> Node | None:
     """
-    Read a node from the graph database, based on elementid.
+    Read a node from the graph database, based on element_id.
 
     :param node_element_id: the element_id of the node.
     :return: the node found, or None if not present.
@@ -536,7 +536,7 @@ def cypher_read_node(name: str, value: str) -> Node | None:
         return None
 
     key = create_ricgraph_key(name=name, value=value)
-    if (node_element_id := nodes_cache_key_id_read(key=key)) != '':
+    if (node_element_id := ricgraph_cache_item_read(key=key)) != '':
         # Node is in the cache, we can read it in O(1).
         node = cypher_read_node_elementid(node_element_id=node_element_id)
         return node
@@ -553,14 +553,15 @@ def cypher_read_node(name: str, value: str) -> Node | None:
         return None
     else:
         node = nodes[0]
-        nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
+        ricgraph_cache_item_create(key=node['_key'], value=node.element_id)
         return node
 
 
 def cypher_find_nodes(name: str, category: str, value: str,
                       name_is_exact_match: bool = True,
                       value_is_exact_match: bool = True,
-                      max_nr_nodes: int = 0) -> list:
+                      max_nr_nodes: int = 0,
+                      skip_nr_nodes: int = 0) -> list:
     """
     Find nodes in the graph database.
 
@@ -574,6 +575,7 @@ def cypher_find_nodes(name: str, category: str, value: str,
       on field 'value', if False, then do a case-insensitive match.
       Note that a case-insensitive match is more expensive.
     :param max_nr_nodes: return at most this number of nodes, 0 = all nodes.
+    :param skip_nr_nodes: skip this number of nodes from results of the query.
     :return: a list of the nodes found, or [] if nothing found.
     """
     global _graph, _graphdb_nr_reads
@@ -604,6 +606,11 @@ def cypher_find_nodes(name: str, category: str, value: str,
     if len(clauses) >= 1:
         cypher_query += 'WHERE ' + ' AND '.join(clauses) + ' '
     cypher_query += 'RETURN node '
+    # I have understood that always doing an ORDER BY is almost free
+    # (compared to the other costs of this query).
+    cypher_query += 'ORDER BY node._key '
+    if skip_nr_nodes > 0:
+        cypher_query += 'SKIP $skip_nr_nodes '
     if max_nr_nodes > 0:
         cypher_query += 'LIMIT $max_nr_nodes '
     # print(cypher_query)
@@ -614,6 +621,56 @@ def cypher_find_nodes(name: str, category: str, value: str,
                                          node_category=category,
                                          node_value=value,
                                          node_value_lowercase=value.lower(),
+                                         skip_nr_nodes=skip_nr_nodes,
+                                         max_nr_nodes=max_nr_nodes,
+                                         database_=ricgraph_databasename())
+    nodes = [record['node'] for record in records]
+    nr_nodes = len(nodes)
+    # Unsure what to count here, this seems reasonable. '+ 1' for first node.
+    _graphdb_nr_reads += nr_nodes + 1
+    if nr_nodes == 0:
+        return []
+    else:
+        return nodes
+
+
+def cypher_find_nodes_name(value: str,
+                           max_nr_nodes: int = 0,
+                           skip_nr_nodes: int = 0) -> list:
+    """
+    Find nodes in the graph database.
+    This is an extremely specialized version of
+    cypher_find_nodes(). It will only find nodes
+    with name FULL_NAME or FULL_NAME_ASCII.
+
+    :param value: the 'value' of the node to find.
+    :param max_nr_nodes: return at most this number of nodes, 0 = all nodes.
+    :param skip_nr_nodes: skip this number of nodes from results of the query.
+    :return: a list of the nodes found, or [] if nothing found.
+    """
+    global _graph, _graphdb_nr_reads
+
+    if _graph is None:
+        print('\ncypher_find_nodes(): Error: graph has not been initialized or opened.\n\n')
+        return []
+
+    # Do not use RicgraphPerson, we have no index on it (yet).
+    cypher_query = 'MATCH (node:RicgraphNode) '
+    cypher_query += 'WHERE (node.name="FULL_NAME" OR node.name="FULL_NAME_ASCII") '
+    cypher_query += 'AND toLower(node.value) CONTAINS $node_value_lowercase '
+    cypher_query += 'RETURN node '
+    # I have understood that always doing an ORDER BY is almost free
+    # (compared to the other costs of this query).
+    cypher_query += 'ORDER BY node._key '
+    if skip_nr_nodes > 0:
+        cypher_query += 'SKIP $skip_nr_nodes '
+    if max_nr_nodes > 0:
+        cypher_query += 'LIMIT $max_nr_nodes '
+    # print(cypher_query)
+
+    records, _, _ = _graph.execute_query(query_=cypher_query,
+                                         node_value_lowercase=value.lower(),
+                                         skip_nr_nodes=skip_nr_nodes,
                                          max_nr_nodes=max_nr_nodes,
                                          database_=ricgraph_databasename())
     nodes = [record['node'] for record in records]
@@ -644,7 +701,7 @@ def cypher_delete_node(node_element_id: str) -> None:
     if node is None:
         return
     node_key = node['_key']
-    nodes_cache_key_id_delete_key(key=node_key)
+    ricgraph_cache_item_delete_key(key=node_key)
 
     # Then delete it from the graph database.
     cypher_query = 'MATCH (node:RicgraphNode) '
@@ -688,7 +745,7 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
         if old_node is None:
             return None
         old_node_key = old_node['_key']
-        nodes_cache_key_id_delete_key(key=old_node_key)
+        ricgraph_cache_item_delete_key(key=old_node_key)
 
     cypher_query = 'MATCH (node:RicgraphNode) '
     if ricgraph_database() == 'neo4j':
@@ -711,7 +768,7 @@ def cypher_update_node_properties(node_element_id: str, node_properties: dict) -
         if 'name' in node_properties or 'value' in node_properties:
             # 'name' or 'value' has changed and thus '_key' has changed.
             # Put new node in the cache.
-            nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
+            ricgraph_cache_item_create(key=node['_key'], value=node.element_id)
         return node
 
 
@@ -753,7 +810,7 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     if old_node is None:
         return None
     old_node_key = old_node['_key']
-    nodes_cache_key_id_delete_key(key=old_node_key)
+    ricgraph_cache_item_delete_key(key=old_node_key)
 
     # Even 'name' or 'value' from node_merge_to_element_id may be changed,
     # delete it too, just to be sure the cache is correct.
@@ -761,7 +818,7 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
     if old_node is None:
         return None
     old_node_key = old_node['_key']
-    nodes_cache_key_id_delete_key(key=old_node_key)
+    ricgraph_cache_item_delete_key(key=old_node_key)
 
     cypher_query = 'MATCH (node_from:RicgraphNode) '
     if graphdb_name == 'neo4j':
@@ -807,7 +864,7 @@ def cypher_merge_nodes(node_merge_from_element_id: str,
 
     # Add the new node to the cache.
     node = nodes[0]
-    nodes_cache_key_id_create(key=node['_key'], elementid=node.element_id)
+    ricgraph_cache_item_create(key=node['_key'], value=node.element_id)
     return node
 
 
@@ -969,19 +1026,60 @@ def read_all_values_of_property(node_property: str = '') -> list:
     return result_list_sorted
 
 
-def get_all_neighbor_nodes(node: Node = None,
-                           name_want: list = None,
-                           name_dontwant: list = None,
-                           category_want: list = None,
-                           category_dontwant: list = None,
-                           year_first: str = '',
-                           year_last: str = '',
-                           max_nr_neighbor_nodes: int = 0) -> list:
+# 15-7-2026: This function is obsolete.
+# def get_all_neighbor_nodes(node: Node = None,
+#                            name_want: list = None,
+#                            name_dontwant: list = None,
+#                            category_want: list = None,
+#                            category_dontwant: list = None,
+#                            year_first: str = '',
+#                            year_last: str = '',
+#                            max_nr_neighbor_nodes: int = 0,
+#                            skip_nr_nodes: int = 0) -> list:
+#     """This is a wrapper for get_all_neighbor_nodes_id(), that takes
+#     a Cypher element_id. For documentation, see that function.
+#     This function will be removed at some time, better use
+#     get_all_neighbor_nodes_id().
+#
+#     :param node:
+#     :param name_want:
+#     :param name_dontwant:
+#     :param category_want:
+#     :param category_dontwant:
+#     :param year_first:
+#     :param year_last:
+#     :param max_nr_neighbor_nodes:
+#     :param skip_nr_nodes:
+#     :return:
+#     """
+#     if node is None:
+#         return []
+#     nodes = get_all_neighbor_nodes_id(node_element_id=node.element_id,
+#                                       name_want=name_want,
+#                                       name_dontwant=name_dontwant,
+#                                       category_want=category_want,
+#                                       category_dontwant=category_dontwant,
+#                                       year_first=year_first,
+#                                       year_last=year_last,
+#                                       max_nr_neighbor_nodes=max_nr_neighbor_nodes,
+#                                       skip_nr_nodes=skip_nr_nodes)
+#     return nodes
+
+
+def get_all_neighbor_nodes_id(node_element_id: str = '',
+                              name_want: list = None,
+                              name_dontwant: list = None,
+                              category_want: list = None,
+                              category_dontwant: list = None,
+                              year_first: str = '',
+                              year_last: str = '',
+                              max_nr_neighbor_nodes: int = 0,
+                              skip_nr_nodes: int = 0) -> list:
     """Get all the neighbors of 'node' in a list.
     You can restrict the nodes returned by specifying one or more of the
     other parameters. If more than one is specified, the result is an AND.
 
-    :param node: the node we need neighbors from.
+    :param node_element_id: the ID of the node we need neighbors from.
     :param name_want: either a string which indicates that we only want neighbor
       nodes where the property 'name' is equal to 'name_want'
       (e.g. 'ORCID'),
@@ -997,6 +1095,7 @@ def get_all_neighbor_nodes(node: Node = None,
     :param year_first: The first year of the results to be counted.
     :param year_last: The last year of the results to be counted.
     :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
+    :param skip_nr_nodes: skip this number of nodes from results of the query.
     :return: the list of neighboring nodes satisfying all these criteria, or
       empty list if nothing found.
     """
@@ -1004,11 +1103,12 @@ def get_all_neighbor_nodes(node: Node = None,
     global _graphdb_nr_reads
 
     if _graph is None:
-        print('\nget_all_neighbor_nodes(): Error: graph has not been initialized or opened.\n\n')
+        print('\nget_all_neighbor_nodes_id(): Error: graph has not been initialized or opened.\n\n')
         return []
 
-    if node is None:
+    if node_element_id == '':
         return []
+
     if name_want is None:
         name_want = []
     if name_dontwant is None:
@@ -1044,7 +1144,8 @@ def get_all_neighbor_nodes(node: Node = None,
 
     if nr_of_not_clauses >= 2:
         # This is a special case in which the Cypher query produces unexpected results.
-        neighbor_nodes = get_all_neighbor_nodes_loop(node=node,
+        # Note that it does not do anything with SKIP and LIMIT.
+        neighbor_nodes = get_all_neighbor_nodes_loop(node_element_id=node_element_id,
                                                      name_want=name_want,
                                                      name_dontwant=name_dontwant,
                                                      category_want=category_want,
@@ -1058,18 +1159,25 @@ def get_all_neighbor_nodes(node: Node = None,
         cypher_query += 'AND neighbor.year <= $year_last '
 
     cypher_query += 'RETURN DISTINCT neighbor '
+    # I have understood that always doing an ORDER BY is almost free
+    # (compared to the other costs of this query).
+    cypher_query += 'ORDER BY neighbor._key '
+    if skip_nr_nodes > 0:
+        cypher_query += 'SKIP $skip_nr_nodes '
     if max_nr_neighbor_nodes > 0:
         cypher_query += 'LIMIT $max_nr_neighbor_nodes '
     # print(cypher_query)
 
     records, _, _ = _graph.execute_query(query_=cypher_query,
-                                         node_element_id=node.element_id,
+                                         # node_element_id=node.element_id,
+                                         node_element_id=node_element_id,
                                          name_want=name_want,
                                          name_dontwant=name_dontwant,
                                          category_want=category_want,
                                          category_dontwant=category_dontwant,
                                          year_first=year_first,
                                          year_last=year_last,
+                                         skip_nr_nodes=skip_nr_nodes,
                                          max_nr_neighbor_nodes=max_nr_neighbor_nodes,
                                          database_=ricgraph_databasename())
     neighbor_nodes = [record['neighbor'] for record in records]
@@ -1082,7 +1190,7 @@ def get_all_neighbor_nodes(node: Node = None,
         return neighbor_nodes
 
 
-def get_all_neighbor_nodes_loop(node: Node,
+def get_all_neighbor_nodes_loop(node_element_id : str = '',
                                 name_want: list = None,
                                 name_dontwant: list = None,
                                 category_want: list = None,
@@ -1094,20 +1202,20 @@ def get_all_neighbor_nodes_loop(node: Node,
     You can restrict the nodes returned by specifying one or more of the
     other parameters. If more than one is specified, the result is an AND.
 
-    This is the same function as get_all_neighbor_nodes() but it is much slower
+    This is the same function as get_all_neighbor_nodes_id() but it is much slower
     since it uses a loop. We need this in case
     len(name_dontwant) > 0 and len(category_dontwant) > 0.
 
     For this function, well-formed parameter lists are expected for
     name_* and category_* params. This is sensible, since the only place
-    this function is called from is get_all_neighbor_nodes() that creates
+    this function is called from is get_all_neighbor_nodes_id() that creates
     these well-formed parameters.
 
-    :param node: the node we need neighbors from.
-    :param name_want: as in get_all_neighbor_nodes().
-    :param name_dontwant: as in get_all_neighbor_nodes().
-    :param category_want: as in get_all_neighbor_nodes().
-    :param category_dontwant: as in get_all_neighbor_nodes().
+    :param node_element_id: the element_id of the node we need neighbors from.
+    :param name_want: as in get_all_neighbor_nodes_id().
+    :param name_dontwant: as in get_all_neighbor_nodes_id().
+    :param category_want: as in get_all_neighbor_nodes_id().
+    :param category_dontwant: as in get_all_neighbor_nodes_id().
     :param year_first: The first year of the results to be counted.
     :param year_last: The last year of the results to be counted.
     :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
@@ -1115,10 +1223,10 @@ def get_all_neighbor_nodes_loop(node: Node,
     """
     global _graphdb_nr_reads
 
-    if len(node) == 0:
+    if node_element_id == '':
         return []
 
-    candidate_neighbor_nodes = get_all_neighbor_nodes(node=node)
+    candidate_neighbor_nodes = get_all_neighbor_nodes_id(node_element_id=node_element_id)
     if len(candidate_neighbor_nodes) == 0:
         return []
 
@@ -1130,7 +1238,7 @@ def get_all_neighbor_nodes_loop(node: Node,
     for neighbor in candidate_neighbor_nodes:
         if count >= max_nr_neighbor_nodes:
             break
-        if node == neighbor:
+        if node_element_id == neighbor.element_id:
             continue
         if name_dontwant is not None and neighbor['name'] in name_dontwant:
             continue
@@ -1197,7 +1305,7 @@ def format_cypher_break_match(query_part: str) -> str:
 
 
 def format_cypher(query: str) -> str:
-    """Fomat (as in pretty print) a Cypher query.
+    """Format (as in pretty print) a Cypher query.
 
     :param query: The query to format.
     :return: The result, nicely formatted.

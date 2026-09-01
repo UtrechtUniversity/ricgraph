@@ -37,24 +37,27 @@
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
 # Updated Rik D.T. Janssen, February to June, September to December  2024.
-# Updated Rik D.T. Janssen, January to June, October 2025.
+# Updated Rik D.T. Janssen, January to June, October 2025, July 2026.
 #
 # ########################################################################
 
 
 from sys import getsizeof
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any
 from pymemcache.client.base import Client
 from .ricgraph_constants import MAX_NODES_CACHE_KEY_ID
 from .ricgraph_utils import (get_configfile_key_memcached_parameters,
                              serialize_value, deserialize_value)
 
 
-# This dict is used as a cache for node id's. If we have a node id, we can
+# This dict is used as a cache. 
+# It may be used for node ids. If we have a node id, we can
 # do a direct lookup for a node in O(1) in the graph database,
 # instead of a search in O(log n).
-# The dict has the format: [Ricgraph _key]: [Node element_id].
-_nodes_cache_key_id = {}
+# For nodes, the dict has the format: [Ricgraph _key]: [Node element_id].
+# For all other types, it uses JSON, and it has the 
+# format: [key]: [value].
+_ricgraph_cache = {}
 
 # Global indicating whether Memcached is available.
 _memcached_available = False
@@ -118,125 +121,119 @@ def memcached_check_available() -> bool:
         return True
 
 
-def nodes_cache_key_id_create(key: str, elementid: str) -> None:
-    """Create an entry in the cache for node id's.
-    'id' in this sentence is the id assigned by de graph database.
+def ricgraph_cache_item_create(key: str, value: Any) -> None:
+    """Create an entry in the cache.
 
-    :param key: _key of a node.
-    :param elementid: id of a node.
+    :param key: key of a cache item.
+    :param value: value of a cache item.
     :return: None.
     """
-    global _nodes_cache_key_id, _memcached_available, _memcached_client
+    global _ricgraph_cache, _memcached_available, _memcached_client
 
-    if key == '' or elementid == '':
+    if key == '' or value == '':
         return
 
+    key_clean = key.replace(' ', '_')
+    value_serialized = serialize_value(value=value)
     if memcached_check_available():
         if _memcached_client is None:
             return
-        # The docs are unclear whether I need to serialize the key if I
-        # use flag allow_unicode_keys=True in Client() above.
-        # So I do serialize to be sure. Since keys cannot have spaces,
-        # these are replaced first.
-        key_serialized = serialize_value(value=key.replace(' ', '_'))
-        elementid_serialized = serialize_value(value=elementid)
         try:
-            _memcached_client.set(key=key_serialized,
-                                  value=elementid_serialized,
+            _memcached_client.set(key=key_clean,
+                                  value=value_serialized,
                                   expire=0)
         except:
-            print('nodes_cache_key_id_create(): Warning, connection to Memcached lost, continuing...')
+            print('ricgraph_cache_item_create(): Warning, connection to Memcached lost, continuing...')
             # Continue, hopefully the connection will come back soon.
         return
 
-    if len(_nodes_cache_key_id) > MAX_NODES_CACHE_KEY_ID:
-        nodes_cache_key_id_empty()
+    if len(_ricgraph_cache) > MAX_NODES_CACHE_KEY_ID:
+        ricgraph_cache_empty()
 
     # We use a 'dict', which does not allow for duplicates, so we
     # do not need to check for duplicates.
     # https://docs.python.org/3/library/stdtypes.html#mapping-types-dict
     # tells that Python dict keys and values can have _almost_ any type.
-    # So we do not need to serialize and deserialize.
-    _nodes_cache_key_id[key] = elementid
-    # print('Create: ' + str(key) + ' -- ' + _nodes_cache_key_id[key])
+    # We serialize for symmetry with Memcached.
+    # print('Create: ' + str(key_clean) + ' -- ' + str(value_serialized))
+    _ricgraph_cache[key_clean] = value_serialized
     return
 
 
-def nodes_cache_key_id_read(key: str) -> str:
-    """Read an entry from the cache for node id's.
-    'id' in this sentence is the id assigned by de graph database.
+def ricgraph_cache_item_read(key: str) -> Any:
+    """Read an entry from the cache.
 
-    :param key: _key of a node.
-    :return: The id of the node, or '' if not present.
+    :param key: key of a cache item.
+    :return: The value of the cache item, or '' if not present.
     """
-    global _nodes_cache_key_id, _memcached_available, _memcached_client
+    global _ricgraph_cache, _memcached_available, _memcached_client
 
     if key == '':
         return ''
 
+    key_clean = key.replace(' ', '_')
     if memcached_check_available():
         if _memcached_client is None:
             return ''
-        key_serialized = serialize_value(value=key.replace(' ', '_'))
         try:
-            elementid_serialized = _memcached_client.get(key=key_serialized)
+            value_serialized = _memcached_client.get(key=key_clean)
         except:
-            print('nodes_cache_key_id_read(): Warning, connection to Memcached lost, continuing...')
+            print('ricgraph_cache_item_read(): Warning, connection to Memcached lost, continuing...')
             # Continue, hopefully the connection will come back soon.
             return ''
 
-        if elementid_serialized is None:
+        if value_serialized is None:
             # Key not found.
             return ''
         else:
-            elementid = deserialize_value(serialized=elementid_serialized)
-            return elementid
+            value = deserialize_value(serialized=value_serialized)
+            return value
 
-    if key in _nodes_cache_key_id:
-        # print('Read: ' + str(key) + ' -- ' + _nodes_cache_key_id[key])
-        return _nodes_cache_key_id[key]
+    if key_clean in _ricgraph_cache:
+        value_serialized = _ricgraph_cache[key_clean]
+        # print('Read: ' + str(key_clean) + ' -- ' + str(value_serialized))
+        value = deserialize_value(serialized=value_serialized)
+        return value
     return ''
 
 
-def nodes_cache_key_id_delete_key(key: str) -> None:
-    """Delete a key 'key' from the cache for node id's.
-    'id' in this sentence is the id assigned by de graph database.
+def ricgraph_cache_item_delete_key(key: str) -> None:
+    """Delete a key 'key' from the cache.
 
-    :param key: _key of a node.
+    :param key: key of a cache item.
     :return: None.
     """
-    global _nodes_cache_key_id, _memcached_available, _memcached_client
+    global _ricgraph_cache, _memcached_available, _memcached_client
 
     if key == '':
         return
 
+    key_clean = key.replace(' ', '_')
     if memcached_check_available():
         if _memcached_client is None:
             return
-        key_serialized = serialize_value(value=key.replace(' ', '_'))
         try:
             # Works regardless whether the key is present or not.
-            _memcached_client.delete(key=key_serialized)
+            _memcached_client.delete(key=key_clean)
         except:
-            print('nodes_cache_key_id_delete(): Error, connection to Memcached lost, exiting...')
+            print('nodes_cache_item_delete_key(): Error, connection to Memcached lost, exiting...')
             # Exit because the cache gets in an unexpected state:
             # an element remains in the cache while it should not.
             exit(1)
         return
 
-    if key in _nodes_cache_key_id:
-        # print('Delete: ' + str(key) + ' -- ' + _nodes_cache_key_id[key])
-        _nodes_cache_key_id.pop(key)
+    if key_clean in _ricgraph_cache:
+        # print('Delete: ' + str(key_clean) + ' -- ' + _ricgraph_cache[key_clean])
+        _ricgraph_cache.pop(key_clean)
     return
 
 
-def nodes_cache_key_id_empty() -> None:
-    """Empty the cache for node id's.
-    'id' in this sentence is the id assigned by de graph database.
+def ricgraph_cache_empty() -> None:
+    """Empty the cache.
 
     :return: None.
     """
-    global _nodes_cache_key_id, _memcached_available, _memcached_client
+    global _ricgraph_cache, _memcached_available, _memcached_client
 
     if memcached_check_available():
         if _memcached_client is None:
@@ -244,24 +241,23 @@ def nodes_cache_key_id_empty() -> None:
         try:
             _memcached_client.flush_all()
         except:
-            print('nodes_cache_key_id_empty(): Error, connection to Memcached lost, exiting...')
+            print('ricgraph_cache_empty(): Error, connection to Memcached lost, exiting...')
             # Exit because the cache gets in an unexpected state:
             # it is not emptied while it should have been.
             exit(1)
         return
 
     # print('Clear cache.')
-    _nodes_cache_key_id.clear()
+    _ricgraph_cache.clear()
     return
 
 
-def nodes_cache_key_id_size() -> Tuple[int, float]:
-    """Return the size of the cache for node id's.
-    'id' in this sentence is the id assigned by de graph database.
+def ricgraph_cache_size() -> Tuple[int, float]:
+    """Return the size of the cache.
 
     :return: a tuple with number of items and size in kB.
     """
-    global _nodes_cache_key_id, _memcached_client
+    global _ricgraph_cache, _memcached_client
 
     if memcached_check_available():
         if _memcached_client is None:
@@ -277,18 +273,18 @@ def nodes_cache_key_id_size() -> Tuple[int, float]:
             nr_items = 0
             size_kb = 0.0
     else:
-        nr_items = len(_nodes_cache_key_id)
-        size_kb = round(getsizeof(_nodes_cache_key_id) / 1000, 1)
+        nr_items = len(_ricgraph_cache)
+        size_kb = round(getsizeof(_ricgraph_cache) / 1000, 1)
     return nr_items, size_kb
 
 
-def nodes_cache_key_id_type_size() -> str:
+def ricgraph_cache_size_text() -> str:
     """Return the size of the cache for node id's.
     'id' in this sentence is the id assigned by de graph database.
 
     :return: a sentence with the length of the cache and its size.
     """
-    nr_items, size_kb = nodes_cache_key_id_size()
+    nr_items, size_kb = ricgraph_cache_size()
     if memcached_check_available():
         result = 'Ricgraph uses Memcached as cache. '
     else:

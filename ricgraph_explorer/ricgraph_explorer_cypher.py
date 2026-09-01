@@ -62,8 +62,8 @@
 from typing import Tuple
 from pandas import DataFrame
 from neo4j.graph import Node
-from ricgraph import (read_node,
-                      get_personroot_node, get_all_neighbor_nodes,
+from ricgraph import (read_node, cypher_read_node_elementid,
+                      get_personroot_node, get_all_neighbor_nodes_id,
                       ricgraph_database, ricgraph_databasename,
                       convert_cypher_recordslist_to_nodeslist,
                       extract_organization_abbreviation,
@@ -79,17 +79,19 @@ from ricgraph_explorer_init import get_ricgraph_explorer_global
 from ricgraph_explorer_utils import get_global_list, get_global_dataframe
 
 
-def find_person_share_resouts_cypher(parent_node: Node | None,
+def find_person_share_resouts_cypher(parent_node_element_id: str = '',
                                      category_want_list: list = None,
                                      category_dontwant_list: list = None,
-                                     max_nr_items: int = MAX_ITEMS_TO_RETURN) -> list:
+                                     max_nr_items: int = MAX_ITEMS_TO_RETURN,
+                                     skip_nr_nodes: int = 0) -> list:
     """ For documentation, see find_person_share_resouts().
     This is the cypher functionality for that function.
 
-    :param parent_node:
+    :param parent_node_element_id:
     :param category_want_list:
     :param category_dontwant_list:
     :param max_nr_items:
+    :param skip_nr_nodes:
     :return:
     """
     graph = get_ricgraph_explorer_global(name='graph')
@@ -102,6 +104,7 @@ def find_person_share_resouts_cypher(parent_node: Node | None,
     if category_dontwant_list is None:
         category_dontwant_list = []
 
+    parent_node = cypher_read_node_elementid(node_element_id=parent_node_element_id)
     # By using the following statement we can start with both a node and its person-root node.
     personroot_node = get_personroot_node(node=parent_node)
     if personroot_node is None:
@@ -126,6 +129,11 @@ def find_person_share_resouts_cypher(parent_node: Node | None,
     else:
         cypher_query += 'id(neighbor_personroot)<>id(startnode_personroot) '
     cypher_query += 'RETURN DISTINCT neighbor_personroot '
+    # I have understood that always doing an ORDER BY is almost free
+    # (compared to the other costs of this query).
+    cypher_query += 'ORDER BY neighbor_personroot._key '
+    if skip_nr_nodes > 0:
+        cypher_query += 'SKIP $skip_nr_nodes '
     if max_nr_items > 0:
         cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
@@ -136,6 +144,7 @@ def find_person_share_resouts_cypher(parent_node: Node | None,
                                         startnode_personroot_element_id=personroot_node.element_id,
                                         category_want_list=category_want_list,
                                         category_dontwant_list=category_dontwant_list,
+                                        skip_nr_nodes=skip_nr_nodes,
                                         max_nr_items=max_nr_items,
                                         database_=ricgraph_databasename())
     connected_persons = [record['neighbor_personroot'] for record in records]
@@ -198,8 +207,10 @@ def find_person_organization_collaborations_cypher(parent_node: Node | None,
 
     # Get the organizations from 'parent_node'.
     personroot_node = get_personroot_node(node=parent_node)
-    personroot_node_organizations = get_all_neighbor_nodes(node=personroot_node,
-                                                           category_want=[ORGANIZATION_CATEGORY_ORGANIZATION])
+    if personroot_node is None:
+        return [], []
+    personroot_node_organizations = get_all_neighbor_nodes_id(node_element_id=personroot_node.element_id,
+                                                              category_want=[ORGANIZATION_CATEGORY_ORGANIZATION])
     # Now get the organizations that 'parent_node' collaborates with, excluding
     # this person's own organizations. Note that the types of 'records'
     # and 'personroot_node_organizations' are not the same.
@@ -219,16 +230,20 @@ def find_person_organization_collaborations_cypher(parent_node: Node | None,
     return personroot_node_organizations, collaborating_organizations
 
 
-def find_organization_additional_info_nodes(parent_node: Node,
+def find_organization_additional_info_nodes(parent_node_element_id: str,
                                             query_params: QueryParams) -> list:
     """Function that finds additional information connected to a (sub-)organization.
     Very similar to find_organization_additional_info_cypher(),
     except that this function returns a list of nodes.
 
-    :param parent_node: the starting node for finding additional information.
+    :param parent_node_element_id: the element_id of the
+        starting node for finding additional information.
     :param query_params: parameters related to the query passed in the URL.
     :return: A list of Nodes.
 """
+    parent_node = cypher_read_node_elementid(node_element_id=parent_node_element_id)
+    if parent_node is None:
+        return []
     records = find_organization_additional_info_cypher(parent_node=parent_node,
                                                        query_params=query_params)
     nodes_list = [record['second_neighbor'] for record in records]
@@ -289,6 +304,8 @@ def find_organization_additional_info_cypher(parent_node: Node,
 
     cypher_query += 'RETURN DISTINCT second_neighbor, COUNT(second_neighbor) AS count_second_neighbor '
     cypher_query += 'ORDER BY count_second_neighbor DESC '
+    if query_params['skip_nr_nodes'] > 0:
+        cypher_query += 'SKIP $skip_nr_nodes '
     if query_params['max_nr_items'] > 0:
         cypher_query += 'LIMIT $max_nr_items '
     # print(cypher_query)
