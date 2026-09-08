@@ -175,14 +175,20 @@ def retrieve_results_from_graphdb(graph_function_name: str,
     ricgraph_cache_item_create(key=cache_key,
                                value=cache_value)
     last_to_retrieve = first_to_retrieve + page_size - 1
+    returned_remaining_elements = False
     if cache_value['exhausted'] \
             and cache_value['last_element'] <= last_to_retrieve:
         # To return the remaining elements.
         last_to_retrieve = cache_value['last_element']
+        returned_remaining_elements = True
 
     first_in_elements = first_to_retrieve - cache_value['first_element']
     last_in_elements = last_to_retrieve - cache_value['first_element']
     nodes_list = cache_value['elements'][first_in_elements:last_in_elements + 1]
+    if returned_remaining_elements:
+        # Do not return a new cursor, there are no more results to return.
+        return nodes_list, '', message
+
     if (cursor := create_graphdb_cursor(cache_key=cache_key,
                                         page_size=page_size,
                                         first_to_retrieve=last_to_retrieve + 1)) == '':
@@ -249,10 +255,12 @@ def process_graphdb_query(graph_function_name: str,
                                    value=cache_value)
 
     last_to_retrieve = first_to_retrieve + page_size - 1
+    returned_remaining_elements = False
     if cache_value['exhausted'] \
             and cache_value['last_element'] <= last_to_retrieve:
         # To return the remaining elements.
         last_to_retrieve = cache_value['last_element']
+        returned_remaining_elements = True
 
     if cache_value['first_element'] <= first_to_retrieve \
             and last_to_retrieve <= cache_value['last_element']:
@@ -261,6 +269,9 @@ def process_graphdb_query(graph_function_name: str,
         first_in_elements = first_to_retrieve - cache_value['first_element']
         last_in_elements = last_to_retrieve - cache_value['first_element']
         nodes_list = cache_value['elements'][first_in_elements:last_in_elements + 1]
+        if returned_remaining_elements:
+            # Do not return a new cursor, there are no more results to return.
+            return nodes_list, '', message
         if (cursor := create_graphdb_cursor(cache_key=cache_key,
                                             page_size=page_size,
                                             first_to_retrieve=last_to_retrieve + 1)) == '':
