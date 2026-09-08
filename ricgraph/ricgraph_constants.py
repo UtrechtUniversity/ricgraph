@@ -145,6 +145,11 @@ HTTP_RESPONSE_INVALID_SEARCH = 251
 # A cache entry is approx. 20 - 30 bytes. 30 x 2000000 ~ 60MB.
 MAX_NODES_CACHE_KEY_ID = 2000000
 
+# This is the maximum pool size for Memcached PooledClient().
+# max_pool_size is a per-worker setting, not a global one.
+# Various sources suggest that value 2 seems fine.
+MEMCACHED_MAX_POOL_SIZE = 2
+
 # In merge_two_nodes(node_merge_from, node_merge_to), we are constructing a list of
 # all the nodes that are to be merged with node_merge_to, to add to property _history
 # in that node. This value restricts the length of that list (to prevent property

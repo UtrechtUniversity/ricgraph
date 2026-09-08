@@ -44,8 +44,8 @@
 
 from sys import getsizeof
 from typing import Optional, Tuple, Any
-from pymemcache.client.base import Client
-from .ricgraph_constants import MAX_NODES_CACHE_KEY_ID
+from pymemcache.client.base import PooledClient
+from .ricgraph_constants import MAX_NODES_CACHE_KEY_ID, MEMCACHED_MAX_POOL_SIZE
 from .ricgraph_utils import (get_configfile_key_memcached_parameters,
                              serialize_value, deserialize_value)
 
@@ -64,7 +64,7 @@ _memcached_available = False
 
 # Global for connection to Memcached.
 # Type hint necessary to avoid PyCharm warning.
-_memcached_client: Optional[Client] = None
+_memcached_client: Optional[PooledClient] = None
 
 
 def memcached_open_connection() -> None:
@@ -87,8 +87,10 @@ def memcached_open_connection() -> None:
         return
 
     try:
-        memcached_client = Client(server=(memcached_host, memcached_port),
-                                  allow_unicode_keys=True)
+        # Do not use Client(), it is not thread safe.
+        memcached_client = PooledClient(server=(memcached_host, memcached_port),
+                                        max_pool_size=MEMCACHED_MAX_POOL_SIZE,
+                                        allow_unicode_keys=True)
 
         # Test connection by setting and deleting a test key.
         memcached_client.set(key='test_key', value=b'test', expire=1)
