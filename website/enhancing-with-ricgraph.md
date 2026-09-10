@@ -18,23 +18,23 @@ more complete and better connected overview of research for that organization.
 
 In an image, this looks as follows:
 
-<img src="images/backtopure-for-uva.png" alt="BackToPure and Ricgraph for UvA" width="70%">
+<img src="images/backtopure-for-vua.png" alt="BackToPure and Ricgraph for VUA" width="70%">
 
-Suppose your organization is UvA (Universiteit van Amsterdam), and you would
-like to enhance your Pure (Pure UvA). 
+Suppose your organization is VUA (Vrije Universiteit Amsterdam), and you would
+like to enhance your Pure (Pure VUA). 
 Also, suppose the Pure system of another organization, Pure AUMC 
 (Amsterdam University Medical Centers) has been harvested in Ricgraph. 
-In addition, OpenAlex for both UvA en AUMC has been harvested.
+In addition, OpenAlex for both VUA en AUMC has been harvested.
 In the figure, Ricgraph is shown at the bottom right (the cloud).
 
 Ricgraph can then be used, together with BackToPure, to identify candidate
 research results and identifiers from Pure AUMC and OpenAlex that are
-relevant for UvA, but not yet present in Pure UvA. These candidates may be
-relevant, because they are related to UvA researchers,
-UvA research results, UvA person identifiers, etc.
+relevant for VUA, but not yet present in Pure VUA. These candidates may be
+relevant, because they are related to VUA researchers,
+VUA research results, VUA person identifiers, etc.
 
 After review, BackToPure can feed these candidate enrichments back into Pure
-UvA via the blue “enrichments” box.
+VUA via the blue “enrichments” box.
 
 ## How to do this?
 
