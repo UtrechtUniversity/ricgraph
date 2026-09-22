@@ -109,34 +109,40 @@ OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships,primary_location'
 
 # ######################################################
 # Mapping from OpenAlex research result types to Ricgraph research result types.
+# OpenAlex tends to change these now and then. You can find the current ones at
+# https://help.openalex.org/data/work-types.
+# There is an endpoint that also shows the "created_date":
+# https://api.openalex.org/work-types.
 # ######################################################
 RESEARCHRESULT_CATEGORY_MAPPING_OPENALEX = {
     'article': rcg.RESEARCHRESULT_CATEGORY_JOURNAL_ARTICLE,
     'book': rcg.RESEARCHRESULT_CATEGORY_BOOK,
     'book-chapter': rcg.RESEARCHRESULT_CATEGORY_BOOKCHAPTER,
-    'database': rcg.RESEARCHRESULT_CATEGORY_DATASET,
+    'book-review': rcg.RESEARCHRESULT_CATEGORY_REVIEW,
+    'conference-abstract': rcg.RESEARCHRESULT_CATEGORY_ABSTRACT,
+    'conference-paper': rcg.RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
+    'data-paper': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
     'dataset': rcg.RESEARCHRESULT_CATEGORY_DATASET,
     'dissertation': rcg.RESEARCHRESULT_CATEGORY_PHDTHESIS,
     'editorial': rcg.RESEARCHRESULT_CATEGORY_EDITORIAL,
     'erratum': rcg.RESEARCHRESULT_CATEGORY_MEMORANDUM,
     'letter': rcg.RESEARCHRESULT_CATEGORY_LETTER,
-    'monograph': rcg.RESEARCHRESULT_CATEGORY_BOOK,
+    'libguides': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
     'other': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
     'paratext': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
             # OpenAlex 'paratext': stuff that's in scholarly venue (like a journal)
             # but is about the venue rather than a scholarly work properly speaking.
             # https://docs.openalex.org/api-entities/works/work-object.
     'peer-review': rcg.RESEARCHRESULT_CATEGORY_REVIEW,
-    'posted-content': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
     'preprint': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
-    'proceedings': rcg.RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
-    'proceedings-article': rcg.RESEARCHRESULT_CATEGORY_CONFERENCE_ARTICLE,
     'reference-entry': rcg.RESEARCHRESULT_CATEGORY_ENTRY,
     'report': rcg.RESEARCHRESULT_CATEGORY_REPORT,
     'retraction': rcg.RESEARCHRESULT_CATEGORY_RETRACTION,
     'review': rcg.RESEARCHRESULT_CATEGORY_REVIEW,
-    'supplementary-materials': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
-    'standard': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION
+    'software': rcg.RESEARCHRESULT_CATEGORY_SOFTWARE,
+    'software-paper': rcg.RESEARCHRESULT_CATEGORY_PREPRINT,
+    'standard': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION,
+    'supplementary-materials': rcg.RESEARCHRESULT_CATEGORY_OTHER_CONTRIBUTION
 }
 
 
