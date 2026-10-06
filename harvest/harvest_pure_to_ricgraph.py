@@ -314,6 +314,7 @@ PURE_READ_RESOUTS_FIELDS = {'fields': ['uuid',
                                        'personAssociations.externalOrganisations.*',
                                        'personAssociations.authorCollaboration.*',
                                        'electronicVersions.doi',
+                                       'electronicVersions.file.*',
                                        'electronicVersions.accessType.*',
                                        'electronicVersions.licenseType.*'
                                        ],
@@ -340,6 +341,7 @@ PURE_CRUD_RESOUTS_FIELDS = {'orderings': ['publicationYear'],
                                        'contributors.externalOrganisations.*',
                                        'contributors.authorCollaboration.*',
                                        'electronicVersions.doi',
+                                       'electronicVersions.file.*',
                                        'electronicVersions.accessType.*',
                                        'electronicVersions.licenseType.*'
                                       ]
@@ -471,6 +473,7 @@ PURE_CRUD_PRESS_MEDIA_FIELDS = {'orderings': ['date'],
                                            'visibility.key',
                                            'workflow.step',
                                            'mediaCoverages.date',
+                                           'mediaCoverages.url',
                                            'mediaCoverages.persons.*'
                                            ]
                                }
@@ -1244,6 +1247,7 @@ def parse_pure_entities(harvest: list,
         # is no electronicVersions.
         licentie = ''
         access = ''
+        fileurl = ''
         # #####
         doi = ''
         if mode == MODE_RESOUTS:
@@ -1259,6 +1263,13 @@ def parse_pure_entities(harvest: list,
                     access = json_item_get_str_pure(json_item=dois,
                                                     json_path_read='accessType.term.text.0.value',
                                                     json_path_crud='accessType.term.en_GB')
+                # Take the last fileURL found for a resout, it is not always in the same
+                # JSON element as the DOI is.
+                # The CRUD API path is from UU Pure, hope it also works for other universities.
+                if (newfileurl := json_item_get_str_pure(json_item=dois,
+                                                         json_path_read='file.fileURL',
+                                                         json_path_crud='file.fileStoreLocations.dspace')) != '':
+                    fileurl = newfileurl
         elif mode == MODE_DATASETS:
             doi = json_item_get_str_pure(json_item=harvest_item,
                                          json_path_read='doi',
@@ -1344,15 +1355,19 @@ def parse_pure_entities(harvest: list,
             # #####
             parse_line = {}
             if mode == MODE_PRESS_MEDIA:
-                if (press_media_url := rcg.json_item_get_str(json_item=harvest_item,
-                                                             json_path='references.0.url')) != '':
+                if (press_media_url := json_item_get_str_pure(json_item=harvest_item,
+                                                              json_path_read='references.0.url',
+                                                              json_path_crud='mediaCoverages.0.url')) != '':
+                    # It seems logical to give URL_ASSET the same value as URL_MAIN,
+                    # since both refer directly to the item.
                     parse_line = {'NAME': id_name_tobeused,
                                   'CATEGORY': category,
                                   'VALUE': uuid,
                                   'URL_MAIN': press_media_url,
                                   'URL_OTHER': create_pure_url(name=id_name,
-                                                               value=uuid)
-                                  }
+                                                               value=uuid),
+                                  'URL_ASSET': press_media_url
+                                 }
             elif doi != '':
                 parse_line = {'NAME': 'DOI',
                               'CATEGORY': category,
@@ -1360,8 +1375,9 @@ def parse_pure_entities(harvest: list,
                               'URL_MAIN': rcg.create_well_known_url(name='DOI',
                                                                     value=doi),
                               'URL_OTHER': create_pure_url(name=id_name,
-                                                           value=uuid)
-                              }
+                                                           value=uuid),
+                              'URL_ASSET': fileurl
+                             }
             # #####
             if len(parse_line) == 0:
                 # All other situations.
@@ -1370,8 +1386,9 @@ def parse_pure_entities(harvest: list,
                               'VALUE': uuid,
                               'URL_MAIN': create_pure_url(name=id_name,
                                                           value=uuid),
-                              'URL_OTHER': ''
-                              }
+                              'URL_OTHER': '',
+                              'URL_ASSET': fileurl
+                             }
             parse_line['EXTERNAL_AUTHOR_NAME'] = external_author_name
             if externalorg_name != '':
                 parse_line['EXTERNAL_ORG_NAME'] = externalorg_name
@@ -1881,7 +1898,7 @@ def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
     global resout_uuid_or_doi
 
     cols = ['PURE_ID_PERS', 'NAME', 'CATEGORY', 'VALUE', 'TITLE', 'YEAR']
-    for column in ['LICENSE', 'ACCESS', 'URL_MAIN', 'URL_OTHER']:
+    for column in ['LICENSE', 'ACCESS', 'URL_MAIN', 'URL_OTHER','URL_ASSET']:
         if column in parsed_content.columns:
             cols.append(column)
     resouts = parsed_content[cols].copy(deep=True)

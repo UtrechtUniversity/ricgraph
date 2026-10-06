@@ -575,7 +575,7 @@ def get_html_for_tableheader(table_columns: list = None) -> str:
     for column in table_columns:
         if column == 'value':
             html += '<th class=sorttable_alpha">' + column + '</th>'
-        elif column in ['url_main', 'url_other', '_source', '_history']:
+        elif column in ['url_main', 'url_other', 'url_asset', '_source', '_history']:
             html += '<th class="sorttable_nosort">' + column + '</th>'
         else:
             html += '<th>' + column + '</th>'
@@ -624,7 +624,7 @@ def get_html_for_tablerow(node: Node,
             html += '<td><a href=' + url_for('optionspage') + '?'
             html += urlencode(url_parameters) + '>'
             html += value + '</a></td>'
-        elif column in ['url_main', 'url_other']:
+        elif column in ['url_main', 'url_other', 'url_asset']:
             if node[column] == RICGRAPH_UNKNOWN:
                 html += '<td></td>'
             else:

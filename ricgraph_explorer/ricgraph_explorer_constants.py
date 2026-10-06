@@ -117,12 +117,12 @@ OVERLAP_MODE_SOURCE_ALL = [
 TABLE_DETAIL_COLUMNS = [
     'name', 'category', 'value', 'comment', 'year',
     'license', 'access',
-    'url_main', 'url_other', '_source', '_history'
+    'url_main', 'url_other', 'url_asset', '_source', '_history'
 ]
 TABLE_RESEARCH_OUTPUT_COLUMNS = [
     'name', 'category', 'value', 'comment', 'year',
     'license', 'access',
-    'url_main', 'url_other', '_source'
+    'url_main', 'url_other', 'url_asset', '_source'
 ]
 TABLE_ORGANIZATION_COLUMNS = [
     'name', 'value',

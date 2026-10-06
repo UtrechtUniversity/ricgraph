@@ -355,7 +355,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
         - 'VALUE': the value of a research result identifier
           (DOI value, etc.). This will become the 'value' property.
         - Optionally, there may be columns 'TITLE', 'YEAR', 'URL_MAIN'
-          and 'URL_OTHER'.
+          'URL_OTHER', and 'URL_ASSET'.
     :param harvest_source: The source system we harvest from.
     :param what: Text to show to the user and in '_history'
     :return: None.
@@ -397,7 +397,7 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     entities = entities.assign(**new_entities_columns)
 
     cols = ['name1', 'category1', 'value1']
-    for column in ['TITLE', 'YEAR', 'LICENSE', 'ACCESS', 'URL_MAIN', 'URL_OTHER']:
+    for column in ['TITLE', 'YEAR', 'LICENSE', 'ACCESS', 'URL_MAIN', 'URL_OTHER', 'URL_ASSET']:
         if column in entities.columns:
             if column == 'TITLE':
                 entities.rename(columns={'TITLE': 'comment1'}, inplace=True)

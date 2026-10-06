@@ -209,10 +209,10 @@ def get_html_for_tableend_javascript(table_filename: str) -> str:
                          Array.from(row.children).map(cell => {{
                              const link = cell.querySelector('a');
                              const linkText = link ? link.innerText.trim() : '';
-                             // If the cell content is "url_main link" or "url_other link",
-                             // substitute the contents with the actual link.
+                             // If the cell content is "url_main link", "url_other link", or
+                             // "url_asset link", substitute the contents with the actual link.
                              const cellValue =
-                                 link && (linkText === 'url_main link' || linkText === 'url_other link')
+                                 link && (linkText === 'url_main link' || linkText === 'url_other link' || linkText === 'url_asset link')
                                      ? link.href
                                      : cell.innerText;
                              // Never export cell contents that start with

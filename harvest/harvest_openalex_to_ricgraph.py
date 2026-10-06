@@ -218,6 +218,8 @@ def parse_openalex(harvest: list,
                                              json_path='primary_location.is_oa')) != '':
             access = rcg.lookup_item_in_mapping(item=str(access),
                                                 mapping=ACCESS_MAPPING_OPENALEX)
+        pdf_url = rcg.json_item_get_str(json_item=harvest_item,
+                                        json_path='primary_location.pdf_url')
         for authors in rcg.json_item_get_list(json_item=harvest_item,
                                               json_path='authorships'):
             if (openalex_path := rcg.json_item_get_str(json_item=authors,
@@ -266,7 +268,8 @@ def parse_openalex(harvest: list,
                           'YEAR': publication_year,
                           'LICENSE': licentie,
                           'ACCESS': access,
-                          'CATEGORY': category}
+                          'CATEGORY': category,
+                          'URL_ASSET': pdf_url}
             parse_chunk.append(parse_line)
 
     rcg.print_progress(count=count, now=True)
@@ -357,7 +360,7 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :return: None.
     """
     resouts = parsed_content[['OPENALEX_ID_PERS', 'DOI', 'TITLE', 'YEAR',
-                              'LICENSE', 'ACCESS', 'CATEGORY']].copy(deep=True)
+                              'LICENSE', 'ACCESS', 'CATEGORY', 'URL_ASSET']].copy(deep=True)
     rcg.create_parsed_dois_in_ricgraph(resouts=resouts, harvest_source=HARVEST_SOURCE)
     return
 
