@@ -529,6 +529,15 @@ def get_html_for_facetcard(histogram: list,
             additional_hidden_field += '" value="' + str(item['name']) + '">'
         form += '>'
         form += '<label for="' + label_id + '">&nbsp;' + label + '</label><br/>'
+
+    if len(histogram) > 1:
+        # Only show the "invert checkbox selection" button if it is useful.
+        form += '<br/>'
+        form += '<button type="button" class="w3-input' + button_style + '"' + button_width_half + '" '
+        form += 'onclick="document.querySelectorAll(\'input[name=&quot;' + url_field_name
+        form += '&quot;]\').forEach(cb=>cb.checked=!cb.checked)">'
+        form += 'invert checkbox selection'
+        form += '</button>'
     form += '</fieldset>'
 
     if len(histogram) == 1:
