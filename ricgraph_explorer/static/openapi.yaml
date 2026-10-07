@@ -178,6 +178,30 @@ components:
         items:
           type: "string"
           default: ""          # To prevent the word 'string' in the input field.
+    licenses:
+      name: "licenses"
+      description: "Restrict the collaborations to research results that have a specific license.
+                    You can enter one or more licenses. If you leave it empty,
+                    collaborations having any license will be found."
+      in: query
+      required: False
+      schema:
+        type: "array"
+        items:
+          type: "string"
+          default: ""          # To prevent the word 'string' in the input field.
+    access:
+      name: "access"
+      description: "Restrict the collaborations to research results that have a specific access value.
+                    You can enter one or more access values. If you leave it empty,
+                    collaborations having any access value will be found."
+      in: query
+      required: False
+      schema:
+        type: "array"
+        items:
+          type: "string"
+          default: ""          # To prevent the word 'string' in the input field.
     page_size:
       name: "page_size"
       description: "The number of items to return for one page (at most 250 
@@ -523,6 +547,10 @@ paths:
         - $ref: "#/components/parameters/start_organization"
         - $ref: "#/components/parameters/collaborating_organization"
         - $ref: "#/components/parameters/researchresult_category"
+        - $ref: "#/components/parameters/year_first"
+        - $ref: "#/components/parameters/year_last"
+        - $ref: "#/components/parameters/licenses"
+        - $ref: "#/components/parameters/access"
       responses:
         "200":
           description: "OK"

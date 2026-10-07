@@ -596,7 +596,11 @@ def api_organization_enrich(key: str = '',
 
 def api_explore_collaborations(start_organization: str = '',
                                collaborating_organization: str = '',
-                               researchresult_category: list = None) -> Tuple[dict, int]:
+                               researchresult_category: list = None,
+                               year_first: str = '',
+                               year_last: str = '',
+                               licenses: list = None,
+                               access: list = None) -> Tuple[dict, int]:
     """Explore collaborations using the REST API.
 
     :param start_organization: The (sub-)organization(s) to start with.
@@ -604,12 +608,24 @@ def api_explore_collaborations(start_organization: str = '',
       may be empty.
     :param researchresult_category: Restrict the collaborations for this research
       result type, may be emtpy.
+    :param year_first: The first year of the results.
+    :param year_last: The last year of the results.
+    :param licenses: The license of the results.
+    :param access: The access value of the results.
     :return: An HTTP response (as dict, to be translated to JSON)
       and an HTTP response code.
     """
     if researchresult_category is None:
         researchresult_category = []
+    if licenses is None:
+        licenses = []
+    if access is None:
+        access = []
 
+    if (message := check_valid_year(year_first=year_first, year_last=year_last)) != '':
+        response, status = create_http_response(message=message,
+                                                http_status=HTTP_RESPONSE_INVALID_SEARCH)
+        return response, status
     if start_organization == '':
         response, status = create_http_response(message='You have not specified a start organization',
                                                 http_status=HTTP_RESPONSE_INVALID_SEARCH)
@@ -619,6 +635,10 @@ def api_explore_collaborations(start_organization: str = '',
     query_params['start_orgs'] = start_organization
     query_params['collab_orgs'] = collaborating_organization
     query_params['category_list'] = researchresult_category
+    query_params['year_first'] = year_first
+    query_params['year_last'] = year_last
+    query_params['license'] = licenses
+    query_params['access'] = access
     result_html = org_collaborations_diagram(page_params=page_params,
                                              query_params=query_params,
                                              diagram_type='sankey',
