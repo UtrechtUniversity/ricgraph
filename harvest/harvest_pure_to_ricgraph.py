@@ -58,7 +58,7 @@
 # I would recommend to use the READ API. If you use the CRUD API,
 # this script simulates what the CRUD API should do by itself,
 # by implementing (1) and (2). See the functions
-# preharvest_pure_data() and filter_allowed_values_in_list().
+# harvest_pure_data() and filter_allowed_values_in_list().
 # With the CRUD API, the nr of records for research outputs and
 # press media items is determined by the constants
 # PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR and
@@ -67,7 +67,7 @@
 #
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, April, October, November 2023, February 2025.
-# Updated Rik D.T. Janssen, February, June 2026.
+# Updated Rik D.T. Janssen, February, June, October 2026.
 #
 # ########################################################################
 #
@@ -1591,15 +1591,12 @@ def parse_pure_projects(harvest: list,
 # ######################################################
 # Harvesting and parsing
 # ######################################################
-def get_pure_organization_info(url: str,
-                               headers: dict) -> dict:
-    """Harvest and parse organization data from Pure.
-    This function is different compared to harvest_and_parse_pure_data()
+def get_pure_organization_info() -> dict:
+    """Parse organization data from Pure.
+    This function is different compared to parse_pure_data()
     because parse_pure_organizations() returns a dict that is required by
     parse_pure_persons().
 
-    :param url: URL to harvest.
-    :param headers: headers for Pure.
     :return: A dict where the key is the uuid of an organization,
         and its value a list with the name of the organization, and the names
         of all of its parents. Return an empty dict if nothing happened.
@@ -1610,42 +1607,112 @@ def get_pure_organization_info(url: str,
     print('')
     org_data_file = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_DATA_FILENAME,
                                            organization=organization)
-    if PURE_ORGANIZATIONS_READ_DATA_FROM_FILE:
+    print('Reading organizations from ' + HARVEST_SOURCE + '.')
+    harvest_file_orgs = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME,
+                                          organization=organization)
+    harvest_data = rcg.read_json_from_file(filename=harvest_file_orgs)
+
+    print('Parsing organizations from ' + HARVEST_SOURCE + '.')
+    org_uuids_to_org_names = parse_pure_organizations(harvest=harvest_data,
+                                                      filename=org_data_file)
+    if len(org_uuids_to_org_names) == 0:
         err_message = 'There are no organizations from '
         err_message += HARVEST_SOURCE + ' to read from file '
         err_message += org_data_file + '.\n'
-        print('Reading organizations from ' + HARVEST_SOURCE
-              + ' from file ' + org_data_file + '.')
-        org_uuids_to_org_names = rcg.read_dict_from_file(filename=org_data_file)
-    else:
-        err_message = 'There are no organizations from '
-        err_message += HARVEST_SOURCE + ' to harvest.\n'
-        print('Harvesting organizations from ' + HARVEST_SOURCE + '.')
-        harvest_data = rcg.construct_filename(base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME,
-                                              organization=organization)
-        if PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE:
-            harvest_data = rcg.read_json_from_file(filename=harvest_data)
-        else:
-            harvest_data = rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
-                                            url=url,
-                                            headers=headers,
-                                            body=PURE_ORGANIZATIONS_FIELDS,
-                                            max_recs_to_harvest=PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST,
-                                            chunksize=PURE_CHUNKSIZE,
-                                            filename=harvest_data)
-
-        org_uuids_to_org_names = parse_pure_organizations(harvest=harvest_data,
-                                                          filename=org_data_file)
-    if len(org_uuids_to_org_names) == 0:
         print(err_message)
     return org_uuids_to_org_names
 
 
-def preharvest_pure_data(mode: str, endpoint: str,
-                         headers: dict, body: dict,
-                         base_filename: str,
-                         year_start:str = '',
-                         year_end: str = ''):
+def harvest_all_pure_data(year_start: str = '',
+                          year_end: str = ''):
+    """This function harvests all data from Pure.
+    We do it before we process in any other way, so we will note in an early
+    phase whether Pure stalls or not.
+
+    :param year_start: the first year that we would like to harvest.
+        Only relevant when parsing persons and data sets.
+    :param year_end: the first year that we would like to harvest.
+        Only relevant when data sets.
+    :return: No return value.
+    """
+    global PURE_PERSONS_READ_HARVEST_FROM_FILE, \
+        PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE, \
+        PURE_RESOUTS_READ_HARVEST_FROM_FILE, \
+        PURE_DATASETS_READ_HARVEST_FROM_FILE, \
+        PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE
+
+    if HARVEST_PERSONS:
+        if PURE_PERSONS_READ_HARVEST_FROM_FILE:
+            print('Harvested persons will be read from file.\n')
+            return
+        print('Harvesting persons...')
+        harvest_pure_data(mode=MODE_PERSONS,
+                          endpoint=PURE_PERSONS_ENDPOINT,
+                          headers=PURE_HEADERS,
+                          body=PURE_PERSONS_FIELDS,
+                          base_filename=PURE_PERSONS_HARVEST_FILENAME)
+        PURE_PERSONS_READ_HARVEST_FROM_FILE = True
+        print('Done harvesting persons.\n')
+    if HARVEST_ORGANIZATIONS:
+        if PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE:
+            print('Harvested organizations will be read from file.\n')
+            return
+        print('Harvesting organizations...')
+        harvest_pure_data(mode=MODE_ORGANIZATIONS,
+                          endpoint=PURE_ORGANIZATIONS_ENDPOINT,
+                          headers=PURE_HEADERS,
+                          body=PURE_ORGANIZATIONS_FIELDS,
+                          base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME)
+        PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE = True
+        print('Done harvesting organizations.\n')
+    if HARVEST_RESOUTS:
+        if PURE_RESOUTS_READ_HARVEST_FROM_FILE:
+            print('Harvested research outputs will be read from file.\n')
+            return
+        print('Harvesting research outputs...')
+        harvest_pure_data(mode=MODE_RESOUTS,
+                          endpoint=PURE_RESOUTS_ENDPOINT,
+                          headers=PURE_HEADERS,
+                          body=PURE_RESOUTS_FIELDS,
+                          base_filename=PURE_RESOUTS_HARVEST_FILENAME,
+                          year_start=year_start,
+                          year_end=year_end)
+        PURE_RESOUTS_READ_HARVEST_FROM_FILE = True
+        print('Done harvesting research outputs.\n')
+    if HARVEST_DATASETS:
+        if PURE_DATASETS_READ_HARVEST_FROM_FILE:
+            print('Harvested data sets will be read from file.\n')
+            return
+        print('Harvesting data sets...')
+        harvest_pure_data(mode=MODE_DATASETS,
+                          endpoint=PURE_DATASETS_ENDPOINT,
+                          headers=PURE_HEADERS,
+                          body=PURE_DATASETS_FIELDS,
+                          base_filename=PURE_DATASETS_HARVEST_FILENAME)
+        PURE_DATASETS_READ_HARVEST_FROM_FILE = True
+        print('Done harvesting data sets.\n')
+    if HARVEST_PRESS_MEDIA:
+        if PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE:
+            print('Harvested press media items will be read from file.\n')
+            return
+        print('Harvesting press media items...')
+        harvest_pure_data(mode=MODE_PRESS_MEDIA,
+                          endpoint=PURE_PRESS_MEDIA_ENDPOINT,
+                          headers=PURE_HEADERS,
+                          body=PURE_PRESS_MEDIA_FIELDS,
+                          base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
+                          year_start=year_start,
+                          year_end=year_end)
+        PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE = True
+        print('Done harvesting press media items.\n')
+    return
+
+
+def harvest_pure_data(mode: str, endpoint: str,
+                      headers: dict, body: dict,
+                      base_filename: str,
+                      year_start: str = '',
+                      year_end: str = ''):
     """This function pre-harvests data from Pure.
     We need it, because the Pure CRUD API still lacks important features,
     see the comment at the beginning of this file.
@@ -1667,19 +1734,35 @@ def preharvest_pure_data(mode: str, endpoint: str,
         Only relevant when data sets.
     :return: No return value.
     """
+    if mode not in MODE_ALL:
+        print('harvest_pure_data(): unknown mode ' + mode + '.')
+        return
+
+    if PURE_API_VERSION != PURE_READ_API_VERSION \
+       and PURE_API_VERSION != PURE_CRUD_API_VERSION:
+        # Should not happen.
+        return
+
     nr_years_to_harvest = int(year_last) + 1 - int(year_first)
     if mode == MODE_PERSONS:
         max_recs_to_harvest = PURE_PERSONS_MAX_RECS_TO_HARVEST
     elif mode == MODE_ORGANIZATIONS:
         max_recs_to_harvest = PURE_ORGANIZATIONS_MAX_RECS_TO_HARVEST
     elif mode == MODE_RESOUTS:
-        max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR
+        if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+            max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR
+        else:
+            max_recs_to_harvest = PURE_RESOUTS_MAX_RECS_TO_HARVEST
     elif mode == MODE_DATASETS:
         max_recs_to_harvest = PURE_DATASETS_MAX_RECS_TO_HARVEST
     elif mode == MODE_PRESS_MEDIA:
         max_recs_to_harvest = PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST
     elif mode == MODE_PROJECTS:
-        max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR
+        # Note: not implemented correctly yet, see elsewhere in this code.
+        if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+            max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR
+        else:
+            max_recs_to_harvest = PURE_PROJECTS_MAX_RECS_TO_HARVEST
     else:
         # Should not happen.
         return
@@ -1689,6 +1772,85 @@ def preharvest_pure_data(mode: str, endpoint: str,
     url = url_base + endpoint
     harvest_file_all = rcg.construct_filename(base_filename=base_filename,
                                               year='all', organization=organization)
+    if mode == MODE_PERSONS \
+       or mode == MODE_ORGANIZATIONS \
+       or mode == MODE_DATASETS:
+        # We harvest everything in one file, for persons, organizations, and data sets.
+        # This works for both the READ and the CRUD API.
+        if PURE_API_VERSION == PURE_READ_API_VERSION:
+            # Write it to the filename that is expected in the remainder of this code.
+            harvest_file_all = rcg.construct_filename(base_filename=base_filename,
+                                                      organization=organization)
+        harvest_data = rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
+                                        url=url,
+                                        headers=headers,
+                                        body=body,
+                                        max_recs_to_harvest=max_recs_to_harvest,
+                                        chunksize=PURE_CHUNKSIZE,
+                                        filename=harvest_file_all)
+        if PURE_API_VERSION == PURE_READ_API_VERSION:
+            return
+
+        # For the CRUD API we need to filter (Pure cannot do it yet as it is with the READ API).
+        if 'fields' in body:
+            harvest_data = filter_allowed_values_in_list(harvest_list=harvest_data,
+                                                         allowed_fields_list=body['fields'])
+        # Write it to the filename that is expected in the remainder of this code.
+        harvest_file_final = rcg.construct_filename(base_filename=base_filename,
+                                                    organization=organization)
+        rcg.write_read_json_file(json_data=harvest_data,
+                                 filename=harvest_file_final)
+        return
+
+    # For research results and press media items, things are different.
+    # That is because the CRUD API is missing crucial features (see elsewhere).
+    if PURE_API_VERSION == PURE_READ_API_VERSION \
+       and mode == MODE_RESOUTS:
+        for year_loop in range(int(year_start), int(year_end) + 1):
+            year_loop_str = str(year_loop)
+            print('Harvesting research results from ' + HARVEST_SOURCE
+                  + ' for year ' + year_loop_str + '.')
+            harvest_file_year_loop = rcg.construct_filename(base_filename=PURE_RESOUTS_HARVEST_FILENAME,
+                                                            year=year_loop_str, organization=organization)
+            # This does not work for the Pure CRUD API.
+            # For the Pure CRUD API, all research outputs will be harvested.
+            body['publishedBeforeDate'] = year_loop_str + '-12-31'
+            body['publishedAfterDate'] = year_loop_str + '-01-01'
+            rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
+                             url=url,
+                             headers=headers,
+                             body=body,
+                             max_recs_to_harvest=max_recs_to_harvest,
+                             chunksize=PURE_CHUNKSIZE,
+                             filename=harvest_file_year_loop)
+        return
+
+    if PURE_API_VERSION == PURE_READ_API_VERSION \
+       and mode == MODE_PRESS_MEDIA:
+        for year_loop in range(int(year_start), int(year_end) + 1):
+            year_loop_str = str(year_loop)
+            print('Harvesting press media items from ' + HARVEST_SOURCE
+                  + ' for year ' + year_loop_str + '.')
+            harvest_file_year_loop = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
+                                                            year=year_loop_str, organization=organization)
+            body['period']['startDate'] = {'day': '1',
+                                           'month': '1',
+                                           'year': year_loop_str}
+            body['period']['endDate'] = {'day': '31',
+                                         'month': '12',
+                                         'year': year_loop_str}
+            rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
+                             url=url,
+                             headers=headers,
+                             body=body,
+                             max_recs_to_harvest=max_recs_to_harvest,
+                             chunksize=PURE_CHUNKSIZE,
+                             filename=harvest_file_year_loop)
+        return
+
+    # Now we are left with the CRUD API harvest.
+    # For the CRUD API, for research results and press media items, we need to harvest all
+    # and then split it in one file per year.
     harvest_data = rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
                                     url=url,
                                     headers=headers,
@@ -1697,24 +1859,18 @@ def preharvest_pure_data(mode: str, endpoint: str,
                                     chunksize=PURE_CHUNKSIZE,
                                     filename=harvest_file_all)
     if 'fields' in body:
+        # For the CRUD API we need to filter (Pure cannot do it yet as it is with the READ API).
         harvest_data = filter_allowed_values_in_list(harvest_list=harvest_data,
                                                      allowed_fields_list=body['fields'])
-    if year_start == '' and year_end == '':
-        # We harvest everything in one file.
-        harvest_file_filtered = rcg.construct_filename(base_filename=base_filename,
-                                                       organization=organization)
-        rcg.write_read_json_file(json_data=harvest_data,
-                                 filename=harvest_file_filtered)
-        return
 
-    # We harvest everything in one file per year.
+    # For research results and press media items, we harvest everything in one file per year.
     harvest_data_year = {}
     for harvest_item in harvest_data:
         publication_year = ''
         if mode == MODE_RESOUTS:
             publication_year = get_correct_year_from_resout(harvest_item=harvest_item)
         elif mode == MODE_PRESS_MEDIA:
-            # Note that preharvest_pure_data() only works for Pure CRUD API.
+            # Note that we are harvesting for the CRUD API.
             publication_year = json_item_get_str_pure(json_item=harvest_item,
                                                       json_path_read='',
                                                       json_path_crud='mediaCoverages.0.date')
@@ -1742,18 +1898,14 @@ def preharvest_pure_data(mode: str, endpoint: str,
     return
 
 
-def harvest_and_parse_pure_data(mode: str, endpoint: str,
-                                headers: dict, body: dict,
-                                harvest_filename: str,
-                                df_filename: str,
-                                year_start:str = '',
-                                year_end: str = '') -> Union[pandas.DataFrame, None]:
-    """Harvest and parse data from Pure.
+def parse_pure_data(mode: str,
+                    harvest_filename: str,
+                    df_filename: str,
+                    year_start:str = '',
+                    year_end: str = '') -> Union[pandas.DataFrame, None]:
+    """Parse data from Pure.
 
     :param mode: as in MODE_ALL, to indicate what to harvest.
-    :param endpoint: endpoint Pure.
-    :param headers: headers for Pure.
-    :param body: contains the fields to harvest, and the harvest time period.
     :param harvest_filename: filename to write harvest results to.
     :param df_filename: filename to write the DataFrame results to.
     :param year_start: the first year that we would like to harvest.
@@ -1763,49 +1915,18 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     if mode not in MODE_ALL:
-        print('harvest_and_parse_pure_data(): unknown mode ' + mode + '.')
+        print('parse_pure_data(): unknown mode ' + mode + '.')
         return None
 
-    if mode == MODE_PERSONS:
-        max_recs_to_harvest = PURE_PERSONS_MAX_RECS_TO_HARVEST
-    elif mode == MODE_RESOUTS:
-        max_recs_to_harvest = PURE_RESOUTS_MAX_RECS_TO_HARVEST
-    elif mode == MODE_DATASETS:
-        max_recs_to_harvest = PURE_DATASETS_MAX_RECS_TO_HARVEST
-    elif mode == MODE_PRESS_MEDIA:
-        max_recs_to_harvest = PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST
-    elif mode == MODE_PROJECTS:
-        max_recs_to_harvest = PURE_PROJECTS_MAX_RECS_TO_HARVEST
-    else:
-        # Should not happen.
-        return None
-
-    print('Harvesting ' + mode + ' from ' + HARVEST_SOURCE + '...')
-    url_base = PURE_URL + '/' + PURE_API_VERSION + '/'
-    url = url_base + endpoint
-    if (mode == MODE_PERSONS and not PURE_PERSONS_READ_HARVEST_FROM_FILE) \
-       or (mode == MODE_RESOUTS and not PURE_RESOUTS_READ_HARVEST_FROM_FILE) \
-       or (mode == MODE_DATASETS and not PURE_DATASETS_READ_HARVEST_FROM_FILE) \
-       or (mode == MODE_PRESS_MEDIA and not PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE) \
-       or (mode == MODE_PROJECTS and not PURE_PROJECTS_READ_HARVEST_FROM_FILE):
-        harvest_data = rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_PURE,
-                                        url=url,
-                                        headers=headers,
-                                        body=body,
-                                        max_recs_to_harvest=max_recs_to_harvest,
-                                        chunksize=PURE_CHUNKSIZE,
-                                        filename=harvest_filename)
-    else:
-        harvest_data = rcg.read_json_from_file(filename=harvest_filename,
-                                               exit_on_error=False)
+    print('Parsing ' + mode + ' from ' + HARVEST_SOURCE + '...')
+    harvest_data = rcg.read_json_from_file(filename=harvest_filename,
+                                           exit_on_error=False)
 
     # To prevent PyCharm warning
     # Local variable 'parse' might be referenced before assignment.
     parse = pandas.DataFrame()
     if mode == MODE_PERSONS:
-        url_org = url_base + PURE_ORGANIZATIONS_ENDPOINT
-        org_uuids_to_org_names = get_pure_organization_info(url=url_org,
-                                                            headers=PURE_HEADERS)
+        org_uuids_to_org_names = get_pure_organization_info()
         parse = parse_pure_persons(harvest=harvest_data,
                                    org_uuids_to_org_names=org_uuids_to_org_names,
                                    filename=df_filename,
@@ -1834,7 +1955,7 @@ def harvest_and_parse_pure_data(mode: str, endpoint: str,
 
     if parse is None or parse.empty:
         return None
-    print('The harvested ' + mode + ' are:')
+    print('The parsed ' + mode + ' are:')
     print(parse)
     return parse
 
@@ -2248,93 +2369,27 @@ else:
 
 resout_uuid_or_doi = {}
 
-if PURE_API_VERSION == PURE_CRUD_API_VERSION:
-    # The Pure CRUD API still lacks important features,
-    # see the comment at the beginning of this file.
-    if HARVEST_PERSONS:
-        print('Pre-harvesting persons with the Pure CRUD API...')
-        preharvest_pure_data(mode=MODE_PERSONS,
-                             endpoint=PURE_PERSONS_ENDPOINT,
-                             headers=PURE_HEADERS,
-                             body=PURE_PERSONS_FIELDS,
-                             base_filename=PURE_PERSONS_HARVEST_FILENAME)
-        PURE_PERSONS_READ_HARVEST_FROM_FILE = True
-        print('Done pre-harvesting persons.\n')
-    if HARVEST_ORGANIZATIONS:
-        print('Pre-harvesting organizations with the Pure CRUD API...')
-        preharvest_pure_data(mode=MODE_ORGANIZATIONS,
-                             endpoint=PURE_ORGANIZATIONS_ENDPOINT,
-                             headers=PURE_HEADERS,
-                             body=PURE_ORGANIZATIONS_FIELDS,
-                             base_filename=PURE_ORGANIZATIONS_HARVEST_FILENAME)
-        PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE = True
-        print('Done pre-harvesting organizations.\n')
-    if HARVEST_RESOUTS:
-        print('Pre-harvesting research outputs with the Pure CRUD API...')
-        preharvest_pure_data(mode=MODE_RESOUTS,
-                             endpoint=PURE_RESOUTS_ENDPOINT,
-                             headers=PURE_HEADERS,
-                             body=PURE_RESOUTS_FIELDS,
-                             base_filename=PURE_RESOUTS_HARVEST_FILENAME,
-                             year_start=year_first,
-                             year_end=year_last)
-        PURE_RESOUTS_READ_HARVEST_FROM_FILE = True
-        print('Done pre-harvesting research outputs.\n')
-    if HARVEST_DATASETS:
-        print('Pre-harvesting data sets with the Pure CRUD API...')
-        preharvest_pure_data(mode=MODE_DATASETS,
-                             endpoint=PURE_DATASETS_ENDPOINT,
-                             headers=PURE_HEADERS,
-                             body=PURE_DATASETS_FIELDS,
-                             base_filename=PURE_DATASETS_HARVEST_FILENAME)
-        PURE_DATASETS_READ_HARVEST_FROM_FILE = True
-        print('Done pre-harvesting data sets.\n')
-    if HARVEST_PRESS_MEDIA:
-        print('Pre-harvesting press media items with the Pure CRUD API...')
-        preharvest_pure_data(mode=MODE_PRESS_MEDIA,
-                             endpoint=PURE_PRESS_MEDIA_ENDPOINT,
-                             headers=PURE_HEADERS,
-                             body=PURE_PRESS_MEDIA_FIELDS,
-                             base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
-                             year_start=year_first,
-                             year_end=year_last)
-        PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE = True
-        print('Done pre-harvesting press media items.\n')
+harvest_all_pure_data(year_start=year_first, year_end=year_last)
 
 rcg.graphdb_nr_accesses_print()
 print(rcg.ricgraph_cache_size_text() + '\n')
 
-# ########################################################################
-# You can use 'True' or 'False' depending on your needs to harvest
-# persons/organizations/research results/data sets/press media items.
-# This might be handy if you are testing your parsing.
-# You might also want to set parameters as 'PURE_[object name]_HARVEST_FROM_FILE' = True,
-# see the top of this file.
-# ########################################################################
 
 # ########################################################################
 # Code for harvesting persons. Harvested organizations are required for persons.
 if HARVEST_PERSONS:
+    harvest_file = rcg.construct_filename(base_filename=PURE_PERSONS_HARVEST_FILENAME,
+                                          organization=organization)
     data_file = rcg.construct_filename(base_filename=PURE_PERSONS_DATA_FILENAME,
                                        organization=organization)
-    if PURE_PERSONS_READ_DATA_FROM_FILE:
-        error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
-        print('Reading persons from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
-        parse_persorgs = rcg.read_dataframe_from_csv(filename=data_file, datatype=str)
-    else:
-        error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to harvest.\n'
-        print('Harvesting persons from ' + HARVEST_SOURCE + '.')
-        harvest_file = rcg.construct_filename(base_filename=PURE_PERSONS_HARVEST_FILENAME,
-                                              organization=organization)
-        parse_persorgs = harvest_and_parse_pure_data(mode='persons',
-                                                     endpoint=PURE_PERSONS_ENDPOINT,
-                                                     headers=PURE_HEADERS,
-                                                     body=PURE_PERSONS_FIELDS,
-                                                     harvest_filename=harvest_file,
-                                                     df_filename=data_file,
-                                                     year_start=year_first)
+    print('Reading & parsing persons from ' + HARVEST_SOURCE + '.')
+    parse_persorgs = parse_pure_data(mode=MODE_PERSONS,
+                                     harvest_filename=harvest_file,
+                                     df_filename=data_file,
+                                     year_start=year_first)
 
     if parse_persorgs is None or parse_persorgs.empty:
+        error_message = 'There are no persons from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print(error_message)
     else:
         parsed_persons_to_ricgraph(parsed_content=parse_persorgs)
@@ -2349,34 +2404,19 @@ if HARVEST_PERSONS:
 if HARVEST_RESOUTS:
     for year_int in range(int(year_first), int(year_last) + 1):
         year = str(year_int)
+        harvest_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_HARVEST_FILENAME,
+                                                   year=year, organization=organization)
         data_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_DATA_FILENAME,
                                                 year=year, organization=organization)
-        if PURE_RESOUTS_READ_DATA_FROM_FILE:
-            error_message = 'There are no research results from ' + HARVEST_SOURCE
-            error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
-            print('Reading research results from ' + HARVEST_SOURCE + ' for year '
-                  + year + ' from file ' + data_file_year + '.')
-            parse_resout = rcg.read_dataframe_from_csv(filename=data_file_year,
-                                                       datatype=str)
-        else:
-            error_message = 'There are no research results from ' + HARVEST_SOURCE
-            error_message += ' for year ' + year + ' to harvest.\n'
-            print('Harvesting research results from ' + HARVEST_SOURCE
-                  + ' for year ' + year + '.')
-            harvest_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_HARVEST_FILENAME,
-                                                       year=year, organization=organization)
-            # This does not work for the Pure CRUD API.
-            # For the Pure CRUD API, all research outputs will be harvested.
-            PURE_RESOUTS_FIELDS['publishedBeforeDate'] = year + '-12-31'
-            PURE_RESOUTS_FIELDS['publishedAfterDate'] = year + '-01-01'
-            parse_resout = harvest_and_parse_pure_data(mode=MODE_RESOUTS,
-                                                       endpoint=PURE_RESOUTS_ENDPOINT,
-                                                       headers=PURE_HEADERS,
-                                                       body=PURE_RESOUTS_FIELDS,
-                                                       harvest_filename=harvest_file_year,
-                                                       df_filename=data_file_year)
+        print('Reading & parsing research results from ' + HARVEST_SOURCE + ' for year '
+               + year + '.')
+        parse_resout = parse_pure_data(mode=MODE_RESOUTS,
+                                       harvest_filename=harvest_file_year,
+                                       df_filename=data_file_year)
 
         if parse_resout is None or parse_resout.empty:
+            error_message = 'There are no research results from ' + HARVEST_SOURCE
+            error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
             print(error_message)
         else:
             parsed_entities_to_ricgraph(parsed_content=parse_resout,
@@ -2389,34 +2429,22 @@ if HARVEST_RESOUTS:
 # ########################################################################
 # Code for data sets from the Pure datasets endpoint.
 if HARVEST_DATASETS:
+    harvest_file = rcg.construct_filename(base_filename=PURE_DATASETS_HARVEST_FILENAME,
+                                          organization=organization)
     data_file = rcg.construct_filename(base_filename=PURE_DATASETS_DATA_FILENAME,
                                        organization=organization)
-    if PURE_DATASETS_READ_DATA_FROM_FILE:
+    print('Reading & parsing data sets from ' + HARVEST_SOURCE + ' for year '
+          + year_first + ' to ' + year_last + '.')
+    parse_datasets = parse_pure_data(mode=MODE_DATASETS,
+                                     harvest_filename=harvest_file,
+                                     df_filename=data_file,
+                                     year_start=year_first,
+                                     year_end=year_last)
+
+    if parse_datasets is None or parse_datasets.empty:
         error_message = 'There are no data sets from ' + HARVEST_SOURCE
         error_message += ' for year ' + year_first + ' to ' + year_last
         error_message += ' to read from file ' + data_file + '.\n'
-        print('Reading data sets from ' + HARVEST_SOURCE + ' for year '
-              + year_first + ' to ' + year_last + ' from file ' + data_file + '.')
-        parse_datasets = rcg.read_dataframe_from_csv(filename=data_file,
-                                                        datatype=str)
-    else:
-        error_message = 'There are no data sets from ' + HARVEST_SOURCE
-        error_message += ' for year ' + year_first + ' to ' + year_last
-        error_message += ' to harvest.\n'
-        print('Harvesting data sets from ' + HARVEST_SOURCE
-              + ' for year ' + year_first + ' to ' + year_last + '.')
-        harvest_file = rcg.construct_filename(base_filename=PURE_DATASETS_HARVEST_FILENAME,
-                                              organization=organization)
-        parse_datasets = harvest_and_parse_pure_data(mode=MODE_DATASETS,
-                                                     endpoint=PURE_DATASETS_ENDPOINT,
-                                                     headers=PURE_HEADERS,
-                                                     body=PURE_DATASETS_FIELDS,
-                                                     harvest_filename=harvest_file,
-                                                     df_filename=data_file,
-                                                     year_start=year_first,
-                                                     year_end=year_last)
-
-    if parse_datasets is None or parse_datasets.empty:
         print(error_message)
     else:
         parsed_entities_to_ricgraph(parsed_content=parse_datasets,
@@ -2425,44 +2453,25 @@ if HARVEST_DATASETS:
     rcg.graphdb_nr_accesses_print()
     print(rcg.ricgraph_cache_size_text() + '\n')
 
+
 # ########################################################################
 # Code for harvesting press media items.
 if HARVEST_PRESS_MEDIA:
     for year_int in range(int(year_first), int(year_last) + 1):
         year = str(year_int)
+        harvest_file_year = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
+                                                   year=year, organization=organization)
         data_file_year = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_DATA_FILENAME,
                                                 year=year, organization=organization)
-        if PURE_PRESS_MEDIA_READ_DATA_FROM_FILE:
-            error_message = 'There are no press media items from ' + HARVEST_SOURCE
-            error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
-            print('Reading press media items from ' + HARVEST_SOURCE + ' for year '
-                  + year + ' from file ' + data_file_year + '.')
-            parse_press_media = rcg.read_dataframe_from_csv(filename=data_file_year,
-                                                            datatype=str)
-        else:
-            error_message = 'There are no press media items from ' + HARVEST_SOURCE
-            error_message += ' for year ' + year + ' to harvest.\n'
-            print('Harvesting press media items from ' + HARVEST_SOURCE
-                  + ' for year ' + year + '.')
-            harvest_file_year = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_HARVEST_FILENAME,
-                                                       year=year, organization=organization)
-            if PURE_API_VERSION == PURE_READ_API_VERSION:
-                # This does not work for the Pure CRUD API.
-                # For the Pure CRUD API, all press media items will be harvested.
-                PURE_PRESS_MEDIA_FIELDS['period']['startDate'] = {'day': '1',
-                                                                  'month': '1',
-                                                                  'year': year}
-                PURE_PRESS_MEDIA_FIELDS['period']['endDate'] = {'day': '31',
-                                                                'month': '12',
-                                                                'year': year}
-            parse_press_media = harvest_and_parse_pure_data(mode=MODE_PRESS_MEDIA,
-                                                            endpoint=PURE_PRESS_MEDIA_ENDPOINT,
-                                                            headers=PURE_HEADERS,
-                                                            body=PURE_PRESS_MEDIA_FIELDS,
-                                                            harvest_filename=harvest_file_year,
-                                                            df_filename=data_file_year)
+        print('Reading & parsing press media items from ' + HARVEST_SOURCE + ' for year '
+              + year + '.')
+        parse_press_media = parse_pure_data(mode=MODE_PRESS_MEDIA,
+                                            harvest_filename=harvest_file_year,
+                                            df_filename=data_file_year)
 
         if parse_press_media is None or parse_press_media.empty:
+            error_message = 'There are no press media items from ' + HARVEST_SOURCE
+            error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
             print(error_message)
         else:
             parsed_entities_to_ricgraph(parsed_content=parse_press_media,
@@ -2472,39 +2481,29 @@ if HARVEST_PRESS_MEDIA:
         print(rcg.ricgraph_cache_size_text() + '\n')
 
 
-org_and_all_parents = {}
-
 # ########################################################################
 # Code for harvesting projects.
 # Should be rewritten. Probably using parse_pure_entities() will work better.
+org_and_all_parents = {}
 if HARVEST_PROJECTS:
     if PURE_API_VERSION == PURE_CRUD_API_VERSION:
         print('\nPure is harvested using the Pure CRUD API.')
         print('Harvesting projects from Pure using the CRUD API is not implemented yet.')
         exit(1)
 
-    print('WARNING: Harvesting of projects may not work as expected. Use at your own risk.')
+    print('WARNING: Harvesting of projects will not work as expected and might even crash. Use at your own risk.')
 
+    harvest_file = rcg.construct_filename(base_filename=PURE_PROJECTS_HARVEST_FILENAME,
+                                          organization=organization)
     data_file = rcg.construct_filename(base_filename=PURE_PROJECTS_DATA_FILENAME,
                                        organization=organization)
-    if PURE_PROJECTS_READ_DATA_FROM_FILE:
-        error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
-        print('Reading projects from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
-        parse_projects = rcg.read_dataframe_from_csv(filename=data_file,
-                                                     datatype=str)
-    else:
-        error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to harvest.\n'
-        print('Harvesting projects from ' + HARVEST_SOURCE + '.')
-        harvest_file = rcg.construct_filename(base_filename=PURE_PROJECTS_HARVEST_FILENAME,
-                                              organization=organization)
-        parse_projects = harvest_and_parse_pure_data(mode='projects',
-                                                     endpoint=PURE_PROJECTS_ENDPOINT,
-                                                     headers=PURE_HEADERS,
-                                                     body=PURE_PROJECTS_FIELDS,
-                                                     harvest_filename=harvest_file,
-                                                     df_filename=data_file)
+    print('Reading & parsing projects from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
+    parse_projects = parse_pure_data(mode=MODE_PROJECTS,
+                                     harvest_filename=harvest_file,
+                                     df_filename=data_file)
 
     if parse_projects is None or parse_projects.empty:
+        error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
         print(error_message)
     else:
         # NOTE: org_and_all_parents is undefined now (27-2-2026),
