@@ -202,16 +202,29 @@ def create_update_node(name: str, category: str, value: str,
 
         # Then do the properties in _RICGRAPH_PROPERTIES_ADDITIONAL.
         for prop_name in _RICGRAPH_PROPERTIES_ADDITIONAL:
+            if prop_name in ['url_main', 'url_other', 'url_asset']:
+                # We do these below.
+                continue
             node_properties[prop_name] = RICGRAPH_UNKNOWN
             if prop_name in other_properties \
                and str(other_properties[prop_name]) != '':
                 node_properties[prop_name] = str(other_properties[prop_name])
 
-        # If no url_main has been passed, insert an ISNI, DOI, etc. url if category is ISNI, DOI, etc.
-        url = create_well_known_url(name=lname, value=lvalue)
-        if node_properties['url_main'] == RICGRAPH_UNKNOWN and url != '':
-            # node_properties['url_main'] has been filled in the loop above.
-            node_properties['url_main'] = url
+        # Now make sure 'url_main', 'url_other' and 'url_asset' are always present.
+        # We need that below.
+        for prop_name in ['url_main', 'url_other', 'url_asset']:
+            if prop_name not in other_properties: \
+                node_properties[prop_name] = []
+            elif str(other_properties[prop_name]) == '':
+                node_properties[prop_name] = []
+            else:
+                node_properties[prop_name] = [str(other_properties[prop_name])]
+        if len(node_properties['url_main']) == 0:
+            # node_properties['url_main'] has not been filled in the loop above.
+            # Try to create another link from ISNI, DOI, etc.
+            url = create_well_known_url(name=lname, value=lvalue)
+            if url != '':
+                node_properties['url_main'] = [url]
 
         # Then do the properties in _RICGRAPH_PROPERTIES_HIDDEN.
         # We test on node_properties[], since they are guaranteed to exist
@@ -263,6 +276,27 @@ def create_update_node(name: str, category: str, value: str,
            or str(other_properties[prop_name]) ==  '':
             # Do not change a value if the future value would change
             # to RICGRAPH_UNKNOWN or '' (this means we lose information).
+            continue
+        if prop_name == 'url_main':
+            # This should probably never change, it is related to 'value'.
+            continue
+        if prop_name == 'url_other' or prop_name == 'url_asset':
+            if len(node[prop_name]) == 0:
+                # Property not present yet.
+                node_properties[prop_name] = [str(other_properties[prop_name])]
+                history_line += create_history_line(property_name=prop_name,
+                                                    old_value='[empty list]',
+                                                    new_value=str(node_properties[prop_name]))
+                continue
+            if str(other_properties[prop_name]) in node[prop_name]:
+                # Property value already present yet, do not insert again.
+                continue
+            # Property value not present yet, append to the list.
+            node_properties[prop_name] = node[prop_name].copy()
+            node_properties[prop_name].append(other_properties[prop_name])
+            history_line += create_history_line(property_name=prop_name,
+                                                old_value=str(node[prop_name]),
+                                                new_value=str(node_properties[prop_name]))
             continue
         # Only in case a property is in other_properties, its value may change.
         present_val = str(node[prop_name])

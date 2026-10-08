@@ -301,6 +301,8 @@ stylesheet += 'h2 {font-size:20px;}'
 stylesheet += 'h3 {font-size:16px;}'
 stylesheet += 'h4 {font-size:12px;}'
 stylesheet += 'ul, ol {padding-left:2em; margin:0px}'
+# The left-padding is different in w3-table.
+stylesheet += 'table.w3-table ul, table.w3-table ol {padding-left:1em; margin:0px}'
 stylesheet += 'a:link, a:visited {color:blue;}'
 stylesheet += 'a:hover {color:darkblue;}'
 stylesheet += 'table {font-size:85%;}'

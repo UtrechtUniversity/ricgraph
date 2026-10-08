@@ -625,11 +625,21 @@ def get_html_for_tablerow(node: Node,
             html += urlencode(url_parameters) + '>'
             html += value + '</a></td>'
         elif column in ['url_main', 'url_other', 'url_asset']:
-            if node[column] == RICGRAPH_UNKNOWN:
+            nr_urls = len(node[column])
+            if nr_urls == 0:
                 html += '<td></td>'
             else:
-                html += '<td><a href=' + node[column] + ' target="_blank">'
-                html += column + ' link</a></td>'
+                counter = 1
+                html += '<td><ul>'
+                for url in node[column]:
+                    html += '<li><a href=' + url + ' target="_blank">'
+                    html += column
+                    if nr_urls > 1:
+                        # Only number links if there is more than one.
+                        html += str(counter)
+                    html += ' link</a></li>'
+                    counter += 1
+                html += '</ul></td>'
         elif column in ['_history', '_source']:
             if isinstance(node[column], str):
                 html += '<td>' + node[column] + '</td>'

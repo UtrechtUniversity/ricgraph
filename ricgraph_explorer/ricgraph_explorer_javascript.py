@@ -207,18 +207,22 @@ def get_html_for_tableend_javascript(table_filename: str) -> str:
                      const csvContent = paddedHeader + '\\n' +
                        Array.from(rowsToExport).map(row =>
                          Array.from(row.children).map(cell => {{
-                             const link = cell.querySelector('a');
-                             const linkText = link ? link.innerText.trim() : '';
-                             // If the cell content is "url_main link", "url_other link", or
-                             // "url_asset link", substitute the contents with the actual link.
-                             const cellValue =
-                                 link && (linkText === 'url_main link' || linkText === 'url_other link' || linkText === 'url_asset link')
-                                     ? link.href
-                                     : cell.innerText;
-                             // Never export cell contents that start with
-                             // "Click for history" (i.e. the _history column).
-                             const exportValue = cellValue.trim().startsWith('Click for history') ? '' : cellValue;
-                             return '"' + exportValue.replace(/"/g, '""') + '"';
+                           const links = Array.from(cell.querySelectorAll('a'));
+                           // If the link text starts with e.g. 'url_other', possibly
+                           // followed by a number, then with 'link', include the link url
+                           // in the csv file, instead of the link name.
+                           const isUrlLink = link =>
+                             /^url_(main|asset|other)\d* link$/.test(link.innerText.trim());
+                           const urlLinks = links.filter(isUrlLink);
+                           const cellValue = urlLinks.length > 0
+                             ? urlLinks.map(link => link.href).join(',')
+                             : cell.innerText;
+                           // Never export cell contents that start with
+                           // "Click for history" (i.e. the _history column).
+                           const exportValue = cellValue.trim().startsWith('Click for history') 
+                             ? '' 
+                             : cellValue;
+                           return '"' + exportValue.replace(/"/g, '""') + '"';
                          }}).join(',')
                      ).join('\\n');
                      const blob = new Blob([csvContent], {{type: 'text/csv'}});
