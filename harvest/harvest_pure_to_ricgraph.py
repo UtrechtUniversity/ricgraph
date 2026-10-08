@@ -1643,9 +1643,9 @@ def harvest_all_pure_data(year_start: str = '',
 
     if HARVEST_PERSONS:
         if PURE_PERSONS_READ_HARVEST_FROM_FILE:
-            print('Harvested persons will be read from file.\n')
+            print('\nHarvested persons will be read from file.\n')
             return
-        print('Harvesting persons...')
+        print('\nHarvesting persons...')
         harvest_pure_data(mode=MODE_PERSONS,
                           endpoint=PURE_PERSONS_ENDPOINT,
                           headers=PURE_HEADERS,
@@ -1655,9 +1655,9 @@ def harvest_all_pure_data(year_start: str = '',
         print('Done harvesting persons.\n')
     if HARVEST_ORGANIZATIONS:
         if PURE_ORGANIZATIONS_READ_HARVEST_FROM_FILE:
-            print('Harvested organizations will be read from file.\n')
+            print('\nHarvested organizations will be read from file.\n')
             return
-        print('Harvesting organizations...')
+        print('\nHarvesting organizations...')
         harvest_pure_data(mode=MODE_ORGANIZATIONS,
                           endpoint=PURE_ORGANIZATIONS_ENDPOINT,
                           headers=PURE_HEADERS,
@@ -1667,9 +1667,9 @@ def harvest_all_pure_data(year_start: str = '',
         print('Done harvesting organizations.\n')
     if HARVEST_RESOUTS:
         if PURE_RESOUTS_READ_HARVEST_FROM_FILE:
-            print('Harvested research outputs will be read from file.\n')
+            print('\nHarvested research outputs will be read from file.\n')
             return
-        print('Harvesting research outputs...')
+        print('\nHarvesting research outputs...')
         harvest_pure_data(mode=MODE_RESOUTS,
                           endpoint=PURE_RESOUTS_ENDPOINT,
                           headers=PURE_HEADERS,
@@ -1681,9 +1681,9 @@ def harvest_all_pure_data(year_start: str = '',
         print('Done harvesting research outputs.\n')
     if HARVEST_DATASETS:
         if PURE_DATASETS_READ_HARVEST_FROM_FILE:
-            print('Harvested data sets will be read from file.\n')
+            print('\nHarvested data sets will be read from file.\n')
             return
-        print('Harvesting data sets...')
+        print('\nHarvesting data sets...')
         harvest_pure_data(mode=MODE_DATASETS,
                           endpoint=PURE_DATASETS_ENDPOINT,
                           headers=PURE_HEADERS,
@@ -1693,9 +1693,9 @@ def harvest_all_pure_data(year_start: str = '',
         print('Done harvesting data sets.\n')
     if HARVEST_PRESS_MEDIA:
         if PURE_PRESS_MEDIA_READ_HARVEST_FROM_FILE:
-            print('Harvested press media items will be read from file.\n')
+            print('\nHarvested press media items will be read from file.\n')
             return
-        print('Harvesting press media items...')
+        print('\nHarvesting press media items...')
         harvest_pure_data(mode=MODE_PRESS_MEDIA,
                           endpoint=PURE_PRESS_MEDIA_ENDPOINT,
                           headers=PURE_HEADERS,
@@ -1713,15 +1713,9 @@ def harvest_pure_data(mode: str, endpoint: str,
                       base_filename: str,
                       year_start: str = '',
                       year_end: str = ''):
-    """This function pre-harvests data from Pure.
-    We need it, because the Pure CRUD API still lacks important features,
-    see the comment at the beginning of this file.
-    By pre-harvesting, we provide the existing code with files that
-    contain the data harvested in the format that is expected by it.
-    We separate the cludge that is necessary to catch the missing
-    features from the CRUD API from the other code.
-    At some time, when the Pure CRUD API does have these features,
-    this code may be removed.
+    """This function harvests data from Pure.
+    We do it before we process it in any other way, so we will note in an early
+    phase whether Pure stalls or not.
 
     :param mode: as in MODE_ALL, to indicate what to harvest.
     :param endpoint: endpoint Pure.
@@ -1729,9 +1723,9 @@ def harvest_pure_data(mode: str, endpoint: str,
     :param body: contains the fields to harvest, and the harvest time period.
     :param base_filename: base of the filename to write harvest results to.
     :param year_start: the first year that we would like to harvest.
-        Only relevant when parsing persons and data sets.
-    :param year_end: the first year that we would like to harvest.
-        Only relevant when data sets.
+        Only relevant for some 'modes.
+    :param year_end: the last year that we would like to harvest.
+        Only relevant for some 'mode's
     :return: No return value.
     """
     if mode not in MODE_ALL:
@@ -1904,14 +1898,17 @@ def parse_pure_data(mode: str,
                     year_start:str = '',
                     year_end: str = '') -> Union[pandas.DataFrame, None]:
     """Parse data from Pure.
+    Contrary to harvest_pure_data(), this function parses one year for
+    items that span multiple years (e.g. research results).
+    The year_start and year_end is for filtering, see below.
 
     :param mode: as in MODE_ALL, to indicate what to harvest.
     :param harvest_filename: filename to write harvest results to.
     :param df_filename: filename to write the DataFrame results to.
     :param year_start: the first year that we would like to harvest.
-        Only relevant when parsing persons and data sets.
+        Only relevant for persons and data sets, since we need to filter.
     :param year_end: the first year that we would like to harvest.
-        Only relevant when data sets.
+        Only relevant for data sets, since we need to filter.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     if mode not in MODE_ALL:
