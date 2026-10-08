@@ -36,7 +36,7 @@
 #
 # Original version Rik D.T. Janssen, March 2023.
 # Updated Rik D.T. Janssen, April, October, November 2023, October 2024, February 2025.
-# Updated Rik D.T. Janssen, February 2026.
+# Updated Rik D.T. Janssen, February, October 2026.
 #
 # ########################################################################
 #
@@ -179,9 +179,8 @@ ACCESS_MAPPING_OPENALEX = {
 # ######################################################
 # Parsing
 # ######################################################
-
-def parse_openalex(harvest: list,
-                   filename: str = '') -> Union[pandas.DataFrame, None]:
+def parse_openalex_entities(harvest: list,
+                            filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons and research results from OpenAlex.
     In case filename != '', write it to a file and read it back.
 
@@ -281,37 +280,64 @@ def parse_openalex(harvest: list,
 # ######################################################
 # Harvesting and parsing
 # ######################################################
+def harvest_openalex_data(year_start: str = '',
+                          year_end: str = ''):
+    """Harvest data from OpenAlex.
+    We do it before we process it in any other way, so we will note in an early
+    phase whether OpenAlex stalls or not.
 
-def harvest_and_parse_openalex(harvest_year: str,
-                               headers: dict,
-                               harvest_filename: str,
-                               df_filename: str) -> Union[pandas.DataFrame, None]:
-    """Harvest and parse data from OpenAlex.
+    :param year_start: the first year that we would like to harvest.
+        Only relevant for some 'modes.
+    :param year_end: the last year that we would like to harvest.
+        Only relevant for some 'mode's
+    :return: the DataFrame harvested, or None if nothing harvested.
+    """
+    global OPENALEX_READ_HARVEST_FROM_FILE
 
-    :param harvest_year: the year to harvest.
-    :param headers: headers for OpenAlex.
+    if OPENALEX_READ_HARVEST_FROM_FILE:
+        print('\nHarvested persons and research results will be read from file.\n')
+        return
+
+    print('\nHarvesting persons and research results...')
+    for year_loop in range(int(year_start), int(year_end) + 1):
+        year_loop_str = str(year_loop)
+        print('\nHarvesting persons and research results from ' + HARVEST_SOURCE
+              + ' for year ' + year_loop_str + '.')
+        harvest_file_year_loop = rcg.construct_filename(base_filename=OPENALEX_HARVEST_FILENAME,
+                                                        year=year_loop_str, organization=organization)
+        url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT
+        url += '?filter=institutions.ror:' + ORGANIZATION_ROR
+        url += ',publication_year:' + year_loop_str + '&select=' + OPENALEX_FIELDS
+        rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_OPENALEX,
+                         url=url,
+                         headers=OPENALEX_HEADERS,
+                         max_recs_to_harvest=OPENALEX_MAX_RECS_TO_HARVEST,
+                         chunksize=OPENALEX_CHUNKSIZE,
+                         filename=harvest_file_year_loop)
+
+    OPENALEX_READ_HARVEST_FROM_FILE = True
+    print('Done harvesting persons and research results...')
+    return
+
+
+def parse_openalex_data(harvest_filename: str,
+                        df_filename: str) -> Union[pandas.DataFrame, None]:
+    """Parse data from OpenAlex.
+    Contrary to harvest_openalex_data(), this function parses one year for
+    items that span multiple years (e.g. research results).
+
     :param harvest_filename: filename to write harvest results to.
     :param df_filename: filename to write the DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
-    print('Harvesting persons and research results from ' + HARVEST_SOURCE + '...')
-    if OPENALEX_READ_HARVEST_FROM_FILE:
-        harvest_data = rcg.read_json_from_file(filename=harvest_filename)
-    else:
-        url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT
-        url += '?filter=institutions.ror:' + ORGANIZATION_ROR
-        url += ',publication_year:' + harvest_year + '&select=' + OPENALEX_FIELDS
-        harvest_data = rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_OPENALEX,
-                                        url=url,
-                                        headers=headers,
-                                        max_recs_to_harvest=OPENALEX_MAX_RECS_TO_HARVEST,
-                                        chunksize=OPENALEX_CHUNKSIZE,
-                                        filename=harvest_filename)
-
-    if (parse := parse_openalex(harvest=harvest_data, filename=df_filename)) is None:
+    print('Parsing persons and research results from ' + HARVEST_SOURCE + '...')
+    harvest_data = rcg.read_json_from_file(filename=harvest_filename,
+                                           exit_on_error=False)
+    parse = parse_openalex_entities(harvest=harvest_data,
+                                    filename=df_filename)
+    if parse is None or parse.empty:
         return None
-
-    print('The harvested persons and research results from ' + HARVEST_SOURCE + ' are:')
+    print('The parsed persons and research results from ' + HARVEST_SOURCE + ' are:')
     print(parse)
     return parse
 
@@ -415,33 +441,25 @@ else:
     print('Exiting.\n')
     exit(1)
 
+harvest_openalex_data(year_start=year_first, year_end=year_last)
+
 rcg.graphdb_nr_accesses_print()
 print(rcg.ricgraph_cache_size_text() + '\n')
 
 for year_int in range(int(year_first), int(year_last) + 1):
     year = str(year_int)
+    harvest_file_year = rcg.construct_filename(base_filename=OPENALEX_HARVEST_FILENAME,
+                                               year=year, organization=organization)
     data_file_year = rcg.construct_filename(base_filename=OPENALEX_DATA_FILENAME,
                                             year=year, organization=organization)
-    if OPENALEX_READ_DATA_FROM_FILE:
-        error_message = 'There are no persons or research results from ' + HARVEST_SOURCE
-        error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
-        print('Reading persons and research results from ' + HARVEST_SOURCE
-              + ' for year ' + year + ' from file ' + data_file_year + '.')
-        parse_persons_resout = rcg.read_dataframe_from_csv(filename=data_file_year,
-                                                           datatype=str)
-    else:
-        error_message = 'There are no persons or research results from ' + HARVEST_SOURCE
-        error_message += ' for year ' + year + ' to harvest.\n'
-        print('Harvesting persons and research results from ' + HARVEST_SOURCE
-              + ' for year ' + year + '.')
-        harvest_file_year = rcg.construct_filename(base_filename=OPENALEX_HARVEST_FILENAME,
-                                                   year=year, organization=organization)
-        parse_persons_resout = harvest_and_parse_openalex(harvest_year=year,
-                                                          headers=OPENALEX_HEADERS,
-                                                          harvest_filename=harvest_file_year,
-                                                          df_filename=data_file_year)
+    print('Reading & parsing research results from ' + HARVEST_SOURCE + ' for year '
+          + year + '.')
+    parse_persons_resout = parse_openalex_data(harvest_filename=harvest_file_year,
+                                              df_filename=data_file_year)
 
     if parse_persons_resout is None or parse_persons_resout.empty:
+        error_message = 'There are no persons or research results from ' + HARVEST_SOURCE
+        error_message += ' for year ' + year + ' to read from file ' + data_file_year + '.\n'
         print(error_message)
     else:
         parsed_persons_to_ricgraph(parsed_content=parse_persons_resout)
