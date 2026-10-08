@@ -104,7 +104,7 @@ OPENALEX_MAX_RECS_TO_HARVEST = 0                        # 0 = all records
 # 'primary_location' as from 'open_access'. I choose 'primary_location'.
 # In OpenAlex, you can only get whether a research result is open or
 # not, not if it is e.g. embargoed or restricted.
-OPENALEX_FIELDS = 'doi,publication_year,title,type,authorships,primary_location'
+OPENALEX_FIELDS = 'doi,id,publication_year,title,type,authorships,primary_location'
 
 
 # ######################################################
@@ -217,6 +217,8 @@ def parse_openalex_entities(harvest: list,
                                              json_path='primary_location.is_oa')) != '':
             access = rcg.lookup_item_in_mapping(item=str(access),
                                                 mapping=ACCESS_MAPPING_OPENALEX)
+        work_url = rcg.json_item_get_str(json_item=harvest_item,
+                                         json_path='id')
         pdf_url = rcg.json_item_get_str(json_item=harvest_item,
                                         json_path='primary_location.pdf_url')
         for authors in rcg.json_item_get_list(json_item=harvest_item,
@@ -268,6 +270,7 @@ def parse_openalex_entities(harvest: list,
                           'LICENSE': licentie,
                           'ACCESS': access,
                           'CATEGORY': category,
+                          'URL_OTHER': work_url,
                           'URL_ASSET': pdf_url}
             parse_chunk.append(parse_line)
 
@@ -386,7 +389,8 @@ def parsed_resout_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :return: None.
     """
     resouts = parsed_content[['OPENALEX_ID_PERS', 'DOI', 'TITLE', 'YEAR',
-                              'LICENSE', 'ACCESS', 'CATEGORY', 'URL_ASSET']].copy(deep=True)
+                              'LICENSE', 'ACCESS', 'CATEGORY',
+                              'URL_OTHER', 'URL_ASSET']].copy(deep=True)
     rcg.create_parsed_dois_in_ricgraph(resouts=resouts, harvest_source=HARVEST_SOURCE)
     return
 
