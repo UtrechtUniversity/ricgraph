@@ -65,6 +65,11 @@
 # PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR (times the number
 # of years to harvest).
 #
+# On October 8, 2026, I have disabled all code for harvesting & parsing
+# projects, because there have been so many changes to related code,
+# that it very probably will not work. Also, it was not used.
+# I expect that these many changes will help with rewriting the projects code.
+#
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, April, October, November 2023, February 2025.
 # Updated Rik D.T. Janssen, February, June, October 2026.
@@ -90,7 +95,7 @@
 #           Start the harvest from this year on.
 #   --year_last <last year of harvest>
 #           End the harvest at this year.
-#   --harvest_projects <yes|no>
+#   --harvest_projects <yes|no> [code disabled due to many changes in other code]
 #           'yes': projects will be harvested.
 #           'no' (or any other answer): projects will not be harvested.
 #           If this option is not present, projects will not be harvested,
@@ -101,7 +106,7 @@
 
 import sys
 import pandas
-import numpy
+# import numpy      # required for projects, which is disabled.
 from typing import Union, Any
 import requests
 from pathlib import PurePath
@@ -130,13 +135,13 @@ MODE_ORGANIZATIONS = 'organizations'
 MODE_RESOUTS = 'research results'
 MODE_DATASETS = 'data sets'
 MODE_PRESS_MEDIA = 'press media'
-MODE_PROJECTS = 'projects'
+# MODE_PROJECTS = 'projects'
 MODE_ALL = [MODE_PERSONS,
             MODE_ORGANIZATIONS,
             MODE_RESOUTS,
             MODE_DATASETS,
-            MODE_PRESS_MEDIA,
-            MODE_PROJECTS]
+            MODE_PRESS_MEDIA]
+            # MODE_PROJECTS]
 
 
 # ######################################################
@@ -156,7 +161,7 @@ global PURE_URL
 global PURE_USE_WORKFLOW_RESEARCH_RESULTS
 global PURE_HARVEST_EMPLOYEEIDS
 global HARVEST_SOURCE
-global HARVEST_PROJECTS
+# global HARVEST_PROJECTS
 global resout_uuid_or_doi
 
 # ######################################################
@@ -478,52 +483,52 @@ PURE_CRUD_PRESS_MEDIA_FIELDS = {'orderings': ['date'],
                                            ]
                                }
 
-# ######################################################
-# Parameters for harvesting projects from Pure
-# ######################################################
-# Pure can be harvested according to the READ or CRUD API.
-# However, for projects we only harvest them using the READ API.
-global PURE_PROJECTS_ENDPOINT
-PURE_READ_PROJECTS_ENDPOINT = 'projects'
-# PURE_CRUD_PROJECTS_ENDPOINT = 'projects/search'
-
-# Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
-PURE_PROJECTS_READ_HARVEST_FROM_FILE = False
-# PURE_PROJECTS_READ_HARVEST_FROM_FILE = True
-PURE_PROJECTS_HARVEST_FILENAME = 'pure_projects_harvest.json'
-
-# Set this to True to read data from the csv file. No harvest will be done, this would
-# not make sense. If False, a harvest will be done.
-# If True, the value of PURE_PROJECTS_READ_HARVEST_FROM_FILE does not matter.
-PURE_PROJECTS_READ_DATA_FROM_FILE = False
-# PURE_PROJECTS_READ_DATA_FROM_FILE = True
-PURE_PROJECTS_DATA_FILENAME = 'pure_projects_data.csv'
-
-PURE_PROJECTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
-# The current version of the Pure CRUD API does not have these filters yet.
-PURE_PROJECTS_FIELDS = {'fields': ['uuid',
-                                   'period.*',
-                                   'confidential',
-                                   'title.*',
-                                   'status.*',
-                                   'visibility.key',
-                                   'workflow.workflowStep.*',
-                                   'descriptions.*',
-                                   'ids.*',
-                                   'participants.person.uuid.*',
-                                   'participants.organisationalUnits.uuid.*',
-                                   # 'managingOrganisationalUnit.*', # We use the organization of the participant.
-                                   # 'organizationalUnits.*',       # We use the organization of the participant.
-                                   # 'collaborators.*',             # These are other organizations, skip.
-                                   'relatedResearchOutputs.uuid.*',
-                                   'relatedResearchOutputs.type.*',
-                                   'relatedProjects.project.uuid.*',
-                                   # 'relatedDataSets.*',           # Datasets are supposed to be in research results.
-                                   # 'relatedActivities.*',
-                                   # 'relatedPrizes.*',
-                                   # 'relatedPressMedia.*',
-                                   ]
-                        }
+# # ######################################################
+# # Parameters for harvesting projects from Pure
+# # ######################################################
+# # Pure can be harvested according to the READ or CRUD API.
+# # However, for projects we only harvest them using the READ API.
+# global PURE_PROJECTS_ENDPOINT
+# PURE_READ_PROJECTS_ENDPOINT = 'projects'
+# # PURE_CRUD_PROJECTS_ENDPOINT = 'projects/search'
+#
+# # Set this to True to simulate the harvest. If True, do not harvest, but read it from a file.
+# PURE_PROJECTS_READ_HARVEST_FROM_FILE = False
+# # PURE_PROJECTS_READ_HARVEST_FROM_FILE = True
+# PURE_PROJECTS_HARVEST_FILENAME = 'pure_projects_harvest.json'
+#
+# # Set this to True to read data from the csv file. No harvest will be done, this would
+# # not make sense. If False, a harvest will be done.
+# # If True, the value of PURE_PROJECTS_READ_HARVEST_FROM_FILE does not matter.
+# PURE_PROJECTS_READ_DATA_FROM_FILE = False
+# # PURE_PROJECTS_READ_DATA_FROM_FILE = True
+# PURE_PROJECTS_DATA_FILENAME = 'pure_projects_data.csv'
+#
+# PURE_PROJECTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
+# # The current version of the Pure CRUD API does not have these filters yet.
+# PURE_PROJECTS_FIELDS = {'fields': ['uuid',
+#                                    'period.*',
+#                                    'confidential',
+#                                    'title.*',
+#                                    'status.*',
+#                                    'visibility.key',
+#                                    'workflow.workflowStep.*',
+#                                    'descriptions.*',
+#                                    'ids.*',
+#                                    'participants.person.uuid.*',
+#                                    'participants.organisationalUnits.uuid.*',
+#                                    # 'managingOrganisationalUnit.*', # We use the organization of the participant.
+#                                    # 'organizationalUnits.*',       # We use the organization of the participant.
+#                                    # 'collaborators.*',             # These are other organizations, skip.
+#                                    'relatedResearchOutputs.uuid.*',
+#                                    'relatedResearchOutputs.type.*',
+#                                    'relatedProjects.project.uuid.*',
+#                                    # 'relatedDataSets.*',           # Datasets are supposed to be in research results.
+#                                    # 'relatedActivities.*',
+#                                    # 'relatedPrizes.*',
+#                                    # 'relatedPressMedia.*',
+#                                    ]
+#                         }
 
 
 # ######################################################
@@ -657,8 +662,8 @@ def create_pure_url(name: str, value: str) -> str:
         return PURE_URL + '/en/datasets/' + value
     elif name == 'PURE_ID_PRESS_MEDIA':
         return PURE_URL + '/en/clippings/' + value
-    elif name == 'PURE_ID_PROJECT':
-        return PURE_URL + '/en/projects/' + value
+    # elif name == 'PURE_ID_PROJECT':
+    #     return PURE_URL + '/en/projects/' + value
     else:
         return ''
 
@@ -861,23 +866,23 @@ def restructure_parse_persons(df: pandas.DataFrame) -> pandas.DataFrame:
     return df_mod
 
 
-def restructure_parse_projects(df: pandas.DataFrame) -> pandas.DataFrame:
-    """Restructure the parsed data from the source system.
-    This means: convert all field names found in the source system
-    to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI'),
-    and make sure that every column that is expected further down
-    this code is present (i.e. insert an empty column if needed).
-    No processing of data in columns is done.
-
-    :param df: dataframe with identifiers.
-    :return: Result of action described above.
-    """
-    df_mod = df.copy(deep=True)
-
-    if 'PURE_PROJECT_PARTICIPANT_UUID' not in df_mod.columns:
-        df_mod['PURE_PROJECT_PARTICIPANT_UUID'] = ''
-
-    return df_mod
+# def restructure_parse_projects(df: pandas.DataFrame) -> pandas.DataFrame:
+#     """Restructure the parsed data from the source system.
+#     This means: convert all field names found in the source system
+#     to recognized Ricgraph fields (e.g. replace 'doi' with 'DOI'),
+#     and make sure that every column that is expected further down
+#     this code is present (i.e. insert an empty column if needed).
+#     No processing of data in columns is done.
+#
+#     :param df: dataframe with identifiers.
+#     :return: Result of action described above.
+#     """
+#     df_mod = df.copy(deep=True)
+#
+#     if 'PURE_PROJECT_PARTICIPANT_UUID' not in df_mod.columns:
+#         df_mod['PURE_PROJECT_PARTICIPANT_UUID'] = ''
+#
+#     return df_mod
 
 
 def parse_pure_persons(harvest: list,
@@ -1418,174 +1423,174 @@ def parse_pure_entities(harvest: list,
                                                 filename=filename)
 
 
-def parse_pure_projects(harvest: list,
-                        filename: str = '') -> Union[pandas.DataFrame, None]:
-    """Parse the harvested projects from Pure.
-    In case filename != '', write it to a file and read it back.
-
-    :param harvest: the harvest.
-    :param filename: If filename != '', write it to a file and read it back.
-    :return: the harvested persons in a DataFrame,
-        or None if nothing to parse.
-    """
-    # RDTJ, February 22, 2026. This code should be cleaned up,
-    # just as the functions for persons, organizations, and entities above.
-    # Also rewrite parsed_projects_to_ricgraph().
-    global resout_uuid_or_doi
-    global organization
-
-    if len(harvest) == 0:
-        return None
-    print('There are ' + str(len(harvest)) + ' project records ('
-          + rcg.timestamp() + '), parsing record:')
-    parse_chunk = []                # list of dictionaries
-    count = 0
-    for harvest_item in harvest:
-        count = rcg.print_progress(count=count, interval=1000)
-        if 'uuid' in harvest_item:
-            uuid = str(harvest_item['uuid'])
-        else:
-            # There must be an uuid, otherwise skip.
-            continue
-        if 'confidential' in harvest_item \
-           and harvest_item['confidential']:
-            # It may not be confidential.
-            continue
-        if 'title' in harvest_item:
-            title = str(harvest_item['title']['text'][0]['value'])
-        else:
-            # There must be a title, otherwise skip.
-            continue
-        if 'visibility' in harvest_item:
-            if 'key' in harvest_item['visibility'] \
-                    and harvest_item['visibility']['key'] != 'FREE':
-                # TODO: Hack for Utrecht University Pure. Their projects have visibility
-                # 'BACKEND'. This will change sometime in the future and then this
-                # hack should be removed. Date of the hack: November 11, 2023.
-                # It should be like this:
-                # #### start
-                # It must be public, otherwise skip.
-                # continue
-                # #### end
-                # But with the hack it is:
-                if organization != 'UU':
-                    # It must be public, otherwise skip.
-                    continue
-        else:
-            # It must be explicitly declared to be public, otherwise skip.
-            continue
-        if 'period' in harvest_item:
-            if 'startDate' in harvest_item['period']:
-                start_date = str(harvest_item['period']['startDate'])[0:10]
-                period = 'started: ' + start_date + ', '
-            else:
-                period = 'not started, '
-            if 'endDate' in harvest_item['period']:
-                end_date = str(harvest_item['period']['endDate'])[0:10]
-                period += 'ended: ' + end_date
-            else:
-                period += 'not ended'
-
-            title += ' (' + period + ')'
-        if 'status' in harvest_item:
-            title += ' (' + str(harvest_item['status']['key'].lower()) + ')'
-
-        # For now, we don't care about the 'workflow' status.
-
-        # One could say: "There are no ids, so do not harvest". However, for
-        # now we don't use 'ids' as 'value' field, so for now we _do_ harvest.
-        if 'ids' in harvest_item:
-            name = ''
-            value = ''
-            if 'value' in harvest_item['ids'][0]:
-                value = str(harvest_item['ids'][0]['value']['value'])
-            if 'type' in harvest_item['ids'][0] \
-               and 'uri' in harvest_item['ids'][0]['type']:
-                name = str(PurePath(harvest_item['ids'][0]['type']['uri']).name)
-            if name == '' or value == '':
-                continue
-            title = '[' + name + ': ' + value + '] ' + title
-        # else:
-        #    continue
-
-        title = organization + ' ' + title
-        if 'participants' in harvest_item:
-            for participant in harvest_item['participants']:
-                if 'person' in participant \
-                   and 'uuid' in participant['person']:
-                    participant_uuid = str(participant['person']['uuid'])
-                else:
-                    continue
-
-                if 'organisationalUnits' in participant \
-                   and 'uuid' in participant['organisationalUnits'][0]:
-                    participant_org = str(participant['organisationalUnits'][0]['uuid'])
-                else:
-                    continue
-
-                parse_line = {'PURE_ID_PROJECT': uuid,
-                              'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
-                                                                     value=uuid),
-                              'PURE_PROJECT_TITLE': title,
-                              'PURE_PROJECT_PARTICIPANT_UUID': participant_uuid,
-                              'PURE_PROJECT_PARTICIPANT_ORG': participant_org}
-                parse_chunk.append(parse_line)
-
-        if 'relatedResearchOutputs' in harvest_item:
-            for resout in harvest_item['relatedResearchOutputs']:
-                if 'uuid' in resout:
-                    resout_uuid = str(resout['uuid'])
-                else:
-                    continue
-                if 'type' in resout \
-                   and 'uri' in resout['type']:
-                    category = rcg.lookup_item_in_mapping(item=str(resout['type']['uri']),
-                                                          mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
-                    if category == rcg.RICGRAPH_UNKNOWN:
-                        # Must have a valid category.
-                        continue
-                else:
-                    continue
-
-                resout_name = 'PURE_ID_RESOUT'
-                resout_value = resout_uuid
-                if resout_uuid_or_doi != {} \
-                   and resout_uuid in resout_uuid_or_doi:
-                    resout_value = resout_uuid_or_doi[resout_uuid]
-                    if not numpy.isnan(resout_value):
-                        if '/' in resout_value:
-                            resout_name = 'DOI'
-                        else:
-                            resout_name = 'PURE_ID_RESOUT'
-                parse_line = {'PURE_ID_PROJECT': uuid,
-                              'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
-                                                                     value=uuid),
-                              'PURE_PROJECT_TITLE': title,
-                              'PURE_PROJECT_RESOUT_NAME': resout_name,
-                              'PURE_PROJECT_RESOUT_CATEGORY': category,
-                              'PURE_PROJECT_RESOUT_VALUE': resout_value}
-                parse_chunk.append(parse_line)
-
-        if 'relatedProjects' in harvest_item:
-            for related_project in harvest_item['relatedProjects']:
-                if 'project' in related_project \
-                   and 'uuid' in related_project['project']:
-                    related_project_uuid = str(related_project['project']['uuid'])
-                else:
-                    continue
-
-                parse_line = {'PURE_ID_PROJECT': uuid,
-                              'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
-                                                                     value=uuid),
-                              'PURE_PROJECT_TITLE': title,
-                              'PURE_PROJECT_RELATEDPROJECT_UUID': related_project_uuid}
-                parse_chunk.append(parse_line)
-
-    rcg.print_progress(count=count, now=True)
-    parse_result = pandas.DataFrame(parse_chunk)
-    parse_result = restructure_parse_projects(df=parse_result)
-    return rcg.normalize_identifiers_write_read(parse_result=parse_result,
-                                                filename=filename)
+# def parse_pure_projects(harvest: list,
+#                         filename: str = '') -> Union[pandas.DataFrame, None]:
+#     """Parse the harvested projects from Pure.
+#     In case filename != '', write it to a file and read it back.
+#
+#     :param harvest: the harvest.
+#     :param filename: If filename != '', write it to a file and read it back.
+#     :return: the harvested persons in a DataFrame,
+#         or None if nothing to parse.
+#     """
+#     # RDTJ, February 22, 2026. This code should be cleaned up,
+#     # just as the functions for persons, organizations, and entities above.
+#     # Also rewrite parsed_projects_to_ricgraph().
+#     global resout_uuid_or_doi
+#     global organization
+#
+#     if len(harvest) == 0:
+#         return None
+#     print('There are ' + str(len(harvest)) + ' project records ('
+#           + rcg.timestamp() + '), parsing record:')
+#     parse_chunk = []                # list of dictionaries
+#     count = 0
+#     for harvest_item in harvest:
+#         count = rcg.print_progress(count=count, interval=1000)
+#         if 'uuid' in harvest_item:
+#             uuid = str(harvest_item['uuid'])
+#         else:
+#             # There must be an uuid, otherwise skip.
+#             continue
+#         if 'confidential' in harvest_item \
+#            and harvest_item['confidential']:
+#             # It may not be confidential.
+#             continue
+#         if 'title' in harvest_item:
+#             title = str(harvest_item['title']['text'][0]['value'])
+#         else:
+#             # There must be a title, otherwise skip.
+#             continue
+#         if 'visibility' in harvest_item:
+#             if 'key' in harvest_item['visibility'] \
+#                     and harvest_item['visibility']['key'] != 'FREE':
+#                 # TODO: Hack for Utrecht University Pure. Their projects have visibility
+#                 # 'BACKEND'. This will change sometime in the future and then this
+#                 # hack should be removed. Date of the hack: November 11, 2023.
+#                 # It should be like this:
+#                 # #### start
+#                 # It must be public, otherwise skip.
+#                 # continue
+#                 # #### end
+#                 # But with the hack it is:
+#                 if organization != 'UU':
+#                     # It must be public, otherwise skip.
+#                     continue
+#         else:
+#             # It must be explicitly declared to be public, otherwise skip.
+#             continue
+#         if 'period' in harvest_item:
+#             if 'startDate' in harvest_item['period']:
+#                 start_date = str(harvest_item['period']['startDate'])[0:10]
+#                 period = 'started: ' + start_date + ', '
+#             else:
+#                 period = 'not started, '
+#             if 'endDate' in harvest_item['period']:
+#                 end_date = str(harvest_item['period']['endDate'])[0:10]
+#                 period += 'ended: ' + end_date
+#             else:
+#                 period += 'not ended'
+#
+#             title += ' (' + period + ')'
+#         if 'status' in harvest_item:
+#             title += ' (' + str(harvest_item['status']['key'].lower()) + ')'
+#
+#         # For now, we don't care about the 'workflow' status.
+#
+#         # One could say: "There are no ids, so do not harvest". However, for
+#         # now we don't use 'ids' as 'value' field, so for now we _do_ harvest.
+#         if 'ids' in harvest_item:
+#             name = ''
+#             value = ''
+#             if 'value' in harvest_item['ids'][0]:
+#                 value = str(harvest_item['ids'][0]['value']['value'])
+#             if 'type' in harvest_item['ids'][0] \
+#                and 'uri' in harvest_item['ids'][0]['type']:
+#                 name = str(PurePath(harvest_item['ids'][0]['type']['uri']).name)
+#             if name == '' or value == '':
+#                 continue
+#             title = '[' + name + ': ' + value + '] ' + title
+#         # else:
+#         #    continue
+#
+#         title = organization + ' ' + title
+#         if 'participants' in harvest_item:
+#             for participant in harvest_item['participants']:
+#                 if 'person' in participant \
+#                    and 'uuid' in participant['person']:
+#                     participant_uuid = str(participant['person']['uuid'])
+#                 else:
+#                     continue
+#
+#                 if 'organisationalUnits' in participant \
+#                    and 'uuid' in participant['organisationalUnits'][0]:
+#                     participant_org = str(participant['organisationalUnits'][0]['uuid'])
+#                 else:
+#                     continue
+#
+#                 parse_line = {'PURE_ID_PROJECT': uuid,
+#                               'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
+#                                                                      value=uuid),
+#                               'PURE_PROJECT_TITLE': title,
+#                               'PURE_PROJECT_PARTICIPANT_UUID': participant_uuid,
+#                               'PURE_PROJECT_PARTICIPANT_ORG': participant_org}
+#                 parse_chunk.append(parse_line)
+#
+#         if 'relatedResearchOutputs' in harvest_item:
+#             for resout in harvest_item['relatedResearchOutputs']:
+#                 if 'uuid' in resout:
+#                     resout_uuid = str(resout['uuid'])
+#                 else:
+#                     continue
+#                 if 'type' in resout \
+#                    and 'uri' in resout['type']:
+#                     category = rcg.lookup_item_in_mapping(item=str(resout['type']['uri']),
+#                                                           mapping=RESEARCHRESULT_CATEGORY_MAPPING_PURE)
+#                     if category == rcg.RICGRAPH_UNKNOWN:
+#                         # Must have a valid category.
+#                         continue
+#                 else:
+#                     continue
+#
+#                 resout_name = 'PURE_ID_RESOUT'
+#                 resout_value = resout_uuid
+#                 if resout_uuid_or_doi != {} \
+#                    and resout_uuid in resout_uuid_or_doi:
+#                     resout_value = resout_uuid_or_doi[resout_uuid]
+#                     if not numpy.isnan(resout_value):
+#                         if '/' in resout_value:
+#                             resout_name = 'DOI'
+#                         else:
+#                             resout_name = 'PURE_ID_RESOUT'
+#                 parse_line = {'PURE_ID_PROJECT': uuid,
+#                               'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
+#                                                                      value=uuid),
+#                               'PURE_PROJECT_TITLE': title,
+#                               'PURE_PROJECT_RESOUT_NAME': resout_name,
+#                               'PURE_PROJECT_RESOUT_CATEGORY': category,
+#                               'PURE_PROJECT_RESOUT_VALUE': resout_value}
+#                 parse_chunk.append(parse_line)
+#
+#         if 'relatedProjects' in harvest_item:
+#             for related_project in harvest_item['relatedProjects']:
+#                 if 'project' in related_project \
+#                    and 'uuid' in related_project['project']:
+#                     related_project_uuid = str(related_project['project']['uuid'])
+#                 else:
+#                     continue
+#
+#                 parse_line = {'PURE_ID_PROJECT': uuid,
+#                               'PURE_ID_PROJECT_URL': create_pure_url(name='PURE_ID_PROJECT',
+#                                                                      value=uuid),
+#                               'PURE_PROJECT_TITLE': title,
+#                               'PURE_PROJECT_RELATEDPROJECT_UUID': related_project_uuid}
+#                 parse_chunk.append(parse_line)
+#
+#     rcg.print_progress(count=count, now=True)
+#     parse_result = pandas.DataFrame(parse_chunk)
+#     parse_result = restructure_parse_projects(df=parse_result)
+#     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
+#                                                 filename=filename)
 
 
 # ######################################################
@@ -1751,12 +1756,12 @@ def harvest_pure_data(mode: str, endpoint: str,
         max_recs_to_harvest = PURE_DATASETS_MAX_RECS_TO_HARVEST
     elif mode == MODE_PRESS_MEDIA:
         max_recs_to_harvest = PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST
-    elif mode == MODE_PROJECTS:
-        # Note: not implemented correctly yet, see elsewhere in this code.
-        if PURE_API_VERSION == PURE_CRUD_API_VERSION:
-            max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR
-        else:
-            max_recs_to_harvest = PURE_PROJECTS_MAX_RECS_TO_HARVEST
+    # elif mode == MODE_PROJECTS:
+    #     # Note: not implemented correctly yet, see elsewhere in this code.
+    #     if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+    #         max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR
+    #     else:
+    #         max_recs_to_harvest = PURE_PROJECTS_MAX_RECS_TO_HARVEST
     else:
         # Should not happen.
         return
@@ -1947,8 +1952,8 @@ def parse_pure_data(mode: str,
     elif mode == MODE_PRESS_MEDIA:
         parse = parse_pure_entities(harvest=harvest_data, filename=df_filename,
                                     mode=mode)
-    elif mode == MODE_PROJECTS:
-        parse = parse_pure_projects(harvest=harvest_data, filename=df_filename)
+    # elif mode == MODE_PROJECTS:
+    #     parse = parse_pure_projects(harvest=harvest_data, filename=df_filename)
 
     if parse is None or parse.empty:
         return None
@@ -2020,19 +2025,19 @@ def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
         if column in parsed_content.columns:
             cols.append(column)
     resouts = parsed_content[cols].copy(deep=True)
-    if HARVEST_PROJECTS:
-        # This is only necessary if we are going to harvest projects later on.
-        # 26-2-2026: This code used to be (before a thorough rewrite of harvesting Pure):
-        # if resout_uuid_or_doi == {}:
-        #     resout_uuid_or_doi = dict(zip(resouts.PURE_ID_RESOUT, resouts.value1))
-        # else:
-        #     resout_uuid_or_doi.update((zip(resouts.PURE_ID_RESOUT, resouts.value1)))
-        # At the rewrite, I made it as follows, but this may not be correct.
-        # It needs to be tested (just as the code for projects needs to be rewritten).
-        if resout_uuid_or_doi == {}:
-            resout_uuid_or_doi = dict(zip(resouts.NAME, resouts.VALUE))
-        else:
-            resout_uuid_or_doi.update((zip(resouts.NAME, resouts.VALUE)))
+    # if HARVEST_PROJECTS:
+    #     # This is only necessary if we are going to harvest projects later on.
+    #     # 26-2-2026: This code used to be (before a thorough rewrite of harvesting Pure):
+    #     # if resout_uuid_or_doi == {}:
+    #     #     resout_uuid_or_doi = dict(zip(resouts.PURE_ID_RESOUT, resouts.value1))
+    #     # else:
+    #     #     resout_uuid_or_doi.update((zip(resouts.PURE_ID_RESOUT, resouts.value1)))
+    #     # At the rewrite, I made it as follows, but this may not be correct.
+    #     # It needs to be tested (just as the code for projects needs to be rewritten).
+    #     if resout_uuid_or_doi == {}:
+    #         resout_uuid_or_doi = dict(zip(resouts.NAME, resouts.VALUE))
+    #     else:
+    #         resout_uuid_or_doi.update((zip(resouts.NAME, resouts.VALUE)))
 
     rcg.create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                    harvest_source=HARVEST_SOURCE,
@@ -2065,198 +2070,198 @@ def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
     return
 
 
-def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
-                                organization_and_all_parents: dict) -> None:
-    """Insert the parsed projects in Ricgraph.
-
-    :param parsed_content: The records to insert in Ricgraph, if not present yet.
-    :param organization_and_all_parents: a dict of lists. The dict is on organization UUID, the list has as
-      first element the name of the organization UUID, followed by UUIDS of all of its parents, or
-      followed by nothing if no parent for organization UUID exists.
-    :return: None.
-    """
-    # RDTJ, February 17, 2026. This code should be cleaned up. Calls to
-    # create_nodepairs_and_edges_df() should be moved to file ricgraph_harvest.py,
-    # as has been done above.
-    # Also rewrite parse_pure_projects().
-    timestamp = rcg.datetimestamp()
-    print('Inserting projects from ' + HARVEST_SOURCE + ' in Ricgraph at '
-          + timestamp + '...')
-    history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' projects at ' + timestamp + '.'
-
-    # ##### Insert projects and related participants.
-    project_identifiers = parsed_content[['PURE_ID_PROJECT',
-                                          'PURE_ID_PROJECT_URL',
-                                          'PURE_PROJECT_TITLE',
-                                          'PURE_PROJECT_PARTICIPANT_UUID']].copy(deep=True)
-
-    # dropna(how='all'): drop row if all row values contain NaN
-    project_identifiers.dropna(axis=0, how='any', inplace=True)
-    project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    if len(project_identifiers) == 0:
-        print('There seem to be no projects connected to persons, nothing to do:')
-        print(project_identifiers)
-        return
-
-    print('The following projects connected to persons from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(project_identifiers)
-    project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
-                                        'PURE_ID_PROJECT_URL': 'url_main1',
-                                        'PURE_PROJECT_TITLE': 'comment1',
-                                        'PURE_PROJECT_PARTICIPANT_UUID': 'value2'}, inplace=True)
-    new_project_columns = {'name1': 'PURE_ID_PROJECT',
-                           'category1': rcg.PROJECT_CATEGORY_PROJECT,
-                           'source_event1': HARVEST_SOURCE,
-                           'history_event1': history_event,
-                           'name2': 'PURE_ID_PERS',
-                           'category2': rcg.PERSON_CATEGORY_PERSON,
-                           'source_event2': HARVEST_SOURCE}
-    project_identifiers = project_identifiers.assign(**new_project_columns)
-    project_identifiers = project_identifiers[['name1', 'category1', 'value1',
-                                               'url_main1', 'comment1',
-                                               'source_event1', 'history_event1',
-                                               'name2', 'category2', 'value2',
-                                               'source_event2']]
-
-    print('The following projects connected to persons from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(project_identifiers)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
-
-    # ##### Insert projects and related organizations (that is, where their participants work).
-    if 'PURE_PROJECT_PARTICIPANT_ORG' in parsed_content.columns:
-        print('Determining all links between projects and all of their organizations at '
-              + rcg.timestamp() + '... ', end='', flush=True)
-        project_identifiers = parsed_content[['PURE_ID_PROJECT',
-                                              'PURE_PROJECT_PARTICIPANT_ORG']].copy(deep=True)
-        project_identifiers.dropna(axis=0, how='any', inplace=True)
-        project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-        project_organization = {}
-        for index in range(len(project_identifiers)):
-            projectid = project_identifiers.iloc[index, 0]
-            orgid = project_identifiers.iloc[index, 1]
-            if projectid in project_organization:
-                # This projectid seems to be in more than one org.
-                project_organization[projectid].append(orgid)
-                continue
-            project_organization.setdefault(projectid, [])
-            project_organization[projectid].append(orgid)
-
-        parse_chunk = []                # list of dictionaries
-        for projectid in project_organization:
-            orgidlist = project_organization[projectid]
-            # This person may be in several organizations in 'orgidlist'.
-            for orgid in orgidlist:
-                if orgid not in organization_and_all_parents:
-                    continue
-                orgid_name_and_parentslist = organization_and_all_parents[orgid]
-                orgid_name = orgid_name_and_parentslist[0]
-
-                # First connect this person and 'orgid'.
-                parse_line = {'PURE_ID_PROJECT': str(projectid),
-                              'PURE_ID_ORG': orgid,
-                              'ORG_NAME_FULL': orgid_name}
-                parse_chunk.append(parse_line)
-
-                # Now get all parents of orgid.
-                # Then connect this person with the parents of 'orgid'.
-                for index in range(len(orgid_name_and_parentslist)):
-                    if index == 0:
-                        # Remember: first entry in list is the name of the org.
-                        continue
-                    parse_line = {'PURE_ID_PROJECT': str(projectid)}
-                    parent_orgid = str(orgid_name_and_parentslist[index])
-                    parent_name = str(organization_and_all_parents[parent_orgid][0])
-                    parse_line['PURE_ID_ORG'] = parent_orgid
-                    parse_line['ORG_NAME_FULL'] = parent_name
-                    parse_chunk.append(parse_line)
-
-        print('Done at ' + rcg.timestamp() + '.\n')
-
-        projorgnodes = pandas.DataFrame()
-        parse_chunk_df = pandas.DataFrame(parse_chunk)
-        projorgnodes = pandas.concat([projorgnodes, parse_chunk_df], ignore_index=True)
-
-        projorgnodes.drop(labels='PURE_ID_ORG', axis='columns', inplace=True)
-        projorgnodes.dropna(axis=0, how='any', inplace=True)
-        projorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-        projorgnodes.rename(columns={'PURE_ID_PROJECT': 'value1',
-                                     'ORG_NAME_FULL': 'value2'}, inplace=True)
-        new_projorgnodes_columns = {'name1': 'PURE_ID_PROJECT',
-                                    'category1': rcg.PROJECT_CATEGORY_PROJECT,
-                                    'name2': 'ORGANIZATION_NAME',
-                                    'category2': rcg.ORGANIZATION_CATEGORY_ORGANIZATION}
-        projorgnodes = projorgnodes.assign(**new_projorgnodes_columns)
-        projorgnodes = projorgnodes[['name1', 'category1', 'value1',
-                                     'name2', 'category2', 'value2']]
-
-        print('The following projects and their organizations from '
-              + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-        print(projorgnodes)
-        rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=projorgnodes)
-        # ##### end of Insert projects and related organizations.
-
-    # ##### Insert projects and related research results.
-    project_identifiers = parsed_content[['PURE_ID_PROJECT',
-                                          'PURE_PROJECT_RESOUT_NAME',
-                                          'PURE_PROJECT_RESOUT_CATEGORY',
-                                          'PURE_PROJECT_RESOUT_VALUE']].copy(deep=True)
-    # dropna(how='all'): drop row if all row values contain NaN
-    project_identifiers.dropna(axis=0, how='any', inplace=True)
-    project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-
-    print('The following projects connected to research results from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(project_identifiers)
-    project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
-                                        'PURE_PROJECT_RESOUT_NAME': 'name2',
-                                        'PURE_PROJECT_RESOUT_CATEGORY': 'category2',
-                                        'PURE_PROJECT_RESOUT_VALUE': 'value2'}, inplace=True)
-    new_project_columns = {'name1': 'PURE_ID_PROJECT',
-                           'category1': rcg.PROJECT_CATEGORY_PROJECT,
-                           'source_event2': HARVEST_SOURCE}
-    project_identifiers = project_identifiers.assign(**new_project_columns)
-    project_identifiers = project_identifiers[['name1', 'category1', 'value1',
-                                               'name2', 'category2', 'value2',
-                                               'source_event2']]
-
-    print('The following projects connected to research results from '
-          + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-    print(project_identifiers)
-    rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
-
-    if 'PURE_PROJECT_RELATEDPROJECT_UUID' in parsed_content.columns:
-        # ##### Insert projects and related projects.
-        project_identifiers = parsed_content[['PURE_ID_PROJECT',
-                                              'PURE_PROJECT_RELATEDPROJECT_UUID']].copy(deep=True)
-        project_identifiers.dropna(axis=0, how='any', inplace=True)
-        project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-
-        print('The following projects connected to related projects from '
-              + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-        print(project_identifiers)
-        project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
-                                            'PURE_PROJECT_RELATEDPROJECT_UUID': 'value2'}, inplace=True)
-        new_project_columns = {'name1': 'PURE_ID_PROJECT',
-                               'category1': rcg.PROJECT_CATEGORY_PROJECT,
-                               'name2': 'PURE_ID_PROJECT',
-                               'category2': rcg.PROJECT_CATEGORY_PROJECT,
-                               'source_event2': HARVEST_SOURCE}
-        project_identifiers = project_identifiers.assign(**new_project_columns)
-        project_identifiers = project_identifiers[['name1', 'category1', 'value1',
-                                                   'name2', 'category2', 'value2',
-                                                   'source_event2']]
-
-        print('The following projects connected to related projects from '
-              + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
-        print(project_identifiers)
-        rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
-    else:
-        print('\nThere are no projects connected to related projects from ' + HARVEST_SOURCE + '.')
-
-    print('\nDone at ' + rcg.timestamp() + '.\n')
-    return
+# def parsed_projects_to_ricgraph(parsed_content: pandas.DataFrame,
+#                                 organization_and_all_parents: dict) -> None:
+#     """Insert the parsed projects in Ricgraph.
+#
+#     :param parsed_content: The records to insert in Ricgraph, if not present yet.
+#     :param organization_and_all_parents: a dict of lists. The dict is on organization UUID, the list has as
+#       first element the name of the organization UUID, followed by UUIDS of all of its parents, or
+#       followed by nothing if no parent for organization UUID exists.
+#     :return: None.
+#     """
+#     # RDTJ, February 17, 2026. This code should be cleaned up. Calls to
+#     # create_nodepairs_and_edges_df() should be moved to file ricgraph_harvest.py,
+#     # as has been done above.
+#     # Also rewrite parse_pure_projects().
+#     timestamp = rcg.datetimestamp()
+#     print('Inserting projects from ' + HARVEST_SOURCE + ' in Ricgraph at '
+#           + timestamp + '...')
+#     history_event = 'Source: Harvest ' + HARVEST_SOURCE + ' projects at ' + timestamp + '.'
+#
+#     # ##### Insert projects and related participants.
+#     project_identifiers = parsed_content[['PURE_ID_PROJECT',
+#                                           'PURE_ID_PROJECT_URL',
+#                                           'PURE_PROJECT_TITLE',
+#                                           'PURE_PROJECT_PARTICIPANT_UUID']].copy(deep=True)
+#
+#     # dropna(how='all'): drop row if all row values contain NaN
+#     project_identifiers.dropna(axis=0, how='any', inplace=True)
+#     project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+#     if len(project_identifiers) == 0:
+#         print('There seem to be no projects connected to persons, nothing to do:')
+#         print(project_identifiers)
+#         return
+#
+#     print('The following projects connected to persons from '
+#           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+#     print(project_identifiers)
+#     project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
+#                                         'PURE_ID_PROJECT_URL': 'url_main1',
+#                                         'PURE_PROJECT_TITLE': 'comment1',
+#                                         'PURE_PROJECT_PARTICIPANT_UUID': 'value2'}, inplace=True)
+#     new_project_columns = {'name1': 'PURE_ID_PROJECT',
+#                            'category1': rcg.PROJECT_CATEGORY_PROJECT,
+#                            'source_event1': HARVEST_SOURCE,
+#                            'history_event1': history_event,
+#                            'name2': 'PURE_ID_PERS',
+#                            'category2': rcg.PERSON_CATEGORY_PERSON,
+#                            'source_event2': HARVEST_SOURCE}
+#     project_identifiers = project_identifiers.assign(**new_project_columns)
+#     project_identifiers = project_identifiers[['name1', 'category1', 'value1',
+#                                                'url_main1', 'comment1',
+#                                                'source_event1', 'history_event1',
+#                                                'name2', 'category2', 'value2',
+#                                                'source_event2']]
+#
+#     print('The following projects connected to persons from '
+#           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+#     print(project_identifiers)
+#     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
+#
+#     # ##### Insert projects and related organizations (that is, where their participants work).
+#     if 'PURE_PROJECT_PARTICIPANT_ORG' in parsed_content.columns:
+#         print('Determining all links between projects and all of their organizations at '
+#               + rcg.timestamp() + '... ', end='', flush=True)
+#         project_identifiers = parsed_content[['PURE_ID_PROJECT',
+#                                               'PURE_PROJECT_PARTICIPANT_ORG']].copy(deep=True)
+#         project_identifiers.dropna(axis=0, how='any', inplace=True)
+#         project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+#         project_organization = {}
+#         for index in range(len(project_identifiers)):
+#             projectid = project_identifiers.iloc[index, 0]
+#             orgid = project_identifiers.iloc[index, 1]
+#             if projectid in project_organization:
+#                 # This projectid seems to be in more than one org.
+#                 project_organization[projectid].append(orgid)
+#                 continue
+#             project_organization.setdefault(projectid, [])
+#             project_organization[projectid].append(orgid)
+#
+#         parse_chunk = []                # list of dictionaries
+#         for projectid in project_organization:
+#             orgidlist = project_organization[projectid]
+#             # This person may be in several organizations in 'orgidlist'.
+#             for orgid in orgidlist:
+#                 if orgid not in organization_and_all_parents:
+#                     continue
+#                 orgid_name_and_parentslist = organization_and_all_parents[orgid]
+#                 orgid_name = orgid_name_and_parentslist[0]
+#
+#                 # First connect this person and 'orgid'.
+#                 parse_line = {'PURE_ID_PROJECT': str(projectid),
+#                               'PURE_ID_ORG': orgid,
+#                               'ORG_NAME_FULL': orgid_name}
+#                 parse_chunk.append(parse_line)
+#
+#                 # Now get all parents of orgid.
+#                 # Then connect this person with the parents of 'orgid'.
+#                 for index in range(len(orgid_name_and_parentslist)):
+#                     if index == 0:
+#                         # Remember: first entry in list is the name of the org.
+#                         continue
+#                     parse_line = {'PURE_ID_PROJECT': str(projectid)}
+#                     parent_orgid = str(orgid_name_and_parentslist[index])
+#                     parent_name = str(organization_and_all_parents[parent_orgid][0])
+#                     parse_line['PURE_ID_ORG'] = parent_orgid
+#                     parse_line['ORG_NAME_FULL'] = parent_name
+#                     parse_chunk.append(parse_line)
+#
+#         print('Done at ' + rcg.timestamp() + '.\n')
+#
+#         projorgnodes = pandas.DataFrame()
+#         parse_chunk_df = pandas.DataFrame(parse_chunk)
+#         projorgnodes = pandas.concat([projorgnodes, parse_chunk_df], ignore_index=True)
+#
+#         projorgnodes.drop(labels='PURE_ID_ORG', axis='columns', inplace=True)
+#         projorgnodes.dropna(axis=0, how='any', inplace=True)
+#         projorgnodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+#         projorgnodes.rename(columns={'PURE_ID_PROJECT': 'value1',
+#                                      'ORG_NAME_FULL': 'value2'}, inplace=True)
+#         new_projorgnodes_columns = {'name1': 'PURE_ID_PROJECT',
+#                                     'category1': rcg.PROJECT_CATEGORY_PROJECT,
+#                                     'name2': 'ORGANIZATION_NAME',
+#                                     'category2': rcg.ORGANIZATION_CATEGORY_ORGANIZATION}
+#         projorgnodes = projorgnodes.assign(**new_projorgnodes_columns)
+#         projorgnodes = projorgnodes[['name1', 'category1', 'value1',
+#                                      'name2', 'category2', 'value2']]
+#
+#         print('The following projects and their organizations from '
+#               + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+#         print(projorgnodes)
+#         rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=projorgnodes)
+#         # ##### end of Insert projects and related organizations.
+#
+#     # ##### Insert projects and related research results.
+#     project_identifiers = parsed_content[['PURE_ID_PROJECT',
+#                                           'PURE_PROJECT_RESOUT_NAME',
+#                                           'PURE_PROJECT_RESOUT_CATEGORY',
+#                                           'PURE_PROJECT_RESOUT_VALUE']].copy(deep=True)
+#     # dropna(how='all'): drop row if all row values contain NaN
+#     project_identifiers.dropna(axis=0, how='any', inplace=True)
+#     project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+#
+#     print('The following projects connected to research results from '
+#           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+#     print(project_identifiers)
+#     project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
+#                                         'PURE_PROJECT_RESOUT_NAME': 'name2',
+#                                         'PURE_PROJECT_RESOUT_CATEGORY': 'category2',
+#                                         'PURE_PROJECT_RESOUT_VALUE': 'value2'}, inplace=True)
+#     new_project_columns = {'name1': 'PURE_ID_PROJECT',
+#                            'category1': rcg.PROJECT_CATEGORY_PROJECT,
+#                            'source_event2': HARVEST_SOURCE}
+#     project_identifiers = project_identifiers.assign(**new_project_columns)
+#     project_identifiers = project_identifiers[['name1', 'category1', 'value1',
+#                                                'name2', 'category2', 'value2',
+#                                                'source_event2']]
+#
+#     print('The following projects connected to research results from '
+#           + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+#     print(project_identifiers)
+#     rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
+#
+#     if 'PURE_PROJECT_RELATEDPROJECT_UUID' in parsed_content.columns:
+#         # ##### Insert projects and related projects.
+#         project_identifiers = parsed_content[['PURE_ID_PROJECT',
+#                                               'PURE_PROJECT_RELATEDPROJECT_UUID']].copy(deep=True)
+#         project_identifiers.dropna(axis=0, how='any', inplace=True)
+#         project_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+#
+#         print('The following projects connected to related projects from '
+#               + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+#         print(project_identifiers)
+#         project_identifiers.rename(columns={'PURE_ID_PROJECT': 'value1',
+#                                             'PURE_PROJECT_RELATEDPROJECT_UUID': 'value2'}, inplace=True)
+#         new_project_columns = {'name1': 'PURE_ID_PROJECT',
+#                                'category1': rcg.PROJECT_CATEGORY_PROJECT,
+#                                'name2': 'PURE_ID_PROJECT',
+#                                'category2': rcg.PROJECT_CATEGORY_PROJECT,
+#                                'source_event2': HARVEST_SOURCE}
+#         project_identifiers = project_identifiers.assign(**new_project_columns)
+#         project_identifiers = project_identifiers[['name1', 'category1', 'value1',
+#                                                    'name2', 'category2', 'value2',
+#                                                    'source_event2']]
+#
+#         print('The following projects connected to related projects from '
+#               + HARVEST_SOURCE + ' will be inserted in Ricgraph at ' + rcg.timestamp() + ':')
+#         print(project_identifiers)
+#         rcg.create_nodepairs_and_edges_df(left_and_right_nodepairs=project_identifiers)
+#     else:
+#         print('\nThere are no projects connected to related projects from ' + HARVEST_SOURCE + '.')
+#
+#     print('\nDone at ' + rcg.timestamp() + '.\n')
+#     return
 
 
 # ############################################
@@ -2274,10 +2279,10 @@ if year_first == '' or year_last == '':
     # in get_commandline_argument_year_first_last().
     exit(1)
 
-if (harvest_projects := rcg.get_commandline_argument_harvest_projects(argument_list=sys.argv)) == 'yes':
-    HARVEST_PROJECTS = True
-else:
-    HARVEST_PROJECTS = False
+# if (harvest_projects := rcg.get_commandline_argument_harvest_projects(argument_list=sys.argv)) == 'yes':
+#     HARVEST_PROJECTS = True
+# else:
+#     HARVEST_PROJECTS = False
 
 pure_url = 'pure_url_' + organization
 pure_api_key = 'pure_api_key_' + organization
@@ -2323,7 +2328,7 @@ if read_response.status_code == requests.codes.ok:
     PURE_DATASETS_FIELDS = PURE_READ_DATASETS_FIELDS
     PURE_PRESS_MEDIA_ENDPOINT = PURE_READ_PRESS_MEDIA_ENDPOINT
     PURE_PRESS_MEDIA_FIELDS = PURE_READ_PRESS_MEDIA_FIELDS
-    PURE_PROJECTS_ENDPOINT = PURE_READ_PROJECTS_ENDPOINT
+    # PURE_PROJECTS_ENDPOINT = PURE_READ_PROJECTS_ENDPOINT
 elif crud_response.status_code == requests.codes.ok:
     print('Pure will be harvested using the Pure CRUD API.')
     PURE_API_VERSION = PURE_CRUD_API_VERSION
@@ -2478,39 +2483,39 @@ if HARVEST_PRESS_MEDIA:
         print(rcg.ricgraph_cache_size_text() + '\n')
 
 
-# ########################################################################
-# Code for harvesting projects.
-# Should be rewritten. Probably using parse_pure_entities() will work better.
-org_and_all_parents = {}
-if HARVEST_PROJECTS:
-    if PURE_API_VERSION == PURE_CRUD_API_VERSION:
-        print('\nPure is harvested using the Pure CRUD API.')
-        print('Harvesting projects from Pure using the CRUD API is not implemented yet.')
-        exit(1)
-
-    print('WARNING: Harvesting of projects will not work as expected and might even crash. Use at your own risk.')
-
-    harvest_file = rcg.construct_filename(base_filename=PURE_PROJECTS_HARVEST_FILENAME,
-                                          organization=organization)
-    data_file = rcg.construct_filename(base_filename=PURE_PROJECTS_DATA_FILENAME,
-                                       organization=organization)
-    print('Reading & parsing projects from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
-    parse_projects = parse_pure_data(mode=MODE_PROJECTS,
-                                     harvest_filename=harvest_file,
-                                     df_filename=data_file)
-
-    if parse_projects is None or parse_projects.empty:
-        error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
-        print(error_message)
-    else:
-        # NOTE: org_and_all_parents is undefined now (27-2-2026),
-        # after a full rewrite of the organization harvest.
-        # This will have to be solved when rewriting the project harvest.
-        parsed_projects_to_ricgraph(parsed_content=parse_projects,
-                                    organization_and_all_parents=org_and_all_parents)
-
-    print('WARNING: Harvesting of projects may not work as expected. Use at your own risk.')
-    rcg.graphdb_nr_accesses_print()
-    print(rcg.ricgraph_cache_size_text() + '\n')
+# # ########################################################################
+# # Code for harvesting projects.
+# # Should be rewritten. Probably using parse_pure_entities() will work better.
+# org_and_all_parents = {}
+# if HARVEST_PROJECTS:
+#     if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+#         print('\nPure is harvested using the Pure CRUD API.')
+#         print('Harvesting projects from Pure using the CRUD API is not implemented yet.')
+#         exit(1)
+#
+#     print('WARNING: Harvesting of projects will not work as expected and might even crash. Use at your own risk.')
+#
+#     harvest_file = rcg.construct_filename(base_filename=PURE_PROJECTS_HARVEST_FILENAME,
+#                                           organization=organization)
+#     data_file = rcg.construct_filename(base_filename=PURE_PROJECTS_DATA_FILENAME,
+#                                        organization=organization)
+#     print('Reading & parsing projects from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
+#     parse_projects = parse_pure_data(mode=MODE_PROJECTS,
+#                                      harvest_filename=harvest_file,
+#                                      df_filename=data_file)
+#
+#     if parse_projects is None or parse_projects.empty:
+#         error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
+#         print(error_message)
+#     else:
+#         # NOTE: org_and_all_parents is undefined now (27-2-2026),
+#         # after a full rewrite of the organization harvest.
+#         # This will have to be solved when rewriting the project harvest.
+#         parsed_projects_to_ricgraph(parsed_content=parse_projects,
+#                                     organization_and_all_parents=org_and_all_parents)
+#
+#     print('WARNING: Harvesting of projects may not work as expected. Use at your own risk.')
+#     rcg.graphdb_nr_accesses_print()
+#     print(rcg.ricgraph_cache_size_text() + '\n')
 
 rcg.close_ricgraph()

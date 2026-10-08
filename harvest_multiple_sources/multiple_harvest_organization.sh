@@ -39,7 +39,7 @@
 harvest_pure() {
   echo "Harvesting Pure for organization '$organization', first year: '$year_first', last year: '$year_last'."
   echo "Emptying Ricgraph: '$empty_ricgraph'."
-  PYTHONPATH=$python_path $python_cmd harvest_pure_to_ricgraph.py --empty_ricgraph "$empty_ricgraph" --organization "$organization" --harvest_projects no --year_first "$year_first" --year_last "$year_last"
+  PYTHONPATH=$python_path $python_cmd harvest_pure_to_ricgraph.py --empty_ricgraph "$empty_ricgraph" --organization "$organization" --year_first "$year_first" --year_last "$year_last"
   exit_code=$?
   if [ "$exit_code" = "0" ] ; then
     echo "Done with harvesting Pure-$organization."
