@@ -57,7 +57,7 @@ from urllib.parse import urlencode
 from math import ceil, floor
 from json import dumps
 from neo4j.graph import Node
-from flask import url_for
+from flask import url_for, request
 from markupsafe import escape
 from ricgraph import (ricgraph_cache_item_create,
                       create_ricgraph_key,
@@ -290,6 +290,7 @@ def get_regular_table_worker(nodes_list: list,
         return get_message(table_header + '</br>Nothing found.')
 
     nr_rows_in_table_message = ''
+    show_all_rows_in_table_message = ''
     max_nr_items = query_params['max_nr_items']
     if max_nr_items == 0 or len_nodes_list < max_nr_items:
         # We show everything.
@@ -303,6 +304,9 @@ def get_regular_table_worker(nodes_list: list,
         # We cannot show everything.
         nr_rows_in_table_message += 'This table shows the first ' + str(len_nodes_list)
         nr_rows_in_table_message += ' rows'
+        # The 'or ""' is to prevent a PyCharm warning "Expected type 'str', got 'str | None' instead".
+        show_all_rows_in_table_message += ' <a href="' + url_for(request.endpoint or "", **{**request.args, "max_nr_items": 0})
+        show_all_rows_in_table_message += '">From now on, show all rows for all tables</a> (may take a while).'
 
     max_nr_table_rows = page_params['max_nr_table_rows']
     if max_nr_table_rows == 0 or len_nodes_list <= max_nr_table_rows:
@@ -313,6 +317,8 @@ def get_regular_table_worker(nodes_list: list,
         # We will need more than one page for the table.
         nr_rows_in_table_message += ', showing pages of '
         nr_rows_in_table_message += str(max_nr_table_rows) + '.'
+
+    nr_rows_in_table_message += show_all_rows_in_table_message
 
     if len_nodes_list == 1:
         # No message above the table.
@@ -458,6 +464,7 @@ def get_tabbed_table(nodes_list: list,
         return get_message(table_header + '</br>Nothing found.')
 
     nr_rows_in_table_message = ''
+    show_all_rows_in_table_message = ''
     max_nr_items = query_params['max_nr_items']
     if max_nr_items == 0 or len_nodes_list < max_nr_items:
         # We show everything.
@@ -471,10 +478,15 @@ def get_tabbed_table(nodes_list: list,
         # We cannot show everything.
         nr_rows_in_table_message += 'This table shows the first ' + str(len_nodes_list)
         nr_rows_in_table_message += ' rows.'
+        # The 'or ""' is to prevent a PyCharm warning "Expected type 'str', got 'str | None' instead".
+        show_all_rows_in_table_message += ' <a href="' + url_for(request.endpoint or "", **{**request.args, "max_nr_items": 0})
+        show_all_rows_in_table_message += '">From now on, show all rows for all tables</a> (may take a while).'
 
     if len_nodes_list == 1:
         # No message above the table.
         nr_rows_in_table_message = ''
+
+    nr_rows_in_table_message += show_all_rows_in_table_message
 
     (name_histogram, category_histogram, year_histogram,
      license_histogram, access_histogram) = \
