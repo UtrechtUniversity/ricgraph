@@ -86,7 +86,7 @@ RSD_DATA_FILENAME = 'rsd_data.csv'
 # not (in fact, if it is closed_source or not), not if it is
 # e.g. embargoed or restricted.
 RSD_ENDPOINT = 'api/v1/organisation'
-RSD_FIELDS = 'software(brand_name,slug,concept_doi,closed_source,' \
+RSD_FIELDS = 'software(brand_name,slug,concept_doi,description,closed_source,' \
              + 'release(mention(doi,doi_registration_date,publication_year)),' \
              + 'contributor(family_names,given_names,orcid,affiliation),' \
              + 'license_for_software(license)' \

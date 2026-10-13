@@ -104,7 +104,7 @@ OPENALEX_MAX_RECS_TO_HARVEST = 0                        # 0 = all records
 # 'primary_location' as from 'open_access'. I choose 'primary_location'.
 # In OpenAlex, you can only get whether a research result is open or
 # not, not if it is e.g. embargoed or restricted.
-OPENALEX_FIELDS = 'doi,id,publication_year,title,type,authorships,primary_location'
+OPENALEX_FIELDS = 'doi,id,publication_year,title,type,authorships,primary_location,abstract_inverted_index'
 
 
 # ######################################################
