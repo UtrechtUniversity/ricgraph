@@ -294,6 +294,7 @@ PURE_RESOUTS_HARVEST_FILENAME = 'pure_resout_harvest.json'
 PURE_RESOUTS_READ_DATA_FROM_FILE = False
 # PURE_RESOUTS_READ_DATA_FROM_FILE = True
 PURE_RESOUTS_DATA_FILENAME = 'pure_resout_data.csv'
+PURE_RESOUTS_ABSTRACTS_FILENAME = 'pure_resout_abstracts.csv'
 
 # Only used for the READ API.
 PURE_RESOUTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
@@ -373,6 +374,7 @@ PURE_DATASETS_HARVEST_FILENAME = 'pure_datasets_harvest.json'
 PURE_DATASETS_READ_DATA_FROM_FILE = False
 # PURE_DATASETS_READ_DATA_FROM_FILE = True
 PURE_DATASETS_DATA_FILENAME = 'pure_datasets_data.csv'
+PURE_DATASETS_ABSTRACTS_FILENAME = 'pure_datasets_abstracts.csv'
 
 # Used for both the READ API and the CRUD API.
 PURE_DATASETS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
@@ -438,6 +440,7 @@ PURE_PRESS_MEDIA_HARVEST_FILENAME = 'pure_pressmedia_harvest.json'
 PURE_PRESS_MEDIA_READ_DATA_FROM_FILE = False
 # PURE_PRESS_MEDIA_READ_DATA_FROM_FILE = True
 PURE_PRESS_MEDIA_DATA_FILENAME = 'pure_pressmedia_data.csv'
+PURE_PRESS_MEDIA_ABSTRACTS_FILENAME = 'pure_pressmedia_abstracts.csv'
 
 # Only used for the READ API.
 PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
@@ -893,17 +896,18 @@ def restructure_parse_persons(df: pandas.DataFrame) -> pandas.DataFrame:
 
 def parse_pure_persons(harvest: list,
                        org_uuids_to_org_names: dict,
-                       filename: str = '',
+                       parse_filename: str = '',
                        year_start: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons from Pure.
-    In case filename != '', write it to a file and read it back.
+    In case parse_filename != '', write the parse to a file and read it back.
 
     :param harvest: The harvest.
     :param org_uuids_to_org_names: A dict where the key is the
         uuid of an organization,
         and its value a list with the name of the organization, and the names
         of all of its parents. Return an empty dict if nothing happened.
-    :param filename: If filename != '', write it to a file and read it back.
+    :param parse_filename: If parse_filename != '', write the parse
+        to a file and read it back.
     :param year_start: The first year that we would like to harvest.
     :return: The harvested persons in a DataFrame, or None if nothing to parse.
     """
@@ -1010,6 +1014,7 @@ def parse_pure_persons(harvest: list,
             # Put in the DataFrame with harvested persons to be returned.
             parse_chunk_final.extend(parse_chunk)
 
+    rcg.print_progress(count=count, now=True)
     if len(parse_chunk_final) == 0:
         print('parse_pure_persons(): Nothing found.')
         return None
@@ -1023,7 +1028,6 @@ def parse_pure_persons(harvest: list,
                                                       value=org_uuid)}
         parse_chunk_final.append(parse_line)
 
-    rcg.print_progress(count=count, now=True)
     parse_result = pandas.DataFrame(parse_chunk_final)
     # Now remove the duplicate entries.
     parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
@@ -1039,16 +1043,17 @@ def parse_pure_persons(harvest: list,
 
     parse_result = restructure_parse_persons(df=parse_result)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
-                                                filename=filename)
+                                                filename=parse_filename)
 
 
 def parse_pure_organizations(harvest: list,
-                             filename: str = '') -> dict:
+                             parse_filename: str = '') -> dict:
     """Parse the harvested organizations from Pure.
-    In case filename != '', write it to a file and read it back.
+    In case parse_filename != '', write the parse to a file and read it back.
 
     :param harvest: The harvest.
-    :param filename: If filename != '', write it to a file and read it back.
+    :param parse_filename: If parse_filename != '', write the parse
+        to a file and read it back.
     :return: A dict where the key is the uuid of an organization,
         and its value a list with the name of the organization, and the names
         of all of its parents. Return an empty dict if nothing happened.
@@ -1124,11 +1129,11 @@ def parse_pure_organizations(harvest: list,
                 continue
             org_uuid_to_parentuuid[org_uuid] = parentorg_uuid
 
+    rcg.print_progress(count=count, now=True)
     if len(org_uuid_to_name) == 0 or len(org_uuid_to_parentuuid) == 0:
         print('parse_pure_organizations(): Nothing found.')
         return {}
 
-    rcg.print_progress(count=count, now=True)
     print('Collecting all parents of each organization at '
           + rcg.timestamp() + '... ', end = '', flush = True)
 
@@ -1161,18 +1166,22 @@ def parse_pure_organizations(harvest: list,
         org_uuid_to_list_of_names[org_uuid] = names
 
     print('Done.\n')
-    return rcg.write_read_dict_file(filename=filename,
+    return rcg.write_read_dict_file(filename=parse_filename,
                                     json_data=org_uuid_to_list_of_names)
 
 
 def parse_pure_entities(harvest: list,
-                        filename: str = '',
+                        parse_filename: str = '',
+                        abstracts_filename: str = '',
                         mode: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested entities from Pure.
-    In case filename != '', write it to a file and read it back.
+    In case parse_filename != '', write the parse to a file and read it back.
 
     :param harvest: the harvest.
-    :param filename: If filename != '', write it to a file and read it back.
+    :param parse_filename: If parse_filename != '', write the parse to
+        a file and read it back.
+    :param abstracts_filename: If abstracts_filename != '',
+        write the abstracts to a file and read it back.
     :param mode: Mode to indicate what to harvest.
     :return: the harvested research results in a DataFrame,
         or None if nothing to parse.
@@ -1188,6 +1197,7 @@ def parse_pure_entities(harvest: list,
     print('There are ' + str(len(harvest)) + ' ' + mode + ' records ('
           + rcg.timestamp() + '), parsing record:')
     parse_chunk = []                # list of dictionaries
+    parse_chunk_abstracts = []
     count = 0
     for harvest_item in harvest:
         count = rcg.print_progress(count=count, interval=1000)
@@ -1305,6 +1315,16 @@ def parse_pure_entities(harvest: list,
             access = rcg.lookup_item_in_mapping(item=access,
                                                 mapping=ACCESS_MAPPING_PURE)
         # #####
+        abstract = ''
+        if mode == MODE_RESOUTS:
+            abstract = json_item_get_str_pure(json_item=harvest_item,
+                                              json_path_read='abstract.text.0.value',
+                                              json_path_crud='abstract.en_GB')
+        elif mode == MODE_DATASETS or mode == MODE_PRESS_MEDIA:
+            abstract = json_item_get_str_pure(json_item=harvest_item,
+                                              json_path_read='descriptions.0.value.text.0.value',
+                                              json_path_crud='descriptions.0.value.en_GB')
+        # #####
         id_name = id_name_tobeused = ''
         if mode == MODE_RESOUTS:
             id_name = id_name_tobeused = 'PURE_ID_RESOUT'
@@ -1364,6 +1384,7 @@ def parse_pure_entities(harvest: list,
                 # without any identifier.
                 continue
             # #####
+            parse_line_core = {}
             parse_line = {}
             if mode == MODE_PRESS_MEDIA:
                 if (press_media_url := json_item_get_str_pure(json_item=harvest_item,
@@ -1371,18 +1392,22 @@ def parse_pure_entities(harvest: list,
                                                               json_path_crud='mediaCoverages.0.url')) != '':
                     # It seems logical to give URL_ASSET the same value as URL_MAIN,
                     # since both refer directly to the item.
-                    parse_line = {'NAME': id_name_tobeused,
-                                  'CATEGORY': category,
-                                  'VALUE': uuid,
+                    parse_line_core = {'NAME': id_name_tobeused,
+                                       'CATEGORY': category,
+                                       'VALUE': uuid
+                                      }
+                    parse_line = parse_line_core | {
                                   'URL_MAIN': press_media_url,
                                   'URL_OTHER': create_pure_url(name=id_name,
                                                                value=uuid),
                                   'URL_ASSET': press_media_url
                                  }
             elif doi != '':
-                parse_line = {'NAME': 'DOI',
-                              'CATEGORY': category,
-                              'VALUE': doi,
+                parse_line_core = {'NAME': 'DOI',
+                                   'CATEGORY': category,
+                                   'VALUE': doi
+                                  }
+                parse_line = parse_line_core | {
                               'URL_MAIN': rcg.create_well_known_url(name='DOI',
                                                                     value=doi),
                               'URL_OTHER': create_pure_url(name=id_name,
@@ -1392,9 +1417,11 @@ def parse_pure_entities(harvest: list,
             # #####
             if len(parse_line) == 0:
                 # All other situations.
-                parse_line = {'NAME': id_name_tobeused,
-                              'CATEGORY': category,
-                              'VALUE': uuid,
+                parse_line_core = {'NAME': id_name_tobeused,
+                                   'CATEGORY': category,
+                                   'VALUE': uuid
+                                   }
+                parse_line = parse_line_core | {
                               'URL_MAIN': create_pure_url(name=id_name,
                                                           value=uuid),
                               'URL_OTHER': '',
@@ -1418,15 +1445,24 @@ def parse_pure_entities(harvest: list,
             if access != '':
                 parse_line['ACCESS'] = access
             parse_chunk.append(parse_line)
+            if abstract != '':
+                parse_abstract = parse_line_core | {
+                                   'ABSTRACT': abstract
+                                 }
+                parse_chunk_abstracts.append(parse_abstract)
 
+    rcg.print_progress(count=count, now=True)
     if len(parse_chunk) == 0:
         print('parse_pure_entities(): Nothing found.')
         return None
 
-    rcg.print_progress(count=count, now=True)
+    if len(parse_chunk_abstracts) != 0:
+        parse_result_abstracts = pandas.DataFrame(parse_chunk_abstracts)
+        parse_result_abstracts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        rcg.write_dataframe_to_csv(filename=abstracts_filename, df=parse_result_abstracts)
     parse_result = pandas.DataFrame(parse_chunk)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
-                                                filename=filename)
+                                                filename=parse_filename)
 
 
 # def parse_pure_projects(harvest: list,
@@ -1625,7 +1661,7 @@ def get_pure_organization_info() -> dict:
 
     print('Parsing organizations from ' + HARVEST_SOURCE + '.')
     org_uuids_to_org_names = parse_pure_organizations(harvest=harvest_data,
-                                                      filename=org_data_file)
+                                                      parse_filename=org_data_file)
     if len(org_uuids_to_org_names) == 0:
         err_message = 'There are no organizations from '
         err_message += HARVEST_SOURCE + ' to read from file '
@@ -1761,11 +1797,14 @@ def harvest_pure_data(mode: str, endpoint: str,
     elif mode == MODE_DATASETS:
         max_recs_to_harvest = PURE_DATASETS_MAX_RECS_TO_HARVEST
     elif mode == MODE_PRESS_MEDIA:
-        max_recs_to_harvest = PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST
+        if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+            max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR
+        else:
+            max_recs_to_harvest = PURE_PRESS_MEDIA_MAX_RECS_TO_HARVEST
     # elif mode == MODE_PROJECTS:
     #     # Note: not implemented correctly yet, see elsewhere in this code.
     #     if PURE_API_VERSION == PURE_CRUD_API_VERSION:
-    #         max_recs_to_harvest = nr_years_to_harvest * PURE_CRUD_PRESS_MEDIA_MAX_RECS_TO_HARVEST_PER_YEAR
+    #         max_recs_to_harvest = nr_years_to_harvest * SOME_VALUE_HERE
     #     else:
     #         max_recs_to_harvest = PURE_PROJECTS_MAX_RECS_TO_HARVEST
     else:
@@ -1905,7 +1944,8 @@ def harvest_pure_data(mode: str, endpoint: str,
 
 def parse_pure_data(mode: str,
                     harvest_filename: str,
-                    df_filename: str,
+                    parse_filename: str,
+                    abstracts_filename: str = '',
                     year_start:str = '',
                     year_end: str = '') -> Union[pandas.DataFrame, None]:
     """Parse data from Pure.
@@ -1915,7 +1955,9 @@ def parse_pure_data(mode: str,
 
     :param mode: as in MODE_ALL, to indicate what to harvest.
     :param harvest_filename: filename to write harvest results to.
-    :param df_filename: filename to write the DataFrame results to.
+    :param parse_filename: filename to write the parse DataFrame results to.
+    :param abstracts_filename: filename to write the abstracts DataFrame results to.
+        Only relevant for research results, data sets, and press media items.
     :param year_start: the first year that we would like to harvest.
         Only relevant for persons and data sets, since we need to filter.
     :param year_end: the first year that we would like to harvest.
@@ -1937,10 +1979,12 @@ def parse_pure_data(mode: str,
         org_uuids_to_org_names = get_pure_organization_info()
         parse = parse_pure_persons(harvest=harvest_data,
                                    org_uuids_to_org_names=org_uuids_to_org_names,
-                                   filename=df_filename,
+                                   parse_filename=parse_filename,
                                    year_start=year_first)
     elif mode == MODE_RESOUTS:
-        parse = parse_pure_entities(harvest=harvest_data, filename=df_filename,
+        parse = parse_pure_entities(harvest=harvest_data,
+                                    parse_filename=parse_filename,
+                                    abstracts_filename=abstracts_filename,
                                     mode=mode)
     elif mode == MODE_DATASETS:
         # For Pure end point 'datasets', there is no way to specify the year range.
@@ -1953,13 +1997,17 @@ def parse_pure_data(mode: str,
                                                       json_path_crud='publicationAvailableDate.year')
             if int(year_start) <= int(publication_year) <= int(year_end):
                 harvest_data_new.append(harvest_item)
-        parse = parse_pure_entities(harvest=harvest_data_new, filename=df_filename,
+        parse = parse_pure_entities(harvest=harvest_data_new,
+                                    parse_filename=parse_filename,
+                                    abstracts_filename=abstracts_filename,
                                     mode=mode)
     elif mode == MODE_PRESS_MEDIA:
-        parse = parse_pure_entities(harvest=harvest_data, filename=df_filename,
+        parse = parse_pure_entities(harvest=harvest_data,
+                                    parse_filename=parse_filename,
+                                    abstracts_filename=abstracts_filename,
                                     mode=mode)
     # elif mode == MODE_PROJECTS:
-    #     parse = parse_pure_projects(harvest=harvest_data, filename=df_filename)
+    #     parse = parse_pure_projects(harvest=harvest_data, filename=parse_filename)
 
     if parse is None or parse.empty:
         return None
@@ -2393,7 +2441,7 @@ if HARVEST_PERSONS:
     print('Reading & parsing persons from ' + HARVEST_SOURCE + '.')
     parse_persorgs = parse_pure_data(mode=MODE_PERSONS,
                                      harvest_filename=harvest_file,
-                                     df_filename=data_file,
+                                     parse_filename=data_file,
                                      year_start=year_first)
 
     if parse_persorgs is None or parse_persorgs.empty:
@@ -2416,11 +2464,14 @@ if HARVEST_RESOUTS:
                                                    year=year, organization=organization)
         data_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_DATA_FILENAME,
                                                 year=year, organization=organization)
+        abstracts_file_year = rcg.construct_filename(base_filename=PURE_RESOUTS_ABSTRACTS_FILENAME,
+                                                     year=year, organization=organization)
         print('Reading & parsing research results from ' + HARVEST_SOURCE + ' for year '
                + year + '.')
         parse_resout = parse_pure_data(mode=MODE_RESOUTS,
                                        harvest_filename=harvest_file_year,
-                                       df_filename=data_file_year)
+                                       parse_filename=data_file_year,
+                                       abstracts_filename=abstracts_file_year)
 
         if parse_resout is None or parse_resout.empty:
             error_message = 'There are no research results from ' + HARVEST_SOURCE
@@ -2441,11 +2492,14 @@ if HARVEST_DATASETS:
                                           organization=organization)
     data_file = rcg.construct_filename(base_filename=PURE_DATASETS_DATA_FILENAME,
                                        organization=organization)
+    abstracts_file = rcg.construct_filename(base_filename=PURE_DATASETS_ABSTRACTS_FILENAME,
+                                            organization=organization)
     print('Reading & parsing data sets from ' + HARVEST_SOURCE + ' for year '
           + year_first + ' to ' + year_last + '.')
     parse_datasets = parse_pure_data(mode=MODE_DATASETS,
                                      harvest_filename=harvest_file,
-                                     df_filename=data_file,
+                                     parse_filename=data_file,
+                                     abstracts_filename=abstracts_file,
                                      year_start=year_first,
                                      year_end=year_last)
 
@@ -2471,11 +2525,14 @@ if HARVEST_PRESS_MEDIA:
                                                    year=year, organization=organization)
         data_file_year = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_DATA_FILENAME,
                                                 year=year, organization=organization)
+        abstracts_file_year = rcg.construct_filename(base_filename=PURE_PRESS_MEDIA_ABSTRACTS_FILENAME,
+                                                     year=year, organization=organization)
         print('Reading & parsing press media items from ' + HARVEST_SOURCE + ' for year '
               + year + '.')
         parse_press_media = parse_pure_data(mode=MODE_PRESS_MEDIA,
                                             harvest_filename=harvest_file_year,
-                                            df_filename=data_file_year)
+                                            parse_filename=data_file_year,
+                                            abstracts_filename=abstracts_file_year)
 
         if parse_press_media is None or parse_press_media.empty:
             error_message = 'There are no press media items from ' + HARVEST_SOURCE
@@ -2508,7 +2565,7 @@ if HARVEST_PRESS_MEDIA:
 #     print('Reading & parsing projects from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
 #     parse_projects = parse_pure_data(mode=MODE_PROJECTS,
 #                                      harvest_filename=harvest_file,
-#                                      df_filename=data_file)
+#                                      parse_filename=data_file)
 #
 #     if parse_projects is None or parse_projects.empty:
 #         error_message = 'There are no projects from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'

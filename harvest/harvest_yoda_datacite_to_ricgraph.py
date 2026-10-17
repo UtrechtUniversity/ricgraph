@@ -78,6 +78,7 @@ YODA_HARVEST_FILENAME = 'yoda_datacite_harvest.xml'
 YODA_READ_DATA_FROM_FILE = False
 # YODA_READ_DATA_FROM_FILE = True
 YODA_DATA_FILENAME = 'yoda_datacite_data.csv'
+YODA_ABSTRACTS_FILENAME = 'yoda_datacite_abstracts.csv'
 
 YODA_HEADERS = {'metadataPrefix': 'oai_datacite',
                 'ignore_deleted': True
@@ -194,6 +195,11 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     else:
         df_mod['ACCESS'] = ''
 
+    if 'descriptions' in df_mod.columns:
+        df_mod.rename(columns={'descriptions': 'ABSTRACT'}, inplace=True)
+    else:
+        df_mod['ABSTRACT'] = ''
+
     # We really need to clean up the DataFrame, because it contains a lot of
     # columns that were useful while parsing, but are not useful anymore.
     df_mod = df_mod[['DOI', 'CATEGORY', 'FULL_NAME',
@@ -202,7 +208,8 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
                      'ISNI', 'RESEARCHER_ID',
                      'TITLE', 'YEAR',
                      'LICENSE', 'ACCESS',
-                     'ORGANIZATION_NAME'
+                     'ORGANIZATION_NAME',
+                     'ABSTRACT'
                      ]].copy(deep=True)
     return df_mod
 
@@ -528,13 +535,16 @@ def harvest_xml_and_write_to_file(url: str, headers: dict, harvest_filename: str
 def harvest_and_parse_yoda_datacite_data(url: str,
                                          headers: dict,
                                          harvest_filename: str,
-                                         df_filename: str) -> Union[pandas.DataFrame, None]:
+                                         parse_filename: str,
+                                         abstracts_filename: str,
+                                         ) -> Union[pandas.DataFrame, None]:
     """Harvest and parse data from Yoda datacite.
 
     :param url: URL to harvest from.
     :param headers: headers for harvest.
     :param harvest_filename: filename to write harvest results to.
-    :param df_filename: filename to write the DataFrame results to.
+    :param parse_filename: filename to write the parse DataFrame results to.
+    :param abstracts_filename: filename to write the abstracts DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting from ' + HARVEST_SOURCE + '...')
@@ -546,8 +556,19 @@ def harvest_and_parse_yoda_datacite_data(url: str,
     with open(harvest_filename) as fd:
         doc = xmltodict.parse(fd.read())
 
-    if (parse := parse_yoda_datacite(harvest=doc, filename=df_filename)) is None:
+    if (parse := parse_yoda_datacite(harvest=doc, filename=parse_filename)) is None:
         return None
+
+    # For Yoda-DataCite, we have added the abstracts to 'parse'.
+    # Note that this is different compared to other harvest sources as e.g. Pure, OpenAlex.
+    # There, they are saved during the parse, but with the nested XML
+    # that is too complicated.
+    abstracts_df = parse[['CATEGORY', 'DOI', 'ABSTRACT']]
+    abstracts_df.rename(columns={'DOI': 'VALUE'}, inplace=True)
+    abstracts_df.insert(0, 'NAME', 'DOI')
+    if abstracts_df is not None and not abstracts_df.empty:
+        abstracts_df.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        rcg.write_dataframe_to_csv(filename=abstracts_filename, df=abstracts_df)
 
     print('The harvested data from ' + HARVEST_SOURCE + ' are:')
     print(parse)
@@ -635,6 +656,8 @@ print(rcg.ricgraph_cache_size_text() + '\n')
 
 data_file = rcg.construct_filename(base_filename=YODA_DATA_FILENAME,
                                    organization=organization)
+abstracts_file = rcg.construct_filename(base_filename=YODA_ABSTRACTS_FILENAME,
+                                        organization=organization)
 
 if YODA_READ_DATA_FROM_FILE:
     error_message = 'There are no data from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
@@ -648,7 +671,8 @@ else:
     parse_yoda_data = harvest_and_parse_yoda_datacite_data(url=YODA_URL,
                                                            headers=YODA_HEADERS,
                                                            harvest_filename=harvest_file,
-                                                           df_filename=data_file)
+                                                           parse_filename=data_file,
+                                                           abstracts_filename=abstracts_file)
 
 if parse_yoda_data is None or parse_yoda_data.empty:
     print(error_message)

@@ -76,6 +76,7 @@ RSD_HARVEST_FILENAME = 'rsd_harvest.json'
 RSD_READ_DATA_FROM_FILE = False
 # RSD_READ_DATA_FROM_FILE = True
 RSD_DATA_FILENAME = 'rsd_data.csv'
+RSD_ABSTRACTS_FILENAME = 'rsd_abstracts.csv'
 
 # How to find the RSD_FIELDS?
 # Go to https://research-software-directory.org/api/v1 (note the inclusion of
@@ -160,16 +161,21 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
 
 
 def parse_rsd_software(harvest: list,
-                       filename: str = '') -> Union[pandas.DataFrame, None]:
+                       parse_filename: str = '',
+                       abstracts_filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested software from Research Software Directory.
 
     :param harvest: the harvest.
-    :param filename: If filename != '', write it to a file and read it back.
+    :param parse_filename: If parse_filename != '', write the parse
+        to a file and read it back.
+    :param abstracts_filename: If abstracts_filename != '',
+        write the abstracts to a file and read it back.
     :return: the harvested software in a DataFrame, or None if nothing to parse.
     """
     if len(harvest) == 0:
         return None
     rsd_parse = pandas.DataFrame()
+    parse_chunk_abstracts = []
     for software_package in rcg.json_item_get_list(json_item=harvest[0],
                                                    json_path='software'):
         if (package_name := rcg.json_item_get_str(json_item=software_package,
@@ -224,9 +230,24 @@ def parse_rsd_software(harvest: list,
         contributor.insert(loc=0, column='package_doi', value=rcg.normalize_doi(identifier=package_doi))
         rsd_parse = pandas.concat(objs=[rsd_parse, contributor], ignore_index=True)
 
+        abstract = rcg.json_item_get_str(json_item=software_package,
+                                         json_path='description')
+        if abstract != '':
+            # rcg.RESEARCHRESULT_CATEGORY_SOFTWARE is from restructure_parse().
+            parse_abstract = {'NAME': 'DOI',
+                              'CATEGORY': rcg.RESEARCHRESULT_CATEGORY_SOFTWARE,
+                              'VALUE': rcg.normalize_doi(identifier=package_doi),
+                              'ABSTRACT': abstract
+                             }
+            parse_chunk_abstracts.append(parse_abstract)
+
+    if len(parse_chunk_abstracts) != 0:
+        parse_result_abstracts = pandas.DataFrame(parse_chunk_abstracts)
+        parse_result_abstracts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        rcg.write_dataframe_to_csv(filename=abstracts_filename, df=parse_result_abstracts)
     parse_result = restructure_parse(df=rsd_parse)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
-                                                filename=filename)
+                                                filename=parse_filename)
 
 
 # ######################################################
@@ -235,12 +256,14 @@ def parse_rsd_software(harvest: list,
 
 def harvest_and_parse_software(url: str,
                                harvest_filename: str,
-                               df_filename: str) -> Union[pandas.DataFrame, None]:
+                               parse_filename: str,
+                               abstracts_filename: str) -> Union[pandas.DataFrame, None]:
     """Harvest and parse software from Research Software Directory.
 
     :param url: url to RSD.
     :param harvest_filename: filename to write harvest results to.
-    :param df_filename: filename to write the DataFrame results to.
+    :param parse_filename: filename to write the parse DataFrame results to.
+    :param abstracts_filename: filename to write the abstracts DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Harvesting software packages from ' + HARVEST_SOURCE + '...')
@@ -252,7 +275,8 @@ def harvest_and_parse_software(url: str,
                                         filename=harvest_filename)
 
     if (parse := parse_rsd_software(harvest=harvest_data,
-                                    filename=df_filename)) is None:
+                                    parse_filename=parse_filename,
+                                    abstracts_filename=abstracts_filename)) is None:
         return None
 
     print('The harvested software packages are:')
@@ -336,6 +360,8 @@ print(rcg.ricgraph_cache_size_text() + '\n')
 
 data_file = rcg.construct_filename(base_filename=RSD_DATA_FILENAME,
                                    organization=organization)
+abstracts_file = rcg.construct_filename(base_filename=RSD_ABSTRACTS_FILENAME,
+                                        organization=organization)
 if RSD_READ_DATA_FROM_FILE:
     error_message = 'There are no software packages from ' + HARVEST_SOURCE + ' to read from file ' + data_file + '.\n'
     print('Reading software packages from ' + HARVEST_SOURCE + ' from file ' + data_file + '.')
@@ -347,7 +373,8 @@ else:
                                           organization=organization)
     rsd_data = harvest_and_parse_software(url=FULL_RSD_URL,
                                           harvest_filename=harvest_file,
-                                          df_filename=data_file)
+                                          parse_filename=data_file,
+                                          abstracts_filename=abstracts_file)
 
 if rsd_data is None or rsd_data.empty:
     print(error_message)

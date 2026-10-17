@@ -73,7 +73,7 @@ import ricgraph as rcg
 # ######################################################
 # General parameters for harvesting from OpenAlex.
 # ######################################################
-OPENALEX_CHUNKSIZE = 150
+OPENALEX_CHUNKSIZE = 100
 OPENALEX_HEADERS = {'Accept': 'application/json'
                     # The following will be read in __main__
                     # 'User-Agent': 'mailto:email@somewhere.com'
@@ -95,6 +95,7 @@ OPENALEX_HARVEST_FILENAME = 'openalex_harvest.json'
 OPENALEX_READ_DATA_FROM_FILE = False
 # OPENALEX_READ_DATA_FROM_FILE = True
 OPENALEX_DATA_FILENAME = 'openalex_data.csv'
+OPENALEX_ABSTRACTS_FILENAME = 'openalex_abstracts.csv'
 
 # This number is the max recs to harvest per year, not total.
 OPENALEX_MAX_RECS_TO_HARVEST = 0                        # 0 = all records
@@ -174,18 +175,37 @@ ACCESS_MAPPING_OPENALEX = {
 # ######################################################
 # Utility functions related to harvesting of OpenAlex
 # ######################################################
+def reconstruct_abstract(inverted_abstract: dict) -> str:
+    """Convert an OpenAlex inverted abstract to
+    a real abstract.
+
+    :param inverted_abstract: The inverted abstract.
+    :return: The real abstract
+    """
+    if inverted_abstract == '':
+        return ''
+    positions = {}
+    for word, idxs in inverted_abstract.items():
+        for i in idxs:
+            positions[i] = word
+    abstract = ' '.join(positions[i] for i in sorted(positions))
+    return abstract
 
 
 # ######################################################
 # Parsing
 # ######################################################
 def parse_openalex_entities(harvest: list,
-                            filename: str = '') -> Union[pandas.DataFrame, None]:
+                            parse_filename: str = '',
+                            abstracts_filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse the harvested persons and research results from OpenAlex.
-    In case filename != '', write it to a file and read it back.
+    In case parse_filename != '', write it to a file and read it back.
 
     :param harvest: the harvest.
-    :param filename: If filename != '', write it to a file and read it back.
+    :param parse_filename: If parse_filename != '', write the parse to
+        a file and read it back.
+    :param abstracts_filename: If abstracts_filename != '',
+        write the abstracts to a file and read it back.
     :return: the harvested persons in a DataFrame, or None if nothing to parse.
     """
     if len(harvest) == 0:
@@ -193,6 +213,7 @@ def parse_openalex_entities(harvest: list,
     print('There are ' + str(len(harvest)) + ' person and research result records ('
           + rcg.timestamp() + '), parsing record:')
     parse_chunk = []                # list of dictionaries
+    parse_chunk_abstracts = []
     count = 0
     for harvest_item in harvest:
         count = rcg.print_progress(count=count, interval=1000)
@@ -273,11 +294,29 @@ def parse_openalex_entities(harvest: list,
                           'URL_OTHER': work_url,
                           'URL_ASSET': pdf_url}
             parse_chunk.append(parse_line)
+            abstract_inverted = rcg.json_item_get_dict(json_item=harvest_item,
+                                                       json_path='abstract_inverted_index')
+            abstract = reconstruct_abstract(inverted_abstract=abstract_inverted)
+            if abstract != '':
+                parse_abstract = {'NAME': 'DOI',
+                                  'CATEGORY': category,
+                                  'VALUE': rcg.normalize_doi(identifier=doi),
+                                  'ABSTRACT': abstract
+                                 }
+                parse_chunk_abstracts.append(parse_abstract)
 
     rcg.print_progress(count=count, now=True)
+    if len(parse_chunk) == 0:
+        print('parse_openalex_entities(): Nothing found.')
+        return None
+
+    if len(parse_chunk_abstracts) != 0:
+        parse_result_abstracts = pandas.DataFrame(parse_chunk_abstracts)
+        parse_result_abstracts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        rcg.write_dataframe_to_csv(filename=abstracts_filename, df=parse_result_abstracts)
     parse_result = pandas.DataFrame(parse_chunk)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
-                                                filename=filename)
+                                                filename=parse_filename)
 
 
 # ######################################################
@@ -309,7 +348,8 @@ def harvest_openalex_data(year_start: str = '',
         harvest_file_year_loop = rcg.construct_filename(base_filename=OPENALEX_HARVEST_FILENAME,
                                                         year=year_loop_str, organization=organization)
         url = OPENALEX_URL + '/' + OPENALEX_ENDPOINT
-        url += '?filter=institutions.ror:' + ORGANIZATION_ROR
+        url += '?api_key=' + OPENALEX_API_KEY
+        url += '&filter=institutions.ror:' + ORGANIZATION_ROR
         url += ',publication_year:' + year_loop_str + '&select=' + OPENALEX_FIELDS
         rcg.harvest_json(source=rcg.HARVEST_JSON_SOURCE_OPENALEX,
                          url=url,
@@ -324,20 +364,23 @@ def harvest_openalex_data(year_start: str = '',
 
 
 def parse_openalex_data(harvest_filename: str,
-                        df_filename: str) -> Union[pandas.DataFrame, None]:
+                        parse_filename: str,
+                        abstracts_filename: str = '') -> Union[pandas.DataFrame, None]:
     """Parse data from OpenAlex.
     Contrary to harvest_openalex_data(), this function parses one year for
     items that span multiple years (e.g. research results).
 
     :param harvest_filename: filename to write harvest results to.
-    :param df_filename: filename to write the DataFrame results to.
+    :param parse_filename: filename to write the parse DataFrame results to.
+    :param abstracts_filename: filename to write the abstracts DataFrame results to.
     :return: the DataFrame harvested, or None if nothing harvested.
     """
     print('Parsing persons and research results from ' + HARVEST_SOURCE + '...')
     harvest_data = rcg.read_json_from_file(filename=harvest_filename,
                                            exit_on_error=False)
     parse = parse_openalex_entities(harvest=harvest_data,
-                                    filename=df_filename)
+                                    parse_filename=parse_filename,
+                                    abstracts_filename=abstracts_filename)
     if parse is None or parse.empty:
         return None
     print('The parsed persons and research results from ' + HARVEST_SOURCE + ' are:')
@@ -428,9 +471,11 @@ print('\nHarvesting ' + HARVEST_SOURCE + ', first year: ' + year_first + ', last
 # They have rate limits, but they are high:
 # https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication.
 OPENALEX_URL = rcg.get_configfile_key(section='OpenAlex_harvesting', key='openalex_url')
+OPENALEX_API_KEY = rcg.get_configfile_key(section='OpenAlex_harvesting', key='openalex_api_key')
 email = rcg.get_configfile_key(section='OpenAlex_harvesting', key='openalex_polite_pool_email')
-if OPENALEX_URL == '' or email == '':
-    print('Ricgraph initialization: error, "openalex_url" or "openalex_polite_pool_email"')
+if OPENALEX_URL == '' or OPENALEX_API_KEY == '' or email == '':
+    print('Ricgraph initialization: error, "openalex_url" or "openalex_api_key"')
+    print('  or "openalex_polite_pool_email"')
     print('  not existing or empty in Ricgraph ini file, exiting.')
     exit(1)
 OPENALEX_HEADERS['User-Agent'] = 'mailto:' + email
@@ -456,10 +501,13 @@ for year_int in range(int(year_first), int(year_last) + 1):
                                                year=year, organization=organization)
     data_file_year = rcg.construct_filename(base_filename=OPENALEX_DATA_FILENAME,
                                             year=year, organization=organization)
+    abstracts_file_year = rcg.construct_filename(base_filename=OPENALEX_ABSTRACTS_FILENAME,
+                                                 year=year, organization=organization)
     print('Reading & parsing research results from ' + HARVEST_SOURCE + ' for year '
           + year + '.')
     parse_persons_resout = parse_openalex_data(harvest_filename=harvest_file_year,
-                                              df_filename=data_file_year)
+                                               parse_filename=data_file_year,
+                                               abstracts_filename=abstracts_file_year)
 
     if parse_persons_resout is None or parse_persons_resout.empty:
         error_message = 'There are no persons or research results from ' + HARVEST_SOURCE
