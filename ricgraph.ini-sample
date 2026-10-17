@@ -30,7 +30,7 @@
 #
 # This file is the initialization file for Ricgraph. 
 # Original version Rik D.T. Janssen, December 2022.
-# Updated Rik D.T. Janssen, April 2023, April 2024.
+# Updated Rik D.T. Janssen, April 2023, April 2024, October 2026.
 #
 # ########################################################################
 # 
@@ -121,6 +121,7 @@ organization_name_VUA = Vrije Universiteit Amsterdam
 organization_name_UA = University of Amsterdam
 # Do not use AUMCs official ror.org name, use their own preference.
 organization_name_AUMC = Amsterdam UMC
+organization_name_AUAS = Amsterdam University of Applied Sciences
 #
 # ROR is a global open persistent identifier for research organizations.
 # Find yours on https://ror.org. 
@@ -136,6 +137,7 @@ organization_ror_UG = 012p63287
 organization_ror_VUA = 008xxew50
 organization_ror_UA = 04dkp9463
 organization_ror_AUMC = 05grdyy37
+organization_ror_AUAS = 00y2z2s03
 # ###############################################################
 
 # ###############################################################
@@ -182,6 +184,7 @@ memcached_host = localhost
 memcached_port = 11211
 # Set ricgraph_explorer_uses_memcached to 'True' to use Memcached.
 # Any other value (also 'true') means don't use Memcached.
+#ricgraph_explorer_uses_memcached = True
 ricgraph_explorer_uses_memcached = False
 # ###############################################################
 
@@ -225,7 +228,7 @@ graphdb_port = 7687
 #graphdb_databasename = memgraph
 #graphdb_user = memgraph
 # Default password for Memgraph is 'memgraph' (without quotes).
-##graphdb_password =
+##graphdb_password = memgraph
 ##graphdb_scheme = bolt
 ##graphdb_port = 7687
 # ###############################################################
@@ -248,6 +251,7 @@ pure_url_UG =
 pure_url_VUA =
 pure_url_UA =
 pure_url_AUMC =
+pure_url_AUAS =
 #
 # You can obtain a Pure API key from your local Pure admin.
 # Add your own 'organization abbreviation' if it is not present. You only 
@@ -262,6 +266,7 @@ pure_api_key_UG =
 pure_api_key_VUA =
 pure_api_key_UA =
 pure_api_key_AUMC =
+pure_api_key_AUAS =
 #
 # This key indicates whether or not to use the Pure workflow
 # for research results. If it is 'True', empty, or absent,
@@ -278,6 +283,7 @@ pure_use_workflow_rr_UG =
 pure_use_workflow_rr_VUA =
 pure_use_workflow_rr_UA =
 pure_use_workflow_rr_AUMC =
+pure_use_workflow_rr_AUAS =
 #
 # This key indicates whether or not to harvest the
 # Pure field EMPLOYEE_ID for persons.
@@ -292,13 +298,14 @@ pure_harvest_employeeids_UG =
 pure_harvest_employeeids_VUA =
 pure_harvest_employeeids_UA =
 pure_harvest_employeeids_AUMC =
+pure_harvest_employeeids_AUAS =
 # ###############################################################
 
 
 [Yoda_harvesting]
 # ###############################################################
 # With the following settings you will harvest data sets
-# from Yoda, Utrecht University's data repository. 
+# from Yoda, Utrecht University's data repository.
 # They will be harvested from DataCite.
 # The URL to Yoda Datacite harvest (without quotes):
 yoda_url = https://oai.datacite.org/oai
@@ -313,6 +320,7 @@ yoda_set_UG =
 yoda_set_VUA = delft.vudata
 yoda_set_UA =
 yoda_set_AUMC =
+yoda_set_AUAS =
 # ###############################################################
 
  
@@ -336,7 +344,10 @@ rsd_organization_EUT = eindhoven-university-of-technology
 rsd_organization_UG = university-of-groningen
 rsd_organization_VUA = vu-university-amsterdam
 rsd_organization_UA = university-of-amsterdam
+# Amsterdam UMC has two organizations in RSD.
 rsd_organization_AUMC = amsterdam-university-medical-centers
+rsd_organization_AUM2 = amsterdam-university-medical-centers-location-vu
+rsd_organization_AUAS =
 # ###############################################################
 
 
@@ -355,6 +366,10 @@ uustaff_url =
 # https://docs.openalex.org.
 # The URL to the API of OpenAlex (without quotes):
 openalex_url = https://api.openalex.org
+# For OpenAlex, you will need an API key. It is free with a
+# maximum daily usage.
+# Read how to get it: https://help.openalex.org/api/authentication.
+openalex_api_key =
 #
 # OpenAlex doesn't require authentication, you can join a "polite pool" 
 # which offers faster and consistent response times, see
