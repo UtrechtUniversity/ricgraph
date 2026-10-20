@@ -4,7 +4,7 @@
 ## Introduction
 
 Using Ricgraph in combination with
-[BackToPure](https://github.com/UtrechtUniversity/BackToPure/tree/jobs-orientied),
+[BackToPure](https://github.com/UtrechtUniversity/backtopure),
 you can enhance an organization's
 [Research Information System Pure](https://www.elsevier.com/solutions/pure)
 by identifying candidate research results, data sets, software, and identifiers

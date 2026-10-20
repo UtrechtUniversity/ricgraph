@@ -86,7 +86,7 @@ There are several places where you can start reading about Ricgraph:
 * You can read the presentation explaining how to enrich the [Research
   Information System Pure](https://www.elsevier.com/solutions/pure)
   (and other source systems) using Ricgraph
-  and [BackToPure](https://github.com/UtrechtUniversity/BackToPure):
+  and [BackToPure](https://github.com/UtrechtUniversity/backtopure):
   [https://doi.org/10.5281/zenodo.12634658](https://doi.org/10.5281/zenodo.12634658).
   This presentation explains that after harvesting several Pures
   (from different institutions)  and other source systems,
