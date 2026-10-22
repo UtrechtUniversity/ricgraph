@@ -66,6 +66,29 @@ harvest_openalex() {
 
 
 harvest_rsd () {
+  # Now check if this organization has a value for the RSD to be harvested.
+  # E.g., for UU, this key in ricgraph.ini is called "rsd_organization_UU".
+  # If the key does not exist, or if it has no value, RSD is not harvested.
+  rsd_organization_name=rsd_organization_$organization
+  if grep -q "^$rsd_organization_name" ../ricgraph.ini; then
+    value=$(grep "^$rsd_organization_name" ../ricgraph.ini | cut -d '=' -f 2 | xargs)
+    if [[ -n "$value" ]]; then
+      echo "Continuing harvesting organization '$organization': RSD."
+    else
+      # The key has no value.
+      echo "Skipping harvesting RSD, no value for RSD organization in ricgraph.ini file."
+      echo "This is to be expected if your organization does not use the RSD repository."
+      echo "Done with harvesting."
+      return 0
+    fi
+  else
+    # The key does not exist.
+    echo "Skipping harvesting RSD, no value for RSD organization in ricgraph.ini file."
+    echo "This is to be expected if your organization does not use the RSD repository."
+    echo "Done with harvesting."
+    return 0
+  fi
+
   echo "Harvesting Research Software Directory for organization '$organization'."
   PYTHONPATH=$python_path $python_cmd harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization "$organization"
   exit_code=$?
@@ -130,9 +153,9 @@ harvest_uustaffpages() {
 }
 
 
-echo "This script harvests Pure, OpenAlex, and the Research Software Directory."
-echo "It also harvests Yoda if your organization uses it,"
-echo "and UU staff pages if your organization is UU."
+echo "This script harvests Pure and OpenAlex."
+echo "It also harvests the Research Software Directory and Yoda if your"
+echo "organization use them, and UU staff pages if your organization is UU."
 
 # The following script returns $python_cmd, $python_path,
 # $organization, $empty_ricgraph, $year_first, and $year_last.

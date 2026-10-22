@@ -65,6 +65,8 @@ else
   exit $exit_code
 fi
 
+participants="DUT AUMC VUA AUAS UA"
+
 data_collect_dir=$HOME/$(date +%y%m%d)-ricgraph_data_collect
 graphdb_backup_dir=$data_collect_dir/graphdb_backup
 harvest_result_dir=$data_collect_dir/harvest_result
@@ -72,12 +74,15 @@ explorer_data_collect_dir=$HOME/$(date +%y%m%d)-explorer_data_collect
 all_data_collect_dir=$HOME/$(date +%y%m%d)-all_data_collect
 year_first=2022
 year_last=2026
+abstracts_file="abstracts_all"
 
 echo "The following directories will be used:"
 echo "data_collect_dir: $data_collect_dir"
 echo "graphdb_backup_dir: $graphdb_backup_dir"
 echo "harvest_result_dir: $harvest_result_dir"
 echo "explorer_data_collect_dir: $explorer_data_collect_dir"
+echo ""
+echo "These are the participants: $participants"
 echo ""
 
 if [ -d "$data_collect_dir" ]; then
@@ -138,18 +143,31 @@ sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=n
 exit_on_error $?
 sleep 120
 
+./multiple_harvest_organization.sh --organization AUAS --empty_ricgraph no --year_first $year_first --year_last $year_last
+exit_on_error $?
+
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas-$(date +%y%m%d-%H%M)
+sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+exit_on_error $?
+sleep 120
+
+./multiple_harvest_organization.sh --organization UA --empty_ricgraph no --year_first $year_first --year_last $year_last
+exit_on_error $?
+
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas+ua-$(date +%y%m%d-%H%M)
+sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+exit_on_error $?
+sleep 120
+
 cd ../enhance || exit 1
 
-./rename_organizations.sh --organization DUT
-exit_on_error $?
+for org_loop in $participants; do
+  echo "Processing organization $org_loop..."
+  ./rename_organizations.sh --organization "$org_loop"
+  exit_on_error $?
+done
 
-./rename_organizations.sh --organization AUMC
-exit_on_error $?
-
-./rename_organizations.sh --organization VUA
-exit_on_error $?
-
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua-renameorgs-$(date +%y%m%d-%H%M)
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas+ua-renameorgs-$(date +%y%m%d-%H%M)
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 sleep 120
@@ -167,7 +185,7 @@ cd ../harvest_multiple_sources || exit 1
 ./multiple_harvest_organization.sh --organization UU --empty_ricgraph no --year_first $year_first --year_last $year_last
 exit_on_error $?
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+uu-$(date +%y%m%d-%H%M)
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas+ua+uu-$(date +%y%m%d-%H%M)
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 sleep 120
@@ -177,19 +195,14 @@ cd ../enhance || exit 1
 ./delete_employeeids.sh --are_you_sure yes
 exit_on_error $?
 
-./rename_organizations.sh --organization DUT
-exit_on_error $?
+participants_uu="$participants UU"
+for org_loop in $participants_uu; do
+  echo "Processing organization $org_loop..."
+  ./rename_organizations.sh --organization "$org_loop"
+  exit_on_error $?
+done
 
-./rename_organizations.sh --organization AUMC
-exit_on_error $?
-
-./rename_organizations.sh --organization VUA
-exit_on_error $?
-
-./rename_organizations.sh --organization UU
-exit_on_error $?
-
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+uu-renameorgs-$(date +%y%m%d-%H%M)
+graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas+au+uu-renameorgs-$(date +%y%m%d-%H%M)
 sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 sleep 120
@@ -208,6 +221,8 @@ mv ./*.log "$data_collect_dir"
 # The logfiles of the second RSD harvest for AUMC
 mv ./*.csv ./*.json "$harvest_result_dir"
 cd ../harvest || exit 1
+tar -czf "$abstracts_file.tar.gz" ./*abstracts*.csv
+mv "$abstracts_file.tar.gz" "$harvest_result_dir"
 mv ./*.xml ./*.csv ./*.json "$harvest_result_dir"
 tar -czf "$data_collect_dir.tar.gz" "$data_collect_dir"
 

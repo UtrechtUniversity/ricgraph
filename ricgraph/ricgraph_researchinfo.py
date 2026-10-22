@@ -143,6 +143,8 @@ def normalize_isni(identifier: str) -> str:
     if identifier == '':
         return ''
     identifier = identifier.lower()
+    # Remove superfluous spaces.
+    identifier = sub(pattern=r'\s+', repl='', string=identifier)
     identifier = sub(pattern=r'https|http', repl='', string=identifier)
     identifier = sub(pattern=r'://', repl='', string=identifier)
     identifier = sub(pattern=r'www.', repl='', string=identifier)

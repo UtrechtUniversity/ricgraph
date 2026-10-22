@@ -128,6 +128,10 @@ HARVEST_DATASETS = True
 HARVEST_PRESS_MEDIA = True
 # HARVEST_PROJECTS is a command line option.
 
+# If you include an organization in this list,
+# press media items from that organization will
+# not be harvested.
+ORGANIZATIONS_WITHOUT_PRESS_MEDIA = ['AU']
 
 # These specify the mode for harvesting.
 MODE_PERSONS = 'persons'
@@ -142,6 +146,16 @@ MODE_ALL = [MODE_PERSONS,
             MODE_DATASETS,
             MODE_PRESS_MEDIA]
             # MODE_PROJECTS]
+
+
+# ######################################################
+# Hacks for certain organizations.
+# TODO: Some of these should be removed at some point in time.
+# ######################################################
+# Only relevant for Pure CRUD API, persons.
+ORGANIZATIONS_WITHOUT_staffOrganizationAssociations = ['AU', 'AUAS']
+# Only relevant for Pure CRUD API, research results.
+ORGANIZATIONS_WITHOUT_fileStoreLocations = ['AU', 'AUAS']
 
 
 # ######################################################
@@ -345,6 +359,7 @@ PURE_CRUD_RESOUTS_FIELDS = {'orderings': ['publicationYear'],
                                        'publicationStatuses.publicationDate.*',
                                        'publicationStatuses.publicationStatus.uri',
                                        'contributors.person.*',
+                                       'contributors.name.*',
                                        'contributors.externalPerson.*',
                                        'contributors.externalOrganisations.*',
                                        'contributors.authorCollaboration.*',
@@ -411,6 +426,7 @@ PURE_CRUD_DATASETS_FIELDS = {'orderings': ['dateAvailable'],
                                         'license.*',
                                         'workflow.step',
                                         'visibility.key',
+                                        'contributors.name.*',
                                         'contributors.person.*',
                                         'contributors.externalPerson.*',
                                         'contributors.externalOrganisations.*',
@@ -614,6 +630,7 @@ DATASET_CATEGORY_MAPPING_PURE = {
 # ######################################################
 LICENSE_MAPPING_PURE = {
     'CC0': rcg.LICENSE_CC0,
+    'CC 0': rcg.LICENSE_CC0,
     'CC BY': rcg.LICENSE_CC_BY,
     'CC BY-NC': rcg.LICENSE_CC_BY_NC,
     'CC BY-NC-ND': rcg.LICENSE_CC_BY_NC_ND,
@@ -969,6 +986,29 @@ def parse_pure_persons(harvest: list,
                 parse_line = {'PURE_ID_PERS': pers_uuid,
                               name_identifier: value_identifier}
                 parse_chunk.append(parse_line)
+        # TODO: Hack for UA and AUAS, using Pure CRUD API.
+        # 2026-10-20: They do not pass 'staffOrganisationAssociations'.
+        # Include any person they pass in Ricgraph.
+        if PURE_API_VERSION == PURE_CRUD_API_VERSION \
+           and organization in ORGANIZATIONS_WITHOUT_staffOrganizationAssociations:
+            # Note this is a copy from the relevant part from the next for loop.
+            if organization == 'AU':
+                org_name = 'AU Amsterdam University'
+            elif organization == 'AUAS':
+                org_name = 'AUAS Amsterdam University of Applied Sciences'
+            else:
+                # This should not happen.
+                continue
+            parse_line = {'PURE_ID_PERS': pers_uuid,
+                          'PURE_NAME_ORG': org_name,
+                         }
+            parse_chunk.append(parse_line)
+
+            # Put in the DataFrame with harvested persons to be returned.
+            parse_chunk_final.extend(parse_chunk)
+            continue
+        # End of Hack for UA and AUAS, using Pure CRUD API.
+
         for stafforg in json_item_get_list_pure(json_item=harvest_item,
                                                 json_path_read='staffOrganisationAssociations',
                                                 json_path_crud='staffOrganizationAssociations'):
@@ -1020,13 +1060,22 @@ def parse_pure_persons(harvest: list,
         return None
 
     # Now get all organizations URLs in parse_chunk_final.
-    for org_uuid in org_uuids_to_org_names:
-        # Note that the first element in 'org_uuids_to_org_names[org_uuid]'
-        # is the name of the organization itself, see parse_pure_organizations().
-        parse_line = {'PURE_NAME_ORG': org_uuids_to_org_names[org_uuid][0],
-                      'PURE_URL_ORG': create_pure_url(name='PURE_ID_ORG',
-                                                      value=org_uuid)}
-        parse_chunk_final.append(parse_line)
+    # TODO: Hack for UA and AUAS, using Pure CRUD API.
+    # 2026-10-20: They do not pass 'staffOrganisationAssociations'.
+    if PURE_API_VERSION == PURE_CRUD_API_VERSION \
+       and organization in ORGANIZATIONS_WITHOUT_staffOrganizationAssociations:
+        # This is the hack.
+        pass
+    else:
+        # This is the code as it should be.
+        for org_uuid in org_uuids_to_org_names:
+            # Note that the first element in 'org_uuids_to_org_names[org_uuid]'
+            # is the name of the organization itself, see parse_pure_organizations().
+            parse_line = {'PURE_NAME_ORG': org_uuids_to_org_names[org_uuid][0],
+                          'PURE_URL_ORG': create_pure_url(name='PURE_ID_ORG',
+                                                          value=org_uuid)}
+            parse_chunk_final.append(parse_line)
+    # End of Hack for UA and AUAS, using Pure CRUD API.
 
     parse_result = pandas.DataFrame(parse_chunk_final)
     # Now remove the duplicate entries.
@@ -1291,6 +1340,27 @@ def parse_pure_entities(harvest: list,
                                                          json_path_read='file.fileURL',
                                                          json_path_crud='file.fileStoreLocations.dspace')) != '':
                     fileurl = newfileurl
+                # TODO: Hack for UA and AUAS, using Pure CRUD API.
+                # 2026-10-20: They do not have 'file.fileStoreLocations'.
+                # Construct the url according to their usage:
+                # 'Wij genereren de publieke URL's voor bestanden als volgt
+                # (afgekeken van wat er in de OAI van Pure staat):
+                # https://pure.uva.nl/ws/files/{pureId}/{fileName}
+                # https://pure.hva.nl/ws/files/{pureId}/{fileName}
+                # "pureId" en "fileName" zijn te vinden onder de betreffende
+                # "file" in de JSON.'
+                if PURE_API_VERSION == PURE_CRUD_API_VERSION \
+                   and organization in ORGANIZATIONS_WITHOUT_fileStoreLocations:
+                    pure_id = json_item_get_str_pure(json_item=dois,
+                                                     json_path_read='',
+                                                     json_path_crud='file.pureId')
+                    pure_filename = json_item_get_str_pure(json_item=dois,
+                                                    json_path_read='',
+                                                    json_path_crud='file.fileName')
+                    if pure_id != '' and pure_filename != '':
+                        fileurl = PURE_URL + '/ws/files/' + pure_id + '/' + pure_filename
+                # End of Hack for UA and AUAS, using Pure CRUD API.
+
         elif mode == MODE_DATASETS:
             doi = json_item_get_str_pure(json_item=harvest_item,
                                          json_path_read='doi',
@@ -1369,6 +1439,17 @@ def parse_pure_entities(harvest: list,
                 # There may be many externalOrganizations, for now we only take the first.
                 externalorg_name = rcg.json_item_get_str(json_item=persons,
                                                          json_path='externalOrganisations.0.name.text.0.value')
+                if PURE_API_VERSION == PURE_CRUD_API_VERSION:
+                    # CRUD API does not have an external organization name,
+                    # only an external org UUID.
+                    external_author_first_name = rcg.json_item_get_str(json_item=persons,
+                                                                       json_path='name.firstName')
+                    external_author_last_name = rcg.json_item_get_str(json_item=persons,
+                                                                      json_path='name.lastName')
+                    external_author_name = external_author_last_name
+                    if external_author_first_name != '':
+                        external_author_name += ', ' + external_author_first_name
+                    externalorg_name = ''
             elif (author_uuid := rcg.json_item_get_str(json_item=persons,
                                                        json_path='authorCollaboration.uuid')) != '':
                 # Author collaboration.
@@ -1377,6 +1458,8 @@ def parse_pure_entities(harvest: list,
                 if external_author_name == '':
                     external_author_name = '[no author collaboration name]'
                 external_author_name += ' (' + organization + ' author collaboration)'
+                # CRUD API does not have an author collaboration name,
+                # only an author collaboration UUID.
             else:
                 # If we get here you might want to add another "elif" above with
                 # the missing personAssociation. Sometimes there is none, then it is ok.
@@ -2054,6 +2137,10 @@ def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
                                            harvest_source=HARVEST_SOURCE,
                                            what='organizations')
+
+    if 'PURE_URL_ORG' not in parsed_content.columns:
+        # Nothing to do.
+        return
     # Note that not every (sub)organization seems to have a webpage.
     nodes_to_update = parsed_content[['PURE_NAME_ORG', 'PURE_URL_ORG']].copy(deep=True)
     nodes_to_update.rename(columns={'PURE_NAME_ORG': 'ORGANIZATION_NAME',
@@ -2332,6 +2419,11 @@ if year_first == '' or year_last == '':
     # An error message has already been printed
     # in get_commandline_argument_year_first_last().
     exit(1)
+
+if organization in ORGANIZATIONS_WITHOUT_PRESS_MEDIA:
+    print('Organization "' + organization + '" does not have press media items.')
+    print('  These will not be harvested.')
+    HARVEST_PRESS_MEDIA = False
 
 # if (harvest_projects := rcg.get_commandline_argument_harvest_projects(argument_list=sys.argv)) == 'yes':
 #     HARVEST_PROJECTS = True
