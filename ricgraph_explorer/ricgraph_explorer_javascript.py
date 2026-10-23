@@ -212,7 +212,7 @@ def get_html_for_tableend_javascript(table_filename: str) -> str:
                            // followed by a number, then with 'link', include the link url
                            // in the csv file, instead of the link name.
                            const isUrlLink = link =>
-                             /^url_(main|asset|other)\d* link$/.test(link.innerText.trim());
+                             /^url_(main|asset|other)\\d* link$/.test(link.innerText.trim());
                            const urlLinks = links.filter(isUrlLink);
                            const cellValue = urlLinks.length > 0
                              ? urlLinks.map(link => link.href).join(',')
