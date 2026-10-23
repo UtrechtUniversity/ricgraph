@@ -543,7 +543,7 @@ def update_urls_in_ricgraph(entities: DataFrame,
     entities = entities.replace(to_replace='', value=nan)
     # Drop a row if any of its values is NaN.
     entities = entities.dropna(axis=0, how='any')
-    entities = entities.drop_duplicates(keep='first')
+    entities = entities.drop_duplicates(keep='first', ignore_index=True)
     entities = entities.rename(columns={entity_name: 'value',
                                         'URL_MAIN': 'url_main'})
     new_entities_columns = {'name': entity_name,
