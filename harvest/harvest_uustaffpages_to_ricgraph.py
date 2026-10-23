@@ -332,7 +332,7 @@ def harvest_json_uustaffpages(url: str,
 
         df_employees = pandas.DataFrame(faculty_page['Employees'])
         df_employees_url = df_employees['Url']
-        df_employees_url.dropna(axis=0, how='any', inplace=True)
+        df_employees_url = df_employees_url.dropna(axis=0, how='any')
         if df_employees_url is None:
             # Nothing found.
             continue
@@ -435,21 +435,21 @@ def parsed_uustaff_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None
 
     # ####### Add weblinks to staff page nodes we have inserted above.
     nodes_to_update = parsed_content[['UUSTAFF_PAGEID', 'UUSTAFF_PAGEID_URL']].copy(deep=True)
-    nodes_to_update.rename(columns={'UUSTAFF_PAGEID_URL': 'URL_MAIN'}, inplace=True)
+    nodes_to_update = nodes_to_update.rename(columns={'UUSTAFF_PAGEID_URL': 'URL_MAIN'})
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                 harvest_source=HARVEST_SOURCE,
                                 what='URLs of UU staff page nodes')
 
     # ####### Add weblinks to photo nodes we have inserted above.
     nodes_to_update = parsed_content[['PHOTO_ID', 'PHOTO_URL']].copy(deep=True)
-    nodes_to_update.rename(columns={'PHOTO_URL': 'URL_MAIN'}, inplace=True)
+    nodes_to_update = nodes_to_update.rename(columns={'PHOTO_URL': 'URL_MAIN'})
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                 harvest_source=HARVEST_SOURCE,
                                 what='URLs of UU staff photo nodes')
 
     # ####### Insert organizations (faculties only).
     organizations = parsed_content[['UUSTAFF_PAGEID', 'FACULTY']].copy(deep=True)
-    organizations.rename(columns={'FACULTY': 'ORGANIZATION_NAME'}, inplace=True)
+    organizations = organizations.rename(columns={'FACULTY': 'ORGANIZATION_NAME'})
     rcg.create_parsed_entities_in_ricgraph(entities=organizations,
                                            harvest_source=HARVEST_SOURCE,
                                            what='organizations (faculties only)')

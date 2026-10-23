@@ -147,15 +147,15 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     :return: Result of action described above.
     """
     df_mod = df.copy(deep=True)
-    df_mod.rename(columns={'package_doi': 'DOI',
-                           'orcid': 'ORCID',
-                           'affiliation': 'ORGANIZATION_NAME',
-                           'package_name': 'TITLE',
-                           'package_year': 'YEAR',
-                           'license': 'LICENSE',
-                           'access': 'ACCESS',
-                           'package_url': 'URL_OTHER'
-                           }, inplace=True)
+    df_mod = df_mod.rename(columns={'package_doi': 'DOI',
+                                    'orcid': 'ORCID',
+                                    'affiliation': 'ORGANIZATION_NAME',
+                                    'package_name': 'TITLE',
+                                    'package_year': 'YEAR',
+                                    'license': 'LICENSE',
+                                    'access': 'ACCESS',
+                                    'package_url': 'URL_OTHER'
+                                   })
     df_mod['CATEGORY'] = rcg.RESEARCHRESULT_CATEGORY_SOFTWARE
     return df_mod
 
@@ -220,7 +220,7 @@ def parse_rsd_software(harvest: list,
         # 'Contributor' contains a number of fields. We add them in one go.
         # Now it has orcid, affiliation, given_names, and family_names.
         contributor = pandas.json_normalize(software_package, record_path='contributor')
-        contributor.fillna(value=numpy.nan, inplace=True)
+        contributor = contributor.fillna(value=numpy.nan)
         contributor['FULL_NAME'] = contributor['family_names'] + ', ' + contributor['given_names']
         contributor.insert(loc=0, column='access', value=access)
         contributor.insert(loc=0, column='license', value=licentie)
@@ -243,7 +243,7 @@ def parse_rsd_software(harvest: list,
 
     if len(parse_chunk_abstracts) != 0:
         parse_result_abstracts = pandas.DataFrame(parse_chunk_abstracts)
-        parse_result_abstracts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        parse_result_abstracts = parse_result_abstracts.drop_duplicates(keep='first', ignore_index=True)
         rcg.write_dataframe_to_csv(filename=abstracts_filename, df=parse_result_abstracts)
     parse_result = restructure_parse(df=rsd_parse)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,

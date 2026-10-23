@@ -148,10 +148,10 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
     df_mod = df.copy(deep=True)
 
     # We assume these fields are present.
-    df_mod.rename(columns={'contributorName': 'FULL_NAME',
-                           'affiliation': 'ORGANIZATION_NAME',
-                           'resourceType': 'CATEGORY',
-                           }, inplace=True)
+    df_mod = df_mod.rename(columns={'contributorName': 'FULL_NAME',
+                                    'affiliation': 'ORGANIZATION_NAME',
+                                    'resourceType': 'CATEGORY',
+                                   })
 
     # But for these, we do not know for sure.
     if 'ORCID' not in df_mod.columns:
@@ -161,42 +161,42 @@ def restructure_parse(df: pandas.DataFrame) -> pandas.DataFrame:
         df_mod['ISNI'] = ''
 
     if 'Author identifier (Scopus)' in df_mod.columns:
-        df_mod.rename(columns={'Author identifier (Scopus)': 'SCOPUS_AUTHOR_ID'}, inplace=True)
+        df_mod = df_mod.rename(columns={'Author identifier (Scopus)': 'SCOPUS_AUTHOR_ID'})
     else:
         df_mod['SCOPUS_AUTHOR_ID'] = ''
 
     if 'ResearcherID (Web of Science)' in df_mod.columns:
-        df_mod.rename(columns={'ResearcherID (Web of Science)': 'RESEARCHER_ID'}, inplace=True)
+        df_mod = df_mod.rename(columns={'ResearcherID (Web of Science)': 'RESEARCHER_ID'})
     else:
         df_mod['RESEARCHER_ID'] = ''
 
     if 'DAI' in df_mod.columns:
-        df_mod.rename(columns={'DAI': 'DIGITAL_AUTHOR_ID'}, inplace=True)
+        df_mod = df_mod.rename(columns={'DAI': 'DIGITAL_AUTHOR_ID'})
     else:
         df_mod['DIGITAL_AUTHOR_ID'] = ''
 
     if 'titles' in df_mod.columns:
-        df_mod.rename(columns={'titles': 'TITLE'}, inplace=True)
+        df_mod = df_mod.rename(columns={'titles': 'TITLE'})
     else:
         df_mod['TITLE'] = ''
 
     if 'publicationYear' in df_mod.columns:
-        df_mod.rename(columns={'publicationYear': 'YEAR'}, inplace=True)
+        df_mod = df_mod.rename(columns={'publicationYear': 'YEAR'})
     else:
         df_mod['YEAR'] = ''
 
     if 'license' in df_mod.columns:
-        df_mod.rename(columns={'license': 'LICENSE'}, inplace=True)
+        df_mod = df_mod.rename(columns={'license': 'LICENSE'})
     else:
         df_mod['LICENSE'] = ''
 
     if 'access' in df_mod.columns:
-        df_mod.rename(columns={'access': 'ACCESS'}, inplace=True)
+        df_mod = df_mod.rename(columns={'access': 'ACCESS'})
     else:
         df_mod['ACCESS'] = ''
 
     if 'descriptions' in df_mod.columns:
-        df_mod.rename(columns={'descriptions': 'ABSTRACT'}, inplace=True)
+        df_mod = df_mod.rename(columns={'descriptions': 'ABSTRACT'})
     else:
         df_mod['ABSTRACT'] = ''
 
@@ -564,10 +564,10 @@ def harvest_and_parse_yoda_datacite_data(url: str,
     # There, they are saved during the parse, but with the nested XML
     # that is too complicated.
     abstracts_df = parse[['CATEGORY', 'DOI', 'ABSTRACT']]
-    abstracts_df.rename(columns={'DOI': 'VALUE'}, inplace=True)
+    abstracts_df = abstracts_df.rename(columns={'DOI': 'VALUE'})
     abstracts_df.insert(0, 'NAME', 'DOI')
     if abstracts_df is not None and not abstracts_df.empty:
-        abstracts_df.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        abstracts_df = abstracts_df.drop_duplicates(keep='first', ignore_index=True)
         rcg.write_dataframe_to_csv(filename=abstracts_filename, df=abstracts_df)
 
     print('The harvested data from ' + HARVEST_SOURCE + ' are:')

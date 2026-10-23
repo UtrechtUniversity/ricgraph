@@ -312,7 +312,7 @@ def parse_openalex_entities(harvest: list,
 
     if len(parse_chunk_abstracts) != 0:
         parse_result_abstracts = pandas.DataFrame(parse_chunk_abstracts)
-        parse_result_abstracts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        parse_result_abstracts = parse_result_abstracts.drop_duplicates(keep='first', ignore_index=True)
         rcg.write_dataframe_to_csv(filename=abstracts_filename, df=parse_result_abstracts)
     parse_result = pandas.DataFrame(parse_chunk)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,

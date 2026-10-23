@@ -165,24 +165,22 @@ if sort_organization not in histogram:
 
 count_of = ' count of ' + category_wanted + ' (total ' + str(len(nodes)) + ' items)'
 histogram_df = pandas.DataFrame(histogram.items(), columns=['organization', 'nr_nodes_processed'])
-histogram_df.sort_values(by='nr_nodes_processed', ascending=False, inplace=True, ignore_index=True)
-histogram_df.rename(columns={'nr_nodes_processed': 'histogram' + count_of}, inplace=True)
+histogram_df = histogram_df.sort_values(by='nr_nodes_processed', ascending=False, ignore_index=True)
+histogram_df = histogram_df.rename(columns={'nr_nodes_processed': 'histogram' + count_of})
 print(histogram_df)
 rcg.write_dataframe_to_csv(filename=histogram_filename, df=histogram_df)
 
 collaborations_df = pandas.DataFrame(collaborations)
-collaborations_df.fillna(value=0, inplace=True)
+collaborations_df = collaborations_df.fillna(value=0)
 collaborations_df = collaborations_df.astype(int)
-collaborations_df.sort_values(by=sort_organization,
+collaborations_df = collaborations_df.sort_values(by=sort_organization,
                               axis='columns',
-                              ascending=False,
-                              inplace=True)
-collaborations_df.reset_index(inplace=True)
-collaborations_df.rename(columns={'index': 'collaboration' + count_of}, inplace=True)
-collaborations_df.sort_values(by=sort_organization,
+                              ascending=False)
+collaborations_df = collaborations_df.reset_index()
+collaborations_df = collaborations_df.rename(columns={'index': 'collaboration' + count_of})
+collaborations_df = collaborations_df.sort_values(by=sort_organization,
                               axis='index',
                               ascending=False,
-                              inplace=True,
                               ignore_index=True)
 print(collaborations_df)
 rcg.write_dataframe_to_csv(filename=collaborations_filename, df=collaborations_df)

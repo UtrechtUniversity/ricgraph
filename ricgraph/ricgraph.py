@@ -147,9 +147,9 @@ def update_nodes_df(nodes: DataFrame) -> None:
     """
     nodes_clean = nodes.copy(deep=True)
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-    nodes_clean.replace('', nan, inplace=True)
-    nodes_clean.dropna(axis=0, how='any', inplace=True)
-    nodes_clean.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    nodes_clean = nodes_clean.replace('', nan)
+    nodes_clean = nodes_clean.dropna(axis=0, how='any')
+    nodes_clean = nodes_clean.drop_duplicates(keep='first', ignore_index=True)
 
     print('There are ' + str(len(nodes_clean)) + ' nodes ('
           + timestamp() + '), updating node:')
@@ -248,7 +248,7 @@ def create_nodepairs_and_edges_params(name1: dict | str, category1: dict | str, 
                                                     index=[0])
     else:
         left_and_right_nodepairs = DataFrame(data=value1).copy(deep=True)
-        left_and_right_nodepairs.rename(columns={value1.name: 'value1'}, inplace=True)
+        left_and_right_nodepairs = left_and_right_nodepairs.rename(columns={value1.name: 'value1'})
 
     # This makes programming more efficient
     allowed_properties = get_ricgraph_properties_additional() + get_ricgraph_properties_standard()
@@ -268,14 +268,14 @@ def create_nodepairs_and_edges_params(name1: dict | str, category1: dict | str, 
                     left_and_right_nodepairs[prop_name + '1'] = other_value
                 else:
                     left_and_right_nodepairs = concat([left_and_right_nodepairs, other_value], axis='columns')
-                    left_and_right_nodepairs.rename(columns={other_value.name: prop_name + '1'}, inplace=True)
+                    left_and_right_nodepairs = left_and_right_nodepairs.rename(columns={other_value.name: prop_name + '1'})
 
             if prop_name + '2' == other_name:
                 if isinstance(other_value, str):
                     left_and_right_nodepairs[prop_name + '2'] = other_value
                 else:
                     left_and_right_nodepairs = concat([left_and_right_nodepairs, other_value], axis='columns')
-                    left_and_right_nodepairs.rename(columns={other_value.name: prop_name + '2'}, inplace=True)
+                    left_and_right_nodepairs = left_and_right_nodepairs.rename(columns={other_value.name: prop_name + '2'})
 
     # Reorder a bit, starting with the last, only the name-category-value property, since they will surely exist
     left_and_right_nodepairs.insert(0, 'value2', left_and_right_nodepairs.pop('value2'))
@@ -314,10 +314,10 @@ def unify_personal_identifiers(personal_identifiers: DataFrame,
             identifiers = personal_identifiers[[column1, column2]].copy(deep=True)
 
             # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-            identifiers.replace('', nan, inplace=True)
+            identifiers = identifiers.replace('', nan)
             # dropna(how='any'): drop row if one or more row values contain NaN
-            identifiers.dropna(axis=0, how='any', inplace=True)
-            identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+            identifiers = identifiers.dropna(axis=0, how='any')
+            identifiers = identifiers.drop_duplicates(keep='first', ignore_index=True)
 
             if get_ricgraph_nodeadd_mode() == 'strict':
                 # Remove rows which have a cell value that occurs more than once.
@@ -342,11 +342,11 @@ def unify_personal_identifiers(personal_identifiers: DataFrame,
                 # For more explanation, see file docs/ricgraph_install_configure.md,
                 # section RICGRAPH_NODEADD_MODE.
                 if column1 != 'FULL_NAME' and column2 != 'FULL_NAME':
-                    identifiers.drop_duplicates(subset=column1, keep=False, inplace=True, ignore_index=True)
-                    identifiers.drop_duplicates(subset=column2, keep=False, inplace=True, ignore_index=True)
+                    identifiers = identifiers.drop_duplicates(subset=column1, keep=False, ignore_index=True)
+                    identifiers = identifiers.drop_duplicates(subset=column2, keep=False, ignore_index=True)
 
-            identifiers.rename(columns={column1: 'value1',
-                                        column2: 'value2'}, inplace=True)
+            identifiers = identifiers.rename(columns={column1: 'value1',
+                                                      column2: 'value2'})
             new_identifiers_columns = {'name1': column1,
                                        'category1': PERSON_CATEGORY_PERSON,
                                        'name2': column2,

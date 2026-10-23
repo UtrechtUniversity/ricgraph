@@ -878,16 +878,16 @@ def restructure_parse_persons(df: pandas.DataFrame) -> pandas.DataFrame:
     df_mod = df.copy(deep=True)
 
     if 'Scopus Author ID' in df_mod.columns:
-        df_mod.rename(columns={'Scopus Author ID': 'SCOPUS_AUTHOR_ID'}, inplace=True)
+        df_mod = df_mod.rename(columns={'Scopus Author ID': 'SCOPUS_AUTHOR_ID'})
 
     if 'Researcher ID' in df_mod.columns:
-        df_mod.rename(columns={'Researcher ID': 'RESEARCHER_ID'}, inplace=True)
+        df_mod = df_mod.rename(columns={'Researcher ID': 'RESEARCHER_ID'})
 
     if 'Digital author ID' in df_mod.columns:
-        df_mod.rename(columns={'Digital author ID': 'DIGITAL_AUTHOR_ID'}, inplace=True)
+        df_mod = df_mod.rename(columns={'Digital author ID': 'DIGITAL_AUTHOR_ID'})
 
     if 'Employee ID' in df_mod.columns:
-        df_mod.rename(columns={'Employee ID': 'EMPLOYEE_ID'}, inplace=True)
+        df_mod = df_mod.rename(columns={'Employee ID': 'EMPLOYEE_ID'})
 
     return df_mod
 
@@ -1079,7 +1079,7 @@ def parse_pure_persons(harvest: list,
 
     parse_result = pandas.DataFrame(parse_chunk_final)
     # Now remove the duplicate entries.
-    parse_result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    parse_result =  parse_result.drop_duplicates(keep='first', ignore_index=True)
 
     if 'PURE_NAME_ORG' not in parse_result.columns \
        and PURE_API_VERSION == PURE_CRUD_API_VERSION:
@@ -1541,7 +1541,7 @@ def parse_pure_entities(harvest: list,
 
     if len(parse_chunk_abstracts) != 0:
         parse_result_abstracts = pandas.DataFrame(parse_chunk_abstracts)
-        parse_result_abstracts.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+        parse_result_abstracts = parse_result_abstracts.drop_duplicates(keep='first', ignore_index=True)
         rcg.write_dataframe_to_csv(filename=abstracts_filename, df=parse_result_abstracts)
     parse_result = pandas.DataFrame(parse_chunk)
     return rcg.normalize_identifiers_write_read(parse_result=parse_result,
@@ -2119,7 +2119,7 @@ def parsed_persons_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     # Add the URL to this person in Pure. Some persons do not seem to have
     # this page.
     nodes_to_update = parsed_content[['PURE_ID_PERS', 'PURE_URL_PERS']].copy(deep=True)
-    nodes_to_update.rename(columns={'PURE_URL_PERS': 'URL_MAIN'}, inplace=True)
+    nodes_to_update = nodes_to_update.rename(columns={'PURE_URL_PERS': 'URL_MAIN'})
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                harvest_source=HARVEST_SOURCE,
                                what='URLs of PURE_ID_PERS nodes while parsing persons')
@@ -2133,7 +2133,7 @@ def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
     :return: None.
     """
     persorgnodes = parsed_content[['PURE_ID_PERS', 'PURE_NAME_ORG']].copy(deep=True)
-    persorgnodes.rename(columns={'PURE_NAME_ORG': 'ORGANIZATION_NAME'}, inplace=True)
+    persorgnodes = persorgnodes.rename(columns={'PURE_NAME_ORG': 'ORGANIZATION_NAME'})
     rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
                                            harvest_source=HARVEST_SOURCE,
                                            what='organizations')
@@ -2143,8 +2143,8 @@ def parsed_organizations_to_ricgraph(parsed_content: pandas.DataFrame) -> None:
         return
     # Note that not every (sub)organization seems to have a webpage.
     nodes_to_update = parsed_content[['PURE_NAME_ORG', 'PURE_URL_ORG']].copy(deep=True)
-    nodes_to_update.rename(columns={'PURE_NAME_ORG': 'ORGANIZATION_NAME',
-                                    'PURE_URL_ORG': 'URL_MAIN'}, inplace=True)
+    nodes_to_update = nodes_to_update.rename(columns={'PURE_NAME_ORG': 'ORGANIZATION_NAME',
+                                                      'PURE_URL_ORG': 'URL_MAIN'})
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                 harvest_source=HARVEST_SOURCE,
                                 what='URLs of organization nodes')
@@ -2186,7 +2186,7 @@ def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
     # Add the URL to this person in Pure. Some persons do not seem to have
     # this page.
     nodes_to_update = parsed_content[['PURE_ID_PERS', 'PURE_URL_PERS']].copy(deep=True)
-    nodes_to_update.rename(columns={'PURE_URL_PERS': 'URL_MAIN'}, inplace=True)
+    nodes_to_update = nodes_to_update.rename(columns={'PURE_URL_PERS': 'URL_MAIN'})
     rcg.update_urls_in_ricgraph(entities=nodes_to_update,
                                 harvest_source=HARVEST_SOURCE,
                                 what='URLs of PURE_ID_PERS nodes while parsing entities')
@@ -2194,7 +2194,7 @@ def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
         # This is specifically for external persons and author collaborations. We only
         # find these while parsing entities, not while parsing persons.
         external_persons = parsed_content[['PURE_ID_PERS', 'EXTERNAL_AUTHOR_NAME']].copy(deep=True)
-        external_persons.rename(columns={'EXTERNAL_AUTHOR_NAME': 'FULL_NAME'}, inplace=True)
+        external_persons = external_persons.rename(columns={'EXTERNAL_AUTHOR_NAME': 'FULL_NAME'})
         rcg.create_parsed_entities_in_ricgraph(entities=external_persons,
                                                harvest_source=HARVEST_SOURCE,
                                                what=what + ': external persons and author collaborations')
@@ -2204,7 +2204,7 @@ def parsed_entities_to_ricgraph(parsed_content: pandas.DataFrame,
         # find these while parsing entities, not while parsing persons.
         persorgnodes = parsed_content[['PURE_ID_PERS',
                                        'EXTERNAL_ORG_NAME']].copy(deep=True)
-        persorgnodes.rename(columns={'EXTERNAL_ORG_NAME': 'ORGANIZATION_NAME'}, inplace=True)
+        persorgnodes = persorgnodes.rename(columns={'EXTERNAL_ORG_NAME': 'ORGANIZATION_NAME'})
         rcg.create_parsed_entities_in_ricgraph(entities=persorgnodes,
                                                harvest_source=HARVEST_SOURCE,
                                                what=what + ': external organizations from external persons')

@@ -353,7 +353,7 @@ def convert_nodeslist_to_dataframe(nodes_list: list,
     result = result[present_columns]
     if result is None or result.empty:
         return None
-    result.set_index(keys='name', inplace=True)
+    result = result.set_index(keys='name')
     return result
 
 

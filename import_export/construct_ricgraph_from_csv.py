@@ -121,13 +121,13 @@ df_nodes = df_nodes[['name', 'category', 'value',
                      'comment', 'year', 'url_main', 'url_other']]
 # Cleanup.
 # dropna(how='all'): drop row if all row values contain NaN
-df_nodes.dropna(axis=0, how='all', inplace=True)
-df_nodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-df_nodes.fillna(value='', inplace=True)
+df_nodes = df_nodes.dropna(axis=0, how='all')
+df_nodes = df_nodes.drop_duplicates(keep='first', ignore_index=True)
+df_nodes = df_nodes.fillna(value='')
 
-df_edges.dropna(axis=0, how='all', inplace=True)
-df_edges.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-df_edges.fillna(value='', inplace=True)
+df_edges = df_edges.dropna(axis=0, how='all')
+df_edges = df_edges.drop_duplicates(keep='first', ignore_index=True)
+df_edges = df_edges.fillna(value='')
 
 if df_nodes['name'].str.contains(rcg.PERSON_NAME_PERSON_ROOT).any():
     # The first part creates a boolean Series indicating whether each cell
@@ -144,13 +144,13 @@ if df_edges['name_from'].str.contains(rcg.PERSON_NAME_PERSON_ROOT).any() \
 
 # Merge edges with nodes to get details for name_from and value_from
 merged = df_edges.merge(df_nodes, left_on=['name_from', 'value_from'], right_on=['name', 'value'], how='left')
-merged.rename(columns={'name_from': 'name1',
-                       'category': 'category1',
-                       'value_from': 'value1',
-                       'comment': 'comment1',
-                       'year': 'year1',
-                       'url_main': 'url_main1',
-                       'url_other': 'url_other1'}, inplace=True)
+merged = merged.rename(columns={'name_from': 'name1',
+                                'category': 'category1',
+                                'value_from': 'value1',
+                                'comment': 'comment1',
+                                'year': 'year1',
+                                'url_main': 'url_main1',
+                                'url_other': 'url_other1'})
 
 merged = merged[['name_to', 'value_to',
                  'name1', 'category1', 'value1',
@@ -158,13 +158,13 @@ merged = merged[['name_to', 'value_to',
 
 # Merge again to get details for name2 and value2
 result = merged.merge(df_nodes, left_on=['name_to', 'value_to'], right_on=['name', 'value'], how='left')
-result.rename(columns={'name_to': 'name2',
-                       'category': 'category2',
-                       'value_to': 'value2',
-                       'comment': 'comment2',
-                       'year': 'year2',
-                       'url_main': 'url_main2',
-                       'url_other': 'url_other2'}, inplace=True)
+result = result.rename(columns={'name_to': 'name2',
+                                'category': 'category2',
+                                'value_to': 'value2',
+                                'comment': 'comment2',
+                                'year': 'year2',
+                                'url_main': 'url_main2',
+                                'url_other': 'url_other2'})
 
 # Select relevant columns for the final result DataFrame
 result = result[['name1', 'category1', 'value1',

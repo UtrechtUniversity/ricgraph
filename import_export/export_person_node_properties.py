@@ -106,8 +106,8 @@ print(count, '\n', end='', flush=True)
 chunk_df = pandas.DataFrame(chunk)
 result = pandas.concat([result, chunk_df], ignore_index=True)
 # dropna(how='all'): drop row if all row values contain NaN
-result.dropna(axis=0, how='all', inplace=True)
-result.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+result = result.dropna(axis=0, how='all')
+result = result.drop_duplicates(keep='first', ignore_index=True)
 rcg.write_dataframe_to_csv(filename=EXPORT_FILENAME, df=result)
 
 rcg.close_ricgraph()

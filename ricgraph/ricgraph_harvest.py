@@ -319,8 +319,8 @@ def create_parsed_persons_in_ricgraph(person_identifiers: DataFrame,
     history_event = 'Source: Harvest "' + harvest_source + '" persons at ' + datetimestamp() + '.'
 
     # dropna(how='all'): drop row if all row values contain NaN
-    person_identifiers.dropna(axis=0, how='all', inplace=True)
-    person_identifiers.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    person_identifiers = person_identifiers.dropna(axis=0, how='all')
+    person_identifiers = person_identifiers.drop_duplicates(keep='first', ignore_index=True)
     if person_identifiers.empty:
         print('There are no persons to insert in Ricgraph.')
         return
@@ -382,12 +382,12 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
                                                       'VALUE']].replace(to_replace='', value=nan)
 
     # Drop a row from selected columns if any of its value is NaN.
-    entities.dropna(subset=[personal_id_name, 'VALUE'], how='any', inplace=True)
-    entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    entities.rename(columns={'NAME': 'name1',
-                             'CATEGORY': 'category1',
-                             'VALUE': 'value1',
-                             personal_id_name: 'value2'}, inplace=True)
+    entities = entities.dropna(subset=[personal_id_name, 'VALUE'], how='any')
+    entities = entities.drop_duplicates(keep='first', ignore_index=True)
+    entities = entities.rename(columns={'NAME': 'name1',
+                                        'CATEGORY': 'category1',
+                                        'VALUE': 'value1',
+                                        personal_id_name: 'value2'})
     new_entities_columns = {'source_event1': harvest_source,
                             'history_event1': history_event,
                             'name2': personal_id_name,
@@ -400,11 +400,11 @@ def create_parsed_entities_in_ricgraph_general(entities: DataFrame,
     for column in ['TITLE', 'YEAR', 'LICENSE', 'ACCESS', 'URL_MAIN', 'URL_OTHER', 'URL_ASSET']:
         if column in entities.columns:
             if column == 'TITLE':
-                entities.rename(columns={'TITLE': 'comment1'}, inplace=True)
+                entities = entities.rename(columns={'TITLE': 'comment1'})
                 cols.append('comment1')
             else:
                 ricgraph_column = column.lower() + '1'
-                entities.rename(columns={column: ricgraph_column}, inplace=True)
+                entities = entities.rename(columns={column: ricgraph_column})
                 cols.append(ricgraph_column)
     cols.extend(['source_event1', 'history_event1',
                  'name2', 'category2', 'value2', 'source_event2', 'history_event2'])
@@ -447,7 +447,7 @@ def create_parsed_dois_in_ricgraph(resouts: DataFrame,
     if 'DOI' not in resouts.columns:
         print('create_parsed_dois_in_ricgraph(): Error, missing column "DOI".')
         exit(1)
-    resouts.rename(columns={'DOI': 'VALUE'}, inplace=True)
+    resouts = resouts.rename(columns={'DOI': 'VALUE'})
     resouts.insert(loc=1, column='NAME', value='DOI')
     create_parsed_entities_in_ricgraph_general(entities=resouts,
                                                harvest_source=harvest_source,
@@ -476,7 +476,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
     :return: None.
     """
     entity_name = entities.columns[1]
-    entities.rename(columns={entity_name: 'VALUE'}, inplace=True)
+    entities = entities.rename(columns={entity_name: 'VALUE'})
     entities.insert(loc=1, column='NAME', value=entity_name)
 
     if entity_name in ['ORGANIZATION_NAME']:
@@ -490,7 +490,7 @@ def create_parsed_entities_in_ricgraph(entities: DataFrame,
             print('create_parsed_entities_in_ricgraph(): Error, missing third column.')
             exit(1)
         url_name = entities.columns[3]
-        entities.rename(columns={url_name: 'URL_MAIN'}, inplace=True)
+        entities = entities.rename(columns={url_name: 'URL_MAIN'})
     elif entity_name in ['UUSTAFF_PAGEID', 'FULL_NAME']:
         entities['CATEGORY'] = PERSON_CATEGORY_PERSON
     else:
@@ -540,12 +540,12 @@ def update_urls_in_ricgraph(entities: DataFrame,
         exit(1)
 
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-    entities.replace(to_replace='', value=nan, inplace=True)
+    entities = entities.replace(to_replace='', value=nan)
     # Drop a row if any of its values is NaN.
-    entities.dropna(axis=0, how='any', inplace=True)
-    entities.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    entities.rename(columns={entity_name: 'value',
-                             'URL_MAIN': 'url_main'}, inplace=True)
+    entities = entities.dropna(axis=0, how='any')
+    entities = entities.drop_duplicates(keep='first')
+    entities = entities.rename(columns={entity_name: 'value',
+                                        'URL_MAIN': 'url_main'})
     new_entities_columns = {'name': entity_name,
                             'source_event': harvest_source,
                             'history_event': history_event}
@@ -588,12 +588,12 @@ def create_parsed_rors_in_ricgraph(organizations: DataFrame,
     history_event = 'Source: Harvest "' + harvest_source + '" organization RORs at ' + datetimestamp() + '.'
 
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-    organizations.replace(to_replace='', value=nan, inplace=True)
+    organizations = organizations.replace(to_replace='', value=nan)
     # Drop a row if any of its values is NaN.
-    organizations.dropna(axis=0, how='any', inplace=True)
-    organizations.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-    organizations.rename(columns={'ORGANIZATION_NAME': 'value1',
-                                  'ROR': 'value2'}, inplace=True)
+    organizations = organizations.dropna(axis=0, how='any')
+    organizations = organizations.drop_duplicates(keep='first', ignore_index=True)
+    organizations = organizations.rename(columns={'ORGANIZATION_NAME': 'value1',
+                                                  'ROR': 'value2'})
     new_organization_columns = {'name1': 'ORGANIZATION_NAME',
                                 'category1': ORGANIZATION_CATEGORY_ORGANIZATION,
                                 'name2': 'ROR',

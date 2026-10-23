@@ -244,10 +244,10 @@ def normalize_identifiers(df: DataFrame | None) -> DataFrame | None:
     df_mod = df.copy(deep=True)
 
     # Ensure that all '' values are NaN, so that those rows can be easily removed with dropna()
-    df_mod.replace('', nan, inplace=True)
+    df_mod = df_mod.replace('', nan)
     # dropna(how='all'): drop row if all row values contain NaN
-    df_mod.dropna(axis=0, how='all', inplace=True)
-    df_mod.drop_duplicates(keep='first', inplace=True, ignore_index=True)
+    df_mod = df_mod.dropna(axis=0, how='all')
+    df_mod = df_mod.drop_duplicates(keep='first', ignore_index=True)
 
     # The values in this list correspond to the normalize functions above,
     # such as normalize_doi(), normalize_ror(), etc.

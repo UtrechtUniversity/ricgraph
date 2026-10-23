@@ -153,14 +153,14 @@ for prop in all_properties:
 
 # Cleanup.
 # dropna(how='all'): drop row if all row values contain NaN
-df_nodes.dropna(axis=0, how='all', inplace=True)
-df_nodes.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-df_nodes.fillna(value='', inplace=True)
+df_nodes = df_nodes.dropna(axis=0, how='all')
+df_nodes = df_nodes.drop_duplicates(keep='first', ignore_index=True)
+df_nodes = df_nodes.fillna(value='')
 df_nodes = df_nodes.map(convert_string_to_list)
 
-df_edges.dropna(axis=0, how='all', inplace=True)
-df_edges.drop_duplicates(keep='first', inplace=True, ignore_index=True)
-df_edges.fillna(value='', inplace=True)
+df_edges = df_edges.dropna(axis=0, how='all')
+df_edges = df_edges.drop_duplicates(keep='first', ignore_index=True)
+df_edges = df_edges.fillna(value='')
 
 # Construct Cypher query to import all nodes.
 prop_string = '{'
