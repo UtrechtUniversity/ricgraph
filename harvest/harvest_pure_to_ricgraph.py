@@ -131,7 +131,7 @@ HARVEST_PRESS_MEDIA = True
 # If you include an organization in this list,
 # press media items from that organization will
 # not be harvested.
-ORGANIZATIONS_WITHOUT_PRESS_MEDIA = ['AU']
+ORGANIZATIONS_WITHOUT_PRESS_MEDIA = ['UA']
 
 # These specify the mode for harvesting.
 MODE_PERSONS = 'persons'
