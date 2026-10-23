@@ -153,9 +153,9 @@ MODE_ALL = [MODE_PERSONS,
 # TODO: Some of these should be removed at some point in time.
 # ######################################################
 # Only relevant for Pure CRUD API, persons.
-ORGANIZATIONS_WITHOUT_staffOrganizationAssociations = ['AU', 'AUAS']
+ORGANIZATIONS_WITHOUT_staffOrganizationAssociations = ['UA', 'AUAS']
 # Only relevant for Pure CRUD API, research results.
-ORGANIZATIONS_WITHOUT_fileStoreLocations = ['AU', 'AUAS']
+ORGANIZATIONS_WITHOUT_fileStoreLocations = ['UA', 'AUAS']
 
 
 # ######################################################
@@ -316,7 +316,7 @@ PURE_RESOUTS_MAX_RECS_TO_HARVEST = 0                  # 0 = all records
 # that there are at most this number of records to harvest per year.
 # We need this because the CRUD API still lacks important features,
 # see the comment at the beginning of this file.
-PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR = 20000
+PURE_CRUD_RESOUTS_MAX_RECS_TO_HARVEST_PER_YEAR = 10000
 
 global PURE_RESOUTS_FIELDS
 PURE_READ_RESOUTS_FIELDS = {'fields': ['uuid',
@@ -992,8 +992,8 @@ def parse_pure_persons(harvest: list,
         if PURE_API_VERSION == PURE_CRUD_API_VERSION \
            and organization in ORGANIZATIONS_WITHOUT_staffOrganizationAssociations:
             # Note this is a copy from the relevant part from the next for loop.
-            if organization == 'AU':
-                org_name = 'AU Amsterdam University'
+            if organization == 'UA':
+                org_name = 'UA University of Amsterdam'
             elif organization == 'AUAS':
                 org_name = 'AUAS Amsterdam University of Applied Sciences'
             else:
