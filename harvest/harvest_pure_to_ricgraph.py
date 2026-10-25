@@ -629,6 +629,7 @@ DATASET_CATEGORY_MAPPING_PURE = {
 # Mapping from Pure license types to Ricgraph license types.
 # ######################################################
 LICENSE_MAPPING_PURE = {
+    'CC': rcg.LICENSE_UNKNOWN,
     'CC0': rcg.LICENSE_CC0,
     'CC 0': rcg.LICENSE_CC0,
     'CC BY': rcg.LICENSE_CC_BY,
@@ -639,11 +640,13 @@ LICENSE_MAPPING_PURE = {
     'CC BY-SA': rcg.LICENSE_CC_BY_SA,
     'GNU GPL': rcg.LICENSE_GPL_20,
     'GNU LGPL': rcg.LICENSE_LGPL_21,
+    'ODC-ODbL': rcg.LICENSE_ODBL_10,
     'Taverne': rcg.LICENSE_TAVERNE,
     'Article 25fa Dutch Copyright Act': rcg.LICENSE_TAVERNE,
     'Dutch Copyright Act (Article 25fa)': rcg.LICENSE_TAVERNE,
-    'Other': '',
-    'Unspecified': ''
+    'Article 25fa Dutch Copyright Act (https://www.openaccess.nl/en/policies/open-access-in-dutch-copyright-law-taverne-amendment)': rcg.LICENSE_TAVERNE,
+    'Other': rcg.LICENSE_UNKNOWN,
+    'Unspecified': rcg.LICENSE_UNKNOWN
 }
 
 

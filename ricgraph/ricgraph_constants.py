@@ -476,6 +476,8 @@ NODELABELS_CATEGORY = [
 # ########################################################################
 # For software the names and spellings from https://opensource.org/licenses
 # are used, column 'SPDX ID'.
+# For the full SPDX license list, see https://spdx.org/licenses.
+# TODO: should add dashes between CC and id to conform to SPDX list.
 LICENSE_AGPL_30 = 'AGPL-3.0'
 LICENSE_APACHE_20 = 'Apache-2.0'
 LICENSE_BSD_2 = 'BSD-2-Clause'
@@ -494,6 +496,7 @@ LICENSE_LGPL_21 = 'LGPL-2.1'
 LICENSE_LGPL_30 = 'LGPL-3.0'
 LICENSE_MIT = 'MIT'
 LICENSE_MULTIPLE = 'multiple'
+LICENSE_ODBL_10 = 'ODbL-1.0'
 LICENSE_ODC_BY_10 = 'ODC-By-1.0'
 LICENSE_OPEN_ACCESS = 'open access'
 LICENSE_TAVERNE = 'Taverne (not for re-use)'
