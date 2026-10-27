@@ -197,7 +197,7 @@ This procedure will only update Ricgraph, not Neo4j Community Edition.
    On success, the Makefile will print *installed successfully*.
 1. Restore the files you have saved above.
 
-If everything succeeded, you are done updating Ricgraph as a server.
+If everything succeeded, you are done updating Ricgraph as a single user.
 
 ## Requirements for Ricgraph
 

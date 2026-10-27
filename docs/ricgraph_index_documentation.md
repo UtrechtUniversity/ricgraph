@@ -133,6 +133,7 @@ __I__
 __L__
 
 - [Limit the amount of data to harvest from Pure](../docs/ricgraph_harvest_scripts.md#limit-the-amount-of-data-to-harvest-from-pure)
+- [Long running harvest scripts](../docs/ricgraph_harvest_scripts.md#long-running-harvest-scripts)
 
 __M__
 
@@ -204,6 +205,7 @@ __R__
 - [Ricgraph REST API](../docs/ricgraph_restapi.md#ricgraph-rest-api)
 - [Ricgraph REST API endpoint documentation](../docs/ricgraph_restapi.md#ricgraph-rest-api-endpoint-documentation)
 - [Ricgraph script writing](../docs/ricgraph_script_writing.md#ricgraph-script-writing)
+- [Ricgraph software spin-offs](../docs/ricgraph_outreach.md#ricgraph-software-spin-offs)
 - [Ricgraph use](../docs/ricgraph_outreach.md#ricgraph-use)
 - [Ricgraph videos](../docs/ricgraph_documentation_intro.md#ricgraph-videos)
 - [Ricgraph videos](../docs/ricgraph_outreach.md#ricgraph-videos)

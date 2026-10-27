@@ -40,10 +40,14 @@ Ricgraph is unique because it allows you to:
 In this pilot project, we have started with research information from
 the following organizations in the Netherlands:
 
-|           <img alt="AUMC logo." src="images/aumc_logo.png" height="30px">            | <img alt="DUT logo." src="images/dut_logo.png" height="30px"> | <img alt="VUA logo." src="images/vua_logo.png" height="30px"> |
-|:------------------------------------------------------------------------------------:|:-------------------------------------------------------------:|:-------------------------------------------------------------:|
-| [Amsterdam University Medical Centers](https://www.amsterdamumc.org/en/research.htm) |  [Delft University of Technology](https://www.tudelft.nl/en)  |       [Vrije Universiteit Amsterdam](https://vu.nl/en)        |
+|           <img alt="AUMC logo." src="images/aumc_logo.png" height="30px">            |   <img alt="AUAS logo." src="images/auas_logo.png" height="30px">    | <img alt="DUT logo." src="images/dut_logo.png" height="30px"> |
+|:------------------------------------------------------------------------------------:|:--------------------------------------------------------------------:|:-------------------------------------------------------------:|
+| [Amsterdam University Medical Centers](https://www.amsterdamumc.org/en/research.htm) | [Amsterdam University of Applied Sciences](https://amsterdamuas.com) |  [Delft University of Technology](https://www.tudelft.nl/en)  |
 
+
+| <img alt="UA logo." src="images/ua_logo.png" height="30px"> | <img alt="VUA logo." src="images/vua_logo.png" height="30px"> |
+|:-----------------------------------------------------------:|:-------------------------------------------------------------:|
+|      [University of Amsterdam](https://www.uva.nl/en)       |       [Vrije Universiteit Amsterdam](https://vu.nl/en)        |
 
 More participants will be added during pilot period. If your organization would like to 
 participate, read [Participate in the pilot project](#participate-in-the-pilot-project).

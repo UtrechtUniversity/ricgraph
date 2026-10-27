@@ -62,7 +62,65 @@ Read more in the
 Each of these scripts can be adapted to your needs, see their code. 
 It is best to [run harvest scripts in a specific 
 order](#order-of-running-the-harvest-scripts).
- 
+
+## Long running harvest scripts
+Harvest scripts tend to take a long time to complete, especially if
+you harvest multiple sources, multiple organizations, or multiple years. 
+To make sure that long running scripts are not interrupted by 
+Linux system events, restarting services, or 
+crashing *guacamole/xrdp* sessions, it is best to
+run long-lived work in a session-independent terminal 
+multiplexer or systemd scope.
+This section describes how to do that with the terminal
+multiplexer `tmux`.
+
+* To create a new session, execute the following command in
+  a separate *ssh* session.
+  Do not do this in
+  e.g. a *guacamole/xrdp* session. Type:
+  
+  ```
+  tmux new -t <name of session>
+  ```
+  
+  After you have created the session and started your
+  harvest script (or other script), detach from the session
+  (see below),
+  and logout from *ssh*.
+  
+* To detach from a session (it will keep running), type from
+  inside the session:
+  
+  ```
+  <Ctrl>-b 
+  d
+  ```
+  
+  This means: press *Ctrl* and *b*, release both keys, 
+  then press *d* to detach.
+  
+  
+* To reconnect to this session, (this can be done both in
+  a *ssh* session, as in a *guacamole/xrdp* session), type: 
+  
+  ```
+  tmux attach -t <name of session>
+  ```
+  
+* To stop (kill) this session from outside the session, type:
+  
+  ```
+  tmux kill-session -t <name of session>
+  ```
+  
+* To stop (kill) this session from inside the session, type:
+  
+  ```
+  <Ctrl>-b 
+  :kill-session
+  ```
+
+
 ## Organization abbreviation
 Ricgraph uses the term *organization abbreviation*.
 This is a string of a few letters that can be passed to some harvest
