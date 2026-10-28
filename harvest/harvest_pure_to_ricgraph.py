@@ -630,8 +630,8 @@ DATASET_CATEGORY_MAPPING_PURE = {
 # ######################################################
 LICENSE_MAPPING_PURE = {
     'CC': rcg.LICENSE_UNKNOWN,
-    'CC0': rcg.LICENSE_CC0,
-    'CC 0': rcg.LICENSE_CC0,
+    'CC0': rcg.LICENSE_CC0_10,
+    'CC 0': rcg.LICENSE_CC0_10,
     'CC BY': rcg.LICENSE_CC_BY,
     'CC BY-NC': rcg.LICENSE_CC_BY_NC,
     'CC BY-NC-ND': rcg.LICENSE_CC_BY_NC_ND,

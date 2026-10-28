@@ -474,32 +474,51 @@ NODELABELS_CATEGORY = [
 # ########################################################################
 # License related constants.
 # ########################################################################
-# For software the names and spellings from https://opensource.org/licenses
-# are used, column 'SPDX ID'.
 # For the full SPDX license list, see https://spdx.org/licenses.
-# TODO: should add dashes between CC and id to conform to SPDX list.
+# Their names and spellings are used.
+# For software licenses: https://opensource.org/licenses.
+
+# This one should have '-only' or '-or-later' added, but
+# the source systems do not specify.
 LICENSE_AGPL_30 = 'AGPL-3.0'
+
 LICENSE_APACHE_20 = 'Apache-2.0'
 LICENSE_BSD_2 = 'BSD-2-Clause'
 LICENSE_BSD_3 = 'BSD-3-Clause'
-LICENSE_CC0 = 'CC0'
-LICENSE_CC_BY = 'CC BY'
-LICENSE_CC_BY_40 = 'CC BY-4.0'
-LICENSE_CC_BY_NC = 'CC BY-NC'
-LICENSE_CC_BY_NC_ND = 'CC BY-NC-ND'
-LICENSE_CC_BY_NC_SA = 'CC BY-NC-SA'
-LICENSE_CC_BY_ND = 'CC BY-ND'
-LICENSE_CC_BY_SA = 'CC BY-SA'
+LICENSE_CC0_10 = 'CC0-1.0'
+
+# A distinction is made between CC licenses that specify a
+# version number and CC licenses that do not.
+LICENSE_CC_BY = 'CC-BY'
+LICENSE_CC_BY_40 = 'CC-BY-4.0'
+LICENSE_CC_BY_NC = 'CC-BY-NC'
+LICENSE_CC_BY_NC_ND = 'CC-BY-NC-ND'
+LICENSE_CC_BY_NC_SA = 'CC-BY-NC-SA'
+LICENSE_CC_BY_ND = 'CC-BY-ND'
+LICENSE_CC_BY_SA = 'CC-BY-SA'
+
+# These should have '-only' or '-or-later' added, but
+# the source systems do not specify.
 LICENSE_GPL_20 = 'GPL-2.0'
 LICENSE_GPL_30 = 'GPL-3.0'
 LICENSE_LGPL_21 = 'LGPL-2.1'
 LICENSE_LGPL_30 = 'LGPL-3.0'
+
 LICENSE_MIT = 'MIT'
+
+# This one is not an official SPDX license name, but it
+# appears in our source systems.
 LICENSE_MULTIPLE = 'multiple'
+
 LICENSE_ODBL_10 = 'ODbL-1.0'
 LICENSE_ODC_BY_10 = 'ODC-By-1.0'
+
+# These are not official SPDX license names, but they
+# appear in our source systems.
 LICENSE_OPEN_ACCESS = 'open access'
 LICENSE_TAVERNE = 'Taverne (not for re-use)'
+
+# Fall back if no license is obtained from a source system.
 LICENSE_UNKNOWN = RICGRAPH_UNKNOWN
 
 LICENSE_ALL = [
@@ -507,7 +526,7 @@ LICENSE_ALL = [
     LICENSE_APACHE_20,
     LICENSE_BSD_2,
     LICENSE_BSD_3,
-    LICENSE_CC0,
+    LICENSE_CC0_10,
     LICENSE_CC_BY,
     LICENSE_CC_BY_40,
     LICENSE_CC_BY_NC,
@@ -521,6 +540,7 @@ LICENSE_ALL = [
     LICENSE_LGPL_30,
     LICENSE_MIT,
     LICENSE_MULTIPLE,
+    LICENSE_ODBL_10,
     LICENSE_ODC_BY_10,
     LICENSE_OPEN_ACCESS,
     LICENSE_TAVERNE,
