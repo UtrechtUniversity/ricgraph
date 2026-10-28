@@ -12,6 +12,7 @@ or about
 On this page, you can find:
 
 * [Introduction to harvest scripts](#introduction-to-harvest-scripts)
+* [Long running harvest scripts](#long-running-harvest-scripts)
 * [Organization abbreviation](#organization-abbreviation)
 * [Demo harvest script (multiple_harvest_demo)](#demo-harvest-script-multiple_harvest_demo)
 * [Scripts that harvest multiple sources](#scripts-that-harvest-multiple-sources)
