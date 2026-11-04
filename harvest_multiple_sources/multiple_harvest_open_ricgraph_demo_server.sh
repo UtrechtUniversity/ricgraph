@@ -195,6 +195,9 @@ cd ../enhance || exit 1
 ./delete_employeeids.sh --are_you_sure yes
 exit_on_error $?
 
+./rename_dut_urls.sh --are_you_sure yes
+exit_on_error $?
+
 participants_uu="$participants UU"
 for org_loop in $participants_uu; do
   echo "Processing organization $org_loop..."
