@@ -277,10 +277,9 @@ def create_update_node(name: str, category: str, value: str,
             # Do not change a value if the future value would change
             # to RICGRAPH_UNKNOWN or '' (this means we lose information).
             continue
-        if prop_name == 'url_main':
-            # This should probably never change, it is related to 'value'.
-            continue
-        if prop_name == 'url_other' or prop_name == 'url_asset':
+        if prop_name == 'url_main' \
+           or prop_name == 'url_other' \
+           or prop_name == 'url_asset':
             if len(node[prop_name]) == 0:
                 # Property not present yet.
                 node_properties[prop_name] = [str(other_properties[prop_name])]
