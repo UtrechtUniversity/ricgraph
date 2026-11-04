@@ -697,40 +697,40 @@ def create_pure_url(name: str, value: str) -> str:
         return ''
 
 
-def create_urlmain(type_id: str, doi_value: str, uuid_value: str) -> str:
-    """A helper function for parsed_entities_to_ricgraph()"""
-    if type_id == 'DOI':
-        return rcg.create_well_known_url(name=type_id,
-                                         value=doi_value)
-    elif type_id == 'PURE_ID_RESOUT':
-        return create_pure_url(name=type_id,
-                               value=uuid_value)
-    else:
-        # Should not happen
-        print('create_urlmain(): error')
-    return ''
-
-
-def create_urlother(type_id: str, uuid_value: str) -> str:
-    """A helper function for parsed_entities_to_ricgraph()"""
-    if type_id == 'DOI':
-        return create_pure_url(name='PURE_ID_RESOUT',
-                               value=uuid_value)
-    else:
-        return ''
-
-
-def find_organization_name(uuid: str, organization_names: dict):
-    """Find the full organization name which belongs to an organization with a certain UUID.
-
-    :param uuid: the UUID.
-    :param organization_names: the dict with organization names.
-    :return: the full organization name.
-    """
-    if uuid in organization_names:
-        return str(organization_names[uuid])
-    else:
-        return 'Organization name not found for UUID ' + uuid + '.'
+# def create_urlmain(type_id: str, doi_value: str, uuid_value: str) -> str:
+#     """A helper function for parsed_entities_to_ricgraph()"""
+#     if type_id == 'DOI':
+#         return rcg.create_well_known_url(name=type_id,
+#                                          value=doi_value)
+#     elif type_id == 'PURE_ID_RESOUT':
+#         return create_pure_url(name=type_id,
+#                                value=uuid_value)
+#     else:
+#         # Should not happen
+#         print('create_urlmain(): error')
+#     return ''
+#
+#
+# def create_urlother(type_id: str, uuid_value: str) -> str:
+#     """A helper function for parsed_entities_to_ricgraph()"""
+#     if type_id == 'DOI':
+#         return create_pure_url(name='PURE_ID_RESOUT',
+#                                value=uuid_value)
+#     else:
+#         return ''
+#
+#
+# def find_organization_name(uuid: str, organization_names: dict):
+#     """Find the full organization name which belongs to an organization with a certain UUID.
+#
+#     :param uuid: the UUID.
+#     :param organization_names: the dict with organization names.
+#     :return: the full organization name.
+#     """
+#     if uuid in organization_names:
+#         return str(organization_names[uuid])
+#     else:
+#         return 'Organization name not found for UUID ' + uuid + '.'
 
 
 def json_item_get_str_pure(json_item: dict,
