@@ -75,6 +75,7 @@ all_data_collect_dir=$HOME/$(date +%y%m%d)-all_data_collect
 year_first=2022
 year_last=2026
 abstracts_file="abstracts_all"
+default_harvest_script_args="--empty_ricgraph no --year_first $year_first --year_last $year_last"
 
 echo "The following directories will be used:"
 echo "data_collect_dir: $data_collect_dir"
@@ -114,50 +115,37 @@ fi
 
 echo "$0 start at $(date)."
 
-./multiple_harvest_organization.sh --organization DUT --empty_ricgraph yes --year_first $year_first --year_last $year_last
-exit_on_error $?
-
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut-$(date +%y%m%d-%H%M)
-sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
-exit_on_error $?
+echo "Emptying the graph database..."
+sudo make -f ../Makefile empty_graphdb_neo4j_community ask_are_you_sure=no
+echo "Done emptying, sleeping for 30 secs to make sure neo4j is running..."
 # Make sure neo4j is up and running.
-sleep 120
+sleep 30
+echo "Done sleeping."
 
-./multiple_harvest_organization.sh --organization AUMC --empty_ricgraph no --year_first $year_first --year_last $year_last
-exit_on_error $?
+echo "Continuing with harvesting..."
 
-# AUMC is twice in RSD, harvest the other one (the first one has already been harvested above).
-source ../library/get_cmdline_args.sh  --organization AUM2;  PYTHONPATH=$python_path $python_cmd ../harvest/harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization "$organization"
-exit_on_error $?
+orgs_processed=""
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc-$(date +%y%m%d-%H%M)
-sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
-exit_on_error $?
-sleep 120
+for org_loop in $participants; do
+  echo "Processing organization $org_loop..."
+  ./multiple_harvest_organization.sh --organization "$org_loop" "$default_harvest_script_args"
+  exit_on_error $?
 
-./multiple_harvest_organization.sh --organization VUA --empty_ricgraph no --year_first $year_first --year_last $year_last
-exit_on_error $?
+  if [[ "$org_loop" == "AUMC" ]]; then
+    # Only for AUMC.
+    # AUMC is twice in RSD, harvest the other one (the first one has already been harvested above).
+    source ../library/get_cmdline_args.sh  --organization AUM2;  PYTHONPATH=$python_path $python_cmd ../harvest/harvest_rsd_to_ricgraph.py --empty_ricgraph no --organization "$organization"
+    exit_on_error $?
+  fi
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua-$(date +%y%m%d-%H%M)
-sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
-exit_on_error $?
-sleep 120
+  orgs_processed+="-$org_loop"
+  actual_graphdb_backup_dir="$graphdb_backup_dir/$(date +%y%m%d-%H%M)-graphdb_backup$orgs_processed"
+  sudo make -f ../Makefile graphdb_backup_dir="$actual_graphdb_backup_dir" ask_are_you_sure=no dump_graphdb_neo4j_community
+  exit_on_error $?
+  # Make sure neo4j is up and running.
+  sleep 120
 
-./multiple_harvest_organization.sh --organization AUAS --empty_ricgraph no --year_first $year_first --year_last $year_last
-exit_on_error $?
-
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas-$(date +%y%m%d-%H%M)
-sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
-exit_on_error $?
-sleep 120
-
-./multiple_harvest_organization.sh --organization UA --empty_ricgraph no --year_first $year_first --year_last $year_last
-exit_on_error $?
-
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas+ua-$(date +%y%m%d-%H%M)
-sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
-exit_on_error $?
-sleep 120
+done
 
 cd ../enhance || exit 1
 
@@ -165,19 +153,20 @@ cd ../enhance || exit 1
 exit_on_error $?
 
 for org_loop in $participants; do
-  echo "Processing organization $org_loop..."
+  echo "Processing organization $org_loop to rename..."
   ./rename_organizations.sh --organization "$org_loop"
   exit_on_error $?
 done
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas+ua-renameorgs-$(date +%y%m%d-%H%M)
-sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+orgs_processed+="-postprorgs"
+actual_graphdb_backup_dir="$graphdb_backup_dir/$(date +%y%m%d-%H%M)-graphdb_backup$orgs_processed"
+sudo make -f ../Makefile graphdb_backup_dir="$actual_graphdb_backup_dir" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 sleep 120
 
 # Save the demo server graphdb dump in a separate directory, for easy transfer
 # to another VM.
-cp "$graphdb_backup"/* "$explorer_data_collect_dir"
+cp "$actual_graphdb_backup_dir"/* "$explorer_data_collect_dir"
 tar -czf "$explorer_data_collect_dir".tar.gz "$explorer_data_collect_dir"
 exit_on_error $?
 
@@ -185,11 +174,12 @@ exit_on_error $?
 # And now add UU.
 cd ../harvest_multiple_sources || exit 1
 
-./multiple_harvest_organization.sh --organization UU --empty_ricgraph no --year_first $year_first --year_last $year_last
+./multiple_harvest_organization.sh --organization UU "$default_harvest_script_args"
 exit_on_error $?
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas+ua+uu-$(date +%y%m%d-%H%M)
-sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+orgs_processed+="-uu"
+actual_graphdb_backup_dir="$graphdb_backup_dir/$(date +%y%m%d-%H%M)-graphdb_backup$orgs_processed"
+sudo make -f ../Makefile graphdb_backup_dir="$actual_graphdb_backup_dir" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 sleep 120
 
@@ -200,19 +190,20 @@ exit_on_error $?
 
 participants_uu="$participants UU"
 for org_loop in $participants_uu; do
-  echo "Processing organization $org_loop..."
+  echo "Processing organization $org_loop to rename..."
   ./rename_organizations.sh --organization "$org_loop"
   exit_on_error $?
 done
 
-graphdb_backup=$graphdb_backup_dir/graphdb_backup-dut+aumc+vua+auas+au+uu-renameorgs-$(date +%y%m%d-%H%M)
-sudo make -f ../Makefile graphdb_backup_dir="$graphdb_backup" ask_are_you_sure=no dump_graphdb_neo4j_community
+orgs_processed+="-postprorgs"
+actual_graphdb_backup_dir="$graphdb_backup_dir/$(date +%y%m%d-%H%M)-graphdb_backup$orgs_processed"
+sudo make -f ../Makefile graphdb_backup_dir="$actual_graphdb_backup_dir" ask_are_you_sure=no dump_graphdb_neo4j_community
 exit_on_error $?
 sleep 120
 
 # Save the all graphdb dump in a separate directory, for easy transfer
 # to another VM.
-cp "$graphdb_backup"/* "$all_data_collect_dir"
+cp "$actual_graphdb_backup_dir"/* "$all_data_collect_dir"
 tar -czf "$all_data_collect_dir".tar.gz "$all_data_collect_dir"
 exit_on_error $?
 
