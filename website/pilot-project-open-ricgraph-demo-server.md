@@ -34,6 +34,8 @@ Ricgraph is unique because it allows you to:
 * [Explore collaborations between (sub-)organizations](collaborations-with-ricgraph.md).
 * [Explore open science](open-science-with-ricgraph.md).
 * [Enhance research information systems](enhancing-with-ricgraph.md).
+* [Use it as an open science infrastructure for research
+  information](ricgraph-open-science-infrastructure-for-research-information.md).
 
 
 ## Participating organizations
