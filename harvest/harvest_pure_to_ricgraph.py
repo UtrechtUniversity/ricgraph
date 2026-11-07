@@ -1433,11 +1433,13 @@ def parse_pure_entities(harvest: list,
                                                      json_path='person.uuid')) != '':
                 # Internal person, don't set 'external_author_name', it is not necessary.
                 external_author_name = ''
+                internal_person = True
             elif (author_uuid := rcg.json_item_get_str(json_item=persons,
                                                        json_path='externalPerson.uuid')) != '':
                 # External person.
                 external_author_name = rcg.json_item_get_str(json_item=persons,
                                                              json_path='externalPerson.name.text.0.value')
+                internal_person = False
                 # Get the external organization of this person.
                 # There may be many externalOrganizations, for now we only take the first.
                 externalorg_name = rcg.json_item_get_str(json_item=persons,
@@ -1461,6 +1463,7 @@ def parse_pure_entities(harvest: list,
                 if external_author_name == '':
                     external_author_name = '[no author collaboration name]'
                 external_author_name += ' (' + organization + ' author collaboration)'
+                internal_person = False
                 # CRUD API does not have an author collaboration name,
                 # only an author collaboration UUID.
             else:
@@ -1517,15 +1520,20 @@ def parse_pure_entities(harvest: list,
             if externalorg_name != '':
                 parse_line['EXTERNAL_ORG_NAME'] = externalorg_name
             # '|=': merges a dict in place with another dict.
+            parse_line |= {'TITLE': title,
+                           'YEAR': publication_year,
+                           'PURE_ID_PERS': author_uuid}
             # The PURE_URL_PERS is required to get a URL to the person.
             # This has not yet happened for authors that _only_ have a
             # data set or press media item (it has happened for authors
             # that also have a research result).
-            parse_line |= {'TITLE': title,
-                           'YEAR': publication_year,
-                           'PURE_ID_PERS': author_uuid,
-                           'PURE_URL_PERS': create_pure_url(name='PURE_ID_PERS',
-                                                            value=author_uuid)}
+            if internal_person:
+                # Only internal persons get a link to a Pure page.
+                parse_line |= {'PURE_URL_PERS': create_pure_url(name='PURE_ID_PERS',
+                                                                value=author_uuid)}
+            else:
+                # External persons don't have a page in Pure.
+                parse_line |= {'PURE_URL_PERS': ''}
             if licentie != '':
                 parse_line['LICENSE'] = licentie
             if access != '':
