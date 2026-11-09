@@ -301,6 +301,7 @@ def parse_openalex_entities(harvest: list,
                 parse_abstract = {'NAME': 'DOI',
                                   'CATEGORY': category,
                                   'VALUE': rcg.normalize_doi(identifier=doi),
+                                  'TITLE': title,
                                   'ABSTRACT': abstract
                                  }
                 parse_chunk_abstracts.append(parse_abstract)

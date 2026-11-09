@@ -237,6 +237,7 @@ def parse_rsd_software(harvest: list,
             parse_abstract = {'NAME': 'DOI',
                               'CATEGORY': rcg.RESEARCHRESULT_CATEGORY_SOFTWARE,
                               'VALUE': rcg.normalize_doi(identifier=package_doi),
+                              'TITLE': package_name,
                               'ABSTRACT': abstract
                              }
             parse_chunk_abstracts.append(parse_abstract)

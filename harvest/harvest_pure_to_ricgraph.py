@@ -1541,6 +1541,7 @@ def parse_pure_entities(harvest: list,
             parse_chunk.append(parse_line)
             if abstract != '':
                 parse_abstract = parse_line_core | {
+                                   'TITLE': title,
                                    'ABSTRACT': abstract
                                  }
                 parse_chunk_abstracts.append(parse_abstract)

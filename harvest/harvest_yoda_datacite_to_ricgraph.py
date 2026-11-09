@@ -109,6 +109,7 @@ LICENSE_MAPPING_YODA = {
     LICENSE_MAPPING_YODA_PREFIX +'by-nc-sa' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY_NC_SA,
     LICENSE_MAPPING_YODA_PREFIX +'by-nd' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY_ND,
     LICENSE_MAPPING_YODA_PREFIX +'by-sa' + LICENSE_MAPPING_YODA_POSTFIX: rcg.LICENSE_CC_BY_SA,
+    'https://creativecommons.org/publicdomain/zero/1.0/legalcode': rcg.LICENSE_CC0_10,
     'https://opendatacommons.org/licenses/by/1.0/': rcg.LICENSE_ODC_BY_10
 }
 
@@ -563,7 +564,7 @@ def harvest_and_parse_yoda_datacite_data(url: str,
     # Note that this is different compared to other harvest sources as e.g. Pure, OpenAlex.
     # There, they are saved during the parse, but with the nested XML
     # that is too complicated.
-    abstracts_df = parse[['CATEGORY', 'DOI', 'ABSTRACT']]
+    abstracts_df = parse[['CATEGORY', 'DOI', 'TITLE', 'ABSTRACT']]
     abstracts_df = abstracts_df.rename(columns={'DOI': 'VALUE'})
     abstracts_df.insert(0, 'NAME', 'DOI')
     if abstracts_df is not None and not abstracts_df.empty:
