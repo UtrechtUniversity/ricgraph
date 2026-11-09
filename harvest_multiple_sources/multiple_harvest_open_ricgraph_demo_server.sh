@@ -75,7 +75,10 @@ all_data_collect_dir=$HOME/$(date +%y%m%d)-all_data_collect
 year_first=2022
 year_last=2026
 abstracts_file="abstracts_all"
-default_harvest_script_args="--empty_ricgraph no --year_first $year_first --year_last $year_last"
+common_harvest_script_args=(
+  --year_first "$year_first"
+  --year_last "$year_last"
+)
 
 echo "The following directories will be used:"
 echo "data_collect_dir: $data_collect_dir"
@@ -114,22 +117,20 @@ else
 fi
 
 echo "$0 start at $(date)."
-
-echo "Emptying the graph database..."
-sudo make -f ../Makefile empty_graphdb_neo4j_community ask_are_you_sure=no
-echo "Done emptying, sleeping for 30 secs to make sure neo4j is running..."
-# Make sure neo4j is up and running.
-sleep 30
-echo "Done sleeping."
-
-echo "Continuing with harvesting..."
-
 orgs_processed=""
+# The "empty_ricgrapy yes" creates the indexes in the graph database we need.
+empty_ricgraph=yes
+# Use this if you already have indexes in the graph database.
+#empty_ricgraph=no
 
 for org_loop in $participants; do
   echo "Processing organization $org_loop..."
-  ./multiple_harvest_organization.sh --organization "$org_loop" "$default_harvest_script_args"
+  ./multiple_harvest_organization.sh --organization "$org_loop" --empty_ricgraph "$empty_ricgraph" "${common_harvest_script_args[@]}"
   exit_on_error $?
+
+  if [[ "$empty_ricgraph" == "yes" ]]; then
+    empty_ricgraph=no
+  fi
 
   if [[ "$org_loop" == "AUMC" ]]; then
     # Only for AUMC.
@@ -166,7 +167,7 @@ sleep 120
 
 # Save the demo server graphdb dump in a separate directory, for easy transfer
 # to another VM.
-cp "$actual_graphdb_backup_dir"/* "$explorer_data_collect_dir"
+cp -r "$actual_graphdb_backup_dir" "$explorer_data_collect_dir"
 tar -czf "$explorer_data_collect_dir".tar.gz "$explorer_data_collect_dir"
 exit_on_error $?
 
@@ -174,7 +175,7 @@ exit_on_error $?
 # And now add UU.
 cd ../harvest_multiple_sources || exit 1
 
-./multiple_harvest_organization.sh --organization UU "$default_harvest_script_args"
+./multiple_harvest_organization.sh --organization UU --empty_ricgraph "$empty_ricgraph" "${common_harvest_script_args[@]}"
 exit_on_error $?
 
 orgs_processed+="-uu"
@@ -203,7 +204,7 @@ sleep 120
 
 # Save the all graphdb dump in a separate directory, for easy transfer
 # to another VM.
-cp "$actual_graphdb_backup_dir"/* "$all_data_collect_dir"
+cp -r "$actual_graphdb_backup_dir" "$all_data_collect_dir"
 tar -czf "$all_data_collect_dir".tar.gz "$all_data_collect_dir"
 exit_on_error $?
 
@@ -216,7 +217,7 @@ mv ./*.log "$data_collect_dir"
 mv ./*.csv ./*.json "$harvest_result_dir"
 cd ../harvest || exit 1
 tar -czf "$abstracts_file.tar.gz" ./*abstracts*.csv
-mv "$abstracts_file.tar.gz" "$harvest_result_dir"
+mv "$abstracts_file.tar.gz" "$data_collect_dir"
 mv ./*.xml ./*.csv ./*.json "$harvest_result_dir"
 tar -czf "$data_collect_dir.tar.gz" "$data_collect_dir"
 
