@@ -37,7 +37,7 @@
 # Original version Rik D.T. Janssen, December 2022.
 # Updated Rik D.T. Janssen, February, March, September to December 2023.
 # Updated Rik D.T. Janssen, February to June, September to December  2024.
-# Updated Rik D.T. Janssen, January to June, October 2025, July 2026.
+# Updated Rik D.T. Janssen, January to June, October 2025, July, November 2026.
 #
 # ########################################################################
 
@@ -88,9 +88,16 @@ def memcached_open_connection() -> None:
 
     try:
         # Do not use Client(), it is not thread safe.
+        # 'default_noreply=False' means that the client waits for an
+        # acknowledgement from Memcached after write operations such as set(),
+        # rather than sending the command without reading its response.
+        # 'default_noreply=False' means 'expect a reply'.
+        # We want this, because an error can raise an exception.
+        # This only adds very little to the cost of the call.
         memcached_client = PooledClient(server=(memcached_host, memcached_port),
                                         max_pool_size=MEMCACHED_MAX_POOL_SIZE,
-                                        allow_unicode_keys=True)
+                                        allow_unicode_keys=True,
+                                        default_noreply=False)
 
         # Test connection by setting and deleting a test key.
         memcached_client.set(key='test_key', value=b'test', expire=1)
@@ -99,9 +106,10 @@ def memcached_open_connection() -> None:
         _memcached_available = True
         _memcached_client = memcached_client
         return
-    except:
+    except Exception as e:
         print('memcached_open_connection(): Warning: could not reach Memcached cache daemon,')
-        print('     it is probably not running, continuing with local cache.')
+        print('    it is probably not running, continuing with local cache.')
+        print('    Error message "' + str(e) + '".')
         _memcached_available = False
         _memcached_client = None
         return
@@ -144,8 +152,10 @@ def ricgraph_cache_item_create(key: str, value: Any) -> None:
             _memcached_client.set(key=key_clean,
                                   value=value_serialized,
                                   expire=0)
-        except:
-            print('ricgraph_cache_item_create(): Warning, connection to Memcached lost, continuing...')
+        except Exception as e:
+            print('ricgraph_cache_item_create(): cache create failed for')
+            print('    key: "' + key_clean + '", error message "' + str(e) + '".')
+            print('    This may be a connection to Memcached lost, continuing...')
             # Continue, hopefully the connection will come back soon.
         return
 
@@ -179,8 +189,10 @@ def ricgraph_cache_item_read(key: str) -> Any:
             return ''
         try:
             value_serialized = _memcached_client.get(key=key_clean)
-        except:
-            print('ricgraph_cache_item_read(): Warning, connection to Memcached lost, continuing...')
+        except Exception as e:
+            print('ricgraph_cache_item_read(): cache read failed for')
+            print('    key: "' + key_clean + '", error message "' + str(e) + '".')
+            print('    This may be a connection to Memcached lost, continuing...')
             # Continue, hopefully the connection will come back soon.
             return ''
 
@@ -217,8 +229,10 @@ def ricgraph_cache_item_delete_key(key: str) -> None:
         try:
             # Works regardless whether the key is present or not.
             _memcached_client.delete(key=key_clean)
-        except:
-            print('nodes_cache_item_delete_key(): Error, connection to Memcached lost, exiting...')
+        except Exception as e:
+            print('ricgraph_cache_item_delete_key(): cache delete failed for')
+            print('    key: "' + key_clean + '", error message "' + str(e) + '".')
+            print('    This may be a connection to Memcached lost, exiting.')
             # Exit because the cache gets in an unexpected state:
             # an element remains in the cache while it should not.
             exit(1)
@@ -242,8 +256,10 @@ def ricgraph_cache_empty() -> None:
             return
         try:
             _memcached_client.flush_all()
-        except:
-            print('ricgraph_cache_empty(): Error, connection to Memcached lost, exiting...')
+        except Exception as e:
+            print('ricgraph_cache_empty(): cache empty failed.')
+            print('    This may be a connection to Memcached lost, exiting.')
+            print('    Error message "' + str(e) + '".')
             # Exit because the cache gets in an unexpected state:
             # it is not emptied while it should have been.
             exit(1)
@@ -269,7 +285,10 @@ def ricgraph_cache_size() -> Tuple[int, float]:
             nr_items = int(stats.get(b'curr_items', 0))
             bytes_used = int(stats.get(b'bytes', 0))
             size_kb = round(bytes_used / 1000, 1)
-        except:
+        except Exception as e:
+            print('ricgraph_cache_size(): getting cache size failed.')
+            print('    This may be a connection to Memcached lost, continuing...')
+            print('    Error message "' + str(e) + '".')
             # In case the connection to Memcached is lost, we will also end up here,
             # and we just continue.
             nr_items = 0
