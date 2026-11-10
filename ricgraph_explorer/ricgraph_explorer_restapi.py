@@ -861,7 +861,8 @@ def api_get_all_personroot_nodes(key: str = '',
         return response, status
     items, cursor, message = \
         process_graphdb_query(graph_function_name='get_all_personroot_nodes_id',
-                              graph_function_kwargs={'node_element_id': nodes[0].element_id},
+                              graph_function_kwargs={'node_element_id': nodes[0].element_id,
+                                                     'max_nr_neighbor_nodes': BATCH_SIZE_RESTAPI},
                               page_size=page_size_int,
                               cursor=cursor)
     response, status = create_http_response_auto(result_list=items,

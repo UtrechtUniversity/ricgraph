@@ -991,6 +991,7 @@ def get_personroot_node(node: Node | None) -> Node | None:
 
 
 def get_all_personroot_nodes_id(node_element_id: str = '',
+                                max_nr_neighbor_nodes: int = 0,
                                 skip_nr_nodes: int = 0) -> list:
     """Get the 'person-root' node(s) for any type of node,
     based on the element_id of that node.
@@ -1000,6 +1001,7 @@ def get_all_personroot_nodes_id(node_element_id: str = '',
     if the category is 'person'), all will be returned in a list.
 
     :param node_element_id: the element_id of the node.
+    :param max_nr_neighbor_nodes: return at most this number of nodes, 0 = all nodes.
     :param skip_nr_nodes: skip this number of nodes from results of the query.
     :return: a list of all the person-root nodes found.
     """
@@ -1015,6 +1017,7 @@ def get_all_personroot_nodes_id(node_element_id: str = '',
 
     personroot_nodes = get_all_neighbor_nodes_id(node_element_id=node_element_id,
                                                  name_want=[PERSON_NAME_PERSON_ROOT],
+                                                 max_nr_neighbor_nodes=max_nr_neighbor_nodes,
                                                  skip_nr_nodes=skip_nr_nodes)
     return personroot_nodes
 
