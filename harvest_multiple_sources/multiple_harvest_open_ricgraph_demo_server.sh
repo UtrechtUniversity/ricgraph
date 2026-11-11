@@ -65,7 +65,7 @@ else
   exit $exit_code
 fi
 
-participants="DUT AUMC VUA AUAS UA"
+participants="AUMC VUA DUT AUAS UA"
 
 data_collect_dir=$HOME/$(date +%y%m%d)-ricgraph_data_collect
 graphdb_backup_dir=$data_collect_dir/graphdb_backup
