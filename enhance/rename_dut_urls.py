@@ -29,10 +29,10 @@
 # ########################################################################
 #
 # This script renames URLs in the DUT harvest.
-# For DUT, we harvest from pure.tudelft.nl, but the links to the
-# portal in that instance point to research.tudelft.nl.
-# This script renames those links in the url_main, url_other,
-# and url_asset properties of nodes.
+# For DUT, we harvest from pure.tudelft.nl, but most links
+# point to research.tudelft.nl, their portal.
+# This script renames those links in the url_main and url_other
+# properties of nodes. Property url_asset remains to point to pure.tudelft.nl.
 #
 # Original version Rik D.T. Janssen, November 2026.
 #
@@ -56,7 +56,7 @@ import ricgraph as rcg
 
 OLD_URL = 'https://pure.tudelft.nl/'
 NEW_URL = 'https://research.tudelft.nl/'
-RICGRAPH_URL_PROPERTIES = ['url_main', 'url_other', 'url_asset']
+RICGRAPH_URL_PROPERTIES = ['url_main', 'url_other']
 
 # ############################################
 # ################### main ###################
