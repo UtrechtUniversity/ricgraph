@@ -415,6 +415,10 @@ __Parameters__
 | start_organization | string | True | Type the name for *start_organization*. This field may either be a full (sub-)organization name, or a prefix of a (sub-)organization. |
 | collaborating_organization | string | False | Type the name for *collaborating_organization*. This field may either be a full (sub-)organization name, or a prefix of a (sub-)organization. It may also be empty, in that case the collaborations from *start_organization* to any (sub-)organization will be found. |
 | researchresult_category | array | False | Restrict the collaborations to research results of a specific category. You can enter one or more categories. If you leave it empty, collaborations having any research result type will be found. |
+| year_first | string | False | Search for a research result from year >= *year_first*. If you include this field, only research results will be returned. |
+| year_last | string | False | Search for a research result from year <= *year_last*. If you include this field, only research results will be returned. |
+| licenses | array | False | Restrict the collaborations to research results that have a specific license. You can enter one or more licenses. If you leave it empty, collaborations having any license will be found. |
+| access | array | False | Restrict the collaborations to research results that have a specific access value. You can enter one or more access values. If you leave it empty, collaborations having any access value will be found. |
 
 
 

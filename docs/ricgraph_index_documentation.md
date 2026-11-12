@@ -99,7 +99,7 @@ __H__
 - [How to make your own harvesting scripts](../docs/ricgraph_harvest_scripts.md#how-to-make-your-own-harvesting-scripts)
 - [How to reset the Neo4j Community Edition password](../docs/ricgraph_backend_neo4j.md#how-to-reset-the-neo4j-community-edition-password)
 - [How to solve an AttributeError: Neo4jDriver object has no attribute executequery](../docs/ricgraph_backend_neo4j.md#how-to-solve-an-attributeerror-neo4jdriver-object-has-no-attribute-executequery)
-- [How to start Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-ricgraph-explorer)
+- [How to start using Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-using-ricgraph-explorer)
 - [How to use](../docs/ricgraph_restapi_gendoc.md#how-to-use)
 
 __I__

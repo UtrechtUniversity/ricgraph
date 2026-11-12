@@ -3,26 +3,28 @@
 You can use the Ricgraph REST API to get data from Ricgraph, or 
 to execute predefined queries in Ricgraph and Ricgraph Explorer, 
 in such a way that your code is not dependent on any Ricgraph 
-code. In your own code, you do not need to include any of the Ricgraph dependencies, nor 
-include *ricgraph.py* or *ricgraph_explorer.py*.
-You can use the Ricgraph REST API to programmatically get items from Ricgraph,
+code. 
+It allows you to
+programmatically get items from Ricgraph,
 as an alternative to using the user
 interface [Ricgraph Explorer](ricgraph_explorer.md#ricgraph-explorer). 
 
-Note that this will only work if someone has a running Ricgraph and
-Ricgraph Explorer instance available, which you can access over the web.
-That someone can be yourself, where you run Ricgraph and
-Ricgraph Explorer on your own computer or use a cloud service 
+This will only work if someone has provided a Ricgraph
+instance, which you can access over the web.
+For example, 
+you can use the Open Ricgraph demo server. This is the easiest method.
+Read [Use of the Ricgraph REST API](#use-of-the-ricgraph-rest-api)
+below to find its REST API server.
+
+Alternatively, you can run Ricgraph 
+on your own computer or on a cloud service 
 such as SURF Research Cloud.
-Alternatively, it can be someone else, who is doing that for you or for a 
+Or someone else can host it for you or for a 
 community of users.
 
-If you use the Ricgraph REST API, will get these results 
-in a [JSON format](https://en.wikipedia.org/wiki/JSON).
-The Ricgraph REST API uses 
+The Ricgraph REST API returns results 
+in a [JSON format](https://en.wikipedia.org/wiki/JSON). It uses
 the [OpenAPI standard](https://www.openapis.org).
-It gives access to Ricgraph function calls both in *ricgraph.py* 
-and in *ricgraph_explorer.py*. 
 Read more about 
 [REST (representational state transfer)](https://en.wikipedia.org/wiki/REST), or
 read more about 
@@ -37,9 +39,12 @@ On this page, you can learn more about:
 
 
 ## Installation of the Ricgraph REST API
-The Ricgraph REST API is part of Ricgraph Explorer. Read [how to start Ricgraph 
-  Explorer](ricgraph_explorer.md#how-to-start-ricgraph-explorer).
+You can skip this section if you plan to use the
+[Open Ricgraph demo
+server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
 
+The Ricgraph REST API is part of Ricgraph Explorer. Read [how to start Ricgraph 
+  Explorer](ricgraph_explorer.md#how-to-start-using-ricgraph-explorer).
 Depending on your needs, you might also want to read:
 
 * [Install and use a service unit file to run Ricgraph Explorer and the Ricgraph REST 
@@ -50,22 +55,36 @@ Depending on your needs, you might also want to read:
 
 
 ## Use of the Ricgraph REST API
-A call to a REST API consists of a hostname, sometimes a port number, 
+A call to a REST API consists of a hostname or IP address, 
+sometimes a port number, 
 the path */api/*, followed
 by a REST API endpoint.
 For example, in
 ```
 http://127.0.0.1:3030/api/person/search?value=John+Doe
 ```
+*127.0.0.1* is the IP address, *3030* is the port number,
+*http://127.0.0.1:3030/api* is the path to the REST API server,
 */person/search* is the endpoint, *value* the name of a query parameter to the REST API,
 and *John+Doe* the value for the query parameter.
 
-You can use the online documentation in Ricgraph Explorer
+You can find the REST API server of the Open Ricgraph demo server
+by going to the page
+[Pilot project Open Ricgraph demo
+server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html).
+That page lists the link to the Open Ricgraph demo server.
+Click on it and then 
+click the button "REST API doc" in the top bar. 
+On the next page, in the left column, click
+on "API servers". Use that value instead of
+*http://127.0.0.1:3030/api* above.
+
+Ricgraph Explorer provides documentation 
 for the REST API. It lists the various endpoints
 and parameters, and you can try out each endpoint with values for parameters as you like.
 To do this, click the "REST API doc" button in the top bar of 
-Ricgraph Explorer, and you will get an explanation how to do this.
-See the figure below, that shows part of the Home page of Ricgraph Explorer.
+Ricgraph Explorer.
+The figure below shows this button.
 
 <img alt="Home page of Ricgraph Explorer." src="images/ricgraph-explorer-home-page.png" width="80%">
 

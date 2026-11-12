@@ -17,6 +17,8 @@ each with its own button, for example:
 
 * find a person, a (sub-)organization, explore collaborations, etc.
 * when a person has been found, find its identities, skills, research results.
+* for other application areas, read [Why Ricgraph is 
+  unique](https://www.ricgraph.eu/what-is-ricgraph.html#why-ricgraph-is-unique).
 
 Ricgraph Explorer offers
 [faceted navigation](https://en.wikipedia.org/wiki/Faceted_search).
@@ -36,7 +38,7 @@ pages, we only show one result page as example.
 
 On this page, you can learn more about:
 
-* Read about [how to start Ricgraph Explorer](#how-to-start-ricgraph-explorer).
+* Read about [How to start using Ricgraph Explorer](#how-to-start-using-ricgraph-explorer).
 * [Working with Ricgraph Explorer](#working-with-ricgraph-explorer).
 * The [Home page](#home-page) of Ricgraph Explorer.
 * The [Search page](#search-page) of Ricgraph Explorer.
@@ -45,9 +47,8 @@ On this page, you can learn more about:
 * The [Results page](#results-page) of Ricgraph Explorer.
 * Read about [browsing Ricgraph](#browsing-ricgraph).
 * [Video Ricgraph Explorer](#video-ricgraph-explorer)
- 
 
-## How to start Ricgraph Explorer
+## How to start using Ricgraph Explorer
 Depending on how Ricgraph has been installed, there are various ways to start 
 Ricgraph Explorer.
 
@@ -56,6 +57,7 @@ Ricgraph Explorer.
   [Pilot project Open Ricgraph demo 
   server](https://www.ricgraph.eu/pilot-project-open-ricgraph-demo-server.html) 
   to find out what its link is.
+  You can continue by reading the next section.
 * If you have installed Ricgraph for a single user,
   you might need to start your graph database backend first:
   * If you use Neo4j Community Edition: this will be already running.

@@ -23,7 +23,7 @@ This table of contents has been generated automatically.
   - [Properties of nodes in Ricgraph](../docs/ricgraph_details.md#properties-of-nodes-in-ricgraph)
   - [Conventions for names of (sub-)organizations in Ricgraph](../docs/ricgraph_details.md#conventions-for-names-of-sub-organizations-in-ricgraph)
 - [Ricgraph Explorer](../docs/ricgraph_explorer.md#ricgraph-explorer)
-  - [How to start Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-ricgraph-explorer)
+  - [How to start using Ricgraph Explorer](../docs/ricgraph_explorer.md#how-to-start-using-ricgraph-explorer)
   - [Working with Ricgraph Explorer](../docs/ricgraph_explorer.md#working-with-ricgraph-explorer)
     - [A usage flow through Ricgraph Explorer](../docs/ricgraph_explorer.md#a-usage-flow-through-ricgraph-explorer)
   - [Home page](../docs/ricgraph_explorer.md#home-page)
