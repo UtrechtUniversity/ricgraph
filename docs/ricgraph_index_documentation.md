@@ -243,7 +243,7 @@ __U__
 - [Use a service unit file to run Ricgraph Explorer and the Ricgraph REST API](../docs/ricgraph_as_server.md#use-a-service-unit-file-to-run-ricgraph-explorer-and-the-ricgraph-rest-api)
 - [Use Apache, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
 - [Use Nginx, WSGI, and ASGI to make Ricgraph Explorer and the Ricgraph REST API accessible from outside your virtual machine](../docs/ricgraph_as_server.md#use-nginx-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine)
-- [Use of the Ricgraph REST API](../docs/ricgraph_restapi.md#use-of-the-ricgraph-rest-api)
+- [Use the Ricgraph REST API](../docs/ricgraph_restapi.md#use-the-ricgraph-rest-api)
 - [Using a Python Integrated development environment (IDE)](../docs/ricgraph_install_configure.md#using-a-python-integrated-development-environment-ide)
 - [Using Python's venv module](../docs/ricgraph_install_configure.md#using-pythons-venv-module)
 - [Using the Makefile](../docs/ricgraph_as_server.md#using-the-makefile)

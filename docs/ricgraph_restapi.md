@@ -13,7 +13,7 @@ This will only work if someone has provided a Ricgraph
 instance, which you can access over the web.
 For example, 
 you can use the Open Ricgraph demo server. This is the easiest method.
-Read [Use of the Ricgraph REST API](#use-of-the-ricgraph-rest-api)
+Read [Use the Ricgraph REST API](#use-the-ricgraph-rest-api)
 below to find its REST API server.
 
 Alternatively, you can run Ricgraph 
@@ -32,10 +32,10 @@ read more about
 
 On this page, you can learn more about:
 
-* [Installation of the Ricgraph REST API](#installation-of-the-ricgraph-rest-api)
-* [Use of the Ricgraph REST API](#use-of-the-ricgraph-rest-api)
-* [Ricgraph REST API endpoint documentation](#ricgraph-rest-api-endpoint-documentation)
-* [Generate the Ricgraph REST API documentation page](#generate-the-ricgraph-rest-api-documentation-page)
+* [Installation of the Ricgraph REST API](#installation-of-the-ricgraph-rest-api).
+* [Use the Ricgraph REST API](#use-the-ricgraph-rest-api).
+* [Ricgraph REST API endpoint documentation](#ricgraph-rest-api-endpoint-documentation).
+* [Generate the Ricgraph REST API documentation page](#generate-the-ricgraph-rest-api-documentation-page).
 
 
 ## Installation of the Ricgraph REST API
@@ -54,7 +54,7 @@ Depending on your needs, you might also want to read:
   machine](ricgraph_as_server.md#use-apache-wsgi-and-asgi-to-make-ricgraph-explorer-and-the-ricgraph-rest-api-accessible-from-outside-your-virtual-machine).
 
 
-## Use of the Ricgraph REST API
+## Use the Ricgraph REST API
 A call to a REST API consists of a hostname or IP address, 
 sometimes a port number, 
 the path */api/*, followed

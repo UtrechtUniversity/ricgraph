@@ -40,7 +40,7 @@ This table of contents has been generated automatically.
     - [Solution for Neo4j Desktop](../docs/ricgraph_known_bugs.md#solution-for-neo4j-desktop)
 - [Ricgraph REST API](../docs/ricgraph_restapi.md#ricgraph-rest-api)
   - [Installation of the Ricgraph REST API](../docs/ricgraph_restapi.md#installation-of-the-ricgraph-rest-api)
-  - [Use of the Ricgraph REST API](../docs/ricgraph_restapi.md#use-of-the-ricgraph-rest-api)
+  - [Use the Ricgraph REST API](../docs/ricgraph_restapi.md#use-the-ricgraph-rest-api)
   - [Ricgraph REST API endpoint documentation](../docs/ricgraph_restapi.md#ricgraph-rest-api-endpoint-documentation)
   - [Generate the Ricgraph REST API documentation page](../docs/ricgraph_restapi.md#generate-the-ricgraph-rest-api-documentation-page)
 - [Ricgraph - Research in context graph REST API](../docs/ricgraph_restapi_gendoc.md#ricgraph---research-in-context-graph-rest-api)

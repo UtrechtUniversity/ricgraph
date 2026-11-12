@@ -87,8 +87,8 @@ capacity building, and supporting infrastructure.
     Dutch research system.
     The project will bring together research information experts, 
     users and providers to collectively harvest, transform and 
-    curate the information needed for (a) monitoring publisher deals,
-    (b) open science monitoring, and (c) responsible research evaluation."
+    curate the information needed for (a) monitoring publisher
+    deals, (b) open science monitoring, and (c) responsible research evaluation."
   * [DURF, Strengthening the Netherlands research portal and institutional 
     repositories](https://communities.surf.nl/files/Artikel/download/OS%20infra%20full-proposal%20DURF%20Dutch%20Repository%20Federation_ContactandFinancialinforemoved.pdf), 
     a project with SURF and others (4 years). 
