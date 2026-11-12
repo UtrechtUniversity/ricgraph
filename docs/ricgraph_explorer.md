@@ -18,7 +18,7 @@ each with its own button, for example:
 * find a person, a (sub-)organization, explore collaborations, etc.
 * when a person has been found, find its identities, skills, research results.
 * for other application areas, read [Why Ricgraph is 
-  unique](https://www.ricgraph.eu/what-is-ricgraph.html#why-ricgraph-is-unique).
+  unique](https://www.ricgraph.eu/index.html#why-ricgraph-is-unique).
 
 Ricgraph Explorer offers
 [faceted navigation](https://en.wikipedia.org/wiki/Faceted_search).

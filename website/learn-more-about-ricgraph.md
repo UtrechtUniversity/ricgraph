@@ -1,7 +1,7 @@
 # Learn more about Ricgraph
 
 Ricgraph has been developed for the application area
-[research information](what-is-ricgraph.md#research-information).
+[research information](index.md#research-information).
 It can be used for other application areas that require
 relations between items from various source systems.
 
