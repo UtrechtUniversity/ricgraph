@@ -1,4 +1,4 @@
-# Ricgraph as an open science infrastructure for research information
+# Open science infrastructure for research information with Ricgraph
 
 Ricgraph is an open source open science infrastructure for research information
 that can store many types of items into a single graph, accessible through a

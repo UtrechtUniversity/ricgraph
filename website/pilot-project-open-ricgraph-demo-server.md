@@ -1,4 +1,4 @@
-# Pilot project Open Ricgraph demo server
+# Open Ricgraph demo server pilot project
 
 > Anyone can use and explore Ricgraph with research information from the 
 > [participating organizations](#participating-organizations).
@@ -58,7 +58,7 @@ participate, read [Participate in the pilot project](#participate-in-the-pilot-p
 The graph for this pilot is constructed
 based on the contents of
 the [Research Information System Pure](https://www.elsevier.com/solutions/pure) of
-each participating organization, supplemented with research information from
+each participating organization. It is supplemented with research information from
 sources such as the publication and data set aggregator
 [OpenAlex](https://openalex.org),
 the data repository [Yoda](https://www.uu.nl/en/research/yoda), and

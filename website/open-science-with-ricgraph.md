@@ -1,4 +1,4 @@
-# Explore the open science landscape with Ricgraph
+# Explore open science with Ricgraph
 
 At the moment, Ricgraph offers three options to explore the open
 science landscape:

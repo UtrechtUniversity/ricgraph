@@ -1,4 +1,4 @@
-# Explore collaborations between (sub-)organizations with Ricgraph
+# Explore collaborations with Ricgraph
 
 ## Introduction
 
