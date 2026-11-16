@@ -499,6 +499,26 @@ and Ricgraph data to the outside world.*
 ### Post-install steps Apache
 
 * Login as user *root*.
+* Study your Apache service file *apache2.service*
+  to find out whether it restarts Apache on failure.
+  It should have entries like the following (not necessarily with the same numbers):
+  ```
+  [Unit]
+  # Give up after 43 starts within 1 hour
+  StartLimitIntervalSec=1h
+  StartLimitBurst=43
+
+  [Service]
+  # Retry every 20 seconds after a failure
+  Restart=on-failure
+  RestartSec=20s
+  ```
+  If not, use the *apache2-nginx.service.d_override.conf* file:
+  ```
+  cp /opt/ricgraph_venv/ricgraph_server_config/apache2-nginx.service.d_override.conf /etc/systemd/system/apache2.service.d/override.conf
+  systemctl daemon-reload
+  systemctl restart apache2.service
+  ```
 * Move the Apache *Ricgraph Explorer* configuration file to its final location:
   ```
   mv /etc/apache2/vhosts.d/ricgraph_explorer.conf-apache /etc/apache2/vhosts.d/ricgraph_explorer.conf
@@ -617,6 +637,26 @@ and Ricgraph data to the outside world.*
 ### Post-install steps Nginx
 
 * Login as user *root*.
+* Study your Nginx service file *nginx.service*
+  to find out whether it restarts Nginx on failure.
+  It should have entries like the following (not necessarily with the same numbers):
+  ```
+  [Unit]
+  # Give up after 43 starts within 1 hour
+  StartLimitIntervalSec=1h
+  StartLimitBurst=43
+
+  [Service]
+  # Retry every 20 seconds after a failure
+  Restart=on-failure
+  RestartSec=20s
+  ```
+  If not, use the *apache2-nginx.service.d_override.conf* file:
+  ```
+  cp /opt/ricgraph_venv/ricgraph_server_config/apache2-nginx.service.d_override.conf /etc/systemd/system/nginx.service.d/override.conf
+  systemctl daemon-reload
+  systemctl restart nginx.service
+  ```
 * Move the Nginx *Ricgraph Explorer* configuration file to its final location:
   ```
   mv /etc/nginx/vhosts.d/ricgraph_explorer.conf-nginx /etc/nginx/vhosts.d/ricgraph_explorer.conf
