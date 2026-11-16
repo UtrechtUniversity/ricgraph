@@ -9,10 +9,11 @@ relations between items from various source systems.
 
 In the menu bar, you can find more information on how to:
 
-* [explore collaborations between (sub-)organizations with
-  Ricgraph](collaborations-with-ricgraph.md).
-* [explore the open science landscape with Ricgraph](open-science-with-ricgraph.md).
-* [enhance research information systems with Ricgraph](enhancing-with-ricgraph.md).
+* [Explore collaborations between (sub-)organizations](collaborations-with-ricgraph.md).
+* [Explore open science](open-science-with-ricgraph.md).
+* [Enhance research information systems](enhancing-with-ricgraph.md).
+* [Use it as an open science infrastructure for research
+  information](ricgraph-open-science-infrastructure-for-research-information.md).
 
 Below, you will find more 
 [use cases](#use-cases) and 
