@@ -115,6 +115,7 @@ LICENSE_MAPPING_RSD = {
     'LGPL-2.1': rcg.LICENSE_LGPL_21,
     'LGPL-3.0': rcg.LICENSE_LGPL_30,
     'LGPL-3.0+': rcg.LICENSE_LGPL_30,
+    'MESSy-license': rcg.LICENSE_UNKNOWN,
     'MIT': rcg.LICENSE_MIT,
     'Multiple': rcg.LICENSE_MULTIPLE,
     'Open Access': rcg.LICENSE_OPEN_ACCESS
