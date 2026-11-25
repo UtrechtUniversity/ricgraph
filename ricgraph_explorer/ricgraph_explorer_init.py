@@ -426,11 +426,11 @@ def collect_ricgraph_systeminfo(ricgraph_explorer_app: FlaskApp,
     homepage_outro_html = flask_read_file(ricgraph_explorer_app=ricgraph_explorer_app,
                                           filename=HOMEPAGE_OUTRO_FILE)
 
-    if runmode == RICGRAPH_EXPLORER_RUNMODE_GUNICORN:
+    if runmode == RICGRAPH_EXPLORER_RUNMODE_DEBUG:
         runmode_message = 'You are using Ricgraph Explorer in '
         runmode_message += 'development mode. Do only use this '
         runmode_message += 'for research use, not for production use.'
-    elif runmode == RICGRAPH_EXPLORER_RUNMODE_DEBUG:
+    elif runmode == RICGRAPH_EXPLORER_RUNMODE_GUNICORN:
         runmode_message = 'You are using Ricgraph Explorer with a '
         runmode_message += 'WSGI Gunicorn server using Uvicorn '
         runmode_message += 'for ASGI applications.'
