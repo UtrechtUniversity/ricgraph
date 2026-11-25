@@ -206,10 +206,11 @@ def collabspage() -> str:
     html += get_html_for_cardstart()
     html += 'To read more about collaborations in Ricgraph:'
     html += '<p id="ref1">[1] '
-    html += 'Rik D.T. Janssen (2025). <em>Utilizing Ricgraph to gain insights into '
-    html += 'research collaborations across institutions, at every organizational '
-    html += 'level</em>. [preprint]. <a href="https://doi.org/10.2139/ssrn.5524439">'
-    html += 'https://doi.org/10.2139/ssrn.5524439</a>.</p>'
+    html += 'Rik D.T. Janssen (2026). Multi-source, multi-level, graph-based institutional '
+    html += 'collaboration indicators for research assessment with Ricgraph. '
+    html += '<em>Quantitative Science Studies</em>. '
+    html += '<a href="https://doi.org/10.1162/qss.a.524"'
+    html += 'target="_blank">doi.org/10.1162/qss.a.524</a>.</p>'
     html += get_html_for_cardend()
     html += get_page_footer() + html_body_end
     return html
