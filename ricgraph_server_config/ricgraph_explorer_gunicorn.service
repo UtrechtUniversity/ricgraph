@@ -1,17 +1,22 @@
 [Unit]
 Description=Ricgraph Explorer and Ricgraph REST API via WSGI Gunicorn server using Uvicorn for ASGI applications
 Wants=network-online.target
-After=network-online.target
+Requires=neo4j.service
+After=network-online.target neo4j.service
+StartLimitIntervalSec=500
+StartLimitBurst=20
 
 [Service]
+# Enable this if you would like to see Python print() in the journal.
+# After doing that, inspect the journal using
+# journalctl -u ricgraph_explorer_gunicorn.service -f
+# Environment="PYTHONUNBUFFERED=1"
 Type=exec
 User=ricgraph
 Group=ricgraph
 WorkingDirectory=/opt/ricgraph_venv/ricgraph_explorer
 Environment="PYTHONPATH=/opt/ricgraph_venv"
-ExecStart=/opt/ricgraph_venv/bin/gunicorn --bind 127.0.0.1:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker --timeout 270 --max-requests 1000 --max-requests-jitter 100 ricgraph_explorer:create_ricgraph_explorer_app
-StartLimitIntervalSec=500
-StartLimitBurst=20
+ExecStart=/opt/ricgraph_venv/bin/gunicorn --no-control-socket --bind 127.0.0.1:3030 --workers 5 --worker-class uvicorn.workers.UvicornWorker --timeout 270 --max-requests 1000 --max-requests-jitter 100 ricgraph_explorer:create_ricgraph_explorer_app()
 RestartSec=20
 Restart=on-failure
 TimeoutSec=120
