@@ -270,7 +270,7 @@ def homepage() -> str:
     html += '</li>'
     html += '<li>'
     html += 'To read more about collaborations between (sub-)organizations '
-    html += 'in Ricgraph, please read '
+    html += 'in Ricgraph, please read: '
     html += 'Rik D.T. Janssen (2026). Multi-source, multi-level, graph-based institutional '
     html += 'collaboration indicators for research assessment with Ricgraph. '
     html += '<em>Quantitative Science Studies</em>. '

@@ -276,6 +276,13 @@ def osprofileresultpage() -> str:
     html += '<br/>'
     html += 'These are the result result categories ' + str(researchresult_category_engagement_material) + '.'
     html += '</li></ol>'
+    html += '<br/>'
+    html += 'For more details, read section 5.1.1 in: '
+    html += 'Rik D.T. Janssen (2026). Multi-source, multi-level, graph-based institutional '
+    html += 'collaboration indicators for research assessment with Ricgraph. '
+    html += '<em>Quantitative Science Studies</em>. '
+    html += '<a href="https://doi.org/10.1162/qss.a.524"'
+    html += 'target="_blank">doi.org/10.1162/qss.a.524</a>.'
     html += get_html_for_cardend()
 
     return html + get_page_footer() + html_body_end
@@ -412,6 +419,13 @@ def osdashboardresultpage() -> str:
     html += 'and "access" values. '
     html += 'After clicking "refresh", the result of your selection will '
     html += 'be shown as a histogram. '
+    html += '<br/><br/>'
+    html += 'For more details, read section 5.1.2 in: '
+    html += 'Rik D.T. Janssen (2026). Multi-source, multi-level, graph-based institutional '
+    html += 'collaboration indicators for research assessment with Ricgraph. '
+    html += '<em>Quantitative Science Studies</em>. '
+    html += '<a href="https://doi.org/10.1162/qss.a.524"'
+    html += 'target="_blank">doi.org/10.1162/qss.a.524</a>.'
     html += get_html_for_cardend()
 
     return html + get_page_footer() + html_body_end
