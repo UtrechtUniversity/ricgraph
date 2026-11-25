@@ -11,6 +11,12 @@ science landscape:
 * [Explore collaborations between (sub-)organizations with
   Ricgraph](collaborations-with-ricgraph.md).
 
+You can read more in Rik D.T. Janssen (2026).
+*Multi-source, multi-level,
+graph-based institutional collaboration indicators for research assessment
+with Ricgraph*. Quantitative Science Studies.
+[https://doi.org/10.1162/qss.a.524](https://doi.org/10.1162/qss.a.524).
+
 One of the strengths of Ricgraph is that anyone with
 Python knowledge can easily extend it, allowing you to test
 your own ideas or create your own applications.

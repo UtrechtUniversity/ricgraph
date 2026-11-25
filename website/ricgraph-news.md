@@ -1,11 +1,12 @@
 # Ricgraph news
 
-Read my recent preprint:
+Read my recent journal article:
 
-* Rik D.T. Janssen (2025).
-  *Utilizing Ricgraph to gain insights into research collaborations across institutions,
-  at every organizational level*. [preprint].
-  [https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
+* Rik D.T. Janssen (2026).
+  *Multi-source, multi-level,
+  graph-based institutional collaboration indicators for research assessment
+  with Ricgraph*. Quantitative Science Studies.
+  [https://doi.org/10.1162/qss.a.524](https://doi.org/10.1162/qss.a.524).
 
 See Ricgraph in action:
 

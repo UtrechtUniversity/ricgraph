@@ -29,11 +29,11 @@ collaboration indicators for science‑of‑science research.
 Combining multiple sources substantially increases the observed coverage of
 collaborations, especially for data set and software collaborations.
 
-You can read more in Rik D.T. Janssen (2025).
-*Utilizing Ricgraph to gain insights into research collaborations across institutions,
-at every organizational level*. [preprint].
-[https://doi.org/10.2139/ssrn.5524439](https://doi.org/10.2139/ssrn.5524439).
-A journal article of a revised version of this preprint is in review.
+You can read more in Rik D.T. Janssen (2026).
+*Multi-source, multi-level,
+graph-based institutional collaboration indicators for research assessment
+with Ricgraph*. Quantitative Science Studies.
+[https://doi.org/10.1162/qss.a.524](https://doi.org/10.1162/qss.a.524).
 
 
 ## How to do this?
